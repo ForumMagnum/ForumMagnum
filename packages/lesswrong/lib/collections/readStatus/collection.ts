@@ -1,6 +1,8 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, ensureIndex } from '../../collectionUtils'
+import { addUniversalFields } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbReadStatus> = {
   postId: {
@@ -41,6 +43,7 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   logChanges: false,
 });

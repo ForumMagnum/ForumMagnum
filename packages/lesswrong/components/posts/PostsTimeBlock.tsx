@@ -64,7 +64,7 @@ const postTypes: PostTypeOptions[] = [
 const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes, includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: ()=>void,
-  startDate: any,
+  startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   displayShortform: any,
@@ -99,7 +99,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     setNoTags(true);
   }, []);
 
-  const getTitle = (startDate, timeframe, size) => {
+  const getTitle = (startDate: moment.Moment, timeframe: TimeframeType, size: 'xsDown' | 'smUp' | null) => {
     if (timeframe === 'yearly') return startDate.format('YYYY')
     if (timeframe === 'monthly') return startDate.format('MMMM YYYY')
     let result = size === 'smUp' ? startDate.format('ddd, MMM Do YYYY') : startDate.format('dddd, MMMM Do YYYY')

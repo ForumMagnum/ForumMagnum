@@ -1,5 +1,5 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';

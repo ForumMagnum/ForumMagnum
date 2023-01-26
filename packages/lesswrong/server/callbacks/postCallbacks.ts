@@ -12,10 +12,30 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { captureException } from '@sentry/core';
+import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+if (forumTypeSetting.get() === "EAForum") {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
+    if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+      throw new Error(TOS_NOT_ACCEPTED_ERROR);
+    }
+    return post;
+  }
+  getCollectionHooks("Posts").newSync.add(
+    (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
+  );
+  getCollectionHooks("Posts").updateBefore.add(
+    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+  );
+}
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -75,7 +95,14 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
- const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const {modifiedDocument: votedPost} = await performVoteServer({
+   document: post,
+   voteType: 'bigUpvote',
+   collection: Posts,
+   user: postAuthor,
+   skipRateLimits: true,
+ })
  return {...post, ...votedPost} as DbPost;
 });
 
@@ -174,6 +201,25 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
+/**
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
@@ -207,6 +253,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
 async function oldPostsLastCommentedAt (post: DbPost) {
+  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
@@ -298,11 +345,24 @@ getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCa
     post = {...post, tagRelevance: undefined};
     
     for (let tagId of tagsToApply) {
-      await addOrUpvoteTag({
-        tagId, postId: post._id,
-        currentUser: currentUser!,
-        context
-      });
+      try {
+        await addOrUpvoteTag({
+          tagId, postId: post._id,
+          currentUser: currentUser!,
+          ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
+          context
+        });
+      } catch(e) {
+        // This can throw if there's a tag applied which doesn't exist, which
+        // can happen if there are issues with the Algolia index.
+        //
+        // If we fail to add a tag, capture the exception in Sentry but don't
+        // throw from the form-submission callback. From the user perspective
+        // letting this exception esscape would make posting appear to fail (but
+        // actually the post is created, minus some of its callbacks having
+        // completed).
+        captureException(e)
+      }
     }
   }
   

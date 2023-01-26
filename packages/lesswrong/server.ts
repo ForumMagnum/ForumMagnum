@@ -36,6 +36,12 @@ import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
+import './server/scripts/migrateCollections';
+import './server/scripts/deletePgIndexes';
+import './server/scripts/dropTestingDatabases';
+import './server/scripts/dropAndSeedJestPg';
+import './server/scripts/makeMigrations';
+import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -48,8 +54,10 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
-import './server/migrations';
-import './server/migrations/migrationsDashboardGraphql';
+import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/languageModels/generateTaggingPostSets";
+import './server/manualMigrations';
+import './server/manualMigrations/migrationsDashboardGraphql';
 
 import './server/legacy-redirects/routes';
 import './server/material-ui/themeProvider';
@@ -106,6 +114,7 @@ import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
+import './server/callbacks/advisorRequestsCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
@@ -134,12 +143,18 @@ import './server/resolvers/analyticsResolvers';
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
 
-import './server/fmCrosspost';
+import './server/fmCrosspost/crosspost';
+import './server/fmCrosspost/routes';
+
+import './server/exportUserData';
 
 import './server/spotlightCron';
 
-import './server/codegen/generateTypes';
+import "./server/languageModels/autoTagCallbacks";
+import './server/languageModels/languageModelIntegration';
+import './server/languageModels/postSummaryResolver';
 
+import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 // Algolia Search Integration

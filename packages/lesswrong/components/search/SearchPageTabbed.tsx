@@ -5,10 +5,12 @@ import { RefinementListExposed, RefinementListProvided, SearchState } from 'reac
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
+import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
 
 const hitsPerPage = 10
@@ -67,24 +69,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginBottom: 6
   },
+  mapLink: {
+    color: theme.palette.primary.main,
+    padding: 1,
+    marginTop: 30
+  },
   resultsColumn: {
     flex: '1 1 0',
   },
-
   searchIcon: {
     marginLeft: 12
   },
-  searchInputArea: {
+  searchBoxRow: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 625,
     marginBottom: 15,
-    height: 48,
-    border: theme.palette.border.slightlyIntense2,
-    borderRadius: 3,
+    gap: '16px',
     [theme.breakpoints.down('xs')]: {
       marginBottom: 12,
     },
+  },
+  searchInputArea: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    maxWidth: 625,
+    height: 48,
+    border: theme.palette.border.slightlyIntense2,
+    borderRadius: 3,
     "& .ais-SearchBox": {
       display: 'inline-block',
       position: 'relative',
@@ -115,6 +127,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "text",
       ...theme.typography.body2,
     },
+  },
+  searchHelp: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  infoIcon: {
+    fontSize: 20,
+    fill: theme.palette.grey[800],
   },
   tabs: {
     margin: '0 auto 20px',
@@ -181,6 +202,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
+    startWithBorder
     updateCurrentValues={(values: {tags?: Array<string>}) => {
       setTagsFilter && setTagsFilter(values.tags)
     }}
@@ -222,8 +244,10 @@ const SearchPageTabbed = ({classes}:{
   )
   const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
 
-  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
+  const {
+    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
+  } = Components
     
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
@@ -239,7 +263,7 @@ const SearchPageTabbed = ({classes}:{
     })
   }
     
-  const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     setSearchState({...searchState, contentType: value, page: 1})
   }
@@ -324,15 +348,27 @@ const SearchPageTabbed = ({classes}:{
           value={true}
         />}
         <ClearRefinements />
+        
+        {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
+          <Link to="/community#individuals">View community map</Link>
+        </div>}
       </div>
 
       <div className={classes.resultsColumn}>
-        <div className={classes.searchInputArea}>
-          <SearchIcon className={classes.searchIcon}/>
-          {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-            * null is the only option that actually suppresses the extra X button.
-          // @ts-ignore */}
-          <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <div className={classes.searchBoxRow}>
+          <div className={classes.searchInputArea}>
+            <SearchIcon className={classes.searchIcon}/>
+            {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+              * null is the only option that actually suppresses the extra X button.
+            // @ts-ignore */}
+            <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+          </div>
+          <LWTooltip
+            title={`"Quotes" and -minus signs are supported.`}
+            className={classes.searchHelp}
+          >
+            <InfoIcon className={classes.infoIcon}/>
+          </LWTooltip>
         </div>
         
         <Tabs

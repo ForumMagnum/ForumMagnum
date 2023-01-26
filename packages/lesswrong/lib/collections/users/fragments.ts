@@ -100,6 +100,7 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
     voteBanned
     banned
@@ -128,6 +129,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -189,6 +191,12 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
   }
 `);
 
@@ -266,6 +274,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes
@@ -335,6 +345,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email
@@ -349,6 +360,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge
@@ -369,6 +381,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -399,6 +414,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

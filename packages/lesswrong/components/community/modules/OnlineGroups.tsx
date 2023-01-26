@@ -5,7 +5,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
-import { useTheme } from '../../themes/useTheme';
+import { requireCssVar } from '../../../themes/cssVars';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -49,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.background.primaryDim2,
+    backgroundColor: theme.palette.background.primaryDim,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -133,6 +133,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
+const defaultBackground = requireCssVar("palette", "panelBackground", "default");
+const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
 const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
@@ -140,7 +142,6 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType,
 }) => {
-  const theme = useTheme()
   const { CloudinaryImage2 } = Components
   
   const { results, loading } = useMulti({
@@ -179,9 +180,9 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
       <div className={classes.onlineGroupsList}>
         {onlineGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
-            backgroundImage: `linear-gradient(to right, transparent, ${theme.palette.panelBackground.default} 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
+            backgroundImage: `linear-gradient(to right, transparent, ${defaultBackground} 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
           } : {
-            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${theme.palette.background.primaryDim2}, ${theme.palette.panelBackground.default} 200px)`
+            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${dimBackground}, ${defaultBackground} 200px)`
           }
           
           return <div key={group._id} className={classes.onlineGroup}>

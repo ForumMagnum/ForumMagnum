@@ -158,9 +158,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
-              {document.user.displayName}
-            </UsersName></span>}
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
           </div>
           {canEdit && <span className={classes.leftAction}><SectionSubtitle>
             <a onClick={showEdit}>edit</a>

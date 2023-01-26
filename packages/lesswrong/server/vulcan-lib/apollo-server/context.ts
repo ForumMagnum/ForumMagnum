@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
+import { userChangedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
@@ -21,6 +21,7 @@ import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
+import { getAllRepos } from '../../repos';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -61,7 +62,7 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
 }> => {
   if (user) {
     // identify user to any server-side analytics providers
-    await userIdentifiedCallback.runCallbacks({
+    await userChangedCallback.runCallbacks({
       iterator: user,
       properties: [],
     });
@@ -113,6 +114,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isGreaterWrong: requestIsFromGreaterWrong(req),
+    repos: getAllRepos(),
     ...await setupAuthToken(user),
   };
 

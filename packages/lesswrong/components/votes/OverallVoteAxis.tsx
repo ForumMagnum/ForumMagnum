@@ -27,6 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   vote: {
     fontSize: 25,
     lineHeight: 0.6,
+    whiteSpace: "nowrap",
     display: "inline-block"
   },
   voteScore: {
@@ -67,7 +68,10 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
-  const voteCount = voteProps.voteCount;
+  const extendedScore = voteProps.document?.extendedScore
+  const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
+    ? extendedScore.approvalVoteCount
+    : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""

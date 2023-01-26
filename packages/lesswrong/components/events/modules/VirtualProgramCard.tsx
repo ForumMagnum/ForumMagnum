@@ -104,20 +104,17 @@ const VirtualProgramCard = ({program, classes}: {
 }) => {
   const { captureEvent } = useTracking()
   
-  // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-  let deadline = moment()
-  // Iterate through 5 Sundays to find the one we want
-  for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
-    const nextSunday = moment(sunday).add(1, 'week')
-    // needs to be in the future, and needs to be the last Sunday of the month
-    if (sunday.isSameOrAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
-      deadline = sunday
-      break
-    }
+  // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
+  // (though it will sometimes move to the 5th Sunday - this is not accounted for in the code).
+  // This defaults to the Sunday in the week of the 28th day of this month.
+  let deadline = moment().date(28).day(0)
+  // If that Sunday is in the past, use next month's 4th Sunday.
+  if (deadline.isBefore(moment())) {
+    deadline = moment().add(1, 'months').date(28).day(0)
   }
   
-  // VP starts 8 days after the deadline, on a Monday
-  const startOfVp = moment(deadline).add(8, 'days')
+  // VP starts 15 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(15, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 

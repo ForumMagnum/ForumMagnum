@@ -19,9 +19,7 @@ function connectWebsocket() {
         if (!buildTimestamp) {
           buildTimestamp = data.latestBuildTimestamp;
         } else if (data.latestBuildTimestamp !== buildTimestamp) {
-          // eslint-disable-next-line no-console
-          console.log(`There is a newer build (my build: ${buildTimestamp}; new build: ${data.latestBuildTimestamp}. Refreshing.`);
-          window.location.reload();
+          refreshForNewVersion(data.latestBuildTimestamp);
         }
       } else {
         // eslint-disable-next-line no-console
@@ -37,7 +35,21 @@ function connectWebsocket() {
   connectedWebsocket.addEventListener("open", (event: OpenEvent) => {
   });
   connectedWebsocket.addEventListener("error", (event: CloseEvent) => {
+    disconnectWebsocket();
   });
+  connectedWebsocket.addEventListener("close", (event: CloseEvent) => {
+    disconnectWebsocket();
+  });
+}
+
+let reloadStarted = false;
+function refreshForNewVersion(newVersionTimestamp: string) {
+  if (!reloadStarted) {
+    reloadStarted = true;
+    // eslint-disable-next-line no-console
+    console.log(`There is a newer build (my build: ${buildTimestamp}; new build: ${newVersionTimestamp}). Refreshing.`);
+    window.location.reload();
+  }
 }
 
 function disconnectWebsocket() {
@@ -51,6 +63,18 @@ if (!bundleIsProduction) {
   onStartup(() => {
     setTimeout(() => {
       connectWebsocket();
+      
+      setInterval(() => {
+        try {
+          connectWebsocket();
+        // eslint-disable-next-line no-empty
+        } catch {
+          // Deliberately swallow connection-failed errors from the auto-refresh
+          // notification websocket, since the server might not actually be running.
+          // Unfortunately this doesn't get rid of all the browser-console spam,
+          // but it gets rid of some.
+        }
+      }, 5000);
     }, 3000);
     
     document.addEventListener('visibilitychange', () => {

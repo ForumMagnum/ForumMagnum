@@ -62,6 +62,7 @@ const schema: SchemaType<DbRevision> = {
   },
   collectionName: {
     type: String,
+    optional: true,
     viewableBy: ['guests'],
     typescriptType: "CollectionNameString",
   },
@@ -183,6 +184,7 @@ const schema: SchemaType<DbRevision> = {
   wordCount: {
     type: Number,
     viewableBy: ['guests'],
+    optional: true,
     // resolveAs defined in resolvers.js
   },
   htmlHighlight: {

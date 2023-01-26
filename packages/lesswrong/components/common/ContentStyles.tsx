@@ -46,7 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: '1.5rem',
       fontWeight:500,
       ...theme.typography.commentStyle
-    }
+    },
+    '&& h1:first-child, h2:first-child, h3:first-child': {
+      marginTop: 0,
+    },
   },
 });
 

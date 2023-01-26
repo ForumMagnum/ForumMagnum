@@ -4,7 +4,7 @@ import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '.
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions } from '../../../themes/themeNames';
+import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
@@ -60,7 +60,7 @@ let keysToCheckForExpiredEntries: Array<string> = [];
 export const cacheKeyFromReq = (req: Request): string => {
   const timezoneCookie = getCookieFromReq(req, "timezone");
   const themeCookie = getCookieFromReq(req, "theme");
-  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : JSON.stringify(defaultThemeOptions);
+  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : JSON.stringify(getDefaultThemeOptions());
   const path = getPathFromReq(req);
   
   if (timezoneCookie)
@@ -80,7 +80,7 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (req:Request)=>Promise<RenderResult>) => {
+export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
@@ -165,7 +165,7 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
   return null;
 }
 
-const objIsSubset = (subset: {}, superset: {}): boolean => {
+const objIsSubset = <A extends Record<string, any>, B extends Record<string, any>>(subset: A, superset: B): boolean => {
   for (let key in subset) {
     if (!(key in superset) || subset[key] !== superset[key])
       return false;

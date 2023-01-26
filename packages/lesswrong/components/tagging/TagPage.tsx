@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     width: '100%',
-    '& > img': {
+    '& > picture > img': {
       height: 300,
       objectFit: 'cover',
       width: '100%',
@@ -39,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 90,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
-      '& > img': {
+      '& > picture > img': {
         height: 200,
         width: '100%',
       },
@@ -116,6 +116,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 2,
     borderTop: theme.palette.border.extraFaint,
     borderBottom: theme.palette.border.extraFaint,
+  },
+  relatedTag : {
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark

@@ -57,7 +57,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   
   // Filter out tag-contributor entries where the user is null (which happens
   // if the contribution is by a deleted account)
-  const nonMissingContributors = contributorsList.filter(c => !!c.user);
+  const nonMissingContributors = contributorsList.filter((c: { user?: UsersMinimumInfo }) => !!c.user);
   
   const hasLoadMore = !expandLoadMore && tag.contributors.totalCount > tag.contributors.contributors.length;
   
@@ -66,7 +66,12 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       Contributors
     </div>
     
-    {tag.contributors && nonMissingContributors.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
+    {tag.contributors && nonMissingContributors.map((contributor: {
+      user: UsersMinimumInfo;
+      contributionScore: number;
+      numCommits: number;
+      voteCount: number;
+    }) => <div key={contributor.user._id} className={classes.contributorRow} >
       <LWTooltip
         className={classes.contributorScore}
         placement="left"

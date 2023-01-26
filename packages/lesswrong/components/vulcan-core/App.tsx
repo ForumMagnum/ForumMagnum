@@ -8,7 +8,7 @@ import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
-import { userIdentifiedCallback } from '../../lib/analyticsEvents';
+import { userChangedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
@@ -37,12 +37,10 @@ class App extends PureComponent<AppProps,any> {
   
   constructor(props: AppProps) {
     super(props);
-    if (props.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
-        iterator: props.currentUser,
-        properties: [],
-      });
-    }
+    void userChangedCallback.runCallbacks({
+      iterator: props.currentUser,
+      properties: [],
+    });
     const locale = localeSetting.get();
     this.state = {
       locale,
@@ -89,8 +87,8 @@ class App extends PureComponent<AppProps,any> {
   }
 
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
-    if (!this.props.currentUser && nextProps.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
+    if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
+      void userChangedCallback.runCallbacks({
         iterator: nextProps.currentUser,
         properties: [],
       });
@@ -127,7 +125,12 @@ class App extends PureComponent<AppProps,any> {
 
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
-    if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
+    // FIXME: Also needs to include changes to hash and to query params
+    if (!this.subscribeLocationContext
+      || this.subscribeLocationContext.pathname != location.pathname
+      || JSON.stringify(this.subscribeLocationContext.query) != JSON.stringify(location.query)
+      || this.subscribeLocationContext.hash != location.hash
+    ) {
       this.subscribeLocationContext = {...location};
     } else {
       Object.assign(this.subscribeLocationContext, location);
@@ -153,7 +156,7 @@ class App extends PureComponent<AppProps,any> {
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
-          <Components.Layout currentUser={currentUser} messages={messages}>
+          <Components.Layout currentUser={currentUser}>
             <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>

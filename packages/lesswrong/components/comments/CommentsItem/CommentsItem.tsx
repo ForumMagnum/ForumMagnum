@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -10,13 +10,15 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
+import FlagIcon from '@material-ui/icons/Flag';
+import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -29,10 +31,28 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity:1
     }
   },
+  subforumTop: {
+    paddingTop: 4,
+  },
+  tagIcon: {
+    marginRight: 6,
+    '& svg': {
+      width: 15,
+      height: 15,
+      fill: theme.palette.grey[600],
+    },
+  },
   body: {
     borderStyle: "none",
     padding: 0,
     ...theme.typography.commentStyle,
+  },
+  sideComment: {
+    "& blockquote": {
+      paddingRight: 0,
+      marginLeft: 4,
+      paddingLeft: 12,
+    },
   },
   menu: {
     opacity:.35,
@@ -79,6 +99,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
+  sideCommentMeta: {
+    display: "flex",
+    alignItems: "baseline",
+  },
   bottom: {
     paddingBottom: 5,
     fontSize: 12,
@@ -100,6 +124,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   username: {
     marginRight: 10,
+    
+    "$sideCommentMeta &": {
+      flexGrow: 1,
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      flexShrink: 1,
+      display: "inline-block",
+      overflowX: "hidden",
+    },
   },
   metaNotice: {
     color: theme.palette.lwTertiary.main,
@@ -112,6 +145,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400],
     paddingTop: 10,
     marginBottom: '-3px'
+  },
+  title: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    flexGrow: 1,
+    marginTop: 8,
+    marginBottom: 0,
+    marginLeft: 0,
+    display: "block",
+    fontSize: '1.5rem',
+    lineHeight: '1.5em'
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -131,13 +175,25 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
   },
-  titleRow: {
+  postTitleRow: {
     display: 'flex',
     columnGap: 8,
+    alignItems: 'center'
+  },
+  flagIcon: {
+    height: 13,
+    color: theme.palette.error.main,
+    position: "relative",
+    top: 3
   },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
+/**
+ * CommentsItem: A single comment, not including any recursion for child comments
+ *
+ * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
+ */
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -147,23 +203,26 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
-  setSingleLine?: (boolean)=>void,
+  setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
-  displayMode?: CommentFormDisplayMode,
+  showParentDefault?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
-  const [showParentState, setShowParentState] = useState(false);
-  const isMinimalist = displayMode === "minimalist"
+  const [showParentState, setShowParentState] = useState(showParentDefault);
+  const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
+  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -223,12 +282,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return <Components.CommentBody
-        truncated={truncated}
-        collapsed={collapsed}
-        comment={comment}
-        postPage={postPage}
-      />
+      return (
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+      );
     }
   }
 
@@ -237,6 +293,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
+    const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+    const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
+      comment.authorIsUnreviewed
     const showReplyButton = (
       !hideReply &&
       !comment.deleted &&
@@ -246,7 +305,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      !commentHidden
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -254,7 +314,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       <div className={classes.bottom}>
         <CommentBottomCaveats comment={comment} />
         {showReplyButton && (
-          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+          treeOptions?.replaceReplyButtonsWith?.(comment)
+          || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
             {showInlineCancel ? "Cancel" : "Reply"}
           </a>
         )}
@@ -277,13 +338,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
-          displayMode={displayMode}
+          replyFormStyle={treeOptions.replyFormStyle}
         />
       </div>
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const {
+    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
+    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, TopTagIcon
+  } = Components
 
   if (!comment) {
     return null;
@@ -296,7 +361,31 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     post &&
     currentUser?._id !== post.userId &&
     eligibleToNominate(currentUser)
+
+  /**
+   * Show the moderator comment annotation if:
+   * 1) it has the moderatorHat
+   * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
+   */
+  const showModeratorCommentAnnotation = comment.moderatorHat && (
+    userIsAdmin(currentUser)
+      ? true
+      : !comment.hideModeratorHat
+    );
   
+  const moderatorCommentAnnotation = comment.hideModeratorHat
+    ? 'Moderator Comment (Invisible)'
+    : 'Moderator Comment';
+  
+  const getReviewLink = (year: string) => {
+    // We changed our review page in 2018 and 2019. In 2020 we came up with a page that we'll
+    // hopefully stick with for awhile.
+    if (year === "2018" || year === "2019") {
+      return `/reviews/${year}`
+    }
+    return `/reviewVoting/${year}`
+  }
+
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -304,6 +393,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
+          [classes.sideComment]: treeOptions.isSideComment,
+          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
       )}>
         { comment.parentCommentId && showParentState && (
@@ -312,17 +403,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               post={post} tag={tag}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
-              truncated={false}
+              truncated={showParentDefault}
               key={comment.parentCommentId}
             />
           </div>
         )}
         
-        <div className={classes.titleRow}>
+        <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
             <StickyIcon />
           </div>}
-
+          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
           {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
               <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                 {comment.post.draft && "[Draft] "}
@@ -333,36 +424,45 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
           </Link>}
         </div>
-          <div className={classes.body}>
-            <div className={classes.meta}>
-              { !parentCommentId && !comment.parentCommentId && isParentComment &&
-                <div className={classes.usernameSpacing}>○</div>
-              }
-              {post && <CommentShortformIcon comment={comment} post={post} />}
-              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-                <ShowParentComment
-                  comment={comment}
-                  active={showParentState}
-                  onClick={toggleShowParent}
-              />
+        <div className={classes.body}>
+          {showCommentTitle && <div className={classes.title}>
+            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+              <TopTagIcon tag={tag} />
+            </span> : <CommentDiscussionIcon
+              comment={comment}
+            />}
+            {comment.title}
+          </div>}
+          <div className={classNames(classes.meta, {
+            [classes.sideCommentMeta]: treeOptions.isSideComment,
+          })}>
+            {!parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
             }
-            { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
+            {post && <CommentShortformIcon comment={comment} post={post} />}
+            {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
+            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+              <ShowParentComment
+                comment={comment}
+                active={showParentState}
+                onClick={toggleShowParent}
+            />}
+            {(showCollapseButtons || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
               [<span>{collapsed ? "+" : "-"}</span>]
-            </a>
-            }
+            </a>}
             {singleLineCollapse && <a className={classes.collapse} onClick={() =>
-              setSingleLine && setSingleLine(true)}>
+              setSingleLine && setSingleLine(true)
+            }>
               [<span>{collapsed ? "+" : "-"}</span>]
-            </a>
-            }
+            </a>}
             <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
-            {comment.moderatorHat && <span className={classes.moderatorHat}>
-              Moderator Comment
+            {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
+              {moderatorCommentAnnotation}
             </span>}
             <SmallSideVote
               document={comment}
@@ -370,19 +470,18 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               hideKarma={post?.hideCommentKarma}
             />
 
-            {!isParentComment && renderMenu()}
+            {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             
             {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
 
-            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+            {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
-            
           </div>
-          { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
+          {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
           </div>}
           {renderBodyOrEditor()}

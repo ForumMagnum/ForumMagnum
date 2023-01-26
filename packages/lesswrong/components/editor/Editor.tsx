@@ -157,7 +157,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const autosaveInterval = 3000; //milliseconds
 const checkImgErrsInterval = 500; //milliseconds
-const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
@@ -268,7 +268,7 @@ export const isBlank = (editorContents: EditorContents): boolean => {
   }
 }
 
-export const getInitialEditorContents = (value, document, fieldName, currentUser: UsersCurrent|null): EditorContents => {
+export const getInitialEditorContents = (value: any, document: any, fieldName: string, currentUser: UsersCurrent|null): EditorContents => {
   const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
   if (initialValue) {
     const result = deserializeEditorContents({
@@ -307,6 +307,23 @@ export const deserializeEditorContents = (contents: SerializedEditorContents): E
   }
 }
 
+/**
+ * Editor's `submitData` is called in `EditorFormComponent`.
+ * Curently, the only situation where we (validly) won't have a ckEditorReference is if a podcaster is editing a post to add a podcast episode to it.
+ * 
+ * Podcasters don't have permissions to edit the contents of a post, so the editor itself isn't rendered (due to the field permissions).
+ * 
+ * Simply submitting the post was causing an error in `submitData`, since it expects a ckEditorReference if we're attempting to submit the contents of the post.
+ * We just shouldn't try to submit post contents if we'll blow up by doing so (or know that we can't ahead of time).
+ */
+export const shouldSubmitContents = (editorRef: Editor) => {
+  const editorType = editorRef.props.value.type;
+  const ckEditorReference = editorRef.state.ckEditorReference;
+
+  if (editorType !== 'ckEditorMarkup') return true;
+  return !!ckEditorReference;
+}
+
 export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
@@ -322,7 +339,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       markdownImgErrs: false
     }
     
-    this.throttledSetCkEditor = _.debounce((getValue) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
+    this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
   }
 
@@ -332,7 +349,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  submitData = async (submission) => {
+  submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
     const { updateType, commitMessage, ckEditorReference } = this.state
@@ -365,7 +382,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     };
   }
   
-  setContents = (editorType: EditorTypeString, value) => {
+  setContents = (editorType: EditorTypeString, value: string) => {
     switch (editorType) {
       case "html": {
         if (this.props.value.value === value)
@@ -461,7 +478,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  renderPlaceholder = (showPlaceholder, isCollaborative) => {
+  renderPlaceholder = (showPlaceholder: boolean, isCollaborative: boolean) => {
     const { _classes: classes, placeholder } = this.props
     const {className, contentType} = this.getBodyStyles();
 
@@ -488,7 +505,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
-        onChange: (event, editor) => {
+        onChange: (event: any, editor: any) => {
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
           // implications that motivated having throttling in the first place,
@@ -500,7 +517,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.throttledSetCkEditor(() => editor.getData())
           }
         },
-        onInit: editor => this.setState({ckEditorReference: editor})
+        onInit: (editor: any) => this.setState({ckEditorReference: editor})
       }
 
       // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)
@@ -573,7 +590,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       { this.renderPlaceholder(showPlaceholder, false) }
       {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
-        onChange={(value) => this.setContents("draftJS", value)}
+        onChange={(value: string) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
         className={classNames(
           className,

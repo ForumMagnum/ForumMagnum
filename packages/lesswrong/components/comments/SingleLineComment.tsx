@@ -7,6 +7,7 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
+import { topTagIconMap } from '../tagging/TopTagIcon';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -48,6 +49,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformIcon: {
     marginTop: 4,
+  },
+  tagIcon: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginLeft: -2,
+    marginRight: 8,
+    '& svg': {
+      width: 12,
+      height: 12,
+      fill: theme.palette.grey[600],
+    },
   },
   karma: {
     display:"inline-block",
@@ -131,13 +144,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, classes }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const {anchorEl, hover, eventHandlers} = useHover();
@@ -146,12 +160,12 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
-  const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode } = Components
+  const contentToRender = comment.title || comment.contents?.plaintextMainText;
+  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, TopTagIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
-
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
+  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && topTagIconMap[comment.tag.slug])
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -163,6 +177,9 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         })}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
+        {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
+          <TopTagIcon tag={comment.tag} />
+        </div>}
 
         {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
@@ -179,7 +196,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
-          {plaintextMainText}
+          {contentToRender}
         </ContentStyles>}
         {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
           small={true}
@@ -195,7 +212,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNode truncated nestingLevel={1} comment={comment} treeOptions={{...treeOptions, hideReply: true}} forceNotSingleLine hoverPreview/>
+            <CommentsNode
+              truncated
+              nestingLevel={1}
+              comment={comment}
+              treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
+              hoverPreview
+            />
           </div>
       </LWPopper>
     </div>
@@ -215,4 +238,3 @@ declare global {
     SingleLineComment: typeof SingleLineCommentComponent,
   }
 }
-

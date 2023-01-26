@@ -4,10 +4,9 @@ type OrderPreservingArrayPolicy = "prepend-new" | "append-new" | "interleave-new
 type IndexType = string | number;
 
 const arrayToIndexMap = (arr: IndexType[]): Record<IndexType, number> =>
-  Object.keys(arr).reduce(function (map, idx) {
-    map[arr[idx]] = idx;
-    return map;
-  }, {});
+  Object.fromEntries(
+    Object.entries(arr).map(([key, val]) => [val, parseInt(key)] as const)
+  );
 
 const indexMapToArray = (map: Record<IndexType, number>): IndexType[] => {
   const unsortedKeys = Object.keys(map);
@@ -66,7 +65,7 @@ function buildOrderIndexMap<T>(
  */
 export function useOrderPreservingArray<T>(
   array: T[],
-  keyFunc: (elem) => IndexType,
+  keyFunc: (elem: T) => IndexType,
   policy: OrderPreservingArrayPolicy = "interleave-new"
 ): T[] {
   const orderIndexMapRef = useRef<Record<IndexType, number>>({});

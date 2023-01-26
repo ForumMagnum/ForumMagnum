@@ -5,7 +5,7 @@ import { Vulcan, createMutator } from '../vulcan-lib';
 import { slugify } from '../../lib/vulcan-lib/utils';
 import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
-import { markdownToHtml } from '../editor/make_editable_callbacks';
+import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';

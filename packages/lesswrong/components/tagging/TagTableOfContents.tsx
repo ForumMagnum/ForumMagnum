@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
+import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tableOfContentsWrapper: {
@@ -17,6 +18,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8,
   },
+  unreadCount: {
+    color: theme.palette.primary.main,
+  }
 });
 
 
@@ -25,7 +29,7 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   expandAll?: ()=>void,
   showContributors: boolean,
   onHoverContributor?: (contributorId: string)=>void,
-  displayOptions?: ToCDisplayOptions
+  displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
 }) => {
   const { TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
@@ -44,10 +48,12 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
       <Link to="/tags/random" className={classes.randomTagLink}>
         Random {taggingNameCapitalSetting.get()}
       </Link>
-      {("contributors" in tag) && <>
-        <TableOfContentsRow href="#" divider={true}/>
-        <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-      </>}
+      {"contributors" in tag && (
+        <>
+          <TableOfContentsRow href="#" divider={true} />
+          <TagContributorsList onHoverUser={onHoverContributor} tag={tag} />
+        </>
+      )}
     </span>
   );
 }

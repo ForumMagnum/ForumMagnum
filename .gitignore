@@ -7,6 +7,10 @@ npm-debug.log
 providers_secret.js
 *.sublime-project
 
+unit-coverage
+integration-coverage
+combined-coverage
+
 *.sublime-workspace
 codekit-config.json
 
@@ -65,6 +69,7 @@ typings
 *.secret
 
 build*
+!build.js
 yarn-error.log
 
 # Created by @shelf/jest-mongodb
@@ -78,6 +83,13 @@ cypress/screenshots/*
 cypress/videos/*
 !cypress/screenshots/.keep
 !cypress/videos/.keep
+.cypress
 
 myLocalDatabase
 myLocalDatabase/*
+
+schema/schema_to_accept.sql
+
+.branchdbcache
+
+ml

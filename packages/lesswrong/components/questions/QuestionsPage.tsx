@@ -5,6 +5,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
+import {userCanPost} from "../../lib/collections/posts";
+import MenuItem from "@material-ui/core/MenuItem";
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();
@@ -35,12 +37,12 @@ const QuestionsPage = () => {
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="Recent Activity">
-          {currentUser && <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+          {currentUser && <Link to={'/newPost?question=true'}>
             <SectionButton>
               <AddBoxIcon />
               New Question
             </SectionButton>
-          </span>}
+          </Link>}
         </SectionTitle>
         <PostsList2 terms={recentActivityTerms}>
           <LWTooltip title="View all questions, sorted by 'newest first'">

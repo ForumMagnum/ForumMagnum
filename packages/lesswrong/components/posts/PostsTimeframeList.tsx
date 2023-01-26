@@ -3,7 +3,7 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -76,7 +76,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
     };
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps: PostsTimeframeListProps) {
     // If we receive a new `after` or `postListParameters` prop, it's because
     // our parent is asking us to change what we've loaded. Throw away any
     // previous updates to the `after` state and redim for reloading.
@@ -96,7 +96,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
     }
   }
 
-  loadMoreTimeBlocks = (e) => {
+  loadMoreTimeBlocks = (e: React.MouseEvent) => {
     e.preventDefault();
     const { timeframe, numTimeBlocks=10, reverse } = this.props
     const timeBlock = timeframeToTimeBlock[timeframe]

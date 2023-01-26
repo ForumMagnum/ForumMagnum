@@ -7,6 +7,7 @@ import { graphql, GraphQLError } from 'graphql';
 import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
+import { getAllRepos } from '../repos';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -48,6 +49,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     headers: null,
     locale: localeSetting.get(),
     isGreaterWrong: false,
+    repos: getAllRepos(),
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     ...options,

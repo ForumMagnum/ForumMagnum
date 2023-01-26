@@ -1,16 +1,19 @@
-import { isAnyTest } from '../lib/executionEnvironment';
+import { isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 
-interface CommandLineArguments {
+export interface CommandLineArguments {
   mongoUrl: string
+  postgresUrl: string
   settingsFileName: string
   shellMode: boolean,
+  command?: string,
 }
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
-    mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
+    mongoUrl: process.env.MONGO_URL || "mongodb://127.0.0.1:27017/?directConnection=true",
+    postgresUrl: process.env.PG_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
   }
@@ -29,8 +32,13 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
       case "--shell":
         commandLine.shellMode = true;
         break;
+      case "--command":
+        commandLine.command = argv[++i];
+        break;
       default:
-        throw new Error(`Unrecognized command line argument: ${arg}`);
+        if (!isMigrations) {
+          throw new Error(`Unrecognized command line argument: ${arg}`);
+        }
     }
   }
   
@@ -41,8 +49,8 @@ export const getCommandLineArguments = () => {
   return parseCommandLine(process.argv);
 }
 
-export const loadInstanceSettings = () => {
-  const commandLineArguments = parseCommandLine(process.argv);
+export const loadInstanceSettings = (args?: CommandLineArguments) => {
+  const commandLineArguments = args ?? parseCommandLine(process.argv);
   const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
   return instanceSettings;
 }

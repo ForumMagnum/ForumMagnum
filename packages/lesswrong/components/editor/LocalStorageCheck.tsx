@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type RestorableState = {
   savedDocument: SerializedEditorContents,
 }
-const restorableStateHasMetadata = (savedState) => {
+const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
 }
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {

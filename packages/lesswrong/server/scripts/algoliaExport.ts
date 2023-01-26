@@ -1,4 +1,4 @@
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Globals } from '../../lib/vulcan-lib/config';
 import { Posts } from '../../lib/collections/posts'
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments'
@@ -8,13 +8,14 @@ import { getCollection } from '../vulcan-lib';
 import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
-import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
+import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
-import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import moment from 'moment';
 import { isProductionDBSetting } from '../../lib/publicSettings';
+import * as _ from 'underscore';
+import moment from 'moment';
+import take from 'lodash/take';
 
 async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
@@ -91,9 +92,9 @@ export async function algoliaExportAll() {
 }
 
 
-Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
-Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
-Vulcan.algoliaExportAll = wrapVulcanAsyncScript('algoliaExportAll', algoliaExportAll)
+Globals.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
+Globals.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
+Globals.algoliaExportAll = wrapVulcanAsyncScript('algoliaExportAll', algoliaExportAll)
 
 
 // Go through the Algolia index for a collection, removing any documents which
@@ -115,6 +116,8 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   // eslint-disable-next-line no-console
   console.log("Downloading the full index...");
   let allDocuments = await algoliaGetAllDocuments(algoliaIndex);
+  // eslint-disable-next-line no-console
+  console.log(`Retrieved ${allDocuments.length} documents from the Algolia index`);
   
   // eslint-disable-next-line no-console
   console.log("Checking documents against the mongodb...");
@@ -126,6 +129,8 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   const algoliaIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
   // eslint-disable-next-line no-console
   console.log(`Deleting ${mongoIdsToDelete.length} mongo IDs (${algoliaIdsToDelete.length} algolia IDs) from Algolia...`);
+  // eslint-disable-next-line no-console
+  console.log(`Sample IDs: ${take(mongoIdsToDelete, 5)}`);
   await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
   // eslint-disable-next-line no-console
   console.log("Done.");
@@ -137,8 +142,8 @@ export async function algoliaCleanAll() {
   }
 }
 
-Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
-Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
+Globals.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
+Globals.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
 
 /**
  * Remove all objects from the index
@@ -163,8 +168,8 @@ async function algoliaDestroyAll() {
   }
 }
 
-Vulcan.algoliaDestroyIndex = wrapVulcanAsyncScript('algoliaDestroyIndex', algoliaDestroyIndex)
-Vulcan.algoliaDestroyAll = wrapVulcanAsyncScript('algoliaDestroyAll', algoliaDestroyAll)
+Globals.algoliaDestroyIndex = wrapVulcanAsyncScript('algoliaDestroyIndex', algoliaDestroyIndex)
+Globals.algoliaDestroyAll = wrapVulcanAsyncScript('algoliaDestroyAll', algoliaDestroyAll)
 
 /**
  * Destroy and rebuild algolia. (Probably) DO NOT RUN ON PRODUCTION!!
@@ -176,4 +181,22 @@ async function algoliaDevRefresh() {
   await algoliaExportAll()
 }
 
-Vulcan.algoliaDevRefresh = wrapVulcanAsyncScript('algoliaDevRefresh', algoliaDevRefresh)
+Globals.algoliaDevRefresh = wrapVulcanAsyncScript('algoliaDevRefresh', algoliaDevRefresh)
+
+Globals.objectToAlgolia = wrapVulcanAsyncScript('objectToAlgolia', async (collectionName: CollectionNameString, id: string) => {
+  const collection = getCollection(collectionName) as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+  if (!collection) {
+    throw new Error(`Invalid collection name: ${collectionName}`);
+  }
+  if (!collection.toAlgolia) {
+    throw new Error(`Collection is not Algolia-indexed: ${collectionName}`);
+  }
+  
+  const obj = await collection.findOne(id);
+  if (!obj) {
+    throw new Error(`Object not found: ${collectionName}.${id}`);
+  }
+  
+  const algoliaEntry = await collection.toAlgolia(obj);
+  return algoliaEntry;
+});

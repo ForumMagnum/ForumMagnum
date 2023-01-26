@@ -246,6 +246,7 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
+  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -277,6 +278,7 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
+  createIfMissing,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -294,7 +296,10 @@ export function useMulti<
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
 
-  const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
+  const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
+  const defaultLimit: number = locationQueryLimit ?? termsLimit ?? initialLimit
+
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
@@ -307,7 +312,7 @@ export function useMulti<
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal,
+      enableCache, enableTotal, createIfMissing
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }

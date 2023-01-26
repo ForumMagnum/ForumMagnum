@@ -133,7 +133,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
   }
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost): number => {
+export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -141,20 +141,29 @@ export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
-  // can be passed in a manual comment count, or retrieve the post's cached comment count
-
-  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
-
+/**
+ * Can pass in a manual comment count, or retrieve the post's cached comment count
+ */
+export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    return "No comments"
-  } else if (count == 1) {
-    return "1 comment"
+    return "No comments";
+  } else if (count === 1) {
+    return "1 comment";
   } else {
-    return count + " comments"
+    return count + " comments";
   }
 }
 
+export const postGetAnswerCountStr = (count: number): string => {
+  if (!count) {
+    return "No answers";
+  } else if (count === 1) {
+    return "1 answer";
+  } else {
+    return count + " answers";
+  }
+}
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {

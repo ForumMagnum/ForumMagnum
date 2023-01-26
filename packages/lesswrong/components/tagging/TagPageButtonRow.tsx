@@ -10,10 +10,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, } from '../../lib/instanceSettings';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -36,6 +33,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "@media print": {
       display: "none",
+    },
+  },
+  headerSubforumLink: {
+    alignItems: "center",
+    marginRight: 16,
+    display: "none",
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
     },
   },
   buttonTooltip: {
@@ -88,7 +93,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, TagSubforumButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -168,10 +173,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    <div className={classes.button}>
-      {tag.isSubforum ?
-        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />}
-    </div>
+    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}

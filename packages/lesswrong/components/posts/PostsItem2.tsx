@@ -9,14 +9,15 @@ import CloseIcon from '@material-ui/icons/Close';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import qs from "qs";
+import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
-export const KARMA_WIDTH = 42
+export const KARMA_WIDTH = 32
 
 export const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -26,6 +27,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   root: {
     position: "relative",
+    minWidth: 0,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
@@ -40,6 +42,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     background: theme.palette.panelBackground.default,
   },
+  checkboxWidth: {
+    width: "calc(100% - 24px)"
+  },
   translucentBackground: {
     width: "100%",
     background: theme.palette.panelBackground.translucent,
@@ -48,8 +53,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -303,6 +307,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     marginRight: 10
+  },
+  mostValuableCheckbox: {
+    marginLeft: 5
+  },
+  commentsIcon: {
+    marginLeft: 8
+  },
+  reviewPostButton: {
+    marginLeft: 10
   }
 })
 
@@ -344,12 +357,16 @@ const PostsItem2 = ({
   showNominationCount=false,
   showReviewCount=false,
   hideAuthor=false,
+  hideTrailingButtons=false,
+  tooltipPlacement="bottom-end",
   classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false,
-  showReadCheckbox=false
+  showReadCheckbox=false,
+  showMostValuableCheckbox=false,
+  showKarma=true
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -394,16 +411,19 @@ const PostsItem2 = ({
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
+  hideTrailingButtons?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
-  strikethroughTitle?: boolean
+  strikethroughTitle?: boolean,
   translucentBackground?: boolean,
   forceSticky?: boolean,
-  showReadCheckbox?: boolean
+  showReadCheckbox?: boolean,
+  showKarma?: boolean,
+  showMostValuableCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
-  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
   const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
@@ -417,24 +437,19 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
-  const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
-  }
-
-  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
-    const newComments = lastVisitedAt < lastCommentedAt;
+  const compareVisitedAndCommentedAt = (lastVisitedAt: Date, lastCommentedAt: Date | null) => {
+    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
     return (isRead && newComments && !readComments)
   }
 
   const hasUnreadComments = () => {
     const lastCommentedAt = postGetLastCommentedAt(post)
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
   const hasNewPromotedComments = () => {
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
   }
@@ -445,9 +460,10 @@ const PostsItem2 = ({
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
-    PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
+    PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
+    PostMostValuableCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -486,6 +502,7 @@ const PostsItem2 = ({
           classes.root,
           {
             [classes.background]: !translucentBackground,
+            [classes.checkboxWidth]: showReadCheckbox,
             [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
@@ -494,6 +511,7 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper
             post={post}
+            placement={tooltipPlacement}
             className={classNames(
               classes.postsItem,
               classes.withGrayHover, {
@@ -503,9 +521,9 @@ const PostsItem2 = ({
             )}
           >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                <PostsItem2MetaInfo className={classes.karma}>
+                {showKarma && <PostsItem2MetaInfo className={classes.karma}>
                   {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
-                </PostsItem2MetaInfo>
+                </PostsItem2MetaInfo>}
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
@@ -550,7 +568,7 @@ const PostsItem2 = ({
                 <span className={classes.spacer} />
 
                 { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()} tooltipPlacement="top"/>
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
@@ -558,26 +576,29 @@ const PostsItem2 = ({
                 <div className={classes.mobileSecondRowSpacer}/>
 
                 {<div className={classes.mobileActions}>
-                  {!resumeReading && <PostsPageActions post={post} />}
+                  {!resumeReading && <PostActionsButton post={post} />}
                 </div>}
 
                 {showIcons && <div className={classes.nonMobileIcons}>
                   <PostsItemIcons post={post}/>
                 </div>}
 
-                {!resumeReading && <PostsItemComments
-                  small={false}
-                  commentCount={postGetCommentCount(post)}
-                  onClick={toggleComments}
-                  unreadComments={hasUnreadComments()}
-                  newPromotedComments={hasNewPromotedComments()}
-                />}
+                {!resumeReading && <div className={classes.commentsIcon}>
+                  <PostsItemComments
+                    small={false}
+                    commentCount={postGetCommentCount(post)}
+                    onClick={toggleComments}
+                    unreadComments={hasUnreadComments()}
+                    newPromotedComments={hasNewPromotedComments()}
+                  />
+                </div>}
 
                 {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
                 
-                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="bottom">
+                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
+                  <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
                   Review
-                </LWTooltip>}/>}
+                </LWTooltip>}/></span>}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
@@ -608,25 +629,29 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {<div className={classes.actions}>
-            {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical />}
-          </div>}
-          {<div className={classes.archiveButton}>
-            {archiveButton}
-          </div>}
+          {!hideTrailingButtons && !showMostValuableCheckbox && <>
+            {<div className={classes.actions}>
+              {dismissButton}
+              {!resumeReading && <PostActionsButton post={post} vertical />}
+            </div>}
+            {<div className={classes.archiveButton}>
+              {archiveButton}
+            </div>}
+          </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt,
                 condensed: condensedAndHiddenComments,
-                markAsRead: markAsRead,
               }}
             />
           </div>}
         </div>
+        {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>
+          <PostMostValuableCheckbox post={post} />
+        </div>}
       </div>
     </AnalyticsContext>
   )

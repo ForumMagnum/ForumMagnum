@@ -7,12 +7,15 @@ import { tagPostTerms } from './TagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  relatedTag: {
-    display: "flex",
+  relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -27,15 +30,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%",
     }
   },
-  footerCount: {
+  footer: {
     borderTop: theme.palette.border.extraFaint,
     paddingTop: 6,
-    textAlign: "right",
+    display: "flex",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
     marginTop: 6,
     marginBottom: 2
+  },
+  autoApplied: {
+    flexGrow: 1,
+  },
+  footerCount: {
   },
   posts: {
     marginTop: 10,
@@ -50,13 +58,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
+export type TagPreviewProps = {
   tag: TagPreviewFragment | null,
   loading?: boolean,
   classes: ClassesType,
   showCount?: boolean,
+  showRelatedTags?: boolean,
   postCount?: number,
-}) => {
+  autoApplied?: boolean,
+}
+
+const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false}: TagPreviewProps) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
@@ -72,14 +84,16 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
     return null
   }
   
+  const hasFooter = (showCount || autoApplied);
+  
   return (<div className={classes.card}>
     {loading && <Loading />}
     {tag && <>
       <TagPreviewDescription tag={tag}/>
-      {(tag.parentTag || tag.subTags.length) ?
+      {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
-          {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
+          {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
             return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
           })}</span></div> : <></>}
         </div> : <></>
@@ -88,8 +102,13 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
         {results ? <div className={classes.posts}>
           {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
         </div> : <Loading /> }
-        {showCount && <div className={classes.footerCount}>
-          <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
+        {hasFooter && <div className={classes.footer}>
+          {autoApplied && <span className={classes.autoApplied}>
+            Tag was auto-applied
+          </span>}
+          {showCount && <span className={classes.footerCount}>
+            <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
+          </span>}
         </div>}
       </>}
     </>}

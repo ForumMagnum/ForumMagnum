@@ -9,7 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
+export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
   if (!user) {
     return "";
   } else {
@@ -20,7 +20,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+export const getUserName = function(user: {username: string} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -76,11 +76,11 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = post => {
+const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return post.moderationGuidelines?.originalContents || post.moderationStyle
+  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
 }
 
 export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
@@ -182,11 +182,11 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
-  if (user.commentingOnOtherUsersDisabled && post.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
   if (!post) return true
   if (post.commentsLocked) return false
-  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
+  if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -259,6 +259,21 @@ export function getUserEmail (user: UserWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
+type DatadogUser = {
+  id: string,
+  email?: string,
+  name?: string,
+  slug?: string,
+}
+export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName,
+    slug: user.slug,
+  }
+}
+
 // Replaces Users.getProfileUrl from the vulcan-users package.
 export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";
@@ -300,8 +315,12 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   return user.markDownPostEditor
 }
 
-export const userCanEdit = (currentUser, user) => {
-  return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
+export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: HasIdType|HasSlugType|UsersMinimumInfo|DbUser) => {
+  // We allow users to call this function with basically "pretend" user objects
+  // as the second argument. We know from inspecting userOwns that those pretend
+  // user objects are safe, but if userOwns allowed them it would make the type
+  // checks much less safe.
+  return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
 }
 
 interface UserLocation {
@@ -457,6 +476,9 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
 
+// TODO: I (JP) think this should be configurable in the function parameters
+/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
+ * we get from auth0 but is ultimately from google this function will throw. */
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {
@@ -477,4 +499,14 @@ export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
     : false;
 
   return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
+};
+
+export const getSignature = (name: string) => {
+  const today = new Date();
+  const todayString = today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  return `${todayString}, ${name}`;
+};
+
+export const getSignatureWithNote = (name: string, note: string) => {
+  return `${getSignature(name)}: ${note}\n`;
 };

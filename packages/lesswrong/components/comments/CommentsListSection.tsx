@@ -7,9 +7,11 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { CommentsNewFormProps } from './CommentsNewForm';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -65,7 +67,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -73,16 +75,19 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
-  comments: Array<CommentTreeNode<CommentsList>>,
+  comments: CommentsList[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const commentTree = unflattenComments(comments);
+  
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
-  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
+  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
   const now = useCurrentTime();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -93,7 +98,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
@@ -114,7 +119,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
-              { totalComments } comments, sorted by <Components.CommentsViews post={post} />
+              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
             </span>
         }
       </Typography>
@@ -140,7 +145,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -154,7 +159,6 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const postAuthor = post?.user || null;
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
-      { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>
 
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
@@ -170,21 +174,24 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             prefilledProps={{
               parentAnswerId: parentAnswerId}}
             type="comment"
+            {...newFormProps}
           />
         </div>
       }
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
+      { totalComments ? renderTitleComponent() : null }
       <Components.CommentsList
         treeOptions={{
           highlightDate: highlightDate,
           post: post,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
         }}
         totalComments={totalComments}
-        comments={comments}
+        comments={commentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />

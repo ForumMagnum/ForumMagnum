@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
@@ -78,6 +77,7 @@ interface ContentItemBodyProps extends WithStylesProps {
   // Only Implemented for Tag Hover Previews
   noHoverPreviewPrefetch?: boolean,
   nofollow?: boolean,
+  idInsertions?: Record<string,React.ReactNode>
 }
 interface ContentItemBodyState {
   updatedElements: boolean,
@@ -113,7 +113,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     this.applyLocalModifications();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: ContentItemBodyProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
       this.replacedElements = [];
       this.applyLocalModifications();
@@ -125,6 +125,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.markScrollableLaTeX();
       this.markHoverableLinks();
       this.markElicitBlocks();
+      this.applyIdInsertions();
       this.setState({updatedElements: true})
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
@@ -158,11 +159,11 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   // Given an HTMLCollection, return an array of the elements inside it. Note
   // that this is covering for a browser-specific incompatibility: in Edge 17
   // and earlier, HTMLCollection has `length` and `item` but isn't iterable.
-  htmlCollectionToArray(collection) {
+  htmlCollectionToArray(collection: HTMLCollectionOf<HTMLElement>) {
     if (!collection) return [];
-    let ret: Array<any> = [];
+    let ret: Array<HTMLElement> = [];
     for (let i=0; i<collection.length; i++)
-      ret.push(collection.item(i));
+      ret.push(collection.item(i)!);
     return ret;
   }
   
@@ -209,7 +210,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   //
   // Attaches a handler to `block.onscrol` which shows and hides the scroll
   // indicators when it's scrolled all the way.
-  addHorizontalScrollIndicators = (block) => {
+  addHorizontalScrollIndicators = (block: HTMLElement) => {
     const { classes } = this.props;
     
     // If already wrapped, don't re-wrap (so this is idempotent).
@@ -222,7 +223,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     const scrollIndicatorLeft = document.createElement("div");
     scrollIndicatorWrapper.append(scrollIndicatorLeft);
     
-    block.parentElement.insertBefore(scrollIndicatorWrapper, block);
+    block.parentElement?.insertBefore(scrollIndicatorWrapper, block);
     block.remove();
     scrollIndicatorWrapper.append(block);
     
@@ -261,10 +262,10 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
-        if (linkIsExcludedFromPreview(href))
+        if (!href || linkIsExcludedFromPreview(href))
           continue;
-        const id = linkTag.getAttribute("id");
-        const rel = linkTag.getAttribute("rel")
+        const id = linkTag.getAttribute("id") ?? undefined;
+        const rel = linkTag.getAttribute("rel") ?? undefined;
         const replacementElement = <Components.HoverPreviewLink
           href={href}
           innerHTML={tagContentsHTML}
@@ -291,13 +292,34 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     }
   }
   
-  replaceElement = (replacedElement, replacementElement) => {
+  applyIdInsertions = () => {
+    if (!this.props.idInsertions) return;
+    for (let id of Object.keys(this.props.idInsertions)) {
+      const addedElement = this.props.idInsertions[id];
+      const container = document.getElementById(id);
+      // TODO: Check that it's inside this ContentItemBody
+      if (container) this.insertElement(container, <>{addedElement}</>);
+    }
+  }
+  
+  replaceElement = (replacedElement: HTMLElement, replacementElement: JSX.Element) => {
     const replacementContainer = document.createElement("span");
+    if (replacementContainer) {
+      this.replacedElements.push({
+        replacementElement: replacementElement,
+        container: replacementContainer,
+      });
+      replacedElement.parentElement?.replaceChild(replacementContainer, replacedElement);
+    }
+  }
+  
+  insertElement = (container: HTMLElement, insertedElement: JSX.Element) => {
+    const insertionContainer = document.createElement("span");
     this.replacedElements.push({
-      replacementElement: replacementElement,
-      container: replacementContainer,
+      replacementElement: insertedElement,
+      container: insertionContainer,
     });
-    replacedElement.parentElement.replaceChild(replacementContainer, replacedElement);
+    container.prepend(insertionContainer);
   }
 }
 
@@ -305,9 +327,7 @@ const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {
-  styles, hocs: [withUser]
-});
+const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {styles});
 
 declare global {
   interface ComponentTypes {

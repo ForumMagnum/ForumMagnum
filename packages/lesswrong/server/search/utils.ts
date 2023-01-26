@@ -14,10 +14,11 @@ import { Tags } from '../../lib/collections/tags/collection';
 import Users from '../../lib/collections/users/collection';
 import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { dataToMarkdown } from '../editor/make_editable_callbacks';
+import { dataToMarkdown } from '../editor/conversionUtils';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { truncatise } from '../../lib/truncatise';
+import { subBatchArray } from './subBatchArray';
 import moment from 'moment';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
@@ -195,6 +196,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     curated: !!post.curatedDate,
     legacy: post.legacy,
     commentCount: post.commentCount,
+    // TODO: handle afCommentCount
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
@@ -224,7 +226,12 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
   let body = ""
   if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
-    body = dataToMarkdown(data, type)
+    try {
+      body = dataToMarkdown(data, type)
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log(`Failed in dataToMarkdown on post body of ${post._id}`);
+    }
   }
   if (body) {
     body.split("\n\n").forEach((paragraph, paragraphCounter) => {
@@ -275,7 +282,8 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     wikiOnly: tag.wikiOnly,
     isSubforum: tag.isSubforum,
     description,
-    bannerImageId: tag.bannerImageId
+    bannerImageId: tag.bannerImageId,
+    parentTagId: tag.parentTagId,
   }];
 }
 
@@ -578,18 +586,6 @@ export async function algoliaExportById<T extends AlgoliaIndexedDbObject>(collec
   }
 }
 
-// Sometimes 100 posts generate more index requests than algolia will willingly
-// handle - split them up in that case
-// Export for testing
-export function subBatchArray<T>(arr: Array<T>, maxSize: number): Array<Array<T>> {
-  const result: Array<Array<T>> = []
-  while (arr.length > 0) {
-    result.push(arr.slice(0, maxSize))
-    arr = arr.slice(maxSize, arr.length)
-  }
-  return result
-}
-
 export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject>({ documents, collection, algoliaIndex, errors, updateFunction }: {
   documents: Array<T>,
   collection: AlgoliaIndexedCollection<T>,
@@ -645,12 +641,26 @@ export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDb
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);
+  // eslint-disable-next-line no-console
+  console.log(`Algolia index contains ${uniqueIds.length} unique IDs`);
   const pages = chunk(uniqueIds, 1000);
   let itemsToIndexById: Record<string,boolean> = {};
+  let pageNum=0;
   
   for (let page of pages) {
+    // eslint-disable-next-line no-console
+    console.log(`Checking page ${pageNum}/${pages.length}...`);
+    pageNum++;
     let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
-    let itemsToIndex = await asyncFilter(items, async (item: T) => !!(await collection.toAlgolia(item)));
+    let itemsToIndex = await asyncFilter(items, async (item: T) => {
+      try {
+        return !!(await collection.toAlgolia(item));
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed in ${collection.collectionName}.toAlgolia(${item._id}): ${e}`);
+        return false;
+      }
+    });
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;
     }

@@ -4,8 +4,9 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { tagUserHasSufficientKarma } from './helpers';
+import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
+import { forumTypeSetting } from '../../instanceSettings';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -19,6 +20,7 @@ interface ExtendedTagsCollection extends TagsCollection {
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
@@ -87,10 +89,28 @@ makeEditable({
     fieldName: "subforumWelcomeText",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 });
+
+makeEditable({
+  collection: Tags,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }
+})
 
 export default Tags;

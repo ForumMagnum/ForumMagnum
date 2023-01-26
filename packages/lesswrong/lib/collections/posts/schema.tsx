@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -13,16 +13,18 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
-import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
-import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
+import { allOf } from '../../utils/functionUtils';
+import { crosspostKarmaThreshold } from '../../publicSettings';
+import { userHasSideComments } from '../../betas';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -100,6 +102,32 @@ function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldCon
 const frontpageDefault = isEAForum ?
   eaFrontpageDate :
   undefined
+
+export const sideCommentCacheVersion = 1;
+export interface SideCommentsCache {
+  version: number,
+  generatedAt: Date,
+  annotatedHtml: string
+  commentsByBlock: Record<string,string[]>
+}
+export interface SideCommentsResolverResult {
+  html: string,
+  commentsByBlock: Record<string,string[]>,
+  highKarmaCommentsByBlock: Record<string,string[]>,
+}
+
+/**
+ * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
+ */
+const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
+  const currentKarmaThreshold = crosspostKarmaThreshold.get();
+
+  return currentKarmaThreshold === null
+    ? true
+    // userOverNKarmaFunc checks greater than, while we want greater than or equal to, since that's the check we're performing elsewhere
+    // so just subtract one
+    : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
+}
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -538,32 +566,37 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser } = context;
-      const postRelations = await Posts.aggregate([
-        { $match: { _id: post._id }},
-        { $graphLookup: { 
-            from: "postrelations", 
-            as: "relatedQuestions", 
-            startWith: post._id, 
-            connectFromField: "targetPostId", 
-            connectToField: "sourcePostId", 
-            maxDepth: 3 
-          } 
-        },
-        { 
-          $project: {
-            relatedQuestions: 1
+      const { Posts, currentUser, repos } = context;
+      let postRelations: DbPostRelation[] = [];
+      if (Posts.isPostgres()) {
+        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
+      } else {
+        postRelations = await Posts.aggregate([
+          { $match: { _id: post._id }},
+          { $graphLookup: {
+            from: "postrelations",
+            as: "relatedQuestions",
+            startWith: post._id,
+            connectFromField: "targetPostId",
+            connectToField: "sourcePostId",
+            maxDepth: 3
           }
-        }, 
-        {
-          $unwind: "$relatedQuestions"
-        }, 
-        {
-          $replaceRoot: {
-            newRoot: "$relatedQuestions"
+          },
+          {
+            $project: {
+              relatedQuestions: 1
+            }
+          },
+          {
+            $unwind: "$relatedQuestions"
+          },
+          {
+            $replaceRoot: {
+              newRoot: "$relatedQuestions"
+            }
           }
-        }
-     ]).toArray()
+        ]).toArray()
+      }
      if (!postRelations || postRelations.length < 1) return []
      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
@@ -701,13 +734,14 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
   },
-
+  // Results (sum) of the quadratic votes when filtering only for users with >1000 karma
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
+  // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
@@ -718,13 +752,14 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
   },
-
+  // Results (sum) of the quadratic votes for all users
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
+  // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
@@ -845,7 +880,6 @@ const schema: SchemaType<DbPost> = {
     control: "FormComponentPostEditorTagging",
     hidden: (props) => props.eventForm,
   },
-  
   "tagRelevance.$": {
     type: Number,
     optional: true,
@@ -956,6 +990,19 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
+  hideFromRecentDiscussions: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.adminOptions,
+    label: 'Hide this post from recent discussions',
+    ...schemaDefaultValue(false),
+  },
+
   currentUserReviewVote: resolverOnlyField({
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
@@ -995,10 +1042,15 @@ const schema: SchemaType<DbPost> = {
   myEditorAccess: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
+      // Since the post at this point is already filtered by fields that this user has access, we have to grab
+      // an unfiltered version of the post from cache
+      const unfilteredPost = await context.loaders["Posts"].load(post._id)
       return getCollaborativeEditorAccess({
         formType: "edit",
-        post, user: context.currentUser,
+        post: unfilteredPost, user: context.currentUser,
+        context, 
         useAdminPowers: false,
       });
     }
@@ -1017,7 +1069,6 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins', 'podcasters'],
     control: 'PodcastEpisodeInput',
     group: formGroups.audio,
-    hidden: isEAForum,
     nullable: true
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -1226,8 +1277,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
-    group: formGroups.advancedOptions,
-    order: 1,
+    group: formGroups.coauthors,
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -1282,9 +1332,12 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'admins'],
-    insertableBy: ['members'],
+    editableBy: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
+    insertableBy: [userPassesCrosspostingKarmaThreshold, 'admins'],
     control: "FMCrosspostControl",
+    tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
+      "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
+      undefined,
     group: formGroups.advancedOptions,
     order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
@@ -1619,6 +1672,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded2Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 2 ? new Date() : null
   },
@@ -1626,6 +1680,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded30Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 30 ? new Date() : null
   },
@@ -1633,6 +1688,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded45Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 45 ? new Date() : null
   },
@@ -1640,6 +1696,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded75Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
@@ -1647,6 +1704,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded125Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 125 ? new Date() : null
   },
@@ -1654,6 +1712,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded200Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 200 ? new Date() : null
   },
@@ -2045,7 +2104,7 @@ const schema: SchemaType<DbPost> = {
   sharingSettings: {
     type: Object,
     order: 15,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: ['guests'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
@@ -2076,9 +2135,10 @@ const schema: SchemaType<DbPost> = {
   // of a post. Only populated if some form of link sharing is (or has been) enabled.
   linkSharingKey: {
     type: String,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: [userOwns, 'admins'],
     editableBy: ['admins'],
     optional: true,
+    nullable: true,
     hidden: true,
   },
 
@@ -2118,35 +2178,62 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
-  tableOfContents: resolverOnlyField({
+  tableOfContents: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-      try {
-        return await Utils.getToCforPost({document, version: null, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    },
-  }),
+    // Implementation in postResolvers.ts
+  },
 
-  tableOfContentsRevision: resolverOnlyField({
+  tableOfContentsRevision: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    graphqlArguments: 'version: String',
-    resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
-      const { version=null } = args;
-      try {
-        return await Utils.getToCforPost({document, version, context});
-      } catch(e) {
-        captureException(e);
-        return null;
+    // Implementation in postResolvers.ts
+  },
+  
+  sideComments: {
+    type: Object,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
+  // sideCommentsCache: Stores the matching between comments on a post,
+  // and paragraph IDs within the post. Invalid if the cache-generation
+  // time is older than when the post was last modified (modifiedAt) or
+  // commented on (lastCommentedAt).
+  // SideCommentsCache
+  sideCommentsCache: {
+    type: Object,
+    viewableBy: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
+    optional: true, nullable: true, hidden: true,
+  },
+  
+  sideCommentVisibility: {
+    type: String,
+    optional: true,
+    control: "select",
+    group: formGroups.advancedOptions,
+    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    
+    label: "Replies in sidebar",
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    blackbox: true,
+    form: {
+      options: () => {
+        return [
+          {value: "highKarma", label: "10+ karma (default)"},
+          {value: "hidden", label: "Hide all"},
+        ];
       }
     },
-  }),
+  },
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past
@@ -2242,7 +2329,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         postId: post._id,
         score: {$gt:0},
         deletedPublic: false,
@@ -2259,7 +2346,34 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     foreignKey: 'Comments',
   },
+  
+  languageModelSummary: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['admins'],
+    // Implementation in postSummaryResolver.ts
+  },
 };
+
+/* subforum-related fields */
+Object.assign(schema, {
+  // If this post is associated with a subforum, the _id of the tag
+  subforumTagId: {
+    ...foreignKeyField({
+      idFieldName: "subforumTagId",
+      resolverName: "subforumTag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'], // TODO: maybe use userOwns, or actually maybe limit to subforum members
+    canUpdate: ['admins'],
+    hidden: true,
+  },
+})
 
 /* Alignment Forum fields */
 Object.assign(schema, {
@@ -2286,18 +2400,6 @@ Object.assign(schema, {
     editableBy: ['alignmentForum'],
     insertableBy: ['alignmentForum'],
     group: formGroups.options,
-  },
-
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   afCommentCount: {
@@ -2375,6 +2477,15 @@ Object.assign(schema, {
     insertableBy: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
     label: "AF Review UserId"
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 });
 
