@@ -3,6 +3,7 @@ import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
+import { getWithCustomLoader, getWithLoader } from '../loaders';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -210,8 +211,12 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           const { limit } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
-          const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return await accessFilterMultiple(currentUser, Revisions, resolvedDocs, context);
+          
+          // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
+          // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
+          const loaderResults = await getWithLoader(context, Revisions, `revisionsByDocumentId_${field}_${limit}`, { fieldName: field }, "documentId", post._id, { sort: {editedAt: -1}, limit });
+
+          return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
         }
       }
     },
