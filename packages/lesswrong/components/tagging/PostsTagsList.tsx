@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import groupBy from 'lodash/groupBy';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
