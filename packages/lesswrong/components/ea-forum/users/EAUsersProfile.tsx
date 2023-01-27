@@ -30,7 +30,6 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { useMessages } from '../../common/withMessages';
-import { HideRepeatedPostsProvider } from '../../posts/HideRepeatedPostsContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -637,10 +636,8 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentIncludeEvents={currentIncludeEvents}
           />}
           <AnalyticsContext listContext="userPagePosts">
-            <HideRepeatedPostsProvider>
-              <ProfileShortform user={user} />
-              <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
-            </HideRepeatedPostsProvider>
+            <ProfileShortform user={user} />
+            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
           </AnalyticsContext>
         </div>}
         

@@ -57,6 +57,7 @@ const PostsList2 = ({
   curatedIconLeft=false,
   showFinalBottomBorder=false,
   hideHiddenFrontPagePosts=false,
+  hideShortform=false,
   commentsSection,
 }: {
   /** Child elements will be put in a footer section */
@@ -97,6 +98,7 @@ const PostsList2 = ({
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
+  hideShortform?: boolean,
   commentsSection?: CommentsSection,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -133,6 +135,14 @@ const PostsList2 = ({
           hiddenPosts[results[i]._id] = true;
         }
         else break;
+      }
+    }
+
+    if (hideShortform) {
+      for (const result of results) {
+        if (result.shortform) {
+          hiddenPosts[result._id] = true;
+        }
       }
     }
 
