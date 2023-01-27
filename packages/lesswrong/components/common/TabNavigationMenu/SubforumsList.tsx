@@ -19,16 +19,6 @@ const styles = ((theme: ThemeType): JssStyles => ({
     height: 'unset',
     minHeight: 24,
   },
-  maybeHiddenResultsHidden: {
-    overflow: 'hidden',
-    maxHeight: 0,
-    transition: 'max-height 0.3s ease-in-out',
-  },
-  maybeHiddenResultsVisible: {
-    overflow: 'hidden',
-    maxHeight: 1000,
-    transition: 'max-height 0.3s ease-in-out',
-  },
   title: {
     paddingLeft: 62,
     paddingBottom: 5,
@@ -39,9 +29,9 @@ const styles = ((theme: ThemeType): JssStyles => ({
     textTransform: 'capitalize',
     whiteSpace: 'break-spaces !important',
   },
-  unreadCount: {
-    color: theme.palette.primary.main,
-  },
+  showMoreLess: {
+    color: `${theme.palette.grey[500]} !important`,
+  }
 }))
 
 const INITIAL_LIMIT = 3
@@ -91,13 +81,13 @@ const SubforumsList = ({ onClick, classes }) => {
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
           <div className={classes.title}>Subforums</div>
-          <div>{initialResults.map((subforum) => getListItem(subforum))}</div>
-          <div className={showAll ? classes.maybeHiddenResultsVisible : classes.maybeHiddenResultsHidden}>
-            {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
-          </div>
+          {initialResults.map((subforum) => getListItem(subforum))}
+          {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (
             <MenuItemUntyped onClick={onClickShowMoreOrLess} className={classes.menuItem} disableRipple>
-              <TabNavigationSubItem>(show {showAll ? "less" : "more"})</TabNavigationSubItem>
+              <TabNavigationSubItem className={classes.showMoreLess}>
+                (show {showAll ? "less" : `${maybeHiddenResults.length} more`})
+              </TabNavigationSubItem>
             </MenuItemUntyped>
           )}
         </div>
