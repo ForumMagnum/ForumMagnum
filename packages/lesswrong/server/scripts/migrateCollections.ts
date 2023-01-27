@@ -38,6 +38,10 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     migration.succeeded ??= false;
     return migration;
   },
+  Users: (user: DbUser): DbUser => {
+    user.isAdmin = !!user.isAdmin;
+    return user;
+  }
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};

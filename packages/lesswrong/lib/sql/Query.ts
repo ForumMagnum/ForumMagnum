@@ -101,6 +101,7 @@ abstract class Query<T extends DbObject> {
   protected nameSubqueries = true;
   protected isIndex = false;
   protected nearbySort: NearbySort | undefined;
+  protected isCaseInsensitive = false;
 
   protected constructor(
     protected table: Table | Query<T>,
@@ -180,9 +181,18 @@ abstract class Query<T extends DbObject> {
    * If `typeHint` is an instance of `Type` then that type will be used, otherwise
    * `typeHint` is assumed to be the value we are getting the type for.
    */
-  private getTypeHint(typeHint?: any): string {
+  protected getTypeHint(typeHint?: any): string {
+    if (typeHint === null || typeHint === undefined) {
+      return "";
+    }
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
+    }
+    if (typeHint instanceof Date) {
+      return "::TIMESTAMPTZ";
+    }
+    if (Array.isArray(typeHint)) {
+      return "";
     }
     switch (typeof typeHint) {
       case "number":
@@ -191,9 +201,10 @@ abstract class Query<T extends DbObject> {
         return "::TEXT";
       case "boolean":
         return "::BOOL";
-    }
-    if (typeHint instanceof Date) {
-      return "::TIMESTAMPTZ";
+      case "object":
+        return Object.keys(typeHint).some((key) => key[0] === "$")
+          ? ""
+          : "::JSONB";
     }
     return "";
   }
@@ -281,20 +292,21 @@ abstract class Query<T extends DbObject> {
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT NULL`];
         }
-      }
-      else if (value === true) {
+      } else if (value === true) {
         if (op === "=") {
           return [`${resolvedField}${hint} IS TRUE`];
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT TRUE`];
         }
-      }
-      else if (value === false) {
+      } else if (value === false) {
         if (op === "=") {
           return [`${resolvedField}${hint} IS FALSE`];
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT FALSE`];
         }
+      }
+      if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
+        return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
