@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore, Row, LWTooltip, UserTooltip } = Components
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip, UserTooltip } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
@@ -83,26 +83,31 @@ export const AdminPaymentsPage = ({classes}: {
           disableUnderline
         />
       </div>
-      <Link to={"/payments/account"} className={classes.myAccountLink}>My Account Payments</Link>
+      <Link to={"/payments/account"} className={classes.myAccountLink}>
+        My Account Payments
+      </Link>
       {loading && <Loading/>}
       <Table>
         <TableRow>
+          <TableCell><b>Link</b></TableCell>
           <TableCell><b>Name</b></TableCell>
           <TableCell><b>Email</b></TableCell>
           <TableCell><b>Payment Info</b></TableCell>
         </TableRow>
         {filteredResults?.map(user => {
           return <TableRow key={user._id}>
-              <TableCell>
-                <Row justifyContent={"flex-start"}>
-                  <LWTooltip title={<UserTooltip user={user}/>}>
-                    <Link to={userGetProfileUrl(user)}><LinkIcon className={classes.icon}/></Link>
-                  </LWTooltip>
-                  {user.fullName ?? user.displayName}
-                </Row>
-              </TableCell>
-              <TableCell>{user.paymentEmail ?? getUserEmail(user)}</TableCell>
-              <TableCell>{user.paymentInfo ?? user.paymentEmail}</TableCell>
+            <TableCell>
+              <LWTooltip title={<UserTooltip user={user}/>}>
+                <Link to={userGetProfileUrl(user)}>
+                  <LinkIcon className={classes.icon}/>
+                </Link>
+              </LWTooltip>
+            </TableCell>
+            <TableCell>  
+              {user.fullName ?? user.displayName}
+            </TableCell>
+            <TableCell>{user.paymentEmail ?? getUserEmail(user)}</TableCell>
+            <TableCell>{user.paymentInfo ?? user.paymentEmail}</TableCell>
           </TableRow>
         })}
       </Table>
