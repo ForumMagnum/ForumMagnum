@@ -15,7 +15,6 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
-import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
@@ -186,6 +185,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  relevantTags: {
+    marginRight: 8,
+    position: 'relative',
+    top: 3,
+    marginLeft: 7,
+    '& svg': {
+      width: 20,
+      height: 20,
+      paddingLeft: 2,
+      paddingRight: 2,
+      marginLeft: 2,
+      fill: theme.palette.grey[600],
+    },
+  }
 })
 
 /**
@@ -386,6 +399,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     return `/reviewVoting/${year}`
   }
 
+  const tagIconsComponent = (
+    <>
+      {comment.relevantTags.map((tag) => (
+        <TopTagIcon key={tag._id} tag={tag} />
+      ))}
+    </>
+  );
+
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -480,6 +501,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
+            
+            {!!comment.relevantTags.length && <div className={classes.relevantTags}>
+              {tagIconsComponent}
+            </div>}
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}

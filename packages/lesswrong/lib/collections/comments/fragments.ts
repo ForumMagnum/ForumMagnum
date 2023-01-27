@@ -8,6 +8,10 @@ registerFragment(`
     tag {
       slug
     }
+    relevantTags {
+      _id
+      slug
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId
@@ -96,11 +100,9 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
-    }
-    relevantTags {
-      ...TagPreviewFragment
     }
   }
 `);

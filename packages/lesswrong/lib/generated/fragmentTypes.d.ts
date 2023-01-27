@@ -1233,6 +1233,7 @@ interface CommentsList { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
+  readonly relevantTags: Array<CommentsList_relevantTags>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1284,6 +1285,11 @@ interface CommentsList_tag { // fragment on Tags
   readonly slug: string,
 }
 
+interface CommentsList_relevantTags { // fragment on Tags
+  readonly _id: string,
+  readonly slug: string,
+}
+
 interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
@@ -1304,8 +1310,8 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
+  readonly relevantTagIds: Array<string>,
   readonly contents: RevisionEdit|null,
-  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface DeletedCommentsMetaData { // fragment on Comments

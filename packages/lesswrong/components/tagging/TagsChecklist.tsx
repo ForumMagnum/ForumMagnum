@@ -54,6 +54,7 @@ const TagsChecklist = ({
   selectedTagIds: selectedTagIds = [],
   tags,
   displaySelected = "hide",
+  tooltips = true,
 }: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
@@ -64,6 +65,7 @@ const TagsChecklist = ({
   selectedTagIds?: Array<string | undefined>;
   tags: TagFragment[];
   displaySelected?: "highlight" | "hide";
+  tooltips?: boolean;
 }) => {
   const { LWTooltip } = Components;
 
@@ -90,6 +92,7 @@ const TagsChecklist = ({
         ) : (
           <LWTooltip
             key={tagChecklistItem.tag._id}
+            disabled={!tooltips}
             title={
               <div>
                 Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}

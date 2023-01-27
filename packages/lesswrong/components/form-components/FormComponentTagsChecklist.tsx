@@ -11,14 +11,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const FormComponentTagsChecklist = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
-  document: any,
-  path: string,
-  label?: string,
-  value: any,
-  updateCurrentValues: any,
-  stringVersionFieldName?: string|null,
-  classes: ClassesType,
+const FormComponentTagsChecklist = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  stringVersionFieldName,
+  classes,
+}: {
+  document: any;
+  path: string;
+  label?: string;
+  value: any;
+  updateCurrentValues: any;
+  stringVersionFieldName?: string | null;
+  classes: ClassesType;
 }) => {
   const { results, loading } = useMulti({
     terms: {
@@ -36,30 +44,28 @@ const FormComponentTagsChecklist = ({document, path, label, value, updateCurrent
     return null;
   }
 
-  if (loading) return <Loading/>
-  if (!results) return null
+  if (loading) return <Loading />;
+  if (!results) return null;
 
   const onTagSelected = (
     tag: { tagId: string; tagName: string; parentTagId?: string },
-    existingTagIds: Array<string>,
+    existingTagIds: Array<string>
   ) => {
-    const newValue = Array.from(new Set(
-      [...existingTagIds, tag.tagId, tag.parentTagId],
-    )).filter((id) => !!id);
+    const newValue = Array.from(new Set([...existingTagIds, tag.tagId, tag.parentTagId])).filter((id) => !!id);
     updateCurrentValues({
       [path]: newValue,
     });
-  }
+  };
 
   const onTagRemoved = (
     tag: { tagId: string; tagName: string; parentTagId?: string },
-    existingTagIds: Array<string>,
+    existingTagIds: Array<string>
   ): void => {
     const newValue = existingTagIds.filter((id) => id !== tag.tagId);
     updateCurrentValues({
       [path]: newValue,
     });
-  }
+  };
 
   return (
     <div>
@@ -70,10 +76,11 @@ const FormComponentTagsChecklist = ({document, path, label, value, updateCurrent
         selectedTagIds={value ?? []}
         onTagSelected={onTagSelected}
         onTagRemoved={onTagRemoved}
+        tooltips={false}
       />
     </div>
   );
-}
+};
 
 const FormComponentTagsChecklistComponent = registerComponent("FormComponentTagsChecklist", FormComponentTagsChecklist, {styles});
 
