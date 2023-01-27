@@ -40,6 +40,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+type TagWithCount = TagPreviewFragment & {count:number}
+
 export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
   classes: ClassesType,
   posts: PostsList[]|null,
@@ -49,11 +51,11 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
   const { LWTooltip } = Components
 
 
-  const tags = posts?.flatMap(post => post.tags)
-  const groupedTags = groupBy(tags, (tag) => tag._id)
-  const tagsWithCount = Object.entries(groupedTags).map(tag => ({
-    ...tag[1][0],
-    count: tag[1].length
+  const allTags = posts?.flatMap(post => post.tags) ?? []
+  const uniqueTags = [...new Set(allTags)]
+  const tagsWithCount: TagWithCount[] = uniqueTags.map(tag => ({
+    ...tag,
+    count: allTags.filter(t => t._id === tag._id).length
   }))
 
   const defaultMax = 6 // default number of tags to show
