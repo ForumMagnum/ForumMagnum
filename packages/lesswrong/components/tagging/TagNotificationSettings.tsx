@@ -72,7 +72,6 @@ const TagNotificationSettings = ({
   isFrontpageSubscribed: boolean;
   classes: ClassesType;
 }) => {
-  useForceRerender() // Required because anchorEl is not set on the first render
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const { flash } = useMessages();
@@ -145,7 +144,7 @@ const TagNotificationSettings = ({
     try {
       e.preventDefault();
       const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
-      captureEvent("subscribeClicked", {state: subscriptionState})
+      captureEvent("subscribeClicked", {state: subscriptionState}) // TODO capture better events
 
       const newSubscription = {
         state: subscriptionState,
