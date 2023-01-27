@@ -103,7 +103,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
       setIsAwaiting(false);
       flash(e.message);
     }
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
   const { Loading, FooterTag, ContentStyles } = Components
   
