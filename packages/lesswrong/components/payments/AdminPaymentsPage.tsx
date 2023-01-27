@@ -5,9 +5,10 @@ import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { useCurrentUser } from '../common/withUser';
-import { getUserEmail } from "../../lib/collections/users/helpers";
+import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
+import LinkIcon from '@material-ui/icons/Link'
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -28,13 +29,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     marginBottom: 24,
     display: "block"
+  },
+  icon: {
+    width: 14,
+    color: theme.palette.grey[500],
+    marginRight: 12,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
   }
 });
 
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay, LoadMore } = Components
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore, Row, LWTooltip, UserTooltip } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
@@ -47,11 +57,12 @@ export const AdminPaymentsPage = ({classes}: {
   const [search, setSearch] = useState<string>("")
   const filteredResults = results?.filter(user => {
     const searchLower = search.toLowerCase()
-    const { displayName, username, slug, paymentEmail, paymentInfo } = user
+    const { displayName, previousDisplayName, username, slug, paymentEmail, paymentInfo } = user
     const email = getUserEmail(user)
 
     return displayName.toLowerCase().includes(searchLower) || 
       username.toLowerCase().includes(searchLower) || 
+      previousDisplayName?.toLowerCase().includes(searchLower) ||
       slug.toLowerCase().includes(searchLower) ||
       paymentEmail?.toLowerCase().includes(searchLower) ||
       paymentInfo?.toLowerCase().includes(searchLower) ||
@@ -66,7 +77,7 @@ export const AdminPaymentsPage = ({classes}: {
       <SectionTitle title="Payment Admin"/>
       <div>
         <Input 
-          className={classes.search} 
+          className={classes.search}
           onChange={e => setSearch(e.target.value)} 
           placeholder="Search..."
           disableUnderline
@@ -76,19 +87,22 @@ export const AdminPaymentsPage = ({classes}: {
       {loading && <Loading/>}
       <Table>
         <TableRow>
-          <TableCell><b>Username</b></TableCell>
-          <TableCell><b>Fullname</b></TableCell>
-          <TableCell><b>Account Email</b></TableCell>
-          <TableCell><b>Payment Email</b></TableCell>
+          <TableCell><b>Name</b></TableCell>
+          <TableCell><b>Email</b></TableCell>
           <TableCell><b>Payment Info</b></TableCell>
         </TableRow>
         {filteredResults?.map(user => {
           return <TableRow key={user._id}>
-              <TableCell><UsersNameDisplay user={user}/></TableCell>
-              <TableCell>{user.fullName}</TableCell>
-              <TableCell>{getUserEmail(user)}</TableCell>
-              <TableCell>{user.paymentEmail}</TableCell>
-              <TableCell>{user.paymentInfo}</TableCell>
+              <TableCell>
+                <Row justifyContent={"flex-start"}>
+                  <LWTooltip title={<UserTooltip user={user}/>}>
+                    <Link to={userGetProfileUrl(user)}><LinkIcon className={classes.icon}/></Link>
+                  </LWTooltip>
+                  {user.fullName ?? user.displayName}
+                </Row>
+              </TableCell>
+              <TableCell>{user.paymentEmail ?? getUserEmail(user)}</TableCell>
+              <TableCell>{user.paymentInfo ?? user.paymentEmail}</TableCell>
           </TableRow>
         })}
       </Table>
