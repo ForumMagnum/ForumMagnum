@@ -14,6 +14,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -149,6 +150,8 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
+  const { unreadNotifications, unreadPrivateMessages } = useUnreadNotifications();
+  
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -299,6 +302,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
+                  unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                   currentUser={currentUser}
@@ -314,6 +318,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
           />
         </Headroom>
         {currentUser && <NotificationsMenu
+          unreadPrivateMessages={unreadPrivateMessages}
           open={notificationOpen}
           hasOpened={notificationHasOpened}
           setIsOpen={handleSetNotificationDrawerOpen}

@@ -166,7 +166,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
       this.props.onSetIsActive(true);
   }
 
-  handleKeyDown = (event) => {
+  handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') this.closeSearch();
     if (event.keyCode === 13) this.handleSubmit()
   }

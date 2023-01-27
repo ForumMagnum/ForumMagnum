@@ -157,3 +157,9 @@ export const getUserFromReq = async (req): Promise<DbUser|null> => {
   return req.user
   // return getUser(getAuthToken(req));
 }
+
+export async function getContextFromReqAndRes(req: Request, res: Response): Promise<ResolverContext> {
+  const user = await getUserFromReq(req);
+  const context = await computeContextFromUser(user, req, res);
+  return context;
+}

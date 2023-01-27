@@ -10,7 +10,9 @@ export const subscriptionTypes = {
   newEvents: 'newEvents',
   newReplies: 'newReplies',
   newTagPosts: 'newTagPosts'
-}
+} as const
+
+export type SubscriptionType = typeof subscriptionTypes[keyof typeof subscriptionTypes];
 
 const schema: SchemaType<DbSubscription> = {
   userId: {

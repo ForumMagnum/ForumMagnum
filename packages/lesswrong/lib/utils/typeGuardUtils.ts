@@ -1,3 +1,7 @@
+export function fieldIn<T extends {}>(field: string | number | symbol, ...objects: T[]): field is keyof T {
+  return objects.every(object => field in object);
+}
+
 type Literal<T> = string|number extends T ? never : T;
 type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
