@@ -88,7 +88,13 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 345,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
-  }
+  },
+  spotlightDarkImageId: {
+    minImageHeight: 232,
+    minImageWidth: 345,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
 }
 
 const formPreviewSizeByImageType = {
@@ -115,12 +121,16 @@ const formPreviewSizeByImageType = {
   spotlightImageId: {
     width: 345,
     height: 234
-  }
+  },
+  spotlightDarkImageId: {
+    width: 345,
+    height: 234
+  },
 }
 
 const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
-  document: Object,
+  document: Record<string, any>,
   updateCurrentValues: Function,
   clearField: Function,
   label: string,
@@ -129,7 +139,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
 }) => {
   const theme = useTheme();
 
-  const setImageInfo = (error, result) => {
+  const setImageInfo = (error: any, result: any) => {
     if (error) {
       throw new Error(error.statusText)
     }
@@ -149,7 +159,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   }
 
   const uploadWidget = () => {
-    const cloudinaryArgs = cloudinaryArgsByImageType[name]
+    const cloudinaryArgs = cloudinaryArgsByImageType[name as keyof typeof cloudinaryArgsByImageType]
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
     cloudinary.openUploadWidget({
@@ -180,7 +190,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
     }, setImageInfo);
   }
   
-  const chooseDefaultImg = (newImageId) => {
+  const chooseDefaultImg = (newImageId: string) => {
     setImageId(newImageId)
     updateCurrentValues({[name]: newImageId})
   }
@@ -198,7 +208,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
     return ''
   })
   
-  const formPreviewSize = formPreviewSizeByImageType[name]
+  const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
   
   return (

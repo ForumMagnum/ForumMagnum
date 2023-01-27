@@ -15,7 +15,7 @@ const pathToKey = (path: ThemePath): string => path.join(separator);
 const keyToPath = (key: string): ThemePath => key.split(separator).map(parsePathItem);
 const keyToVar = (key: string): string => "--" + key.replace(new RegExp(separator, "g"), "-");
 const keyToVarRef = (key: string): string => `var(${keyToVar(key)})`;
-const getAtPath = <T extends {}>(data: T, path: ThemePath) => path.length < 2
+const getAtPath = <T extends {}>(data: T, path: ThemePath): string => path.length < 2
   ? data[path[0]]
   : getAtPath(data[path[0]], path.slice(1));
 

@@ -5,7 +5,7 @@ import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
-import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
+import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { withTimezone } from '../common/withTimezone';
 import {AnalyticsContext, withTracking} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
@@ -63,7 +63,13 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     })
   }
 
-  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents}) => {
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents}: {
+    currentTimeframe: string;
+    currentFilter: string;
+    currentSorting: string;
+    currentShowLowKarma: boolean;
+    currentIncludeEvents: boolean;
+  }) => {
     const { timezone, location } = this.props
     const { query } = location
     const { showSettings } = this.state
@@ -90,8 +96,8 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
       </AnalyticsContext>
     }
 
-    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
-    const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType]
+    const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType]
     
     let postListParameters: PostsViewTerms = {
       view: 'timeframe',
@@ -111,7 +117,8 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
         {/* Allow unhiding posts from all posts menu to allow recovery of hiding the wrong post*/}
         <AllowHidingFrontPagePostsContext.Provider value={true}>
           <PostsTimeframeList
-            timeframe={currentTimeframe}
+            // TODO: this doesn't seem to be guaranteed, actually?  Since it can come from an unsanitized query param...
+            timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
             dimWhenLoading={showSettings}

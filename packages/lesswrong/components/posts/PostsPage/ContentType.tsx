@@ -34,10 +34,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
 const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
-export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"frontpageSubforumDiscussion"|"subforumDiscussion";
 interface ContentTypeSettings {
-  tooltipTitle: string,
-  tooltipBody: React.ReactNode,
+  tooltipTitle?: string,
+  tooltipBody?: React.ReactNode,
   linkTarget: string|null,
   Icon: any,
 }
@@ -47,6 +47,7 @@ type ContentTypeRecord = {
   curated: ContentTypeSettings,
   shortform: ContentTypeSettings,
   tags: ContentTypeSettings,
+  frontpageSubforumDiscussion?: ContentTypeSettings,
   subforumDiscussion?: ContentTypeSettings,
 }
 
@@ -221,9 +222,13 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       Icon: TagIcon,
       linkTarget: '/tags/all',
     },
-    subforumDiscussion: {
+    frontpageSubforumDiscussion: {
       tooltipTitle: 'Subforum Discussion',
       tooltipBody: 'Discussion comments on subforums that you are a member of',
+      Icon: QuestionAnswerIcon,
+      linkTarget: null,
+    },
+    subforumDiscussion: {
       Icon: QuestionAnswerIcon,
       linkTarget: null,
     }
@@ -305,14 +310,24 @@ const ContentType = ({classes, className, type, label}: {
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
-  return <Typography variant="body1" component="span" className={classNames(classes.root, className)}>
-    <LWTooltip title={<React.Fragment>
-      <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
-      {contentData.tooltipBody}
-    </React.Fragment>}>
-      <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
-    </LWTooltip>
-  </Typography>
+
+  const innerComponent = <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
+  return (
+    <Typography variant="body1" component="span" className={classNames(classes.root, className)}>
+      {contentData.tooltipTitle ? (
+        <LWTooltip
+          title={
+            <React.Fragment>
+              <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
+              {contentData.tooltipBody}
+            </React.Fragment>
+          }
+        >
+          {innerComponent}
+        </LWTooltip>
+      ) : innerComponent}
+    </Typography>
+  );
 }
 
 const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles, stylePriority: -1});

@@ -9,7 +9,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EASequencesHome = ({classes}) => {
+const EASequencesHome = ({classes}: {
+  classes: ClassesType;
+}) => {
   const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
   
   return <AnalyticsContext pageContext="eaSequencesHome">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
+// These imports need to be separate to satisfy eslint, for some reason
+import type { Suggest } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -155,7 +157,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     }
   }, [value])
   
-  const handleCheckClear = (value) => {
+  const handleCheckClear = (value: any) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
       updateCurrentValues({
@@ -165,7 +167,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     }
   }
 
-  const handleSuggestSelect = (suggestion) => {
+  const handleSuggestSelect = (suggestion: Suggest) => {
     if (suggestion && suggestion.gmaps) {
       updateCurrentValues({
         ...(locationFieldName ? {
