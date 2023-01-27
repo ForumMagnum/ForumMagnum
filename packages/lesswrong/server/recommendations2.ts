@@ -4,13 +4,16 @@ import { Votes } from '../lib/collections/votes/collection';
 import { Comments } from '../lib/collections/comments/collection';
 import { PostEmbeddings } from '../lib/collections/postEmbeddings/collection';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { scoringFeatureConstructors,ScoringContext,PostScoringFeature,ServerPostScoringFeature,PostScoringKarmaOptions,PostScoringKarma,PostScoringTimeDecayOptions,PostScoringTimeDecay,PostScoringSimilarityOptions,PostScoringSimilarity,PostScoringRecentCommentsOptions,PostScoringRecentComments,RecommendationsQuery,RecommendationResult,FeatureName,RecommendationRubric } from '../lib/recommendationTypes';
+import { scoringFeatureConstructors,ScoringContext,PostScoringFeature,ServerPostScoringFeature,PostScoringKarmaOptions,PostScoringKarma,PostScoringTimeDecayOptions,PostScoringTimeDecay,PostScoringSimilarityOptions,PostScoringSimilarity,PostScoringIHaveCommented,PostScoringIHaveCommentedOptions,PostScoringRecentCommentsOptions,PostScoringRecentComments,RecommendationsQuery,RecommendationResult,FeatureName,RecommendationRubric } from '../lib/recommendationTypes';
 import { normalizeVector, vectorSum, scaleVector, vectorDotProduct } from './utils/vectorUtil';
+import { getCommentAncestorIds } from './utils/commentTreeUtils';
 import moment from "moment";
+import some from 'lodash/some';
 import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 import keyBy from 'lodash/keyBy';
 import sumBy from 'lodash/sumBy';
+import last from 'lodash/last';
 
 class PostScoringKarmaServer extends PostScoringKarma {
   scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringKarmaOptions): Promise<number[]> => {
@@ -20,6 +23,9 @@ class PostScoringKarmaServer extends PostScoringKarma {
     return posts.map((post,i) =>
       this.rescaleKarma(options, karmaAtTime[i])
     );
+  }
+  getScoringSqlFragment = async (ctx: ScoringContext, options: PostScoringKarmaOptions): Promise<string> => {
+    return `karmaSubscore = post.karma ^ ${options.exponent}`;
   }
 }
 
@@ -94,6 +100,58 @@ class PostScoringRecentCommentsServer extends PostScoringRecentComments {
   }
 }
 
+class PostScoringIHaveCommentedServer extends PostScoringIHaveCommented {
+  scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringIHaveCommentedOptions): Promise<number[]> => {
+    if (!ctx.currentUser) return posts.map(p => 0);
+    const commentsByMe = await Comments.find({
+      ...getDefaultViewSelector("Comments"),
+      postedAt: {$lt: ctx.now},
+      postId: {$in: posts.map(p=>p._id)},
+      userId: ctx.currentUser._id,
+    }).fetch();
+    const myCommentIds = new Set<string>(commentsByMe.map(c=>c._id));
+
+    const postIdsWithRepliesByMe = new Set<string>();
+    for (let comment of commentsByMe) {
+      postIdsWithRepliesByMe.add(comment.postId);
+    }
+    
+    return await Promise.all(posts.map(async (post) => {
+      if (!postIdsWithRepliesByMe.has(post._id))
+        return 0;
+      
+      const myCommentsOnThisPost = commentsByMe.filter(c=>c.postId===post._id);
+      if (!myCommentsOnThisPost.length) {
+        return options.noNewCommentsSinceMine;
+      }
+      const myLatestCommentOnThisPost = last(orderBy(myCommentsOnThisPost, c=>c.postedAt));
+      const newerComments = await Comments.find({
+        ...getDefaultViewSelector("Comments"),
+        postedAt: {$lt: ctx.now, $gt: myLatestCommentOnThisPost!.postedAt},
+        postId: post._id,
+      }).fetch();
+      
+      // Are any of the replies to me?
+      const ancestorIdsByComment: Record<string,string[]> = {};
+      await Promise.all(
+        newerComments.map(async (newerComment) => {
+          ancestorIdsByComment[newerComment._id] = await getCommentAncestorIds(newerComment);
+        })
+      );
+      if (some(newerComments, newerComment => {
+        const ancestorIds = ancestorIdsByComment[newerComment._id];
+        return some(ancestorIds, ancestorId=>myCommentIds.has(ancestorId));
+      })) {
+        return options.newCommentsReplyToMine;
+      } else if (newerComments.length > 0) {
+        return options.newCommentsSinceMine;
+      } else {
+        return options.noNewCommentsSinceMine;
+      }
+    }));
+  }
+}
+
 /**
  * Get a post's karma at a given timestamp (for purposes of recommendations with a simulated date).
  * (This is pretty slow.)
@@ -148,6 +206,7 @@ const serverScoringFeatures: ServerScoringFeatures<typeof scoringFeatureConstruc
   new PostScoringTimeDecayServer(),
   new PostScoringSimilarityServer(),
   new PostScoringRecentCommentsServer(),
+  new PostScoringIHaveCommentedServer(),
 ];
 const serverScoringFeaturesByName = keyBy(serverScoringFeatures, f=>f.name);
 
@@ -180,7 +239,7 @@ defineQuery({
     // Extract features
     const featureCtx = {
       now: simulatedDate,
-      currentUser: context.currentUser,
+      currentUser: (options.perspective==="myself") ? context.currentUser : null,
     };
     const featureScores: number[][] = await Promise.all(
       serverScoringFeatures.map(async (feature) => {

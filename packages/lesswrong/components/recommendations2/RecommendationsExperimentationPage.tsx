@@ -92,6 +92,7 @@ const RecommendationsExperimentationPage = ({classes}: {
   function applySettings() {
     setSelectedQuery({
       overrideDate: experimentSettings.date?.toString() ?? undefined,
+      perspective: experimentSettings.perspective,
       limit: experimentSettings.limit,
       features: samplingAlgorithm.features,
     });

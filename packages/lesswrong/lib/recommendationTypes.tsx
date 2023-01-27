@@ -90,8 +90,48 @@ export class PostScoringRecentComments extends PostScoringFeature<PostScoringRec
   }
 }
 
+export type PostScoringIHaveCommentedOptions = {
+  noNewCommentsSinceMine: number
+  newCommentsSinceMine: number
+  newCommentsReplyToMine: number
+};
+export class PostScoringIHaveCommented extends PostScoringFeature<PostScoringIHaveCommentedOptions> {
+  name = "iHaveCommented"
+  description = "Has Comments By Me"
+  getDefaultOptions = ()=>({
+    noNewCommentsSinceMine: 1,
+    newCommentsSinceMine: 3,
+    newCommentsReplyToMine: 8,
+  })
+  optionsForm = ({options, setOptions}) => {
+    return <div>
+      <div>
+        Mine is newest comment
+        <Input
+          value={options.noNewCommentsSinceMine}
+          onChange={(e) => setOptions({...options, noNewCommentsSinceMine: parseFloat(e.target.value)})}
+        />
+      </div>
+      <div>
+        Newer comments are not replies to me
+        <Input
+          value={options.newCommentsSinceMine}
+          onChange={(e) => setOptions({...options, newCommentsSinceMine: parseFloat(e.target.value)})}
+        />
+      </div>
+      <div>
+        Newer comment is a reply to me
+        <Input
+          value={options.newCommentsReplyToMine}
+          onChange={(e) => setOptions({...options, newCommentsReplyToMine: parseFloat(e.target.value)})}
+        />
+      </div>
+    </div>
+  }
+}
 
-export const scoringFeatureConstructors = [PostScoringKarma,PostScoringTimeDecay,PostScoringSimilarity,PostScoringRecentComments] as const;
+
+export const scoringFeatureConstructors = [PostScoringKarma,PostScoringTimeDecay,PostScoringSimilarity,PostScoringRecentComments,PostScoringIHaveCommented] as const;
 export const scoringFeatures = scoringFeatureConstructors.map((Cons) => new Cons());
 export const scoringFeaturesByName = keyBy(scoringFeatures, f=>f.name);
 
@@ -129,6 +169,7 @@ export interface RecommendationsExperimentSettings {
 
 export interface RecommendationsQuery {
   overrideDate?: string,
+  perspective: "myself"|"loggedOut"
   limit: number
   features: Array<{
     name: FeatureName
