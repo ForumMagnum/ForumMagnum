@@ -7,7 +7,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments, CommentTreeNode, flattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
@@ -67,7 +67,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, approvalSection, refetchAfterApproval, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -79,11 +79,24 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  approvalSection?: 'approved' | 'rejected',
+  refetchAfterApproval?: () => Promise<void>,
   newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
+
+  const approvedOrPendingCommentTree = commentTree.filter(({ item: { commentApproval }}) => !commentApproval || commentApproval.status === 'approved');
+  const rejectedCommentTree = commentTree.filter(({ item: { commentApproval }}) => commentApproval?.status === 'rejected');
+
+  const getApprovalFilteredCommentsTree = (approvalSection: 'approved' | 'rejected') => {
+    if (approvalSection === 'approved') return approvedOrPendingCommentTree;
+    return rejectedCommentTree;
+  };
+
+  const approvedOrPendingComments = flattenComments(approvedOrPendingCommentTree);
+  const rejectedComments = flattenComments(rejectedCommentTree);
   
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
@@ -103,25 +116,59 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
+  const renderCommentCountComponent = () => {
+    const newLimit = commentCount + (loadMoreCount || commentCount);
+
+    let displayedCommentCount = commentCount;
+    let loadedCommentCount = postGetCommentCountStr(post, totalComments).toString();
+
+    if (approvalSection) {
+      const approvedOrPendingCommentCount = approvedOrPendingComments.length;
+      const rejectedCommentCount = rejectedComments.length;
+
+      displayedCommentCount = approvalSection === 'approved'
+        ? approvedOrPendingCommentCount
+        : rejectedCommentCount;
+
+      loadedCommentCount = postGetCommentCountStr(post, displayedCommentCount);
+    }
+
+    if (commentCount < totalComments) {
+      return (
+        <span>
+          Rendering {displayedCommentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+          {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+        </span>
+      );
+    }
+
+    return (
+      <span>
+        { loadedCommentCount } comments, sorted by <Components.CommentsViews post={post} />
+      </span>
+    );
+  }
+
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    const newLimit = commentCount + (loadMoreCount || commentCount)
-    return <CommentsListMeta>
+    const approvalSectionTitle = approvalSection && <CommentsListMeta>
+      <Typography
+        variant="body2"
+        component='span'
+        className={classes.inline}
+      >
+        {approvalSection === 'approved' ? 'Approved and Pending Comments' : 'Rejected Comments'}
+      </Typography>
+      <br />
+    </CommentsListMeta>;
+
+    const listSectionTitle = <CommentsListMeta>
       <Typography
         variant="body2"
         component='span'
         className={classes.inline}>
-        {
-          (commentCount < totalComments) ?
-            <span>
-              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
-            </span> :
-            <span>
-              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
-            </span>
-        }
+        {renderCommentCountComponent()}
       </Typography>
       {post && <Typography
         variant="body2"
@@ -151,12 +198,27 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           })}
         </Menu>
       </Typography>}
-    </CommentsListMeta>
+    </CommentsListMeta>;
+
+    return <>
+      {approvalSectionTitle}
+      {listSectionTitle}
+    </>;
   }
 
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
+
+  const sectionCommentTree = approvalSection
+    ? getApprovalFilteredCommentsTree(approvalSection)
+    : commentTree;
+
+  // No need to show the "rejected" comments section if there aren't any
+  if (approvalSection === 'rejected' && sectionCommentTree.length === 0) {
+    return null;
+  }
+
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
@@ -189,9 +251,10 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           postPage: true,
           showCollapseButtons: true,
           tag: tag,
+          refetchAfterApproval: refetchAfterApproval
         }}
         totalComments={totalComments}
-        comments={commentTree}
+        comments={sectionCommentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />

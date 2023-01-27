@@ -139,7 +139,20 @@ export interface CommentTreeOptions {
    * Which comment in the tree is moderated, if any.
    * For custom styling in the comment moderation tab.
    */
-  moderatedCommentId?: string
+  moderatedCommentId?: string,
+  /**
+   * If the top-level comment has a comment approval status, child comments also need to know.
+   * 
+   * Note that in contexts like `PostsItemNewCommentsWrapper` we need to separately fetch the top-level comments,
+   * because it fetches a very small number of comments and those often won't include the top-level comment for any given thread
+   */
+  rootCommentApproval?: CommentApprovalWithoutComment
+  /**
+   * Comments need to be refetched after approval,
+   * since approval comes down via a resolver field pulling from another collection and the client won't correctly display the new state by default
+   * (i.e. by updated the client-side apollo graphql cache)
+   */
+  refetchAfterApproval?: () => Promise<void>,
   
   /**
    * If set, this is a side-comment (ie, is being shown in the right

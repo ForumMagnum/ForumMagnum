@@ -405,6 +405,8 @@ importComponent("CommentOutdatedWarning", () => require('../components/comments/
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
+importComponent("CommentApprovalMenuItem", () => require('../components/comments/CommentActions/CommentApprovalMenuItem'));
+importComponent("RejectCommentDialog", () => require('../components/comments/CommentActions/RejectCommentDialog'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
 importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));

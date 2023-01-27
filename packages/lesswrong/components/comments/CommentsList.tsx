@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, topLevelComments, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -24,6 +24,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   parentAnswerId?: string,
   defaultNestingLevel?: number,
   parentCommentId?: string,
+  topLevelComments?: Array<CommentsList>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -62,23 +63,39 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
       <p>No comments to display.</p>
     </div>
   }
+
+  const topLevelCommentMappings = topLevelComments && Object.fromEntries(
+    comments
+      .map(({ item: { _id, topLevelCommentId } }) => [_id, topLevelCommentId] as const)
+      .map(([_id, topLevelCommentId]) => [_id, topLevelComments.find(topLevelComment => topLevelComment._id === topLevelCommentId)] as const)
+      .filter(([, topLevelComment]) => !!topLevelComment)
+  );
+
+  const commentNodes = comments.map(comment => {
+    const rootCommentApproval = topLevelCommentMappings?.[comment.item._id]?.commentApproval;
+    const updatedTreeOptions: CommentTreeOptions = {
+      ...treeOptions,
+      ...(rootCommentApproval ? { rootCommentApproval } : {})
+    };
+
+    return <CommentsNode
+      treeOptions={updatedTreeOptions}
+      startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
+      expandAllThreads={expandAllThreads}
+      comment={comment.item}
+      childComments={comment.children}
+      key={comment.item._id}
+      parentCommentId={parentCommentId}
+      parentAnswerId={parentAnswerId}
+      shortform={(treeOptions.post as PostsBase)?.shortform}
+      isChild={defaultNestingLevel > 1}
+    />;
+  });
+
   return <Components.ErrorBoundary>
     {renderExpandOptions()}
     <div>
-      {comments.map(comment =>
-        <CommentsNode
-          treeOptions={treeOptions}
-          startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
-          expandAllThreads={expandAllThreads}
-          comment={comment.item}
-          childComments={comment.children}
-          key={comment.item._id}
-          parentCommentId={parentCommentId}
-          parentAnswerId={parentAnswerId}
-          shortform={(treeOptions.post as PostsBase)?.shortform}
-          isChild={defaultNestingLevel > 1}
-        />)
-      }
+      {commentNodes}
     </div>
   </Components.ErrorBoundary>
 }

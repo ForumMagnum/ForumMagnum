@@ -17,8 +17,8 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanCommentLock, userCanModeratePost, userCanUpdateRequireCommentApproval, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
@@ -2346,6 +2346,17 @@ const schema: SchemaType<DbPost> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+
+  requireCommentApproval: {
+    type: Boolean,
+    canRead: ['guests'],
+    group: formGroups.moderationGroup,
+    canUpdate: [userCanUpdateRequireCommentApproval, 'sunshineRegiment', 'admins'],
+    canCreate: [(user) => userCanDo(user, 'posts.requireCommentApproval.own'), 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: true,
+    control: "checkbox",
   },
   
   languageModelSummary: {

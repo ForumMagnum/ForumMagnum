@@ -196,6 +196,12 @@ import './collections/commentModeratorActions/index';
 // ModerationTemplates
 import './collections/moderationTemplates/index';
 
+// Comment approvals
+import './collections/commentApprovals/collection';
+import './collections/commentApprovals/views';
+import './collections/commentApprovals/fragments';
+import './collections/commentApprovals/permissions';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

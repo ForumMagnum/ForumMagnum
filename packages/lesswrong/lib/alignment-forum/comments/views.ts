@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionIndexUtils';
 import { augmentForDefaultView } from '../../collections/comments/views';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
-Comments.addView("alignmentSuggestedComments", function (terms) {
+Comments.addView("alignmentSuggestedComments", function (terms: OldCommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,

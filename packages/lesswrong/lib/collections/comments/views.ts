@@ -7,8 +7,13 @@ import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import pick from 'lodash/pick';
 
+interface CommentsByIdsViewTerms extends ViewTermsBase {
+  view?: 'commentsByIds';
+  commentIds: string[];
+}
+
 declare global {
-  interface CommentsViewTerms extends ViewTermsBase {
+  interface OldCommentsViewTerms extends ViewTermsBase {
     view?: CommentsViewName,
     postId?: string,
     userId?: string,
@@ -24,9 +29,13 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
   }
+
+  type CommentsViewTerms =
+    | OldCommentsViewTerms
+    | CommentsByIdsViewTerms
 }
 
-Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
+Comments.addDefaultView((terms: OldCommentsViewTerms, _, context?: ResolverContext) => {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -106,7 +115,7 @@ ensureIndex(Comments, { postId: "hashed" });
 // For the user profile page
 ensureIndex(Comments, { userId:1, postedAt:-1 });
 
-Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
+Comments.addView("commentReplies", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       parentCommentId: terms.parentCommentId,
@@ -118,7 +127,7 @@ Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
 })
 ensureIndex(Comments, { parentCommentId: "hashed" });
 
-Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
+Comments.addView("postCommentsDeleted", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -129,7 +138,7 @@ Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
+Comments.addView("allCommentsDeleted", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -139,7 +148,7 @@ Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
+Comments.addView("postCommentsTop", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -155,7 +164,7 @@ ensureIndex(Comments,
   { name: "comments.top_comments" }
 );
 
-Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
+Comments.addView("afPostCommentsTop", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -171,7 +180,7 @@ ensureIndex(Comments,
   { name: "comments.af_top_comments" }
 );
 
-Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
+Comments.addView("postCommentsOld", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -184,7 +193,7 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 });
 // Uses same index as postCommentsNew
 
-Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+Comments.addView("postCommentsNew", (terms: OldCommentsViewTerms) => {
   if (!terms.postId)
     throw new Error("Invalid postCommentsNew view: postId is required");
   return {
@@ -201,7 +210,7 @@ ensureIndex(Comments,
   { name: "comments.new_comments" }
 );
 
-Comments.addView("postCommentsBest", (terms: CommentsViewTerms) => {
+Comments.addView("postCommentsBest", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -213,7 +222,7 @@ Comments.addView("postCommentsBest", (terms: CommentsViewTerms) => {
 });
 // Same as postCommentsTop
 
-Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
+Comments.addView("postLWComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -225,7 +234,7 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
   };
 })
 
-Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+Comments.addView("profileRecentComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
@@ -233,14 +242,14 @@ Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
 })
 ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
 
-Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
+Comments.addView("allRecentComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
 
-Comments.addView("recentComments", (terms: CommentsViewTerms) => {
+Comments.addView("recentComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: { score:{$gt:0}, deletedPublic: false},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
@@ -248,7 +257,7 @@ Comments.addView("recentComments", (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
-Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
+Comments.addView("afSubmissions", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       af: false,
@@ -259,7 +268,7 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
 });
 
 // As of 2021-10, JP is unsure if this is used
-Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
+Comments.addView("recentDiscussionThread", (terms: OldCommentsViewTerms) => {
   // The forum has fewer comments, and so wants a more expansive definition of
   // "recent"
   const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
@@ -275,7 +284,7 @@ Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
 })
 // Uses same index as postCommentsNew
 
-Comments.addView("afRecentDiscussionThread", (terms: CommentsViewTerms) => {
+Comments.addView("afRecentDiscussionThread", (terms: OldCommentsViewTerms) => {
   const sevenDaysAgo = moment().subtract(7, 'days').toDate();
   return {
     selector: {
@@ -289,7 +298,7 @@ Comments.addView("afRecentDiscussionThread", (terms: CommentsViewTerms) => {
   };
 })
 
-Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
+Comments.addView("postsItemComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
@@ -301,7 +310,7 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
+Comments.addView("sunshineNewCommentsList", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -323,7 +332,7 @@ export const questionAnswersSortings = {
   "oldest": {postedAt: 1},
 } as const;
 
-Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
+Comments.addView('questionAnswers', (terms: OldCommentsViewTerms) => {
   return {
     selector: {postId: terms.postId, answer: true},
     options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
@@ -331,7 +340,7 @@ Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
 });
 
 // Used in legacy routes
-Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
+Comments.addView("legacyIdComment", (terms: OldCommentsViewTerms) => {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
   if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
@@ -350,7 +359,7 @@ ensureIndex(Comments, {legacyId: "hashed"});
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
 
-Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
+Comments.addView("sunshineNewUsersComments", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
@@ -364,7 +373,7 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
 
-Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
+Comments.addView("defaultModeratorResponses", (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       tagId: terms.tagId,
@@ -373,7 +382,7 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
 });
 
 
-Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
+Comments.addView('repliesToAnswer', (terms: OldCommentsViewTerms) => {
   return {
     selector: {parentAnswerId: terms.parentAnswerId},
     options: {sort: {baseScore: -1}}
@@ -387,7 +396,7 @@ ensureIndex(Comments, {topLevelCommentId:1});
 // Used in findCommentByLegacyAFId
 ensureIndex(Comments, {agentFoundationsId:1});
 
-Comments.addView('topShortform', (terms: CommentsViewTerms) => {
+Comments.addView('topShortform', (terms: OldCommentsViewTerms) => {
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),
@@ -407,7 +416,7 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView('shortform', (terms: CommentsViewTerms) => {
+Comments.addView('shortform', (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       shortform: true,
@@ -418,7 +427,7 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
+Comments.addView('repliesToCommentThread', (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       topLevelCommentId: terms.topLevelCommentId
@@ -430,7 +439,7 @@ Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, postedAt: 1, baseScore:1});
 
-Comments.addView('shortformLatestChildren', (terms: CommentsViewTerms) => {
+Comments.addView('shortformLatestChildren', (terms: OldCommentsViewTerms) => {
   return {
     selector: { topLevelCommentId: terms.topLevelCommentId} ,
     options: {sort: {postedAt: -1}, limit: 500}
@@ -440,7 +449,7 @@ Comments.addView('shortformLatestChildren', (terms: CommentsViewTerms) => {
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
-Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
+Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: OldCommentsViewTerms) => {
   return {
     selector: { 
       userId, 
@@ -454,7 +463,7 @@ Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsVie
   };
 });
 
-Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
+Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}: OldCommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -473,7 +482,7 @@ ensureIndex(Comments,
   { name: "comments.nominations2018" }
 );
 
-Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
+Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: OldCommentsViewTerms) => {
   return {
     selector: { 
       userId, 
@@ -487,7 +496,7 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
   };
 });
 
-Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
+Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}: OldCommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -502,7 +511,7 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
 });
 
 // TODO: try to refactor this
-Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}: OldCommentsViewTerms) {
   const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
   return {
     selector: { 
@@ -538,14 +547,14 @@ export const subforumSorting = {
 }
 export const subforumDiscussionDefaultSorting = "recentComments"
 
-Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+Comments.addView('tagDiscussionComments', (terms: OldCommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
     tagCommentType: "DISCUSSION"
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: OldCommentsViewTerms, _, context?: ResolverContext) => {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
@@ -561,7 +570,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
 ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 // For 'Discussion from your subforums' on the homepage
-Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
+Comments.addView('latestSubforumDiscussion', (terms: OldCommentsViewTerms) => {
   return {
     selector: {
       tagId: {$in: terms.profileTagIds ?? []},
@@ -576,7 +585,7 @@ Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
   }
 });
 
-Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
+Comments.addView('moderatorComments', (terms: OldCommentsViewTerms) => ({
   selector: {
     moderatorHat: true,
   },
@@ -588,3 +597,9 @@ ensureIndex(Comments,
   augmentForDefaultView({moderatorHat: 1}),
   { name: "comments.moderatorHat" }
 );
+
+Comments.addView('commentsByIds', (terms: CommentsByIdsViewTerms) => ({
+  selector: {
+    _id: { $in: terms.commentIds }
+  }
+}));

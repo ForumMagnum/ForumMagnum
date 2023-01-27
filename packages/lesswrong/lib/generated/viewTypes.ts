@@ -4,8 +4,9 @@ type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
 type ClientIdsViewName = never
 type CollectionsViewName = never
+type CommentApprovalsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
-type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"postCommentsTop"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"topShortform"|"shortform"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"latestSubforumDiscussion"|"moderatorComments"|"alignmentSuggestedComments"|"rss";
+type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"postCommentsTop"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"topShortform"|"shortform"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"latestSubforumDiscussion"|"moderatorComments"|"commentsByIds"|"alignmentSuggestedComments"|"rss";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userGroupUntitledConversations";
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
@@ -49,6 +50,7 @@ interface ViewTermsByCollectionName {
   Chapters: ChaptersViewTerms
   ClientIds: ViewTermsBase
   Collections: ViewTermsBase
+  CommentApprovals: ViewTermsBase
   CommentModeratorActions: CommentModeratorActionsViewTerms
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms

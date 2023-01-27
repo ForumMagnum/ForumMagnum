@@ -102,6 +102,19 @@ interface DbCollection extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface CommentApprovalsCollection extends CollectionBase<DbCommentApproval, "CommentApprovals"> {
+}
+
+interface DbCommentApproval extends DbObject {
+  __collectionName?: "CommentApprovals"
+  commentId: string
+  userId: string
+  status: "approved" | "rejected"
+  rejectionReason: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface CommentModeratorActionsCollection extends CollectionBase<DbCommentModeratorAction, "CommentModeratorActions"> {
 }
 
@@ -618,6 +631,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  requireCommentApproval: boolean | null
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -1276,6 +1290,7 @@ interface CollectionsByName {
   Chapters: ChaptersCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentApprovals: CommentApprovalsCollection
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -1322,6 +1337,7 @@ interface ObjectsByCollectionName {
   Chapters: DbChapter
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentApprovals: DbCommentApproval
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation

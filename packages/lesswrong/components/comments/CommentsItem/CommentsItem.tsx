@@ -18,6 +18,7 @@ import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
+import { getRejectionDisplayNotice } from '../../../lib/collections/commentApprovals/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
@@ -186,6 +187,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  pendingApproval: {
+    paddingLeft: 12
+  }
 })
 
 /**
@@ -220,9 +224,24 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
-
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId, rootCommentApproval, showCollapseButtons } = treeOptions;
+  const showCommentApprovalStatus = !!post?.requireCommentApproval && !treeOptions.rootCommentApproval;
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
+
+  const getCommentApprovalStatusMessage = () => {
+    if (comment.commentApproval) return '';
+
+    if (isChild || comment.parentCommentId) {
+      return 'Parent Comment Pending Approval - Replies Disabled';
+    }
+
+    return 'Pending Approval - Replies Disabled';
+  };
+
+  const canReplyFromApprovalStatus = () => {
+    if (!post?.requireCommentApproval) return true;
+    return rootCommentApproval?.status === 'approved';
+  };
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -269,6 +288,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           post={post}
           tag={tag}
           showEdit={setShowEdit}
+          refetchAfterApproval={treeOptions.refetchAfterApproval}
         />
       </AnalyticsContext>
     )
@@ -305,8 +325,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
-      !commentHidden
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      && canReplyFromApprovalStatus()
+      && !commentHidden
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -401,6 +422,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           <div className={classes.firstParentComment}>
             <Components.ParentCommentSingle
               post={post} tag={tag}
+              rootCommentApproval={rootCommentApproval}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
@@ -469,6 +491,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               collection={Comments}
               hideKarma={post?.hideCommentKarma}
             />
+            {showCommentApprovalStatus && <span className={classes.pendingApproval}>
+              {getCommentApprovalStatusMessage()}
+            </span>}
 
             {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
@@ -483,6 +508,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
+          </div>}
+          {comment.commentApproval?.status === 'rejected' && <div className={classes.metaNotice}>
+            {getRejectionDisplayNotice(comment.commentApproval)}
           </div>}
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}

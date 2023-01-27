@@ -5,17 +5,18 @@ import { userGetDisplayName, userCanModeratePost } from '../../../lib/collection
 import { useSingle } from '../../../lib/crud/withSingle';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
-const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
+const CommentActions = ({currentUser, comment, post, tag, showEdit, refetchAfterApproval}: {
   currentUser: UsersCurrent, // Must be logged in
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  showEdit: ()=>void,
+  showEdit: () => void,
+  refetchAfterApproval?: () => Promise<void>
 }) => {
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, 
           BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem,
           BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment,
-          PinToProfileMenuItem } = Components
+          PinToProfileMenuItem, CommentApprovalMenuItem } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -66,6 +67,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
     <ToggleIsModeratorComment comment={comment}/>
+    <CommentApprovalMenuItem comment={comment} currentUser={currentUser} refetchAfterApproval={refetchAfterApproval} />
   </>
 }
 

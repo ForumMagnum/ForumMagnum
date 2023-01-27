@@ -88,3 +88,26 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
   }
   return true;
 }
+
+export function flattenComments<T extends ThreadableCommentType>(commentTree: CommentTreeNode<T>[]): T[] {
+  // Shallow copy to avoid mutating the input
+  const commentTreeClone = [...commentTree];
+  
+  // Prevent cycles if we somehow have them
+  const seenCommentIds = new Set<string>();
+
+  // Results
+  const flattenedComments: T[] = [];
+
+  let nextNode: CommentTreeNode<T> | undefined;
+  while (commentTreeClone.length) {
+    nextNode = commentTreeClone.pop();
+    if (nextNode && !seenCommentIds.has(nextNode.item._id)) {
+      flattenedComments.push(nextNode.item);
+      seenCommentIds.add(nextNode.item._id);
+      commentTreeClone.push(...nextNode.children);
+    }
+  }
+
+  return flattenedComments;
+}

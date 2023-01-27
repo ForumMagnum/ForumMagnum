@@ -20,13 +20,33 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions 
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {
-  const { loading, results } = useMulti({
+  const { loading, results, refetch } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-first',
     limit: 5,
   });
+
+  const topLevelCommentIds = results?.map(result => result.topLevelCommentId) ?? [];
+
+  const skipTopLevelComments = loading || !results;
+
+  const { results: topLevelComments, refetch: refetchTopLevelComments } = useMulti({
+    skip: skipTopLevelComments,
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-first',
+    terms: { view: 'commentsByIds', commentIds: topLevelCommentIds }
+  });
+
+  const refetchComments = async () => {
+    await Promise.all([
+      refetchTopLevelComments(),
+      refetch()
+    ]);
+  };
+
   const { Loading, CommentsList, NoContent } = Components
 
   if (!loading && results && !results.length) {
@@ -39,14 +59,16 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions 
     return (
       <div>
         {title && <div className={classes.title}>{title}</div>}
-        {nestedComments && <CommentsList
+        {nestedComments && (skipTopLevelComments || topLevelComments) && <CommentsList
           treeOptions={{
             ...treeOptions,
             lastCommentId: lastCommentId,
             post: post,
+            refetchAfterApproval: refetchComments
           }}
           comments={nestedComments}
           startThreadTruncated={true}
+          topLevelComments={topLevelComments}
         />}
         {loading && <Loading/>}
       </div>

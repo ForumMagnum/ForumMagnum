@@ -15,6 +15,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
+import CommentApprovals from '../../lib/collections/commentApprovals/collection';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -406,6 +407,24 @@ getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCo
   });
   
   return comment;
+});
+
+getCollectionHooks("Comments").createAfter.add(async function ApproveOwnComment (comment: DbComment, { currentUser }) {
+  // Only bother checking if the post requires comment approvals if it's the user's own comment
+  if (comment.userId === currentUser?._id) {
+    const post = await Posts.findOne(comment.postId);
+    // If it does, automatically approve the post author's own comments
+    if (post?.requireCommentApproval) {
+      await createMutator({
+        collection: CommentApprovals,
+        document: {
+          commentId: comment._id,
+          userId: comment.userId,
+          status: 'approved'
+        }
+      });  
+    }
+  }
 });
 
 getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {

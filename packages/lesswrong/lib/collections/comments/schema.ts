@@ -634,6 +634,16 @@ const schema: SchemaType<DbComment> = {
     ...schemaDefaultValue(false),
   },
   
+  commentApproval: resolverOnlyField({
+    type: 'CommentApproval',
+    graphQLtype: 'CommentApproval',
+    nullable: true,
+    canRead: ['guests'],
+    resolver: (comment, args, context) => {
+      return context.CommentApprovals.findOne({ commentId: comment._id });
+    }
+  }),
+  
   title: {
     type: String,
     optional: true,

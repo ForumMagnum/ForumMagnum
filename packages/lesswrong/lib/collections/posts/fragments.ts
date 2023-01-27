@@ -16,6 +16,7 @@ registerFragment(`
       quadraticScore
     }
     userId
+    requireCommentApproval
   }
 `);
 

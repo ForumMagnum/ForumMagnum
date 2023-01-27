@@ -4,10 +4,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
   post?: PostsDetails,
-  terms: CommentsViewTerms,
+  terms: OldCommentsViewTerms,
   newForm?: boolean,
 }) => {
-  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+  const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -19,6 +19,35 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
     return <Components.Loading />;
   } else if (!results) {
     return null;
+  }
+
+  if (post?.requireCommentApproval && results) {
+    return (
+      <>
+        <Components.CommentsListSection
+          comments={results}
+          loadMoreComments={loadMore}
+          totalComments={totalCount as number}
+          commentCount={(results.length) || 0}
+          loadingMoreComments={loadingMore}
+          post={post}
+          newForm={newForm}
+          approvalSection='approved'
+          refetchAfterApproval={refetch}
+        />
+        <Components.CommentsListSection
+          comments={results}
+          loadMoreComments={loadMore}
+          totalComments={totalCount as number}
+          commentCount={(results.length) || 0}
+          loadingMoreComments={loadingMore}
+          post={post}
+          newForm={false}
+          approvalSection='rejected'
+          refetchAfterApproval={refetch}
+        />
+      </>
+    );
   }
 
   return (

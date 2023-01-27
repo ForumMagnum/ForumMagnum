@@ -1,7 +1,7 @@
 import { Posts } from './collection'
 import { postStatusLabels } from './constants'
 import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../../vulcan-users/permissions';
-import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
+import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup, canRequireCommentApprovalGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
 import { userIsPostGroupOrganizer } from './helpers';
@@ -76,7 +76,8 @@ const sunshineRegimentActions = [
   'posts.suggestCurate',
   'posts.frontpage.all',
   'posts.moderate.all',
-  'posts.commentLock.all'
+  'posts.commentLock.all',
+  'posts.requireCommentApproval.all'
 ];
 sunshineRegimentGroup.can(sunshineRegimentActions);
 
@@ -84,3 +85,4 @@ sunshineRegimentGroup.can(sunshineRegimentActions);
 trustLevel1Group.can(['posts.moderate.own', 'posts.suggestCurate']);
 canModeratePersonalGroup.can(['posts.moderate.own.personal']);
 canCommentLockGroup.can(['posts.commentLock.own']);
+canRequireCommentApprovalGroup.can(['posts.requireCommentApproval.own']);
