@@ -9,8 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
+import { forumTypeSetting, isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
@@ -45,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
-    color: theme.palette.primary.main,
+    color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
   },
   description: {
