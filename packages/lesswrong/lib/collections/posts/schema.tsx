@@ -1308,6 +1308,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
+    hidden: (props) => props.isEvent || props.question,
     order: 4,
   },
   

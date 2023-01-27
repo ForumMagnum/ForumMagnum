@@ -34,10 +34,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   imageBackground: {
     backgroundSize: 'cover',
-    backgroundPosition: 'top right',
+    backgroundPosition: 'center',
     width: 370,
     height: 195,
     display: 'flex',
+    // It's not that important for it to look great on all screen sizes because people mainly write posts
+    // on desktop, but make it not break the layout at least on mobile
+    [theme.breakpoints.down('xs')]: {
+      width: 185,
+      height: 97.5,
+    }
   },
 });
 
