@@ -549,8 +549,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
-    tagId: tagId,
-    tagCommentType: "SUBFORUM",
+    $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
     topLevelCommentId: viewFieldNullOrMissing,
     deleted: false,
   },
