@@ -282,6 +282,20 @@ abstract class Query<T extends DbObject> {
           return [`${resolvedField}${hint} IS NOT NULL`];
         }
       }
+      else if (value === true) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS TRUE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT TRUE`];
+        }
+      }
+      else if (value === false) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS FALSE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT FALSE`];
+        }
+      }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
   }
