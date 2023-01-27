@@ -12,7 +12,6 @@ import { useTagBySlug } from '../useTag';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
-import { useDialog } from "../../common/withDialog";
 import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 

@@ -16,6 +16,7 @@ import { useForceRerender } from "../hooks/useFirstRender";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { subscriptionTypes } from "../../lib/collections/subscriptions/schema";
 import { taggingNameIsSet, taggingNameSetting } from "../../lib/instanceSettings";
+import { taggedPostWording } from "./SubscribeButton";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -107,12 +108,11 @@ const TagNotificationSettings = ({
   });
 
   if (!isSubforum) {
-    const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
     return (
-      <AnalyticsContext pageSection="TagNotificationSettings">
+      <AnalyticsContext pageSection="tagNotificationSettings">
         <NotifyMeButton
           document={tag}
-          tooltip={`Click to toggle notifications for ${postsWording}`}
+          tooltip={`Click to toggle notifications for ${taggedPostWording}`}
           showIcon
           hideLabel
           hideIfNotificationsDisabled={!isFrontpageSubscribed}
@@ -161,7 +161,6 @@ const TagNotificationSettings = ({
   }
   
   const toggleDiscussionsSubscribed = async (e) => {
-    if (!userTagRel) return;
     try {
       e.preventDefault();
       await updateUserTagRel({selector: {_id: userTagRel._id}, data: {subforumEmailNotifications: !userTagRel.subforumEmailNotifications}})
@@ -171,11 +170,11 @@ const TagNotificationSettings = ({
   }
 
   return (
-    <AnalyticsContext pageSection="TagNotificationSettings">
+    <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={classes.subforumButtonWrapper}>
         <div ref={anchorEl}>
           {/* Hide notification settings if not subscribed */}
-          <div style={{display: isFrontpageSubscribed ? 'inherit': 'none'}}>
+          <div style={!isFrontpageSubscribed ? {display: 'none'} : {}}>
             <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
               {(!userTagRel.subforumEmailNotifications && !isSubscribedToPosts) ? (
                 <NotificationsNoneIcon />

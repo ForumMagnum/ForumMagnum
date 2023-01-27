@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useSubscribeUserToTag } from '../../lib/filterSettings';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -19,6 +18,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 })
+
+export const taggedPostWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
 
 const SubscribeButton = ({
   tag,
@@ -64,12 +65,10 @@ const SubscribeButton = ({
     }
   }
 
-  const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
-
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
-      `Remove homepage boost for ${postsWording}` :
-      `See more ${postsWording} on the homepage`
+      `Remove homepage boost for ${taggedPostWording}` :
+      `See more ${taggedPostWording} on the homepage`
     }>
       <Button variant="outlined" onClick={onSubscribe}>
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
