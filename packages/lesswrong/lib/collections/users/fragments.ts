@@ -191,6 +191,7 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
     
     experiencedIn
     interestedIn
@@ -413,6 +414,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

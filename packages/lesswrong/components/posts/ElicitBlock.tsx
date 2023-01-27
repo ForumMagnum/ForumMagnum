@@ -235,7 +235,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             onClick={() => {
               if (currentUser) {
                 const predictions = data?.ElicitBlockData?.predictions || []
-                const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
+                const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
                 const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 

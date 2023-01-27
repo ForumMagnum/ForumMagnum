@@ -142,11 +142,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RecentDiscussionThread = ({
   post,
-  comments, refetch,
+  comments,
+  refetch,
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
   smallerFonts,
   isSubforumIntroPost,
+  commentTreeOptions = {},
   dismissCallback = () => {},
   classes,
 }: {
@@ -157,6 +159,7 @@ const RecentDiscussionThread = ({
   maxLengthWords?: number,
   smallerFonts?: boolean,
   isSubforumIntroPost?: boolean,
+  commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
   classes: ClassesType,
 }) => {
@@ -208,6 +211,7 @@ const RecentDiscussionThread = ({
     refetch: refetch,
     condensed: true,
     post: post,
+    ...commentTreeOptions
   };
 
   return (

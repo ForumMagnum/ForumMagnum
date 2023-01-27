@@ -6,7 +6,10 @@ import { useUserLocation } from '../../../lib/collections/users/helpers';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-const EventsList = ({currentUser, onClick}) => {
+const EventsList = ({currentUser, onClick}: {
+  currentUser: UsersCurrent | null,
+  onClick: () => void
+}) => {
   const { TabNavigationEventsList } = Components
   
   const {lat, lng, known} = useUserLocation(currentUser, true)

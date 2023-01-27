@@ -1,15 +1,17 @@
 import { DatabaseServerSetting } from './databaseSettings';
 import Stripe from 'stripe';
+import type { app } from './expressServer';
+import type { Request, Response } from 'express-serve-static-core';
 
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
 
-export const addStripeMiddleware = (addMiddleware) => {
+export const addStripeMiddleware = (addMiddleware: typeof app.use) => {
   const stripePrivateKey = stripePrivateKeySetting.get()
   const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
   
-  const stripeMiddleware = async (req, res) => {
+  const stripeMiddleware = async (req: Request, res: Response) => {
     if (req.method === "POST" && stripe) {
       const redirectTarget = stripeURLRedirect.get()
       const session = await stripe.checkout.sessions.create({

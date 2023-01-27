@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
+export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,
   currentValues: any,
   document: any,

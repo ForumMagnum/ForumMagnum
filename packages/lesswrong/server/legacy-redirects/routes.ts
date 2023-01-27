@@ -9,6 +9,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
+import { createAnonymousContext } from '../vulcan-lib/query';
 import type { ServerResponse } from 'http';
 
 // Some legacy routes have an optional subreddit prefix, which is either
@@ -140,11 +141,13 @@ addStaticRoute('/user/:slug/:category?/:filter?', async (params, req, res, next)
 // Route for old comment links
 
 addStaticRoute('/posts/:_id/:slug/:commentId', async (params, req, res, next) => {
+  const context = await createAnonymousContext();
+  
   if(params.commentId){
     try {
       const comment = await Comments.findOne({_id: params.commentId});
       if (comment) {
-        return makeRedirect(res, await commentGetPageUrlFromDB(comment));
+        return makeRedirect(res, await commentGetPageUrlFromDB(comment, context, false));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -253,6 +256,8 @@ addStaticRoute('/promoted/.rss', (params, req, res, next) => {
 
 // Route for old agent-foundations post and commentlinks
 addStaticRoute('/item', async (params, req, res, next) => {
+  const context = await createAnonymousContext();
+  
   if(params.query.id){
     const id = parseInt(params.query.id)
     try {
@@ -263,7 +268,7 @@ addStaticRoute('/item', async (params, req, res, next) => {
       } else {
         const comment = await findCommentByLegacyAFId(id);
         if (comment) {
-          return makeRedirect(res, await commentGetPageUrlFromDB(comment))
+          return makeRedirect(res, await commentGetPageUrlFromDB(comment, context, false))
         } else {
           // don't redirect if we can't find a post for that link
           //eslint-disable-next-line no-console

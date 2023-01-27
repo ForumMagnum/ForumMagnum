@@ -439,8 +439,8 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
-  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
-    const newComments = lastVisitedAt < lastCommentedAt;
+  const compareVisitedAndCommentedAt = (lastVisitedAt: Date, lastCommentedAt: Date | null) => {
+    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
     return (isRead && newComments && !readComments)
   }
 

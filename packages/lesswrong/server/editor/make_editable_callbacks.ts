@@ -1,18 +1,26 @@
-import { getCollectionHooks } from '../mutationCallbacks';
-import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
-import { extractVersionsFromSemver } from '../../lib/editor/utils'
-import { ensureIndex } from '../../lib/collectionIndexUtils'
-import { htmlToPingbacks } from '../pingbacks';
-import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
-import { createMutator } from '../vulcan-lib/mutators';
-import * as _ from 'underscore';
-import cheerio from 'cheerio';
-import { onStartup } from '../../lib/executionEnvironment';
-import { dataToHTML, dataToWordCount } from './conversionUtils';
-import { Globals } from '../../lib/vulcan-lib/config';
+import {getCollectionHooks} from '../mutationCallbacks'
+import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {extractVersionsFromSemver} from '../../lib/editor/utils'
+import {ensureIndex} from '../../lib/collectionIndexUtils'
+import {htmlToPingbacks} from '../pingbacks'
+import {diff} from '../vendor/node-htmldiff/htmldiff'
+import {
+  editableCollections,
+  editableCollectionsFieldOptions,
+  editableCollectionsFields,
+  MakeEditableOptions,
+  sealEditableFields,
+} from '../../lib/editor/make_editable'
+import {getCollection} from '../../lib/vulcan-lib/getCollection'
+import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
+import {createMutator} from '../vulcan-lib/mutators'
+import * as _ from 'underscore'
+import cheerio from 'cheerio'
+import {onStartup} from '../../lib/executionEnvironment'
+import {dataToHTML, dataToWordCount} from './conversionUtils'
+import {Globals} from '../../lib/vulcan-lib/config'
+import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
+import {isBeingUndrafted, MaybeDrafteable} from './utils'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -181,10 +189,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
-      const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
+      const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
+      const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
       const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
@@ -257,8 +265,24 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     }
     return newDoc;
   });
-  
-  
+
+
+  getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument)
+    }
+
+    return newDocument
+  })
+
+  getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
+    }
+
+    return newDocument
+  })
+
   /**
    * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
    * they have fairly strict rate limits that often result in them failing to load.

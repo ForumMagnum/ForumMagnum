@@ -98,6 +98,7 @@ import './server/callbacks/commentCallbacks';
 import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
+import './server/resolvers/notificationResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
@@ -145,6 +146,8 @@ import './server/callbacks/intercomCallbacks';
 
 import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
+
+import './server/exportUserData';
 
 import './server/spotlightCron';
 
