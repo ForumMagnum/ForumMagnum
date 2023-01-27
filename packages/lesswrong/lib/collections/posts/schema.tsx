@@ -872,7 +872,8 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     optional: true,
     insertableBy: ['members'],
-    editableBy: [],
+    // This must be set to editable to allow the data to be sent from the edit form, but in practice it's always overwritten by updatePostDenormalizedTags
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     viewableBy: ['guests'],
     
     blackbox: true,

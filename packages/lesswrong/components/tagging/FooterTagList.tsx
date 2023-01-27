@@ -11,7 +11,6 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { filter } from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,6 +70,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     collectionName: "TagRels",
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
+    fetchPolicy: 'cache-and-network',
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)
