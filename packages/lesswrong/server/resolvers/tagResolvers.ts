@@ -3,6 +3,7 @@ import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortFi
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
@@ -25,7 +26,9 @@ import {
   subforumSortings,
   subforumSortingToResolverName,
   subforumSortingTypes,
-} from '../../lib/subforumSortings';
+} from '../../lib/collections/tags/subforumHelpers';
+import { VotesRepo } from '../repos';
+import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -95,6 +98,23 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
         tagId,
         tagCommentType: "SUBFORUM",
         topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: false},
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+    // Sticky subforum comments
+    viewBasedSubquery({
+      type: "tagSubforumStickyComments",
+      collection: Comments,
+      sortField: "subforumStickyPriority",
+      sortDirection: "asc",
+      sticky: true,
+      context,
+      selector: {
+        tagId,
+        tagCommentType: "SUBFORUM",
+        topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: true},
         ...(af ? {af: true} : undefined),
       },
     }),
@@ -110,6 +130,7 @@ for (const sortBy of subforumSortings) {
     resultTypesGraphQL: `
       tagSubforumPosts: Post
       tagSubforumComments: Comment
+      tagSubforumStickyComments: Comment
     `,
     resolver: createSubforumFeedResolver(sorting),
   });
@@ -296,6 +317,19 @@ augmentFieldsDict(Tags, {
   },
 });
 
+augmentFieldsDict(TagRels, {
+  autoApplied: {
+    resolveAs: {
+      type: "Boolean",
+      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
+        const tagBotUserId = await getTagBotUserId(context);
+        if (!tagBotUserId) return false;
+        return (document.userId===tagBotUserId && document.voteCount===1);
+      },
+    },
+  },
+});
+
 async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
@@ -303,6 +337,30 @@ async function getContributorsList(tag: DbTag, version: string|null): Promise<Co
     return tag.contributionStats;
   else
     return await updateDenormalizedContributorsList(tag);
+}
+
+const getSelfVotes = async (tagRevisionIds: string[]): Promise<DbVote[]> => {
+  if (Votes.isPostgres()) {
+    const votesRepo = new VotesRepo();
+    return votesRepo.getSelfVotes(tagRevisionIds);
+  } else {
+    const selfVotes = await Votes.aggregate([
+      // All votes on relevant revisions
+      { $match: {
+        documentId: {$in: tagRevisionIds},
+        collectionName: "Revisions",
+        cancelled: false,
+        isUnvote: false,
+      }},
+      // Filtered by: is a self-vote
+      { $match: {
+        $expr: {
+          $in: ["$userId", "$authorIds"]
+        }
+      }}
+    ]);
+    return selfVotes.toArray();
+  }
 }
 
 async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
@@ -319,21 +377,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
     ],
   }).fetch();
   
-  const selfVotes = await Votes.aggregate([
-    // All votes on relevant revisions
-    { $match: {
-      documentId: {$in: tagRevisions.map(r=>r._id)},
-      collectionName: "Revisions",
-      cancelled: false,
-      isUnvote: false,
-    }},
-    // Filtered by: is a self-vote
-    { $match: {
-      $expr: {
-        $in: ["$userId", "$authorIds"]
-      }
-    }}
-  ]).toArray();
+  const selfVotes = await getSelfVotes(tagRevisions.map(r=>r._id));
   const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
   const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
     selfVotes => {
@@ -361,11 +405,11 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
-      
+
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
-        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
+        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount ?? 0) - excludedVoteCount,
       };
     }
   );

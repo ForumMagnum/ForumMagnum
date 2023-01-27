@@ -2,10 +2,12 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const Spotlights: SpotlightsCollection = createCollection({
   collectionName: 'Spotlights',
   typeName: 'Spotlight',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Spotlights'),
   mutations: getDefaultMutations('Spotlights')

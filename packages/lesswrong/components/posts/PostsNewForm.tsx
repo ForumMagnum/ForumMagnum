@@ -12,6 +12,8 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -164,6 +166,7 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
+    question: query && !!query.question,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -179,7 +182,7 @@ const PostsNewForm = ({classes}: {
   if (query.subforumTagId) {
     prefilledProps = {
       subforumTagId: query.subforumTagId,
-      submitToFrontpage: false,
+      tagRelevance: {[query.subforumTagId]: 1},
     }
   }
 
@@ -199,7 +202,7 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const NewPostsSubmit = (props) => {
+  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
@@ -209,12 +212,13 @@ const PostsNewForm = ({classes}: {
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
+        <Components.PostsAcceptTos currentUser={currentUser} />
         <NoSsr>
           <WrappedSmartForm
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
-            successCallback={(post, options) => {
+            successCallback={(post: any, options: any) => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));

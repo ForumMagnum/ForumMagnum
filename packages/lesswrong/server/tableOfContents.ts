@@ -10,6 +10,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 
 export interface ToCAnswer {
   baseScore: number,
@@ -116,7 +117,7 @@ export function extractTableOfContents(postHTML: string)
 
   // Generate a mapping from raw heading levels to compressed heading levels
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
-  let headingLevelMap = {};
+  let headingLevelMap: Record<string, number> = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
     headingLevelMap[ headingLevelsUsed[i] ] = i;
 
@@ -226,9 +227,11 @@ function tagToHeadingLevel(tagName: string): number
 {
   let lowerCaseTagName = tagName.toLowerCase();
   if (lowerCaseTagName in headingTags)
-    return headingTags[lowerCaseTagName];
+    return headingTags[lowerCaseTagName as keyof typeof headingTags];
   else if (lowerCaseTagName in headingIfWholeParagraph)
-    return headingIfWholeParagraph[lowerCaseTagName];
+    // TODO: this seems wrong??? It's returning a boolean when it should be returning a number
+    // @ts-ignore
+    return headingIfWholeParagraph[lowerCaseTagName as keyof typeof headingIfWholeParagraph];
   else
     return 0;
 }
@@ -277,7 +280,7 @@ async function getTocAnswers (document: DbPost) {
 
 async function getTocComments (document: DbPost) {
   const commentSelector: any = {
-    ...Comments.defaultView({}).selector,
+    ...getDefaultViewSelector("Comments"),
     answer: false,
     parentAnswerId: null,
     postId: document._id
@@ -289,7 +292,7 @@ async function getTocComments (document: DbPost) {
   return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
 }
 
-const getToCforPost = async ({document, version, context}: {
+export const getToCforPost = async ({document, version, context}: {
   document: DbPost,
   version: string|null,
   context: ResolverContext,

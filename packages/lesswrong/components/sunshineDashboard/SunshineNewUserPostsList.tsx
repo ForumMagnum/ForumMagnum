@@ -3,7 +3,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -37,7 +37,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles } = Components
  
   if (!posts) return null
 
@@ -60,15 +60,15 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
-                {post.commentCount && <MetaInfo>
+                {postGetCommentCount(post) && <MetaInfo>
                   <Link to={`${postGetPageUrl(post)}#comments`}>
-                    {post.commentCount} comments
+                    {postGetCommentCountStr(post)}
                   </Link>
                 </MetaInfo>}
               </span>
             </div>
           </div>
-          <PostsPageActions post={post} />
+          <PostActionsButton post={post} />
         </div>
         {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
           <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />

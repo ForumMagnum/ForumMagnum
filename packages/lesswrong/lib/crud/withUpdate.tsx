@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import type { MutationResult } from '@apollo/client/react';
@@ -99,6 +99,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   collectionName: CollectionName,
   fragmentName: FragmentName,
 }): {
+  /** Set a field to `null` to delete it */
   mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
   loading: boolean,
   error: ApolloError|undefined,
@@ -115,7 +116,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   `;
 
   const [mutate, {loading, error, called, data}] = useMutation(query);
-  const wrappedMutate = ({selector, data, ...extraVariables}: {
+  const wrappedMutate = useCallback(({selector, data, ...extraVariables}: {
     selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
     data: Partial<ObjectsByCollectionName[CollectionName]>,
     extraVariables?: any,
@@ -124,7 +125,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
       variables: { selector, data, ...extraVariables },
       update: updateCacheAfterUpdate(typeName)
     })
-  }
+  }, [mutate, typeName]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }
 

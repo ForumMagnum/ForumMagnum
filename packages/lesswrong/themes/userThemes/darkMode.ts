@@ -101,7 +101,7 @@ const colorReplacements = {
   "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
 };
 function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: string) => {
+  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
     return `
       .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
@@ -162,6 +162,7 @@ export const darkModeTheme: UserThemeSpecification = {
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
       alwaysWhite: '#fff',
+      primaryDarkOnDim: '#a8cad7',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
@@ -183,8 +184,7 @@ export const darkModeTheme: UserThemeSpecification = {
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
-      primaryDim: "#303435",
-      primaryDim2: "#303435",
+      primaryDim: "#28383e",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),

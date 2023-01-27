@@ -5,7 +5,6 @@ import Select from '@material-ui/core/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import debounce from 'lodash/debounce';
 

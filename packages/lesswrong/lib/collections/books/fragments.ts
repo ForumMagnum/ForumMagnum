@@ -7,6 +7,7 @@ registerFragment(`
     title
     number
     subtitle
+    tocTitle
     contents {
       ...RevisionDisplay
     }

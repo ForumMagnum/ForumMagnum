@@ -2,11 +2,12 @@ import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const Books: BooksCollection = createCollection({
   collectionName: 'Books',
   typeName: 'Book',
-  collectionType: 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Books'),
   mutations: getDefaultMutations('Books'),

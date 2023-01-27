@@ -14,7 +14,7 @@ Comments.addView("alignmentSuggestedComments", function (terms: OldCommentsViewT
     options: {
       sort: {
         postedAt: 1,
-      },
+      }, 
       hint: "comments.alignmentSuggestedComments",
     }
   }

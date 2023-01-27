@@ -100,6 +100,7 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
     voteBanned
     banned
@@ -190,6 +191,12 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
   }
 `);
 
@@ -374,6 +381,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -404,6 +414,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

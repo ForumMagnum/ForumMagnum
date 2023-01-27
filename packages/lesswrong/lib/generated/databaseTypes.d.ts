@@ -14,6 +14,7 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
   interestedInMetaculus: boolean
+  jobAds: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -41,6 +42,7 @@ interface DbBook extends DbObject {
   postedAt: Date
   title: string
   subtitle: string
+  tocTitle: string | null
   collectionId: string
   number: number
   postIds: Array<string>
@@ -137,6 +139,7 @@ interface DbComment extends DbObject {
   postId: string
   tagId: string
   tagCommentType: "SUBFORUM" | "DISCUSSION"
+  subforumStickyPriority: number | null
   userId: string
   userIP: string
   userAgent: string
@@ -173,6 +176,7 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
+  title: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -183,6 +187,7 @@ interface DbComment extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string
+  pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -288,6 +293,17 @@ interface DbGardenCode extends DbObject {
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
+interface ImagesCollection extends CollectionBase<DbImages, "Images"> {
+}
+
+interface DbImages extends DbObject {
+  __collectionName?: "Images"
+  originalUrl: string
+  cdnHostedUrl: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface LWEventsCollection extends CollectionBase<DbLWEvent, "LWEvents"> {
 }
 
@@ -364,7 +380,7 @@ interface DbMigration extends DbObject {
   __collectionName?: "Migrations"
   name: string
   started: Date
-  finished: Date
+  finished: boolean
   succeeded: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -391,7 +407,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -606,10 +622,12 @@ interface DbPost extends DbObject {
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
-  linkSharingKey: string
+  linkSharingKey: string | null
   linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
+  sideCommentsCache: any /*{"definitions":[{}]}*/
+  sideCommentVisibility: string
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
@@ -779,7 +797,9 @@ interface DbSpotlight extends DbObject {
   customSubtitle: string | null
   lastPromotedAt: Date
   draft: boolean
+  showAuthor: boolean
   spotlightImageId: string | null
+  spotlightDarkImageId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -874,13 +894,31 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   isSubforum: boolean
   subforumModeratorIds: Array<string>
+  subforumIntroPostId: string
   parentTagId: string
+  subTagIds: Array<string>
+  autoTagModel: string | null
+  autoTagPrompt: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
   description_latest: string
   subforumWelcomeText: EditableFieldContents
   subforumWelcomeText_latest: string
+  moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
+}
+
+interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
+}
+
+interface DbUserMostValuablePost extends DbObject {
+  __collectionName?: "UserMostValuablePosts"
+  userId: string
+  postId: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -893,6 +931,7 @@ interface DbUserTagRel extends DbObject {
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -934,6 +973,7 @@ interface DbUser extends DbObject {
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
   petrovOptOut: boolean | null
+  acceptedTos: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1061,6 +1101,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1161,6 +1207,10 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
+  subforumPreferredLayout: "feed" | "list"
+  experiencedIn: Array<string>
+  interestedIn: Array<string>
+  allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number
@@ -1249,6 +1299,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
@@ -1273,6 +1324,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1294,6 +1346,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
@@ -1318,6 +1371,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

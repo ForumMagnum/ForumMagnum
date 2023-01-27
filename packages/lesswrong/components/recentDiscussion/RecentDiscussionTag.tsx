@@ -2,10 +2,9 @@ import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
@@ -60,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
-  tag: TagRecentDiscussion | TagRecentSubforumComments,
+  tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
@@ -68,28 +67,13 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-  const isSubforum = tagCommentType === "SUBFORUM"
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
-  const {recordTagView} = useRecordTagView(tag);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
-  const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
   
-  const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
-  const markAsRead = useCallback(
-    () => {
-      setReadStatus(true);
-      setMarkedAsVisitedAt(new Date());
-      setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: onClickEventType}})
-    },
-    [recordTagView, tag, onClickEventType]
-  );
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
@@ -104,25 +88,25 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
-    highlightDate: lastVisitedAt,
+    highlightDate: tag.lastVisitedAt,
     tag: tag,
     condensed: true,
+    replyFormStyle: "default",
   }
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
   return <div className={classes.root}>
     <div className={classes.tag}>
-      <Link to={isSubforum ? tagGetSubforumUrl(tag): tagGetDiscussionUrl(tag)} className={classes.title}>
-        {tag.name}{isSubforum && " Subforum"}
+      <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
+        {tag.name}
       </Link>
       
       <div className={classes.metadata}>
-        {!isSubforum && <span>{metadataWording}</span>}
+        <span>{metadataWording}</span>
       </div>
       
-      {!isSubforum && <div onClick={clickExpandDescription}>
+      <div onClick={clickExpandDescription}>
         <ContentStyles contentType="comment">
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
@@ -130,7 +114,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
             className={classes.description}
           />
         </ContentStyles>
-      </div>}
+      </div>
     </div>
     
     {nestedComments.length ? <div className={classes.content}>
@@ -144,7 +128,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
               nestingLevel={1}
               comment={comment.item}
               childComments={comment.children}
-              displayMode={isSubforum ? "minimalist" : "default"}
               key={comment.item._id}
             />
           </div>

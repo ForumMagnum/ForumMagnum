@@ -20,6 +20,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
     position: "relative",
+    
+    // Prevent permalink-icon and date from wrapping onto separate lines, in
+    // narrow/flexbox contexts
+    whiteSpace: "nowrap",
+    
     zIndex: theme.zIndexes.commentPermalinkIcon,
   },
   answerDate: {},
@@ -52,17 +57,21 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
   permalink?: boolean,
 }) => {
   const { history } = useNavigation();
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const { captureEvent } = useTracking();
 
-  const handleLinkClick = (event: React.MouseEvent) => {
-    event.preventDefault()
-    history.replace({...location, search: qs.stringify({commentId: comment._id})})
-    if(scrollIntoView) scrollIntoView();
-    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
-  };
-
   const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink})
+
+  const handleLinkClick = (event: React.MouseEvent) => {
+    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
+    
+    // If the current location is not the same as the link's location (e.g. if a comment on a post is showing on the frontpage), fall back to just following the link
+    if (location.pathname !== url.split("?")[0]) return
+
+    event.preventDefault()
+    history.replace({...location, search: qs.stringify({...query, commentId: comment._id})})
+    if(scrollIntoView) scrollIntoView();
+  };
 
   const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>

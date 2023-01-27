@@ -40,7 +40,7 @@ const NewTagPage = () => {
       <WrappedSmartForm
         collection={Tags}
         mutationFragment={getFragment('TagFragment')}
-        successCallback={tag => {
+        successCallback={(tag: any) => {
           history.push({pathname: tagGetUrl(tag)});
         }}
       />

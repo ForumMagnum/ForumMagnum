@@ -10,7 +10,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -40,10 +40,10 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { addServerShellCommandRoutes } from './serverShellCommand';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -101,7 +101,7 @@ class ApolloServerLogging {
 }
 
 export function startWebserver() {
-  const addMiddleware = (...args) => app.use(...args);
+  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
@@ -132,6 +132,7 @@ export function startWebserver() {
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
@@ -159,8 +160,7 @@ export function startWebserver() {
     tracing: false,
     cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const user = await getUserFromReq(req);
-      const context = await computeContextFromUser(user, req, res);
+      const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
       return context;
     },
@@ -246,7 +246,6 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
-  addServerShellCommandRoutes(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -353,4 +352,11 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
+  
+  // Route used for checking whether the server is ready for an auto-refresh
+  // trigger. Added last so that async stuff can't lead to auto-refresh
+  // happening before the server is ready.
+  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+    res.end('true');
+  });
 }

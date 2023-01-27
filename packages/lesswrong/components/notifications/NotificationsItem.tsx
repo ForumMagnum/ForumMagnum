@@ -8,6 +8,7 @@ import { getUrlClass, useNavigation } from '../../lib/routeUtil';
 import { useHover } from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,6 +69,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     pageElementContext: "linkPreview",
     pageElementSubContext: "notificationItem",
   });
+  const { captureEvent } = useTracking();
   const { history } = useNavigation();
   const { LWPopper } = Components
   const notificationType = getNotificationTypeByName(notification.type);
@@ -136,6 +138,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         onClick={(ev) => {
           if (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey)
             return;
+            
+          captureEvent("notificationItemClick", {
+            notification: {
+              _id: notification._id,
+              type: notification.type,
+              documentId: notification.documentId,
+              documentType: notification.documentType,
+              link: notification.link,
+            }
+          });
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()

@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
+import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
@@ -98,13 +98,16 @@ const RecommendationsAndCurated = ({
   const [settingsState, setSettings] = useState<any>(null);
   const currentUser = useCurrentUser();
   const {continueReading} = useContinueReading();
+  const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
 
   const toggleSettings = useCallback(() => {
+    captureEvent("toggleSettings", {action: !showSettings})
     setShowSettings(!showSettings);
-  }, [showSettings, setShowSettings]);
+  }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
+      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, TargetedJobAdSection } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -185,6 +188,7 @@ const RecommendationsAndCurated = ({
             {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
               <CuratedPostsList />
             </div>}
+            {forumTypeSetting.get() === "EAForum" && <TargetedJobAdSection />}
           </div>
         </div>
 
@@ -217,13 +221,6 @@ const RecommendationsAndCurated = ({
         {/* disabled except during review */}
         {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
           <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
-        </AnalyticsContext> */}
-
-        {/* disabled except during coronavirus times */}
-        {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
-          <div className={classes.subsection}>
-            <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
-          </div>
         </AnalyticsContext> */}
       </AnalyticsContext>
     </SingleColumnSection>

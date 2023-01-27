@@ -7,7 +7,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
@@ -78,6 +78,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     paddingLeft: 12,
     paddingTop: 12
+  },
+  flagged: {
+    color: theme.palette.error.main
   }
 });
 
@@ -150,7 +153,7 @@ const ModerationDashboard = ({ classes }: {
 
   const commentsWithActions = reduceCommentModeratorActions(commentModeratorActions);
 
-  if (!userIsAdmin(currentUser)) {
+  if (!userIsAdminOrMod(currentUser)) {
     return null;
   }
 
@@ -160,9 +163,9 @@ const ModerationDashboard = ({ classes }: {
         <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
           <div className={classes.toc}>
             {usersToReview.map(user => {
-              return <div key={user._id} className={classes.tocListing}>
+              return <div key={user._id} className={classNames(classes.tocListing, {[classes.flagged]: user.sunshineFlagged})}>
                 <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
-                  {user.displayName}
+                  {user.displayName} 
                 </a>
               </div>
             })}

@@ -66,7 +66,7 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
   const Element = externalLink ?
-    ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
 
   return <Tooltip placement='top' title={tab.tooltip || ''}>

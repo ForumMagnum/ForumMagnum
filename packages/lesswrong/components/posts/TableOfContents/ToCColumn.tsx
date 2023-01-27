@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
@@ -39,6 +40,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
+  },
+  sideCommentsActive: {
+    gridTemplateColumns: `
+      1fr minmax(200px,270px) minmax(10px,25px) minmax(min-content,720px) minmax(10px, 25px) min-content 350px 1fr !important
+    `
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -110,13 +116,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
   tableOfContents: React.ReactNode|null,
-  header: React.ReactNode,
+  header?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
   welcomeBox?: React.ReactNode,
 }) => {
+  const {sideCommentsActive} = useContext(SidebarsContext)!;
+  
   return (
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox})}>
+    <div className={classNames(
+      classes.root,
+      {
+        [classes.tocActivated]: !!tableOfContents || !!welcomeBox,
+        [classes.sideCommentsActive]: sideCommentsActive,
+      }
+    )}>
       <div className={classes.header}>
         {header}
       </div>

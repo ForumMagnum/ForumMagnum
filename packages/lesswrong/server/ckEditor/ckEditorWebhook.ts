@@ -1,7 +1,7 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
-import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
+import { getPostEditorConfig } from './postEditorConfig';
 import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
@@ -424,7 +424,7 @@ async function uploadEditorBundle(bundleVersion: string): Promise<void> {
   const result = await fetchCkEditorRestAPI("POST", "/editors", {
     bundle: editorBundle,
     config: {
-      ...postEditorConfig,
+      ...getPostEditorConfig(),
       cloudServices: {
         bundleVersion,
       },

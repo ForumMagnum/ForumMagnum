@@ -5,18 +5,17 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
-import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
-import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { performVoteServer } from '../voteServer';
-import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
-import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUtils';
+import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
+import CommentApprovals from '../../lib/collections/commentApprovals/collection';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -218,6 +217,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
     const lwAccount = await getAdminTeamAccount();
+    const commentUser = await Users.findOne({_id: comment.userId})
 
     const conversationData = {
       participantIds: [comment.userId, lwAccount._id],
@@ -236,6 +236,11 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
+    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
+    const noEmail = forumTypeSetting.get() === "EAForum" 
+    ? false 
+    : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+
     const firstMessageData = {
       userId: lwAccount._id,
       contents: {
@@ -244,13 +249,15 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
           data: firstMessageContents
         }
       },
-      conversationId: conversation.data._id
+      conversationId: conversation.data._id,
+      noEmail: noEmail
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
       contents: comment.contents,
-      conversationId: conversation.data._id
+      conversationId: conversation.data._id,
+      noEmail: noEmail
     }
 
     await createMutator({
@@ -284,7 +291,14 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
   var commentAuthor = await Users.findOne(comment.userId);
-  const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
+  if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
+  const {modifiedDocument: votedComment} = await performVoteServer({
+    document: comment,
+    voteType: 'smallUpvote',
+    collection: Comments,
+    user: commentAuthor,
+    skipRateLimits: true,
+  })
   return {...comment, ...votedComment} as DbComment;
 });
 
@@ -395,6 +409,24 @@ getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCo
   return comment;
 });
 
+getCollectionHooks("Comments").createAfter.add(async function ApproveOwnComment (comment: DbComment, { currentUser }) {
+  // Only bother checking if the post requires comment approvals if it's the user's own comment
+  if (comment.userId === currentUser?._id) {
+    const post = await Posts.findOne(comment.postId);
+    // If it does, automatically approve the post author's own comments
+    if (post?.requireCommentApproval) {
+      await createMutator({
+        collection: CommentApprovals,
+        document: {
+          commentId: comment._id,
+          userId: comment.userId,
+          status: 'approved'
+        }
+      });  
+    }
+  }
+});
+
 getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
@@ -416,3 +448,16 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
   await triggerReviewIfNeeded(document.userId);
 })
+
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
+  if (!currentUser) return;
+  currentUser.snoozedUntilContentCount && await updateMutator({
+    collection: Users,
+    documentId: currentUser._id,
+    set: {
+      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+    },
+    validate: false,
+  })
+  await triggerReviewIfNeeded(currentUser._id)
+});

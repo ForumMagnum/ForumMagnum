@@ -92,8 +92,7 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
-{
+export type CommentsNewFormProps = {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
@@ -108,8 +107,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  displayMode?: CommentFormDisplayMode
-}) => {
+  replyFormStyle?: CommentFormDisplayMode
+}
+
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   prefilledProps = {
@@ -117,7 +118,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = displayMode === "minimalist"
+  const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
@@ -158,7 +159,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     setLoading(false)
   };
 
-  const wrappedCancelCallback = (...args) => {
+  const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
     }
@@ -220,8 +221,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
-  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
+  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
+    currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const parentDocumentId = post?._id || tag?._id
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
@@ -239,7 +243,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data) => { 
+              submitCallback={(data: unknown) => { 
                 setLoading(true);
                 return data
               }}
@@ -251,7 +255,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 FormGroupLayout: Components.DefaultStyleFormGroup
               }}
               alignmentForumPost={post?.af}
-              addFields={currentUser?[]:["contents"]}
+              addFields={currentUser ? [] : ["title", "contents"]}
               removeFields={removeFields}
               formProps={{
                 ...extraFormProps,
@@ -260,8 +264,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             />
           </div>
         </div>
-        {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-          <ModerationGuidelinesBox post={post} />
+        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>
     </div>

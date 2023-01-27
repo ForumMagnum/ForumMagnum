@@ -13,6 +13,7 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
     requireCommentApproval
@@ -247,8 +248,9 @@ registerFragment(`
     # Tags
     tagRelevance
     
-    # Sort settings
+    # Posts-page display options
     commentSortOrder
+    sideCommentVisibility
     
     # Sequence navigation
     collectionTitle
@@ -289,10 +291,14 @@ registerFragment(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    
+    # RSS metadata
     feedLink
     feed {
       ...RSSFeedMinimumInfo
     }
+    
+    # Related Questions
     sourcePostRelations {
       _id
       sourcePostId
@@ -310,6 +316,8 @@ registerFragment(`
       }
       order
     }
+    
+    # Events
     rsvps
     activateRSVPs
 
@@ -401,6 +409,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
@@ -411,6 +420,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
@@ -449,6 +459,7 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
   }
 `);
 
@@ -561,5 +572,19 @@ registerFragment(`
     contents {
       htmlHighlightStartingAtHash(hash: $hash)
     }
+  }
+`);
+
+registerFragment(`
+  fragment PostSideComments on Post {
+    _id
+    sideComments
+  }
+`);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
   }
 `);

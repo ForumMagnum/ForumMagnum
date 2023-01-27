@@ -10,6 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 import { unflattenComments, CommentTreeNode, flattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { CommentsNewFormProps } from './CommentsNewForm';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -65,7 +67,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, approvalSection, refetchAfterApproval, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, approvalSection, refetchAfterApproval, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -79,6 +81,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   newForm: boolean,
   approvalSection?: 'approved' | 'rejected',
   refetchAfterApproval?: () => Promise<void>,
+  newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -108,7 +111,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
@@ -117,7 +120,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     const newLimit = commentCount + (loadMoreCount || commentCount);
 
     let displayedCommentCount = commentCount;
-    let loadedCommentCount = totalComments;
+    let loadedCommentCount = postGetCommentCountStr(post, totalComments).toString();
 
     if (approvalSection) {
       const approvedOrPendingCommentCount = approvedOrPendingComments.length;
@@ -127,7 +130,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         ? approvedOrPendingCommentCount
         : rejectedCommentCount;
 
-      loadedCommentCount = displayedCommentCount;
+      loadedCommentCount = postGetCommentCountStr(post, displayedCommentCount);
     }
 
     if (commentCount < totalComments) {
@@ -149,7 +152,6 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    const newLimit = commentCount + (loadMoreCount || commentCount)
     const approvalSectionTitle = approvalSection && <CommentsListMeta>
       <Typography
         variant="body2"
@@ -190,7 +192,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -212,6 +214,11 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     ? getApprovalFilteredCommentsTree(approvalSection)
     : commentTree;
 
+  // No need to show the "rejected" comments section if there aren't any
+  if (approvalSection === 'rejected' && sectionCommentTree.length === 0) {
+    return null;
+  }
+
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
@@ -229,6 +236,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             prefilledProps={{
               parentAnswerId: parentAnswerId}}
             type="comment"
+            {...newFormProps}
           />
         </div>
       }
@@ -241,6 +249,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           highlightDate: highlightDate,
           post: post,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
           refetchAfterApproval: refetchAfterApproval
         }}

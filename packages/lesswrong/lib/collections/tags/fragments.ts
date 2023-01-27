@@ -16,6 +16,7 @@ registerFragment(`
     createdAt
     wikiOnly
     deleted
+    isSubforum
   }
 `);
 
@@ -27,10 +28,13 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
-    isSubforum
     subforumModeratorIds
     subforumModerators {
       ...UsersMinimumInfo
+    }
+    moderationGuidelines {
+      _id
+      html
     }
     bannerImageId
     lesswrongWikiImportSlug
@@ -45,16 +49,11 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
-    
     description {
       _id
       html
@@ -90,14 +89,10 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     isRead
     description(version: $version) {
@@ -118,14 +113,10 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     description {
       _id
@@ -137,7 +128,7 @@ registerFragment(`
 registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
-    isSubforum
+    subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
       _id
@@ -160,7 +151,6 @@ registerFragment(`
 registerFragment(`
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
-    subforumUnreadMessagesCount
   }
 `);
 
@@ -199,7 +189,9 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
-    subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -222,7 +214,6 @@ registerFragment(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
-    subforumUnreadMessagesCount
   }
 `);
 
@@ -231,7 +222,9 @@ registerFragment(`
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
-    subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -270,16 +263,22 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
+    subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    
+    autoTagModel
+    autoTagPrompt
+    
     description {
       ...RevisionEdit
     }
     subforumWelcomeText {
+      ...RevisionEdit
+    }
+    moderationGuidelines {
       ...RevisionEdit
     }
   }
@@ -290,16 +289,6 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TagRecentSubforumComments on Tag {
-    ...TagFragment
-    lastVisitedAt
-    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

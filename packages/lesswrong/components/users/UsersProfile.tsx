@@ -20,6 +20,9 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useMessages } from '../common/withMessages';
+import CopyIcon from '@material-ui/icons/FileCopy'
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -70,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  title: {
+  postsTitle: {
     cursor: "pointer"
   },
   // Dark Magick
@@ -79,6 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  copyIcon: {
+    fontSize: 14
+  }
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -94,6 +100,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const {loading, results} = useMulti({
     terms,
@@ -174,8 +181,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton } = Components
+      SortButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -246,6 +253,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
+                  <LWTooltip title="Click to copy userId" placement="right">
+                    <CopyToClipboard text={user._id} onCopy={()=>flash({messageString:"userId copied!"})}>
+                      <CopyIcon className={classes.copyIcon} />
+                    </CopyToClipboard>
+                  </LWTooltip>
+                </div>
+              }
+              { currentUser?.isAdmin &&
+                <div>
                   <DialogGroup
                     actions={[]}
                     trigger={<a>Register RSS</a>}
@@ -312,9 +328,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
+            <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings

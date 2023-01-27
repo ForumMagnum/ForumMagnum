@@ -5,10 +5,14 @@ registerFragment(`
     _id
     postId
     tagId
+    tag {
+      slug
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
+    title
     contents {
       _id
       html
@@ -22,6 +26,7 @@ registerFragment(`
     deletedPublic
     deletedReason
     hideAuthor
+    authorIsUnreviewed
     user {
       ...UsersMinimumInfo
     }
@@ -79,6 +84,9 @@ registerFragment(`
     latestChildren {
       ...CommentsList
     }
+    tag {
+      ...TagBasicInfo
+    }
     post {
       ...PostsBase
     }
@@ -128,6 +136,17 @@ registerFragment(`
     post {
       ...PostsMinimumInfo
     }
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+// TODO: This is now the same as CommentWithRepliesFragment, now that said
+// fragment gets the tag field
+registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }
