@@ -65,28 +65,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
-  classes: ClassesType,
+const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, classes }: {
+  unreadPrivateMessages: number,
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
-  const { results } = useMulti({
-    terms: {
-      view: 'userNotifications',
-      userId: currentUser ? currentUser._id : "",
-      type: "newMessage"
-    },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
-  });
 
   const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
-  const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);
   if (!currentUser) {
     return null;
   }
@@ -111,7 +100,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
       icon: () => (
         <Badge
           classes={{ root: classes.badgeContainer, badge: classes.badge }}
-          badgeContent={(newMessages && newMessages.length) || ""}
+          badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
         >
           <MailIcon classes={{root: classes.icon}} />
         </Badge>

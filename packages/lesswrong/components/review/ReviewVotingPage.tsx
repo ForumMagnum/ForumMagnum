@@ -18,8 +18,8 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import filter from 'lodash/filter';
+import { fieldIn } from '../../lib/utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -309,8 +309,8 @@ const ReviewVotingPage = ({classes}: {
     console.error('Error loading posts', postsError);
   }
 
-  function getCostTotal (posts) {
-    return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0)
+  function getCostTotal (posts: PostsListWithVotes[] | null) {
+    return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0) ?? 0
   }
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
@@ -366,7 +366,7 @@ const ReviewVotingPage = ({classes}: {
 
   const canInitialResort = !!postsResults
 
-  const reSortPosts = useCallback((sortPosts, sortReversed, tagFilter) => {
+  const reSortPosts = useCallback((sortPosts: string, sortReversed: string, tagFilter: string) => {
     if (!postsResults) return
 
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
@@ -426,8 +426,8 @@ const ReviewVotingPage = ({classes}: {
           if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
         }        
 
-        if (post1[sortPosts] > post2[sortPosts]) return -1
-        if (post1[sortPosts] < post2[sortPosts]) return 1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
 
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1

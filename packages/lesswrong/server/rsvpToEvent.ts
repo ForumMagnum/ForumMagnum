@@ -55,7 +55,7 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id})
+      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
       return await accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }
@@ -85,7 +85,7 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id})
+      await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
       return accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }

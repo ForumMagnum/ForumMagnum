@@ -263,7 +263,7 @@ const SearchPageTabbed = ({classes}:{
     })
   }
     
-  const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     setSearchState({...searchState, contentType: value, page: 1})
   }
