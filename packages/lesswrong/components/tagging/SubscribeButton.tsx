@@ -18,9 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     }
   },
-  notifyMeButton: {
-    marginLeft: 12,
-  },
 })
 
 const SubscribeButton = ({
@@ -44,7 +41,7 @@ const SubscribeButton = ({
   const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const { LWTooltip, SubforumNotificationSettings } = Components
+  const { LWTooltip, TagNotificationSettings } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -78,12 +75,11 @@ const SubscribeButton = ({
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    {currentUser && <SubforumNotificationSettings
+    {currentUser && <TagNotificationSettings
       tag={tag}
       userTagRel={userTagRel}
       currentUser={currentUser}
       isFrontpageSubscribed={!!isSubscribed}
-      className={classes.notifyMeButton}
     />}
   </div>
 }

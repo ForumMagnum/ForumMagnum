@@ -1,26 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Components, getFragment, registerComponent } from "../../../lib/vulcan-lib";
+import React, { useRef, useState } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import Checkbox from '@material-ui/core/Checkbox';
-import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
-import { useMulti } from "../../../lib/crud/withMulti";
-import { Link } from "../../../lib/reactRouterWrapper";
-import { useFilterSettings } from '../../../lib/filterSettings';
-import { useMessages } from "../../common/withMessages";
-import { userIsDefaultSubscribed } from "../../../lib/subscriptionUtil";
-import { useCreate } from "../../../lib/crud/withCreate";
+import { useMulti } from "../../lib/crud/withMulti";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useMessages } from "../common/withMessages";
+import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
+import { useCreate } from "../../lib/crud/withCreate";
 import { max } from "underscore";
-import { useForceRerender } from "../../hooks/useFirstRender";
-import { useUpdate } from "../../../lib/crud/withUpdate";
-import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
-import { taggingNameIsSet, taggingNameSetting } from "../../../lib/instanceSettings";
+import { useForceRerender } from "../hooks/useFirstRender";
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { subscriptionTypes } from "../../lib/collections/subscriptions/schema";
+import { taggingNameIsSet, taggingNameSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
     padding: 4,
+  },
+  nonSubforumButtonWrapper: {
+    paddingLeft: 12,
+  },
+  subforumButtonWrapper: {
+    paddingLeft: 8,
   },
   popout: {
     padding: "4px 0px 4px 0px",
@@ -53,19 +58,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SubforumNotificationSettings = ({
+const TagNotificationSettings = ({
   tag,
   userTagRel,
   currentUser,
   isFrontpageSubscribed,
-  className,
   classes,
 }: {
   tag: TagBasicInfo;
   userTagRel?: UserTagRelDetails;
   currentUser: UsersCurrent;
   isFrontpageSubscribed: boolean;
-  className?: string;
   classes: ClassesType;
 }) => {
   useForceRerender() // Required because anchorEl is not set on the first render
@@ -106,18 +109,16 @@ const SubforumNotificationSettings = ({
   if (!isSubforum) {
     const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
     return (
-      <AnalyticsContext pageSection="subforumNotificationSettings">
-        <div className={className}>
-          <NotifyMeButton
-            document={tag}
-            tooltip={`Click to toggle notifications for ${postsWording}`}
-            showIcon
-            hideLabel
-            hideIfNotificationsDisabled={!isFrontpageSubscribed}
-            subscriptionType={subscriptionTypes.newTagPosts}
-            className={className}
-          />
-        </div>
+      <AnalyticsContext pageSection="TagNotificationSettings">
+        <NotifyMeButton
+          document={tag}
+          tooltip={`Click to toggle notifications for ${postsWording}`}
+          showIcon
+          hideLabel
+          hideIfNotificationsDisabled={!isFrontpageSubscribed}
+          subscriptionType={subscriptionTypes.newTagPosts}
+          className={classes.nonSubforumButtonWrapper}
+        />
       </AnalyticsContext>
     )
   }
@@ -170,8 +171,8 @@ const SubforumNotificationSettings = ({
   }
 
   return (
-    <AnalyticsContext pageSection="subforumNotificationSettings">
-      <div className={className}>
+    <AnalyticsContext pageSection="TagNotificationSettings">
+      <div className={classes.subforumButtonWrapper}>
         <div ref={anchorEl}>
           {/* Hide notification settings if not subscribed */}
           <div style={{display: isFrontpageSubscribed ? 'inherit': 'none'}}>
@@ -212,14 +213,14 @@ const SubforumNotificationSettings = ({
   );
 };
 
-const SubforumNotificationSettingsComponent = registerComponent(
-  "SubforumNotificationSettings",
-  SubforumNotificationSettings,
+const TagNotificationSettingsComponent = registerComponent(
+  "TagNotificationSettings",
+  TagNotificationSettings,
   { styles, stylePriority: 1 }
 );
 
 declare global {
   interface ComponentTypes {
-    SubforumNotificationSettings: typeof SubforumNotificationSettingsComponent;
+    TagNotificationSettings: typeof TagNotificationSettingsComponent;
   }
 }
