@@ -14,6 +14,7 @@ import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
 import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -61,7 +62,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 19,
     paddingBottom: 0,
     paddingLeft: 42,
-    paddingRight: 42,
+    paddingRight: 34,
     background: theme.palette.panelBackground.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
@@ -158,6 +159,7 @@ const TagSubforumPage2 = ({classes}: {
     RightSidebarColumn,
     CloudinaryImage2,
     SidebarMembersBox,
+    SubscribeButton,
     SubforumNotificationSettings,
     SubforumSubscribeSection,
     TagTableOfContents,
@@ -241,16 +243,6 @@ const TagSubforumPage2 = ({classes}: {
 
   const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
 
-  const onClickMembersList = () => {
-    if (!tag) return;
-
-    openDialog({
-      componentName: 'SubforumMembersDialog',
-      componentProps: {tag},
-      closeOnNavigate: true
-    })
-  }
-
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -320,13 +312,17 @@ const TagSubforumPage2 = ({classes}: {
           {tag.name}
         </Typography>
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && !!userTagRel && (
+        {/* {!!currentUser && !!userTagRel && (
         isSubscribed ?
           <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
-          : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
-      </div>
-      <div className={classes.membersListLink}>
-        {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
+          : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)} */}
+        <SubscribeButton
+          tag={tag}
+          className={classes.notifyMeButton}
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Unsubscribe"
+          subscriptionType={subscriptionTypes.newTagPosts}
+        />
       </div>
       {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
       Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
@@ -354,7 +350,6 @@ const TagSubforumPage2 = ({classes}: {
         className={classes.sidebarBoxWrapper}
         key={"welcome_box"}
       />,
-      <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
     wiki: [
