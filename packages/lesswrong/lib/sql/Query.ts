@@ -292,6 +292,18 @@ abstract class Query<T extends DbObject> {
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT NULL`];
         }
+      } else if (value === true) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS TRUE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT TRUE`];
+        }
+      } else if (value === false) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS FALSE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT FALSE`];
+        }
       }
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];

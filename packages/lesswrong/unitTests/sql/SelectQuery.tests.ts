@@ -86,6 +86,18 @@ describe("SelectQuery", () => {
       expectedArgs: [],
     },
     {
+      name: "can build select query with comparison against true",
+      getQuery: () => new SelectQuery(testTable, {a: true, b: {$eq: true}, c: {$ne: true}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS TRUE AND "b" IS TRUE AND "c" IS NOT TRUE )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select query with comparison against false",
+      getQuery: () => new SelectQuery(testTable, {a: false, b: {$eq: false}, c: {$ne: false}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS FALSE AND "b" IS FALSE AND "c" IS NOT FALSE )',
+      expectedArgs: [],
+    },
+    {
       name: "can build select query with equal comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$eq: 3}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1',
