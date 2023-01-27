@@ -26,7 +26,7 @@ const MINIMUM_APPROVAL_KARMA = 5
 
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
-    if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+    if (post.draft === false && !post.shortform && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
     }
     return post;
