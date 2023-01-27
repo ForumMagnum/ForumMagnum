@@ -25,12 +25,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SubscribeButton = ({
   tag,
+  userTagRel,
   subscribeMessage,
   unsubscribeMessage,
   className,
   classes,
 }: {
   tag: TagBasicInfo,
+  userTagRel?: UserTagRelDetails,
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
@@ -42,7 +44,7 @@ const SubscribeButton = ({
   const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const { LWTooltip, NotifyMeButton } = Components
+  const { LWTooltip, NotifyMeButton, SubforumNotificationSettings } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -67,6 +69,9 @@ const SubscribeButton = ({
 
   const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
 
+  // TODO: should this all live under NotifyMeButton?
+  // NotifyMeButton is doing a lot of other stuff
+  // Make SubforumNotificationSettings fall back to NotifyMeButton if not a subforum
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
       `Remove homepage boost for ${postsWording}` :
@@ -76,15 +81,33 @@ const SubscribeButton = ({
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    <NotifyMeButton
-      document={tag}
-      tooltip={`Click to toggle notifications for ${postsWording}`}
-      showIcon
-      hideLabel
-      hideIfNotificationsDisabled={!isSubscribed}
-      subscriptionType={subscriptionTypes.newTagPosts}
+    <SubforumNotificationSettings
+      startOpen={false}
+      tag={tag}
+      userTagRel={userTagRel}
+      currentUser={currentUser}
+      isFrontpageSubscribed={!!isSubscribed}
       className={classes.notifyMeButton}
     />
+    {/* {tag.isSubforum && currentUser && userTagRel && isSubscribed ? (
+        <SubforumNotificationSettings
+          startOpen={false}
+          tag={tag}
+          userTagRel={userTagRel}
+          currentUser={currentUser}
+          className={classes.notificationSettings}
+        />
+      ) : (
+        <NotifyMeButton
+          document={tag}
+          tooltip={`Click to toggle notifications for ${postsWording}`}
+          showIcon
+          hideLabel
+          hideIfNotificationsDisabled={!isSubscribed}
+          subscriptionType={subscriptionTypes.newTagPosts}
+          className={classes.notifyMeButton}
+        />
+      )} */}
   </div>
 }
 

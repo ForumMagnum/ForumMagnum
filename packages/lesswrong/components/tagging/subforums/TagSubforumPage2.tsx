@@ -318,6 +318,7 @@ const TagSubforumPage2 = ({classes}: {
           : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)} */}
         <SubscribeButton
           tag={tag}
+          userTagRel={userTagRel}
           className={classes.notifyMeButton}
           subscribeMessage="Subscribe"
           unsubscribeMessage="Unsubscribe"

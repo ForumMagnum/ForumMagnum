@@ -15,6 +15,8 @@ import { useCreate } from "../../../lib/crud/withCreate";
 import { max } from "underscore";
 import { useForceRerender } from "../../hooks/useFirstRender";
 import { useUpdate } from "../../../lib/crud/withUpdate";
+import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
+import { taggingNameIsSet, taggingNameSetting } from "../../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -56,23 +58,25 @@ const SubforumNotificationSettings = ({
   userTagRel,
   currentUser,
   startOpen = false,
+  isFrontpageSubscribed,
   className,
   classes,
 }: {
   tag: TagBasicInfo;
-  userTagRel: UserTagRelDetails;
-  currentUser: UsersCurrent;
+  userTagRel?: UserTagRelDetails;
+  currentUser?: UsersCurrent | null;
   startOpen?: boolean;
+  isFrontpageSubscribed: boolean;
   className?: string;
   classes: ClassesType;
 }) => {
   useForceRerender() // Required because anchorEl is not set on the first render
-  const {filterSettings, setTagFilter} = useFilterSettings();
+  const { filterSettings } = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(startOpen);
   const { flash } = useMessages();
 
-  const { LWClickAwayListener, LWPopper, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, Typography, Loading, NotifyMeButton } = Components;
 
   // Get existing subscription, if there is one
   const subscriptionType = "newTagPosts"
@@ -118,15 +122,6 @@ const SubforumNotificationSettings = ({
   const isSubscribedToPosts = getIsSubscribedToPosts();
 
   const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
-  const isFrontpageSubscribed = filterSetting?.filterMode === "Subscribed";
-
-  const toggleIsFrontpageSubscribed = () => {
-    setTagFilter({
-      tagId: tag._id,
-      tagName: tag.name,
-      filterMode: isFrontpageSubscribed ? 0 : "Subscribed",
-    });
-  }
 
   const togglePostsSubscribed = async (e) => {
     try {
@@ -148,6 +143,7 @@ const SubforumNotificationSettings = ({
   }
   
   const toggleDiscussionsSubscribed = async (e) => {
+    if (!userTagRel) return;
     try {
       e.preventDefault();
       await updateUserTagRel({selector: {_id: userTagRel._id}, data: {subforumEmailNotifications: !userTagRel.subforumEmailNotifications}})
@@ -155,20 +151,36 @@ const SubforumNotificationSettings = ({
       flash({messageString: error.message});
     }
   }
+  
+  const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
 
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={className}>
         <div ref={anchorEl}>
-          <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
-            {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
-              <NotificationsNoneIcon />
-            ) : (
-              <NotificationsIcon />
-            )}
-          </IconButton>
+          {tag.isSubforum && userTagRel ? (
+            <div style={{display: isFrontpageSubscribed ? 'inherit': 'none'}}>
+              <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
+                {(!userTagRel.subforumEmailNotifications && !isSubscribedToPosts) ? (
+                  <NotificationsNoneIcon />
+                ) : (
+                  <NotificationsIcon />
+                )}
+              </IconButton>
+            </div>
+          ) : (
+            <NotifyMeButton
+              document={tag}
+              tooltip={`Click to toggle notifications for ${postsWording}`}
+              showIcon
+              hideLabel
+              hideIfNotificationsDisabled={!isFrontpageSubscribed}
+              subscriptionType={subscriptionTypes.newTagPosts}
+              className={className}
+            />
+          )}
         </div>
-        <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-end">
+        {userTagRel && <LWPopper open={!!anchorEl.current && isFrontpageSubscribed && open} anchorEl={anchorEl.current} placement="bottom-end">
           <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
               {loadingSubscriptions ? (
@@ -183,10 +195,6 @@ const SubforumNotificationSettings = ({
                     <Checkbox checked={userTagRel.subforumEmailNotifications} onChange={toggleDiscussionsSubscribed} disableRipple />
                     <Typography variant="body2">Notify me of new discussions</Typography>
                   </span>
-                  <span className={classes.checkbox}>
-                    <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
-                    <Typography variant="body2">Upweight on frontpage</Typography>
-                  </span>
                   <Typography variant="body2" className={classes.accountLink}>
                     <Link to={"/account?highlightField=notificationSubscribedTagPost"}>Change notification batching and email vs on-site in account settings</Link>
                   </Typography>
@@ -194,7 +202,7 @@ const SubforumNotificationSettings = ({
               )}
             </Paper>
           </LWClickAwayListener>
-        </LWPopper>
+        </LWPopper>}
       </div>
     </AnalyticsContext>
   );

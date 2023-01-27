@@ -70,6 +70,8 @@ const NotifyMeButton = ({
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: JSX.Element,
 }) => {
+  console.log("rendering NotifyMeButton", hideIfNotificationsDisabled)
+
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog()
   const { flash } = useMessages();
