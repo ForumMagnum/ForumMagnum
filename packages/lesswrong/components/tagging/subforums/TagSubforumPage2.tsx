@@ -84,6 +84,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       fontSize: "2.4rem",
     }
   },
+  notifyMeButton: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 6,
+    },
+  },
   wikiSection: {
     paddingTop: 12,
     paddingLeft: 42,
@@ -158,10 +163,7 @@ const TagSubforumPage2 = ({classes}: {
     Typography,
     RightSidebarColumn,
     CloudinaryImage2,
-    SidebarMembersBox,
     SubscribeButton,
-    SubforumNotificationSettings,
-    SubforumSubscribeSection,
     TagTableOfContents,
     SidebarSubtagsBox,
     SubforumIntroBox,
@@ -173,7 +175,6 @@ const TagSubforumPage2 = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { history } = useNavigation();
-  const { openDialog } = useDialog();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
@@ -205,7 +206,6 @@ const TagSubforumPage2 = ({classes}: {
   
   const [truncated, setTruncated] = useState(true) // Used in SubforumWikiTab, defined here because it can be controlled from the sidebar
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -219,14 +219,6 @@ const TagSubforumPage2 = ({classes}: {
     fragmentName: 'TagWithFlagsFragment',
     limit: 1500,
     skip: !query.flagId
-  })
-
-  const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
-    collectionName: 'Users',
-    fragmentName: 'UsersProfile',
-    enableTotal: true,
-    skip: !tag
   })
 
   const { results: userTagRelResults } = useMulti({
@@ -311,18 +303,13 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {/* {!!currentUser && !!userTagRel && (
-        isSubscribed ?
-          <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
-          : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)} */}
         <SubscribeButton
           tag={tag}
           userTagRel={userTagRel}
-          className={classes.notifyMeButton}
           subscribeMessage="Subscribe"
           unsubscribeMessage="Unsubscribe"
           subscriptionType={subscriptionTypes.newTagPosts}
+          className={classes.notifyMeButton}
         />
       </div>
       {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.

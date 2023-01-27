@@ -57,26 +57,25 @@ const SubforumNotificationSettings = ({
   tag,
   userTagRel,
   currentUser,
-  startOpen = false,
   isFrontpageSubscribed,
   className,
   classes,
 }: {
   tag: TagBasicInfo;
   userTagRel?: UserTagRelDetails;
-  currentUser?: UsersCurrent | null;
-  startOpen?: boolean;
+  currentUser: UsersCurrent;
   isFrontpageSubscribed: boolean;
   className?: string;
   classes: ClassesType;
 }) => {
   useForceRerender() // Required because anchorEl is not set on the first render
-  const { filterSettings } = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
-  const [open, setOpen] = useState(startOpen);
+  const [open, setOpen] = useState(false);
   const { flash } = useMessages();
 
   const { LWClickAwayListener, LWPopper, Typography, Loading, NotifyMeButton } = Components;
+
+  const isSubforum = !!(tag.isSubforum && userTagRel)
 
   // Get existing subscription, if there is one
   const subscriptionType = "newTagPosts"
@@ -92,6 +91,7 @@ const SubforumNotificationSettings = ({
     collectionName: "Subscriptions",
     fragmentName: 'SubscriptionState',
     enableTotal: false,
+    skip: !isSubforum
   });
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -102,6 +102,25 @@ const SubforumNotificationSettings = ({
     collectionName: 'UserTagRels',
     fragmentName: 'UserTagRelDetails',
   });
+
+  if (!isSubforum) {
+    const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
+    return (
+      <AnalyticsContext pageSection="subforumNotificationSettings">
+        <div className={className}>
+          <NotifyMeButton
+            document={tag}
+            tooltip={`Click to toggle notifications for ${postsWording}`}
+            showIcon
+            hideLabel
+            hideIfNotificationsDisabled={!isFrontpageSubscribed}
+            subscriptionType={subscriptionTypes.newTagPosts}
+            className={className}
+          />
+        </div>
+      </AnalyticsContext>
+    )
+  }
 
   const getIsSubscribedToPosts = () => {
     // Get the last element of the results array, which will be the most recent subscription
@@ -121,13 +140,11 @@ const SubforumNotificationSettings = ({
   }
   const isSubscribedToPosts = getIsSubscribedToPosts();
 
-  const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
-
   const togglePostsSubscribed = async (e) => {
     try {
       e.preventDefault();
       const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
-      captureEvent("subscribeClicked", {state: subscriptionState}) // TODO capture better events
+      captureEvent("subscribeClicked", {state: subscriptionState})
 
       const newSubscription = {
         state: subscriptionState,
@@ -151,36 +168,23 @@ const SubforumNotificationSettings = ({
       flash({messageString: error.message});
     }
   }
-  
-  const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
 
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={className}>
         <div ref={anchorEl}>
-          {tag.isSubforum && userTagRel ? (
-            <div style={{display: isFrontpageSubscribed ? 'inherit': 'none'}}>
-              <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
-                {(!userTagRel.subforumEmailNotifications && !isSubscribedToPosts) ? (
-                  <NotificationsNoneIcon />
-                ) : (
-                  <NotificationsIcon />
-                )}
-              </IconButton>
-            </div>
-          ) : (
-            <NotifyMeButton
-              document={tag}
-              tooltip={`Click to toggle notifications for ${postsWording}`}
-              showIcon
-              hideLabel
-              hideIfNotificationsDisabled={!isFrontpageSubscribed}
-              subscriptionType={subscriptionTypes.newTagPosts}
-              className={className}
-            />
-          )}
+          {/* Hide notification settings if not subscribed */}
+          <div style={{display: isFrontpageSubscribed ? 'inherit': 'none'}}>
+            <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
+              {(!userTagRel.subforumEmailNotifications && !isSubscribedToPosts) ? (
+                <NotificationsNoneIcon />
+              ) : (
+                <NotificationsIcon />
+              )}
+            </IconButton>
+          </div>
         </div>
-        {userTagRel && <LWPopper open={!!anchorEl.current && isFrontpageSubscribed && open} anchorEl={anchorEl.current} placement="bottom-end">
+        <LWPopper open={!!anchorEl.current && isFrontpageSubscribed && open} anchorEl={anchorEl.current} placement="bottom-end">
           <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
               {loadingSubscriptions ? (
@@ -202,7 +206,7 @@ const SubforumNotificationSettings = ({
               )}
             </Paper>
           </LWClickAwayListener>
-        </LWPopper>}
+        </LWPopper>
       </div>
     </AnalyticsContext>
   );
