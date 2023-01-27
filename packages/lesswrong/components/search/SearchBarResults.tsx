@@ -22,20 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       top: forumTypeSetting.get() === 'EAForum' ? 78 : 48,
     },
-    "& .ais-CurrentRefinements": {
-      display: 'inline-block',
-      position: 'absolute',
-      padding: '0px 16px',
-      top: 16
-    },
-    "& .ais-CurrentRefinements-item": {
-      border: theme.palette.border.slightlyIntense2,
-      borderRadius: 20,
-      padding: '8px',
-    },
-    "& .ais-CurrentRefinements-label": {
-      marginRight: 5
-    },
   },
   searchResults: {
     overflow:"scroll",
@@ -89,7 +75,6 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
 
   return <div className={classes.root}>
     <div className={classes.searchResults}>
-        <CurrentRefinements />
         <Components.ErrorBoundary>
           <div className={classes.list}>
             <Index indexName={getAlgoliaIndexName("Users")}>

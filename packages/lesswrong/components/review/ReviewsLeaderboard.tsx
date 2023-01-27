@@ -63,8 +63,11 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
       totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
       reviews: sortBy(userTuple[1], obj => -obj.baseScore)
   })})
+
+  const NUM_DEFAULT_REVIEWS = 10
+
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
-  const truncatedRows = truncated ? sortedUserRows.slice(0,5) : sortedUserRows
+  const truncatedRows = truncated ? sortedUserRows.slice(0,NUM_DEFAULT_REVIEWS) : sortedUserRows
 
   const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
 
@@ -95,7 +98,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
         </Row>
       </div>
     })}
-    <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers (5/{sortedUserRows.length})</> : "Show Fewer"}</a>
+    <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers ({NUM_DEFAULT_REVIEWS}/{sortedUserRows.length})</> : "Show Fewer"}</a>
   </div>
 }
 

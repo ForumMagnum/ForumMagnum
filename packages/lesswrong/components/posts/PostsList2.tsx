@@ -11,7 +11,7 @@ import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const Error = ({error}) => <div>
+const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
@@ -52,6 +52,7 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   hideTrailingButtons=false,
+  hideTagRelevance=false,
   tooltipPlacement="bottom-end",
   boxShadow=true,
   curatedIconLeft=false,
@@ -91,6 +92,7 @@ const PostsList2 = ({
   itemsPerPage?: number,
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
+  hideTagRelevance?: boolean,
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
@@ -179,7 +181,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length > 0, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
   if (results && !results.length && !showNoResults) return null
@@ -202,7 +204,7 @@ const PostsList2 = ({
             index: i,
             terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
-            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from

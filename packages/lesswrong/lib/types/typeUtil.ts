@@ -39,4 +39,5 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
     ? TypesEqual<ObjType[FieldName],FieldType,FieldName&string,never>
     : never;
 
+type FromPartial<T> = T extends Partial<infer U> ? U : never;
 }
