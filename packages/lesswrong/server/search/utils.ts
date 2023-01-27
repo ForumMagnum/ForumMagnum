@@ -123,8 +123,14 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
 }
 
 Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
+  // Don't show deleted users in search
   if (user.deleted) return null;
   if (user.deleteContent) return null;
+  
+  // Don't show unreviewed, zero-content users in search
+  if (!user.reviewedByUserId) {
+    return null;
+  }
   
   let howOthersCanHelpMe = ""
   if (user.howOthersCanHelpMe?.originalContents?.type) {
