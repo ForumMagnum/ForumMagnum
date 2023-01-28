@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler } from 'react';
+import React, { ChangeEventHandler, ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import classnames from 'classnames';
@@ -40,7 +40,7 @@ const MuiTextField = ({
   value: string;
   updateCurrentValues<T extends {}>(values: T) : void;
   path: string;
-  children?: JSX.Element[];
+  children?: ReactNode;
   select?: boolean;
   defaultValue?: string | number;
   label?: string;
