@@ -96,7 +96,7 @@ const TagFilterSettings = ({
       />
     )}
 
-    {/** Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
+    {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
     <div className={classes.personalAndPlus}>
       <FilterMode
         label={personalBlogpostName}

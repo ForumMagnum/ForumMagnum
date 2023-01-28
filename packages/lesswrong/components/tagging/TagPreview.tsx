@@ -99,10 +99,10 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
           })}</span></div> : <></>}
         </div> : <></>
       }
-      {!tag.wikiOnly && <>
-        {showPosts && (results ? <div className={classes.posts}>
+      {showPosts && !tag.wikiOnly && <>
+        {results ? <div className={classes.posts}>
           {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-        </div> : <Loading /> )}
+        </div> : <Loading />}
         {hasFooter && <div className={classes.footer}>
           {autoApplied && <span className={classes.autoApplied}>
             Tag was auto-applied

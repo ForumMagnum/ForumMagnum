@@ -163,7 +163,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const reducedName = 'Reduced'
   const reducedVal = 'Reduced'
   const filterMode = filterModeToStr(mode, currentUser)
-  const filterModeLabel = filterModeStrToLWStr(filterMode);
+  const filterModeLabel = filterModeStrToLabel(filterMode);
 
   const tagLabel =
     <span className={classes.tagLabel}>
@@ -171,7 +171,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       {filterMode !== '' &&
         <span className={classes.filterScore}>
           {filterModeLabel}
-        </span>}
+        </span>
+      }
     </span>
 
   // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
@@ -286,7 +287,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         {tag &&
           <div className={classes.tagPreview}>
             <TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/>
-          </div>}
+          </div>
+        }
       </PopperCard>
     </AnalyticsContext>
   </span>
@@ -353,7 +355,11 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): Fi
   }
 }
 
-function filterModeStrToLWStr(filterModeStr: FilterModeString) {
+/**
+ * This function used to change the label to a LW-specific label, while the EA forum had a different label.
+ * Now, it, along with {@link filterModeToStr}, should probably be refactored (collapsed).
+ */
+function filterModeStrToLabel(filterModeStr: FilterModeString) {
   switch (filterModeStr) {
     case 'Reduced':     return '-';
     case 'Subscribed':  return '+';

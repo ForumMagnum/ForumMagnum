@@ -50,7 +50,7 @@ const TagPreviewDescription = ({tag, classes}: {
     '.. <a class="read-more-button" href="#">(read more)</a>');
   }
 
-  if (tag.description?.htmlHighlight) {
+  if (highlight) {
     return <div
       onClick={(ev: React.SyntheticEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {

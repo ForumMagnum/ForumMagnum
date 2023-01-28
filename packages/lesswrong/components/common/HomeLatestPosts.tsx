@@ -93,7 +93,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
-      pageSectionContext: "latestPosts"
     })
   }
   
