@@ -22,6 +22,7 @@ addGraphQLResolvers({
           notificationType: 'coauthorAcceptNotification',
           documentType: 'post',
           documentId: postId,
+          context,
         });
       } else {
         post.coauthorStatuses = post.coauthorStatuses.filter((author) => author.userId !== userId);

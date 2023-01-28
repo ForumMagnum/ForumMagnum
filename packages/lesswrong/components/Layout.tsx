@@ -17,9 +17,9 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
+import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
-import { isServer } from '../lib/executionEnvironment';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -306,7 +306,9 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <Components.SunshineSidebar/>
+                  <NoSSR>
+                    <Components.SunshineSidebar/>
+                  </NoSSR>
                 </div>}
               </div>
             </CommentBoxManager>

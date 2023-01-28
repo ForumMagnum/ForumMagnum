@@ -52,7 +52,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     fragmentName: "TagFragment",
     limit: 100,
   });
-  
+
   if (loading) return <Loading/>
   if (!results) return null
   
@@ -76,10 +76,14 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     );
   }
   
+  const onMultiselectUpdate = (changes: { tagRelevance: string[] }) => {
+    updateValuesWithArray([...changes.tagRelevance, ...selectedSubforumTagIds]);
+  };
+  
   /**
    * When a tag is selected, add both it and its parent to the list of tags.
    */
-  const onTagSelected = (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>) => {
+  const onTagSelected = async (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>) => {
     updateValuesWithArray(
       [
         tag.tagId,
@@ -96,7 +100,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     updateValuesWithArray(existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId))
   }
 
-  if (formType === "edit") {
+  if (!document.draft && formType === "edit") {
     return <FooterTagList
       post={document}
       hideScore
@@ -111,7 +115,8 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
           <>
             <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
             <p className={classes.subforumExplanation}>
-              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums are broad topics with a dedicated community and space for general discussion.
+              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums
+              are broad topics with a dedicated community and space for general discussion.
             </p>
             <TagsChecklist
               tags={subforumTags}
@@ -128,9 +133,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
           path={path}
           placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
           value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
-          updateCurrentValues={(changes) => {
-            updateValuesWithArray([...changes.tagRelevance, ...selectedSubforumTagIds])
-          }}
+          updateCurrentValues={onMultiselectUpdate}
         />
       </div>
     );

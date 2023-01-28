@@ -1258,6 +1258,10 @@ const schema: SchemaType<DbUser> = {
     label: `New messages in subforums I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
   },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -2381,7 +2385,7 @@ const schema: SchemaType<DbUser> = {
   },
   subforumPreferredLayout: {
     type: String,
-    allowedValues: subforumLayouts,
+    allowedValues: Array.from(subforumLayouts),
     hidden: true, // only editable by changing the setting from the subforum page
     optional: true,
     canRead: [userOwns, 'admins'],

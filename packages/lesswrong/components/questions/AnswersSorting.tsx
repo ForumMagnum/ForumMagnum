@@ -29,7 +29,7 @@ const AnswersSorting = ({ post, classes }: {
     history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
-  const sortings = [...Object.keys(sortingNames)];
+  const sortings = [...Object.keys(sortingNames)] as (keyof typeof sortingNames)[];
   const currentSorting = query?.answersSorting || "top";
   
   const viewOptions: Array<Option> = sortings.map((view) => {

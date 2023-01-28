@@ -124,7 +124,7 @@ const RSVPs = ({post, classes}: {
     }
     ${getFragment("PostsDetails")}
   `)
-  const cancelRSVP = async (rsvp) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
+  const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
 
   return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>

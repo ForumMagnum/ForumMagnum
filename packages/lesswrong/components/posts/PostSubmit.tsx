@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
-interface PostSubmitProps {
+export interface PostSubmitProps {
   submitLabel?: string,
   cancelLabel?: string,
   saveDraftLabel?: string,
@@ -69,7 +69,7 @@ const requestFeedbackKarmaLevel = forumSelect({
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues }) => {
+}: PostSubmitProps, { updateCurrentValues }: any) => {
   
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();

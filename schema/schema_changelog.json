@@ -70,8 +70,8 @@
     "timestamp": "2023-01-24T21:05:13.000Z"
   },
   {
-    "acceptsSchemaHash": "71ba3e6828163cf8f0942772838e2531",
-    "acceptedByMigration": "20230125T225839.hide_frontpage_filter_settings_desktop.ts",
-    "timestamp": "2023-01-25T22:58:39.000Z"
+    "acceptsSchemaHash": "f74d70468a0d76011ef39059dc9584d5",
+    "acceptedByMigration": "20230125T223259.user_mentions_newMentionNotifictions.ts",
+    "timestamp": "2023-01-25T22:32:59.000Z"
   }
 ]

@@ -37,7 +37,7 @@ export const EditPaymentInfoPage = ({classes}: {
         collection={Users}
         documentId={currentUser._id}
         fields={['paymentEmail', 'paymentInfo']}
-        successCallback={async (user) => {
+        successCallback={async (user: UsersMinimumInfo | DbUser | null) => {
           flash(`Payment Info for "${userGetDisplayName(user)}" edited`);
           history.push(userGetProfileUrl(user));
         }}
