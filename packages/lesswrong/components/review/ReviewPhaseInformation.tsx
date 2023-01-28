@@ -32,7 +32,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   reviewPhase: ReviewPhase
 }) => {
 
-  const { UserReviewsProgressBar, ContentStyles, LWTooltip } = Components
+  const { UserReviewsProgressBar, ContentStyles, LWTooltip, ReviewVotingProgressBar } = Components
 
 
   const FaqCard = ({linkText, children}) => (
@@ -68,6 +68,9 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p>We just spent a month reviewing posts. Now it's time to look at posts that got at least one review, look over any reviews you think might have useful context, and cast your final vote.</p>
       <p>Vote positively for posts that you think have stood the tests of time as particularly important. Vote negatively for posts you think are misleading, harmful, or seem overrated/unimportant.</p>
       <p>Highly upvoted posts will be printed into a physical book, and included in the <Link to="/bestoflesswrong">Best of LessWrong</Link> page. (The LessWrong Team may make some judgment calls on the exact cutoff of which posts appear in the physical book).</p>
+      <p>
+        <ReviewVotingProgressBar reviewYear={reviewYear} />
+      </p>
       <div>
         <p><b>FAQ</b></p>
         <p className={classes.faqQuestion}>
@@ -141,6 +144,9 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
         </p>
     </ContentStyles>
   }
+  return <ContentStyles contentType="comment" className={classes.root}>
+    The {reviewYear} Review is complete.
+  </ContentStyles>
 }
 
 const ReviewPhaseInformationComponent = registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
