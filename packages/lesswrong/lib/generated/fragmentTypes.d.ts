@@ -2297,6 +2297,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,

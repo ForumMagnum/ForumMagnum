@@ -963,6 +963,7 @@ interface DbUser extends DbObject {
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string
