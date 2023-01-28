@@ -17,8 +17,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(45deg)",
   },
   filledIcon: {
-    width: 16,
-    background: theme.palette.primary.main,
+    width: 12,
+    height: 12,
+    marginRight: 3,
+    border: theme.palette.border.primaryHighlight,
+    background: theme.palette.primary.light,
+    borderColor: theme.palette.primary.dark,
     transform: "rotate(45deg)",
     borderRadius: 3
   },
