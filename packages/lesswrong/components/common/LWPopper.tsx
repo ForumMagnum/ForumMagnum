@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // implementations
 const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
   open: boolean,
