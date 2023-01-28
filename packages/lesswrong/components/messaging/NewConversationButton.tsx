@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
@@ -21,7 +21,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   currentUser: UsersCurrent|null,
   templateQueries?: TemplateQueryStrings,
   from?: string,
-  children: any,
+  children: ReactNode,
   includeModerators?: boolean,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
