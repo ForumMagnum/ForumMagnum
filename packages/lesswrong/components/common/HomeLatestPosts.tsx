@@ -62,6 +62,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
+  // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(!currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
