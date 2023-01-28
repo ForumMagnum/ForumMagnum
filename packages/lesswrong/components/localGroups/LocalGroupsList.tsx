@@ -29,7 +29,7 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
       <SectionTitle title={heading} />
       {children}
     </SingleColumnSection> :
-    <>children</>;
+    <>{children}</>;
 
   if (!results && loading) return <Loading />
 
