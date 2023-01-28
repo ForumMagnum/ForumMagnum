@@ -9,7 +9,6 @@ import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from 
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { ReviewVotingProgressBar } from './ReviewVotingProgressBar';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -385,7 +384,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
-    <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
+    </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
         Review Leaderboard

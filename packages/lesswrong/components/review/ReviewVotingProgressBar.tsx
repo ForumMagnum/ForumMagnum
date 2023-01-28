@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
+    marginRight: 4
   },
   icon: {
     width: 16,
@@ -19,12 +20,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   filledIcon: {
     width: 12,
     height: 12,
-    marginRight: 3,
-    border: theme.palette.border.primaryHighlight,
-    background: theme.palette.primary.light,
-    borderColor: theme.palette.primary.dark,
+    marginRight: 4,
+    border: theme.palette.border.intense,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    opacity: .7,
     transform: "rotate(45deg)",
-    borderRadius: 3
+    borderRadius: 2
   },
 });
 
@@ -65,7 +67,7 @@ export const ReviewVotingProgressBar = ({classes, reviewYear}: {
     {reviewsResults.map(review => {
       return <div className={classes.filledIcon} key={review._id}/>
     })}
-    {range(0, uncheckedBoxes).map(a => <CropSquareIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
+    {range(0, uncheckedBoxes).map(a => <CropSquareIcon className={classes.icon} key={`${currentUser?._id}${a}`}/>) }
   </div>
 </LWTooltip>
 }
