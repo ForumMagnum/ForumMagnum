@@ -366,7 +366,7 @@ const ReviewVotingPage = ({classes}: {
 
   const canInitialResort = !!postsResults
 
-  const reSortPosts = useCallback((sortPosts: string, sortReversed: boolean, tagFilter: string) => {
+  const reSortPosts = useCallback((sortPosts: string, sortReversed: boolean, tagFilter: string|null) => {
     if (!postsResults) return
 
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
