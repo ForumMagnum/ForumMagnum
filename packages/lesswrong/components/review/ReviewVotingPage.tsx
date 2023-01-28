@@ -166,13 +166,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteAverage: {
     cursor: 'pointer',
   },
-  faqCard: {
-    width: 400,
-    padding: 16,
-  },
-  faqQuestion: {
-    color: theme.palette.primary.main
-  },
   postCount: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
@@ -481,7 +474,7 @@ const ReviewVotingPage = ({classes}: {
             <ReviewDashboardButtons 
               reviewYear={reviewYear} 
               reviewPhase={reviewPhase}
-              showQuickReview
+              showQuickReview={reviewPhase === "REVIEWS"}
             />
           </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
