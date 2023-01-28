@@ -5,7 +5,7 @@ import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
@@ -95,7 +95,7 @@ const PostsEditForm = ({ documentId, classes }: {
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
       {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
-      <NoSsr>
+      <NoSSR>
         <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
@@ -141,7 +141,7 @@ const PostsEditForm = ({ documentId, classes }: {
            */
           addFields={document.isEvent ? [] : ['tagRelevance']}
         />
-      </NoSsr>
+      </NoSSR>
     </div>
   );
 }
