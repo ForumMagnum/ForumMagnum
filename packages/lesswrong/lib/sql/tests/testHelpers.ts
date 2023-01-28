@@ -42,6 +42,7 @@ testTable.addIndex({a: 1, b: 1});
 testTable.addIndex({a: 1, "c.d": 1});
 testTable.addIndex({a: 1, b: 1}, {unique: true});
 testTable.addIndex({a: 1, b: 1}, {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
+testTable.addIndex({b: 1}, {collation: {locale: "en", strength: 2}});
 
 export type DbTestObject2 = {
   _id: string,

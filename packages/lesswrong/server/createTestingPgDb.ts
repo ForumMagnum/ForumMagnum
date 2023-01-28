@@ -8,15 +8,14 @@ import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
 import Messages from "../lib/collections/messages/collection";
 import LocalGroups from "../lib/collections/localgroups/collection";
-// TODO: Import this when Users is migrated to postgres
-// import Users from "../lib/collections/users/collection";
+import Users from "../lib/collections/users/collection";
 
 import seedPosts from "../../../cypress/fixtures/posts";
 import seedComments from "../../../cypress/fixtures/comments";
 import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
-// import seedUsers from "../../../cypress/fixtures/users";
+import seedUsers from "../../../cypress/fixtures/users";
 
 const seedData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
   // eslint-disable-next-line no-console
@@ -46,8 +45,12 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
       seedData(Conversations, seedConversations),
       seedData(Messages, seedMessages),
       seedData(LocalGroups, seedLocalGroups),
-      // importData(Users, seedUsers),
     ]);
+
+    // TODO: Move this into the above Promise.all when Users is fully migrated
+    if (Users.isPostgres()) {
+      await seedData(Users, seedUsers);
+    }
   }
 }
 
@@ -64,8 +67,8 @@ export const addCypressRoutes = (app: Application) => {
         if (!templateId || typeof templateId !== "string") {
           throw new Error("No templateId provided");
         }
-        await createTestingSqlClientFromTemplate(templateId)
-        res.status(200).send({status: "ok"});
+        const {dbName} = await createTestingSqlClientFromTemplate(templateId)
+        res.status(200).send({status: "ok", dbName});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});
       }

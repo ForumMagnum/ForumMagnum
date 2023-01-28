@@ -63,6 +63,8 @@ const initializePlugins = (commentEditor) => {
     focusPlugin.decorator,
   );
 
+  // FIXME: `decorator` was never getting used in createDividerPlugin, not clear why it's getting passed in
+  // @ts-ignore
   const dividerPlugin = createDividerPlugin({decorator});
 
   const toolbarButtons = [
