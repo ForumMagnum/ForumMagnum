@@ -196,7 +196,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   return {
     selector: {
       banned: viewFieldNullOrMissing,
-      deleted: false,
+      deleted: {$ne:true},
       $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
     },
     options: {
