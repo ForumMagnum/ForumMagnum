@@ -59,7 +59,7 @@ export const ReviewVotingProgressBar = ({classes, reviewYear}: {
   const totalVotes = totalCount || 0
   const uncheckedBoxes = TARGET_NUM - Math.min(totalVotes, TARGET_NUM)
 
-  return <LWTooltip title={<div>
+  return <div><LWTooltip title={<div>
     <p><em>{totalVotes ? `You've voted on ${totalVotes} posts in the ${reviewYear} Review${totalVotes >= TARGET_NUM ? "!" : "."}` : "You haven't voted on any posts yet."}</em></p>
     {totalVotes < TARGET_NUM && <>
     <div>It'd be helpful if you voted on at least {TARGET_NUM} posts. More votes from established users improves the signal/noise of the review vote. (If there weren't {TARGET_NUM} posts you found longterm valuable, it's fine to vote "0").</div></>}</div>} placement="top">
@@ -69,7 +69,7 @@ export const ReviewVotingProgressBar = ({classes, reviewYear}: {
     })}
     {range(0, uncheckedBoxes).map(a => <CropSquareIcon className={classes.icon} key={`${currentUser?._id}${a}`}/>) }
   </div>
-</LWTooltip>
+</LWTooltip></div>
 }
 
 const ReviewVotingProgressBarComponent = registerComponent('ReviewVotingProgressBar', ReviewVotingProgressBar, {styles});

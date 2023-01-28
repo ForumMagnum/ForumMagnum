@@ -71,27 +71,24 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p>
         <ReviewVotingProgressBar reviewYear={reviewYear} />
       </p>
-      <div>
-        <p><b>FAQ</b></p>
-        <p className={classes.faqQuestion}>
-          <FaqCard linkText="How exactly does Final Voting work?">
-            <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-            <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
-            <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
-          </FaqCard>
-        </p>
-  
-        <p className={classes.faqQuestion}>
-          <FaqCard linkText="Who is eligible?">
-            <ul>
-              <li>Any user registered before {reviewYear} can vote on posts.</li>
-              <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
-              <li>Any user can write reviews.</li>
-            </ul>
-          </FaqCard>
-        </p>
-      </div>
-      <br />
+      <p><b>FAQ</b></p>
+      <p className={classes.faqQuestion}>
+        <FaqCard linkText="How exactly does Final Voting work?">
+          <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
+          <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
+        </FaqCard>
+      </p>
+
+      <p className={classes.faqQuestion}>
+        <FaqCard linkText="Who is eligible?">
+          <ul>
+            <li>Any user registered before {reviewYear} can vote on posts.</li>
+            <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
+            <li>Any user can write reviews.</li>
+          </ul>
+        </FaqCard>
+      </p>
       <p>
         Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
       </p>
