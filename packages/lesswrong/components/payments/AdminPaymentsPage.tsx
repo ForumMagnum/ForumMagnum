@@ -38,6 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: .5
     }
+  },
+  smallCell: {
+    width: 30,
+    paddingRight: 0
   }
 });
 
@@ -89,16 +93,16 @@ export const AdminPaymentsPage = ({classes}: {
       {loading && <Loading/>}
       <Table>
         <TableRow>
-          <TableCell></TableCell>
-          <TableCell><b>Link</b></TableCell>
+          <TableCell className={classes.smallCell}></TableCell>
+          <TableCell className={classes.smallCell}></TableCell>
           <TableCell><b>Name</b></TableCell>
           <TableCell><b>Email</b></TableCell>
           <TableCell><b>Payment Info</b></TableCell>
         </TableRow>
         {filteredResults?.map((user, i) => {
           return <TableRow key={user._id}>
-            <TableCell>{i+1}</TableCell>
-            <TableCell>
+            <TableCell className={classes.smallCell}>{i+1}</TableCell>
+            <TableCell className={classes.smallCell}>
               <LWTooltip title={<UserTooltip user={user}/>}>
                 <Link to={userGetProfileUrl(user)}>
                   <LinkIcon className={classes.icon}/>
