@@ -554,6 +554,8 @@ importComponent("TagContributorsList", () => require('../components/tagging/TagC
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
+importComponent("PostsTagsList", () => require('../components/tagging/PostsTagsList'));
+
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
