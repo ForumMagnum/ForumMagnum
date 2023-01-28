@@ -9,6 +9,7 @@ import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from 
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { ReviewVotingProgressBar } from './ReviewVotingProgressBar';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -215,7 +216,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -384,6 +385,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
+    <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
         Review Leaderboard
