@@ -66,7 +66,7 @@ const LinkButton = ({ resource, classes }: {
   resource: FeaturedResourcesFragment,
 }) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     captureEvent(undefined, {buttonPressed: e.button});
   };
 

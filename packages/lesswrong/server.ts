@@ -99,6 +99,7 @@ import './server/callbacks/conversationCallbacks';
 import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
+import './server/resolvers/notificationResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';

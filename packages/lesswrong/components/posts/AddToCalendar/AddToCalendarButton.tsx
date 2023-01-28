@@ -72,7 +72,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     }
   }, [open, setOpen])
   
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     

@@ -87,6 +87,7 @@ export class MongoCollection<T extends DbObject> {
   table: any
   options = {}
   collectionName: string
+  postProcess?: (data: T) => T;
 
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection

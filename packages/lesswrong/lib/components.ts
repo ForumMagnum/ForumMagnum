@@ -451,6 +451,7 @@ importComponent("PostsSearchAutoComplete", () => require('../components/search/P
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("ExpandedCommentsSearchHit", () => require('../components/search/ExpandedCommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
+importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("ExpandedTagsSearchHit", () => require('../components/search/ExpandedTagsSearchHit'));
@@ -554,6 +555,8 @@ importComponent("TagContributorsList", () => require('../components/tagging/TagC
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
+importComponent("PostsTagsList", () => require('../components/tagging/PostsTagsList'));
+
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
@@ -746,6 +749,7 @@ importComponent("NewLongformReviewForm", () => require('../components/review/New
 importComponent("ReviewDashboardButtons", () => require('../components/review/ReviewDashboardButtons'));
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
 importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
+importComponent("ReviewVotingProgressBar", () => require('../components/review/ReviewVotingProgressBar'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));

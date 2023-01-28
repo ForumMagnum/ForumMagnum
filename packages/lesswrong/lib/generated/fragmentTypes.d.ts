@@ -167,6 +167,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2292,6 +2298,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
@@ -2635,6 +2642,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationNewMention: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

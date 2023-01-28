@@ -70,8 +70,13 @@
     "timestamp": "2023-01-24T21:05:13.000Z"
   },
   {
-    "acceptsSchemaHash": "e5c970b99c1cde3aeba7157d0b65d946",
-    "acceptedByMigration": "20230125T212926.add_usersContactedBeforeReview.ts",
-    "timestamp": "2023-01-25T21:29:26.000Z"
+    "acceptsSchemaHash": "f74d70468a0d76011ef39059dc9584d5",
+    "acceptedByMigration": "20230125T223259.user_mentions_newMentionNotifictions.ts",
+    "timestamp": "2023-01-25T22:32:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "619ed0268e244678740dac4731f64051",
+    "acceptedByMigration": "20230128T010215.hide_frontpage_filter_settings_desktop.ts",
+    "timestamp": "2023-01-28T01:02:15.000Z"
   }
 ]

@@ -20,6 +20,7 @@ interface CollectionBase<
   N extends CollectionNameString = CollectionNameString
 > {
   collectionName: N
+  postProcess?: (data: T) => T;
   typeName: string,
   options: CollectionOptions
   addDefaultView: (view: ViewFunction<N>) => void

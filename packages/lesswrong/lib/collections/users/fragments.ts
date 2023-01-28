@@ -110,6 +110,7 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -415,6 +416,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

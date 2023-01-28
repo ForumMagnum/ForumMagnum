@@ -159,7 +159,7 @@ export const createMutator = async <T extends DbObject>({
       autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
-      document[fieldName] = autoValue;
+      Object.assign(document, { [fieldName]: autoValue });
     }
   }
 

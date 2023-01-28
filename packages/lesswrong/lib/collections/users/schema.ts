@@ -804,6 +804,14 @@ const schema: SchemaType<DbUser> = {
     // FIXME this isn't filling default values as intended
     // ...schemaDefaultValue(getDefaultFilterSettings),
   },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,
@@ -1249,6 +1257,10 @@ const schema: SchemaType<DbUser> = {
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+  },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
   },
 
   // Karma-change notifier settings
@@ -2382,7 +2394,7 @@ const schema: SchemaType<DbUser> = {
   },
   subforumPreferredLayout: {
     type: String,
-    allowedValues: subforumLayouts,
+    allowedValues: Array.from(subforumLayouts),
     hidden: true, // only editable by changing the setting from the subforum page
     optional: true,
     canRead: [userOwns, 'admins'],

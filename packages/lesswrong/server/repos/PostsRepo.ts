@@ -1,4 +1,5 @@
 import { postStatuses } from "../../lib/collections/posts/constants";
+import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 
 export type MeanPostKarma = {
@@ -6,7 +7,11 @@ export type MeanPostKarma = {
   meanKarma: number,
 }
 
-export default class PostsRepo extends AbstractRepo {
+export default class PostsRepo extends AbstractRepo<DbPost> {
+  constructor() {
+    super(Posts);
+  }
+
   private getKarmaInflationSelector(): string {
     return `
       "status" = ${postStatuses.STATUS_APPROVED} AND
@@ -22,7 +27,7 @@ export default class PostsRepo extends AbstractRepo {
   }
 
   async getEarliestPostTime(): Promise<Date> {
-    const result = await this.db.oneOrNone(`
+    const result = await this.oneOrNone(`
       SELECT "postedAt" FROM "Posts"
       WHERE ${this.getKarmaInflationSelector()}
       ORDER BY "postedAt" ASC
@@ -32,7 +37,7 @@ export default class PostsRepo extends AbstractRepo {
   }
 
   getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
-    return this.db.any(`
+    return this.getRawDb().any(`
       SELECT "_id", AVG("baseScore") AS "meanKarma"
       FROM (
         SELECT
@@ -47,7 +52,7 @@ export default class PostsRepo extends AbstractRepo {
   }
 
   async getMeanKarmaOverall(): Promise<number> {
-    const result = await this.db.oneOrNone(`
+    const result = await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
       WHERE ${this.getKarmaInflationSelector()}

@@ -174,6 +174,7 @@ interface DbComment extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string
+  pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -962,6 +963,7 @@ interface DbUser extends DbObject {
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string
@@ -1081,6 +1083,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationNewMention: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
