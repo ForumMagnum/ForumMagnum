@@ -129,6 +129,10 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
+const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+  isCrosspost: false,
+})
+
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
@@ -1342,9 +1346,19 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.advancedOptions,
     order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
-    ...schemaDefaultValue({
-      isCrosspost: false,
-    }),
+    ...schemaDefaultValueFmCrosspost,
+    // Users aren't allowed to change the foreignPostId of a crosspost
+    onUpdate: (args) => {
+      const { data, oldDocument } = args;
+      if (
+        data.fmCrosspost?.foreignPostId &&
+        data.fmCrosspost.foreignPostId !== oldDocument.fmCrosspost?.foreignPostId
+      ) {
+        // Someone is trying some shady shit
+        throw new Error("Cannot change the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onUpdate?.(args);
+    },
   },
 
   canonicalSequenceId: {
