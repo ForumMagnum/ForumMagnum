@@ -289,63 +289,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface LWEventsDefaultFragment { // fragment on LWEvents
-  readonly userId: string,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface newEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lastEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly documentId: string,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lwEventsAdminPageFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly user: UsersMinimumInfo|null,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface emailHistoryFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
-}
-
 interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly type: string,
   readonly sourcePostId: string,
@@ -681,6 +624,78 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface VotesDefaultFragment { // fragment on Votes
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly userId: string,
+  readonly authorIds: Array<string>,
+  readonly voteType: string,
+  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly power: number,
+  readonly afPower: number,
+  readonly cancelled: boolean,
+  readonly isUnvote: boolean,
+  readonly votedAt: Date,
+  readonly documentIsAf: boolean,
+}
+
+interface LWEventsDefaultFragment { // fragment on LWEvents
+  readonly userId: string,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface newEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lastEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly documentId: string,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lwEventsAdminPageFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface emailHistoryFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface ClientIdsDefaultFragment { // fragment on ClientIds
+  readonly clientId: string,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string>,
+}
+
 interface ConversationsDefaultFragment { // fragment on Conversations
   readonly title: string,
   readonly participantIds: Array<string>,
@@ -695,21 +710,6 @@ interface MessagesDefaultFragment { // fragment on Messages
   readonly userId: string,
   readonly conversationId: string,
   readonly noEmail: boolean,
-}
-
-interface VotesDefaultFragment { // fragment on Votes
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly userId: string,
-  readonly authorIds: Array<string>,
-  readonly voteType: string,
-  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly power: number,
-  readonly afPower: number,
-  readonly cancelled: boolean,
-  readonly isUnvote: boolean,
-  readonly votedAt: Date,
-  readonly documentIsAf: boolean,
 }
 
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
@@ -748,7 +748,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
   readonly endedAt: Date | null,
 }
 
@@ -2823,7 +2823,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2874,12 +2874,6 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
 
 interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
-  LWEventsDefaultFragment: LWEventsDefaultFragment
-  newEventFragment: newEventFragment
-  lastEventFragment: lastEventFragment
-  lwEventsAdminPageFragment: lwEventsAdminPageFragment
-  emailHistoryFragment: emailHistoryFragment
-  ClientIdsDefaultFragment: ClientIdsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
@@ -2890,9 +2884,15 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  VotesDefaultFragment: VotesDefaultFragment
+  LWEventsDefaultFragment: LWEventsDefaultFragment
+  newEventFragment: newEventFragment
+  lastEventFragment: lastEventFragment
+  lwEventsAdminPageFragment: lwEventsAdminPageFragment
+  emailHistoryFragment: emailHistoryFragment
+  ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
-  VotesDefaultFragment: VotesDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
@@ -3053,12 +3053,6 @@ interface FragmentTypes {
 
 interface CollectionNamesByFragmentName {
   UsersDefaultFragment: "Users"
-  LWEventsDefaultFragment: "LWEvents"
-  newEventFragment: "LWEvents"
-  lastEventFragment: "LWEvents"
-  lwEventsAdminPageFragment: "LWEvents"
-  emailHistoryFragment: "LWEvents"
-  ClientIdsDefaultFragment: "ClientIds"
   PostRelationsDefaultFragment: "PostRelations"
   LocalgroupsDefaultFragment: "Localgroups"
   CommentsDefaultFragment: "Comments"
@@ -3069,9 +3063,15 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  VotesDefaultFragment: "Votes"
+  LWEventsDefaultFragment: "LWEvents"
+  newEventFragment: "LWEvents"
+  lastEventFragment: "LWEvents"
+  lwEventsAdminPageFragment: "LWEvents"
+  emailHistoryFragment: "LWEvents"
+  ClientIdsDefaultFragment: "ClientIds"
   ConversationsDefaultFragment: "Conversations"
   MessagesDefaultFragment: "Messages"
-  VotesDefaultFragment: "Votes"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
