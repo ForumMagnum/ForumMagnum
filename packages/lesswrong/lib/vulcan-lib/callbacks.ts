@@ -16,7 +16,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     this.name = name;
   }
   
-  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|Promise<void>|void) => {
+  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType|undefined|void>|undefined|void) => {
     addCallback(this.name, fn);
   }
   

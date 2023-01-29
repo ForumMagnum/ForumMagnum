@@ -16,7 +16,9 @@ export interface CreateCallbackProperties<T extends DbObject> {
 export interface UpdateCallbackProperties<T extends DbObject> {
   data: Partial<T>
   oldDocument: T
+  /** DEPRECATED: Is a "preview" of the new document. Use newDocument instead */
   document: T
+  /** Is a "preview" of the new document */
   newDocument: T
   currentUser: DbUser|null
   collection: CollectionBase<T>
@@ -46,6 +48,7 @@ export class CollectionMutationCallbacks<T extends DbObject> {
   updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<T>]>
   editValidate: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,CallbackValidationErrors]>
   updateBefore: CallbackChainHook<Partial<T>,[UpdateCallbackProperties<T>]>
+  /** DEPRECATED: use updateBefore */
   editBefore: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
   editSync: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
   updateAfter: CallbackChainHook<T,[UpdateCallbackProperties<T>]>

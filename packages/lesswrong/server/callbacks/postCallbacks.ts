@@ -335,8 +335,8 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
 getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
 getCollectionHooks("Posts").updateBefore.add((
   data: Partial<DbPost>,
-  {document}: UpdateCallbackProperties<DbPost>,
-) => handleCrosspostUpdate(document, data));
+  properties: UpdateCallbackProperties<DbPost>,
+) => handleCrosspostUpdate(data, properties));
 
 async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
   const applyOneTag = async (tagId: string) => {
@@ -414,4 +414,3 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
 
   return post;
 });
-
