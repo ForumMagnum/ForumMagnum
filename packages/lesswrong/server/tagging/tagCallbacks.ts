@@ -111,7 +111,6 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
     const newParent = await Tags.findOne(newDoc.parentTagId);
     await updateMutator({
       collection: Tags,
-      selector: {_id: newDoc.parentTagId},
       documentId: newDoc.parentTagId,
       // TODO change to $addToSet once it is implemented in postgres
       set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
