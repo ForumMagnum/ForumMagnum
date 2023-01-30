@@ -50,27 +50,13 @@ import { loggerConstructor } from '../../lib/utils/logging';
  * fields will be filled in by those callbacks; result is a T, but nothing
  * in the type system ensures that everything actually gets filled in. 
  */
-export const createMutator = async <T extends DbObject>({
+export const createMutator: CreateMutator = async <T extends DbObject>({
   collection,
   document,
-  data,
   currentUser=null,
   validate=true,
   context,
-}: {
-  collection: CollectionBase<T>,
-  document: Partial<DbInsertion<T>>,
-  data?: Partial<DbInsertion<T>>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-}): Promise<{
-  data: T
-}> => {
-  // OpenCRUD backwards compatibility: accept either data or document
-  // we don't want to modify the original document
-  document = data || document;
-  
+}: CreateMutatorParams<T>) => {
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
   if (!context)
@@ -91,8 +77,9 @@ export const createMutator = async <T extends DbObject>({
 
   */
   const properties: CreateCallbackProperties<T> = {
-    data: data as unknown as T, // Pretend this isn't Partial<T>
-    currentUser, collection, context,
+    currentUser,
+    collection: collection,
+    context,
     document: document as unknown as T, // Pretend this isn't Partial<T>
     newDocument: document as unknown as T, // Pretend this isn't Partial<T>
     schema
@@ -245,7 +232,7 @@ export const createMutator = async <T extends DbObject>({
  * in theory you can use a selector, but you should only do this if you're sure
  * there's only one matching document (eg, slug). Returns the modified document.
  */
-export const updateMutator = async <T extends DbObject>({
+export const updateMutator: UpdateMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -256,20 +243,7 @@ export const updateMutator = async <T extends DbObject>({
   validate=true,
   context,
   document: oldDocument,
-}: {
-  collection: CollectionBase<T>,
-  documentId: string,
-  selector?: any,
-  data?: Partial<DbInsertion<T>>,
-  set?: Partial<DbInsertion<T>>,
-  unset?: any,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-  document?: T|null,
-}): Promise<{
-  data: T
-}> => {
+}: UpdateMutatorParams<T>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}-update`);
@@ -490,7 +464,7 @@ export const updateMutator = async <T extends DbObject>({
 // Deletes a single database entry, and runs any callbacks/etc that trigger on
 // that. Returns the entry that was deleted.
 //
-export const deleteMutator = async <T extends DbObject>({
+export const deleteMutator: DeleteMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -498,17 +472,7 @@ export const deleteMutator = async <T extends DbObject>({
   validate=true,
   context,
   document,
-}: {
-  collection: CollectionBase<T>,
-  documentId: string,
-  selector?: MongoSelector<T>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-  document?: T|null,
-}): Promise<{
-  data: T|null|undefined
-}> => {
+}: DeleteMutatorParams<T>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   // OpenCRUD backwards compatibility

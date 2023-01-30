@@ -69,8 +69,9 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
         // pass document to boilerplate createMutator function
         return await Utils.createMutator({
-          collection,
-          data,
+          // TODO;
+          collection: collection as unknown as CollectionBase<T>,
+          document: data,
           currentUser: context.currentUser,
           validate: true,
           context,
@@ -145,8 +146,11 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         );
 
         // call updateMutator boilerplate function
+        // TODO: A problem with updateMutator types means that it demands a
+        // documentId instead of a selector
+        // @ts-ignore
         return await Utils.updateMutator({
-          collection,
+          collection: collection as unknown as CollectionBase<T>,
           selector,
           data,
           currentUser: context.currentUser,
@@ -244,8 +248,11 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
+        // TODO: A problem with deleteMutator types means that it demands a
+        // documentId instead of a selector
+        // @ts-ignore
         return await Utils.deleteMutator({
-          collection,
+          collection: collection as unknown as CollectionBase<T>,
           selector,
           currentUser: context.currentUser,
           validate: true,

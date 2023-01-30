@@ -254,4 +254,46 @@ interface SpotlightFirstPost {
   url: string;
 }
 
+// Sorry for declaring these so far from their function definitions. The
+// functions are defined in /server, and import cycles, etc.
+
+type CreateMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  document: Partial<DbInsertion<T>>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+};
+type CreateMutator = <T extends DbObject>(args: CreateMutatorParams<T>) => Promise<{data: T}>;
+
+type UpdateMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>;
+  /** NB: Not technically required, you can replace with selector, though maybe
+   * you shouldn't */
+  documentId: string;
+  /** TODO: Really selector should be allowed to replace documentId. Although
+   * this is also a caveat for deprecation */
+  selector?: any; // TODO; Partial<T>
+  data?: Partial<DbInsertion<T>>;
+  set?: Partial<DbInsertion<T>>;
+  unset?: any;
+  currentUser?: DbUser | null;
+  validate?: boolean;
+  context?: ResolverContext;
+  document?: T | null;
+};
+type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
+
+type DeleteMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  documentId: string,
+  selector?: MongoSelector<T>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+  document?: T|null,
+};
+type DeleteMutator = <T extends DbObject>(args: DeleteMutatorParams<T>) => Promise<{data: T}>
+
+
 }
