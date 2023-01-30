@@ -91,8 +91,6 @@ export const handleCrosspostUpdate = async (
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {_id, userId, fmCrosspost } = newDocument;
-  console.log('oldDocument.fmCrosspost:', oldDocument.fmCrosspost)
-  console.log('data.fmCrosspost:', data.fmCrosspost)
   const shouldRemoveCrosspost =
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
