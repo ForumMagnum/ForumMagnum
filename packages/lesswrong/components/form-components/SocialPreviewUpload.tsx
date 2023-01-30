@@ -146,7 +146,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
           label={"Preview Image"}
           croppingAspectRatio={croppingAspectRatio}
           // socialPreviewImageUrl falls back to the first image in the post on save
-          // placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
+          placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
         <div className={classes.title}>
           {document.title}
