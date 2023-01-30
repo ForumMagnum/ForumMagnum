@@ -6,15 +6,13 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib';
 
 /**
- * Before a user has been fully approved, keep track of how many users they've
- * messaged.[1] If they've messaged more than N, flag them for review. If
- * they've messaged more than M, block them from messaging anyone else.
+ * Before a user has been fully approved, keep track of the number of users
+ * they've started a conversation with. If they've messaged more than N, flag
+ * them for review. If they've messaged more than M, block them from messaging
+ * anyone else.
  *
- * In the case where a user should be blocked, this will throw an error, so
- * we should make sure to handle that on the frontend.
- *
- * [1] Strictly speaking, this is the number of users with whom they've created
- * a conversation.
+ * In the case where a user should be blocked, this will throw an error, so we
+ * should make sure to handle that on the frontend.
  */
 async function flagOrBlockUserOnManyDMs({
   currentConversation,
