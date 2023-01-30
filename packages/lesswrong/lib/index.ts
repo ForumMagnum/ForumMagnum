@@ -211,6 +211,9 @@ import './collections/postRelations';
 // CronHistories
 import './collections/cronHistories';
 
+// Sessions
+import './collections/sessions';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
