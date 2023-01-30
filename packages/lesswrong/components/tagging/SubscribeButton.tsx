@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const taggedPostWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
+export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
 
 const SubscribeButton = ({
   tag,

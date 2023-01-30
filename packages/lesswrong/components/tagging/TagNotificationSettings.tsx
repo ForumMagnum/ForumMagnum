@@ -12,10 +12,8 @@ import { useMessages } from "../common/withMessages";
 import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 import { useCreate } from "../../lib/crud/withCreate";
 import { max } from "underscore";
-import { useForceRerender } from "../hooks/useFirstRender";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { subscriptionTypes } from "../../lib/collections/subscriptions/schema";
-import { taggingNameIsSet, taggingNameSetting } from "../../lib/instanceSettings";
 import { taggedPostWording } from "./SubscribeButton";
 
 const styles = (theme: ThemeType): JssStyles => ({
