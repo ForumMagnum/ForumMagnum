@@ -79,6 +79,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     currentUser: user,
     context: {
       currentUser: user,
+      isFMCrosspostRequest: true,
       Users,
     },
   });

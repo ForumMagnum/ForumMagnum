@@ -1347,14 +1347,22 @@ const schema: SchemaType<DbPost> = {
     order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
     ...schemaDefaultValueFmCrosspost,
-    // Users aren't allowed to change the foreignPostId of a crosspost
+    // Users aren't allowed to directly select the foreignPostId of a crosspost
+    onCreate: (args) => {
+      const { document, context } = args;
+      // If we're handling a request from our peer site, then we have just set
+      // the foreignPostId ourselves
+      if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
+        throw new Error("Cannot set the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onCreate?.(args);
+    },
     onUpdate: (args) => {
       const { data, oldDocument } = args;
       if (
         data.fmCrosspost?.foreignPostId &&
         data.fmCrosspost.foreignPostId !== oldDocument.fmCrosspost?.foreignPostId
       ) {
-        // Someone is trying some shady shit
         throw new Error("Cannot change the foreign post ID of a crosspost");
       }
       return schemaDefaultValueFmCrosspost.onUpdate?.(args);
