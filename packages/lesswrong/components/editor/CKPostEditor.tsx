@@ -100,7 +100,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
 
   const editorRef = useRef<CKEditor>(null)
   const sidebarRef = useRef(null)
-  const presenceListRef = useRef(null)
+  const presenceListRef = useRef<HTMLDivElement>(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
