@@ -171,7 +171,6 @@
     "cloudinary-core": "2.5.0",
     "cloudinary-react": "1.0.6",
     "compression": "^1.7.3",
-    "connect-mongo": "^4.4.1",
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.9-1",
     "csso": "^5.0.5",
