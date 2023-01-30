@@ -28,6 +28,10 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
 
 (async () => {
   const command = process.argv[2];
+  if (["dev", "development", "staging", "production", "prod"].includes(command)) {
+    console.error("Please specify the command before the mode");
+    process.exit(1);
+  }
   const isRunCommand = ["up", "down"].includes(command);
 
   let mode = process.argv[3];
