@@ -6,10 +6,10 @@ import {
   MongoClient,
   MongoClientOptions,
 } from 'mongodb'
-import Debug from 'debug'
 import Kruptein from 'kruptein'
+import { loggerConstructor } from '../../../lib/utils/logging';
 
-const debug = Debug('connect-mongo')
+const debug = loggerConstructor('connect-mongo');
 
 export type CryptoOptions = {
   secret: false | string
