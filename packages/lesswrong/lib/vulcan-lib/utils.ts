@@ -36,9 +36,9 @@ interface UtilsType {
   getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
-  createMutator: any
-  updateMutator: any
-  deleteMutator: any
+  createMutator: CreateMutator
+  updateMutator: UpdateMutator
+  deleteMutator: DeleteMutator
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>

@@ -111,7 +111,6 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
     const newParent = await Tags.findOne(newDoc.parentTagId);
     await updateMutator({
       collection: Tags,
-      selector: {_id: newDoc.parentTagId},
       documentId: newDoc.parentTagId,
       // TODO change to $addToSet once it is implemented in postgres
       set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
@@ -138,9 +137,10 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
 
 function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
   let postId: string;
-  if ("postId" in newDocument) {
-    postId = newDocument["postId"];
-  } else if ("tagRelevance" in newDocument) {
+  if ("postId" in newDocument) { // is a tagRel
+    // Applying human knowledge here
+    postId = newDocument["postId"] as string;
+  } else if ("tagRelevance" in newDocument) { // is a post
     postId = newDocument["_id"];
   } else {
     return;

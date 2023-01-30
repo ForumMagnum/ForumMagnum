@@ -337,10 +337,10 @@ const schema: SchemaType<DbComment> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        Utils.updateMutator({
+        void Utils.updateMutator({
           collection: context.Posts,
           context,
-          selector: {_id:document.postId},
+          documentId: document.postId,
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false
