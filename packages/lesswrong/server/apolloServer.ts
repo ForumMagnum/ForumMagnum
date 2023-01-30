@@ -31,7 +31,7 @@ import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
 import expressSession from 'express-session';
-import MongoStore from 'connect-mongo'
+import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
