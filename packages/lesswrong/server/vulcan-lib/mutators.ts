@@ -67,9 +67,12 @@ export const createMutator = async <T extends DbObject>({
 }): Promise<{
   data: T
 }> => {
+  const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
+  logger('createMutator() begin')
   // OpenCRUD backwards compatibility: accept either data or document
   // we don't want to modify the original document
   document = data || document;
+  logger('(new) document', document);
   
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
@@ -159,7 +162,7 @@ export const createMutator = async <T extends DbObject>({
       autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
-      document[fieldName] = autoValue;
+      Object.assign(document, { [fieldName]: autoValue });
     }
   }
 
@@ -272,7 +275,7 @@ export const updateMutator = async <T extends DbObject>({
 }> => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
-  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}-update`);
+  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
 
   // If no context is provided, create a new one (so that callbacks will have

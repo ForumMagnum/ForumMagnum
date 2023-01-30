@@ -46,7 +46,6 @@ declare global {
     20: ColorString,
     25: ColorString,
     30: ColorString,
-    40: ColorString,
     55: ColorString,
     60: ColorString,
     110: ColorString,
@@ -64,7 +63,7 @@ declare global {
     680: ColorString,
   }
   type ThemeShadePalette = {
-    grey: MuiColorShades,
+    grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
@@ -406,6 +405,7 @@ declare global {
     forumType: ForumTypeString,
     
     breakpoints: {
+      /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
       values: Record<BreakpointName,number>,

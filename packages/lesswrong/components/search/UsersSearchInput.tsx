@@ -3,6 +3,7 @@ import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import type { InputBaseComponentProps } from '@material-ui/core/InputBase';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
@@ -12,7 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const UsersSearchInput = ({ inputProps, classes }) => {
+const UsersSearchInput = ({ inputProps, classes }: {
+  inputProps: InputBaseComponentProps;
+  classes: ClassesType;
+}) => {
   return <Input
     inputProps={inputProps}
     className={classes.input}

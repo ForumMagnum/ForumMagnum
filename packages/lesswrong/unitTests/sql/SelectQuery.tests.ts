@@ -22,6 +22,16 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build case-insensitive select query",
+      getQuery: () => new SelectQuery(
+        testTable,
+        {b: "test"},
+        {collation: {locale: "en", strength: 2}},
+      ),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE LOWER("b") = LOWER( $1 )',
+      expectedArgs: ["test"],
+    },
+    {
       name: "can build select query with string selector",
       getQuery: () => new SelectQuery(testTable, "some-id"),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "_id" = $1',
@@ -73,6 +83,18 @@ describe("SelectQuery", () => {
       name: "can build select query with comparison against null",
       getQuery: () => new SelectQuery(testTable, {a: null, b: {$eq: null}, c: {$ne: null}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS NULL AND "b" IS NULL AND "c" IS NOT NULL )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select query with comparison against true",
+      getQuery: () => new SelectQuery(testTable, {a: true, b: {$eq: true}, c: {$ne: true}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS TRUE AND "b" IS TRUE AND "c" IS NOT TRUE )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select query with comparison against false",
+      getQuery: () => new SelectQuery(testTable, {a: false, b: {$eq: false}, c: {$ne: false}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS FALSE AND "b" IS FALSE AND "c" IS NOT FALSE )',
       expectedArgs: [],
     },
     {
@@ -443,9 +465,14 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
-      name: "collation is not implemented",
-      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple"}}),
-      expectedError: "Collation not implemented",
+      name: "collation (if used) must have locale 'en'",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple", strength: 2}}),
+      expectedError: `Unsupported collation type: {"locale":"simple","strength":2}`,
+    },
+    {
+      name: "collation (if used) must have strength 2",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "en", strength: 1}}),
+      expectedError: `Unsupported collation type: {"locale":"en","strength":1}`,
     },
     {
       name: "pipeline lookups are not implemented",

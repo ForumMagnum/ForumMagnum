@@ -7,11 +7,10 @@ import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const Error = ({error}) => <div>
+const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
@@ -52,11 +51,13 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   hideTrailingButtons=false,
+  hideTagRelevance=false,
   tooltipPlacement="bottom-end",
   boxShadow=true,
   curatedIconLeft=false,
   showFinalBottomBorder=false,
   hideHiddenFrontPagePosts=false,
+  hideShortform=false,
   commentsSection,
 }: {
   /** Child elements will be put in a footer section */
@@ -91,15 +92,15 @@ const PostsList2 = ({
   itemsPerPage?: number,
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
+  hideTagRelevance?: boolean,
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
+  hideShortform?: boolean,
   commentsSection?: CommentsSection,
 }) => {
-  const {isPostRepeated, addPost} = useHideRepeatedPosts();
-
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId ? {
@@ -134,6 +135,14 @@ const PostsList2 = ({
           hiddenPosts[results[i]._id] = true;
         }
         else break;
+      }
+    }
+
+    if (hideShortform) {
+      for (const result of results) {
+        if (result.shortform) {
+          hiddenPosts[result._id] = true;
+        }
       }
     }
 
@@ -179,7 +188,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length > 0, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
   if (results && !results.length && !showNoResults) return null
@@ -192,17 +201,16 @@ const PostsList2 = ({
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
-          if (isPostRepeated(post._id) || post._id in hiddenPosts) {
+          if (post._id in hiddenPosts) {
             return null;
           }
-          addPost(post._id);
 
           const props = {
             post,
             index: i,
             terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
-            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from

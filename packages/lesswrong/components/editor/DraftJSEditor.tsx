@@ -19,7 +19,7 @@ import createLinkifyPlugin from './draftjs-plugins/linkifyPlugin'
 import ImageButton from './draftjs-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 
@@ -63,6 +63,8 @@ const initializePlugins = (commentEditor) => {
     focusPlugin.decorator,
   );
 
+  // FIXME: `decorator` was never getting used in createDividerPlugin, not clear why it's getting passed in
+  // @ts-ignore
   const dividerPlugin = createDividerPlugin({decorator});
 
   const toolbarButtons = [
@@ -164,7 +166,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
 
     return (
       <div>
-        <NoSsr>
+        <NoSSR>
         <div className={this.props.className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -180,7 +182,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
         </div>
         <InlineToolbar />
         <AlignmentTool />
-        </NoSsr>
+        </NoSSR>
       </div>
     )
   }

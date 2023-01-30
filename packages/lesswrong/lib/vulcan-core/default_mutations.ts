@@ -1,6 +1,7 @@
 import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
+import { loggerConstructor } from '../utils/logging';
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
@@ -23,6 +24,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
   type T = ObjectsByCollectionName[N];
   const typeName = getTypeName(collectionName);
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
+  const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
 
   const mutations: any = {};
 
@@ -51,6 +53,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       },
 
       async mutation(root: void, { data }, context: ResolverContext) {
+        logger('create mutation()')
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
@@ -113,6 +116,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       },
 
       async mutation(root: void, { selector, data }, context: ResolverContext) {
+        logger('update mutation()')
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
@@ -215,6 +219,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       },
 
       async mutation(root: void, { selector }, context: ResolverContext) {
+        logger('delete mutation()')
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {

@@ -53,4 +53,16 @@ describe("TableIndex", () => {
     expect(index1.equalsTableIndex(index6)).toBe(false);
     expect(index1.equalsTableIndex(index7)).toBe(false);
   });
+  it("indexes are case-sensitive by default", () => {
+    const index = new TableIndex("testTable", {b: 1});
+    expect(index.isCaseInsensitive()).toStrictEqual(false);
+  });
+  it("indexes can be case-insensitive", () => {
+    const index = new TableIndex(
+      "testTable",
+      {b: 1},
+      {collation: {locale: "en", strength: 2}},
+    );
+    expect(index.isCaseInsensitive()).toStrictEqual(true);
+  });
 });

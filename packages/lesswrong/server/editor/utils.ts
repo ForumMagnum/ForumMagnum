@@ -1,7 +1,7 @@
-import pick from 'lodash/pick';
+import pick from 'lodash/pick'
 import mjAPI from 'mathjax-node'
-import Revisions from '../../lib/collections/revisions/collection';
-import { isAnyTest, isMigrations } from '../../lib/executionEnvironment';
+import Revisions from '../../lib/collections/revisions/collection'
+import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -146,3 +146,6 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
     }
   })
 }
+
+export type MaybeDrafteable = { draft?: boolean } 
+export const isBeingUndrafted = (oldDocument: MaybeDrafteable, newDocument: MaybeDrafteable) => oldDocument.draft && !newDocument.draft

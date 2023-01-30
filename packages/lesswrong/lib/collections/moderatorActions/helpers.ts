@@ -1,7 +1,7 @@
 import moment from "moment";
 import { forumTypeSetting } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
@@ -93,7 +93,7 @@ export function getCurrentContentCount(user: UserContentCountPartial) {
 }
 
 export function getReasonForReview(user: DbUser | SunshineUsersList, override?: true) {
-  if (override && forumTypeSetting.get() === 'LessWrong') return 'override';
+  if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
   const neverReviewed = !user.reviewedByUserId;
@@ -106,6 +106,7 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
     if (user.mapLocation) return 'mapLocation';
     if (user.postCount) return 'firstPost';
     if (user.commentCount) return 'firstComment';
+    if (user.usersContactedBeforeReview?.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) return 'contactedTooManyUsers';
     // Depends on whether this is DbUser or SunshineUsersList
     const htmlBio = 'htmlBio' in user ? user.htmlBio : user.biography?.html;
     if (htmlBio) return 'bio';

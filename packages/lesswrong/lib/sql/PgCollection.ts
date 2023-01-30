@@ -76,7 +76,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     } finally {
       executingQueries--;
     }
-    return result;
+    const {postProcess} = this;
+    return postProcess
+      ? result.map((data) => postProcess(data))
+      : result;
   }
 
   getTable = () => {

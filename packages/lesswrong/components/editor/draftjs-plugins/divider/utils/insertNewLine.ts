@@ -5,6 +5,7 @@ import {
   EditorState,
   BlockMapBuilder,
   genKey as generateRandomKey,
+  ContentState,
 } from 'draft-js';
 
 const genContentBlock = () =>
@@ -12,25 +13,26 @@ const genContentBlock = () =>
     key: generateRandomKey(),
     type: 'unstyled',
     text: '',
+    // @ts-ignore The type definitions are wrong, this does have a class constructor
     characterList: new List(),
   });
 
-const insertNewLine = (editorState, block, insertAt = 'after') => {
+const insertNewLine = (editorState: EditorState, block: ContentBlock, insertAt: 'after' | 'before' | 'both' = 'after') => {
   // insertAt can be 'before' or 'after' or 'both'
   const contentState = editorState.getCurrentContent();
   const selectionState = editorState.getSelection();
-  let fragmentArray;
+  let fragmentArray: ContentBlock[];
 
-  if (insertAt === 'after') {
-    fragmentArray = [block, genContentBlock()];
-  }
-
-  if (insertAt === 'before') {
-    fragmentArray = [genContentBlock(), block];
-  }
-
-  if (insertAt === 'both') {
-    fragmentArray = [genContentBlock(), block, genContentBlock()];
+  switch (insertAt) {
+    case 'after':
+      fragmentArray = [block, genContentBlock()];
+      break;
+    case 'before':
+      fragmentArray = [genContentBlock(), block];
+      break;
+    case 'both':
+      fragmentArray = [genContentBlock(), block, genContentBlock()];
+      break;
   }
 
   const fragment = BlockMapBuilder.createFromArray(fragmentArray);
@@ -44,18 +46,18 @@ const insertNewLine = (editorState, block, insertAt = 'after') => {
   const newContent = withUnstyledBlock.merge({
     selectionBefore: selectionState,
     selectionAfter: withUnstyledBlock.getSelectionAfter().set('hasFocus', true),
-  });
+  }) as ContentState;
 
   return EditorState.push(editorState, newContent, 'insert-fragment');
 };
 
-export const insertNewLineAfter = (editorState, block) =>
+export const insertNewLineAfter = (editorState: EditorState, block: ContentBlock) =>
   insertNewLine(editorState, block);
 
-export const insertNewLineBefore = (editorState, block) =>
+export const insertNewLineBefore = (editorState: EditorState, block: ContentBlock) =>
   insertNewLine(editorState, block, 'before');
 
-export const insertNewLineBoth = (editorState, block) =>
+export const insertNewLineBoth = (editorState: EditorState, block: ContentBlock) =>
   insertNewLine(editorState, block, 'both');
 
 export default insertNewLine;

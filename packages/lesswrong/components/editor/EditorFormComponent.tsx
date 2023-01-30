@@ -11,7 +11,7 @@ import * as _ from 'underscore';
 
 const autosaveInterval = 3000; //milliseconds
 
-export function isCollaborative(post, fieldName: string): boolean {
+export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
@@ -44,7 +44,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const isCollabEditor = isCollaborative(document, fieldName);
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
+    const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
@@ -118,7 +118,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
   
   useEffect(() => {
-    const unloadEventListener = (ev) => {
+    const unloadEventListener = (ev: BeforeUnloadEvent) => {
       if (hasUnsavedDataRef?.current?.hasUnsavedData) {
         ev.preventDefault();
         ev.returnValue = 'Are you sure you want to close?';
@@ -139,16 +139,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm(async (submission) => {
+      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
-            [fieldName]: await editorRef.current.submitData(submission)
+            [fieldName]: await editorRef.current.submitData()
           };
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result, form, submitOptions) => {
+      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         if (editorRef.current && !submitOptions?.redirectToEditor) {
           wrappedSetContents({
@@ -166,7 +166,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
-  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
@@ -210,7 +210,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       commentEditor={commentEditor}
       hideControls={hideControls}
       maxHeight={maxHeight}
-      hasCommitMessages={hasCommitMessages}
+      hasCommitMessages={hasCommitMessages ?? undefined}
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&

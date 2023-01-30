@@ -3,7 +3,7 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { getNewSnoozeUntilContentCount } from './ModeratorActions';
 
@@ -50,9 +50,9 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   </div>
   
   return <div className={classes.root}>
-    <NoSsr>
+    <NoSSR>
       <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
-    </NoSsr>
+    </NoSSR>
   </div>
 }
 
