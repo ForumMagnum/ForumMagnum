@@ -148,7 +148,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
 
   const { ProfilePhoto, ContentStyles, ContentItemBody, Typography } = Components
   
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const userKarma = user.karma || 0
   const bioNode = (
@@ -203,7 +203,9 @@ const SubforumMember = ({user, isOrganizer, classes}: {
           {user.mapLocation.formatted_address}
         </div>}
         {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
+          {Object
+            .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
+            .map((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => socialMediaIcon(user, field, classes.socialMediaIcon))}
         </div>}
       </div>}
       {bioNode}

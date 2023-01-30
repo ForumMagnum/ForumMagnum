@@ -11,7 +11,6 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { filter } from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,9 +70,11 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     collectionName: "TagRels",
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
+    fetchPolicy: 'cache-and-network',
   });
-  const tagIds = (results||[]).map((tagRel) => tagRel.tag?._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+
+  const tagIds = (results||[]).map((tag) => tag._id)
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -112,7 +113,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
   const contentTypeInfo = forumSelect(contentTypes);
   
-  const PostTypeTag = ({tooltipBody, label}) =>
+  const PostTypeTag = ({tooltipBody, label}: {
+    tooltipBody: React.ReactNode;
+    label: string;
+  }) =>
     <LWTooltip
       title={<Card className={classes.card}>
         <ContentStyles contentType="comment">

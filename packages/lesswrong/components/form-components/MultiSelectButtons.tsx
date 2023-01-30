@@ -36,8 +36,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const MultiSelectButtons = ({ value, classes, label, options, path }, context) => {
-  const handleClick = (option) => {    
+const MultiSelectButtons = ({ value, classes, label, options, path }: {
+  classes: ClassesType;
+  value: string;
+  label: string;
+  options: Array<{ value: string; label?: string }>;
+  path: string;
+}, context: any) => {
+  const handleClick = (option: string) => {    
     if (value && value.includes(option)) {
       context.updateCurrentValues({
         [path]: _.without(value, option)

@@ -7,7 +7,6 @@
 require("ts-node/register");
 const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
-const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
 
 const initGlobals = (isProd) => {
@@ -80,6 +79,7 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
   try {
     await db.tx(async (transaction) => {
       setSqlClient(transaction);
+      const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction);
       const result = await migrator.runAsCLI();
       if (!result) {

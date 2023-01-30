@@ -55,8 +55,28 @@
     "timestamp": "2023-01-18T10:42:29.000Z"
   },
   {
-    "acceptsSchemaHash": "7f78055b7fe8ee2024beb99df7836f31",
-    "acceptedByMigration": "20230119T150231.create_cronHistory_collection.ts",
-    "timestamp": "2023-01-19T15:02:31.000Z"
+    "acceptsSchemaHash": "afb5555a6e3a18714877036b68c63786",
+    "acceptedByMigration": "20230118T135840.createdAt_default_value.ts",
+    "timestamp": "2023-01-18T13:58:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "707023204349d37156630a9823919f65",
+    "acceptedByMigration": "20230124T120350.add_subforumPreferredLayout.ts",
+    "timestamp": "2023-01-24T12:03:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f167b9a94ae9eebe159267d6ca82d3a4",
+    "acceptedByMigration": "20230124T210513.spotlight_new_fields.ts",
+    "timestamp": "2023-01-24T21:05:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f74d70468a0d76011ef39059dc9584d5",
+    "acceptedByMigration": "20230125T223259.user_mentions_newMentionNotifictions.ts",
+    "timestamp": "2023-01-25T22:32:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "619ed0268e244678740dac4731f64051",
+    "acceptedByMigration": "20230128T010215.hide_frontpage_filter_settings_desktop.ts",
+    "timestamp": "2023-01-28T01:02:15.000Z"
   }
 ]

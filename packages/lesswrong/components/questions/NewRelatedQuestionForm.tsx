@@ -3,6 +3,8 @@ import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection'
+import type { SubmitToFrontpageCheckboxProps } from '../posts/SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from '../posts/PostSubmit';
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
@@ -38,7 +40,7 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
   const { flash } = useMessages();
   const { SubmitToFrontpageCheckbox, PostSubmit } = Components
 
-  const QuestionSubmit = (props) => {
+  const QuestionSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       <SubmitToFrontpageCheckbox 
         {...props} 

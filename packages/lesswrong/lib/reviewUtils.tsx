@@ -124,18 +124,26 @@ export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   return true
 }
 
-const getPointsFromCost = (cost) => {
+const getPointsFromCost = (cost: number) => {
   // the formula to quadratic cost from a number of points is (n^2 + n)/2
   // this uses the inverse of that formula to take in a cost and output a number of points
   return (-1 + Math.sqrt((8 * cost)+1)) / 2
 }
 
-const getLabelFromCost = (cost) => {
+const getLabelFromCost = (cost: number) => {
   // rounds the points to 1 decimal for easier reading
   return round(getPointsFromCost(cost), 1)
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
+export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+interface CostData {
+  value: number | null;
+  cost: number;
+  tooltip: JSX.Element | null;
+}
+
+export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

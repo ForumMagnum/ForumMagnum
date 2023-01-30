@@ -140,7 +140,7 @@ const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
         "Posts"."_id" = "ReadStatuses"."postId" AND
         "ReadStatuses"."isRead" = TRUE AND
         "ReadStatuses"."userId" = $1
-      WHERE "Posts"."_id" IN $2
+      WHERE "Posts"."_id" IN ( $2:csv )
     `, [user._id, postIDs]);
     return result.map(({_id}) => _id);
   } else {

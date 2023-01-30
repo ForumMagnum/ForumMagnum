@@ -1,3 +1,7 @@
+export function fieldIn<T extends {}>(field: string | number | symbol, ...objects: T[]): field is keyof T {
+  return objects.every(object => field in object);
+}
+
 type Literal<T> = string|number extends T ? never : T;
 type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
@@ -38,6 +42,10 @@ export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string
 
   has (value: string|number): value is T[number] {
     return super.has(value);
+  }
+  
+  [Symbol.iterator](): IterableIterator<Tuple<T>[number]> {
+    return super[Symbol.iterator]();
   }
 }
 

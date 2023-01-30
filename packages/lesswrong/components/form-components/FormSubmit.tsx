@@ -36,11 +36,19 @@ const FormSubmit = ({
   deleteDocument,
   collectionName,
   classes,
+}: {
+  submitLabel?: string;
+  cancelLabel?: string;
+  cancelCallback: any;
+  document: any;
+  deleteDocument: any;
+  collectionName: Lowercase<CollectionNameString>;
+  classes: ClassesType;
 },
 {
   updateCurrentValues,
   addToDeletedValues
-}) => {
+}: any) => {
   const currentUser = useCurrentUser();
   
   return <div className="form-submit">

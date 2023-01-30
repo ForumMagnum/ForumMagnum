@@ -72,7 +72,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
   
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);

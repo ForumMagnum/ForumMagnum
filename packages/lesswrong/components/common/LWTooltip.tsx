@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
@@ -15,8 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=false, inlineBlock=true}: {
-  children?: any,
-  title?: any,
+  children?: ReactNode,
+  title?: ReactNode,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
@@ -31,7 +31,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
     title: typeof title=="string" ? title : undefined
   });
   
-  if (!title) return children
+  if (!title) return <>{children}</>
 
   return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But

@@ -13,6 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import { subforumLayouts } from '../tags/subforumHelpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -803,6 +804,14 @@ const schema: SchemaType<DbUser> = {
     // FIXME this isn't filling default values as intended
     // ...schemaDefaultValue(getDefaultFilterSettings),
   },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,
@@ -1248,6 +1257,10 @@ const schema: SchemaType<DbUser> = {
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+  },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
   },
 
   // Karma-change notifier settings
@@ -2369,7 +2382,16 @@ const schema: SchemaType<DbUser> = {
 
   'moderatorActions.$': {
     type: 'Object'
-  }
+  },
+  subforumPreferredLayout: {
+    type: String,
+    allowedValues: Array.from(subforumLayouts),
+    hidden: true, // only editable by changing the setting from the subforum page
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
 };
 
 /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
