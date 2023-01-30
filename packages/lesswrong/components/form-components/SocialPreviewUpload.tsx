@@ -6,18 +6,23 @@ import { htmlToText } from 'html-to-text'
 import { truncate } from '../../lib/editor/ellipsize';
 import { getPostDescription } from '../posts/PostsPage/PostsPage';
 import { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/collection';
+import markdownIt from 'markdown-it'
+import markdownItContainer from 'markdown-it-container'
+import markdownItFootnote from 'markdown-it-footnote'
+import markdownItSub from 'markdown-it-sub'
+import markdownItSup from 'markdown-it-sup'
+import { randomId } from '../../lib/random';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "flex",
-    flexDirection: "row",
+    display: "grid",
+    gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
   },
   preview: {
     padding: 16,
     marginLeft: 10,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 6,
-    width: 'min-content',
   },
   title: {
     fontSize: 14,
@@ -25,11 +30,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     marginTop: 12,
     marginBottom: 7,
+    overflowWrap: "anywhere",
   },
   description: {
     fontSize: 12,
     minHeight: 36,
     marginBottom: 7,
+    overflowWrap: "anywhere",
   },
   url: {
     fontSize: 12,
@@ -39,6 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 16,
     paddingRight: 16,
     fontSize: 14,
+    lineHeight: '20px',
+    '& a': {
+      color: theme.palette.primary.main,
+    }
   }
 });
 
@@ -46,6 +57,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface PostsEditWithLocalData extends PostsEdit { // fragment on Posts
   readonly contents: RevisionEdit & { dataWithDiscardedSuggestions: string | null} | null,
 }
+
+const mdi = markdownIt({linkify: true})
+// mdi.use(markdownItMathjax()) // for performance, don't render mathjax
+mdi.use(markdownItContainer, 'spoiler')
+mdi.use(markdownItFootnote)
+mdi.use(markdownItSub)
+mdi.use(markdownItSup)
 
 /**
  * Build the preview description and extract the first image in the document to use as a fallback. This is duplicating
@@ -71,16 +89,19 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
   const originalContents = document.contents?.originalContents
 
   if (!originalContents) return {description: null, fallbackImageUrl: null}
-  if (originalContents.type !== "html" && originalContents.type !== "ckEditorMarkup") {
+  
+  const contentsType = originalContents.type
+  if (!['html', 'ckEditorMarkup', 'markdown'].includes(contentsType)) {
     return {
-      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML or EA Forum Docs [Beta] to see the description preview>`,
+      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or EA Forum Docs [Beta] to see the description preview>`,
       fallbackImageUrl: null,
     };
   }
 
-  const html = dataWithDiscardedSuggestions ?? originalContents.data
+  const data = dataWithDiscardedSuggestions ?? originalContents.data
+  const html = contentsType === 'markdown' ? mdi.render(data, {docId: randomId()}) : data
   if (!html) return {description: null, fallbackImageUrl: null}
-  
+
   const parser = new DOMParser();
   const htmlDoc = parser.parseFromString(html, "text/html");
   // get first img tag
@@ -125,7 +146,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
           label={"Preview Image"}
           croppingAspectRatio={croppingAspectRatio}
           // socialPreviewImageUrl falls back to the first image in the post on save
-          placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
+          // placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
         <div className={classes.title}>
           {document.title}
@@ -140,7 +161,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
       <div className={classes.blurb}>
         A preview image makes it more likely that people will see your post.
         <br/><br/>
-        If you're unsure which image to use, consider trying Unsplash or an AI image generator.
+        If you're unsure which image to use, consider trying <a href="https://unsplash.com/">Unsplash</a> or an AI image generator.
       </div>
     </div>
   );

@@ -393,8 +393,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.greyAlpha(.35),
     },
     imageUpload2: {
-      background: shades.greyAlpha(.8),
-      hoverBackground: shades.greyAlpha(.6),
+      // Because this displays over an image, make it the same in both light and dark mode
+      background: 'rgba(0,0,0,0.8)',
+      hoverBackground: 'rgba(0,0,0,0.6)',
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",

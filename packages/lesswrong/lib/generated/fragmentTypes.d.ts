@@ -1119,6 +1119,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly tableOfContents: any,
   readonly subforumTagId: string,
   readonly sideComments: any,
+  readonly socialPreviewImageId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts

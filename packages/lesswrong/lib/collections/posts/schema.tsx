@@ -1304,7 +1304,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Social Preview Image",
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,

@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: theme.palette.buttons.imageUpload2.hoverBackground,
     },
-    color: theme.palette.text.invertedBackgroundText,
+    color: '#fff', // text is always against a dark background, even in dark mode
     textTransform: 'none',
     margin: 5,
     fontSize: 14,
@@ -33,17 +33,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 10,
   },
   imageBackground: {
+    backgroundColor: theme.palette.grey[25], // fallback to plain background if no image is given
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    width: 370,
-    height: 195,
+    aspectRatio: 1.91, // TODO support other image types
     display: 'flex',
-    // It's not that important for it to look great on all screen sizes because people mainly write posts
-    // on desktop, but make it not break the layout at least on mobile
-    [theme.breakpoints.down('xs')]: {
-      width: 185,
-      height: 97.5,
-    }
   },
 });
 
@@ -151,11 +145,11 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
   }) : placeholderUrl
   
   return (
-    <div className={classes.root} {...formPreviewSize}>
+    <div className={classes.root}>
       <Helmet>
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" />
       </Helmet>
-      <div className={classes.imageBackground} style={{ backgroundImage: `url(${imageUrl})` }}>
+      <div className={classes.imageBackground} style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}}>
         <div className={classes.buttonRow}>
           <Button onClick={uploadWidget} className={classNames("image-upload-button", classes.button)}>
             {imageId ? `Change` : `Upload ${label}`}
