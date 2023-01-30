@@ -139,7 +139,6 @@ export default class MongoStore extends session.Store {
       stringify,
       ...required,
     }
-    console.log("options", options);
     // Check params
     assert(
       options.mongoUrl || options.clientPromise || options.client,
