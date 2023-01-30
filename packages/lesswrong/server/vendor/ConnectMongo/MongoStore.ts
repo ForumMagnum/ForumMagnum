@@ -231,12 +231,7 @@ export default class MongoStore extends session.Store {
         debug('create Timer to remove expired sessions')
         this.timer = setInterval(
           () =>
-            collection.deleteMany(removeQuery(), {
-              writeConcern: {
-                w: 0,
-                j: false,
-              },
-            }),
+            collection.deleteMany(removeQuery()),
           this.options.autoRemoveInterval * 1000 * 60
         )
         this.timer.unref()
@@ -278,7 +273,7 @@ export default class MongoStore extends session.Store {
     if (this.crypto && session) {
       const plaintext = await this.cryptoGet(
         this.options.crypto.secret as string,
-        session.session
+        (session as any).session
       ).catch((err) => {
         throw new Error(err)
       })
