@@ -276,9 +276,20 @@ type UpdateMutatorParamsBase<T extends DbObject> = {
   context?: ResolverContext;
   document?: T | null;
 };
-type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {documentId: string, selector?: never};
-type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {documentId?: never, selector: MongoSelector<T>};
-type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> | UpdateMutatorParamsWithSelector<T>;
+type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId: string,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector?: never
+};
+type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId?: never,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector: MongoSelector<T>
+};
+type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> |
+  UpdateMutatorParamsWithSelector<T>;
 
 type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
 
