@@ -108,11 +108,10 @@ function computeTransformFunctions(options: ConcretConnectMongoOptions) {
 }
 
 export default class MongoStore extends session.Store {
-  private clientP: Promise<MongoClient>
   private timer?: NodeJS.Timeout
   collectionP: Promise<Collection>
   private options: ConcretConnectMongoOptions
-  // FIXME: remvoe any
+  // FIXME: remove any
   private transformFunctions: {
     serialize: (a: any) => any
     unserialize: (a: any) => any
@@ -167,7 +166,6 @@ export default class MongoStore extends session.Store {
       throw new Error('Cannot init client. Please provide correct options')
     }
     assert(!!_clientP, 'Client is null|undefined')
-    this.clientP = _clientP
     this.options = options
     this.collectionP = _clientP.then(async (con) => {
       const collection = con
@@ -443,14 +441,5 @@ export default class MongoStore extends session.Store {
       .then((collection) => collection.drop())
       .then(() => callback(null))
       .catch((err) => callback(err))
-  }
-
-  /**
-   * Close database connection
-   */
-  async close(): Promise<void> {
-    debug('MongoStore#close()');
-    const client = await this.clientP;
-    client.close();
   }
 }
