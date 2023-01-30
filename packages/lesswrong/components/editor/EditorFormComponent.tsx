@@ -82,7 +82,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
-    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData(null))}})
+    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
   }, autosaveInterval, {leading: true}), [autosaveInterval])
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
