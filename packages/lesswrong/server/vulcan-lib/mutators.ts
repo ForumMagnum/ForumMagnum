@@ -77,9 +77,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
 
   */
   const properties: CreateCallbackProperties<T> = {
-    currentUser,
-    collection: collection,
-    context,
+    currentUser, collection, context,
     document: document as unknown as T, // Pretend this isn't Partial<T>
     newDocument: document as unknown as T, // Pretend this isn't Partial<T>
     schema
