@@ -18,7 +18,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import { commentBodyStyles } from '../../themes/stylePiping';
+import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -166,13 +166,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteAverage: {
     cursor: 'pointer',
   },
-  faqCard: {
-    width: 400,
-    padding: 16,
-  },
-  faqQuestion: {
-    color: theme.palette.primary.main
-  },
   postCount: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
@@ -248,7 +241,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles, PostsTagsList } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -288,9 +281,18 @@ const ReviewVotingPage = ({classes}: {
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
+  const [tagFilter, setTagFilter] = useState<string|null>(null)
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  const handleTagFilter = (tagId: string) => {
+    if (tagFilter === tagId) { 
+      setTagFilter(null)
+    } else {
+      setTagFilter(tagId)
+    }
+  }
 
   const { history } = useNavigation();
   const location = useLocation();
@@ -357,7 +359,7 @@ const ReviewVotingPage = ({classes}: {
 
   const canInitialResort = !!postsResults
 
-  const reSortPosts = useCallback((sortPosts: string, sortReversed) => {
+  const reSortPosts = useCallback((sortPosts: string, sortReversed: boolean, tagFilter: string|null) => {
     if (!postsResults) return
 
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
@@ -438,7 +440,11 @@ const ReviewVotingPage = ({classes}: {
         return 0
       })
       .map(([post, _]) => post)
-    setSortedPosts(newlySortedPosts)
+      
+      const filteredPosts = tagFilter ? filter(newlySortedPosts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : newlySortedPosts
+
+
+    setSortedPosts(filteredPosts)
     setPostsHaveBeenSorted(true)
     captureEvent(undefined, {eventSubType: "postsResorted"})
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -449,8 +455,8 @@ const ReviewVotingPage = ({classes}: {
   }, [canInitialResort, postsResults])
 
   useEffect(() => {
-    reSortPosts(sortPosts, sortReversed)
-  }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
+    reSortPosts(sortPosts, sortReversed, tagFilter)
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter])
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
@@ -481,7 +487,7 @@ const ReviewVotingPage = ({classes}: {
             <ReviewDashboardButtons 
               reviewYear={reviewYear} 
               reviewPhase={reviewPhase}
-              showQuickReview
+              showQuickReview={reviewPhase === "REVIEWS"}
             />
           </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
@@ -593,6 +599,12 @@ const ReviewVotingPage = ({classes}: {
               </Select>
             </div>
           </div>
+          <PostsTagsList 
+            posts={postsResults}
+            currentFilter={tagFilter} 
+            handleFilter={(tagId) => handleTagFilter(tagId)}
+          />
+
           <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
