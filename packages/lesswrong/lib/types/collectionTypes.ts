@@ -273,7 +273,7 @@ type UpdateMutatorParams<T extends DbObject> = {
   documentId: string;
   /** TODO: Really selector should be allowed to replace documentId. Although
    * this is also a caveat for deprecation */
-  selector?: any; // TODO; Partial<T>
+  selector?: MongoSelector<T>,
   data?: Partial<DbInsertion<T>>;
   set?: Partial<DbInsertion<T>>;
   unset?: any;
