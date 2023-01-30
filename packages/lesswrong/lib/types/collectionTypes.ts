@@ -266,14 +266,8 @@ type CreateMutatorParams<T extends DbObject> = {
 };
 type CreateMutator = <T extends DbObject>(args: CreateMutatorParams<T>) => Promise<{data: T}>;
 
-type UpdateMutatorParams<T extends DbObject> = {
+type UpdateMutatorParamsBase<T extends DbObject> = {
   collection: CollectionBase<T>;
-  /** NB: Not technically required, you can replace with selector, though maybe
-   * you shouldn't */
-  documentId: string;
-  /** TODO: Really selector should be allowed to replace documentId. Although
-   * this is also a caveat for deprecation */
-  selector?: MongoSelector<T>,
   data?: Partial<DbInsertion<T>>;
   set?: Partial<DbInsertion<T>>;
   unset?: any;
@@ -282,6 +276,10 @@ type UpdateMutatorParams<T extends DbObject> = {
   context?: ResolverContext;
   document?: T | null;
 };
+type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {documentId: string, selector?: never};
+type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {documentId?: never, selector: MongoSelector<T>};
+type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> | UpdateMutatorParamsWithSelector<T>;
+
 type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
 
 type DeleteMutatorParams<T extends DbObject> = {
