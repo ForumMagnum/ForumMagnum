@@ -78,5 +78,10 @@
     "acceptsSchemaHash": "619ed0268e244678740dac4731f64051",
     "acceptedByMigration": "20230128T010215.hide_frontpage_filter_settings_desktop.ts",
     "timestamp": "2023-01-28T01:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "364da778d960911c25c317c754bf6bce",
+    "acceptedByMigration": "20230130T141200.create_cronHistory_collection.ts",
+    "timestamp": "2023-01-30T14:12:00.000Z"
   }
 ]
