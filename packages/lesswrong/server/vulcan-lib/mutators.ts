@@ -57,6 +57,9 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
   validate=true,
   context,
 }: CreateMutatorParams<T>) => {
+  const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
+  logger('createMutator() begin')
+  logger('(new) document', document);
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
   if (!context)
@@ -244,7 +247,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
 }: UpdateMutatorParams<T>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
-  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}-update`);
+  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
 
   // If no context is provided, create a new one (so that callbacks will have
