@@ -80,8 +80,8 @@
     "timestamp": "2023-01-28T01:02:15.000Z"
   },
   {
-    "acceptsSchemaHash": "364da778d960911c25c317c754bf6bce",
-    "acceptedByMigration": "20230130T141200.create_cronHistory_collection.ts",
-    "timestamp": "2023-01-30T14:12:00.000Z"
+    "acceptsSchemaHash": "d50f15282182788bd0774a231773097a",
+    "acceptedByMigration": "20230128T162824.add_usersContactedBeforeReview.ts",
+    "timestamp": "2023-01-28T16:28:24.000Z"
   }
 ]
