@@ -1,25 +1,13 @@
 import { assert } from 'console'
-import util from 'util'
 import * as session from 'express-session'
 import {
   Collection,
   MongoClient,
   MongoClientOptions,
 } from 'mongodb'
-import Kruptein from 'kruptein'
 import { loggerConstructor } from '../../../lib/utils/logging';
 
 const debug = loggerConstructor('connect-mongo');
-
-export type CryptoOptions = {
-  secret: false | string
-  algorithm?: string
-  hashing?: string
-  encodeas?: string
-  key_size?: number
-  iv_size?: number
-  at_size?: number
-}
 
 export type ConnectMongoOptions = {
   mongoUrl?: string
@@ -38,10 +26,7 @@ export type ConnectMongoOptions = {
   serialize?: (a: any) => any
   unserialize?: (a: any) => any
   transformId?: (a: any) => any
-  crypto?: CryptoOptions
 }
-
-type ConcretCryptoOptions = Required<CryptoOptions>
 
 type ConcretConnectMongoOptions = {
   mongoUrl?: string
@@ -60,8 +45,6 @@ type ConcretConnectMongoOptions = {
   serialize?: (a: any) => any
   unserialize?: (a: any) => any
   transformId?: (a: any) => any
-  // FIXME: remove above any
-  crypto: ConcretCryptoOptions
 }
 
 type InternalSessionType = {
@@ -80,8 +63,7 @@ function defaultSerializeFunction(
 ): session.SessionData {
   // Copy each property of the session to a new object
   const obj = {}
-  let prop
-  for (prop in session) {
+  for (const prop in session) {
     if (prop === 'cookie') {
       // Convert the cookie instance to an object, if possible
       // This gets rid of the duplicate object under session.cookie.data property
@@ -122,7 +104,6 @@ function computeTransformFunctions(options: ConcretConnectMongoOptions) {
 
 export default class MongoStore extends session.Store {
   private clientP: Promise<MongoClient>
-  private crypto: Kruptein | null = null
   private timer?: NodeJS.Timeout
   collectionP: Promise<Collection>
   private options: ConcretConnectMongoOptions
@@ -140,7 +121,6 @@ export default class MongoStore extends session.Store {
     autoRemoveInterval = 10,
     touchAfter = 0,
     stringify = true,
-    crypto,
     ...required
   }: ConnectMongoOptions) {
     super()
@@ -153,20 +133,9 @@ export default class MongoStore extends session.Store {
       autoRemoveInterval,
       touchAfter,
       stringify,
-      crypto: {
-        ...{
-          secret: false,
-          algorithm: 'aes-256-gcm',
-          hashing: 'sha512',
-          encodeas: 'base64',
-          key_size: 32,
-          iv_size: 16,
-          at_size: 16,
-        },
-        ...crypto,
-      },
       ...required,
     }
+    console.log("options", options);
     // Check params
     assert(
       options.mongoUrl || options.clientPromise || options.client,
@@ -202,9 +171,6 @@ export default class MongoStore extends session.Store {
       await this.setAutoRemove(collection)
       return collection
     })
-    if (options.crypto.secret) {
-      this.crypto = require('kruptein')(options.crypto)
-    }
   }
 
   static create(options: ConnectMongoOptions): MongoStore {
@@ -253,36 +219,6 @@ export default class MongoStore extends session.Store {
   }
 
   /**
-   * promisify and bind the `this.crypto.get` function.
-   * Please check !!this.crypto === true before using this getter!
-   */
-  private get cryptoGet() {
-    if (!this.crypto) {
-      throw new Error('Check this.crypto before calling this.cryptoGet!')
-    }
-    return util.promisify(this.crypto.get).bind(this.crypto)
-  }
-
-  /**
-   * Decrypt given session data
-   * @param session session data to be decrypt. Mutate the input session.
-   */
-  private async decryptSession(
-    session: session.SessionData | undefined | null
-  ) {
-    if (this.crypto && session) {
-      const plaintext = await this.cryptoGet(
-        this.options.crypto.secret as string,
-        (session as any).session
-      ).catch((err) => {
-        throw new Error(err)
-      })
-      // @ts-ignore
-      session.session = JSON.parse(plaintext)
-    }
-  }
-
-  /**
    * Get a session from the store given a session ID (sid)
    * @param sid session ID
    */
@@ -301,11 +237,6 @@ export default class MongoStore extends session.Store {
             { expires: { $gt: new Date() } },
           ],
         })
-        if (this.crypto && session) {
-          await this.decryptSession(
-            session as session.SessionData
-          ).catch((err) => callback(err))
-        }
         const s =
           session && this.transformFunctions.unserialize(session.session)
         if (this.options.touchAfter > 0 && session?.lastModified) {
@@ -358,16 +289,6 @@ export default class MongoStore extends session.Store {
         // Last modify handling
         if (this.options.touchAfter > 0) {
           s.lastModified = new Date()
-        }
-        if (this.crypto) {
-          const cryptoSet = util.promisify(this.crypto.set).bind(this.crypto)
-          const data = await cryptoSet(
-            this.options.crypto.secret as string,
-            s.session
-          ).catch((err) => {
-            throw new Error(err)
-          })
-          s.session = (data as unknown) as session.SessionData
         }
         const collection = await this.collectionP
         const rawResp = await collection.updateOne(
@@ -467,9 +388,6 @@ export default class MongoStore extends session.Store {
         })
         const results: session.SessionData[] = []
         for await (const session of sessions) {
-          if (this.crypto && session) {
-            await this.decryptSession(session as session.SessionData)
-          }
           results.push(this.transformFunctions.unserialize(session.session))
         }
         this.emit('all', results)
@@ -525,8 +443,9 @@ export default class MongoStore extends session.Store {
   /**
    * Close database connection
    */
-  close(): Promise<void> {
-    debug('MongoStore#close()')
-    return this.clientP.then((c) => c.close())
+  async close(): Promise<void> {
+    debug('MongoStore#close()');
+    const client = await this.clientP;
+    client.close();
   }
 }
