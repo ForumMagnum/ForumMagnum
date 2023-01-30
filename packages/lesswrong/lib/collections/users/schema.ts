@@ -1765,6 +1765,15 @@ const schema: SchemaType<DbUser> = {
     canRead: ['admins', 'sunshineRegiment'],
   },
 
+  usersContactedBeforeReview: {
+    type: Array,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  "usersContactedBeforeReview.$": {
+    type: String,
+  },
+
   // Full Name field to display full name for alignment forum users
   fullName: {
     type: String,

@@ -7,6 +7,7 @@ type CollectionsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
 type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"postCommentsTop"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"topShortform"|"shortform"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"latestSubforumDiscussion"|"moderatorComments"|"alignmentSuggestedComments"|"rss";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userGroupUntitledConversations";
+type CronHistoriesViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type EmailTokensViewName = never
@@ -52,6 +53,7 @@ interface ViewTermsByCollectionName {
   CommentModeratorActions: CommentModeratorActionsViewTerms
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms
+  CronHistories: ViewTermsBase
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   EmailTokens: ViewTermsBase
