@@ -1,10 +1,15 @@
-import { assert } from 'console'
-import * as session from 'express-session'
+/*
+ * This file was originally vendored from https://github.com/jdesboeufs/connect-mongo/blob/master/src/lib/MongoStore.ts
+ * It's since been edited to use our `Collection` system
+ */
+
+import { assert } from 'console';
+import * as session from 'express-session';
 import {
   Collection,
   MongoClient,
   MongoClientOptions,
-} from 'mongodb'
+} from 'mongodb';
 import { loggerConstructor } from '../../../lib/utils/logging';
 
 const debug = loggerConstructor('connect-mongo');
