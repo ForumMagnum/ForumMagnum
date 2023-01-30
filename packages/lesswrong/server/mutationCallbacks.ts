@@ -4,7 +4,6 @@ import { getCollection } from '../lib/vulcan-lib/getCollection';
 type CallbackValidationErrors = Array<any>;
 
 export interface CreateCallbackProperties<T extends DbObject> {
-  data: Partial<T>|undefined
   currentUser: DbUser|null
   collection: CollectionBase<T>
   context: ResolverContext
