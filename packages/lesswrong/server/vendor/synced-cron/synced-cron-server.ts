@@ -220,7 +220,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       try {
         jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
-        if (isDuplicateKeyError(self, e)) {
+        if (isDuplicateKeyError(self._collection, e)) {
           log.info('Not running "' + entry.name + '" again.');
           return;
         }
