@@ -201,6 +201,18 @@ interface DbConversation extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface CronHistoriesCollection extends CollectionBase<DbCronHistory, "CronHistories"> {
+}
+
+interface DbCronHistory extends DbObject {
+  __collectionName?: "CronHistories"
+  intendedAt: Date
+  name: string
+  startedAt: Date
+  finishedAt: Date | null
+  result: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata, "DatabaseMetadata"> {
 }
 
@@ -1281,6 +1293,7 @@ interface CollectionsByName {
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
+  CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   EmailTokens: EmailTokensCollection
@@ -1327,6 +1340,7 @@ interface ObjectsByCollectionName {
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
+  CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   EmailTokens: DbEmailTokens
