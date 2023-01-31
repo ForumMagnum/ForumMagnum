@@ -2,7 +2,7 @@ import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
 import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import sumBy from 'lodash/sumBy';
 import VotesRepo, { KarmaChangesArgs } from './repos/VotesRepo';
 
@@ -166,7 +166,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
   for (let comment of changedComments) {
-    comment.description = htmlToText.fromString(comment.description)
+    comment.description = htmlToText(comment.description)
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
 
