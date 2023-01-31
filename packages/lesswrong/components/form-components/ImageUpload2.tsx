@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: theme.palette.buttons.imageUpload2.hoverBackground,
     },
-    color: '#fff', // text is always against a dark background, even in dark mode
+    color: theme.palette.text.alwaysWhite, // text is always against a dark background, even in dark mode
     textTransform: 'none',
     margin: 5,
     fontSize: 14,

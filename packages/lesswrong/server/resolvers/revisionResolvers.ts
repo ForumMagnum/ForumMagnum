@@ -74,8 +74,17 @@ augmentFieldsDict(Revisions, {
       resolver: ({html}) => {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText(truncatedHtml, {wordwrap: false, selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ] })
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        return htmlToText(truncatedHtml, {
+          wordwrap: false,
+          selectors: [
+            { selector: "img", format: "skip" },
+            { selector: "a", options: { ignoreHref: true } },
+            { selector: "p", options: { leadingLineBreaks: 1 } },
+            { selector: "h1", options: { trailingLineBreaks: 1 } },
+            { selector: "h2", options: { trailingLineBreaks: 1 } },
+            { selector: "h3", options: { trailingLineBreaks: 1 } },
+          ]
+        }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       }
     }
   },

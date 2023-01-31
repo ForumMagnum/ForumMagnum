@@ -30,7 +30,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     name: "socialPreview",
     order: 23,
     label: "Edit Link Preview",
-    startCollapsed: false,
+    startCollapsed: !isEAForum,
   },
   highlight: {
     order: 24,

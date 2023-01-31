@@ -17,12 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "grid",
     gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
+
+    [theme.breakpoints.down('xs')]: {
+      display: "flex",
+      flexDirection: "column",
+    }
   },
   preview: {
     padding: 16,
     marginLeft: 10,
+    marginRight: 10,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 6,
+
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 16,
+    }
   },
   title: {
     fontSize: 14,
@@ -37,18 +47,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 36,
     marginBottom: 7,
     overflowWrap: "anywhere",
+    whiteSpace: "pre-line",
   },
   url: {
     fontSize: 12,
     color: theme.palette.grey[600],
   },
   blurb: {
-    paddingLeft: 16,
-    paddingRight: 16,
+    marginLeft: 6,
+    marginRight: 16,
     fontSize: 14,
     lineHeight: '20px',
     '& a': {
       color: theme.palette.primary.main,
+    },
+
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 16,
     }
   }
 });
@@ -113,8 +128,13 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
     selectors: [
       { selector: "img", format: "skip" },
       { selector: "a", options: { ignoreHref: true } },
-    ],
+      { selector: "p", options: { leadingLineBreaks: 1 } },
+      { selector: "h1", options: { trailingLineBreaks: 1 } },
+      { selector: "h2", options: { trailingLineBreaks: 1 } },
+      { selector: "h3", options: { trailingLineBreaks: 1 } },
+    ]
   }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+
   const previewDesc = getPostDescription({...document, contents: {plaintextDescription}})
   
   return {description: previewDesc, fallbackImageUrl: img?.getAttribute("src") || null}
@@ -161,7 +181,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
       <div className={classes.blurb}>
         A preview image makes it more likely that people will see your post.
         <br/><br/>
-        If you're unsure which image to use, consider trying <a href="https://unsplash.com/">Unsplash</a> or an AI image generator.
+        If you're unsure which image to use, consider trying <a target="_blank" rel="noreferrer" href="https://unsplash.com/">Unsplash</a> or an AI image generator.
       </div>
     </div>
   );
