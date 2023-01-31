@@ -218,7 +218,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.rawInsert(jobHistory);
+        jobHistory._id = await self._collection.rawInsert(jobHistory, {quiet: true});
       } catch(e) {
         if (isDuplicateKeyError(self._collection, e)) {
           log.info('Not running "' + entry.name + '" again.');

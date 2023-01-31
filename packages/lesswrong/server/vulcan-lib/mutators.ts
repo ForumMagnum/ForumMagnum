@@ -50,30 +50,16 @@ import { loggerConstructor } from '../../lib/utils/logging';
  * fields will be filled in by those callbacks; result is a T, but nothing
  * in the type system ensures that everything actually gets filled in. 
  */
-export const createMutator = async <T extends DbObject>({
+export const createMutator: CreateMutator = async <T extends DbObject>({
   collection,
   document,
-  data,
   currentUser=null,
   validate=true,
   context,
-}: {
-  collection: CollectionBase<T>,
-  document: Partial<DbInsertion<T>>,
-  data?: Partial<DbInsertion<T>>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-}): Promise<{
-  data: T
-}> => {
+}: CreateMutatorParams<T>) => {
   const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
   logger('createMutator() begin')
-  // OpenCRUD backwards compatibility: accept either data or document
-  // we don't want to modify the original document
-  document = data || document;
   logger('(new) document', document);
-  
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
   if (!context)
@@ -94,7 +80,6 @@ export const createMutator = async <T extends DbObject>({
 
   */
   const properties: CreateCallbackProperties<T> = {
-    data: data as unknown as T, // Pretend this isn't Partial<T>
     currentUser, collection, context,
     document: document as unknown as T, // Pretend this isn't Partial<T>
     newDocument: document as unknown as T, // Pretend this isn't Partial<T>
@@ -107,6 +92,7 @@ export const createMutator = async <T extends DbObject>({
 
   */
   if (validate) {
+    logger('validating')
     let validationErrors: Array<any> = [];
     validationErrors = validationErrors.concat(validateDocument(document, collection, context));
     // run validation callbacks
@@ -125,6 +111,8 @@ export const createMutator = async <T extends DbObject>({
       console.log(validationErrors); // eslint-disable-line no-console
       throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
     }
+  } else {
+    logger('skipping validation')
   }
 
   // userId
@@ -150,6 +138,7 @@ export const createMutator = async <T extends DbObject>({
   note: clone arguments in case callbacks modify them
 
   */
+  logger('field onCreate/onInsert callbacks')
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
@@ -162,6 +151,7 @@ export const createMutator = async <T extends DbObject>({
       autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
+      logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
       Object.assign(document, { [fieldName]: autoValue });
     }
   }
@@ -177,10 +167,13 @@ export const createMutator = async <T extends DbObject>({
   Before
 
   */
+  logger('before callbacks')
+  logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
   }) as unknown as Partial<DbInsertion<T>>;
+  logger('newBefore')
   // OpenCRUD backwards compatibility
   document = await hooks.newBefore.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
@@ -188,6 +181,7 @@ export const createMutator = async <T extends DbObject>({
       currentUser
     ]
   }) as unknown as Partial<DbInsertion<T>>;
+  logger('newSync')
   document = await hooks.newSync.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
@@ -198,6 +192,7 @@ export const createMutator = async <T extends DbObject>({
   DB Operation
 
   */
+  logger('inserting into database');
   (document as any)._id = await Connectors.create(collection, document as unknown as T);
 
   /*
@@ -206,10 +201,13 @@ export const createMutator = async <T extends DbObject>({
 
   */
   // run any post-operation sync callbacks
+  logger('after callbacks')
+  logger('createAfter')
   document = await hooks.createAfter.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
   }) as unknown as DbInsertion<T>;
+  logger('newAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
@@ -228,9 +226,12 @@ export const createMutator = async <T extends DbObject>({
 
   */
   // note: make sure properties.document is up to date
+  logger('async callbacks')
+  logger('createAsync')
   await hooks.createAsync.runCallbacksAsync(
     [{ ...properties, document: completedDocument as T }],
   );
+  logger('newAsync')
   // OpenCRUD backwards compatibility
   await hooks.newAsync.runCallbacksAsync([
     completedDocument,
@@ -248,7 +249,7 @@ export const createMutator = async <T extends DbObject>({
  * in theory you can use a selector, but you should only do this if you're sure
  * there's only one matching document (eg, slug). Returns the modified document.
  */
-export const updateMutator = async <T extends DbObject>({
+export const updateMutator: UpdateMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -259,20 +260,7 @@ export const updateMutator = async <T extends DbObject>({
   validate=true,
   context,
   document: oldDocument,
-}: {
-  collection: CollectionBase<T>,
-  documentId: string,
-  selector?: any,
-  data?: Partial<DbInsertion<T>>,
-  set?: Partial<DbInsertion<T>>,
-  unset?: any,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-  document?: T|null,
-}): Promise<{
-  data: T
-}> => {
+}: UpdateMutatorParams<T>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
@@ -286,6 +274,7 @@ export const updateMutator = async <T extends DbObject>({
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
   let data = dataParam || modifierToData({ $set: set, $unset: unset });
+  logger('update data', data)
   
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in LWEvents
@@ -358,6 +347,8 @@ export const updateMutator = async <T extends DbObject>({
       const EditDocumentValidationError = createError('app.validation_error', {message: JSON.stringify(validationErrors)});
       throw new EditDocumentValidationError({data: { break: true, errors: validationErrors }});
     }
+  } else {
+    logger('skipping validation')
   }
 
   /*
@@ -365,6 +356,7 @@ export const updateMutator = async <T extends DbObject>({
   onUpdate
 
   */
+  logger('field onUpdate/onEdit callbacks')
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
@@ -390,10 +382,13 @@ export const updateMutator = async <T extends DbObject>({
   Before
 
   */
+  logger('before callbacks')
+  logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({
     iterator: data,
     properties: [properties],
   });
+  logger('editBefore')
   // OpenCRUD backwards compatibility
   data = modifierToData(
     await hooks.editBefore.runCallbacks({
@@ -405,6 +400,7 @@ export const updateMutator = async <T extends DbObject>({
       ]
     })
   );
+  logger('editSync')
   data = modifierToData(
     await hooks.editSync.runCallbacks({
       iterator: dataToModifier(data),
@@ -434,6 +430,7 @@ export const updateMutator = async <T extends DbObject>({
   */
   if (!isEmpty(modifier)) {
     // update document
+    logger('updating document')
     await Connectors.updateOne(collection, selector, modifier, { removeEmptyStrings: false });
 
     // get fresh copy of document from db
@@ -455,10 +452,13 @@ export const updateMutator = async <T extends DbObject>({
   After
 
   */
+  logger('after callbacks')
+  logger('updateAfter')
   document = await hooks.updateAfter.runCallbacks({
     iterator: document,
     properties: [properties],
   });
+  logger('editAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.editAfter.runCallbacks({
     iterator: document,
@@ -474,8 +474,11 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   // run async callbacks
+  logger('async callbacks')
+  logger('updateAsync')
   await hooks.updateAsync.runCallbacksAsync([properties]);
   // OpenCRUD backwards compatibility
+  logger('editAsync')
   await hooks.editAsync.runCallbacksAsync([
     document,
     oldDocument,
@@ -493,7 +496,7 @@ export const updateMutator = async <T extends DbObject>({
 // Deletes a single database entry, and runs any callbacks/etc that trigger on
 // that. Returns the entry that was deleted.
 //
-export const deleteMutator = async <T extends DbObject>({
+export const deleteMutator: DeleteMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -501,17 +504,7 @@ export const deleteMutator = async <T extends DbObject>({
   validate=true,
   context,
   document,
-}: {
-  collection: CollectionBase<T>,
-  documentId: string,
-  selector?: MongoSelector<T>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-  document?: T|null,
-}): Promise<{
-  data: T|null|undefined
-}> => {
+}: DeleteMutatorParams<T>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   // OpenCRUD backwards compatibility

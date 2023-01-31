@@ -632,11 +632,47 @@ abstract class Query<T extends DbObject> {
       return ["AVG(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    // This is an operator that doesn't exist in Mongo that we need to add for
+    // hacky reasons. In general, we can search correctly in arrays and we can
+    // search correctly within JSON, however, we occassionaly have to search
+    // inside arrays that exist deep inside a JSON object where we don't have
+    // any schema available (for instance, pingbacks). Here we add a special
+    // case that allows us to manually annotate these instances (see the
+    // function `jsonArrayContainsSelector`) and generate the correct SQL.
+    // This is rare, but is does occur.
+    if (op === "$jsonArrayContains") {
+      const [array, value] = expr[op];
+      const [field, ...path] = array.split(".");
+      return [
+        this.resolveFieldName(field),
+        "@> ('",
+        ...this.buildJsonArrayAtPath(path, value),
+        "')::JSONB",
+      ];
+    }
+
     if (op === undefined) {
       return ["'{}'::JSONB"];
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+  }
+
+  private buildJsonArrayAtPath(path: string[], value: any): Atom<T>[] {
+    if (path.length) {
+      const [name, ...rest] = path;
+      return [
+        `{ "${name}":`,
+        ...this.buildJsonArrayAtPath(rest, value),
+        "}",
+      ];
+    } else {
+      return [
+        "[\"' ||",
+        ...this.compileExpression(value),
+        "|| '\"]",
+      ];
+    }
   }
 }
 

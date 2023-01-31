@@ -21,8 +21,8 @@ export const defaultSubscriptionTypeTable = {
  */
 export const performSubscriptionAction = async (action, collection, itemId, user) => {
   const collectionName = collection.options.collectionName
-  const newSubscription = {
-    state: action === "subscribe" ? 'subscribed' : 'supressed',
+  const newSubscription: Partial<DbSubscription> = {
+    state: action === "subscribe" ? 'subscribed' : 'suppressed',
     documentId: itemId,
     collectionName,
     type: defaultSubscriptionTypeTable[collectionName]
@@ -32,9 +32,10 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     document: newSubscription,
     validate: true,
     currentUser: user,
+    // HACK: Make a shitty pretend context
     context: {
       currentUser: user,
       Users: Users,
-    },
+    } as any,
   })
 };

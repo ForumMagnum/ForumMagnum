@@ -74,6 +74,12 @@ describe("SelectQuery", () => {
       expectedArgs: [3, "b"],
     },
     {
+      name: "can build select query with $jsonArrayContains operator",
+      getQuery: () => new SelectQuery(testTable, {$expr: {$jsonArrayContains: ["a.b.c.d", 3]}}),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> (' { "b": { "c": { "d": ["' || $1 || '"] } } } ')::JSONB`,
+      expectedArgs: [3],
+    },
+    {
       name: "can build select query with nested boolean combiners",
       getQuery: () => new SelectQuery(testTable, {a: 3, $or: [{b: "hello"}, {c: {$exists: false}}]}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" = $1 AND ( "b" = $2 OR "c" IS NULL ) )',

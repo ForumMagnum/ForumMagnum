@@ -587,6 +587,7 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
+importComponent("TagNotificationSettings", () => require('../components/tagging/TagNotificationSettings'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
@@ -598,7 +599,6 @@ importComponent("SubscribeButton", () => require('../components/tagging/Subscrib
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
 importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
-importComponent("SubforumNotificationSettings", () => require('../components/tagging/subforums/SubforumNotificationSettings'));
 importComponent("SubforumListSettings", () => require('../components/tagging/subforums/SubforumListSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
