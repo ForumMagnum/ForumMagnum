@@ -459,6 +459,7 @@ registerFragment(`
     tableOfContents
     subforumTagId
     sideComments
+    socialPreviewImageId
   }
 `);
 

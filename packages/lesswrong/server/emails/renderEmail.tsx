@@ -1,5 +1,5 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
@@ -190,7 +190,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText.fromString(html, {
+  const plaintext = htmlToText(html, {
     wordwrap: plainTextWordWrap
   });
   
