@@ -14,26 +14,7 @@ import { loggerConstructor } from '../../../lib/utils/logging';
 
 const debug = loggerConstructor('connect-mongo');
 
-export type ConnectMongoOptions = {
-  mongoUrl?: string
-  clientPromise?: Promise<MongoClient>
-  client?: MongoClient
-  collectionName?: string
-  mongoOptions?: MongoClientOptions
-  dbName?: string
-  ttl?: number
-  touchAfter?: number
-  stringify?: boolean
-  createAutoRemoveIdx?: boolean
-  autoRemove?: 'native' | 'interval' | 'disabled'
-  autoRemoveInterval?: number
-  // FIXME: remove those any
-  serialize?: (a: any) => any
-  unserialize?: (a: any) => any
-  transformId?: (a: any) => any
-}
-
-type ConcretConnectMongoOptions = {
+type ConcreteConnectMongoOptions = {
   mongoUrl?: string
   clientPromise?: Promise<MongoClient>
   client?: MongoClient
@@ -41,16 +22,14 @@ type ConcretConnectMongoOptions = {
   mongoOptions: MongoClientOptions
   dbName?: string
   ttl: number
+  touchAfter: number
+  stringify: boolean
   createAutoRemoveIdx?: boolean
   autoRemove: 'native' | 'interval' | 'disabled'
   autoRemoveInterval: number
-  touchAfter: number
-  stringify: boolean
-  // FIXME: remove those any
-  serialize?: (a: any) => any
-  unserialize?: (a: any) => any
-  transformId?: (a: any) => any
 }
+
+export type ConnectMongoOptions = Partial<ConcreteConnectMongoOptions>;
 
 type InternalSessionType = {
   _id: string
@@ -61,57 +40,11 @@ type InternalSessionType = {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {}
-const unit: <T>(a: T) => T = (a) => a
-
-function defaultSerializeFunction(
-  session: session.SessionData
-): session.SessionData {
-  // Copy each property of the session to a new object
-  const obj = {}
-  for (const prop in session) {
-    if (prop === 'cookie') {
-      // Convert the cookie instance to an object, if possible
-      // This gets rid of the duplicate object under session.cookie.data property
-      // @ts-ignore FIXME:
-      obj.cookie = session.cookie.toJSON
-        ? // @ts-ignore FIXME:
-          session.cookie.toJSON()
-        : session.cookie
-    } else {
-      // @ts-ignore FIXME:
-      obj[prop] = session[prop]
-    }
-  }
-
-  return obj as session.SessionData
-}
-
-function computeTransformFunctions(options: ConcretConnectMongoOptions) {
-  if (options.serialize || options.unserialize) {
-    return {
-      serialize: options.serialize || defaultSerializeFunction,
-      unserialize: options.unserialize || unit,
-    }
-  }
-
-  if (options.stringify === false) {
-    return {
-      serialize: defaultSerializeFunction,
-      unserialize: unit,
-    }
-  }
-  // Default case
-  return {
-    serialize: JSON.stringify,
-    unserialize: JSON.parse,
-  }
-}
 
 export default class MongoStore extends session.Store {
   private timer?: NodeJS.Timeout
   collectionP: Promise<Collection>
-  private options: ConcretConnectMongoOptions
-  // FIXME: remove any
+  private options: ConcreteConnectMongoOptions
   private transformFunctions: {
     serialize: (a: any) => any
     unserialize: (a: any) => any
@@ -129,7 +62,7 @@ export default class MongoStore extends session.Store {
   }: ConnectMongoOptions) {
     super()
     debug('create MongoStore instance')
-    const options: ConcretConnectMongoOptions = {
+    const options: ConcreteConnectMongoOptions = {
       collectionName,
       ttl,
       mongoOptions,
@@ -153,7 +86,10 @@ export default class MongoStore extends session.Store {
       !options.autoRemoveInterval || options.autoRemoveInterval <= 71582,
       /* (Math.pow(2, 32) - 1) / (1000 * 60) */ 'autoRemoveInterval is too large. options.autoRemoveInterval is in minutes but not seconds nor mills'
     )
-    this.transformFunctions = computeTransformFunctions(options)
+    this.transformFunctions = {
+      serialize: JSON.stringify,
+      unserialize: JSON.parse,
+    };
     let _clientP: Promise<MongoClient>
     if (options.mongoUrl) {
       _clientP = MongoClient.connect(options.mongoUrl, options.mongoOptions)
@@ -173,10 +109,6 @@ export default class MongoStore extends session.Store {
       await this.setAutoRemove(collection)
       return collection
     })
-  }
-
-  static create(options: ConnectMongoOptions): MongoStore {
-    return new MongoStore(options)
   }
 
   private setAutoRemove(collection: Collection): Promise<unknown> {
@@ -210,16 +142,6 @@ export default class MongoStore extends session.Store {
     }
   }
 
-  private computeStorageId(sessionId: string) {
-    if (
-      this.options.transformId &&
-      typeof this.options.transformId === 'function'
-    ) {
-      return this.options.transformId(sessionId)
-    }
-    return sessionId
-  }
-
   /**
    * Get a session from the store given a session ID (sid)
    * @param sid session ID
@@ -233,7 +155,7 @@ export default class MongoStore extends session.Store {
         debug(`MongoStore#get=${sid}`)
         const collection = await this.collectionP
         const session = await collection.findOne({
-          _id: this.computeStorageId(sid),
+          _id: sid,
           $or: [
             { expires: { $exists: false } },
             { expires: { $gt: new Date() } },
@@ -272,7 +194,7 @@ export default class MongoStore extends session.Store {
           delete session.lastModified
         }
         const s: InternalSessionType = {
-          _id: this.computeStorageId(sid),
+          _id: sid,
           session: this.transformFunctions.serialize(session),
         }
         // Expire handling
@@ -351,7 +273,7 @@ export default class MongoStore extends session.Store {
         }
         const collection = await this.collectionP
         const rawResp = await collection.updateOne(
-          { _id: this.computeStorageId(sid) },
+          { _id: sid },
           { $set: updateFields },
         )
         if (rawResp.matchedCount === 0) {
@@ -409,7 +331,7 @@ export default class MongoStore extends session.Store {
     this.collectionP
       .then((colleciton) =>
         colleciton.deleteOne(
-          { _id: this.computeStorageId(sid) },
+          { _id: sid },
         )
       )
       .then(() => {

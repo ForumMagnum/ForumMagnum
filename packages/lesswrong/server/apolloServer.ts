@@ -108,7 +108,7 @@ export function startWebserver() {
   app.use(universalCookiesMiddleware());
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
-    const store = MongoStore.create({
+    const store = new MongoStore({
       client: getMongoClient()
     })
     app.use(expressSession({
