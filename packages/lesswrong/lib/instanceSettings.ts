@@ -125,7 +125,8 @@ export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('sit
 
 /**
  * Whether to run multiple node processes in a cluster.
- * This is mainly a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ *
  * There is a corresponding DatabaseServerSetting 'numWorkers' which sets the number of workers to run in the cluster,
  * if not set it defaults to the number of CPUs available.
  */
