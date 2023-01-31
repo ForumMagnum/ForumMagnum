@@ -75,6 +75,7 @@ const FormComponentTagsChecklist = ({
         onTagSelected={onTagSelected}
         onTagRemoved={onTagRemoved}
         tooltips={false}
+        truncate={!!document.shortform}
       />
     </div>
   );

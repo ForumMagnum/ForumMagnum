@@ -156,14 +156,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            {isEAForum && !!currentUser?.profileTagIds?.length && (
+            {/* {isEAForum && !!currentUser?.profileTagIds?.length && (
               <CommentsListCondensed
                 label={"Shortform discussion"}
                 contentType="shortform"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}
               />
-            )}
+            )} */}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>
