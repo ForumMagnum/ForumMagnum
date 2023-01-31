@@ -1,8 +1,8 @@
 import "./integrationTestSetup";
 import MongoStore from "../server/vendor/ConnectMongo/MongoStore";
-import { getMongoClient } from "../lib/mongoCollection";
 import ExpressSession, { SessionData } from "express-session";
 import { promisify } from "util";
+import { Sessions } from "../lib/collections/sessions";
 
 const makeCookie = () => {
   const cookie = new ExpressSession.Cookie();
@@ -33,7 +33,7 @@ const makeData = () => {
 
 const createStoreHelper = () => {
   const store = new MongoStore({
-    client: getMongoClient(),
+    collection: Sessions,
   });
 
   const storePromise = {
@@ -63,22 +63,12 @@ beforeAll(async () => {
 });
 
 describe("Sessions", () => {
-  it("Cannot create store without required options", async () => {
-    expect(() => new MongoStore({})).toThrow(/Cannot init client/);
-  });
   it("Can create store with client promise", async () => {
     const store = new MongoStore({
-      clientPromise: Promise.resolve(getMongoClient()),
+      collection: Sessions,
     });
     expect(store).toBeDefined();
-    await store.collectionP;
-  });
-  it("Can create store with client", async () => {
-    const store = new MongoStore({
-      client: getMongoClient(),
-    });
-    expect(store).toBeDefined();
-    await store.collectionP;
+    expect(store.getCollection()).toBe(Sessions);
   });
   it("Store length should be 0", async () => {
     const length = await state.storePromise.length();
@@ -113,14 +103,17 @@ describe("Sessions", () => {
     const sessionId = "test-touch";
     const sessionData = makeData();
     await state.storePromise.set(sessionId, sessionData);
-    const collection = await state.store.collectionP;
+    const collection = state.store.getCollection();
     const session = await collection.findOne({ _id: sessionId });
     expect(session).toBeDefined();
     await new Promise((resolve) => setTimeout(resolve, 200));
     await state.storePromise.touch(sessionId, session?.session);
     const session2 = await collection.findOne({ _id: sessionId });
     expect(session2).toBeDefined();
-    expect(session2?.expires.getTime()).toBeGreaterThan(session?.expires.getTime());
+    const time1 = session?.expires?.getTime() ?? 0;
+    const time2 = session2?.expires?.getTime() ?? 0;
+    expect(time1).toBeGreaterThan(0);
+    expect(time2).toBeGreaterThan(time1);
   });
   test("Can create 'set' event callback", (done) => {
     const sessionId = "test-set-event";

@@ -3,40 +3,35 @@
  * It's since been edited to use our `Collection` system
  */
 
-import { assert } from 'console';
 import * as session from 'express-session';
-import {
-  Collection,
-  MongoClient,
-  MongoClientOptions,
-} from 'mongodb';
+import { assert } from 'console';
 import { loggerConstructor } from '../../../lib/utils/logging';
 
 const debug = loggerConstructor('connect-mongo');
 
-type ConcreteConnectMongoOptions = {
-  mongoUrl?: string;
-  clientPromise?: Promise<MongoClient>;
-  client?: MongoClient;
-  collectionName: string;
-  mongoOptions: MongoClientOptions;
-  dbName?: string;
+type ConnectMongoCollection = CollectionBase<DbSession>;
+
+type RequiredConnectMongoOptions = {
+  collection: ConnectMongoCollection;
+}
+
+type OptionalConnectMongoOptions = {
   ttl: number;
   touchAfter: number;
   stringify: boolean;
-  createAutoRemoveIdx?: boolean;
   autoRemove: 'native' | 'interval' | 'disabled';
   autoRemoveInterval: number;
 }
 
-export type ConnectMongoOptions = Partial<ConcreteConnectMongoOptions>;
+type ConcreteConnectMongoOptions = RequiredConnectMongoOptions & OptionalConnectMongoOptions;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+export type ConnectMongoOptions = RequiredConnectMongoOptions & Partial<OptionalConnectMongoOptions>;
+
 const noop = () => {}
 
 export default class MongoStore extends session.Store {
+  private collection: ConnectMongoCollection;
   private timer?: NodeJS.Timeout;
-  collectionP: Promise<Collection>;
   private options: ConcreteConnectMongoOptions;
   private transformFunctions: {
     serialize: (a: any) => any
@@ -44,9 +39,7 @@ export default class MongoStore extends session.Store {
   };
 
   constructor({
-    collectionName = 'sessions',
     ttl = 1209600,
-    mongoOptions = {},
     autoRemove = 'native',
     autoRemoveInterval = 10,
     touchAfter = 0,
@@ -56,9 +49,7 @@ export default class MongoStore extends session.Store {
     super()
     debug('create MongoStore instance');
     const options: ConcreteConnectMongoOptions = {
-      collectionName,
       ttl,
-      mongoOptions,
       autoRemove,
       autoRemoveInterval,
       touchAfter,
@@ -67,44 +58,28 @@ export default class MongoStore extends session.Store {
     };
     // Check params
     assert(
-      options.mongoUrl || options.clientPromise || options.client,
+      !!options.collection,
       'You must provide either mongoUrl|clientPromise|client in options'
     );
     assert(
-      options.createAutoRemoveIdx === null ||
-        options.createAutoRemoveIdx === undefined,
-      'options.createAutoRemoveIdx has been reverted to autoRemove and autoRemoveInterval'
-    );
-    assert(
       !options.autoRemoveInterval || options.autoRemoveInterval <= 71582,
-      /* (Math.pow(2, 32) - 1) / (1000 * 60) */ 'autoRemoveInterval is too large. options.autoRemoveInterval is in minutes but not seconds nor mills'
+      'autoRemoveInterval is too large. options.autoRemoveInterval is in minutes but not seconds nor mills'
     );
     this.transformFunctions = {
       serialize: JSON.stringify,
       unserialize: JSON.parse,
     };
-    let _clientP: Promise<MongoClient>;
-    if (options.mongoUrl) {
-      _clientP = MongoClient.connect(options.mongoUrl, options.mongoOptions);
-    } else if (options.clientPromise) {
-      _clientP = options.clientPromise;
-    } else if (options.client) {
-      _clientP = Promise.resolve(options.client);
-    } else {
-      throw new Error('Cannot init client. Please provide correct options');
-    }
-    assert(!!_clientP, 'Client is null|undefined');
+    this.collection = options.collection;
     this.options = options;
-    this.collectionP = _clientP.then(async (con) => {
-      const collection = con
-        .db(options.dbName)
-        .collection(options.collectionName);
-      await this.setAutoRemove(collection);
-      return collection;
-    });
+    this.collection = options.collection;
+    void this.setAutoRemove(this.collection);
   }
 
-  private setAutoRemove(collection: Collection): Promise<unknown> {
+  getCollection(): ConnectMongoCollection {
+    return this.collection;
+  }
+
+  private async setAutoRemove(collection: ConnectMongoCollection): Promise<void> {
     const removeQuery = () => ({
       expires: {
         $lt: new Date(),
@@ -113,25 +88,19 @@ export default class MongoStore extends session.Store {
     switch (this.options.autoRemove) {
       case 'native':
         debug('Creating MongoDB TTL index');
-        return collection.createIndex(
-          { expires: 1 },
-          {
-            background: true,
-            expireAfterSeconds: 0,
-          }
-        );
+        await collection._ensureIndex({ expires: 1 });
+        break;
       case 'interval':
         debug('create Timer to remove expired sessions');
         this.timer = setInterval(
-          () =>
-            collection.deleteMany(removeQuery()),
+          () => void collection.rawRemove(removeQuery()),
           this.options.autoRemoveInterval * 1000 * 60
         );
         this.timer.unref();
-        return Promise.resolve();
+        break;
       case 'disabled':
       default:
-        return Promise.resolve();
+        break;
     }
   }
 
@@ -146,8 +115,7 @@ export default class MongoStore extends session.Store {
     void (async () => {
       try {
         debug(`MongoStore#get=${sid}`);
-        const collection = await this.collectionP;
-        const session = await collection.findOne({
+        const session = await this.collection.findOne({
           _id: sid,
           $or: [
             { expires: { $exists: false } },
@@ -206,16 +174,15 @@ export default class MongoStore extends session.Store {
         if (this.options.touchAfter > 0) {
           s.lastModified = new Date();
         }
-        const collection = await this.collectionP;
-        const rawResp = await collection.updateOne(
+        const rawResp = await this.collection.rawUpdateOne(
           { _id: s._id },
           { $set: s },
-          { upsert: true },
+          { upsert: true, returnCount: "upsertedCount" },
         );
-        if (rawResp.upsertedCount > 0) {
-          this.emit('create', sid);
+        if (rawResp > 0) {
+          this.emit('create', sid)
         } else {
-          this.emit('update', sid);
+          this.emit('update', sid)
         }
         this.emit('set', sid);
       } catch (error) {
@@ -228,7 +195,7 @@ export default class MongoStore extends session.Store {
   touch(
     sid: string,
     session: session.SessionData & { lastModified?: Date },
-    callback: (err: any) => void = noop
+    callback: (err: any) => void = noop,
   ): void {
     void (async () => {
       try {
@@ -261,12 +228,11 @@ export default class MongoStore extends session.Store {
         } else {
           updateFields.expires = new Date(Date.now() + (this.options.ttl * 1000));
         }
-        const collection = await this.collectionP;
-        const rawResp = await collection.updateOne(
+        const rawResp = await this.collection.rawUpdateOne(
           { _id: sid },
           { $set: updateFields },
         );
-        if (rawResp.matchedCount === 0) {
+        if (rawResp === 0) {
           return callback(new Error('Unable to find the session to touch'));
         } else {
           this.emit('touch', sid, session);
@@ -293,13 +259,12 @@ export default class MongoStore extends session.Store {
     void (async () => {
       try {
         debug('MongoStore#all()');
-        const collection = await this.collectionP;
-        const sessions = collection.find({
+        const sessions = await this.collection.find({
           $or: [
             { expires: { $exists: false } },
             { expires: { $gt: new Date() } },
           ],
-        });
+        }).fetch();
         const results: session.SessionData[] = [];
         for await (const session of sessions) {
           results.push(this.transformFunctions.unserialize(session.session));
@@ -318,17 +283,15 @@ export default class MongoStore extends session.Store {
    */
   destroy(sid: string, callback: (err: any) => void = noop): void {
     debug(`MongoStore#destroy=${sid}`);
-    this.collectionP
-      .then((colleciton) =>
-        colleciton.deleteOne(
-          { _id: sid },
-        )
-      )
-      .then(() => {
+    void (async () => {
+      try {
+        await this.collection.rawRemove({ _id: sid });
         this.emit('destroy', sid)
         callback(null)
-      })
-      .catch((err) => callback(err));
+      } catch (e) {
+        callback(e);
+      }
+    })();
   }
 
   /**
@@ -336,10 +299,14 @@ export default class MongoStore extends session.Store {
    */
   length(callback: (err: any, length: number) => void): void {
     debug('MongoStore#length()');
-    this.collectionP
-      .then((collection) => collection.countDocuments())
-      .then((c) => callback(null, c))
-      .catch((err) => callback(err, -1));
+    void (async () => {
+      try {
+        const length = await this.collection.find({}).count();
+        callback(null, length);
+      } catch (e) {
+        callback(e, -1);
+      }
+    })();
   }
 
   /**
@@ -347,9 +314,16 @@ export default class MongoStore extends session.Store {
    */
   clear(callback: (err: any) => void = noop): void {
     debug('MongoStore#clear()');
-    this.collectionP
-      .then((collection) => collection.drop())
-      .then(() => callback(null))
-      .catch((err) => callback(err));
+    void (async () => {
+      try {
+        await this.collection.rawRemove(
+          {},
+          {noSafetyHarness: true},
+        );
+        callback(null);
+      } catch (e) {
+        callback(e);
+      }
+    })();
   }
 }
