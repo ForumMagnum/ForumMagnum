@@ -51,9 +51,11 @@ export function useUnreadNotifications(): {
   });
   
   const refetchBoth = useCallback(() => {
-    void refetchCounts();
-    void refetchNotifications();
-  }, [refetchCounts, refetchNotifications]);
+    if (currentUser?._id) {
+      void refetchCounts();
+      void refetchNotifications();
+    }
+  }, [currentUser?._id, refetchCounts, refetchNotifications]);
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
 

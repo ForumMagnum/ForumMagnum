@@ -5,7 +5,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-
+import DescriptionIcon from '@material-ui/icons/Description'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -81,7 +81,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   flagged: {
     color: theme.palette.error.main
-  }
+  },
+  icon: {
+    height: 13,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 3
+  },
 });
 
 const reduceCommentModeratorActions = (commentModeratorActions: CommentModeratorActionDisplay[]): CommentWithModeratorActions[] => {
@@ -166,6 +172,7 @@ const ModerationDashboard = ({ classes }: {
               return <div key={user._id} className={classNames(classes.tocListing, {[classes.flagged]: user.sunshineFlagged})}>
                 <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
                   {user.displayName} 
+                  {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
                 </a>
               </div>
             })}
