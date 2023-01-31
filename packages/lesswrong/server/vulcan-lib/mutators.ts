@@ -142,7 +142,6 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
-    logger('onCreate')
     if (schemaField.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop

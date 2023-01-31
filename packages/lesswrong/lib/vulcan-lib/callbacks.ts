@@ -137,7 +137,7 @@ export const runCallbacks = function <T extends DbObject> (this: any, options: {
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
     const runCallback = (accumulator, callback) => {
-      logger(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
+      logger(`\x1b[32m[${formattedHook}] [${callback.name || 'noname callback'}]\x1b[0m`);
       try {
         const result = callback.apply(this, [accumulator].concat(args));
 
@@ -165,7 +165,7 @@ export const runCallbacks = function <T extends DbObject> (this: any, options: {
     const result = callbacks.reduce(function (accumulator, callback, index) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
-          logger(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
+          logger(`\x1b[32m[${formattedHook}] Started async context for [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
           asyncContext = true;
         }
         return new Promise((resolve, reject) => {
@@ -295,7 +295,7 @@ export const runCallbacksAsync = function <T extends DbObject> (options: {
     setTimeout(function () {
       // run all post submit server callbacks on post object successively
       callbacks.forEach(function (this: any, callback) {
-        logger(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
+        logger(`\x1b[32m[${hook}]: [${callback.name || 'noname callback'}]\x1b[0m`);
         
         let pendingAsyncCallback = markCallbackStarted(hook);
         try {
