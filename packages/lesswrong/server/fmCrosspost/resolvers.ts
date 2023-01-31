@@ -27,15 +27,27 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
 ): Promise<PostResponseTypes<RouteName>> => {
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
   const apiUrl = makeApiUrl(route.path);
-  const result = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": crosspostUserAgent,
-    },
-    body: JSON.stringify(body),
-  });
-  const json = await result.json();
+  let result: Response;
+  try {
+    result = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": crosspostUserAgent,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    if (e.cause.code === 'ECONNREFUSED' && e.cause.port === 4000) {
+      // We're testing locally, and the x-post server isn't running
+      // Slime
+      return { document: {} }
+    } else {
+      throw e
+    }
+  }
+  // Assertion is safe because either we got a result or we threw an error or returned
+  const json = await result!.json();
   const validatedResponse = route.responseValidator.decode(json);
   if (isLeft(validatedResponse)) {
     // eslint-disable-next-line no-console
