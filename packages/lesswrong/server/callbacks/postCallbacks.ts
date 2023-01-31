@@ -332,11 +332,8 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
   return post;
 });
 
-getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
-getCollectionHooks("Posts").updateBefore.add((
-  data: Partial<DbPost>,
-  properties: UpdateCallbackProperties<DbPost>,
-) => handleCrosspostUpdate(data, properties));
+getCollectionHooks("Posts").newSync.add(performCrosspost);
+getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
 
 async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
   const applyOneTag = async (tagId: string) => {

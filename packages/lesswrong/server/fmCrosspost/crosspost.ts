@@ -8,7 +8,7 @@ import { makeCrossSiteRequest } from "./resolvers";
 import { signToken } from "./tokens";
 import type { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
 
-export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
+export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -84,10 +84,10 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
   });
 }
 
-export const handleCrosspostUpdate = async (
+export async function handleCrosspostUpdate(
   data: Partial<DbPost>,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<DbPost>
-): Promise<Partial<DbPost>|undefined> => {
+): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {_id, userId, fmCrosspost } = newDocument;

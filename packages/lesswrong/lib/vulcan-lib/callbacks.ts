@@ -118,6 +118,7 @@ export const runCallbacks = function (this: any, options: {
   properties?: any,
   ignoreExceptions?: boolean,
 }) {
+  const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = options.name;
   const formattedHook = formatHookName(hook);
   const item = options.iterator;
@@ -207,6 +208,7 @@ export const runCallbacksList = function (this: any, options: {
   properties?: any,
   callbacks: any,
 }) {
+  const logger = loggerConstructor(`callbacks-form`)
   const item = options.iterator;
   const args = options.properties;
   const ignoreExceptions = true;
@@ -276,7 +278,7 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync = function (options: {name: string, properties: Array<any>}) {
+  const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = formatHookName(options.name);
   const args = options.properties;
 
