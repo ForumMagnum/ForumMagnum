@@ -5,7 +5,7 @@ import { isPromise } from './utils';
 import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
-import { CallbackPropertiesBase } from '../../server/mutationCallbacks';
+import type { CallbackPropertiesBase } from '../../server/mutationCallbacks';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -172,6 +172,7 @@ export const runCallbacks = function <T extends DbObject> (this: any, options: {
           accumulator
             .then(result => {
               if (result === undefined) {
+                // eslint-disable-next-line no-console
                 console.error('Async before callbacks should not return undefined. Please return the document/data instead')
               }
               try {
