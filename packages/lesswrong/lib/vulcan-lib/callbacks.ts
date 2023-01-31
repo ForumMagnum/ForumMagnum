@@ -5,9 +5,7 @@ import { isPromise } from './utils';
 import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
-
-// TODO: It would be nice if callbacks could be enabled or disabled by collection
-const logger = loggerConstructor(`callbacks`)
+import { CallbackPropertiesBase } from '../../server/mutationCallbacks';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -112,10 +110,11 @@ const removeCallback = function (hookName: string, callback) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks = function (this: any, options: {
+export const runCallbacks = function <T extends DbObject> (this: any, options: {
   name: string,
   iterator?: any,
-  properties?: any,
+  // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
+  properties: [CallbackPropertiesBase<T>]|any[],
   ignoreExceptions?: boolean,
 }) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
@@ -205,7 +204,7 @@ export const runCallbacks = function (this: any, options: {
 // refactor-able.
 export const runCallbacksList = function (this: any, options: {
   iterator?: any,
-  properties?: any,
+  properties?: any, // Properties here, from Forms, seems to be a mess
   callbacks: any,
 }) {
   const logger = loggerConstructor(`callbacks-form`)
@@ -278,6 +277,11 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
+export const runCallbacksAsync = function <T extends DbObject> (options: {
+  name: string,
+  // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
+  properties: [CallbackPropertiesBase<T>]|any[]
+}) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = formatHookName(options.name);
   const args = options.properties;
