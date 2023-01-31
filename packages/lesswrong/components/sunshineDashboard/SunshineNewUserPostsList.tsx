@@ -37,7 +37,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage } = Components
  
   if (!posts) return null
 
@@ -60,19 +60,22 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
-                {postGetCommentCount(post) && <MetaInfo>
+                <MetaInfo>
                   <Link to={`${postGetPageUrl(post)}#comments`}>
                     {postGetCommentCountStr(post)}
                   </Link>
-                </MetaInfo>}
+                </MetaInfo>
               </span>
             </div>
           </div>
           <PostActionsButton post={post} />
         </div>
-        {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
-          <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
-        </ContentStyles>}
+        {!post.draft && <div className={classes.postBody}>
+          <LinkPostMessage post={post}/>
+          <ContentStyles contentType="postHighlight">
+            <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
+          </ContentStyles>
+        </div>}
       </div>)}
     </div>
   )
