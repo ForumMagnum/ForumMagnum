@@ -11,6 +11,7 @@ import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
 import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
+import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -1238,7 +1239,7 @@ ensureIndex(Posts,
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      "pingbacks.Posts": terms.postId,
+      ...jsonArrayContainsSelector(Posts, "pingbacks.Posts", terms.postId),
       baseScore: {$gt: 0}
     },
     options: {
