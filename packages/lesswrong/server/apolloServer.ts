@@ -115,6 +115,9 @@ export function startWebserver() {
     return;
   }
 
+  // Use OS load balancing (as opposed to round-robin)
+  // In principle, this should give better performance because it is aware of resource (cpu) usage
+  cluster.schedulingPolicy = cluster.SCHED_NONE
   if (cluster.isPrimary) {
     const numWorkers = numWorkersSetting.get();
     // eslint-disable-next-line no-console
