@@ -97,7 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   }
   
   const recentSubforumDiscussionTerms = {
-    view: "latestSubforumDiscussion" as const,
+    view: "shortformFrontpage" as const,
     profileTagIds: currentUser?.profileTagIds,
   };
 
@@ -158,8 +158,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </AllowHidingFrontPagePostsContext.Provider>
             {isEAForum && !!currentUser?.profileTagIds?.length && (
               <CommentsListCondensed
-                label={"Discussion from your subforums"}
-                contentType="frontpageSubforumDiscussion"
+                label={"Shortform discussion"}
+                contentType="shortform"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}
               />

@@ -418,6 +418,18 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
   };
 });
 
+Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      shortform: true,
+      deleted: false,
+      parentCommentId: viewFieldNullOrMissing,
+      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+    },
+    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+  };
+});
+
 Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
   return {
     selector: {
@@ -559,6 +571,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
 }});
 ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
+// DEPRECATED (will be deleted once there are no more old clients floating around)
 // For 'Discussion from your subforums' on the homepage
 Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
   return {
