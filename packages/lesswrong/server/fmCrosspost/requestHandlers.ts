@@ -81,6 +81,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     // a context. But it appears to be working.
     context: {
       currentUser: user,
+      isFMCrosspostRequest: true,
       Users,
     } as Partial<ResolverContext> as  ResolverContext,
   });

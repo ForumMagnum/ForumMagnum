@@ -157,3 +157,10 @@ function replaceSpecialFieldSelectors(selector: any): any {
   return result;
 }
 
+export const jsonArrayContainsSelector = <T extends DbObject>(
+  collection: CollectionBase<T>,
+  field: string,
+  value: any,
+) => collection.isPostgres()
+  ? {$expr: {$jsonArrayContains: [field, value]}}
+  : {[field]: value};
