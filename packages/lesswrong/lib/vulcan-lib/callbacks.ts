@@ -17,7 +17,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   }
   
   add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>
-    Promise<IteratorType|Partial<IteratorType>|undefined|void> | IteratorType | undefined | void
+    (Promise<IteratorType|Partial<IteratorType>> | IteratorType | undefined | void)
   ) => {
     addCallback(this.name, fn);
   }
@@ -171,6 +171,9 @@ export const runCallbacks = function (this: any, options: {
         return new Promise((resolve, reject) => {
           accumulator
             .then(result => {
+              if (result === undefined) {
+                console.error('Async before callbacks should not return undefined. Please return the document/data instead')
+              }
               try {
                 // run this callback once we have the previous value
                 resolve(runCallback(result, callback));

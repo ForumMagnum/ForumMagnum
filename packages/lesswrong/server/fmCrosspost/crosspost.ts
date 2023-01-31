@@ -100,7 +100,7 @@ export const handleCrosspostUpdate = async (
   }
   if (!fmCrosspost) {
     logger('post is not a crosspost, returning')
-    return
+    return data;
   }
   if (
     denormalizedFieldKeys.some(
@@ -142,7 +142,7 @@ export const handleCrosspostUpdate = async (
         },
       }
     }
-    return
+    return data;
   }
 
   return performCrosspost({
@@ -150,5 +150,6 @@ export const handleCrosspostUpdate = async (
     userId,
     fmCrosspost,
     ...extractDenormalizedData(newDocument),
+    ...data,
   });
 }
