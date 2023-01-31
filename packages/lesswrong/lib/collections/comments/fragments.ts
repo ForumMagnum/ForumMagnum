@@ -8,6 +8,7 @@ registerFragment(`
     tag {
       slug
     }
+    relevantTagIds
     relevantTags {
       _id
       slug

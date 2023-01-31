@@ -1235,6 +1235,7 @@ interface CommentsList { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
+  readonly relevantTagIds: Array<string>,
   readonly relevantTags: Array<CommentsList_relevantTags>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
