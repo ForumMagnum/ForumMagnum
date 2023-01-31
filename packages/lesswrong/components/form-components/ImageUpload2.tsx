@@ -152,7 +152,7 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
       <div className={classes.imageBackground} style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}}>
         <div className={classes.buttonRow}>
           <Button onClick={uploadWidget} className={classNames("image-upload-button", classes.button)}>
-            {imageId ? `Change` : `Upload ${label}`}
+            {imageId ? `Change` : label }
           </Button>
           {imageId && <Button className={classes.button} title="Remove" onClick={removeImg}>
             Remove

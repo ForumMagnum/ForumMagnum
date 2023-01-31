@@ -25,13 +25,13 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     order: 21,
     label: "Event Details"
   },
+  // Tags go here on EA Forum
   socialPreview: {
     name: "socialPreview",
-    order: 22,
+    order: 23,
     label: "Edit Link Preview",
     startCollapsed: false,
   },
-  // Tags go here on EA Forum
   highlight: {
     order: 24,
     name: "highlight",
@@ -83,7 +83,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 23 : 60,
+    order: isEAForum ? 22 : 60,
     name: "tags",
     label: `Post ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
