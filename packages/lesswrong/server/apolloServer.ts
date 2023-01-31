@@ -109,6 +109,7 @@ class ApolloServerLogging {
 }
 
 export function startWebserver() {
+  // Run server directly if not in cluster mode
   if (!clusterSetting.get()) {
     startWebserverWorker();
     return;
