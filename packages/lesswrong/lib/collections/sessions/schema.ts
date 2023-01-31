@@ -13,13 +13,17 @@ const schema: SchemaType<DbSession> = {
     type: String,
     ...commonFields(false),
   },
-  expires: {
-    type: Date,
-    ...commonFields(false),
-  },
   session: {
     type: Object,
     blackbox: true,
+    ...commonFields(true),
+  },
+  expires: {
+    type: Date,
+    ...commonFields(true),
+  },
+  lastModified: {
+    type: Date,
     ...commonFields(true),
   },
 };
