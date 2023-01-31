@@ -124,6 +124,14 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
 /**
+ * Whether to run multiple node processes in a cluster.
+ * This is mainly a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ * There is a corresponding DatabaseServerSetting 'numWorkers' which sets the number of workers to run in the cluster,
+ * if not set it defaults to the number of CPUs available.
+ */
+export const clusterSetting = new PublicInstanceSetting<boolean>('cluster', false, 'optional')
+
+/**
  * Name of the tagging feature on your site. The EA Forum is going to try
  * calling them topics. You should set this setting with the lowercase singular
  * form of the name. We assume this is a single word currently. Spaces will

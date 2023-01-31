@@ -10,7 +10,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { getUserFromReq, computeContextFromUser, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -35,7 +35,7 @@ import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { clusterSetting, forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
@@ -44,6 +44,14 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
+
+import cluster from 'node:cluster';
+import { cpus } from 'node:os';
+import process from 'node:process';
+import { DatabaseServerSetting } from './databaseSettings';
+
+const numCPUs = cpus().length;
+export const numWorkersSetting = new DatabaseServerSetting<number>('numWorkers', numCPUs)
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -101,6 +109,35 @@ class ApolloServerLogging {
 }
 
 export function startWebserver() {
+  if (!clusterSetting.get()) {
+    startWebserverWorker();
+    return;
+  }
+
+  if (cluster.isPrimary) {
+    const numWorkers = numWorkersSetting.get();
+    // eslint-disable-next-line no-console
+    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
+    // eslint-disable-next-line no-console
+    console.log(`Primary ${process.pid} is running`);
+
+    // Fork workers.
+    for (let i = 0; i < numWorkers; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      // eslint-disable-next-line no-console
+      console.log(`Worker ${worker.process.pid} died`);
+    });
+  } else {
+    startWebserverWorker();
+    // eslint-disable-next-line no-console
+    console.log(`Worker ${process.pid} started`);
+  }
+}
+
+function startWebserverWorker() {
   const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
