@@ -804,6 +804,14 @@ const schema: SchemaType<DbUser> = {
     // FIXME this isn't filling default values as intended
     // ...schemaDefaultValue(getDefaultFilterSettings),
   },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,
@@ -1755,6 +1763,15 @@ const schema: SchemaType<DbUser> = {
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  usersContactedBeforeReview: {
+    type: Array,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  "usersContactedBeforeReview.$": {
+    type: String,
   },
 
   // Full Name field to display full name for alignment forum users

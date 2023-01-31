@@ -7,7 +7,6 @@
 require("ts-node/register");
 const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
-const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
 
 const initGlobals = (isProd) => {
@@ -29,6 +28,10 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
 
 (async () => {
   const command = process.argv[2];
+  if (["dev", "development", "staging", "production", "prod"].includes(command)) {
+    console.error("Please specify the command before the mode");
+    process.exit(1);
+  }
   const isRunCommand = ["up", "down"].includes(command);
 
   let mode = process.argv[3];
@@ -80,6 +83,7 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
   try {
     await db.tx(async (transaction) => {
       setSqlClient(transaction);
+      const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction);
       const result = await migrator.runAsCLI();
       if (!result) {

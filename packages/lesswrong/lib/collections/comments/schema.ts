@@ -176,7 +176,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, true)
+      return await commentGetPageUrlFromDB(comment, context, true)
     },
   }),
 
@@ -184,7 +184,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, false)
+      return await commentGetPageUrlFromDB(comment, context, false)
     },
   }),
 
@@ -337,10 +337,10 @@ const schema: SchemaType<DbComment> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        Utils.updateMutator({
+        void Utils.updateMutator({
           collection: context.Posts,
           context,
-          selector: {_id:document.postId},
+          documentId: document.postId,
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false

@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -213,7 +213,7 @@ const PostsNewForm = ({classes}: {
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
-        <NoSsr>
+        <NoSSR>
           <WrappedSmartForm
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
@@ -234,7 +234,7 @@ const PostsNewForm = ({classes}: {
               FormSubmit: NewPostsSubmit
             }}
           />
-        </NoSsr>
+        </NoSSR>
       </RecaptchaWarning>
     </div>
   );
