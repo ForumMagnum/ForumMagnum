@@ -26,7 +26,7 @@ const instanceDebuggers = instanceDebuggersSetting.get()
 
 type Logger = (...args: any[]) => void
 
-const manuallyEnabledDebuggers = ["callbacks-posts", "mutators-posts"]
+const manuallyEnabledDebuggers: string[] = []
 
 const scopeIsActive = (scope: string): boolean => {
   // We only need to re-check the cache for database settings. Changing instance
