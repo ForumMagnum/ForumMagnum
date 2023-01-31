@@ -2872,8 +2872,9 @@ interface CronHistoriesDefaultFragment { // fragment on CronHistories
 
 interface SessionsDefaultFragment { // fragment on Sessions
   readonly _id: string,
-  readonly expires: Date,
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

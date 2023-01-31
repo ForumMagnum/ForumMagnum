@@ -787,8 +787,9 @@ interface SessionsCollection extends CollectionBase<DbSession, "Sessions"> {
 
 interface DbSession extends DbObject {
   __collectionName?: "Sessions"
-  expires: Date
   session: any /*{"definitions":[{"blackbox":true}]}*/
+  expires: Date | null
+  lastModified: Date | null
 }
 
 interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {

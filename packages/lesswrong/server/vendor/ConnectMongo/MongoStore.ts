@@ -31,13 +31,6 @@ type ConcreteConnectMongoOptions = {
 
 export type ConnectMongoOptions = Partial<ConcreteConnectMongoOptions>;
 
-type InternalSessionType = {
-  _id: string
-  session: any
-  expires?: Date
-  lastModified?: Date
-}
-
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {}
 
@@ -193,7 +186,7 @@ export default class MongoStore extends session.Store {
           // @ts-ignore
           delete session.lastModified
         }
-        const s: InternalSessionType = {
+        const s: Partial<DbSession> = {
           _id: sid,
           session: this.transformFunctions.serialize(session),
         }
