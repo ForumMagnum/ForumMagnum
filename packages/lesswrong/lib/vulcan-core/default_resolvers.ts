@@ -30,6 +30,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
+        const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
+        logger('multi resolver()')
+        logger('multi terms', terms)
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -45,6 +48,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
         const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
+        logger('multi parameters', parameters)
         
         let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
 

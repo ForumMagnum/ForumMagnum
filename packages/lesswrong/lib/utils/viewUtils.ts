@@ -56,7 +56,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   context?: ResolverContext
 ): MergedViewQueryAndOptions<N,T> {
   const collectionName = collection.collectionName;
-  const logger = loggerConstructor(`views-${collectionName.toLowerCase()}`)
+  const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);
 
   let parameters: any = {
@@ -65,7 +65,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   };
 
   if (collection.defaultView) {
-    parameters = merge(
+    parameters = mergeSelectors(
       parameters,
       collection.defaultView(terms, apolloClient, context)
     );
@@ -76,7 +76,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   if (terms.view && collection.views[terms.view]) {
     const viewFn = collection.views[terms.view];
     const view = viewFn(terms, apolloClient, context);
-    let mergedParameters = merge(parameters, view);
+    let mergedParameters = mergeSelectors(parameters, view);
 
     if (
       mergedParameters.options &&
@@ -164,3 +164,32 @@ export const jsonArrayContainsSelector = <T extends DbObject>(
 ) => collection.isPostgres()
   ? {$expr: {$jsonArrayContains: [field, value]}}
   : {[field]: value};
+
+const mergeTwoSelectors = <T extends DbObject>(
+  baseSelector?: MongoSelector<T>,
+  newSelector?: MongoSelector<T>,
+) => {
+  if (!baseSelector) return newSelector;
+  if (!newSelector) return baseSelector;
+  let mergedSelector = {...baseSelector, ...newSelector};
+  if ("$and" in baseSelector && "$and" in newSelector) {
+    mergedSelector = {
+      ...mergedSelector,
+      $and: [...baseSelector.$and, ...newSelector.$and]
+    }
+  }
+  if ("$or" in baseSelector && "$or" in newSelector) {
+    mergedSelector = {
+      ...mergedSelector,
+      $and: [{$or: baseSelector.$or}, {$or: newSelector.$or}, ...(mergedSelector.$and ?? [])]
+    }
+  }
+  return mergedSelector;
+}
+
+export const mergeSelectors = <T extends DbObject>(
+  ...selectors: Array<MongoSelector<T> | undefined>
+) => selectors.reduce(
+  (mergedSelector, nextSelector) => mergeTwoSelectors(mergedSelector, nextSelector),
+  undefined
+);

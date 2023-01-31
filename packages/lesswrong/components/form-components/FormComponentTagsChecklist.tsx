@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,7 +16,6 @@ const FormComponentTagsChecklist = ({
   label,
   value,
   updateCurrentValues,
-  stringVersionFieldName,
   classes,
 }: {
   document: any;
@@ -25,7 +23,6 @@ const FormComponentTagsChecklist = ({
   label?: string;
   value: any;
   updateCurrentValues: any;
-  stringVersionFieldName?: string | null;
   classes: ClassesType;
 }) => {
   const { results, loading } = useMulti({
@@ -39,7 +36,8 @@ const FormComponentTagsChecklist = ({
 
   const { Loading, TagsChecklist } = Components;
 
-  // TODO; fix me
+  // TODO; ideally would not be hard-coded to be dependent on only being show on
+  // shortform comments
   if (!document.shortform) {
     return null;
   }
