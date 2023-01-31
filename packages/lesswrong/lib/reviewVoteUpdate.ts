@@ -3,6 +3,10 @@ import Users from "./collections/users/collection"
 import { getCostData, REVIEW_YEAR } from "./reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
+import { postGetPageUrl } from "./collections/posts/helpers";
+import { Vulcan } from "./vulcan-lib";
+import fs from 'fs'
+import moment from "moment";
 // import Dictionary from "lodash/Dictionary";  //TODO figure out whether/how to import this
 
 export interface Dictionary<T> {
@@ -146,6 +150,128 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
     const postIds = posts.map(post=>post._id)
     await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
+}
+
+async function createVotingPostHtml () {
+  const style = `
+    <style>
+      .votingResultsPost .item-count {
+        white-space: pre;
+        text-align: center;
+        font-size: 12px;
+        font-family: sans-serif;
+        color: #999
+      }
+
+      .votingResultsPost td {
+        border: none !important;
+      }
+
+      .votingResultsPost table {
+        border: none !important;
+      }
+
+      .votingResultsPost tr {
+        border-bottom: solid 1px rgba(0, 0, 0, .2);
+      }
+
+      .votingResultsPost .title {
+        max-width: 350px;
+      }
+
+      .votingResultsPost .dot {
+        margin-right: 3px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .votingResultsPost .dots-row {
+        display:flex;
+        align-items:center;
+        justify-content: flex-end;
+        margin-left:auto;
+        padding-top:8px;
+        padding-bottom:8px;
+      }
+      .votingResultsPost .post-author  {
+        font-size: 14px;
+        white-space: pre;
+        line-height: 1rem;
+        word-break:keep-all;
+        color: rgba(0,0,0,.5);
+      }
+      
+      .votingResultsPost .post-title a:hover {
+        color: rgba(0,0,0,.87)
+      }
+      .votingResultsPost .post-title a {
+        font-weight:500;
+        color: rgba(0,0,0,.87);
+        line-height:2rem;
+      }
+    </style>
+  `
+
+  
+  // eslint=disable-next-line no-console
+  console.log("Loading posts")
+  const initialPosts = await Posts.find({
+    postedAt: {
+      $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
+      $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
+    }, 
+    finalReviewVoteScoreAllKarma: {$gte: 1}
+  }).fetch()
+
+  // we weight the high karma user's votes 3x higher than baseline
+  const sortedPosts = initialPosts.sort(post => post.reviewVoteScoreHighKarma*3 + (post.reviewVoteScoreAllKarma - post.reviewVoteScoreHighKarma))
+
+  const userIds = [...new Set(sortedPosts.map(post => post.userId))]
+  
+  // eslint=disable-next-line no-console
+  console.log("Loading users", userIds)
+  const users = await Users.find({_id: {$in:userIds}}).fetch()
+  console.log(users.map(user => ({
+    _id: user._id,
+    slug: user.slug,
+    displayName: user.displayName
+  })))
+
+  const getDot = (vote) => {
+    const size = Math.max(vote*2, 3)
+    const color = vote > 0 ? '#5f9b65' : '#bf360c'
+    return `<span title='${vote}' class="dot" style="width:${size}px; height:${size}px; background:${color}"></span>`
+  }
+  const postsHtml = sortedPosts.map((post, i) => {
+    return `<tr>
+      <td class="item-count">${i}</td>
+      <td>
+        <a class="post-title" href="${postGetPageUrl(post)}">${post.title}</a>
+        <span class="post-author">${users.filter(u => u._id === post.userId)[0]?.displayName}</span>
+      </td>
+      <td>
+        <div class="dots-row">
+          ${post.finalReviewVotesAllKarma.sort(vote => vote).map(vote => getDot(vote)).join("")}
+        </div>
+      </td>
+    </tr>`
+  }).join("")
+
+  return `<div class="votingResultsPost">
+    ${style}
+    <table>
+      ${postsHtml}
+    </table>
+  </div>`
+}
+
+Vulcan.getReviewPrizesPost = async () => {
+  const result = await createVotingPostHtml()
+  fs.writeFile('reviewResultsPost.txt', result.toString(), err => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 
 //
