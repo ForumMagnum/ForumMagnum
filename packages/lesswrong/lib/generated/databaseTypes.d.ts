@@ -970,6 +970,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  showCommunityInRecentDiscussion: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

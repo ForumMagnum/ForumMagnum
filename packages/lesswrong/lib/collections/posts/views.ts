@@ -15,6 +15,7 @@ import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
+export const EAF_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
@@ -823,24 +824,27 @@ ensureIndex(Posts, {legacyId: "hashed"});
 
 
 // Corresponds to the postCommented subquery in recentDiscussionFeed.ts
-ensureIndex(Posts,
-  {
-    status: 1,
-    isFuture: 1,
-    draft: 1,
-    unlisted: 1,
-    authorIsUnreviewed: 1,
-    hideFrontpageComments: 1,
-    
-    lastCommentedAt: -1,
-    _id: 1,
-    
-    baseScore: 1,
-    af: 1,
-    isEvent: 1,
-    globalEvent: 1,
-    commentCount: 1,
-  },
+const postCommentedViewFields = {
+  status: 1,
+  isFuture: 1,
+  draft: 1,
+  unlisted: 1,
+  authorIsUnreviewed: 1,
+  hideFrontpageComments: 1,
+  
+  lastCommentedAt: -1,
+  _id: 1,
+  
+  baseScore: 1,
+  af: 1,
+  isEvent: 1,
+  globalEvent: 1,
+  commentCount: 1,
+}
+ensureIndex(Posts, isEAForum ? {
+    ...postCommentedViewFields,
+    [`tagRelevance.${EAF_COMMUNITY_TOPIC_ID}`]: 1
+  } : postCommentedViewFields
 );
 
 const recentDiscussionFilter = {
