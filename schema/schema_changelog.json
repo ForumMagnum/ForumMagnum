@@ -88,5 +88,10 @@
     "acceptsSchemaHash": "2ad14f1cd0db6f2fdf93dfa328568fe5",
     "acceptedByMigration": "20230130T150041.create_cronHistory_collection.ts",
     "timestamp": "2023-01-30T15:00:41.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c4ad9670df04a3753f9e2db9bb5bade8",
+    "acceptedByMigration": "20230131T232642.add_showCommunityInRecentDiscussion_user_field.ts",
+    "timestamp": "2023-01-31T23:26:42.000Z"
   }
 ]
