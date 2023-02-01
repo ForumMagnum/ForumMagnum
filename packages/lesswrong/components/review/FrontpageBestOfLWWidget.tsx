@@ -71,7 +71,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
 
   const { document: postVoting } = useSingle({
-    documentId: "TSaJ9Zcvc3KWh3bjX",
+    documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",
     fragmentName: "PostsList"
   });

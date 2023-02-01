@@ -5,7 +5,6 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "./collections/posts/helpers";
 import { Vulcan } from "./vulcan-lib";
-import fs from 'fs'
 import moment from "moment";
 // import Dictionary from "lodash/Dictionary";  //TODO figure out whether/how to import this
 
@@ -152,7 +151,7 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   }
 }
 
-async function createVotingPostHtml () {
+export async function createVotingPostHtml () {
   const style = `
     <style>
       .votingResultsPost .item-count {
@@ -278,15 +277,6 @@ async function createVotingPostHtml () {
       ${postsHtml}
     </table>
   </div>`
-}
-
-Vulcan.getReviewPrizesPost = async () => {
-  const result = await createVotingPostHtml()
-  fs.writeFile('reviewResultsPost.txt', result.toString(), err => {
-    if (err) {
-      console.error(err);
-    }
-  });
 }
 
 //
