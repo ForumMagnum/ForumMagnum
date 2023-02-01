@@ -40,7 +40,6 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   } catch (e) {
     if (e.cause.code === 'ECONNREFUSED' && e.cause.port === 4000) {
       // We're testing locally, and the x-post server isn't running
-      // Slime
       return { document: {} }
     } else {
       throw e
