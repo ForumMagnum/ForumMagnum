@@ -35,7 +35,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   let postsAFUsers = {}
 
   for (let userId of Object.keys(votesByUserId)) {
-    let totalUserPoints = 0 
     // eslint-disable-next-line no-console
     console.log(userId)
     const user = usersByUserId[userId][0]
@@ -66,7 +65,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
     console.log("Updating vote totals for All Users")
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
-    // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
 
     if (votePhase === 'nominationVote') {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
