@@ -65,10 +65,12 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   };
 
   if (collection.defaultView) {
-    parameters = mergeSelectors(
-      parameters,
-      collection.defaultView(terms, apolloClient, context)
-    );
+    const defaultParameters = collection.defaultView(terms, apolloClient, context);
+    const newSelector = mergeSelectors(parameters.selector, defaultParameters.selector);
+    parameters = {
+      ...merge(parameters, defaultParameters),
+      selector: newSelector,
+    }
     logger('getParameters(), parameters after defaultView:', parameters)
   }
 
@@ -171,7 +173,7 @@ const mergeTwoSelectors = <T extends DbObject>(
 ) => {
   if (!baseSelector) return newSelector;
   if (!newSelector) return baseSelector;
-  let mergedSelector = {...baseSelector, ...newSelector};
+  let mergedSelector = merge(baseSelector, newSelector)
   if ("$and" in baseSelector && "$and" in newSelector) {
     mergedSelector = {
       ...mergedSelector,
