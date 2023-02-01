@@ -259,7 +259,7 @@ export async function createVotingPostHtml () {
       </td>
       <td>
         <div class="dots-row">
-          ${post.finalReviewVotesAllKarma.sort((v1, v2) => v2-v1).map(vote => getDot(vote)).join("")}
+          ${post.finalReviewVotesAllKarma.filter(v => v !== 0).sort((v1, v2) => v2-v1).map(vote => getDot(vote)).join("")}
         </div>
       </td>
     </tr>`
