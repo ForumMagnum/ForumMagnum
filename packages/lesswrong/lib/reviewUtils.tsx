@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { forumTypeSetting, isLW } from "./instanceSettings"
+import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
