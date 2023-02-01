@@ -1236,7 +1236,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
   readonly relevantTagIds: Array<string>,
-  readonly relevantTags: Array<CommentsList_relevantTags>,
+  readonly relevantTags: Array<TagBasicInfo>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1285,11 +1285,6 @@ interface CommentsList { // fragment on Comments
 }
 
 interface CommentsList_tag { // fragment on Tags
-  readonly slug: string,
-}
-
-interface CommentsList_relevantTags { // fragment on Tags
-  readonly _id: string,
   readonly slug: string,
 }
 

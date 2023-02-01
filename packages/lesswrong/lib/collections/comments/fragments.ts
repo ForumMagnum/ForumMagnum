@@ -10,8 +10,7 @@ registerFragment(`
     }
     relevantTagIds
     relevantTags {
-      _id
-      slug
+      ...TagBasicInfo
     }
     tagCommentType
     parentCommentId
