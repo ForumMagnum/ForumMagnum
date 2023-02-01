@@ -28,15 +28,12 @@ type ConcreteConnectMongoOptions = RequiredConnectMongoOptions & OptionalConnect
 export type ConnectMongoOptions = RequiredConnectMongoOptions & Partial<OptionalConnectMongoOptions>;
 
 const noop = () => {}
+const identity = (x) => x;
 
 export default class MongoStore extends session.Store {
   private collection: ConnectMongoCollection;
   private timer?: NodeJS.Timeout;
   private options: ConcreteConnectMongoOptions;
-  private transformFunctions: {
-    serialize: (a: any) => any
-    unserialize: (a: any) => any
-  };
 
   constructor({
     ttl = 1209600,
@@ -65,10 +62,6 @@ export default class MongoStore extends session.Store {
       !options.autoRemoveInterval || options.autoRemoveInterval <= 71582,
       'autoRemoveInterval is too large. options.autoRemoveInterval is in minutes but not seconds nor mills'
     );
-    this.transformFunctions = {
-      serialize: JSON.stringify,
-      unserialize: JSON.parse,
-    };
     this.collection = options.collection;
     this.options = options;
     this.collection = options.collection;
@@ -77,6 +70,18 @@ export default class MongoStore extends session.Store {
 
   getCollection(): ConnectMongoCollection {
     return this.collection;
+  }
+
+  private getTransformFunctions() {
+    return this.collection.isPostgres()
+      ? {
+        serialize: identity,
+        unserialize: identity,
+      }
+      : {
+        serialize: JSON.stringify,
+        unserialize: JSON.parse,
+      };
   }
 
   private async setAutoRemove(collection: ConnectMongoCollection): Promise<void> {
@@ -122,7 +127,7 @@ export default class MongoStore extends session.Store {
             { expires: { $gt: new Date() } },
           ],
         });
-        const s = session && this.transformFunctions.unserialize(session.session);
+        const s = session && this.getTransformFunctions().unserialize(session.session);
         if (this.options.touchAfter > 0 && session?.lastModified) {
           s.lastModified = session.lastModified;
         }
@@ -155,7 +160,7 @@ export default class MongoStore extends session.Store {
         }
         const s: Partial<DbSession> = {
           _id: sid,
-          session: this.transformFunctions.serialize(session),
+          session: this.getTransformFunctions().serialize(session),
         };
         // Expire handling
         if (session?.cookie?.expires) {
@@ -267,7 +272,7 @@ export default class MongoStore extends session.Store {
         }).fetch();
         const results: session.SessionData[] = [];
         for await (const session of sessions) {
-          results.push(this.transformFunctions.unserialize(session.session));
+          results.push(this.getTransformFunctions().unserialize(session.session));
         }
         this.emit('all', results);
         callback(null, results);

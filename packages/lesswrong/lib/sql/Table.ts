@@ -69,7 +69,7 @@ class Table {
     for (const field of Object.keys(schema)) {
       // Force `_id` fields to use the IdType type, with an exception for `Sessions`
       // which uses longer custom ids.
-      if (field === "_id" && collection.options.collectionName !== "Sessions") {
+      if (field === "_id" && collection.collectionName !== "Sessions") {
         table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];

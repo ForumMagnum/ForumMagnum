@@ -164,7 +164,19 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
         upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
-    return result.length;
+    const action = result[0]?.action;
+    if (!action) {
+      return 0;
+    }
+    const returnCount = options?.returnCount ?? "matchedCount";
+    switch (returnCount) {
+    case "matchedCount":
+      return action === "updated" ? 1 : 0;
+    case "upsertedCount":
+      return action === "inserted" ? 1 : 0;
+    default:
+      throw new Error(`Invalid upsert return count: ${returnCount}`);
+    }
   }
 
   rawUpdateOne = async (
