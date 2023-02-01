@@ -179,8 +179,21 @@ async function createVotingPostHtml () {
         max-width: 350px;
       }
 
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(1) {
+        background: red;
+      }
+
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(2) {
+        width: 100%  
+      }
+
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(3) {
+        background: blue;
+      }
+
       .votingResultsPost .dot {
-        margin-right: 3px;
+        margin-right: 2px;
+        margin-bottom: 2px;
         border-radius: 50%;
         display: inline-block;
       }
@@ -192,6 +205,8 @@ async function createVotingPostHtml () {
         margin-left:auto;
         padding-top:8px;
         padding-bottom:8px;
+        flex-wrap: wrap;
+        max-width:200px
       }
       .votingResultsPost .post-author  {
         font-size: 14px;
@@ -215,34 +230,34 @@ async function createVotingPostHtml () {
   
   // eslint=disable-next-line no-console
   console.log("Loading posts")
-  const initialPosts = await Posts.find({
+  const posts = await Posts.find({
     postedAt: {
       $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
       $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
     }, 
-    finalReviewVoteScoreAllKarma: {$gte: 1}
+    finalReviewVoteScoreAllKarma: {$gte: 1},
+    reviewCount: {$gte: 1},
+    positiveReviewVoteCount: {$gte: 1}
   }).fetch()
-
+  
   // we weight the high karma user's votes 3x higher than baseline
-  const sortedPosts = initialPosts.sort(post => post.reviewVoteScoreHighKarma*3 + (post.reviewVoteScoreAllKarma - post.reviewVoteScoreHighKarma))
+  posts.sort((post1, post2) => {
+    const score1 = post1.finalReviewVoteScoreHighKarma*2 + post1.finalReviewVoteScoreAllKarma
+    const score2 = post2.finalReviewVoteScoreHighKarma*2 + post2.finalReviewVoteScoreAllKarma
+    return score2 - score1
+  })
 
-  const userIds = [...new Set(sortedPosts.map(post => post.userId))]
+  const userIds = [...new Set(posts.map(post => post.userId))]
   
   // eslint=disable-next-line no-console
-  console.log("Loading users", userIds)
   const users = await Users.find({_id: {$in:userIds}}).fetch()
-  console.log(users.map(user => ({
-    _id: user._id,
-    slug: user.slug,
-    displayName: user.displayName
-  })))
 
   const getDot = (vote) => {
-    const size = Math.max(vote*2, 3)
+    const size = Math.max(Math.abs(vote)*1.5, 3)
     const color = vote > 0 ? '#5f9b65' : '#bf360c'
     return `<span title='${vote}' class="dot" style="width:${size}px; height:${size}px; background:${color}"></span>`
   }
-  const postsHtml = sortedPosts.map((post, i) => {
+  const postsHtml = posts.map((post, i) => {
     return `<tr>
       <td class="item-count">${i}</td>
       <td>
@@ -251,7 +266,7 @@ async function createVotingPostHtml () {
       </td>
       <td>
         <div class="dots-row">
-          ${post.finalReviewVotesAllKarma.sort(vote => vote).map(vote => getDot(vote)).join("")}
+          ${post.finalReviewVotesAllKarma.sort((v1, v2) => v2-v1).map(vote => getDot(vote)).join("")}
         </div>
       </td>
     </tr>`
