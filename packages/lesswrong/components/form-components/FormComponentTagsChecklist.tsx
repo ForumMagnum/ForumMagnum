@@ -36,8 +36,8 @@ const FormComponentTagsChecklist = ({
 
   const { Loading, TagsChecklist } = Components;
 
-  // TODO; ideally would not be hard-coded to be dependent on only being show on
-  // shortform comments
+  // TODO: Currently this component is only used in the comment form. Other than
+  // this line, and the line about truncate below, it is fully general, however.
   if (!document.shortform) {
     return null;
   }

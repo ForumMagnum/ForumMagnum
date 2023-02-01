@@ -53,7 +53,6 @@ const CommentWithReplies = ({
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,
-    // TODO: There will be absolutely no unintended consequences from this
     post: post ?? comment.post ?? undefined,
     noHash: true,
     ...(commentNodeProps?.treeOptions || {}),

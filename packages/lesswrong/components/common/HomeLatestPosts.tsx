@@ -156,6 +156,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
+            {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
+                opt-out of their shortform posts being shown on the frontpage */}
             {/* {isEAForum && !!currentUser?.profileTagIds?.length && (
               <CommentsListCondensed
                 label={"Shortform discussion"}
