@@ -721,6 +721,7 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly status: string,
   readonly rawFeed: any /*{"definitions":[{}]}*/,
   readonly setCanonicalUrl: boolean,
+  readonly importAsDraft: boolean,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
