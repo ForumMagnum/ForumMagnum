@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { forumTypeSetting } from "./instanceSettings"
+import { forumTypeSetting, isLW } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
@@ -41,7 +41,10 @@ const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTIN
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
-  return "RESULTS"
+  if (isLW) {
+    return "RESULTS"
+  }
+
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
