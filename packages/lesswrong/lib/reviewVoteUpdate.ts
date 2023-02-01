@@ -35,7 +35,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   let postsAFUsers = {}
 
   for (let userId of Object.keys(votesByUserId)) {
-    let totalUserPoints = 0 
     // eslint-disable-next-line no-console
     console.log(userId)
     const user = usersByUserId[userId][0]
@@ -66,7 +65,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
     console.log("Updating vote totals for All Users")
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
-    // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
 
     if (votePhase === 'nominationVote') {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
@@ -202,8 +200,6 @@ export async function createVotingPostHtml () {
         margin-left:auto;
         padding-top:8px;
         padding-bottom:8px;
-        flex-wrap: wrap;
-        max-width:200px
       }
       .votingResultsPost .post-author  {
         font-size: 14px;
@@ -225,7 +221,7 @@ export async function createVotingPostHtml () {
   `
 
   
-  // eslint=disable-next-line no-console
+  // eslint-disable-next-line no-console
   console.log("Loading posts")
   const posts = await Posts.find({
     postedAt: {
@@ -239,8 +235,8 @@ export async function createVotingPostHtml () {
   
   // we weight the high karma user's votes 3x higher than baseline
   posts.sort((post1, post2) => {
-    const score1 = post1.finalReviewVoteScoreHighKarma*2 + post1.finalReviewVoteScoreAllKarma
-    const score2 = post2.finalReviewVoteScoreHighKarma*2 + post2.finalReviewVoteScoreAllKarma
+    const score1 = (post1.finalReviewVoteScoreHighKarma*2) + post1.finalReviewVoteScoreAllKarma
+    const score2 = (post2.finalReviewVoteScoreHighKarma*2) + post2.finalReviewVoteScoreAllKarma
     return score2 - score1
   })
 
