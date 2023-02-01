@@ -12,12 +12,12 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
-const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
+export const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
+export const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+export const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
+export const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
+export const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
+export const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
