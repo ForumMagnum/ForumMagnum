@@ -188,11 +188,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   relevantTags: {
     marginLeft: 12,
     position: "relative",
-    top: 2,
+    top: -2,
+  },
+  relevantTag: {
+    marginTop: 4,
   },
   showMoreTags: {
     position: "relative",
-    top: -1,
+    top: 1,
     color: theme.palette.grey[500],
     fontSize: 12,
     marginLeft: 8,
@@ -502,7 +505,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
                 {relevantTagsTruncated.map(tag =>
-                  <FooterTag tag={tag} key={tag._id} smallText />
+                  <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} />
                 )}
                 {shouldDisplayLoadMore && <LoadMore
                   loadMore={() => setShowMoreClicked(true)}
