@@ -51,8 +51,6 @@
         margin-left:auto;
         padding-top:8px;
         padding-bottom:8px;
-        flex-wrap: wrap;
-        max-width:200px
       }
       .votingResultsPost .post-author  {
         font-size: 14px;
