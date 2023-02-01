@@ -15,16 +15,34 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     defaultStyle: true,
     flexStyle: true,
   },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
+  coauthors: {
+    order: 21,
+    name: "coauthors",
+    label: "Coauthors"
   },
   event: {
     name: "event details",
     order: 21,
     label: "Event Details"
+  },
+  // Tags go here on EA Forum
+  socialPreview: {
+    name: "socialPreview",
+    order: 23,
+    label: "Edit Link Preview",
+    startCollapsed: !isEAForum,
+  },
+  highlight: {
+    order: 24,
+    name: "highlight",
+    label: "Highlight",
+    startCollapsed: true,
+  },
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
   },
   moderationGroup: {
     order: 60,
@@ -58,22 +76,11 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Options",
     startCollapsed: true,
   },
-  highlight: {
-    order: 23,
-    name: "highlight",
-    label: "Highlight",
-    startCollapsed: true,
-  },
   audio: {
     order: 50,
     name: "audio",
     label: "Audio",
     startCollapsed: true
-  },
-  coauthors: {
-    order: 21,
-    name: "coauthors",
-    label: "Coauthors"
   },
   tags: {
     order: isEAForum ? 22 : 60,
