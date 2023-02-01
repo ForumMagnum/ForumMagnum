@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -153,7 +152,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  const { MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+  const {
+    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
+    UsersName, NewUserDMSummary
+  } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
@@ -249,6 +252,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
+          <NewUserDMSummary user={user} />
           <div 
             className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
@@ -279,5 +283,3 @@ declare global {
     UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
-
-

@@ -484,6 +484,7 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
+importComponent("NewUserDMSummary", () => require('../components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary'));
 importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
 importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
@@ -586,6 +587,7 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
+importComponent("TagNotificationSettings", () => require('../components/tagging/TagNotificationSettings'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
@@ -597,7 +599,6 @@ importComponent("SubscribeButton", () => require('../components/tagging/Subscrib
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
 importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
-importComponent("SubforumNotificationSettings", () => require('../components/tagging/subforums/SubforumNotificationSettings'));
 importComponent("SubforumListSettings", () => require('../components/tagging/subforums/SubforumListSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
@@ -658,6 +659,8 @@ importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIn
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
+importComponent("ImageUpload2", () => require('../components/form-components/ImageUpload2')); // TODO maybe combine this with the original
+importComponent("SocialPreviewUpload", () => require('../components/form-components/SocialPreviewUpload'));
 importComponent("FMCrosspostControl", () => require('../components/form-components/FMCrosspostControl'));
 importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
 importComponent("FormComponentPostEditorTagging", () => require('../components/form-components/FormComponentPostEditorTagging'));

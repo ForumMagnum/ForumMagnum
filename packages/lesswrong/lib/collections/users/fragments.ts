@@ -289,6 +289,7 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    usersContactedBeforeReview
     associatedClientId {
       firstSeenReferrer
       firstSeenLandingPage
