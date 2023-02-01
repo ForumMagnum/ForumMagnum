@@ -1,5 +1,5 @@
 import cheerio from 'cheerio';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
@@ -251,7 +251,7 @@ async function getTocAnswers (document: DbPost) {
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
+    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
     
     return {
       title: `${answer.baseScore} ${answer.author}`,

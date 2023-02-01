@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
@@ -23,6 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     zIndex: theme.zIndexes.editorPresenceList,
     
+    // Workaround for duplicate presence list bug, see comment on useEffect below
+    "& .ck-presence-list:nth-child(n+2)": {
+      display: 'none'
+    },
+
     "& .ck-presence-list": {
       marginBottom: "0 !important",
       alignItems: "center !important",
@@ -90,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
 
 const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setCollaborationMode, classes}: {
-  presenceListRef: any,
+  presenceListRef: RefObject<HTMLDivElement>,
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode)=>void,
@@ -98,6 +103,26 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
 }) => {
   const { LWTooltip } = Components
   const currentUser = useCurrentUser();
+
+  /**
+   * This is a workaround for a bug resulting from the PresenceList and TrackChangesData plugins.
+   * When getDataWithDiscardedSuggestions is called in Editor.tsx (called via throttledSetContentsValue)
+   * it results in a new presence list being added with "0 connected users". I have no idea why this happens,
+   * and both the plugins are closed source so it will be very hard to work out. This workaround removes all
+   * but the first presence list, which is the one that actually contains the correct data. Any others that
+   * are created temporarily are also hidden by the "& .ck-presence-list:nth-child(n+2)" selector above.
+   */
+  const presenceListChildren = presenceListRef.current?.querySelectorAll(".ck-presence-list");
+  useEffect(() => {
+    // remove all but the first presence list
+    if (!presenceListChildren) return;
+
+    const [_, ...otherChildren] = Array.from(presenceListChildren);
+    for (let child of otherChildren) {
+      child.remove();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presenceListChildren?.length])
   
   const isAdmin = !!currentUser && currentUser.isAdmin;
   const canComment = accessLevelCan(accessLevel, "comment") || isAdmin;

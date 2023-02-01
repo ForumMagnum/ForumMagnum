@@ -373,7 +373,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           dataWithDiscardedSuggestions = await ckEditorReference.plugins.get( 'TrackChangesData' ).getDataWithDiscardedSuggestions()
         }
         break
-    } 
+    }
 
     return {
       originalContents: {type, data},
