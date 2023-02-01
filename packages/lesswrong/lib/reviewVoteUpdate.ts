@@ -4,9 +4,7 @@ import { getCostData, REVIEW_YEAR } from "./reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "./collections/posts/helpers";
-import { Vulcan } from "./vulcan-lib";
 import moment from "moment";
-// import Dictionary from "lodash/Dictionary";  //TODO figure out whether/how to import this
 
 export interface Dictionary<T> {
   [index: string]: T;

@@ -77,7 +77,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   });
   
   return <div className={classes.root}>
-    <Link className={classes.imageWrapper} to="/posts/y2qydZosrttzgm65H/prizes-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
+    <Link className={classes.imageWrapper} to="/posts/zajNa9fdr8JYJpxrG/voting-results-for-the-2021-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title={`Best of LessWrong ${reviewYear}`}>
       </SectionTitle></div>
