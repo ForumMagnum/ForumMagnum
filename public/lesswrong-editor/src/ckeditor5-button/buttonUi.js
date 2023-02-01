@@ -1,6 +1,7 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { INSERT_BUTTON_COMMAND, TOOLBAR_COMPONENT_NAME } from './constants';
+import footnoteIcon from './theme/icon.svg';
 
 export default class ButtonUI extends Plugin {
 	init() {
@@ -15,7 +16,8 @@ export default class ButtonUI extends Plugin {
 
             button.set( {
                 label: translate( 'Insert Button' ),
-                withText: true
+				icon: footnoteIcon,
+                withText: true,
             } );
 
 			button.on('execute', () => {
@@ -24,5 +26,5 @@ export default class ButtonUI extends Plugin {
 
             return button;
 		} );
-
 	}
+}

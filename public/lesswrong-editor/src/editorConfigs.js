@@ -86,7 +86,8 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote'
+		'footnote',
+		'customButton',
 	],
 	toolbar: {
 		items: [
@@ -108,6 +109,7 @@ export const postEditorConfig = {
 			'trackChanges',
 			'math',
 			'footnote',
+			'button',
 		],
 		shouldNotGroupWhenFull: true,
 	},
