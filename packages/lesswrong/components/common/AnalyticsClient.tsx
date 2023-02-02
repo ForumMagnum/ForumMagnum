@@ -37,7 +37,7 @@ export const AnalyticsClient = () => {
     return function cleanup() {
       AnalyticsUtil.clientWriteEvents = null;
     }
-  }, [flushEvents, currentUserId, clientId]);
+  }, [flushEvents, currentUserId, clientId, currentUser]);
   
   return <div/>;
 }
