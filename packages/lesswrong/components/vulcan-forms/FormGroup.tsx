@@ -6,6 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { withLocation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -47,9 +48,10 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
 export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
-    border: theme.palette.border.grey400,
+    border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.panelBackground.default,
+    ...(isEAForum ? {borderRadius: 8} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
@@ -59,10 +61,6 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSectionPadding: {
     paddingRight: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
-    },
   },
   formSectionCollapsed: {
     display: "none",

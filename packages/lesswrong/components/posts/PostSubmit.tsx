@@ -9,24 +9,17 @@ import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  formSubmit: {
-    display: "flex",
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-  },
   formButton: {
-    paddingBottom: 4,
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
     marginLeft: 5,
-    fontWeight: 500,
-    "&:hover": {
-      background: theme.palette.buttons.hoverGrayHighlight,
-    }
+    textTransform: 'none',
+    fontWeight: 400,
   },
 
   secondaryButton: {
-    color: theme.palette.text.dim40,
+    color: theme.palette.grey[680],
+    padding: '8px 12px'
   },
 
   submitButtons: {
@@ -34,13 +27,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   submitButton: {
-    color: theme.palette.secondary.main,
+    boxShadow: 'none',
+    marginLeft: 10,
   },
   cancelButton: {
-    flexGrow:1,
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
   },
   draft: {
   },
@@ -125,7 +115,8 @@ const PostSubmit = ({
           type="submit"
           onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          variant={collectionName=="users" ? "outlined" : undefined}
+          variant="contained"
+          color="primary"
         >
           {submitLabel}
         </Button>

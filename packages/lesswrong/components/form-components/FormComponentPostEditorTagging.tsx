@@ -8,8 +8,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 8,
-    paddingRight: 8,
   },
   header: {
     marginTop: 6,
