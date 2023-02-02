@@ -77,7 +77,17 @@ const schema: SchemaType<DbRSSFeed> = {
     control: "checkbox",
     label: "Set the canonical url tag on crossposted posts",
     ...schemaDefaultValue(false)
-  }
+  },
+  importAsDraft: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['admins'],
+    optional: true,
+    control: "checkbox",
+    label: "Import posts as draft",
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

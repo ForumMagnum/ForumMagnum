@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "6160c19ca09dee969cc8439590073f60";
+export const acceptsSchemaHash = "5ef454edd738e81560411f4eb688ceff";
 
 export const up = async (_: MigrationContext) => {
   /*
