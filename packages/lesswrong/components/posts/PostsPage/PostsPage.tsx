@@ -145,8 +145,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
-const PostsPage = ({post, refetch, classes}: {
+const PostsPage = ({post, hidePostKarma=false, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  hidePostKarma?: boolean,
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
@@ -300,7 +301,11 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader
+          post={post}
+          hidePostKarma={hidePostKarma}
+          answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+        />
         </div>
       </div>
     </AnalyticsContext>
@@ -342,7 +347,10 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>
 
-        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+        <PostsPagePostFooter
+          post={post} sequenceId={sequenceId}
+          hidePostKarma={hidePostKarma}
+        />
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >

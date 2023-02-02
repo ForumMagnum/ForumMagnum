@@ -50,9 +50,10 @@ defineMutation({
       // TODO: If not logged in, use clientId
       return true;
     }
+    const clientId = ""; //TODO
     const userId = currentUser._id;
     
-    await ensureEngagementExists({ userId, postId });
+    await ensureEngagementExists({ userId, clientId, postId });
     await UserPostEngagements.rawUpdateOne(
       {postId, userId},
       {$inc: {readingTimeMS: timeSpentMS}},
@@ -71,6 +72,18 @@ defineMutation({
  * it's presumed to be direct traffic (not attributed to any recommendation).
  * 
  */
-async function ensureEngagementExists({userId, postId}: {userId: string, postId: string}) {
-  // TODO
+async function ensureEngagementExists({userId, clientId, postId}: {userId: string, clientId: string, postId: string}) {
+  const existingEngagement = await UserPostEngagements.findOne({
+    userId, postId,
+  });
+  if (!existingEngagement) {
+    await createMutator({
+      collection: UserPostEngagements,
+      document: {
+        postId, userId, clientId,
+        referralType: "unknown",
+        referralRecommendation: undefined,
+      },
+    })
+  }
 }

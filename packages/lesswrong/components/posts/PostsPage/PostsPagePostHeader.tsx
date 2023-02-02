@@ -141,12 +141,13 @@ const getResponseCounts = (
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, hidePostKarma, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
+  hidePostKarma?: boolean,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
@@ -242,7 +243,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
-        <PostsVote post={post} />
+        <PostsVote post={post} hideKarma={hidePostKarma} />
       </div>}
     </div>
     {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">

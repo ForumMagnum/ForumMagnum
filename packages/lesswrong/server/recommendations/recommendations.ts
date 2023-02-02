@@ -60,6 +60,39 @@ const pipelineFilterUnread = ({currentUser}: {
   ];
 }
 
+// Retruns part of a mongodb aggregate pipeline which will join against
+// ReadStatuses and filter to only posts which are marked as read. Conceptually
+// the opposite of pipelineFilterUnread.
+const pipelineFilterOnlyRead = ({currentUser}: {
+  currentUser: DbUser|null
+}) => {
+  if (!currentUser)
+    return [];
+
+  return [
+    { $lookup: {
+      from: "readstatuses",
+      let: { documentId: "$_id", },
+      pipeline: [
+        { $match: {
+          userId: currentUser._id,
+        } },
+        { $match: { $expr: {
+          $and: [
+            {$eq: ["$postId", "$$documentId"]},
+          ]
+        } } },
+        { $limit: 1},
+      ],
+      as: "views",
+    } },
+
+    { $match: {
+      "views": {$size:1}
+    } },
+  ];
+}
+
 // Given an algorithm with a set of inclusion criteria, return a mongoDB
 // selector that only allows the included posts
 //
@@ -196,6 +229,9 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
       // If onlyUnread, filter to just unread posts
       ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
+      // If onlyRead, filter to just already-read
+      ...(algorithm.onlyRead ? pipelineFilterOnlyRead({currentUser}) : []),
+
       // Project out fields other than _id and scoreRelevantFields
       { $project: scoreRelevantFields },
     ]).toArray();
@@ -275,7 +311,7 @@ const getModifierName = (post: DbPost) => {
   return 'personalBlogpostModifier'
 }
 
-const getRecommendedPosts = async ({count, algorithm, currentUser}: {
+export const getRecommendedPosts = async ({count, algorithm, currentUser}: {
   count: number,
   algorithm: RecommendationsAlgorithm,
   currentUser: DbUser|null

@@ -37,9 +37,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooter = ({post, sequenceId, hidePostKarma, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   sequenceId: string,
+  hidePostKarma?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -56,7 +57,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} />
+            <PostsVote post={post} hideKarma={hidePostKarma} />
           </AnalyticsContext>
         </div>
       </div>}

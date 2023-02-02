@@ -184,6 +184,8 @@ import './collections/votes';
 // Recommendations and engagement tracking
 import './collections/recommendationLogs/collection'
 import './collections/userPostEngagements/collection'
+import './collections/userPostEngagements/views'
+import './collections/userPostEngagements/fragments'
 
 // Spotlights
 import './collections/spotlights/collection';

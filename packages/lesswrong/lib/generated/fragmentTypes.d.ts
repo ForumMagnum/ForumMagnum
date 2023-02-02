@@ -2774,6 +2774,14 @@ interface RecommendationLogsDefaultFragment { // fragment on RecommendationLogs
   readonly userId: string,
 }
 
+interface ReadingRetrospectivePostEngagement { // fragment on UserPostEngagements
+  readonly _id: string,
+  readonly userId: string,
+  readonly referralType: any /*{"definitions":[{"type":"String"}]}*/,
+  readonly readingTimeMS: number,
+  readonly lastInteractedAt: Date,
+}
+
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
@@ -3059,6 +3067,7 @@ interface FragmentTypes {
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
   RecommendationLogsDefaultFragment: RecommendationLogsDefaultFragment
+  ReadingRetrospectivePostEngagement: ReadingRetrospectivePostEngagement
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
@@ -3240,6 +3249,7 @@ interface CollectionNamesByFragmentName {
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
   RecommendationLogsDefaultFragment: "RecommendationLogs"
+  ReadingRetrospectivePostEngagement: "UserPostEngagements"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"

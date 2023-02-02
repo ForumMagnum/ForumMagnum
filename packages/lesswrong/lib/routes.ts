@@ -1343,6 +1343,18 @@ addRoute(
     title: "Recommendations",
   },
   {
+    name: 'Retrospective',
+    path: '/recommendations/retrospective',
+    componentName: 'ReadingRetrospective',
+    title: "Reading Retrospective",
+  },
+  {
+    name: 'HeadToHead',
+    path: '/recommendations/headToHead',
+    componentName: 'HeadToHeadPostComparisonPage',
+    title: "Head to Head Post Coparison",
+  },
+  {
     name: 'emailToken',
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',

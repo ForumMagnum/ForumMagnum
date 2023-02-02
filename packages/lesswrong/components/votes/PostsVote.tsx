@@ -44,8 +44,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsVote = ({ post, classes }: {
+const PostsVote = ({ post, hideKarma, classes }: {
   post: PostsWithVotes,
+  hideKarma?: boolean,
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
@@ -75,7 +76,7 @@ const PostsVote = ({ post, classes }: {
           >
             <div> 
               {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
-              <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+              <Typography variant="headline" className={classes.voteScore}>{hideKarma ? "" : `${voteProps.baseScore}`}</Typography>
             </div>
           </Tooltip>
 
@@ -88,7 +89,7 @@ const PostsVote = ({ post, classes }: {
               <Typography
                 variant="headline"
                 className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-                Ω {post.afBaseScore}
+                Ω {hideKarma ? "" : `${post.afBaseScore}`}
               </Typography>
             </Tooltip>
           }

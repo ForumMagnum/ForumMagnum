@@ -18,6 +18,7 @@ export interface RecommendationsAlgorithm {
   minimumBaseScore?: number
   excludeDefaultRecommendations?: boolean
   onlyUnread?: boolean
+  onlyRead?: boolean,
   lwRationalityOnly?: boolean,
 
   curatedModifier?: number
@@ -41,6 +42,7 @@ export const defaultAlgorithmSettings: RecommendationsAlgorithm = {
   frontpageModifier: 10,
   curatedModifier: 50,
   onlyUnread: true,
+  onlyRead: false,
 };
 
 const recommendationAlgorithmSettingsSchema = new SimpleSchema({

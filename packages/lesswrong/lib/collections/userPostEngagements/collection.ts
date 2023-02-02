@@ -61,6 +61,7 @@ addUniversalFields({collection: UserPostEngagements})
 
 ensureIndex(UserPostEngagements, {postId:1, userId:1, clientId:1, _id:1});
 ensureIndex(UserPostEngagements, {userId:1, postId:1, _id:1});
+ensureIndex(UserPostEngagements, {userId:1, lastInteractedAt:-1, _id:1});
 ensureIndex(UserPostEngagements, {clientId:1, postId:1, _id:1});
 
 export default UserPostEngagements;

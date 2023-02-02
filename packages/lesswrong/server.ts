@@ -143,6 +143,7 @@ import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
+import './server/resolvers/headToHeadComparisonResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

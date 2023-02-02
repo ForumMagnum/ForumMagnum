@@ -733,13 +733,14 @@ importComponent("RelatedQuestionsList", () => require('../components/questions/R
 
 importComponent("ConfigurableRecommendationsList", () => require('../components/recommendations/ConfigurableRecommendationsList'));
 importComponent("ContinueReadingList", () => require('../components/recommendations/ContinueReadingList'));
-importComponent("ReadingHistoryPage", () => require('../components/recommendations/ReadingHistoryPage'));
+importComponent("HeadToHeadPostComparisonPage", () => require('../components/recommendations2/HeadToHeadPostComparisonPage'));
 importComponent("RecommendationsAlgorithmPicker", () => require('../components/recommendations/RecommendationsAlgorithmPicker'));
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("ReadingRetrospective", () => require('../components/recommendations2/ReadingRetrospective'));
 importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
