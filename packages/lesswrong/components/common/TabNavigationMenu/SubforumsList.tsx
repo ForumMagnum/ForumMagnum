@@ -37,8 +37,9 @@ const styles = ((theme: ThemeType): JssStyles => ({
 const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }) => {
+  // TODO forum gate
   const { results } = useMulti({
-    terms: {view: 'currentUserSubforums'},
+    terms: {view: 'coreTags'}, // TODO: not sure about this
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
@@ -80,7 +81,6 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Subforums</div>
           {initialResults.map((subforum) => getListItem(subforum))}
           {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (

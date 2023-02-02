@@ -252,7 +252,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get() + " Wiki",
+      title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,

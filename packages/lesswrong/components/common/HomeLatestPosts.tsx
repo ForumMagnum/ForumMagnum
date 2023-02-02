@@ -158,7 +158,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </AllowHidingFrontPagePostsContext.Provider>
             {isEAForum && !!currentUser?.profileTagIds?.length && (
               <CommentsListCondensed
-                label={"Discussion from your subforums"}
+                label={"Discussions"}
                 contentType="frontpageSubforumDiscussion"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}

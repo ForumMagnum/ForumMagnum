@@ -43,8 +43,9 @@ export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
+//, TODO
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${tagUrlBase}/${tag.slug}?tab=subforum`
+  const suffix = `/${tagUrlBase}/${tag.slug}?tab=posts`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 

@@ -223,6 +223,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       linkTarget: '/tags/all',
     },
     frontpageSubforumDiscussion: {
+      //, TODO merge with JP's PR
       tooltipTitle: 'Subforum Discussion',
       tooltipBody: 'Discussion comments on subforums that you are a member of',
       Icon: QuestionAnswerIcon,
