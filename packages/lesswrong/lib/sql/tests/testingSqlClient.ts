@@ -156,7 +156,8 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
-  olderThan = new Date(olderThan ?? Date.now() - 1000 * 60 * 60 * 24);
+  const secondsPerDay = 1000 * 60 * 60 * 24;
+  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
   for (const database of databases) {
     const {datname} = database;
     // TODO: validate is date-based name
