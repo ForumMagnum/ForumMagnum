@@ -59,7 +59,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.background.primaryDim2,
+    backgroundColor: theme.palette.background.primaryDim,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -140,7 +140,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
    * @returns {number}
    */
  export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
-  const toRad = (num) => num * Math.PI / 180
+  const toRad = (num: number) => num * Math.PI / 180
   
   const dLat = toRad(end.lat - start.lat)
   const dLng = toRad(end.lng - start.lng)
@@ -151,7 +151,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }
 
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim2");
+const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,

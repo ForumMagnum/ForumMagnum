@@ -11,7 +11,7 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { LocalEvent, localEvents } from './acxEvents';
 
-const styles = theme => ({
+const styles = (theme: JssStyles) => ({
   root: {
     width: "100%",
     height: 440,

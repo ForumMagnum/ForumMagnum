@@ -181,7 +181,11 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
     limit: 40
   });
 
-  const { MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, ModeratorActions } = Components
+  const {
+    MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip,
+    Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount,
+    ModeratorActions, NewUserDMSummary
+  } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
@@ -235,6 +239,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
               </LWTooltip>
             </div>
             <ContentSummaryRows user={user} posts={posts} comments={comments} loading={postsLoading || commentsLoading}/>
+            <NewUserDMSummary user={user} />
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </MetaInfo>
@@ -255,5 +260,3 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
-
-

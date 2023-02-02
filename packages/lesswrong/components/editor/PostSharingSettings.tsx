@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { ckEditorName } from './Editor';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -63,7 +64,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   path: string,
   label: string,
   classes: ClassesType
-}, context) => {
+}, context: any) => {
   const {updateCurrentValues, submitForm} = context;
   const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();
@@ -91,7 +92,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       flash("Edit the document first to enable sharing");
       return;
     } else if(editorType !== "ckEditorMarkup") {
-      flash("Change the editor type to LessWrong Docs to enable sharing");
+      flash(`Change the editor type to ${ckEditorName} to enable sharing`);
       return;
     }
     
@@ -99,7 +100,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       componentName: "PostSharingSettingsDialog",
       componentProps: {
         postId: document._id,
-        linkSharingKey: document.linkSharingKey,
+        linkSharingKey: document.linkSharingKey ?? undefined,
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
@@ -145,7 +146,8 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
 
 const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
   postId: string,
-  linkSharingKey: string,
+  // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
+  linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
   onClose: ()=>void,

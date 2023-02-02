@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 
 export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
@@ -124,8 +125,8 @@ const applyCutoff = <SortKeyType>(
   sortDirection: SortDirection,
 ) => {
   const cutoffFilter = sortDirection === "asc"
-    ? ({sortKey}) => sortKey > cutoff
-    : ({sortKey}) => sortKey < cutoff;
+    ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
+    : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
   return _.filter(sortedResults, cutoffFilter);
 }
 
@@ -230,7 +231,7 @@ async function queryWithCutoff<ResultType extends DbObject>({
   cutoff: any,
   sortDirection: SortDirection,
 }) {
-  const defaultViewSelector = collection.defaultView ? collection.defaultView({} as any).selector : {};
+  const collectionName = collection.collectionName;
   const {currentUser} = context;
 
   const sort = {[cutoffField]: sortDirection === "asc" ? 1 : -1, _id: 1};
@@ -238,7 +239,7 @@ async function queryWithCutoff<ResultType extends DbObject>({
     ? {[cutoffField]: {[sortDirection === "asc" ? "$gt" : "$lt"]: cutoff}}
     : {};
   const resultsRaw = await collection.find({
-    ...defaultViewSelector,
+    ...getDefaultViewSelector(collectionName),
     ...selector,
     ...cutoffSelector,
   }, {

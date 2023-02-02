@@ -12,6 +12,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import SelectQuery from "../../lib/sql/SelectQuery";
 import { randomId } from '../../lib/random';
 import RecommendationLogs from '../../lib/collections/recommendationLogs/collection';
+import { getPositiveVoteThreshold } from '../../lib/reviewUtils';
+import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -76,11 +78,12 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       question: true
     }
   }
+  // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
     if (isEAForum) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
       }
     }
     return {
@@ -88,7 +91,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
         $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
       },
-      positiveReviewVoteCount: {$gte: 1},
+      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},
     }
   }
   if (algorithm.lwRationalityOnly) {
@@ -135,7 +138,7 @@ const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
   const recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...Posts.getParameters({}).selector,
+    ...getDefaultViewSelector("Posts"),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -167,10 +170,18 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
     const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
       : undefined;
     const query = new SelectQuery(
-      new SelectQuery(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+      new SelectQuery(
+        new SelectQuery(
+          Posts.getTable(),
+          {},
+          {},
+          {joinHook},
+        ),
+        recommendablePostFilter(algorithm),
+      ),
       {},
       {projection: scoreRelevantFields},
     );

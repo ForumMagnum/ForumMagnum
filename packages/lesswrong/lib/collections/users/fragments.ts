@@ -110,6 +110,7 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -191,6 +192,12 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
   }
 `);
 
@@ -282,6 +289,7 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    usersContactedBeforeReview
     associatedClientId {
       firstSeenReferrer
       firstSeenLandingPage
@@ -375,6 +383,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -405,6 +416,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

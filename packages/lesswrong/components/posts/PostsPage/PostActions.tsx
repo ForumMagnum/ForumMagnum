@@ -22,6 +22,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { userHasAutosummarize } from '../../../lib/betas';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
@@ -157,10 +158,17 @@ const PostActions = ({post, closeMenu, classes}: {
     })
   }
 
+  // TODO refactor this so it shares code with ModeratorActions and doens't get out of sync
   const handleApproveUser = async () => {
     await updateUser({
       selector: {_id: post.userId},
-      data: {reviewedByUserId: currentUser?._id}
+      data: {
+        reviewedByUserId: currentUser?._id, 
+        sunshineFlagged: false,
+        reviewedAt: new Date(),
+        needsReview: false,
+        snoozedUntilContentCount: null
+      }
     })
   }
 
@@ -213,6 +221,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
+        {editLink}
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -221,7 +230,6 @@ const PostActions = ({post, closeMenu, classes}: {
             Duplicate Event
           </MenuItem>
         </Link>}
-        {editLink}
         { forumTypeSetting.get() === 'EAForum' && canUserEditPostMetadata(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
@@ -275,6 +283,10 @@ const PostActions = ({post, closeMenu, classes}: {
             Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
+        
+        {userHasAutosummarize(currentUser)
+          && <Components.PostSummaryAction closeMenu={closeMenu} post={post}/>}
+        
         { isRead
           ? <div onClick={handleMarkAsUnread}>
               <MenuItem>

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -15,18 +15,16 @@ import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
-import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
-import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
-import { getSqlClientOrThrow } from '../../sql/sqlClient';
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -130,6 +128,10 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     // so just subtract one
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
+
+const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+  isCrosspost: false,
+})
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -568,25 +570,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser } = context;
+      const { Posts, currentUser, repos } = context;
       let postRelations: DbPostRelation[] = [];
       if (Posts.isPostgres()) {
-        const sql = getSqlClientOrThrow();
-        postRelations = await sql.any(`
-          WITH RECURSIVE search_tree(
-            "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
-          ) AS (
-            SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
-            FROM "PostRelations"
-            WHERE "sourcePostId" = $1
-            UNION
-            SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
-              source."order", source."schemaVersion", target.depth + 1 AS depth
-            FROM "PostRelations" source
-            JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
-          )
-          SELECT * FROM search_tree;
-        `, [post._id]);
+        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       } else {
         postRelations = await Posts.aggregate([
           { $match: { _id: post._id }},
@@ -889,7 +876,8 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     optional: true,
     insertableBy: ['members'],
-    editableBy: [],
+    // This must be set to editable to allow the data to be sent from the edit form, but in practice it's always overwritten by updatePostDenormalizedTags
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     viewableBy: ['guests'],
     
     blackbox: true,
@@ -1059,10 +1047,15 @@ const schema: SchemaType<DbPost> = {
   myEditorAccess: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
+      // Since the post at this point is already filtered by fields that this user has access, we have to grab
+      // an unfiltered version of the post from cache
+      const unfilteredPost = await context.loaders["Posts"].load(post._id)
       return getCollaborativeEditorAccess({
         formType: "edit",
-        post, user: context.currentUser,
+        post: unfilteredPost, user: context.currentUser,
+        context, 
         useAdminPowers: false,
       });
     }
@@ -1316,10 +1309,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Social Preview Image",
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    control: "ImageUpload",
-    group: formGroups.advancedOptions,
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
+    hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1353,9 +1347,27 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.advancedOptions,
     order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
-    ...schemaDefaultValue({
-      isCrosspost: false,
-    }),
+    ...schemaDefaultValueFmCrosspost,
+    // Users aren't allowed to directly select the foreignPostId of a crosspost
+    onCreate: (args) => {
+      const { document, context } = args;
+      // If we're handling a request from our peer site, then we have just set
+      // the foreignPostId ourselves
+      if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
+        throw new Error("Cannot set the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onCreate?.(args);
+    },
+    onUpdate: (args) => {
+      const { data, oldDocument } = args;
+      if (
+        data.fmCrosspost?.foreignPostId &&
+        data.fmCrosspost.foreignPostId !== oldDocument.fmCrosspost?.foreignPostId
+      ) {
+        throw new Error("Cannot change the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onUpdate?.(args);
+    },
   },
 
   canonicalSequenceId: {
@@ -2116,7 +2128,7 @@ const schema: SchemaType<DbPost> = {
   sharingSettings: {
     type: Object,
     order: 15,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: ['guests'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
@@ -2147,9 +2159,10 @@ const schema: SchemaType<DbPost> = {
   // of a post. Only populated if some form of link sharing is (or has been) enabled.
   linkSharingKey: {
     type: String,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: [userOwns, 'admins'],
     editableBy: ['admins'],
     optional: true,
+    nullable: true,
     hidden: true,
   },
 
@@ -2340,7 +2353,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         postId: post._id,
         score: {$gt:0},
         deletedPublic: false,
@@ -2356,6 +2369,14 @@ const schema: SchemaType<DbPost> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+  
+  languageModelSummary: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['admins'],
+    // Implementation in postSummaryResolver.ts
   },
 };
 

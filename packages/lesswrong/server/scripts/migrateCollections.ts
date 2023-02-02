@@ -29,6 +29,32 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     }
     return post;
   },
+  Chapters: (chapter: DbChapter): DbChapter => {
+    chapter.postIds ??= [];
+    return chapter;
+  },
+  Migrations: (migration: DbMigration): DbMigration => {
+    migration.finished ??= false;
+    migration.succeeded ??= false;
+    return migration;
+  },
+  Users: (user: DbUser): DbUser => {
+    user.isAdmin = !!user.isAdmin;
+    if (user.legacyData) {
+      for (const field in user.legacyData) {
+        const value = user.legacyData[field];
+        if (typeof value === "string") {
+          user.legacyData[field] = value.replace("\0", "");
+        }
+      }
+    }
+    user.emails = user.emails?.map((email) => {
+      return typeof email === "string"
+        ? { address: email, verified: false }
+        : email;
+    });
+    return user;
+  }
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
@@ -102,10 +128,14 @@ const pickBatchSize = (collection: SwitchingCollection<DbObject>) => {
   return Math.floor(max / numFields);
 }
 
-const makeBatchFilter = (createdSince?: Date) =>
-  createdSince
-    ? { createdAt: { $gte: createdSince } }
-    : {};
+const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
+  if (!createdSince) {
+    return {};
+  }
+  return collectionName === "cronHistory"
+    ? { startedAt: { $gte: createdSince } }
+    : { createdAt: { $gte: createdSince } };
+}
 
 const copyData = async (
   sql: Transaction,
@@ -125,7 +155,7 @@ const copyData = async (
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      filter: makeBatchFilter(createdSince),
+      filter: makeBatchFilter(collection.getMongoCollection().collectionName, createdSince),
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
@@ -135,6 +165,8 @@ const copyData = async (
         try {
           await sql.none(compiled.sql, compiled.args);
         } catch (e) {
+          console.log(documents);
+          console.error(e);
           throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
         }
       },

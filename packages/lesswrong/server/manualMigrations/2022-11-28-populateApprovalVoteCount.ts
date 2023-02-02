@@ -1,7 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
 import { Comments } from "../../lib/collections/comments/collection";
 import { Votes } from "../../lib/collections/votes/collection";
-import { convertImagesInPost } from "../scripts/convertImagesToCloudinary";
 
 registerMigration({
   name: "populateApprovalVoteCount",

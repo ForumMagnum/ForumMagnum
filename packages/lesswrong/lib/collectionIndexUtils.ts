@@ -1,10 +1,16 @@
 import * as _ from 'underscore';
-import { isServer, isAnyTest } from './executionEnvironment';
+import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
+import { disableEnsureIndexSetting } from './instanceSettings';
 
 export type IndexDefinition = {
   key: Record<string, 1>,
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,
+  name?: string,
+  collation?: {
+    locale: string,
+    strength: number,
+  },
 }
 
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<IndexDefinition>>> = {};
@@ -49,16 +55,15 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
   if (!expectedIndexes[collection.collectionName])
     expectedIndexes[collection.collectionName] = [];
   expectedIndexes[collection.collectionName]!.push({
+    ...options,
     key: index,
-    partialFilterExpression: options.partialFilterExpression,
-    unique: options.unique,
   });
   void ensureIndexAsync(collection, index, options);
 }
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer && !isAnyTest) {
+  if (isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get()) {
     const buildIndex = async () => {
       if (!collection.isConnected())
         return;

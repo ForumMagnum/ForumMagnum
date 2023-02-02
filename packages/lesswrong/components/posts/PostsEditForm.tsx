@@ -5,12 +5,14 @@ import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
@@ -42,15 +44,7 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-  
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
-    return <Components.SingleColumnSection>
-      <Components.WrappedLoginForm/>
-    </Components.SingleColumnSection>
-  }
-  
+    
   if (!document && loading) {
     return <Components.Loading/>
   }
@@ -86,7 +80,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <ForeignCrosspostEditForm post={document} />;
   }
   
-  const EditPostsSubmit = (props) => {
+  const EditPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
@@ -100,14 +94,14 @@ const PostsEditForm = ({ documentId, classes }: {
   return (
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
-      <Components.PostsAcceptTos currentUser={currentUser} />
-      <NoSsr>
+      {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+      <NoSSR>
         <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
           queryFragment={getFragment('PostsEditQueryFragment')}
           mutationFragment={getFragment('PostsEditMutationFragment')}
-          successCallback={(post, options) => {
+          successCallback={(post: any, options: any) => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
             if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
             if (options?.submitOptions?.redirectToEditor) {
@@ -118,7 +112,7 @@ const PostsEditForm = ({ documentId, classes }: {
             }
           }}
           eventForm={document.isEvent}
-          removeSuccessCallback={({ documentId, documentTitle }) => {
+          removeSuccessCallback={({ documentId, documentTitle }: { documentId: string; documentTitle: string; }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
             if (params._id) {
@@ -147,7 +141,7 @@ const PostsEditForm = ({ documentId, classes }: {
            */
           addFields={document.isEvent ? [] : ['tagRelevance']}
         />
-      </NoSsr>
+      </NoSSR>
     </div>
   );
 }

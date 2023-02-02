@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
-import { useIsFirstRender } from "../hooks/useIsFirstRender";
+import { useIsFirstRender } from "../hooks/useFirstRender";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -74,7 +74,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
   loading = loading && !(isFirstRender && (count ?? 0) > 0);
 
   const { Loading } = Components
-  const handleClickLoadMore = event => {
+  const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     void loadMore();
     captureEvent("loadMoreClicked")

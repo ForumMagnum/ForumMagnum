@@ -2,7 +2,9 @@ import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
-import { describeTerms } from '../utils/viewUtils';
+import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
+
+const maxAllowedSkip = 2000;
 
 interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -25,12 +27,62 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableTotal?: boolean} }, context: ResolverContext) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
         const input = args?.input || {};
-        const { terms={}, enableTotal = false } = input;
-        const results = await loadMulti({collectionName, terms, enableTotal, context});
-        // TODO write down results in recommendationsLog
-        return results;
+        const { terms={}, enableCache = false, enableTotal = false } = input;
+
+        if (cacheControl && enableCache) {
+          const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
+          cacheControl.setCacheHint({ maxAge });
+        }
+
+        // get currentUser and Users collection from context
+        const { currentUser }: {currentUser: DbUser|null} = context;
+
+        // get collection based on collectionName argument
+        const collection = getCollection(collectionName);
+
+        // Get selector and options from terms and perform Mongo query
+        // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
+        const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
+        
+        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
+
+        // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
+        if (input.createIfMissing && docs.length === 0) {
+          await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
+          docs = await performQueryFromViewParameters(collection, terms, parameters);
+        }
+        
+        // Were there enough results to reach the limit specified in the query?
+        const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
+        
+        // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
+        const viewableDocs: Array<T> = collection.checkAccess
+          ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
+          : docs;
+
+        // take the remaining documents and remove any fields that shouldn't be accessible
+        const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
+
+        // prime the cache
+        restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
+
+        const data: any = { results: restrictedDocs };
+
+        if (enableTotal) {
+          // get total count of documents matching the selector
+          // TODO: Make this handle synthetic fields
+          if (saturated) {
+            const { hint } = parameters.options;
+            data.totalCount = await Utils.Connectors.count(collection, parameters.selector, { hint });
+          } else {
+            data.totalCount = viewableDocs.length;
+          }
+        }
+
+        // return results
+        return data;
       },
     },
 
@@ -108,59 +160,17 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-export const loadMulti = async <N extends CollectionNameString,T=ObjectsByCollectionName[N]>({collectionName, terms, enableTotal, context}: {
-  collectionName: N,
-  terms: ViewTermsBase,
-  enableTotal: boolean,
-  context: ResolverContext,
-}): Promise<{
-  results: ObjectsByCollectionName[N][],
-  totalCount: number,
-}> => {
-  // get currentUser and Users collection from context
-  const { currentUser }: {currentUser: DbUser|null} = context;
 
-  // get collection based on collectionName argument
-  const collection = getCollection(collectionName);
-
-  // get selector and options from terms and perform Mongo query
-  const parameters = collection.getParameters(terms, {}, context);
-  
-  const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
-  
-  // Were there enough results to reach the limit specified in the query?
-  const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
-  
-  // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-  const viewableDocs: Array<T> = collection.checkAccess
-    ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
-    : docs;
-
-  // take the remaining documents and remove any fields that shouldn't be accessible
-  const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
-
-  // prime the cache
-  restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
-
-  const data: any = { results: restrictedDocs };
-
-  if (enableTotal) {
-    // get total count of documents matching the selector
-    // TODO: Make this handle synthetic fields
-    if (saturated) {
-      data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
-    } else {
-      data.totalCount = viewableDocs.length;
-    }
-  }
-
-  // return results
-  return data;
-}
-
-const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
+  
+  // Don't allow API requests with an offset provided >2000. This prevents some
+  // extremely-slow queries.
+  if (terms.offset && (terms.offset > maxAllowedSkip)) {
+    throw new Error("Exceeded maximum value for skip");
+  }
+  
   const options = {
     ...parameters.options,
     skip: terms.offset,
@@ -192,6 +202,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
+    logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await Utils.Connectors.find(collection,
       {
         ...selector,

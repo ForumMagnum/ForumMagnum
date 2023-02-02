@@ -9,6 +9,9 @@ import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
 
+export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
+const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
+
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
   if (!userId) {
@@ -24,20 +27,36 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
 ): Promise<PostResponseTypes<RouteName>> => {
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
   const apiUrl = makeApiUrl(route.path);
-  const result = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": crosspostUserAgent,
-    },
-    body: JSON.stringify(body),
-  });
-  const json = await result.json();
+  let result: Response;
+  try {
+    result = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": crosspostUserAgent,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    if (e.cause.code === 'ECONNREFUSED' && e.cause.port === 4000) {
+      // We're testing locally, and the x-post server isn't running
+      return { document: {} }
+    } else {
+      throw e
+    }
+  }
+  // Assertion is safe because either we got a result or we threw an error or returned
+  const json = await result!.json();
   const validatedResponse = route.responseValidator.decode(json);
   if (isLeft(validatedResponse)) {
     // eslint-disable-next-line no-console
     console.error("Cross-site request failed:", json);
-    throw new ApiError(500, onErrorMessage);
+    let errorMessage = onErrorMessage;
+    // TODO: temporary patch for surfacing 
+    if ('error' in json && json.error === TOS_NOT_ACCEPTED_ERROR) {
+      errorMessage = TOS_NOT_ACCEPTED_REMOTE_ERROR;
+    }
+    throw new ApiError(500, errorMessage);
   }
   
   return validatedResponse.right;

@@ -2,10 +2,12 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
   typeName: "ClientId",
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('ClientIds'),
 });

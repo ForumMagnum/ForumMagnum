@@ -6,6 +6,8 @@ import { createSqlConnection } from "../../../server/sqlConnection";
 import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
+import SwitchingCollection from "../../SwitchingCollection";
+import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -17,7 +19,10 @@ export const replaceDbNameInPgConnectionString = (connectionString: string, dbNa
 }
 
 export const preparePgTables = () => {
-  for (const collection of Collections) {
+  for (let collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
+    }
     if (collection instanceof PgCollection) {
       if (!collection.table) {
         collection.buildPostgresTable();
@@ -27,9 +32,14 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
+  await ensureMongo2PgLockTableExists(client);
+
   preparePgTables();
 
-  for (const collection of Collections) {
+  for (let collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
+    }
     if (collection instanceof PgCollection) {
       const {table} = collection;
       const createTableQuery = new CreateTableQuery(table);
@@ -43,8 +53,8 @@ const buildTables = async (client: SqlClient) => {
       const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
-        const fields = typeof key === "string" ? [key] : Object.keys(key);
-        const index = table.getIndex(fields, options) ?? table.addIndex(fields, options);
+        const fields: Record<string, 1 | -1> = typeof key === "string" ? {[key]: 1} : key;
+        const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
         const createIndexQuery = new CreateIndexQuery(table, index, true);
         const {sql, args} = createIndexQuery.compile();
         try {
@@ -58,7 +68,8 @@ const buildTables = async (client: SqlClient) => {
 }
 
 const makeDbName = (id?: string) => {
-  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}_${process.env.JEST_WORKER_ID}`;
+  const jestWorkerIdSuffix = process.env.JEST_WORKER_ID ? `_${process.env.JEST_WORKER_ID}` : "";
+  id ??= `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}${jestWorkerIdSuffix}`;
   return `unittest_${id}`.toLowerCase();
 }
 
@@ -76,11 +87,20 @@ const createTemporaryConnection = async () => {
   return client;
 }
 
+export type TestingSqlClient = {
+  sql: SqlClient,
+  dbName: string,
+}
+
 export const createTestingSqlClient = async (
   id: string | undefined = undefined,
   dropExisting = false,
   setAsGlobalClient = true,
-): Promise<SqlClient> => {
+): Promise<TestingSqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client - PG_URL not set");
+  }
   const dbName = makeDbName(id);
   // eslint-disable-next-line no-console
   console.log(`Creating test database '${dbName}'...`);
@@ -89,26 +109,36 @@ export const createTestingSqlClient = async (
     await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   await buildTables(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
-export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+export const createTestingSqlClientFromTemplate = async (template: string): Promise<TestingSqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client from template - PG_URL not set");
+  }
   if (!template) {
     throw new Error("No template database provided");
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql.any(`CREATE DATABASE ${dbName} TEMPLATE ${template}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
 export const dropTestingDatabases = async (olderThan?: string | Date) => {

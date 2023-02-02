@@ -211,16 +211,20 @@ const EventsHome = ({classes}: {
    * @param {Object} location.gmaps - The Google Maps location data.
    * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-  const saveUserLocation = ({lat, lng, gmaps}) => {
+  const saveUserLocation = ({lat, lng, gmaps}: {
+    lat: number;
+    lng: number;
+    gmaps?: google.maps.GeocoderResult
+  }) => {
     // save it in the page state
-    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps?.formatted_address})
 
     if (currentUser) {
       // save it on the user document
       void updateUser({
         selector: {_id: currentUser._id},
         data: {
-          location: gmaps.formatted_address,
+          location: gmaps?.formatted_address,
           googleLocation: gmaps
         }
       })
@@ -228,7 +232,7 @@ const EventsHome = ({classes}: {
       // save it in local storage
       const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps.formatted_address}))
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -240,7 +244,11 @@ const EventsHome = ({classes}: {
   // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
+  const saveReverseGeocodedLocation = async ({lat, lng, known}: {
+    lat: number;
+    lng: number;
+    known: boolean;
+  }) => {
     if (
       mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
       !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
@@ -291,7 +299,7 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const handleChangeDistance = (e) => {
+  const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const distance = parseInt(e.target.value)
     setDistance(distance)
     
@@ -300,7 +308,7 @@ const EventsHome = ({classes}: {
     ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
   }
   
-  const handleChangeDistanceUnit = (unit) => {
+  const handleChangeDistanceUnit = (unit: 'km' | 'mi') => {
     setDistanceUnit(unit)
     // when changing between miles and km, we convert the distance to the new unit
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))

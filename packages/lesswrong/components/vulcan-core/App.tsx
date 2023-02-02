@@ -8,12 +8,12 @@ import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
-import { userIdentifiedCallback } from '../../lib/analyticsEvents';
+import { userChangedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
+export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any
@@ -37,12 +37,10 @@ class App extends PureComponent<AppProps,any> {
   
   constructor(props: AppProps) {
     super(props);
-    if (props.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
-        iterator: props.currentUser,
-        properties: [],
-      });
-    }
+    void userChangedCallback.runCallbacks({
+      iterator: props.currentUser,
+      properties: [],
+    });
     const locale = localeSetting.get();
     this.state = {
       locale,
@@ -89,8 +87,8 @@ class App extends PureComponent<AppProps,any> {
   }
 
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
-    if (!this.props.currentUser && nextProps.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
+    if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
+      void userChangedCallback.runCallbacks({
         iterator: nextProps.currentUser,
         properties: [],
       });

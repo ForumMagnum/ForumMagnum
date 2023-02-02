@@ -136,6 +136,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   
   return {
     type: Array,
+    defaultValue: [],
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,

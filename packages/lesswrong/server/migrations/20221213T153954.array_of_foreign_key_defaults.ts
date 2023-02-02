@@ -1,0 +1,58 @@
+/**
+ * Generated on 2022-12-13T15:39:54.751Z by `yarn makemigrations`
+ * The following schema changes were detected:
+ * -------------------------------------------
+ * ***Diff too large to display***
+ * -------------------------------------------
+ * (run `git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql` to see this more clearly)
+ *
+ * - [ ] Write a migration to represent these changes
+ * - [ ] Rename this file to something more readable if you wish
+ * - [ ] Uncomment `acceptsSchemaHash` below
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ */
+export const acceptsSchemaHash = "9e733b575316b2cdd41d3a1d9032131a";
+
+import { updateDefaultValue } from "./meta/utils";
+import Books from "../../lib/collections/books/collection";
+import Chapters from "../../lib/collections/chapters/collection";
+import Comments from "../../lib/collections/comments/collection";
+import Conversations from "../../lib/collections/conversations/collection";
+import Localgroups from "../../lib/collections/localgroups/collection";
+import Posts from "../../lib/collections/posts/collection";
+import Tags from "../../lib/collections/tags/collection";
+import Users from "../../lib/collections/users/collection";
+
+export const up = async ({db}: MigrationContext) => {
+  if (Books.isPostgres()) {
+    await updateDefaultValue(db, Books, "postIds");
+    await updateDefaultValue(db, Books, "sequenceIds");
+  }
+  if (Chapters.isPostgres()) {
+    await updateDefaultValue(db, Chapters, "postIds");
+  }
+  if (Comments.isPostgres()) {
+    await updateDefaultValue(db, Comments, "suggestForAlignmentUserIds");
+  }
+  if (Conversations.isPostgres()) {
+    await updateDefaultValue(db, Conversations, "participantIds");
+    await updateDefaultValue(db, Conversations, "archivedByIds");
+  }
+  if (Localgroups.isPostgres()) {
+    await updateDefaultValue(db, Localgroups, "organizerIds");
+  }
+  if (Posts.isPostgres()) {
+    await updateDefaultValue(db, Posts, "organizerIds");
+    await updateDefaultValue(db, Posts, "suggestForAlignmentUserIds");
+  }
+  if (Tags.isPostgres()) {
+    await updateDefaultValue(db, Tags, "tagFlagsIds");
+    await updateDefaultValue(db, Tags, "subforumModeratorIds");
+  }
+  if (Users.isPostgres()) {
+    await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
+    await updateDefaultValue(db, Users, "hiddenPostsMetadata");
+    await updateDefaultValue(db, Users, "profileTagIds");
+    await updateDefaultValue(db, Users, "organizerOfGroupIds");
+  }
+}

@@ -77,10 +77,13 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     collection: Posts,
     validate: false,
     currentUser: user,
+    // This is a hack - we have only a fraction of the necessary information for
+    // a context. But it appears to be working.
     context: {
       currentUser: user,
+      isFMCrosspostRequest: true,
       Users,
-    },
+    } as Partial<ResolverContext> as  ResolverContext,
   });
 
   return {

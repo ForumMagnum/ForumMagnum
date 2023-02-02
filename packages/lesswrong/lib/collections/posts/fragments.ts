@@ -13,6 +13,7 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
   }
@@ -407,6 +408,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
@@ -417,6 +419,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
@@ -455,6 +458,8 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
+    socialPreviewImageId
   }
 `);
 
@@ -574,5 +579,12 @@ registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments
+  }
+`);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
   }
 `);
