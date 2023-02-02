@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
@@ -65,11 +65,17 @@ const initialPostComparisonBallot = {
   whichHappierToHaveRead: null,
 };
 
+interface PostComparison {
+  firstPost: PostsPage
+  secondPost: PostsPage
+}
+
 const HeadToHeadPostComparisonPage = ({classes}: {
   classes: ClassesType
 }) => {
   const { Loading, WrappedLoginForm, PostsPage } = Components;
   const currentUser = useCurrentUser();
+  const [currentComparison,setCurrentComparison] = useState<PostComparison|null>(null);
 
   const { data, loading, refetch, error } = useQuery(gql`
     query HeadToHeadComparison {
@@ -85,34 +91,57 @@ const HeadToHeadPostComparisonPage = ({classes}: {
     ${fragmentTextForQuery("PostsPage")}
   `);
   
+  useEffect(() => {
+    if (data && !currentComparison) {
+      console.log("Updating comparison");
+      setCurrentComparison(data.headToHeadPostComparison);
+    }
+    if (data && !loading && currentComparison && (
+        (data.headToHeadPostComparison?.firstPost === currentComparison.firstPost
+        || data.headToHeadPostComparison?.secondPost === currentComparison.secondPost)
+      )
+    ) {
+      console.log("Fetching next comparison");
+      refetch();
+    }
+  }, [currentComparison, data, loading, refetch]);
+  
   if (!currentUser) {
     return (<WrappedLoginForm />);
   }
   
-  const comparison = data?.headToHeadPostComparison;
-  if (loading || !comparison) {
+  if (!currentComparison) {
     return <div className={classes.root}>
       <Loading/>
     </div>
   }
   
   const onSubmitBallot = (ballot: PostComparisonBallot) => {
+    if(data
+      && (data?.headToHeadPostComparison?.firstPost !== currentComparison.firstPost
+        || data?.headToHeadPostComparison?.secondPost !== currentComparison.secondPost
+      )
+    ) {
+      setCurrentComparison(data.headToHeadPostComparison);
+    } else {
+      setCurrentComparison(null);
+    }
     void refetch();
   }
 
-  const {firstPost,secondPost} = comparison;
+  const {firstPost,secondPost} = currentComparison;
   
   return <div className={classes.root}>
     <div className={classNames(classes.postColumn, classes.firstPost)}>
       <PostsPage
-        post={firstPost}
+        post={firstPost as any}
         hidePostKarma={true}
         refetch={()=>{}}
       />
     </div>
     <div className={classNames(classes.postColumn, classes.secondPost)}>
       <PostsPage
-        post={secondPost}
+        post={secondPost as any}
         hidePostKarma={true}
         refetch={()=>{}}
       />
