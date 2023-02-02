@@ -23,7 +23,7 @@ const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
-    label: "Advanced Options",
+    label: "Advanced options",
     startCollapsed: true,
   },
 };
@@ -32,11 +32,23 @@ const schema: SchemaType<DbLocalgroup> = {
   name: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: ['members'],
-    order:10,
     insertableBy: ['members'],
+    editableBy: ['members'],
+    order: 10,
     control: "MuiTextField",
-    label: "Group Name"
+    label: "Group name"
+  },
+  
+  nameInAnotherLanguage: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    order: 11,
+    control: "MuiTextField",
+    tooltip: 'Useful for multilingual groups - this will help people find your group in search',
+    label: "Group name in another language (optional)",
+    optional: true,
   },
 
   organizerIds: {
@@ -49,9 +61,9 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    order:20,
+    order: 20,
     control: "UsersListEditor",
-    label: "Add Organizers",
+    label: "Add organizers",
   },
 
   'organizerIds.$': {
@@ -77,7 +89,7 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     control: 'MultiSelectButtons',
-    label: "Group Type:",
+    label: "Group type:",
     defaultValue: ["LW"],
     minCount: 1, // Ensure that at least one type is selected
     form: {
@@ -144,7 +156,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Group Location",
+    label: "Group location",
     control: 'LocationFormComponent',
     blackbox: true,
     hidden: data => data.document.isOnline,
@@ -165,7 +177,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Contact Info",
+    label: "Contact info",
     control: "MuiTextField",
     optional: true,
   },
@@ -175,7 +187,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook Group",
+    label: "Facebook group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -187,7 +199,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook Page",
+    label: "Facebook page",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -199,7 +211,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Meetup.com Group",
+    label: "Meetup.com group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -211,7 +223,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Slack Workspace",
+    label: "Slack workspace",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -236,7 +248,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    label: "Banner Image",
+    label: "Banner image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
     form: {

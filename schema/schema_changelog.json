@@ -93,5 +93,10 @@
     "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
     "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
     "timestamp": "2023-02-01T15:58:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dc44a10de9ebb0dc946322a1e04d6034",
+    "acceptedByMigration": "20230202T211013.add_nameInAnotherLanguage_localgroups_field.ts",
+    "timestamp": "2023-02-02T21:10:13.000Z"
   }
 ]

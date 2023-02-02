@@ -335,6 +335,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string
+  nameInAnotherLanguage: string
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
