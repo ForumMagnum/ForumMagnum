@@ -22,6 +22,16 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build case-insensitive select query",
+      getQuery: () => new SelectQuery(
+        testTable,
+        {b: "test"},
+        {collation: {locale: "en", strength: 2}},
+      ),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE LOWER("b") = LOWER( $1 )',
+      expectedArgs: ["test"],
+    },
+    {
       name: "can build select query with string selector",
       getQuery: () => new SelectQuery(testTable, "some-id"),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "_id" = $1',
@@ -62,6 +72,12 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery(testTable, {$or: [{a: 3}, {b: "b"}]}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" = $1 OR "b" = $2 )',
       expectedArgs: [3, "b"],
+    },
+    {
+      name: "can build select query with $jsonArrayContains operator",
+      getQuery: () => new SelectQuery(testTable, {$expr: {$jsonArrayContains: ["a.b.c.d", 3]}}),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> (' { "b": { "c": { "d": ["' || $1 || '"] } } } ')::JSONB`,
+      expectedArgs: [3],
     },
     {
       name: "can build select query with nested boolean combiners",
@@ -455,9 +471,14 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
-      name: "collation is not implemented",
-      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple"}}),
-      expectedError: "Collation not implemented",
+      name: "collation (if used) must have locale 'en'",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple", strength: 2}}),
+      expectedError: `Unsupported collation type: {"locale":"simple","strength":2}`,
+    },
+    {
+      name: "collation (if used) must have strength 2",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "en", strength: 1}}),
+      expectedError: `Unsupported collation type: {"locale":"en","strength":1}`,
     },
     {
       name: "pipeline lookups are not implemented",

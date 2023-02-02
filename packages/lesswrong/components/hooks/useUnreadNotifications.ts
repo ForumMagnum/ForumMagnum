@@ -20,6 +20,8 @@ import { useCurrentUser } from '../common/withUser';
 export function useUnreadNotifications(): {
   unreadNotifications: number
   unreadPrivateMessages: number
+  checkedAt: Date|null,
+  refetch: ()=>Promise<void>
 } {
   const currentUser = useCurrentUser();
   
@@ -50,14 +52,19 @@ export function useUnreadNotifications(): {
     skip: !currentUser?._id,
   });
   
-  const refetchBoth = useCallback(() => {
-    void refetchCounts();
-    void refetchNotifications();
-  }, [refetchCounts, refetchNotifications]);
+  const refetchBoth = useCallback(async () => {
+    if (currentUser?._id) {
+      await Promise.all([
+        refetchCounts(),
+        refetchNotifications(),
+      ]);
+    }
+  }, [currentUser?._id, refetchCounts, refetchNotifications]);
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
 
-  const unreadNotifications = data?.unreadNotifications ?? 0;
-  const unreadPrivateMessages = data?.unreadPrivateMessages ?? 0;
-  return { unreadNotifications, unreadPrivateMessages };
+  const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
+  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
+  const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
+  return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
 }

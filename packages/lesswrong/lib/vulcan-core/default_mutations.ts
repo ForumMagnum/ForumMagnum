@@ -54,7 +54,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { data }, context: ResolverContext) {
         logger('create mutation()')
-        const collection = context[collectionName];
+        // TS doesn't understand that context indexed by collectionName properly
+        const collection = context[collectionName] as CollectionBase<T>;
 
         // check if current user can pass check function; else throw error
         await Utils.performCheck(
@@ -70,7 +71,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         // pass document to boilerplate createMutator function
         return await Utils.createMutator({
           collection,
-          data,
+          document: data,
           currentUser: context.currentUser,
           validate: true,
           context,
@@ -117,7 +118,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector, data }, context: ResolverContext) {
         logger('update mutation()')
-        const collection = context[collectionName];
+        // TS doesn't understand that context is properly indexed by collectionName
+        const collection = context[collectionName] as CollectionBase<T>;
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');
@@ -145,6 +147,9 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         );
 
         // call updateMutator boilerplate function
+        // TODO: A problem with updateMutator types means that it demands a
+        // documentId instead of a selector
+        // @ts-ignore
         return await Utils.updateMutator({
           collection,
           selector,
@@ -220,7 +225,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector }, context: ResolverContext) {
         logger('delete mutation()')
-        const collection = context[collectionName];
+        // TS doesn't understand that context is properly indexed by collectionName
+        const collection = context[collectionName] as CollectionBase<T>;
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');
@@ -244,6 +250,9 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
+        // TODO: A problem with deleteMutator types means that it demands a
+        // documentId instead of a selector
+        // @ts-ignore
         return await Utils.deleteMutator({
           collection,
           selector,

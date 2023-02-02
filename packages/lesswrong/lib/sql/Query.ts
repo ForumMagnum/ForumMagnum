@@ -101,6 +101,7 @@ abstract class Query<T extends DbObject> {
   protected nameSubqueries = true;
   protected isIndex = false;
   protected nearbySort: NearbySort | undefined;
+  protected isCaseInsensitive = false;
 
   protected constructor(
     protected table: Table | Query<T>,
@@ -180,9 +181,18 @@ abstract class Query<T extends DbObject> {
    * If `typeHint` is an instance of `Type` then that type will be used, otherwise
    * `typeHint` is assumed to be the value we are getting the type for.
    */
-  private getTypeHint(typeHint?: any): string {
+  protected getTypeHint(typeHint?: any): string {
+    if (typeHint === null || typeHint === undefined) {
+      return "";
+    }
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
+    }
+    if (typeHint instanceof Date) {
+      return "::TIMESTAMPTZ";
+    }
+    if (Array.isArray(typeHint)) {
+      return "";
     }
     switch (typeof typeHint) {
       case "number":
@@ -191,9 +201,10 @@ abstract class Query<T extends DbObject> {
         return "::TEXT";
       case "boolean":
         return "::BOOL";
-    }
-    if (typeHint instanceof Date) {
-      return "::TIMESTAMPTZ";
+      case "object":
+        return Object.keys(typeHint).some((key) => key[0] === "$")
+          ? ""
+          : "::JSONB";
     }
     return "";
   }
@@ -281,20 +292,21 @@ abstract class Query<T extends DbObject> {
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT NULL`];
         }
-      }
-      else if (value === true) {
+      } else if (value === true) {
         if (op === "=") {
           return [`${resolvedField}${hint} IS TRUE`];
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT TRUE`];
         }
-      }
-      else if (value === false) {
+      } else if (value === false) {
         if (op === "=") {
           return [`${resolvedField}${hint} IS FALSE`];
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT FALSE`];
         }
+      }
+      if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
+        return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
@@ -620,11 +632,47 @@ abstract class Query<T extends DbObject> {
       return ["AVG(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    // This is an operator that doesn't exist in Mongo that we need to add for
+    // hacky reasons. In general, we can search correctly in arrays and we can
+    // search correctly within JSON, however, we occassionaly have to search
+    // inside arrays that exist deep inside a JSON object where we don't have
+    // any schema available (for instance, pingbacks). Here we add a special
+    // case that allows us to manually annotate these instances (see the
+    // function `jsonArrayContainsSelector`) and generate the correct SQL.
+    // This is rare, but is does occur.
+    if (op === "$jsonArrayContains") {
+      const [array, value] = expr[op];
+      const [field, ...path] = array.split(".");
+      return [
+        this.resolveFieldName(field),
+        "@> ('",
+        ...this.buildJsonArrayAtPath(path, value),
+        "')::JSONB",
+      ];
+    }
+
     if (op === undefined) {
       return ["'{}'::JSONB"];
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+  }
+
+  private buildJsonArrayAtPath(path: string[], value: any): Atom<T>[] {
+    if (path.length) {
+      const [name, ...rest] = path;
+      return [
+        `{ "${name}":`,
+        ...this.buildJsonArrayAtPath(rest, value),
+        "}",
+      ];
+    } else {
+      return [
+        "[\"' ||",
+        ...this.compileExpression(value),
+        "|| '\"]",
+      ];
+    }
   }
 }
 

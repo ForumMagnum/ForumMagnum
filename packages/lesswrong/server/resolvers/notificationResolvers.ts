@@ -6,18 +6,22 @@ defineQuery({
   name: "unreadNotificationCounts",
   schema: `
     type NotificationCounts {
+      checkedAt: Date!
       unreadNotifications: Int!
       unreadPrivateMessages: Int!
     }
   `,
   resultType: "NotificationCounts!",
   fn: async (root: void, args: {}, context: ResolverContext): Promise<{
+    checkedAt: Date,
     unreadNotifications: number
     unreadPrivateMessages: number
   }> => {
+    const checkedAt = new Date();
     const { currentUser } = context;
     if (!currentUser) {
       return {
+        checkedAt,
         unreadNotifications: 0,
         unreadPrivateMessages: 0,
       }
@@ -42,6 +46,7 @@ defineQuery({
       }).count()
     ]);
     return {
+      checkedAt,
       unreadNotifications,
       unreadPrivateMessages,
     }
