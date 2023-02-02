@@ -6,12 +6,14 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -200,7 +202,7 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const NewPostsSubmit = (props) => {
+  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
@@ -211,12 +213,12 @@ const PostsNewForm = ({classes}: {
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
-        <NoSsr>
+        <NoSSR>
           <WrappedSmartForm
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
-            successCallback={(post, options) => {
+            successCallback={(post: any, options: any) => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));
@@ -232,7 +234,7 @@ const PostsNewForm = ({classes}: {
               FormSubmit: NewPostsSubmit
             }}
           />
-        </NoSsr>
+        </NoSSR>
       </RecaptchaWarning>
     </div>
   );

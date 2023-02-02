@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -117,7 +117,7 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
   const { html = "" } = sequence.contents || {};
-  const plaintextBody = htmlToText.fromString(html);
+  const plaintextBody = htmlToText(html);
   algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   return [algoliaSequence]
 }

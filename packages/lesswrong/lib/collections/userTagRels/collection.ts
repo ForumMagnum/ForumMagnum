@@ -64,7 +64,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
     ...schemaDefaultValue(false),
-  }
+  },
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({

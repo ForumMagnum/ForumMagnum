@@ -33,15 +33,18 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: 
   showIcon?: boolean
 }) => {
   if (label) {
-    return <span className={classes.iconWithLabelGroup} onClick={onClick}>
-      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
+    return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
+      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel)}/>}
       <span className={classes.label}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
+const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {

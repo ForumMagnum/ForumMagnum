@@ -2,15 +2,14 @@ import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { Vulcan, createMutator } from '../vulcan-lib';
-import { slugify } from '../../lib/vulcan-lib/utils';
-import { sanitize } from '../vulcan-lib/utils';
+import { sanitize, slugify } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 
@@ -352,7 +351,7 @@ const legacyUserToNewUser = (user, legacyId) => {
 }
 
 const legacyPostToNewPost = (post, legacyId, user) => {
-  const body = htmlToText.fromString(post.article);
+  const body = htmlToText(post.article);
   const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
     _id: randomId(),

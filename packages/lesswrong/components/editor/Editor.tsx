@@ -268,7 +268,7 @@ export const isBlank = (editorContents: EditorContents): boolean => {
   }
 }
 
-export const getInitialEditorContents = (value, document, fieldName, currentUser: UsersCurrent|null): EditorContents => {
+export const getInitialEditorContents = (value: any, document: any, fieldName: string, currentUser: UsersCurrent|null): EditorContents => {
   const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
   if (initialValue) {
     const result = deserializeEditorContents({
@@ -339,7 +339,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       markdownImgErrs: false
     }
     
-    this.throttledSetCkEditor = _.debounce((getValue) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
+    this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
   }
 
@@ -349,7 +349,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  submitData = async (submission) => {
+  submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
     const { updateType, commitMessage, ckEditorReference } = this.state
@@ -373,7 +373,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           dataWithDiscardedSuggestions = await ckEditorReference.plugins.get( 'TrackChangesData' ).getDataWithDiscardedSuggestions()
         }
         break
-    } 
+    }
 
     return {
       originalContents: {type, data},
@@ -382,7 +382,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     };
   }
   
-  setContents = (editorType: EditorTypeString, value) => {
+  setContents = (editorType: EditorTypeString, value: string) => {
     switch (editorType) {
       case "html": {
         if (this.props.value.value === value)
@@ -478,7 +478,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  renderPlaceholder = (showPlaceholder, isCollaborative) => {
+  renderPlaceholder = (showPlaceholder: boolean, isCollaborative: boolean) => {
     const { _classes: classes, placeholder } = this.props
     const {className, contentType} = this.getBodyStyles();
 
@@ -505,7 +505,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
-        onChange: (event, editor) => {
+        onChange: (event: any, editor: any) => {
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
           // implications that motivated having throttling in the first place,
@@ -517,7 +517,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.throttledSetCkEditor(() => editor.getData())
           }
         },
-        onInit: editor => this.setState({ckEditorReference: editor})
+        onInit: (editor: any) => this.setState({ckEditorReference: editor})
       }
 
       // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)
@@ -590,7 +590,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       { this.renderPlaceholder(showPlaceholder, false) }
       {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
-        onChange={(value) => this.setContents("draftJS", value)}
+        onChange={(value: string) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
         className={classNames(
           className,

@@ -30,7 +30,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const EventBanner = ({ classes }) => {
+const EventBanner = ({ classes }: {
+  classes: ClassesType;
+}) => {
   const { SingleColumnSection } = Components
 
   const mobileImageId = eventBannerMobileImageSetting.get()

@@ -290,7 +290,14 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
   var commentAuthor = await Users.findOne(comment.userId);
-  const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
+  if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
+  const {modifiedDocument: votedComment} = await performVoteServer({
+    document: comment,
+    voteType: 'smallUpvote',
+    collection: Comments,
+    user: commentAuthor,
+    skipRateLimits: true,
+  })
   return {...comment, ...votedComment} as DbComment;
 });
 

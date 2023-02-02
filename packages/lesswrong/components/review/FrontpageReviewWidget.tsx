@@ -215,7 +215,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -384,6 +384,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
+    </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
         Review Leaderboard

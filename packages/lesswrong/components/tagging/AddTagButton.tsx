@@ -1,4 +1,4 @@
-import React, { useRef, useState }  from 'react';
+import React, { ReactNode, useRef, useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AddTagButton = ({onTagSelected, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
-  children?: any
+  children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const anchorEl = useRef<HTMLAnchorElement|null>(null);

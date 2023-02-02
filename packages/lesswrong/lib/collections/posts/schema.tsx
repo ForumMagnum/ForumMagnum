@@ -129,6 +129,10 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
+const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+  isCrosspost: false,
+})
+
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
@@ -872,7 +876,8 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     optional: true,
     insertableBy: ['members'],
-    editableBy: [],
+    // This must be set to editable to allow the data to be sent from the edit form, but in practice it's always overwritten by updatePostDenormalizedTags
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     viewableBy: ['guests'],
     
     blackbox: true,
@@ -1304,10 +1309,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Social Preview Image",
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    control: "ImageUpload",
-    group: formGroups.advancedOptions,
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
+    hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1341,9 +1347,27 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.advancedOptions,
     order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
-    ...schemaDefaultValue({
-      isCrosspost: false,
-    }),
+    ...schemaDefaultValueFmCrosspost,
+    // Users aren't allowed to directly select the foreignPostId of a crosspost
+    onCreate: (args) => {
+      const { document, context } = args;
+      // If we're handling a request from our peer site, then we have just set
+      // the foreignPostId ourselves
+      if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
+        throw new Error("Cannot set the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onCreate?.(args);
+    },
+    onUpdate: (args) => {
+      const { data, oldDocument } = args;
+      if (
+        data.fmCrosspost?.foreignPostId &&
+        data.fmCrosspost.foreignPostId !== oldDocument.fmCrosspost?.foreignPostId
+      ) {
+        throw new Error("Cannot change the foreign post ID of a crosspost");
+      }
+      return schemaDefaultValueFmCrosspost.onUpdate?.(args);
+    },
   },
 
   canonicalSequenceId: {

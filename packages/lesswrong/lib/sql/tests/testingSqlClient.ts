@@ -7,6 +7,7 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
+import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -31,6 +32,8 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
+  await ensureMongo2PgLockTableExists(client);
+
   preparePgTables();
 
   for (let collection of Collections) {
@@ -84,11 +87,16 @@ const createTemporaryConnection = async () => {
   return client;
 }
 
+export type TestingSqlClient = {
+  sql: SqlClient,
+  dbName: string,
+}
+
 export const createTestingSqlClient = async (
   id: string | undefined = undefined,
   dropExisting = false,
   setAsGlobalClient = true,
-): Promise<SqlClient> => {
+): Promise<TestingSqlClient> => {
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't create testing SQL client - PG_URL not set");
@@ -107,10 +115,13 @@ export const createTestingSqlClient = async (
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
-export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+export const createTestingSqlClientFromTemplate = async (template: string): Promise<TestingSqlClient> => {
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't create testing SQL client from template - PG_URL not set");
@@ -124,7 +135,10 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
 export const dropTestingDatabases = async (olderThan?: string | Date) => {

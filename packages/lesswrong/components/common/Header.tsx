@@ -14,6 +14,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -149,18 +150,21 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
+  const { unreadNotifications, unreadPrivateMessages, checkedAt: notificationsCheckedAt, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
+  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
     if (!currentUser) return;
     if (isOpen) {
-      void updateCurrentUser({lastNotificationsCheck: new Date()});
       setNotificationOpen(true);
       setNotificationHasOpened(true);
+      await updateCurrentUser({lastNotificationsCheck: new Date()});
+      await refetchNotificationCounts();
     } else {
       setNotificationOpen(false);
     }
@@ -171,7 +175,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     const { lastNotificationsCheck } = currentUser
 
     captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    handleSetNotificationDrawerOpen(!notificationOpen);
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -299,6 +303,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
+                  unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                   currentUser={currentUser}
@@ -314,6 +319,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
           />
         </Headroom>
         {currentUser && <NotificationsMenu
+          unreadPrivateMessages={unreadPrivateMessages}
           open={notificationOpen}
           hasOpened={notificationHasOpened}
           setIsOpen={handleSetNotificationDrawerOpen}

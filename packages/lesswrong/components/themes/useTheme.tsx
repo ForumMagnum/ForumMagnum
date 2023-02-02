@@ -101,7 +101,7 @@ export const ThemeContextProvider = ({options, children}: {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (forumTypeSetting.get() === "EAForum") {
-        removeCookie(THEME_COOKIE_NAME);
+        removeCookie(THEME_COOKIE_NAME, {path: "/"});
       } else {
         setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
           path: "/",
