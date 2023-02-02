@@ -4,6 +4,7 @@ import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'
 import withErrorBoundary from './withErrorBoundary';
+import { getAllUserABTestGroups } from '../../lib/abTestImpl';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
@@ -31,6 +32,7 @@ export const AnalyticsClient = () => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;
     AnalyticsUtil.clientContextVars.clientId = clientId;
+    AnalyticsUtil.clientContextVars.abTestGroups = getAllUserABTestGroups(currentUser, clientId);
     
     return function cleanup() {
       AnalyticsUtil.clientWriteEvents = null;
