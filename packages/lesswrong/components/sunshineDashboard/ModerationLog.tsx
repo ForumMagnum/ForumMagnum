@@ -147,7 +147,12 @@ const usersBannedFromUsersColumns: Column[] = [
   },
   {
     name:'bannedUserIds',
-    label:'Banned Users',
+    label:'Banned From Frontpage',
+    component: BannedUsersDisplay
+  },
+  {
+    name:'bannedPersonalUserIds',
+    label:'Banned from Personal Posts',
     component: BannedUsersDisplay
   },
 ]
@@ -185,7 +190,7 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromPostsModerationLog',
               terms: {view: "postsWithBannedUsers"},
-              limit: 10,
+              limit: 20,
               enableTotal: true
             }}
             showEdit={false}
@@ -200,7 +205,7 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
-              limit: 10,
+              limit: 20,
               enableTotal: true
             }}
             showEdit={false}

@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -85,6 +86,8 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   
+  const { LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row } = Components
+
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
@@ -182,7 +185,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         <Components.CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }
-      <Components.CommentsList
+      <CommentsList
         treeOptions={{
           highlightDate: highlightDate,
           post: post,
@@ -195,7 +198,14 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
-      <Components.PostsPageCrosspostComments />
+      <PostsPageCrosspostComments />
+      <LWTooltip title="View deleted comments and banned users">
+        <Row justifyContent="flex-end">
+          <Link to="/moderation">
+            <MetaInfo>Moderation Log</MetaInfo>
+          </Link>
+        </Row>
+      </LWTooltip>
     </div>
   );
 }
