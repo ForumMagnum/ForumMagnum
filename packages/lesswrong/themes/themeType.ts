@@ -104,7 +104,6 @@ declare global {
     text: {
       primary: ColorString,
       secondary: ColorString
-      
       normal: ColorString,
       maxIntensity: ColorString,
       slightlyIntense: ColorString,
@@ -166,6 +165,7 @@ declare global {
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
+      visited: ColorString
     },
     icon: {
       normal: ColorString,

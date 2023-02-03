@@ -251,6 +251,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
+  '& a:visited, & a:visited:hover, & a:visited:active': {
+    color: theme.palette.link.visited,
+  },
   '& table': {
     ...tableStyles(theme)
   },
