@@ -470,6 +470,18 @@ interface DbPodcast extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface PostComparisonsCollection extends CollectionBase<DbPostComparison, "PostComparisons"> {
+}
+
+interface DbPostComparison extends DbObject {
+  __collectionName?: "PostComparisons"
+  postIds: Array<string>
+  rankings: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
 }
 
@@ -639,6 +651,7 @@ interface DbPost extends DbObject {
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
   agentFoundationsId: string
+  eloRatings: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -696,10 +709,10 @@ interface RecommendationLogsCollection extends CollectionBase<DbRecommendationLo
 interface DbRecommendationLog extends DbObject {
   __collectionName?: "RecommendationLogs"
   postId: string
-  clientId: any /*{"definitions":[{"type":"String"}]}*/
+  clientId: string | null
   userId: string
   seen: boolean
-  recommendationType: any /*{"definitions":[{"type":"String"}]}*/
+  recommendationType: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -940,9 +953,9 @@ interface UserPostEngagementsCollection extends CollectionBase<DbUserPostEngagem
 interface DbUserPostEngagement extends DbObject {
   __collectionName?: "UserPostEngagements"
   postId: string
-  clientId: any /*{"definitions":[{"type":"String"}]}*/
+  clientId: string | null
   userId: string
-  referralType: any /*{"definitions":[{"type":"String"}]}*/
+  referralType: string
   referralRecommendation: string
   readingTimeMS: number
   lastInteractedAt: Date
@@ -1342,6 +1355,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostComparisons: PostComparisonsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1391,6 +1405,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostComparisons: DbPostComparison
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

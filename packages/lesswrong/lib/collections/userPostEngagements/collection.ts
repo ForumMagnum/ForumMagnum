@@ -16,7 +16,7 @@ const schema: SchemaType<DbUserPostEngagement> = {
     }),
   },
   clientId: {
-    type: "String",
+    type: String,
     nullable: true,
   },
   userId: {
@@ -29,7 +29,7 @@ const schema: SchemaType<DbUserPostEngagement> = {
     }),
   },
   referralType: {
-    type: "String",
+    type: String,
   },
   referralRecommendation: {
     ...foreignKeyField({

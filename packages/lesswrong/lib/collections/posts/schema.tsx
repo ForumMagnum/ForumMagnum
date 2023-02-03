@@ -2511,6 +2511,15 @@ Object.assign(schema, {
     insertableBy: [userOwns, 'admins'],
     editableBy: [userOwns, 'admins'],
   },
+
+  eloRatings: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    insertableBy: ['members'],
+    ...schemaDefaultValue(null),
+    nullable: true,
+  },
 });
 
 export default schema;

@@ -6,6 +6,7 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 import Radio from "@material-ui/core/Radio";
+import { useCreate } from '../../lib/crud/withCreate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -76,6 +77,10 @@ const HeadToHeadPostComparisonPage = ({classes}: {
   const { Loading, WrappedLoginForm, PostsPage } = Components;
   const currentUser = useCurrentUser();
   const [currentComparison,setCurrentComparison] = useState<PostComparison|null>(null);
+  const { create: createPostComparison } = useCreate({
+    collectionName: 'PostComparisons',
+    fragmentName: 'PostComparisonFragment',
+  })
 
   const { data, loading, refetch, error } = useQuery(gql`
     query HeadToHeadComparison {
@@ -117,6 +122,15 @@ const HeadToHeadPostComparisonPage = ({classes}: {
   }
   
   const onSubmitBallot = (ballot: PostComparisonBallot) => {
+    void createPostComparison({
+      data: {
+        postIds: [currentComparison.firstPost, currentComparison.secondPost].map(post => post._id),
+        rankings: {
+          whichHappierItWasWritten: [ballot.whichHappierItWasWritten],
+          whichHappierToHaveRead: [ballot.whichHappierToHaveRead],
+        },
+      },
+    });
     if(data
       && (data?.headToHeadPostComparison?.firstPost !== currentComparison.firstPost
         || data?.headToHeadPostComparison?.secondPost !== currentComparison.secondPost

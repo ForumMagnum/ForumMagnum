@@ -2777,7 +2777,7 @@ interface RecommendationLogsDefaultFragment { // fragment on RecommendationLogs
 interface ReadingRetrospectivePostEngagement { // fragment on UserPostEngagements
   readonly _id: string,
   readonly userId: string,
-  readonly referralType: any /*{"definitions":[{"type":"String"}]}*/,
+  readonly referralType: string,
   readonly readingTimeMS: number,
   readonly lastInteractedAt: Date,
 }
@@ -2877,6 +2877,14 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly order: number,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,
+}
+
+interface PostComparisonsDefaultFragment { // fragment on PostComparisons
+  readonly userId: string,
+}
+
+interface PostComparisonFragment { // fragment on PostComparisons
+  readonly _id: string,
 }
 
 interface CronHistoriesDefaultFragment { // fragment on CronHistories
@@ -3077,6 +3085,8 @@ interface FragmentTypes {
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
+  PostComparisonsDefaultFragment: PostComparisonsDefaultFragment
+  PostComparisonFragment: PostComparisonFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3259,9 +3269,11 @@ interface CollectionNamesByFragmentName {
   CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
+  PostComparisonsDefaultFragment: "PostComparisons"
+  PostComparisonFragment: "PostComparisons"
   CronHistoriesDefaultFragment: "CronHistories"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationLogs"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserPostEngagements"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostComparisons"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationLogs"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserPostEngagements"|"UserTagRels"|"Users"|"Votes"
 

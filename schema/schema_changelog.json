@@ -93,5 +93,15 @@
     "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
     "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
     "timestamp": "2023-02-01T15:58:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "73fa0eec120577af8dfa6a51cf57aa9c",
+    "acceptedByMigration": "20230203T000059.createPostComparisonsTable.ts",
+    "timestamp": "2023-02-03T00:00:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f0325d4a6f4663b8adc5f2ccf84737e6",
+    "acceptedByMigration": "20230203T011341.add_eloRatings_field.ts",
+    "timestamp": "2023-02-03T01:13:41.000Z"
   }
 ]

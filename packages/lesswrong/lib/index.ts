@@ -214,6 +214,10 @@ import './components';
 // PostRelation
 import './collections/postRelations';
 
+// PostComparisons
+import './collections/postComparisons/collection';
+import './collections/postComparisons/fragments';
+
 // CronHistories
 import './collections/cronHistories';
 

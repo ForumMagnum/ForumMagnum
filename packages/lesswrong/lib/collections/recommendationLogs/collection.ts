@@ -16,7 +16,7 @@ const schema: SchemaType<DbRecommendationLog> = {
     canCreate: ['members'],
   },
   clientId: {
-    type: "String",
+    type: String,
     nullable: true,
   },
   userId: {
@@ -35,7 +35,7 @@ const schema: SchemaType<DbRecommendationLog> = {
     ...schemaDefaultValue(false),
   },
   recommendationType: {
-    type: "String",
+    type: String,
   },
 };
 
