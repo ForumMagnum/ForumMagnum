@@ -54,7 +54,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   tagCommentType: TagCommentType,
   isAbsolute?: boolean,
 }): string => {
-  const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetUrl({slug: tagSlug}, {tab: "posts"}, isAbsolute)
+  const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
 
   // Bit of a hack to make it work whether or not there are already query params, if this breaks just parse the URL properly
   return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base

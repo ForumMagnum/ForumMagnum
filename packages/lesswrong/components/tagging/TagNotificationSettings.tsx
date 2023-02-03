@@ -194,7 +194,6 @@ const TagNotificationSettings = ({
                   </span>
                   <span className={classes.checkbox}>
                     <Checkbox checked={userTagRel.subforumEmailNotifications} onChange={toggleDiscussionsSubscribed} disableRipple />
-                    {/* TODO merge with JP's PR */}
                     <Typography variant="body2">Notify me of new discussions</Typography>
                   </span>
                   <Typography variant="body2" className={classes.accountLink}>

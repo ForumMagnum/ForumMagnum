@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6,
   },
   coreTagHeader: {
-    marginBottom: 0,
+    marginBottom: 10,
   },
   coreTagExplanation: {
     marginTop: 4,
