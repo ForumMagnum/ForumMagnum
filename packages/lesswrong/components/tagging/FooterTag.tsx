@@ -113,6 +113,7 @@ const FooterTag = ({
   link=true,
   isTopTag=false,
   highlightAsAutoApplied=false,
+  neverCoreStyling=false,
   className,
   classes,
 }: {
@@ -124,6 +125,7 @@ const FooterTag = ({
   link?: boolean
   isTopTag?: boolean
   highlightAsAutoApplied?: boolean,
+  neverCoreStyling?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -151,7 +153,7 @@ const FooterTag = ({
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, className, {
       [classes.topTag]: isTopTag,
-      [classes.core]: tag.core,
+      [classes.core]: !neverCoreStyling && tag.core,
       [classes.smallText]: smallText,
     })}>
       {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>

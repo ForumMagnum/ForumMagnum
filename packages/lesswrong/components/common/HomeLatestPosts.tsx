@@ -158,7 +158,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </AllowHidingFrontPagePostsContext.Provider>
             {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
                 opt-out of their shortform posts being shown on the frontpage */}
-            {/* {isEAForum && !!currentUser?.profileTagIds?.length && (
+            {/* {isEAForum && (
               <CommentsListCondensed
                 label={"Shortform discussion"}
                 contentType="shortform"

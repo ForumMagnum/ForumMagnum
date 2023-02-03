@@ -189,6 +189,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 12,
     position: "relative",
     top: -2,
+    '& .FooterTag-root:nth-child(n+4)': {
+      marginTop: 8,
+    }
   },
   relevantTag: {
     marginTop: 4,
@@ -505,7 +508,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
                 {relevantTagsTruncated.map(tag =>
-                  <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} />
+                  <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
                 )}
                 {shouldDisplayLoadMore && <LoadMore
                   loadMore={() => setShowMoreClicked(true)}

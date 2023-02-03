@@ -41,7 +41,7 @@ const ShortformSubmitForm = ({
       <CommentsNewForm
         prefilledProps={{
           ...prefilledProps,
-          shortform: true, 
+          shortform: true,
         }}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

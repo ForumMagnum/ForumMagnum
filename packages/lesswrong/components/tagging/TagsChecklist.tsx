@@ -83,12 +83,25 @@ const TagsChecklist = ({
       return tags.map((tag) => ({ tag, selected: selectedTagIds.includes(tag._id) }));
     }
   };
-  let tagsToDisplay = getTagsToDisplay();
-  let shouldDisplayLoadMore = false;
-  if (truncate && !loadMoreClicked) {
-    shouldDisplayLoadMore = tagsToDisplay.length > 5;
-    tagsToDisplay = tagsToDisplay.slice(0, 5);
+
+  const actuallyTruncate = truncate && !loadMoreClicked;
+
+  const allRelevantTags = getTagsToDisplay();
+  const selectedTags = allRelevantTags.filter((tag) => tag.selected);
+
+  let tagsToDisplay = allRelevantTags;
+  /**
+   * The first 5 tags can always be displayed if the list is truncated.
+   * If another tag beyonf this is selected, it should be added to the front of the list.
+   */
+  if (actuallyTruncate) {
+    const initialTagsToDisplay = allRelevantTags.slice(0, 5);
+    const selectedHiddenTags = selectedTags.filter((tag) => !initialTagsToDisplay.includes(tag));
+
+    // Add hidden tags to the front of the list
+    tagsToDisplay = selectedHiddenTags.length > 0 ? selectedHiddenTags.concat(initialTagsToDisplay) : initialTagsToDisplay;
   }
+  const shouldDisplayLoadMore = actuallyTruncate && tagsToDisplay.length < allRelevantTags.length;
 
   const handleOnTagSelected = (tag, existingTagIds) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
   const handleOnTagRemoved = (tag, existingTagIds) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
