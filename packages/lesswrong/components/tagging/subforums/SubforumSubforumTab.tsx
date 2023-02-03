@@ -149,7 +149,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       // disabled={currentUser}
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={clickNewDiscussion}>
+      <SectionButton onClick={currentUser ? clickNewDiscussion : () => {}}>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
       </SectionButton>
     </LWTooltip>

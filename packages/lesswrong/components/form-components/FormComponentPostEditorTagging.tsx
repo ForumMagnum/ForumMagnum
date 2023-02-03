@@ -111,10 +111,6 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
         {showCoreTopicSection && (
           <>
             <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core Topics</h3>
-            <p className={classes.coreTagExplanation}>
-              {/* TODO improve wording */}
-              Your post is more likely to be seen by the right people if you post it in the relevant core topic. Core topics may be added automatically if a sub-topic is selected
-            </p>
             <TagsChecklist
               tags={coreTags}
               selectedTagIds={selectedTagIds}
