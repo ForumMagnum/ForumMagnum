@@ -21,7 +21,8 @@ const makeDataNoCookie = () => {
       chicken: "cluck",
     },
     num: 1,
-  };
+    cookie: {},
+  } as unknown as SessionData;
 }
 
 const makeData = () => {
@@ -101,7 +102,7 @@ describe("Sessions", () => {
   });
   it("Can touch a session", async () => {
     const sessionId = "test-touch";
-    const sessionData = makeData();
+    const sessionData = makeDataNoCookie();
     await state.storePromise.set(sessionId, sessionData);
     const collection = state.store.getCollection();
     const session = await collection.findOne({ _id: sessionId });
