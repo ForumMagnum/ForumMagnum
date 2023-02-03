@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
 
 const styles = ((theme: ThemeType): JssStyles => ({
@@ -67,15 +67,15 @@ const SubforumsList = ({ onClick, classes }) => {
   
   const { TabNavigationSubItem } = Components
   
-  const getListItem = (subforum) => (
+  const getListItem = (tag: TagSubforumSidebarFragment) => (
     <MenuItemUntyped
-      key={subforum._id}
+      key={tag._id}
       onClick={onClick}
       component={Link}
-      to={tagGetSubforumUrl(subforum)}
+      to={tag.isSubforum ? tagGetSubforumUrl(tag) : tagGetUrl(tag)}
       classes={{ root: classes.menuItem }}
     >
-      <TabNavigationSubItem className={classes.subItem}>{subforum.name}</TabNavigationSubItem>
+      <TabNavigationSubItem className={classes.subItem}>{tag.name}</TabNavigationSubItem>
     </MenuItemUntyped>
   );
 
