@@ -353,6 +353,7 @@ interface DbLocalgroup extends DbObject {
   bannerImageId: string
   inactive: boolean
   deleted: boolean
+  salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date

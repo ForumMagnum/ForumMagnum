@@ -276,6 +276,14 @@ const schema: SchemaType<DbLocalgroup> = {
     tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
     ...schemaDefaultValue(false),
   },
+  
+  // used by the EA Forum to associate groups with their listing in salesforce - currently only populated via script
+  salesforceId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    hidden: true,
+  },
 };
 
 export default schema;
