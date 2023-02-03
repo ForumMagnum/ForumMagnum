@@ -44,6 +44,7 @@ const ShortformSubmitForm = ({
           shortform: true, 
         }}
         successCallback={successCallback}
+        cancelCallback={cancelCallback}
         // Put in "reply" to make the cancel button appear
         type={cancelCallback ? "reply" : "comment"}
         formProps={{
