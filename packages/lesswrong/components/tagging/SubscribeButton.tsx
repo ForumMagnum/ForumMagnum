@@ -26,6 +26,7 @@ const SubscribeButton = ({
   userTagRel,
   subscribeMessage,
   unsubscribeMessage,
+  showNotificationBell = true,
   className,
   classes,
 }: {
@@ -34,6 +35,7 @@ const SubscribeButton = ({
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
+  showNotificationBell?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -74,7 +76,7 @@ const SubscribeButton = ({
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    {currentUser && <TagNotificationSettings
+    {showNotificationBell && currentUser && <TagNotificationSettings
       tag={tag}
       userTagRel={userTagRel}
       currentUser={currentUser}

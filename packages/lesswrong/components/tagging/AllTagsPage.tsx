@@ -15,8 +15,11 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
   },
-  topSection: {
-    marginBottom: theme.spacing.unit*8
+  portalSection: {
+    marginBottom: theme.spacing.unit*8,
+    '& .ToCColumn-root': {
+      gridTemplateColumns: '1fr minmax(200px, 270px) minmax(0px, 100px) minmax(min-content, 820px) minmax(0px, 100px) min-content 10px 1.5fr !important'
+    }
   },
   alphabetical: {
     columns: 5,
@@ -45,6 +48,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
     verticalAlign: "middle",
   },
+  coreTagsSection: {
+    /**
+     * I'm slightly abusing the ToCColumn component by using an empty table of contents for the top core tags section.
+     * This makes it way easier to line up with the rest of the page, while keeping the table of contents for the
+     * lower wiki section. This works fine apart from the fact that the table of contents component has a fixed height of 80vh,
+     * this removes that
+     */
+    '& .ToCColumn-stickyBlockScroller': {
+      height: "unset !important"
+    },
+    // FIXME do this one in a non-hacky way if we actually decide to do it
+    '& .ToCColumn-root': {
+      gridTemplateColumns: '1fr minmax(200px, 270px) minmax(0px, 100px) minmax(min-content, 820px) minmax(0px, 100px) min-content 10px 1.5fr !important'
+    }
+  }
 })
 
 
@@ -56,14 +74,14 @@ const AllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading } = Components;
+  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading, CoreTagsSection } = Components;
 
-  let sectionTitle = forumSelect({
+  let portalTitle = forumSelect({
     EAForum: 'EA Forum Wiki',
     default: 'Concepts Portal'
   })
   if (taggingNameIsSet.get()) {
-    sectionTitle = forumSelect({
+    portalTitle = forumSelect({
       EAForum: `EA Forum ${taggingNamePluralCapitalSetting.get()} Wiki`,
       default: `${taggingNamePluralCapitalSetting.get()} Portal`
     })
@@ -74,7 +92,17 @@ const AllTagsPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <div className={classes.root}>
-        <div className={classes.topSection}>
+        <div className={classes.coreTagsSection}>
+          <ToCColumn
+            tableOfContents={<div/>}
+            header={<SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} />}
+          >
+            <AnalyticsContext pageSectionContext="coreTagsSection">
+              <CoreTagsSection />
+            </AnalyticsContext>
+          </ToCColumn>
+        </div>
+        <div className={classes.portalSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
             <ToCColumn
               tableOfContents={tag ? <TagTableOfContents
@@ -97,7 +125,7 @@ const AllTagsPage = ({classes}: {
                   })
                 }}
               /> : <div/>}
-              header={<SectionTitle title={sectionTitle}>
+              header={<SectionTitle title={portalTitle}>
                 <SectionButton>
                   {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
                     to={tagCreateUrl}
