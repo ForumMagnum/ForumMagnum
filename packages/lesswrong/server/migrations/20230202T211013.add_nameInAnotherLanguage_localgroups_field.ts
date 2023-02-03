@@ -11,7 +11,7 @@
  * --- Overall schema hash: 7ea7cade23d0b233b794be743cd6ebaf
  * -
  * --- Accepted on 2023-02-01T15:58:39.000Z by 20230201T155839.add_importAsDraft_field.ts
- * +-- Overall schema hash: dc44a10de9ebb0dc946322a1e04d6034
+ * +-- Overall schema hash: df6daf9edd46c15e6eb9a3862852ae85
  *  
  * @@ -311,3 +309,3 @@ CREATE TABLE "LegacyData" (
  *  
@@ -31,7 +31,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "dc44a10de9ebb0dc946322a1e04d6034";
+export const acceptsSchemaHash = "df6daf9edd46c15e6eb9a3862852ae85";
 
 import Localgroups from "../../lib/collections/localgroups/collection";
 import { addField, dropField } from "./meta/utils";
