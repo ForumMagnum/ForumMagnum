@@ -1255,7 +1255,7 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationSubforumUnread: {
-    label: `New shortform in topics I'm subscribed to`,
+    label: `New discussions in topics I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
   },
   notificationNewMention: {
