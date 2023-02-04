@@ -110,7 +110,7 @@ Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
 Users.addView("usersWithBannedUsers", function () {
   return {
     selector: {
-      $or: [{bannedPersonalUserIds: {exists:true}}, {bannedUserIds: {$exists: true}}]
+      $or: [{bannedPersonalUserIds: {$ne:null}}, {bannedUserIds: {$ne:null}}]
     },
   }
 })
