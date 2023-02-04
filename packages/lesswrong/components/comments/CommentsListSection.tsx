@@ -199,13 +199,13 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         parentAnswerId={parentAnswerId}
       />
       <PostsPageCrosspostComments />
-      <LWTooltip title="View deleted comments and banned users">
-        <Row justifyContent="flex-end">
+      <Row justifyContent="flex-end">
+        <LWTooltip title="View deleted comments and banned users">
           <Link to="/moderation">
             <MetaInfo>Moderation Log</MetaInfo>
           </Link>
-        </Row>
-      </LWTooltip>
+        </LWTooltip>
+      </Row>
     </div>
   );
 }
