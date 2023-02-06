@@ -1,0 +1,35 @@
+.ck .customButton {
+	display: inline-block;
+	background: #0c869b;
+	color: #fff;
+	font-size: 14px;
+	font-family: 'Merriweather Sans';
+	padding: 12px 16px;
+	margin: 1em 0;
+	border-radius: 6px;
+}
+
+.ck.ck-customButton-form {
+	padding: var(--ck-spacing-large);
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+	grid-column-gap: 0px;
+	grid-row-gap: var(--ck-spacing-standard);
+}
+
+.ck.ck-customButton-form .ck.ck-labeled-field-view:nth-of-type(1) {
+	grid-area: 1 / 1 / 2 / 3;
+}
+
+.ck.ck-customButton-form .ck.ck-labeled-field-view:nth-of-type(2) {
+	grid-area: 2 / 1 / 3 / 3;
+}
+
+.ck.ck-customButton-form .ck-button:nth-of-type(1) {
+	grid-area: 3 / 1 / 4 / 2;
+}
+
+.ck.ck-customButton-form .ck-button:nth-of-type(2) {
+	grid-area: 3 / 2 / 4 / 3;
+}

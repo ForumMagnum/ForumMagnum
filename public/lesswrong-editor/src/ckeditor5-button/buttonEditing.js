@@ -3,9 +3,11 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import InsertButtonCommand from './insertButtonCommand';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import './theme/customButton.css';
 
 import { BUTTON_ELEMENT } from './constants';
 import { INSERT_BUTTON_COMMAND } from './constants';
+import { BUTTON_CLASS } from './constants';
 
 export default class ButtonEditing extends Plugin {
 	static get requires() {
@@ -28,32 +30,67 @@ export default class ButtonEditing extends Plugin {
 		const { conversion } = this.editor;
 		
 		schema.register(BUTTON_ELEMENT, {
+			isBlock: true,
+			isLimit: true,
 			isObject: true,
+			allowedIn: '$root',
 			allowWhere: '$block',
+			allowChildren: '$text'
 		});
 		// (model → editing view)
 		conversion.for('editingDowncast').elementToElement({
 			model: BUTTON_ELEMENT,
-			view: (_, conversionApi) => {
-				const viewWriter = conversionApi.writer;
-				const button = viewWriter.createContainerElement('span', {
+			view: (modelElement, { writer }) => {
+				console.log('modelElement', modelElement)
+				console.log('attrs', modelElement.getAttributeKeys())
+				console.log('href', modelElement.getAttribute('href'))
+				const button = writer.createContainerElement('a', {
+					class: BUTTON_CLASS,
 					'data-button': true,
-					'data-button-text': 'test',
+					'data-text': modelElement.getAttribute('data-text'),
+					href: modelElement.getAttribute('href'), // TODO: sanitize?
 				});
-				const text = viewWriter.createText('test');
-				viewWriter.insert(viewWriter.createPositionAt(button, 0), text);
+				const text = writer.createText(modelElement.getAttribute('text'));
+				writer.insert(writer.createPositionAt(button, 0), text);
 
-				return toWidget(button, viewWriter);
+				return toWidget(button, writer, 'div');
 			}
 		});
-		// (model → editing view)
+		conversion.for('dataDowncast').elementToElement({
+			model: BUTTON_ELEMENT,
+			view: (modelElement, { writer }) => {
+				console.log('dataDowncast attrs', modelElement.getAttributeKeys())
+				const button = writer.createContainerElement('a', {
+					class: BUTTON_CLASS,
+					'data-button': true,
+					'data-text': modelElement.getAttribute('data-text'),
+					href: modelElement.getAttribute('href'), // TODO: sanitize?
+				});
+				const text = writer.createText(modelElement.getAttribute('text'));
+				writer.insert(writer.createPositionAt(button, 0), text);
+
+				return button;
+			}
+			// view: {
+			// 	name: 'a',
+			// 	class: BUTTON_CLASS,
+			// 	attributes: ['data-button', 'data-text', 'href']
+			// }
+		});
+		// (editing → model view)
 		conversion.for('upcast').elementToElement({
 			view: {
-				attributes: {
-					'data-button': true,
-				},
+				name: 'a',
+				class: BUTTON_CLASS,
+				attributes: ['data-button', 'data-text', 'href']
 			},
-			model: BUTTON_ELEMENT,
+			model: ( viewElement, { writer } ) => {
+				return writer.createElement(BUTTON_ELEMENT, {
+					'data-button': true,
+					'data-text': viewElement.getAttribute('data-text'),
+					href: viewElement.getAttribute('href')
+				});
+			}
 		});
 
 		this.editor.commands.add( INSERT_BUTTON_COMMAND, new InsertButtonCommand( this.editor ) );
