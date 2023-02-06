@@ -507,14 +507,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             </Link>}
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
-                {relevantTagsTruncated.map(tag =>
-                  <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
-                )}
-                {shouldDisplayLoadMore && <LoadMore
-                  loadMore={() => setShowMoreClicked(true)}
-                  message="Show more"
-                  className={classes.showMoreTags}
-                />}
+              {relevantTagsTruncated.map(tag =>
+                <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
+              )}
+              {shouldDisplayLoadMore && <LoadMore
+                loadMore={() => setShowMoreClicked(true)}
+                message="Show more"
+                className={classes.showMoreTags}
+              />}
             </span>}
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

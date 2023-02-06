@@ -90,10 +90,8 @@ const TagsChecklist = ({
   const selectedTags = allRelevantTags.filter((tag) => tag.selected);
 
   let tagsToDisplay = allRelevantTags;
-  /**
-   * The first 5 tags can always be displayed if the list is truncated.
-   * If another tag beyonf this is selected, it should be added to the front of the list.
-   */
+  // The first 5 tags can always be displayed if the list is truncated.
+  // If another tag beyonf this is selected, it should be added to the front of the list.
   if (actuallyTruncate) {
     const initialTagsToDisplay = allRelevantTags.slice(0, 5);
     const selectedHiddenTags = selectedTags.filter((tag) => !initialTagsToDisplay.includes(tag));

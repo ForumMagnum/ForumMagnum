@@ -189,6 +189,11 @@ const mergeTwoSelectors = <T extends DbObject>(
   return mergedSelector;
 }
 
+/**
+ * Merge selectors, with special handling for $and and $or. NB: Not yet
+ * completely recursive, so while it will do a deep merge of your selectors,
+ * $and and $or will only be merged at the top level.
+ */
 export const mergeSelectors = <T extends DbObject>(
   ...selectors: Array<MongoSelector<T> | undefined>
 ) => selectors.reduce(
