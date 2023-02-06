@@ -104,6 +104,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex'
   },
 
+  amazonButton: {
+    ...theme.typography.commentStyle,
+    height: '36px',
+    background: theme.palette.buttons.bookCheckoutButton,
+    paddingLeft: 16,
+    paddingRight: 16,
+    color: theme.palette.buttons.primaryDarkText,
+    fontSize: '14px',
+    border: 0,
+    fontWeight: '500',
+    cursor: 'pointer',
+    letterSpacing: '0.6',
+    borderRadius: '6px',
+    transition: 'all 0.2s ease',
+    boxShadow: `0px 4px 5.5px 0px ${theme.palette.greyAlpha(0.07)}`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '&:hover': {
+      opacity: 0.8
+    },
+    
+    [theme.breakpoints.down('xs')]: {
+      width: 175,
+    },
+  },
+
   interludeTextContainer: {
     display: "grid",
     gridGap: "3px 50px",
@@ -368,7 +395,9 @@ const Book2018Landing = ({classes}: {
             </p>
             <div>
               <div className={classes.buyButton}>
-                {/* <BookCheckout /> */}
+                <a className={classes.amazonButton} href="http://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507/ref=sr_1_1?keywords=a+map+that+reflects+the+territory">
+                  Buy on Amazon  
+                </a>
                 <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
                   Read the FAQ
                 </Link>
