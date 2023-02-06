@@ -23,7 +23,7 @@ const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
-    label: "Advanced options",
+    label: isEAForum ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
 };
@@ -36,7 +36,7 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     order: 10,
     control: "MuiTextField",
-    label: "Group name"
+    label: isEAForum ? "Group name" : "Group Name"
   },
   
   nameInAnotherLanguage: {
@@ -63,7 +63,7 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     order: 20,
     control: "UsersListEditor",
-    label: "Add organizers",
+    label: isEAForum ? "Add organizers" : "Add Organizers",
   },
 
   'organizerIds.$': {
@@ -89,7 +89,7 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     control: 'MultiSelectButtons',
-    label: "Group type:",
+    label: "Group Type:",
     defaultValue: ["LW"],
     minCount: 1, // Ensure that at least one type is selected
     form: {
@@ -156,7 +156,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Group location",
+    label: isEAForum ? "Group location" : "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
     hidden: data => data.document.isOnline,
@@ -177,7 +177,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Contact info",
+    label: isEAForum ? "Contact info" : "Contact Info",
     control: "MuiTextField",
     optional: true,
   },
@@ -187,7 +187,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook group",
+    label: isEAForum ? "Facebook group" : "Facebook Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -199,7 +199,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook page",
+    label: isEAForum ? "Facebook page" : "Facebook Page",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -211,7 +211,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Meetup.com group",
+    label: isEAForum ? "Meetup.com group" : "Meetup.com Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -223,7 +223,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Slack workspace",
+    label: isEAForum ? "Slack workspace" : "Slack Workspace",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -248,7 +248,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    label: "Banner image",
+    label: isEAForum ? "Banner image" : "Banner Image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
     form: {
