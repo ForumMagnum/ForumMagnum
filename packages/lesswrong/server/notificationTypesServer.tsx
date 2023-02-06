@@ -192,12 +192,12 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
 
     const commentCount = comments.length
     const subforumIds = uniq(comments.map(c => c.tagId))
-
+    
     if (subforumIds.length === 1) {
       const subforum = await Tags.findOne(subforumIds[0])
-      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} topic`
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} subforum`
     } else {
-      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} topics you are subscribed to`
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} subforums you are subscribed to`
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {

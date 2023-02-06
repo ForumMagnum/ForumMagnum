@@ -21,20 +21,19 @@ export const tagMinimumKarmaPermissions = forumSelect({
 type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
-  tab?: string
 }
 
 export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false) => {
-  const urlSearchParams = urlOptions
+export const tagGetUrl = (tag: {slug: string, isSubforum: boolean}, urlOptions?: GetUrlOptions) => {
+  // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
+  const urlSearchParams = tag.isSubforum ? {tab: "wiki", ...urlOptions} : urlOptions
   const search = qs.stringify(urlSearchParams)
 
   const url = `/${tagUrlBase}/${tag.slug}`
-  const urlWithSearch = `${url}${search ? `?${search}` : ''}`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSearch) : urlWithSearch
+  return `${url}${search ? `?${search}` : ''}`
 }
 
 export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
@@ -45,7 +44,8 @@ export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
 }
 
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  return tagGetUrl(tag, {tab: "posts"}, isAbsolute)
+  const suffix = `/${tagUrlBase}/${tag.slug}?tab=subforum`
+  return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
 export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
