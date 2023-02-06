@@ -31,69 +31,114 @@ export default class ButtonEditing extends Plugin {
 		
 		schema.register(BUTTON_ELEMENT, {
 			isBlock: true,
-			isLimit: true,
 			isObject: true,
-			allowedIn: '$root',
-			allowWhere: '$block',
-			allowChildren: '$text'
+			allowIn: '$root',
+			allowAttributes: [
+				'data-button',
+				'data-text',
+				'data-href',
+			],
 		});
 		// (model → editing view)
 		conversion.for('editingDowncast').elementToElement({
 			model: BUTTON_ELEMENT,
 			view: (modelElement, { writer }) => {
-				console.log('modelElement', modelElement)
-				console.log('attrs', modelElement.getAttributeKeys())
-				console.log('href', modelElement.getAttribute('href'))
-				const button = writer.createContainerElement('a', {
-					class: BUTTON_CLASS,
-					'data-button': true,
-					'data-text': modelElement.getAttribute('data-text'),
-					href: modelElement.getAttribute('href'), // TODO: sanitize?
-				});
-				const text = writer.createText(modelElement.getAttribute('text'));
-				writer.insert(writer.createPositionAt(button, 0), text);
+				// console.log('modelElement', modelElement)
+				// console.log('attrs', modelElement.getAttributeKeys())
+				// const button = writer.createContainerElement('span', {
+				// 	'data-button': true,
+				// 	'data-text': modelElement.getAttribute('data-text'),
+				// 	'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+				// });
+				// const innerSpan = writer.createContainerElement('sup', {
+				// });
+				// const link = writer.createContainerElement('a', {
+				// 	class: BUTTON_CLASS,
+				// 	href: modelElement.getAttribute('data-href'), // TODO: sanitize?
+				// });
 
-				return toWidget(button, writer, 'div');
+				// const text = writer.createText(modelElement.getAttribute('data-text'));
+				// writer.insert(writer.createPositionAt(link, 0), text);
+				// writer.insert(writer.createPositionAt(innerSpan, 0), link);
+				// writer.insert(writer.createPositionAt(button, 0), innerSpan);
+				const button = this.createButtonViewElement(modelElement, writer);
+
+				return toWidget(button, writer);
 			}
 		});
 		conversion.for('dataDowncast').elementToElement({
 			model: BUTTON_ELEMENT,
 			view: (modelElement, { writer }) => {
-				console.log('dataDowncast attrs', modelElement.getAttributeKeys())
-				const button = writer.createContainerElement('a', {
-					class: BUTTON_CLASS,
-					'data-button': true,
-					'data-text': modelElement.getAttribute('data-text'),
-					href: modelElement.getAttribute('href'), // TODO: sanitize?
-				});
-				const text = writer.createText(modelElement.getAttribute('text'));
-				writer.insert(writer.createPositionAt(button, 0), text);
+				// console.log('modelElement', modelElement)
+				// console.log('attrs', modelElement.getAttributeKeys())
+				// const button = writer.createContainerElement('span', {
+				// 	'data-button': true,
+				// 	'data-text': modelElement.getAttribute('data-text'),
+				// 	'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+				// });
+				// const innerSpan = writer.createContainerElement('sup', {
+				// });
+				// const link = writer.createContainerElement('a', {
+				// 	class: BUTTON_CLASS,
+				// 	href: modelElement.getAttribute('data-href'), // TODO: sanitize?
+				// });
+
+				// const text = writer.createText(modelElement.getAttribute('data-text'));
+				// writer.insert(writer.createPositionAt(link, 0), text);
+				// writer.insert(writer.createPositionAt(innerSpan, 0), link);
+				// writer.insert(writer.createPositionAt(button, 0), innerSpan);
+				return this.createButtonViewElement(modelElement, writer);
 
 				return button;
 			}
 			// view: {
 			// 	name: 'a',
 			// 	class: BUTTON_CLASS,
-			// 	attributes: ['data-button', 'data-text', 'href']
+			// 	attributes: ['data-button', 'data-text', 'data-href']
 			// }
 		});
 		// (editing → model view)
 		conversion.for('upcast').elementToElement({
 			view: {
-				name: 'a',
-				class: BUTTON_CLASS,
-				attributes: ['data-button', 'data-text', 'href']
+				attributes: {
+					'data-button': true,
+				},
 			},
 			model: ( viewElement, { writer } ) => {
 				return writer.createElement(BUTTON_ELEMENT, {
 					'data-button': true,
 					'data-text': viewElement.getAttribute('data-text'),
-					href: viewElement.getAttribute('href')
+					'data-href': viewElement.getAttribute('data-href')
 				});
 			}
 		});
 
 		this.editor.commands.add( INSERT_BUTTON_COMMAND, new InsertButtonCommand( this.editor ) );
 	}
+	
+	createButtonViewElement(modelElement, viewWriter) {
+		const index = '10'
+		const id = 'whatever'
+		if(index === undefined) {
+			throw new Error('Footnote reference has no provided index.')
+		}
+		if(id === undefined) {
+			throw new Error('Footnote reference has no provided id.')
+		}
 
+		const footnoteReferenceView = viewWriter.createContainerElement('span', {
+			'data-button': true,
+			'data-text': 'test',
+			'data-href': 'test',
+		});
+
+		const innerText = viewWriter.createText(`[${index}]`);
+		const link = viewWriter.createContainerElement('a', {href: `#fn${id}`});
+		const superscript = viewWriter.createContainerElement('sup');
+		viewWriter.insert(viewWriter.createPositionAt(link, 0), innerText);
+		viewWriter.insert(viewWriter.createPositionAt(superscript, 0), link);
+		viewWriter.insert(viewWriter.createPositionAt(footnoteReferenceView, 0), superscript);
+
+		return footnoteReferenceView;
+	}
 }

@@ -7,13 +7,12 @@ export default class InsertFootnoteCommand extends Command {
 			console.log('attributes', attributes)
 			const button = modelWriter.createElement(BUTTON_ELEMENT, {
 				'data-button': true,
-				href: attributes.link || '',
+				'data-href': attributes.link || '',
 				'data-text': attributes.text || 'Apply now'
 			});
 			// modelWriter.createText(attributes.text ?? 'Apply now');
 			console.log('button', button)
 			this.editor.model.insertContent(button);
-			// this.editor.model.insertObject(button);
 		});
 	}
 
