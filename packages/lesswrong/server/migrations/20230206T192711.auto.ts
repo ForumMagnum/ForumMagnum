@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "648adc678a9728446edee9eb45518d8b";
+export const acceptsSchemaHash = "cbbfdf0c9f7aa799934b7ecc4a68697d";
 
 import { Comments } from "../../lib/collections/comments";
 import { addField, dropField } from "./meta/utils";
