@@ -298,6 +298,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
@@ -1746,6 +1747,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
