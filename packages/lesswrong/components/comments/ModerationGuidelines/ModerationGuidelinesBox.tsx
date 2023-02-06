@@ -10,7 +10,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { subforumGuidelines } from './EAModerationGuidelinesContent';
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -90,7 +89,7 @@ const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {
 
 const getSubforumModerationGuidelines = (tag: TagFragment) => {
   const { html = "" } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html || subforumGuidelines
+  const combinedGuidelines = html
   const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }
