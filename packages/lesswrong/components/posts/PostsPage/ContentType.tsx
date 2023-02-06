@@ -224,7 +224,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
     },
     frontpageSubforumDiscussion: {
       tooltipTitle: 'Topic Discussion',
-      tooltipBody: 'Discussion comments on subforums that you are a member of',
+      tooltipBody: 'Discussion comments on topics that you are a member of',
       Icon: QuestionAnswerIcon,
       linkTarget: null,
     },

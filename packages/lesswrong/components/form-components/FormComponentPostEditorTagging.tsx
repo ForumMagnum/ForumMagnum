@@ -17,11 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   coreTagHeader: {
     marginBottom: 10,
   },
-  coreTagExplanation: {
-    marginTop: 4,
-    fontStyle: "italic",
-    color: theme.palette.grey[700],
-  }
 });
 
 /**
@@ -110,7 +105,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       <div className={classes.root}>
         {showCoreTopicSection && (
           <>
-            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core Topics</h3>
+            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
             <TagsChecklist
               tags={coreTags}
               selectedTagIds={selectedTagIds}

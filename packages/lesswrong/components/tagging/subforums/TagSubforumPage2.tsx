@@ -165,7 +165,6 @@ const TagSubforumPage2 = ({classes}: {
     SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
-    SubforumIntroBox,
     SubforumWelcomeBox,
     SubforumWikiTab,
     SubforumSubforumTab,
@@ -336,8 +335,6 @@ const TagSubforumPage2 = ({classes}: {
 
   const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
     posts: [
-      // Intro box: "What is a subforum?"
-      <SubforumIntroBox key={"intro_box"} />,
       // Welcome box: "Welcome to the [subforum name] subforum!"
       <SubforumWelcomeBox
         html={tag.subforumWelcomeText?.html}

@@ -145,8 +145,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   const discussionButton = (
     <LWTooltip
       title={"You must be logged in to create a discussion"}
-      // TODO merge with JP's PR and just disable for logged in users
-      // disabled={currentUser}
+      disabled={!!currentUser}
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
       <SectionButton onClick={currentUser ? clickNewDiscussion : () => {}}>

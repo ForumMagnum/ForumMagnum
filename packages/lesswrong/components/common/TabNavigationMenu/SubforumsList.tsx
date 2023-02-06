@@ -39,7 +39,6 @@ const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }) => {
   const { results } = useMulti({
-    // TODO possibly make it include subscribed tags
     terms: {view: 'coreTags'},
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
