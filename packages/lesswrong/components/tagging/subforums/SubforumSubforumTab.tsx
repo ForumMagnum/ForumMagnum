@@ -52,10 +52,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   listSettingsContainer: {
     marginTop: 16,
   },
-  newDiscussionContainer: {
+  newShortformContainer: {
     background: theme.palette.grey[0],
     marginTop: 16,
     padding: "0px 8px 8px 8px",
+  },
+  centerChild: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
   feedPostWrapper: {
     marginTop: 16,
@@ -82,19 +87,18 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   classes: ClassesType,
 }) => {
   const {
-    PostsListSortDropdown,
     CommentPermalink,
     LWTooltip,
     SectionButton,
-    CommentsNewForm,
     MixedTypeFeed,
     RecentDiscussionThread,
     CommentWithReplies,
     PostsList2,
-    AddPostsToTag,
     CommentsListCondensed,
     SubforumListSettings,
     SortButton,
+    ShortformSubmitForm,
+    WrappedLoginForm,
   } = Components;
 
   const { query } = useLocation();
@@ -107,13 +111,13 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       refetchRef.current();
   }, [refetchRef]);
 
-  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
+  const [newShortformOpen, setNewShortformOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
-  const clickNewDiscussion = useCallback(() => {
-    setNewDiscussionOpen(true)
-    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
+  const clickNewShortform = useCallback(() => {
+    setNewShortformOpen(true)
+    captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }, [captureEvent, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
@@ -144,18 +148,13 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   const maxAgeHours = 18;
   const commentsLimit = 3;
 
-  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
-  const discussionButton = (
+  const shortformButton = (
     <LWTooltip
-      title={
-        canPostDiscussion
-          ? "Create a discussion which will only appear in this subforum"
-          : "You must be a member of this subforum to create a discussion"
-      }
+      title="Create a shortform which will appear in this subforum"
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+      <SectionButton onClick={clickNewShortform}>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
       </SectionButton>
     </LWTooltip>
   );
@@ -289,8 +288,8 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     <div className={classes.listLayout}>
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
       <CommentsListCondensed
-        label={"Discussions"}
-        contentType="subforumDiscussion"
+        label={"Shortforms"}
+        contentType="shortform"
         terms={{
           view: "tagSubforumComments" as const,
           tagId: tag._id,
@@ -317,7 +316,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       )}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
-          {discussionButton}
+          {shortformButton}
           {newPostButton}
         </div>
         <LWTooltip title={`${showSettings ? "Hide" : "Show"} options for sorting and layout`} placement="top-end">
@@ -336,20 +335,23 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
           <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
         </div>
       )}
-      {newDiscussionOpen && (
-        <div className={classes.newDiscussionContainer}>
-          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
-          <CommentsNewForm
-            tag={tag}
-            tagCommentType={"SUBFORUM"}
-            type="reply" // required to make the Cancel button appear
-            enableGuidelines={true}
-            cancelCallback={() => setNewDiscussionOpen(false)}
+      {newShortformOpen && (
+        <div className={classes.newShortformContainer}>
+          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time
+              you click on them, on desktop only */}
+          {currentUser ? <ShortformSubmitForm
+            prefilledProps={{
+              relevantTagIds: [tag._id],
+            }}
+            cancelCallback={() => setNewShortformOpen(false)}
             successCallback={() => {
-              setNewDiscussionOpen(false);
+              setNewShortformOpen(false);
               refetch();
             }}
-          />
+            noDefaultStyles
+          /> : <div className={classes.centerChild}>
+            <WrappedLoginForm />
+          </div>}
         </div>
       )}
       {layoutComponents[layout]}

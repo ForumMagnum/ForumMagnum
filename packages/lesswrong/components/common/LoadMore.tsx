@@ -41,10 +41,27 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-// Load More button. The simplest way to use this is to take `loadMoreProps`
-// from the return value of `useMulti` and spread it into this component's
-// props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassName, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles, afterPostsListMarginTop }: {
+/**
+ * Load More button. The simplest way to use this is to take `loadMoreProps`
+ * from the return value of `useMulti` and spread it into this component's
+ * props.
+ */
+const LoadMore = ({
+  loadMore,
+  count,
+  totalCount,
+  className=null,
+  loadingClassName,
+  disabled=false,
+  networkStatus,
+  loading=false,
+  hideLoading=false,
+  hidden=false,
+  classes,
+  sectionFooterStyles,
+  afterPostsListMarginTop,
+  message="Load More",
+}: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
@@ -63,6 +80,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
   classes: ClassesType,
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
+  message?: string,
 }) => {
   const { captureEvent } = useTracking()
 
@@ -88,16 +106,20 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
 
   return (
     <a
-      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled, [classes.sectionFooterStyles]: sectionFooterStyles, [classes.afterPostsListMarginTop]: afterPostsListMarginTop})}
+      className={classNames(classes.root, className, {
+        [classes.disabled]: disabled,
+        [classes.sectionFooterStyles]: sectionFooterStyles,
+        [classes.afterPostsListMarginTop]: afterPostsListMarginTop,
+      })}
       href="#"
       onClick={handleClickLoadMore}
     >
-      {totalCount ? `Load More (${count}/${totalCount})` : "Load More"}
+      {totalCount ? `${message} (${count}/${totalCount})` : `${message}`}
     </a>
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles});
+const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

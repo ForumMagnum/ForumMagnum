@@ -98,7 +98,7 @@ export type CommentsNewFormProps = {
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: any,
+  successCallback?: (comment: CommentsList, otherArgs: any) => void,
   type: string,
   cancelCallback?: any,
   classes: ClassesType,
