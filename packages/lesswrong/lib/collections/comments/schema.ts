@@ -662,7 +662,7 @@ const schema: SchemaType<DbComment> = {
     insertableBy: ['members', 'admins', 'sunshineRegiment'],
     editableBy: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    label: `Post your shortform to a ${taggingNameSetting.get()}`,
+    label: `Shortform ${taggingNameSetting.get()}`,
     tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
     control: "FormComponentTagsChecklist",
     hidden: (user: UsersCurrent|DbUser|null): boolean => !userHasShortformTags(user),
