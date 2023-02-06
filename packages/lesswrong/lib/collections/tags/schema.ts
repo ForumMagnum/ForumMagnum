@@ -40,6 +40,13 @@ const schema: SchemaType<DbTag> = {
     editableBy: ['members'],
     order: 1,
   },
+  shortName: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+  },
   slug: {
     type: String,
     optional: true,

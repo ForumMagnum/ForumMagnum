@@ -381,6 +381,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
+  readonly shortName: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -1960,6 +1961,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
   readonly name: string,
+  readonly shortName: string,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,

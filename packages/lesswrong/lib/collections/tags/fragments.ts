@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     name
+    shortName
     slug
     core
     postCount
