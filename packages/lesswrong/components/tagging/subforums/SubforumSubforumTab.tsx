@@ -57,6 +57,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 16,
     padding: "0px 8px 8px 8px",
   },
+  centerChild: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   feedPostWrapper: {
     marginTop: 16,
     marginBottom: 16,
@@ -93,6 +98,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     SubforumListSettings,
     SortButton,
     ShortformSubmitForm,
+    WrappedLoginForm,
   } = Components;
 
   const { query } = useLocation();
@@ -333,7 +339,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
         <div className={classes.newShortformContainer}>
           {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time
               you click on them, on desktop only */}
-          <ShortformSubmitForm
+          {currentUser ? <ShortformSubmitForm
             prefilledProps={{
               relevantTagIds: [tag._id],
             }}
@@ -343,7 +349,9 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               refetch();
             }}
             noDefaultStyles
-          />
+          /> : <div className={classes.centerChild}>
+            <WrappedLoginForm />
+          </div>}
         </div>
       )}
       {layoutComponents[layout]}

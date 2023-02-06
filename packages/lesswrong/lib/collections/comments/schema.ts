@@ -665,7 +665,11 @@ const schema: SchemaType<DbComment> = {
     label: `Shortform ${taggingNameSetting.get()}`,
     tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
     control: "FormComponentTagsChecklist",
-    hidden: (user: UsersCurrent|DbUser|null): boolean => !userHasShortformTags(user),
+    hidden: (
+      {currentUser, document}: {currentUser: UsersCurrent|DbUser|null, document: CommentsList}): boolean => {
+        if (!userHasShortformTags(currentUser)) return true;
+        return !document.shortform
+    },
   },
   'relevantTagIds.$': {
     type: String,

@@ -102,6 +102,7 @@ const TagsChecklist = ({
     tagsToDisplay = selectedHiddenTags.length > 0 ? selectedHiddenTags.concat(initialTagsToDisplay) : initialTagsToDisplay;
   }
   const shouldDisplayLoadMore = actuallyTruncate && tagsToDisplay.length < allRelevantTags.length;
+  const numHidden = allRelevantTags.length - tagsToDisplay.length;
 
   const handleOnTagSelected = (tag, existingTagIds) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
   const handleOnTagRemoved = (tag, existingTagIds) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
@@ -132,7 +133,7 @@ const TagsChecklist = ({
         )
       )}
       {shouldDisplayLoadMore && <LoadMore
-        message='Show more'
+        message={`${numHidden} more`}
         loadMore={() => setLoadMoreClicked(true)}
         className={classes.loadMore}
       />}

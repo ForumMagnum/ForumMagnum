@@ -36,12 +36,6 @@ const FormComponentTagsChecklist = ({
 
   const { Loading, TagsChecklist } = Components;
 
-  // TODO: Currently this component is only used in the comment form. Other than
-  // this line, and the line about truncate below, it is fully general, however.
-  if (!document.shortform) {
-    return null;
-  }
-
   if (loading) return <Loading />;
   if (!results) return null;
 
@@ -75,6 +69,7 @@ const FormComponentTagsChecklist = ({
         onTagSelected={onTagSelected}
         onTagRemoved={onTagRemoved}
         tooltips={false}
+        // TODO: Ideally should be getting this from the a form prop
         truncate={!!document.shortform}
       />
     </div>
