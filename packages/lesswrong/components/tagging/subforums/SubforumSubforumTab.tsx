@@ -82,6 +82,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   classes: ClassesType,
 }) => {
   const {
+    PostsListSortDropdown,
     CommentPermalink,
     LWTooltip,
     SectionButton,
@@ -90,6 +91,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     RecentDiscussionThread,
     CommentWithReplies,
     PostsList2,
+    AddPostsToTag,
     CommentsListCondensed,
     SubforumListSettings,
     SortButton,
@@ -142,13 +144,17 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   const maxAgeHours = 18;
   const commentsLimit = 3;
 
+  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
   const discussionButton = (
     <LWTooltip
-      title={"You must be logged in to create a discussion"}
-      disabled={!!currentUser}
+      title={
+        canPostDiscussion
+          ? "Create a discussion which will only appear in this subforum"
+          : "You must be a member of this subforum to create a discussion"
+      }
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={currentUser ? clickNewDiscussion : () => {}}>
+      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
       </SectionButton>
     </LWTooltip>
@@ -337,7 +343,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
             tag={tag}
             tagCommentType={"SUBFORUM"}
             type="reply" // required to make the Cancel button appear
-            enableGuidelines={false}
+            enableGuidelines={true}
             cancelCallback={() => setNewDiscussionOpen(false)}
             successCallback={() => {
               setNewDiscussionOpen(false);

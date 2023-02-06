@@ -223,8 +223,8 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       linkTarget: '/tags/all',
     },
     frontpageSubforumDiscussion: {
-      tooltipTitle: 'Topic Discussion',
-      tooltipBody: 'Discussion comments on topics that you are a member of',
+      tooltipTitle: 'Subforum Discussion',
+      tooltipBody: 'Discussion comments on subforums that you are a member of',
       Icon: QuestionAnswerIcon,
       linkTarget: null,
     },

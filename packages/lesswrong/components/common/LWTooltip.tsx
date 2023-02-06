@@ -14,18 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({
-  children,
-  title,
-  placement="bottom-start",
-  tooltip=true,
-  flip=true,
-  clickable=false,
-  inlineBlock=true,
-  disabled=false,
-  classes,
-  className,
-}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=false, inlineBlock=true}: {
   children?: ReactNode,
   title?: ReactNode,
   placement?: PopperPlacementType,
@@ -33,7 +22,6 @@ const LWTooltip = ({
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
-  disabled?: boolean,
   classes: ClassesType,
   className?: string
 }) => {
@@ -51,7 +39,7 @@ const LWTooltip = ({
          can have a closing animation if applicable. */ }
     {everHovered && <LWPopper
       placement={placement}
-      open={hover && !disabled}
+      open={hover}
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}

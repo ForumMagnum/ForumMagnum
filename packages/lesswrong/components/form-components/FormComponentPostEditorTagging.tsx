@@ -14,9 +14,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   header: {
     marginTop: 6,
   },
-  coreTagHeader: {
-    marginBottom: 10,
+  subforumHeader: {
+    marginBottom: 0,
   },
+  subforumExplanation: {
+    marginTop: 4,
+    fontStyle: "italic",
+    color: theme.palette.grey[700],
+  }
 });
 
 /**
@@ -37,11 +42,11 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
-  const showCoreTopicSection = forumTypeSetting.get() === "EAForum";
+  const showSubforumSection = forumTypeSetting.get() === "EAForum";
   
-  const { results: coreTags, loading } = useMulti({
+  const { results, loading } = useMulti({
     terms: {
-      view: "coreTags",
+      view: "coreAndSubforumTags",
     },
     collectionName: "Tags",
     fragmentName: "TagFragment",
@@ -49,11 +54,14 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   });
 
   if (loading) return <Loading/>
-  if (!coreTags) return null
-
+  if (!results) return null
+  
+  const subforumTags = results.filter(tag => tag.isSubforum)
+  const coreTags = results.filter(tag => (!tag.isSubforum || !showSubforumSection) && tag.core)
+  
   const selectedTagIds = Object.keys(value||{})
-  const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTags.find(tag => tag._id === tagId)) : []
-
+  const selectedSubforumTagIds = showSubforumSection ? selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) : [] // inefficient but we don't expect many subforums
+  
   /**
    * post tagRelevance field needs to look like {string: number}
    */
@@ -69,7 +77,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   }
   
   const onMultiselectUpdate = (changes: { tagRelevance: string[] }) => {
-    updateValuesWithArray([...changes.tagRelevance, ...selectedCoreTagIds]);
+    updateValuesWithArray([...changes.tagRelevance, ...selectedSubforumTagIds]);
   };
   
   /**
@@ -103,11 +111,15 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   } else {
     return (
       <div className={classes.root}>
-        {showCoreTopicSection && (
+        {showSubforumSection && (
           <>
-            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
+            <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
+            <p className={classes.subforumExplanation}>
+              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums
+              are broad topics with a dedicated community and space for general discussion.
+            </p>
             <TagsChecklist
-              tags={coreTags}
+              tags={subforumTags}
               selectedTagIds={selectedTagIds}
               onTagSelected={onTagSelected}
               onTagRemoved={onTagRemoved}
@@ -116,10 +128,11 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
             <h3 className={classes.header}>Other topics</h3>
           </>
         )}
+        <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
         <TagMultiselect
           path={path}
           placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-          value={selectedTagIds.filter((tagId) => !selectedCoreTagIds.includes(tagId))}
+          value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
           updateCurrentValues={onMultiselectUpdate}
         />
       </div>
