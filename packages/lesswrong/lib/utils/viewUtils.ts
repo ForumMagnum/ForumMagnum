@@ -139,7 +139,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
  * in that context, the specific-view needs something other than `undefined` to
  * replace the default-view's constraint with.)
  */
-function replaceSpecialFieldSelectors(selector: any): any {
+export function replaceSpecialFieldSelectors(selector: any): any {
   let result: any = {};
   for (let key of Object.keys(selector)) {
     if (_.isEqual(selector[key], viewFieldNullOrMissing)) {
