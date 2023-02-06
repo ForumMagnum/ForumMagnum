@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +31,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const adminOnlyTagSlugs = ["community"];
+
+const shouldHideTag = (user: UsersCurrent | null, tag?: {slug: string}) => {
+  if (forumTypeSetting.get() !== "EAForum" || !user) {
+    return false;
+  }
+  if (tag && !user.isAdmin && !user.groups?.includes("sunshineRegiment")) {
+    return adminOnlyTagSlugs.includes(tag.slug);
+  }
+  return false;
+}
+
 const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
   hit: any,
   onClick?: (ev: any) => void,
@@ -43,6 +57,11 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
   const {eventHandlers, hover, anchorEl} = useHover();
+  const currentUser = useCurrentUser();
+
+  if (shouldHideTag(currentUser, tag ?? hit)) {
+    return null;
+  }
 
   return (
     <span {...eventHandlers}>
