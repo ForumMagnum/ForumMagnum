@@ -12,4 +12,4 @@ export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
 });
 addUniversalFields({collection: DatabaseMetadata});
 
-ensureIndex(DatabaseMetadata, { name:1 });
+ensureIndex(DatabaseMetadata, { name: 1 }, { unique: true });
