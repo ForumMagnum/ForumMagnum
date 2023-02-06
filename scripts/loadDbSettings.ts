@@ -6,7 +6,7 @@ const pgPromiseLib = pgp();
 
 type Database = IDatabase<{}>;
 
-const modes = ["dev", "prod", "staging", "testing", "xpost-dev"];
+const modes = ["dev", "prod", "staging", "testing", "xpost-dev"] as const;
 
 type Mode = typeof modes[number];
 
@@ -15,7 +15,8 @@ type Settings = {
   databaseServerSettings: Record<string, any>;
 }
 
-const isMode = (value: string): value is Mode => modes.includes(value);
+const isMode = (value: string): value is Mode =>
+  modes.includes(value as Mode);
 
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
