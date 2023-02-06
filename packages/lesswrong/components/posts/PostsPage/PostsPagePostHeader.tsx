@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { postGetAnswerCountStr, postGetCommentCount } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -9,6 +9,9 @@ import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder'
+import BookmarkIcon from '@material-ui/icons/Bookmark'
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
@@ -89,6 +92,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft:0,
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
+  },
+  commentIcon: {
+    fontSize: 20,
+    transform: "translateY(4px)",
   },
 });
 
@@ -212,7 +219,8 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
+          <a className={classes.commentsLink} href={"#comments"}><CommentIcon className={classes.commentIcon} /> {commentCount}</a>
+          <a className={classes.commentsLink} href={"bookmarks"}><BookmarkIcon className={classes.commentIcon} /> Save</a>
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
