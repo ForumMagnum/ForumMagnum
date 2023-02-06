@@ -41,7 +41,6 @@ const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTIN
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
-  return "RESULTS"
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
