@@ -298,6 +298,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
@@ -722,6 +723,7 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly status: string,
   readonly rawFeed: any /*{"definitions":[{}]}*/,
   readonly setCanonicalUrl: boolean,
+  readonly importAsDraft: boolean,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1511,6 +1513,7 @@ interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface newRSSFeedFragment { // fragment on RSSFeeds
@@ -1522,6 +1525,7 @@ interface newRSSFeedFragment { // fragment on RSSFeeds
   readonly nickname: string,
   readonly url: string,
   readonly status: string,
+  readonly importAsDraft: boolean,
 }
 
 interface RSSFeedMutationFragment { // fragment on RSSFeeds
@@ -1531,6 +1535,7 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface ReportsDefaultFragment { // fragment on Reports
@@ -1747,6 +1752,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,

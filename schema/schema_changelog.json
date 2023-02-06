@@ -90,8 +90,13 @@
     "timestamp": "2023-01-30T15:00:41.000Z"
   },
   {
-    "acceptsSchemaHash": "648adc678a9728446edee9eb45518d8b",
-    "acceptedByMigration": "20230201T001223.add_relevantTagIds_field.ts",
-    "timestamp": "2023-02-01T00:12:23.000Z"
+    "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
+    "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
+    "timestamp": "2023-02-01T15:58:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "df6daf9edd46c15e6eb9a3862852ae85",
+    "acceptedByMigration": "20230202T211013.add_nameInAnotherLanguage_localgroups_field.ts",
+    "timestamp": "2023-02-02T21:10:13.000Z"
   }
 ]
