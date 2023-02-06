@@ -721,6 +721,7 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly status: string,
   readonly rawFeed: any /*{"definitions":[{}]}*/,
   readonly setCanonicalUrl: boolean,
+  readonly importAsDraft: boolean,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1133,6 +1134,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly tableOfContents: any,
   readonly subforumTagId: string,
   readonly sideComments: any,
+  readonly socialPreviewImageId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1505,6 +1507,7 @@ interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface newRSSFeedFragment { // fragment on RSSFeeds
@@ -1516,6 +1519,7 @@ interface newRSSFeedFragment { // fragment on RSSFeeds
   readonly nickname: string,
   readonly url: string,
   readonly status: string,
+  readonly importAsDraft: boolean,
 }
 
 interface RSSFeedMutationFragment { // fragment on RSSFeeds
@@ -1525,6 +1529,7 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface ReportsDefaultFragment { // fragment on Reports

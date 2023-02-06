@@ -671,6 +671,7 @@ interface DbRSSFeed extends DbObject {
   status: string
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
+  importAsDraft: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

@@ -1,5 +1,4 @@
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
-import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -15,6 +14,7 @@ import markdownItSup from 'markdown-it-sup'
 import { mjpage }  from 'mathjax-node-page'
 import { isAnyTest } from '../../lib/executionEnvironment';
 import cheerio from 'cheerio';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
