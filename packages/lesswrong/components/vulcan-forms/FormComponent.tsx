@@ -332,9 +332,9 @@ class FormComponent extends Component<any,any> {
     );
 
     if (this.props.tooltip) {
-      return <Tooltip title={this.props.tooltip} placement="left-start">
+      return <Components.LWTooltip title={this.props.tooltip} placement="left-start">
         <div>{ formComponent }</div>
-      </Tooltip>
+      </Components.LWTooltip>
     } else {
       return formComponent;
     }
