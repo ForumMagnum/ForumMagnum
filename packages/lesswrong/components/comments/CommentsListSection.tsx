@@ -7,14 +7,17 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -199,13 +202,13 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         parentAnswerId={parentAnswerId}
       />
       <PostsPageCrosspostComments />
-      <Row justifyContent="flex-end">
+      {!isEAForum && <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
           <Link to="/moderation">
             <MetaInfo>Moderation Log</MetaInfo>
           </Link>
         </LWTooltip>
-      </Row>
+      </Row>}
     </div>
   );
 }
