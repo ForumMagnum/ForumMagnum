@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
@@ -85,7 +85,7 @@ const AllTagsPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <div className={classes.root}>
-        <div className={classes.coreTagsSection}>
+        {isEAForum && <div className={classes.coreTagsSection}>
           <ToCColumn
             tableOfContents={<div/>}
             header={<SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin />}
@@ -95,7 +95,7 @@ const AllTagsPage = ({classes}: {
               <CoreTagsSection />
             </AnalyticsContext>
           </ToCColumn>
-        </div>
+        </div>}
         <div className={classes.portalSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
             <ToCColumn
