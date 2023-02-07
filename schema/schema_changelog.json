@@ -103,5 +103,10 @@
     "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
     "acceptedByMigration": "20230206T192711.auto.ts",
     "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e99446368f7b5fd3d5f9c3b5d62ab7ed",
+    "acceptedByMigration": "20230207T174950.DebouncerEvents_pendingEvents_string_array.ts",
+    "timestamp": "2023-02-07T17:49:50.000Z"
   }
 ]
