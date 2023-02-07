@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { shouldHideTag } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,18 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   }
 });
-
-const adminOnlyTagSlugs = ["community"];
-
-const shouldHideTag = (user: UsersCurrent | null, tag?: {slug: string}) => {
-  if (forumTypeSetting.get() !== "EAForum" || !user) {
-    return false;
-  }
-  if (tag && !user.isAdmin && !user.groups?.includes("sunshineRegiment")) {
-    return adminOnlyTagSlugs.includes(tag.slug);
-  }
-  return false;
-}
 
 const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
   hit: any,
