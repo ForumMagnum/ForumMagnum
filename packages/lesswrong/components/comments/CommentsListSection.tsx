@@ -13,7 +13,7 @@ import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
