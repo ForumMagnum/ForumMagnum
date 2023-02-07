@@ -54,7 +54,16 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
         : email;
     });
     return user;
-  }
+  },
+  DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
+    if (typeof event.delayTime === "number") {
+      event.delayTime = new Date(event.delayTime);
+    }
+    if (typeof event.upperBoundTime === "number") {
+      event.upperBoundTime = new Date(event.upperBoundTime);
+    }
+    return event;
+  },
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
