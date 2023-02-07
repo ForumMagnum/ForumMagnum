@@ -41,6 +41,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
@@ -109,6 +110,7 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
+import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';

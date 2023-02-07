@@ -6,6 +6,7 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
 import { EAF_COMMUNITY_TOPIC_ID } from '../../lib/collections/posts/views';
+import { viewFieldAllowAny } from '../vulcan-lib';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -53,9 +54,9 @@ defineFeedResolver<Date>({
             hideFrontpageComments: false,
             lastCommentedAt: {$exists: true},
             hideFromRecentDiscussions: {$ne: true},
-            hiddenRelatedQuestion: undefined,
-            shortform: undefined,
-            groupId: undefined,
+            hiddenRelatedQuestion: viewFieldAllowAny,
+            shortform: viewFieldAllowAny,
+            groupId: viewFieldAllowAny,
             ...(af ? {af: true} : undefined),
             ...((isEAForum && !currentUser?.showCommunityInRecentDiscussion) ? {$and: [
               postCommentedEventsCriteria,

@@ -164,6 +164,7 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string
+  relevantTagIds: Array<string>
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -335,6 +336,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string
+  nameInAnotherLanguage: string
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
@@ -352,6 +354,7 @@ interface DbLocalgroup extends DbObject {
   bannerImageId: string
   inactive: boolean
   deleted: boolean
+  salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -671,6 +674,7 @@ interface DbRSSFeed extends DbObject {
   status: string
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
+  importAsDraft: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

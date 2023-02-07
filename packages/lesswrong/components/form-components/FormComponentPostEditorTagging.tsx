@@ -5,6 +5,8 @@ import mapValues from 'lodash/mapValues';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import { shouldHideTag } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,6 +45,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
   const showSubforumSection = forumTypeSetting.get() === "EAForum";
+  const currentUser = useCurrentUser();
   
   const { results, loading } = useMulti({
     terms: {
@@ -56,8 +59,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   if (loading) return <Loading/>
   if (!results) return null
   
-  const subforumTags = results.filter(tag => tag.isSubforum)
-  const coreTags = results.filter(tag => (!tag.isSubforum || !showSubforumSection) && tag.core)
+  const subforumTags = results.filter(tag =>
+    tag.isSubforum && !shouldHideTag(currentUser, tag)
+  );
+  const coreTags = results.filter(tag =>
+    (!tag.isSubforum || !showSubforumSection) && tag.core && !shouldHideTag(currentUser, tag)
+  );
   
   const selectedTagIds = Object.keys(value||{})
   const selectedSubforumTagIds = showSubforumSection ? selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) : [] // inefficient but we don't expect many subforums

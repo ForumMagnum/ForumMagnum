@@ -53,7 +53,7 @@ const CommentWithReplies = ({
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,
-    post,
+    post: post ?? comment.post ?? undefined,
     noHash: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
@@ -105,4 +105,3 @@ declare global {
     CommentWithReplies: typeof CommentWithRepliesComponent;
   }
 }
-
