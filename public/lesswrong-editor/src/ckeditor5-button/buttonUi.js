@@ -2,7 +2,8 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui//src/panel/balloon/contextualballoon';
 import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
-import { INSERT_BUTTON_COMMAND, TOOLBAR_COMPONENT_NAME } from './constants';
+import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
+import { BUTTON_ELEMENT, INSERT_BUTTON_COMMAND, TOOLBAR_COMPONENT_NAME } from './constants';
 import footnoteIcon from './theme/icon.svg';
 import FormView from './buttonView';
 
@@ -14,6 +15,7 @@ export default class ButtonUI extends Plugin {
 	init() {
 		const editor = this.editor;
 		const translate = editor.t;
+		editor.editing.view.addObserver( ClickObserver );
 		
 		// Create the balloon and the form view.
 		this._balloon = this.editor.plugins.get( ContextualBalloon );
@@ -36,8 +38,9 @@ export default class ButtonUI extends Plugin {
 				// editor.execute(INSERT_BUTTON_COMMAND);
 			})
 
-      return button;
+			return button;
 		});
+		this._enableUserBalloonInteractions();
 	}
 	
 	_createFormView() {
@@ -96,6 +99,12 @@ export default class ButtonUI extends Plugin {
 				view: this.formView,
 				position: this._getBalloonPositionData()
 		} );
+		const buttonCommand = this.editor.commands.get('customButton');
+
+		this.formView.text = buttonCommand.text;
+		this.formView.link = buttonCommand.link;
+
+		console.log(this.formView);
 
 		this.formView.focus();
 	}
@@ -109,5 +118,27 @@ export default class ButtonUI extends Plugin {
 
 		// Focus the editing view after closing the form view.
 		this.editor.editing.view.focus();
+	}
+
+	_enableUserBalloonInteractions() {
+		const viewDocument = this.editor.editing.view.document;
+
+		// Handle click on view document and show panel when selection is placed inside the latex element
+		this.listenTo( viewDocument, 'click', () => {
+			const selectedElement = this._getSelectedButtonElement();
+			if ( selectedElement ) {
+				// Then show panel but keep focus inside editor editable.
+				this._showUI();
+			}
+		} );
+	}
+
+	_getSelectedButtonElement() {
+		const selection = this.editor.model.document.selection;
+		const selectedElement = selection.getSelectedElement();
+		if (selectedElement && selectedElement.is( 'element', BUTTON_ELEMENT )) {
+			return selectedElement;
+		}
+		return null;
 	}
 }

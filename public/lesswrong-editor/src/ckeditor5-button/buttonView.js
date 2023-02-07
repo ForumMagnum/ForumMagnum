@@ -16,7 +16,7 @@ export default class FormView extends View {
     this.saveButtonView = this._createButton(
       'Save', icons.check, 'ck-button-save'
     );
-    // Set the type to 'submit', which will trigger
+    //   Set the type to 'submit', which will trigger
     // the submit event on entire form when clicked.
     this.saveButtonView.type = 'submit';
 
@@ -42,16 +42,32 @@ export default class FormView extends View {
       children: this.childViews
     });
   }
-  
+
+  get text() {
+	return this.textInputView.element.value;
+  }
+
+  set text( text ) {
+	this.textInputView.element.value = text;
+  }
+
+  get link() {
+	return this.linkInputView.element.value;
+  }
+
+  set link( link ) {
+	this.linkInputView.element.value = link;
+  }
+
   render() {
     super.render();
 
     // Submit the form when the user clicked the save button
     // or pressed enter in the input.
     submitHandler( {
-        view: this
+        view:   this
     } );
-  }
+    }
   
   focus() {
     this.childViews.first.focus();
@@ -60,7 +76,7 @@ export default class FormView extends View {
   _createInput( label ) {
     const labeledInput = new LabeledFieldView( this.locale, createLabeledInputText );
     labeledInput.label = label;
-    return labeledInput;
+      return labeledInput;
   }
   
   _createButton( label, icon, className ) {

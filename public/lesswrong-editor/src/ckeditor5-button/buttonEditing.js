@@ -31,14 +31,35 @@ export default class ButtonEditing extends Plugin {
 		conversion.for('editingDowncast').elementToElement({
 			model: BUTTON_ELEMENT,
 			view: (modelElement, { writer }) => {
-				const button = this.createButtonViewElement(modelElement, { writer });
+				const button = writer.createContainerElement('span', {
+					class: BUTTON_CLASS,
+					'data-button': true,
+					'data-text': modelElement.getAttribute('data-text'),
+					'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+				});
+				const text = writer.createText(modelElement.getAttribute('data-text'));
+				writer.insert(writer.createPositionAt(button, 0), text);
 				return toWidget(button, writer);
 			}
 		});
 
 		conversion.for('dataDowncast').elementToElement({
 			model: BUTTON_ELEMENT,
-			view: this.createButtonViewElement
+			view: (modelElement, { writer }) => {
+				const button = writer.createContainerElement('span', {
+					'data-button': true,
+					'data-text': modelElement.getAttribute('data-text'),
+					'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+				});
+				const link = writer.createContainerElement('a', {
+					class: BUTTON_CLASS,
+					href: modelElement.getAttribute('data-href'), // TODO: sanitize?
+				});
+				const text = writer.createText(modelElement.getAttribute('data-text'));
+				writer.insert(writer.createPositionAt(link, 0), text);
+				writer.insert(writer.createPositionAt(button, 0), link);
+				return button;
+			}
 		});
 
 		conversion.for('upcast').elementToElement({
@@ -79,6 +100,5 @@ export default class ButtonEditing extends Plugin {
 		const text = writer.createText(modelElement.getAttribute('data-text'));
 		writer.insert(writer.createPositionAt(link, 0), text);
 		writer.insert(writer.createPositionAt(button, 0), link);
-		return toWidget(button, writer);
 	}
 }
