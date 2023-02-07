@@ -10,8 +10,16 @@ import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
+import { ObjectId } from "mongodb";
 
 type Transaction = ITask<{}>;
+
+const extractObjectId = (value: Record<string, any>): Record<string, any> => {
+  if (value._id instanceof ObjectId) {
+    value._id = value._id.toString();
+  }
+  return value;
+}
 
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
@@ -56,12 +64,17 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     return user;
   },
   DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
+    extractObjectId(event);
     if (typeof event.delayTime === "number") {
       event.delayTime = new Date(event.delayTime);
     }
     if (typeof event.upperBoundTime === "number") {
       event.upperBoundTime = new Date(event.upperBoundTime);
     }
+    event.pendingEvents = (event.pendingEvents ?? []).filter(
+      (item: any) => typeof item === "string",
+    );
+    event.createdAt ??= event.delayTime;
     return event;
   },
 };
