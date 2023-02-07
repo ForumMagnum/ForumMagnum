@@ -1,6 +1,7 @@
 import Comments from "../lib/collections/comments/collection";
 import Posts from "../lib/collections/posts/collection";
 import Users from "../lib/collections/users/collection";
+import { exportUserData } from "./exportUserData";
 import { Globals, updateMutator } from './vulcan-lib';
 
 const sleep = (ms: number) => {
@@ -14,6 +15,10 @@ export const deleteUserContent = async (
 ) => {
   if (!selector._id && !selector.slug && !selector.email) {
     throw new Error("Must specify either an _id, slug or email");
+  }
+
+  if (outfile) {
+    await exportUserData(selector, outfile);
   }
 
   const user = await Users.findOne(selector);
