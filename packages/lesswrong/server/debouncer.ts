@@ -102,7 +102,7 @@ export class EventDebouncer<KeyType,ValueType>
   //  * af: (bool)
   recordEvent = async ({key, data, timing=null, af=false}: {
     key: KeyType,
-    data: ValueType,
+    data?: ValueType,
     timing?: DebouncerTiming|null,
     af?: boolean,
   }) => {
@@ -111,7 +111,17 @@ export class EventDebouncer<KeyType,ValueType>
       throw new Error("EventDebouncer.recordEvent: missing timing argument and no defaultTiming set.");
     }
     const { newDelayTime, newUpperBoundTime } = this.parseTiming(timingRule);
-    
+    if (data !== undefined && typeof data !== "string") {
+      throw new Error(`Invalid debouncer event data: ${data}`);
+    }
+    const pendingEvent = data !== undefined
+      ? {
+        $push: {
+          pendingEvents: data,
+        },
+      }
+    : {};
+
     // On rawCollection because minimongo doesn't support $max/$min on Dates
     await DebouncerEvents.rawCollection().updateOne({
       name: this.name,
@@ -121,9 +131,7 @@ export class EventDebouncer<KeyType,ValueType>
     }, {
       $max: { delayTime: newDelayTime.getTime() },
       $min: { upperBoundTime: newUpperBoundTime.getTime() },
-      $push: {
-        pendingEvents: data,
-      }
+      ...pendingEvent,
     }, {
       upsert: true
     });

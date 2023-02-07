@@ -269,7 +269,6 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
     
     await curationEmailDelay.recordEvent({
       key: post._id,
-      data: null,
       af: false
     });
   }

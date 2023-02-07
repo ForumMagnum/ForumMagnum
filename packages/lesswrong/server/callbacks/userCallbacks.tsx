@@ -392,7 +392,6 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
 getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    data: {},
   });
 });
 
