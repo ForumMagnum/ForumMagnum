@@ -27,19 +27,23 @@ Vulcan.setUserTagFilters = wrapVulcanAsyncScript(
         // eslint-disable-next-line no-console
         console.log(`Migrating user batch #${batchNumber++}`);
         
-        const changes = users.map(({ _id, frontpageFilterSettings: { tags } }) => {
+        const changes = users.map(({ _id, frontpageFilterSettings }) => {
           const newTags = [
-            ...tags.filter((t) => t.tagId !== tag._id),
+            ...frontpageFilterSettings.tags.filter((t) => t.tagId !== tag._id),
             {
               tagId: tag._id,
               tagName: tag.name,
               filterMode: weight,
             },
           ];
+          const newFilterSettings = {
+            ...frontpageFilterSettings,
+            tags: newTags
+          }
           return {
             updateOne: {
               filter: {_id},
-              update: {$set: {"frontpageFilterSettings.tags": newTags}}
+              update: {$set: {"frontpageFilterSettings": newFilterSettings}}
             }
           };
         });
