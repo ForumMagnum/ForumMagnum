@@ -6,7 +6,6 @@ export default class InsertFootnoteCommand extends Command {
 		this.editor.model.enqueueChange(modelWriter => {
 			console.log('attributes', attributes)
 			const button = modelWriter.createElement(BUTTON_ELEMENT, {
-				'data-button': true,
 				'data-href': attributes.link || '',
 				'data-text': attributes.text || 'Apply now'
 			});

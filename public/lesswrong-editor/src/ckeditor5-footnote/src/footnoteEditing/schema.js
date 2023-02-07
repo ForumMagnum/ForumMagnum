@@ -45,7 +45,7 @@ export const defineSchema = schema => {
 	 */
 	schema.register(ELEMENTS.footnoteReference, {
 		allowWhere: '$text',
-		isInline: true,
+		isBlock: true,
 		isObject: true,
 		allowAttributes: [ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId, ATTRIBUTES.footnoteIndex],
 	});
