@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     marginRight: 16,
-    height: 100,
+    height: 85,
   },
   image: {
     borderRadius: 5,
@@ -23,8 +23,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectPosition: "center",
   },
   fallbackImage: {
-    width: 100,
-    height: 100,
+    width: 85,
+    height: 85,
     borderRadius: 5,
     objectFit: "cover",
     objectPosition: "center",
@@ -52,17 +52,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const CoreTagCard = ({tag, classes}: {
-  tag: TagFragment
+  tag: TagDetailsFragment
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2, SubscribeButton } = Components;
 
+  const imageId = tag.squareImageId || tag.bannerImageId
+
   return (
     <div className={classes.root}>
       <div className={classes.imageContainer}>
-        {tag.bannerImageId ? (
-          //, TODO: note that 85 -> 100 to allow for text wrapping
-          <CloudinaryImage2 publicId={tag.bannerImageId} height={100} width={100} className={classes.image} />
+        {imageId ? (
+          <CloudinaryImage2 publicId={imageId} height={85} width={85} className={classes.image} />
         ) : (
           <img src={siteImageSetting.get()} className={classes.fallbackImage} />
         )}

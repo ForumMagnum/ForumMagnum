@@ -295,6 +295,19 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     hidden: forumTypeSetting.get() !== 'EAForum',
   },
+  // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
+  squareImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Square Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x200 px",
+    group: formGroups.advancedOptions,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+  },
 
   tagFlagsIds: {
     ...arrayOfForeignKeysField({

@@ -38,6 +38,7 @@ registerFragment(`
       html
     }
     bannerImageId
+    squareImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
     sequence {

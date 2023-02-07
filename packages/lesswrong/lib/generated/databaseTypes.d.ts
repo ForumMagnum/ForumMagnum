@@ -883,6 +883,7 @@ interface DbTag extends DbObject {
   wikiGrade: number
   wikiOnly: boolean
   bannerImageId: string
+  squareImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string

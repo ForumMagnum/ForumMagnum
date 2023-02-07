@@ -8,6 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // tags flow into grid with 2 per row on large screens, 1 per row on small screens
     gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))",
     gridGap: "8px",
+    marginBottom: 16,
   },
 });
 
@@ -20,7 +21,7 @@ const CoreTagsSection = ({classes}: {
       limit: 100,
     },
     collectionName: "Tags",
-    fragmentName: "TagFragment", // TODO: make a CoreTagFragment
+    fragmentName: "TagDetailsFragment",
     enableTotal: false,
   });
 

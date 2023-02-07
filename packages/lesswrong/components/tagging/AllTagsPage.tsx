@@ -17,9 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   portalSection: {
     marginBottom: theme.spacing.unit*8,
-    '& .ToCColumn-root': {
-      gridTemplateColumns: '1fr minmax(200px, 270px) minmax(0px, 100px) minmax(min-content, 820px) minmax(0px, 100px) min-content 10px 1.5fr !important'
-    }
   },
   alphabetical: {
     columns: 5,
@@ -58,10 +55,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ToCColumn-stickyBlockScroller': {
       height: "unset !important"
     },
-    // FIXME do this one in a non-hacky way if we actually decide to do it
-    '& .ToCColumn-root': {
-      gridTemplateColumns: '1fr minmax(200px, 270px) minmax(0px, 100px) minmax(min-content, 820px) minmax(0px, 100px) min-content 10px 1.5fr !important'
-    }
   }
 })
 
@@ -95,7 +88,8 @@ const AllTagsPage = ({classes}: {
         <div className={classes.coreTagsSection}>
           <ToCColumn
             tableOfContents={<div/>}
-            header={<SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} />}
+            header={<SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin />}
+            centerEarly
           >
             <AnalyticsContext pageSectionContext="coreTagsSection">
               <CoreTagsSection />
@@ -145,6 +139,7 @@ const AllTagsPage = ({classes}: {
                   </a>}
                 </SectionButton>
               </SectionTitle>}
+              centerEarly
             >
               <ContentStyles contentType="comment" className={classes.portal}>
                 {!tag && <Loading/>}
