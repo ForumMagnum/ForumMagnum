@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
+import { shouldHideTag } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,6 +45,11 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
   const {eventHandlers, hover, anchorEl} = useHover();
+  const currentUser = useCurrentUser();
+
+  if (shouldHideTag(currentUser, tag ?? hit)) {
+    return null;
+  }
 
   return (
     <span {...eventHandlers}>

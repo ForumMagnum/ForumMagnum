@@ -418,6 +418,18 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
   };
 });
 
+Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      shortform: true,
+      deleted: false,
+      parentCommentId: viewFieldNullOrMissing,
+      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+    },
+    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+  };
+});
+
 Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
   return {
     selector: {
@@ -527,11 +539,16 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
+// TODO merge with subforumFeedSortings
 export const subforumSorting = {
+  magic: { score: -1 },
   new: { postedAt: -1 },
-  recentDiscussion: { lastSubthreadActivity: -1 },
+  old: { postedAt: 1 },
+  top: { baseScore: -1 },
+  recentComments: { lastSubthreadActivity: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 }, // DEPRECATED
 }
-export const subforumDiscussionDefaultSorting = "recentDiscussion"
+export const subforumDiscussionDefaultSorting = "recentComments"
 
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
@@ -544,9 +561,9 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
-    tagId: tagId,
-    tagCommentType: "SUBFORUM",
+    $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
     topLevelCommentId: viewFieldNullOrMissing,
+    deleted: false,
   },
   options: {
     sort: sorting,
@@ -554,6 +571,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
 }});
 ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
+// DEPRECATED (will be deleted once there are no more old clients floating around)
 // For 'Discussion from your subforums' on the homepage
 Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
   return {
@@ -564,7 +582,7 @@ Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
       lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
     },
     options: {
-      sort: subforumSorting.recentDiscussion,
+      sort: subforumSorting.recentComments,
       limit: 3,
     },
   }

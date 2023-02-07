@@ -7,10 +7,12 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
-import startCase from 'lodash/startCase';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
+import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
+import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
+import startCase from 'lodash/startCase';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -32,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   feedHeader: {
     display: "flex",
-    marginBottom: -16,
     marginLeft: 10,
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
@@ -45,13 +46,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     columnGap: 16,
   },
-  newDiscussionContainer: {
+  listSettingsToggle: {
+    marginLeft: 16,
+  },
+  listSettingsContainer: {
+    marginTop: 16,
+  },
+  newShortformContainer: {
     background: theme.palette.grey[0],
-    marginTop: 32,
+    marginTop: 16,
     padding: "0px 8px 8px 8px",
   },
+  centerChild: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   feedPostWrapper: {
-    marginTop: 32,
+    marginTop: 16,
+    marginBottom: 16,
   },
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
@@ -60,24 +73,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentPermalink: {
     marginBottom: 8,
+  },
+  listLayout: {
+    paddingTop: 16,
   }
 })
 
-const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
+const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
+  layout: SubforumLayout,
   isSubscribed: boolean,
   classes: ClassesType,
 }) => {
   const {
-    PostsListSortDropdown,
     CommentPermalink,
     LWTooltip,
     SectionButton,
-    CommentsNewForm,
     MixedTypeFeed,
     RecentDiscussionThread,
     CommentWithReplies,
+    PostsList2,
+    CommentsListCondensed,
+    SubforumListSettings,
+    SortButton,
+    ShortformSubmitForm,
+    WrappedLoginForm,
   } = Components;
 
   const { query } = useLocation();
@@ -90,12 +111,13 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
       refetchRef.current();
   }, [refetchRef]);
 
-  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
+  const [newShortformOpen, setNewShortformOpen] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
-  const clickNewDiscussion = useCallback(() => {
-    setNewDiscussionOpen(true)
-    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
+  const clickNewShortform = useCallback(() => {
+    setNewShortformOpen(true)
+    captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }, [captureEvent, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
@@ -124,20 +146,15 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
     displayMode: "minimalist" as const,
   };
   const maxAgeHours = 18;
-  const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+  const commentsLimit = 3;
 
-  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
-  const discussionButton = (
+  const shortformButton = (
     <LWTooltip
-      title={
-        canPostDiscussion
-          ? "Create a discussion which will only appear in this subforum"
-          : "You must be a member of this subforum to create a discussion"
-      }
+      title="Create a shortform which will appear in this subforum"
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+      <SectionButton onClick={clickNewShortform}>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
       </SectionButton>
     </LWTooltip>
   );
@@ -171,6 +188,124 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
       </Link>
     </LWTooltip>
   );
+  
+  const feedLayoutComponent = <>
+    {tag.subforumIntroPost && !hideIntroPost && (
+      <div className={classes.feedPostWrapper}>
+        <RecentDiscussionThread
+          key={tag.subforumIntroPost._id}
+          post={{ ...tag.subforumIntroPost, recentComments: [] }}
+          comments={[]}
+          maxLengthWords={50}
+          refetch={refetch}
+          smallerFonts
+          dismissCallback={dismissIntroPost}
+          isSubforumIntroPost
+        />
+      </div>
+    )}
+    <MixedTypeFeed
+      firstPageSize={15}
+      pageSize={20}
+      refetchRef={refetchRef}
+      resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+      sortKeyType={subforumSortingTypes[sortBy]}
+      resolverArgs={{
+        tagId: "String!",
+        af: "Boolean",
+      }}
+      resolverArgsValues={{
+        tagId: tag._id,
+        af: false,
+      }}
+      fragmentArgs={{
+        maxAgeHours: "Int",
+        commentsLimit: "Int",
+      }}
+      fragmentArgsValues={{
+        maxAgeHours,
+        commentsLimit,
+      }}
+      renderers={{
+        tagSubforumPosts: {
+          fragmentName: "PostsRecentDiscussion",
+          render: (post: PostsRecentDiscussion) => {
+            // Remove the intro post from the feed IFF it has not been dismissed from the top
+            return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
+              <div className={classes.feedPostWrapper}>
+                <RecentDiscussionThread
+                  key={post._id}
+                  post={{ ...post }}
+                  comments={post.recentComments}
+                  commentTreeOptions={{forceSingleLine: true}}
+                  maxLengthWords={50}
+                  refetch={refetch}
+                  smallerFonts
+                />
+              </div>
+            );
+          },
+        },
+        tagSubforumComments: {
+          fragmentName: "CommentWithRepliesFragment",
+          render: (comment: CommentWithRepliesFragment) => (
+            <CommentWithReplies
+              key={comment._id}
+              comment={comment}
+              commentNodeProps={commentNodeProps}
+              initialMaxChildren={5}
+            />
+          ),
+        },
+        tagSubforumStickyComments: {
+          fragmentName: "StickySubforumCommentFragment",
+          render: (comment: CommentWithRepliesFragment) => (
+            <CommentWithReplies
+              key={comment._id}
+              comment={{ ...comment, isPinnedOnProfile: true }}
+              commentNodeProps={{
+                ...commentNodeProps,
+                showPinnedOnProfile: true,
+                treeOptions: {
+                  ...commentNodeProps.treeOptions,
+                  showPostTitle: true,
+                },
+              }}
+              initialMaxChildren={3}
+              startExpanded={false}
+            />
+          ),
+        },
+      }}
+    />
+  </>;
+
+  const terms = {
+    ...tagPostTerms(tag, query),
+    limit: 10
+  }
+  const listLayoutComponent = (
+    <div className={classes.listLayout}>
+      <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
+      <CommentsListCondensed
+        label={"Shortforms"}
+        contentType="shortform"
+        terms={{
+          view: "tagSubforumComments" as const,
+          tagId: tag._id,
+          sortBy,
+        }}
+        initialLimit={8}
+        itemsPerPage={20}
+        showTotal
+      />
+    </div>
+  );
+
+  const layoutComponents: Record<SubforumLayout, JSX.Element> = {
+    feed: feedLayoutComponent,
+    list: listLayoutComponent
+  }
 
   return (
     <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
@@ -181,111 +316,45 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
       )}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
-          {discussionButton}
+          {shortformButton}
           {newPostButton}
         </div>
-        <PostsListSortDropdown value={sortBy} options={subforumSortings} />
+        <LWTooltip title={`${showSettings ? "Hide" : "Show"} options for sorting and layout`} placement="top-end">
+          <div
+            className={classes.listSettingsToggle}
+            onClick={() => {
+              setShowSettings(!showSettings);
+            }}
+          >
+            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? "Posts Expanded" : "Posts Collapsed"}</span></span>} />
+          </div>
+        </LWTooltip>
       </div>
-      {newDiscussionOpen && (
-        <div className={classes.newDiscussionContainer}>
-          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
-          <CommentsNewForm
-            tag={tag}
-            tagCommentType={"SUBFORUM"}
-            successCallback={refetch}
-            type="reply" // required to make the Cancel button appear
-            enableGuidelines={true}
-            cancelCallback={() => setNewDiscussionOpen(false)}
-          />
+      {showSettings && (
+        <div className={classes.listSettingsContainer}>
+          <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
         </div>
       )}
-      {tag.subforumIntroPost && !hideIntroPost && (
-        <div className={classes.feedPostWrapper}>
-          <RecentDiscussionThread
-            key={tag.subforumIntroPost._id}
-            post={{ ...tag.subforumIntroPost, recentComments: [] }}
-            comments={[]}
-            maxLengthWords={50}
-            refetch={refetch}
-            smallerFonts
-            dismissCallback={dismissIntroPost}
-            isSubforumIntroPost
-          />
+      {newShortformOpen && (
+        <div className={classes.newShortformContainer}>
+          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time
+              you click on them, on desktop only */}
+          {currentUser ? <ShortformSubmitForm
+            prefilledProps={{
+              relevantTagIds: [tag._id],
+            }}
+            cancelCallback={() => setNewShortformOpen(false)}
+            successCallback={() => {
+              setNewShortformOpen(false);
+              refetch();
+            }}
+            noDefaultStyles
+          /> : <div className={classes.centerChild}>
+            <WrappedLoginForm />
+          </div>}
         </div>
       )}
-      <MixedTypeFeed
-        firstPageSize={15}
-        pageSize={20}
-        refetchRef={refetchRef}
-        resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
-        sortKeyType={subforumSortingTypes[sortBy]}
-        resolverArgs={{
-          tagId: "String!",
-          af: "Boolean",
-        }}
-        resolverArgsValues={{
-          tagId: tag._id,
-          af: false,
-        }}
-        fragmentArgs={{
-          maxAgeHours: "Int",
-          commentsLimit: "Int",
-        }}
-        fragmentArgsValues={{
-          maxAgeHours,
-          commentsLimit,
-        }}
-        renderers={{
-          tagSubforumPosts: {
-            fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => {
-              // Remove the intro post from the feed IFF it has not been dismissed from the top
-              return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
-                <div className={classes.feedPostWrapper}>
-                  <RecentDiscussionThread
-                    key={post._id}
-                    post={{ ...post }}
-                    comments={post.recentComments}
-                    maxLengthWords={50}
-                    refetch={refetch}
-                    smallerFonts
-                  />
-                </div>
-              );
-            },
-          },
-          tagSubforumComments: {
-            fragmentName: "CommentWithRepliesFragment",
-            render: (comment: CommentWithRepliesFragment) => (
-              <CommentWithReplies
-                key={comment._id}
-                comment={comment}
-                commentNodeProps={commentNodeProps}
-                initialMaxChildren={5}
-              />
-            ),
-          },
-          tagSubforumStickyComments: {
-            fragmentName: "StickySubforumCommentFragment",
-            render: (comment: CommentWithRepliesFragment) => (
-              <CommentWithReplies
-                key={comment._id}
-                comment={{ ...comment, isPinnedOnProfile: true }}
-                commentNodeProps={{
-                  ...commentNodeProps,
-                  showPinnedOnProfile: true,
-                  treeOptions: {
-                    ...commentNodeProps.treeOptions,
-                    showPostTitle: true,
-                  },
-                }}
-                initialMaxChildren={3}
-                startExpanded={false}
-              />
-            ),
-          },
-        }}
-      />
+      {layoutComponents[layout]}
     </div>
   );
 }

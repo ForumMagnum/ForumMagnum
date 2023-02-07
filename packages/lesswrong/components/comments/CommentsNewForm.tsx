@@ -98,7 +98,7 @@ export type CommentsNewFormProps = {
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: any,
+  successCallback?: (comment: CommentsList, otherArgs: any) => void,
   type: string,
   cancelCallback?: any,
   classes: ClassesType,
@@ -159,7 +159,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     setLoading(false)
   };
 
-  const wrappedCancelCallback = (...args) => {
+  const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
     }
@@ -243,7 +243,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data) => { 
+              submitCallback={(data: unknown) => { 
                 setLoading(true);
                 return data
               }}

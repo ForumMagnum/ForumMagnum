@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useSubscribeUserToTag } from '../../lib/filterSettings';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -18,19 +17,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     }
   },
-  notifyMeButton: {
-    marginLeft: 12,
-  },
 })
+
+export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
 
 const SubscribeButton = ({
   tag,
+  userTagRel,
   subscribeMessage,
   unsubscribeMessage,
   className,
   classes,
 }: {
   tag: TagBasicInfo,
+  userTagRel?: UserTagRelDetails,
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
@@ -42,7 +42,7 @@ const SubscribeButton = ({
   const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const { LWTooltip, NotifyMeButton } = Components
+  const { LWTooltip, TagNotificationSettings } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -65,26 +65,21 @@ const SubscribeButton = ({
     }
   }
 
-  const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
-
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
-      `Remove homepage boost for ${postsWording}` :
-      `See more ${postsWording} on the homepage`
+      `Remove homepage boost for ${taggedPostWording}` :
+      `See more ${taggedPostWording} on the homepage`
     }>
       <Button variant="outlined" onClick={onSubscribe}>
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    <NotifyMeButton
-      document={tag}
-      tooltip={`Click to toggle notifications for ${postsWording}`}
-      showIcon
-      hideLabel
-      hideIfNotificationsDisabled={!isSubscribed}
-      subscriptionType={subscriptionTypes.newTagPosts}
-      className={classes.notifyMeButton}
-    />
+    {currentUser && <TagNotificationSettings
+      tag={tag}
+      userTagRel={userTagRel}
+      currentUser={currentUser}
+      isFrontpageSubscribed={!!isSubscribed}
+    />}
   </div>
 }
 

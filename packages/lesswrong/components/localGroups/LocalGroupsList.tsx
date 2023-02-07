@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles'
@@ -24,12 +24,12 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   });
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
 
-  const MaybeTitleWrapper = ({children}) => heading ?
+  const MaybeTitleWrapper = ({children}: { children: ReactNode }) => heading ?
     <SingleColumnSection>
       <SectionTitle title={heading} />
       {children}
     </SingleColumnSection> :
-    children;
+    <>{children}</>;
 
   if (!results && loading) return <Loading />
 
@@ -61,4 +61,3 @@ declare global {
     LocalGroupsList: typeof LocalGroupsListComponent
   }
 }
-

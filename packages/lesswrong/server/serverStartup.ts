@@ -26,7 +26,7 @@ import { basename, join } from 'path';
 Globals.dropAndCreatePg = dropAndCreatePg;
 
 const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
     // eslint-disable-next-line no-console
     const originalFn = console[functionName];
     // eslint-disable-next-line no-console
@@ -109,7 +109,7 @@ const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-const initPostgres = () => {
+const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
@@ -122,11 +122,13 @@ const initPostgres = () => {
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
+  const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      collection.startPolling();
+      polls.push(collection.startPolling());
     }
   }
+  await Promise.all(polls);
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
@@ -160,7 +162,7 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
-  initPostgres();
+  await initPostgres();
   return args;
 }
 

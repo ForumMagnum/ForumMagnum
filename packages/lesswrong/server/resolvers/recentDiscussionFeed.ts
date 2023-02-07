@@ -3,8 +3,8 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
+import { viewFieldAllowAny } from '../vulcan-lib';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -46,9 +46,9 @@ defineFeedResolver<Date>({
             $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}],
             lastCommentedAt: {$exists: true},
             hideFromRecentDiscussions: {$ne: true},
-            hiddenRelatedQuestion: undefined,
-            shortform: undefined,
-            groupId: undefined,
+            hiddenRelatedQuestion: viewFieldAllowAny,
+            shortform: viewFieldAllowAny,
+            groupId: viewFieldAllowAny,
             ...(af ? {af: true} : undefined),
           },
         }),

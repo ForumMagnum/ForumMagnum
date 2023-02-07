@@ -26,7 +26,7 @@ import {
   subforumSortings,
   subforumSortingToResolverName,
   subforumSortingTypes,
-} from '../../lib/collections/tags/subforumSortings';
+} from '../../lib/collections/tags/subforumHelpers';
 import { VotesRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 
@@ -95,8 +95,7 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
       ...sorting.comments,
       context,
       selector: {
-        tagId,
-        tagCommentType: "SUBFORUM",
+        $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
         topLevelCommentId: {$exists: false},
         subforumStickyPriority: {$exists: false},
         ...(af ? {af: true} : undefined),

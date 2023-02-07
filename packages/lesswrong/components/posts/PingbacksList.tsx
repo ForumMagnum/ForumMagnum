@@ -43,7 +43,12 @@ const PingbacksList = ({classes, postId, limit=5}: {
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
-  useOnMountTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
+  useOnMountTracking({
+    eventType: "pingbacksList",
+    eventProps: {pingbackIds},
+    captureOnMount: (eventProps: { pingbackIds: string[] }) => eventProps.pingbackIds.length > 0,
+    skip: !pingbackIds.length||loading
+  })
 
   const { Pingback, LWTooltip, LoadMore, Loading } = Components
 
@@ -77,4 +82,3 @@ declare global {
     PingbacksList: typeof PingbacksListComponent
   }
 }
-

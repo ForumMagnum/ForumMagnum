@@ -110,6 +110,7 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -191,6 +192,7 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
     
     experiencedIn
     interestedIn
@@ -287,6 +289,7 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    usersContactedBeforeReview
     associatedClientId {
       firstSeenReferrer
       firstSeenLandingPage
@@ -413,6 +416,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

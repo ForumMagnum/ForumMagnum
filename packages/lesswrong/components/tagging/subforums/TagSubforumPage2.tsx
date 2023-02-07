@@ -12,7 +12,8 @@ import { useTagBySlug } from '../useTag';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
-import { useDialog } from "../../common/withDialog";
+import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -33,12 +34,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   imageContainer: {
     position: 'absolute',
     width: "100%",
-    '& > img': {
+    '& > picture > img': {
       objectFit: 'cover',
       width: '100%',
     },
     [theme.breakpoints.down('sm')]: {
-      '& > img': {
+      '& > picture > img': {
         height: 270,
       },
       top: 77,
@@ -46,7 +47,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.up('sm')]: {
       top: 90,
-      '& > img': {
+      '& > picture > img': {
         height: 300,
       },
     }
@@ -60,7 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 19,
     paddingBottom: 0,
     paddingLeft: 42,
-    paddingRight: 42,
+    paddingRight: 34,
     background: theme.palette.panelBackground.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
@@ -81,6 +82,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
     }
+  },
+  notifyMeButton: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 6,
+    },
   },
   wikiSection: {
     paddingTop: 12,
@@ -156,9 +162,7 @@ const TagSubforumPage2 = ({classes}: {
     Typography,
     RightSidebarColumn,
     CloudinaryImage2,
-    SidebarMembersBox,
-    SubforumNotificationSettings,
-    SubforumSubscribeSection,
+    SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
     SubforumIntroBox,
@@ -170,7 +174,6 @@ const TagSubforumPage2 = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { history } = useNavigation();
-  const { openDialog } = useDialog();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
@@ -202,7 +205,6 @@ const TagSubforumPage2 = ({classes}: {
   
   const [truncated, setTruncated] = useState(true) // Used in SubforumWikiTab, defined here because it can be controlled from the sidebar
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -218,14 +220,6 @@ const TagSubforumPage2 = ({classes}: {
     skip: !query.flagId
   })
 
-  const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
-    collectionName: 'Users',
-    fragmentName: 'UsersProfile',
-    enableTotal: true,
-    skip: !tag
-  })
-
   const { results: userTagRelResults } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
@@ -238,15 +232,7 @@ const TagSubforumPage2 = ({classes}: {
   });
   const userTagRel = userTagRelResults?.[0];
 
-  const onClickMembersList = () => {
-    if (!tag) return;
-
-    openDialog({
-      componentName: 'SubforumMembersDialog',
-      componentProps: {tag},
-      closeOnNavigate: true
-    })
-  }
+  const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -316,14 +302,14 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && !!userTagRel && (
-          isSubscribed ?
-            <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
-            : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
-      </div>
-      <div className={classes.membersListLink}>
-        {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
+        <SubscribeButton
+          tag={tag}
+          userTagRel={userTagRel}
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Unsubscribe"
+          subscriptionType={subscriptionTypes.newTagPosts}
+          className={classes.notifyMeButton}
+        />
       </div>
       {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
       Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
@@ -351,7 +337,6 @@ const TagSubforumPage2 = ({classes}: {
         className={classes.sidebarBoxWrapper}
         key={"welcome_box"}
       />,
-      <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
     wiki: [
@@ -367,7 +352,7 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} />,
+    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 
