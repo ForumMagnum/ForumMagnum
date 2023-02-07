@@ -126,6 +126,7 @@ const deletedCommentColumns: Column[] = [
 const usersBannedFromPostsColumns: Column[] = [
   {
     name: 'user',
+    label: "Author",
     component: UserDisplay,
   },
   {
