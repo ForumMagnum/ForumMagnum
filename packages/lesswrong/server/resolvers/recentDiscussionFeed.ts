@@ -1,11 +1,10 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
-import { Tags } from '../../lib/collections/tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID, Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
-import { EAF_COMMUNITY_TOPIC_ID } from '../../lib/collections/posts/views';
 import { viewFieldAllowAny } from '../vulcan-lib';
 
 defineFeedResolver<Date>({
@@ -36,8 +35,8 @@ defineFeedResolver<Date>({
     const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
     // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
     const postCommentedExcludeCommunity = {$or: [
-      {[`tagRelevance.${EAF_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
-      {[`tagRelevance.${EAF_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+      {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+      {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
     ]}
     
     return await mergeFeedQueries<SortKeyType>({

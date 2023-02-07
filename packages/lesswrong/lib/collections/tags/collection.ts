@@ -17,6 +17,8 @@ interface ExtendedTagsCollection extends TagsCollection {
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
+
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',

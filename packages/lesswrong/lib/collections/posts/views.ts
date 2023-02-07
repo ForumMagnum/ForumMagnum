@@ -15,7 +15,6 @@ import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
-export const EAF_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
@@ -841,11 +840,7 @@ const postCommentedViewFields = {
   globalEvent: 1,
   commentCount: 1,
 }
-ensureIndex(Posts, isEAForum ? {
-    ...postCommentedViewFields,
-    [`tagRelevance.${EAF_COMMUNITY_TOPIC_ID}`]: 1
-  } : postCommentedViewFields
-);
+ensureIndex(Posts, postCommentedViewFields);
 
 const recentDiscussionFilter = {
   baseScore: {$gt:0},
