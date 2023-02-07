@@ -44,17 +44,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   tocActivatedCenterEarly: {
     [theme.breakpoints.down('md')]: {
       '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateColumns: `
-        1fr
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-        1fr
-      `,
-      gridTemplateAreas: `
-        "... title ..."
-        "... content ..."
-      `,
-    },
+        display: 'grid',
+        gridTemplateColumns: `
+          1fr
+          minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+          1fr
+        `,
+        gridTemplateAreas: `
+          "... title ..."
+          "... content ..."
+        `,
+      },
     }
   },
   sideCommentsActive: {
