@@ -17,7 +17,6 @@ import { isEAForum } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
