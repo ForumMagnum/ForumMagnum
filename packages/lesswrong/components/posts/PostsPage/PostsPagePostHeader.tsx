@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:0,
   },
   secondaryInfo: {
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
   },

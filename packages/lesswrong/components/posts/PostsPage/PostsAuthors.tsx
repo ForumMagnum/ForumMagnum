@@ -19,7 +19,7 @@ const PostsAuthors = ({classes, post}: {
   post: PostsDetails,
 }) => {
   const { UsersName, PostsCoauthor, Typography } = Components
-  return <Typography variant="body2" component="span" className={classes.root}>
+  return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor ? <Components.UserNameDeleted/> : <UsersName user={post.user} />}
       {post.coauthors?.map(coauthor =>
