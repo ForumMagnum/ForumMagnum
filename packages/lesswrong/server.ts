@@ -147,6 +147,7 @@ import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
 
 import './server/exportUserData';
+import './server/deleteUserContent';
 
 import './server/spotlightCron';
 

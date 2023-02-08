@@ -1,8 +1,9 @@
 import Comments from "../lib/collections/comments/collection";
 import Posts from "../lib/collections/posts/collection";
 import Users from "../lib/collections/users/collection";
+import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
 import { exportUserData } from "./exportUserData";
-import { Globals, updateMutator } from './vulcan-lib';
+import { createAdminContext, Globals, updateMutator } from './vulcan-lib';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => { setTimeout(resolve, ms); });
@@ -30,6 +31,9 @@ export const deleteUserContent = async (
 
   const userComments = await Comments.find({ userId, deleted: false }).fetch();
 
+  const adminContext = createAdminContext();
+  const adminTeamAccount = await getAdminTeamAccount();
+
   for (const userComment of userComments) {
     await updateMutator({
       collection: Comments,
@@ -37,9 +41,10 @@ export const deleteUserContent = async (
       set: {
         deleted: true,
         deletedPublic: true,
-        deletedByUserId: userId,
-        deletedReason: 'Requested account deletion'
-      }
+        deletedByUserId: adminTeamAccount._id,
+        deletedReason: noDeletionPmReason
+      },
+      context: adminContext
     });
 
     await sleep(50);
@@ -54,7 +59,8 @@ export const deleteUserContent = async (
       set: {
         draft: true,
         deletedDraft: true,
-      }
+      },
+      context: adminContext
     });
 
     await sleep(50);
