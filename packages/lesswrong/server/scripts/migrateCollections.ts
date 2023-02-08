@@ -11,6 +11,7 @@ import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
 import { ObjectId } from "mongodb";
+import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 
 type Transaction = ITask<{}>;
 
@@ -149,6 +150,24 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
     : { createdAt: { $gte: createdSince } };
 }
 
+const makeCollectionFilter = (collectionName: string) => {
+  return collectionName === "DatabaseMetadata"
+    ? { name: { $ne: "databaseId" } }
+    : {};
+}
+
+const copyDatabaseId = async (sql: Transaction) => {
+  const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
+  if (databaseId) {
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [databaseId._id, databaseId.name, databaseId.value]);
+  }
+}
+
 const copyData = async (
   sql: Transaction,
   collections: SwitchingCollection<DbObject>[],
@@ -159,6 +178,7 @@ const copyData = async (
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
+    const collectionName = collection.getMongoCollection().collectionName;
 
     const totalCount = await collection.getMongoCollection().find({}).count();
     const formatter = getCollectionFormatter(collection);
@@ -167,7 +187,10 @@ const copyData = async (
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      filter: makeBatchFilter(collection.getMongoCollection().collectionName, createdSince),
+      filter: {
+        ...makeBatchFilter(collectionName, createdSince),
+        ...makeCollectionFilter(collectionName),
+      },
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
@@ -183,6 +206,10 @@ const copyData = async (
         }
       },
     });
+
+    if (collectionName === "DatabaseMetadata") {
+      await copyDatabaseId(sql);
+    }
   }
 }
 
