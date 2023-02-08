@@ -160,7 +160,10 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
   olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
   for (const database of databases) {
     const {datname} = database;
-    // TODO: validate is date-based name
+    if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {
+      continue;
+    }
+
     // Replace underscores with dashes and colons etc
     const tokens = datname.split("_").slice(1, 7);
     const yearMonth = tokens.slice(0, 2);
