@@ -14,4 +14,14 @@ export const Sessions: SessionsCollection = createCollection({
 
 ensureIndex(Sessions, {expires: 1});
 
+Sessions.checkAccess = async (
+  _user: DbUser|null,
+  _session: DbSession,
+  _context: ResolverContext|null,
+  outReasonDenied: {reason?: string},
+): Promise<boolean> => {
+  outReasonDenied.reason = "Sessions cannot be edited manually";
+  return false;
+}
+
 export default Sessions;
