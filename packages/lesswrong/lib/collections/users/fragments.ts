@@ -250,6 +250,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 

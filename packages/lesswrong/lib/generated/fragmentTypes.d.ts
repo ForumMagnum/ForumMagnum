@@ -2446,6 +2446,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly slug: string,
   readonly displayName: string,
   readonly bannedUserIds: Array<string>,
+  readonly bannedPersonalUserIds: Array<string>,
 }
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
