@@ -40,7 +40,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   return (<React.Fragment>
     <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
-          <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
+          <FormatDate date={post.postedAt} format="D MMM YYYY" tooltip={false} />
         </span>
     </LWTooltip>
   </React.Fragment>);
