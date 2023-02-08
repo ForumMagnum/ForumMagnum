@@ -1,6 +1,9 @@
 /*
  * This file was originally vendored from https://github.com/jdesboeufs/connect-mongo/blob/master/src/lib/MongoStore.ts
  * It's since been edited to use our `Collection` system
+ *
+ * Copyright (c) 2017 Jérôme Desboeufs, modifications (c) the LessWrong development team
+ * Released under the MIT License, see: https://github.com/jdesboeufs/connect-mongo/blob/master/LICENSE
  */
 
 import * as session from 'express-session';
