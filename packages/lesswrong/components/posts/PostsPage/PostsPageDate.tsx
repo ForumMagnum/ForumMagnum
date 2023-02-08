@@ -6,7 +6,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {

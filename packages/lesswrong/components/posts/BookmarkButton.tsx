@@ -21,8 +21,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
-    fontSize: theme.typography.body2.fontSize,
     marginRight: 20,
+    "@media print": { display: "none" },
     '& svg': {
       fontSize: "1.45em",
       transform: "translateY(5px)",
@@ -76,7 +76,8 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
   const title = bookmarked ? "Un-bookmark" : "Bookmark"
-  const save = bookmarked ? "Saved" : "Save"
+  const saveText = bookmarked ? "Saved" : "Save"
+  const saveHoverText = bookmarked ? "Remove from saved posts" : "Save post for later"
 
   switch(variant) {
     case 'menuItem':
@@ -90,9 +91,11 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
       )
     case 'iconWithText':
       return (
-        <a onClick={toggleBookmark} className={classes.iconWithText}>
-          { icon } { save }
-        </a>
+        <LWTooltip title={saveHoverText} placement={placement}>
+          <a onClick={toggleBookmark} className={classes.iconWithText}>
+            { icon } { saveText }
+          </a>
+        </LWTooltip>
       )
     case 'icon':
     default:

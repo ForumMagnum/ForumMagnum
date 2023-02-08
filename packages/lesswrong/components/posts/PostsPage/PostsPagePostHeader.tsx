@@ -34,8 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:0,
   },
   secondaryInfo: {
-    fontSize: '1.4rem',
+    fontSize: theme.typography.body2.fontSize,
     fontFamily: theme.typography.uiSecondary.fontFamily,
+    color: theme.palette.text.dim3,
   },
   groupLinks: {
     display: 'inline-block',
@@ -43,18 +44,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
-    fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   togglePodcastIcon: {
@@ -73,10 +70,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING
   },
   feedName: {
-    fontSize: theme.typography.body2.fontSize,
     marginRight: SECONDARY_SPACING,
     display: 'inline-block',
-    color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
