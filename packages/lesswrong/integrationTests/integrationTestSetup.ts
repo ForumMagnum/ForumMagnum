@@ -112,7 +112,6 @@ afterAll(async () => {
   // for debugging whilst also making sure that we clean up after ourselves eventually
   // (assuming that the tests are run again some day).
   if (process.env.JEST_WORKER_ID === "1") {
-    const cutoff = new Date();
-    await dropTestingDatabases(cutoff);
+    await dropTestingDatabases();
   }
 });
