@@ -9,7 +9,7 @@ import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/hel
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link'
-import { Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
