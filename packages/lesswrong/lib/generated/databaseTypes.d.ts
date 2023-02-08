@@ -164,6 +164,7 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string
+  relevantTagIds: Array<string>
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -335,6 +336,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string
+  nameInAnotherLanguage: string
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
@@ -352,6 +354,7 @@ interface DbLocalgroup extends DbObject {
   bannerImageId: string
   inactive: boolean
   deleted: boolean
+  salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -781,6 +784,16 @@ interface DbSequence extends DbObject {
   contents_latest: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface SessionsCollection extends CollectionBase<DbSession, "Sessions"> {
+}
+
+interface DbSession extends DbObject {
+  __collectionName?: "Sessions"
+  session: any /*{"definitions":[{"blackbox":true}]}*/
+  expires: Date | null
+  lastModified: Date | null
 }
 
 interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
@@ -1322,6 +1335,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Sessions: SessionsCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1369,6 +1383,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Sessions: DbSession
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag

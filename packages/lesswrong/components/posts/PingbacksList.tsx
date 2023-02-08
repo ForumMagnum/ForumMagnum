@@ -82,4 +82,3 @@ declare global {
     PingbacksList: typeof PingbacksListComponent
   }
 }
-

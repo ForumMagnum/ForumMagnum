@@ -95,8 +95,23 @@
     "timestamp": "2023-02-01T15:58:39.000Z"
   },
   {
-    "acceptsSchemaHash": "f7731c43d416feb624296cd4332e9164",
-    "acceptedByMigration": "20230206T174449.add_shortName.ts",
-    "timestamp": "2023-02-06T17:44:49.000Z"
+    "acceptsSchemaHash": "df6daf9edd46c15e6eb9a3862852ae85",
+    "acceptedByMigration": "20230202T211013.add_nameInAnotherLanguage_localgroups_field.ts",
+    "timestamp": "2023-02-02T21:10:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
+    "acceptedByMigration": "20230206T192711.auto.ts",
+    "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ffaf4a437b864708e0990e38ece649f1",
+    "acceptedByMigration": "20230208T135321.create_sessions_collection.ts",
+    "timestamp": "2023-02-08T13:53:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a7887d09050fb7d8f7117f498534d322",
+    "acceptedByMigration": "20230208T174449.add_shortName.ts",
+    "timestamp": "2023-02-08T17:44:49.000Z"
   }
 ]
