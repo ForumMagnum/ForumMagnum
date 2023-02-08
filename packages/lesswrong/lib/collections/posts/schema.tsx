@@ -25,6 +25,8 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import { Sequences } from '../sequences/collection';
+import { mongoFind } from '../../mongoQueries';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -132,6 +134,15 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
 const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
+
+const sequenceIdIfPermitted = async (post, currentUser) => {
+  if (!post.canonicalSequenceId) return null;
+
+  const sequence = await Sequences.findOne({ _id: post.canonicalSequenceId });
+  if (!Sequences.options.mutations.edit.check(currentUser, sequence)) return null;
+
+  return post.canonicalSequenceId;
+}
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -1380,11 +1391,24 @@ const schema: SchemaType<DbPost> = {
     }),
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
+    insertableBy: ['members', 'admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
     hidden: false,
     control: "text",
+
+    onCreate: async ({ newDocument, currentUser }: {
+      newDocument: DbPost,
+      currentUser: DbUser|null
+    }) => {
+      return sequenceIdIfPermitted(newDocument, currentUser);
+    },
+    onUpdate: async ({ data, currentUser }: {
+      data: Partial<DbPost>,
+      currentUser: DbUser|null,
+    }) => {
+      return sequenceIdIfPermitted(data, currentUser);
+    }
   },
 
   canonicalCollectionSlug: {

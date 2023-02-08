@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -21,6 +21,10 @@ import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import { sequenceContainsPost } from '../../lib/collections/sequences/helpers';
+import { Sequences } from '../../lib/collections/sequences/collection';
+import { Chapters } from '../../lib/collections/chapters/collection';
+import { mongoFind } from '../../lib/mongoQueries';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -411,3 +415,40 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
 
   return post;
 });
+
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  await addPostToSequence(post, props);
+  return post
+});
+
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  await addPostToSequence(post, props);
+  return post
+})
+
+async function addPostToSequence(post: DbPost, props: CreateCallbackProperties<DbPost>) {
+  // If the post has a canonicalSequenceId and isn't in the sequence, add it to the sequence's last chapter.
+  // This is useful for adding draft posts to sequences by adding the canonicalSequenceId on the Post edit page,
+  // because you can't find draft posts with the Add/Remove Posts functionality on a Sequence page.
+  if (!post.canonicalSequenceId) return post;
+
+  const {currentUser, context} = props;
+  if (await sequenceContainsPost(post.canonicalSequenceId, post._id, context)) return post;
+
+  const sequence = await Sequences.findOne({ _id: post.canonicalSequenceId });
+  if (!Sequences.options.mutations.edit.check(currentUser, sequence)) return null;
+
+  const chapters = await mongoFind("Chapters", {sequenceId: post.canonicalSequenceId}, {sort: {number: 1}});
+  const lastChapter = chapters.at(-1);
+  if (!lastChapter) return post;
+
+  void updateMutator({
+    collection: Chapters,
+    documentId: lastChapter._id,
+    data: { postIds: [...lastChapter.postIds, post._id] },
+    context,
+    currentUser
+  })
+
+  return post;
+}
