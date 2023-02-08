@@ -244,7 +244,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   };
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classes.root}>
+    <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
