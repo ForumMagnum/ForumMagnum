@@ -11,7 +11,7 @@ export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.headerStyle,
   marginTop: 0,
   marginLeft: 0,
-  marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
+  marginBottom: forumTypeSetting.get() === 'EAForum' ? 16 : 0,
   color: theme.palette.text.primary,
   [theme.breakpoints.down('sm')]: {
     fontSize: '2.5rem',
