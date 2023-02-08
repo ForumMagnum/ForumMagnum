@@ -49,7 +49,7 @@ describe("InsertQuery", () => {
         {},
         {conflictStrategy: "upsert"},
       ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
       expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1],
     },
     {
@@ -60,7 +60,7 @@ describe("InsertQuery", () => {
         {},
         {conflictStrategy: "upsert", upsertSelector: {b: "test2"}},
       ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( COALESCE("b", \'\') ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( COALESCE("b", '') ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
       expectedArgs: ["abc", 3, "test2", null, 1, 3, "test2", 1],
     },
     {

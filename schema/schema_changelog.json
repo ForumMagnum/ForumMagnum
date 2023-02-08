@@ -103,5 +103,10 @@
     "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
     "acceptedByMigration": "20230206T192711.auto.ts",
     "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ffaf4a437b864708e0990e38ece649f1",
+    "acceptedByMigration": "20230208T135321.create_sessions_collection.ts",
+    "timestamp": "2023-02-08T13:53:21.000Z"
   }
 ]
