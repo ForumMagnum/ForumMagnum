@@ -159,6 +159,7 @@ const makeCollectionFilter = (collectionName: string) => {
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
   if (databaseId) {
+    extractObjectId(databaseId);
     await sql.none(`
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
       VALUES ($1, $2, TO_JSONB($3::TEXT))
