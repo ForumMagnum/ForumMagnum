@@ -70,6 +70,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.returnInserted) {
       this.atoms.push("RETURNING *");
     } else if (sqlOptions?.conflictStrategy === "upsert") {
+      // Tell the caller whether they updated or inserted
       this.atoms.push(`RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`);
     }
   }
