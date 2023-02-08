@@ -9,6 +9,7 @@ import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/hel
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link'
+import { Typography } from '@material-ui/core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -74,7 +75,9 @@ export const AdminPaymentsPage = ({classes}: {
   })
 
   const currentUser = useCurrentUser()
-  if (!currentUser?.isAdmin) return null
+  if (!currentUser?.isAdmin) return <SingleColumnSection>
+    <Typography variant='body2'>You don't have permission to view this page</Typography>
+  </SingleColumnSection>
 
   return <div className={classes.root}>
     <SingleColumnSection>
