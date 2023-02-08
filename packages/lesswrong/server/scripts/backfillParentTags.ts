@@ -8,6 +8,7 @@ const backfillParentTags = async (parentTagSlug: string) => {
   const parentTag = (await Tags.find({slug: parentTagSlug}).fetch())[0];
   const childTags = (await Tags.find({parentTagId: parentTag._id}).fetch());
   for (const childTag of childTags) {
+    // For use in determine what already exists - no need to add
     const parentTagRelPostIds = (await TagRels.find({tagId: parentTag._id}).fetch()).map(rel => rel.postId);
   
     const childTagRelPostIds = (await TagRels.find({tagId: childTag._id}).fetch()).filter(rel => !parentTagRelPostIds.includes(rel.postId)).map(rel => rel.postId);
