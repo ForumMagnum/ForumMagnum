@@ -15,7 +15,6 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
-import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
@@ -186,6 +185,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  relevantTags: {
+    marginLeft: 12,
+    position: "relative",
+    top: -2,
+    '& .FooterTag-root:nth-child(n+4)': {
+      marginTop: 8,
+    }
+  },
+  relevantTag: {
+    marginTop: 4,
+  },
+  showMoreTags: {
+    position: "relative",
+    top: 1,
+    color: theme.palette.grey[500],
+    fontSize: 12,
+    marginLeft: 8,
+  },
 })
 
 /**
@@ -215,6 +232,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [showMoreClicked, setShowMoreClicked] = useState(false);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   
@@ -347,7 +365,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const {
     ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
     CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, TopTagIcon
+    LWHelpIcon, TopTagIcon, FooterTag, LoadMore,
   } = Components
 
   if (!comment) {
@@ -384,6 +402,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       return `/reviews/${year}`
     }
     return `/reviewVoting/${year}`
+  }
+
+  let relevantTagsTruncated = comment.relevantTags ?? []
+  let shouldDisplayLoadMore = false
+  if (!showMoreClicked) {
+    shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked
+    relevantTagsTruncated = relevantTagsTruncated.slice(0,1)
   }
 
   return (
@@ -480,6 +505,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
+            
+            {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
+              {relevantTagsTruncated.map(tag =>
+                <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
+              )}
+              {shouldDisplayLoadMore && <LoadMore
+                loadMore={() => setShowMoreClicked(true)}
+                message="Show more"
+                className={classes.showMoreTags}
+              />}
+            </span>}
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}

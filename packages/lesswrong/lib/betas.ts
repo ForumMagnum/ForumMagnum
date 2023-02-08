@@ -38,6 +38,8 @@ export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
 export const userHasSideComments = isEAForum ? optInOnly : shippedFeature;
 
+export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;

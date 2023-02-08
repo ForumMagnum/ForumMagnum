@@ -8,6 +8,10 @@ registerFragment(`
     tag {
       slug
     }
+    relevantTagIds
+    relevantTags {
+      ...TagBasicInfo
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId
@@ -71,6 +75,9 @@ registerFragment(`
     post {
       ...PostsMinimumInfo
     }
+    relevantTags {
+      ...TagPreviewFragment
+    }
   }
 `)
 
@@ -93,6 +100,7 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
     }

@@ -97,7 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   }
   
   const recentSubforumDiscussionTerms = {
-    view: "latestSubforumDiscussion" as const,
+    view: "shortformFrontpage" as const,
     profileTagIds: currentUser?.profileTagIds,
   };
 
@@ -156,14 +156,16 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            {isEAForum && !!currentUser?.profileTagIds?.length && (
+            {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
+                opt-out of their shortform posts being shown on the frontpage */}
+            {/* {isEAForum && (
               <CommentsListCondensed
-                label={"Discussion from your subforums"}
-                contentType="frontpageSubforumDiscussion"
+                label={"Shortform discussion"}
+                contentType="shortform"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}
               />
-            )}
+            )} */}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>
