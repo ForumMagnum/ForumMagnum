@@ -53,9 +53,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostActions = ({post, closeMenu, classes}: {
+const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList,
   closeMenu: ()=>void,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -269,7 +270,7 @@ const PostActions = ({post, closeMenu, classes}: {
           unsubscribeMessage="Unsubscribe from comments"
         />}
 
-        <BookmarkButton post={post} menuItem/>
+        {includeBookmark && <BookmarkButton post={post} variant='menuItem' />}
         <SetSideCommentVisibility />
         
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}

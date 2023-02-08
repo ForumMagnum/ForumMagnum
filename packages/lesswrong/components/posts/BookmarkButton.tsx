@@ -16,13 +16,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
+  },
+  iconWithText: {
+    color: theme.palette.text.dim3,
+    whiteSpace: "no-wrap",
+    display: "inline-block",
+    fontSize: theme.typography.body2.fontSize,
+    marginRight: 20,
+    '& svg': {
+      fontSize: "1.45em",
+      transform: "translateY(5px)",
+      marginLeft: -3,
+      marginRight: -1,
+    },
   }
 })
 
-const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
+const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
   classes: ClassesType,
   post: PostsBase,
-  menuItem?: boolean,
+  variant?: 'menuItem'|'icon'|'iconWithText',
   placement?: TooltipProps["placement"],
 }) => {
   const currentUser = useCurrentUser();
@@ -63,23 +76,32 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
   const title = bookmarked ? "Un-bookmark" : "Bookmark"
+  const save = bookmarked ? "Saved" : "Save"
 
-  if (menuItem) {
-    return (
-      <MenuItem onClick={toggleBookmark}>
-        <ListItemIcon>
+  switch(variant) {
+    case 'menuItem':
+      return (
+        <MenuItem onClick={toggleBookmark}>
+          <ListItemIcon>
+            { icon }
+          </ListItemIcon>
+          {title}
+        </MenuItem>
+      )
+    case 'iconWithText':
+      return (
+        <a onClick={toggleBookmark} className={classes.iconWithText}>
+          { icon } { save }
+        </a>
+      )
+    case 'icon':
+    default:
+      return (
+        <LWTooltip title={title} placement={placement}>
+          <span onClick={toggleBookmark} className={classes.icon}>
           { icon }
-        </ListItemIcon>
-        {title}
-      </MenuItem>
-    )
-  } else {
-    return (
-      <LWTooltip title={title} placement={placement}>
-        <span onClick={toggleBookmark} className={classes.icon}>
-        { icon }
-        </span>
-      </LWTooltip>
+          </span>
+        </LWTooltip>
     )
   }
 }

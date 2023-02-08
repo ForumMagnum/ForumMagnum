@@ -10,8 +10,6 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
-import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder'
-import BookmarkIcon from '@material-ui/icons/Bookmark'
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
@@ -41,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   groupLinks: {
     display: 'inline-block',
-    marginRight: 20
+    marginRight: SECONDARY_SPACING,
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
@@ -94,8 +92,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'transparent'
   },
   commentIcon: {
-    fontSize: 20,
-    transform: "translateY(4px)",
+    fontSize: "1.4em",
+    marginRight: 1,
+    transform: "translateY(5px)",
   },
 });
 
@@ -158,7 +157,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse, BookmarkButton } = Components;
   const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -220,7 +219,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
           <a className={classes.commentsLink} href={"#comments"}><CommentIcon className={classes.commentIcon} /> {commentCount}</a>
-          <a className={classes.commentsLink} href={"bookmarks"}><BookmarkIcon className={classes.commentIcon} /> Save</a>
+          <BookmarkButton post={post} variant='iconWithText' />
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
@@ -237,13 +236,13 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
               </NewFeaturePulse>
             )
           }
-          <div className={classes.commentsLink}>
+          {post.startTime && <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
-          </div>
+          </div>}
           {!hideMenu &&
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} />
+                <PostActionsButton post={post} includeBookmark={false} />
               </AnalyticsContext>
             </span>
           }

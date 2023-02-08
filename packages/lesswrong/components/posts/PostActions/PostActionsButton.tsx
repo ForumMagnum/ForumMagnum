@@ -19,9 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, classes}: {
+const PostActionsButton = ({post, vertical, includeBookmark=true, classes}: {
   post: PostsList,
   vertical?: boolean,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -50,7 +51,7 @@ const PostActionsButton = ({post, vertical, classes}: {
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <PostActions post={post} closeMenu={() => handleSetOpen(false)}/>
+        <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
