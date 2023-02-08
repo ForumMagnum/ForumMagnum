@@ -862,7 +862,7 @@ interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
-  shortName: string
+  shortName: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean

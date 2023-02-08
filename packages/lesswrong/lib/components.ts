@@ -546,6 +546,7 @@ importComponent("RandomTagPage", () => require('../components/tagging/RandomTagP
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("EAAllTagsPage", () => require('../components/tagging/EAAllTagsPage'));
 importComponent("CoreTagsSection", () => require('../components/tagging/CoreTagsSection'));
 importComponent("CoreTagCard", () => require('../components/tagging/CoreTagCard'));
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
