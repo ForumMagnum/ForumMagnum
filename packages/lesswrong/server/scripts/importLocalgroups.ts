@@ -70,7 +70,6 @@ Vulcan.importLocalgroups = wrapVulcanAsyncScript(
             collection: Localgroups,
             documentId: data._id,
             set: dataToSet,
-            unset: {},
             validate: false
           })
         }
