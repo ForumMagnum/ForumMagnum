@@ -45,18 +45,28 @@ const readPgUrl = async (mode: Mode) => {
   return url;
 }
 
-const insert = (db: Database, id: string, name: string, data: Record<string, any>) =>
-  db.none(`
+const insert = async (db: Database, id: string, name: string, data: Record<string, any>) => {
+  await db.none(`
     INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
     VALUES ($1, $2, $3)
-    ON CONFLICT (COALESCE("name", ''::text)) DO UPDATE SET "value" = $3
+    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE SET "value" = $3
   `, [ id, name, data ]);
+}
 
-const deleteByName = (db: Database, name: string) =>
-  db.none(`
+const setDatabaseId = async (db: Database, id: string, databaseId: string) => {
+  await db.none(`
+    INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+    VALUES ($1, $2, TO_JSONB($3::TEXT))
+    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE SET "value" = $3
+  `, [ id, "databaseId", databaseId ]);
+}
+
+const deleteByName = async (db: Database, name: string) => {
+  await db.none(`
     DELETE FROM "DatabaseMetadata"
     WHERE "name" = $1
   `, [ name ]);
+}
 
 (async () => {
   process.chdir(__dirname);
@@ -77,9 +87,18 @@ const deleteByName = (db: Database, name: string) =>
     max: 3,
   });
 
+  let databaseIdPromise: Promise<void>;
+  if (mode === "prod") {
+    databaseIdPromise = Promise.resolve();
+  } else if (mode === "staging") {
+    databaseIdPromise = setDatabaseId(db, randomId(), "ea-staging");
+  } else {
+    databaseIdPromise = deleteByName(db, "databaseId");
+  }
+
   await Promise.all([
     insert(db, randomId(), "publicSettings", settings.databasePublicSettings),
     insert(db, randomId(), "serverSettings", settings.databaseServerSettings),
-    deleteByName(db, "databaseId"),
+    databaseIdPromise,
   ]);
 })();
