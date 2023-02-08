@@ -208,10 +208,8 @@ import './components';
 // PostRelation
 import './collections/postRelations';
 
-// CronHistories
+// Collections supporting vendored libraries
 import './collections/cronHistories';
-
-// Sessions
 import './collections/sessions';
 
 // Alignment Forum
