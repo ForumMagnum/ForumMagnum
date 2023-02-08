@@ -32,12 +32,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagInfo: {
     display: "flex",
     flexDirection: "column",
+    minWidth: 0, // required for text-overflow to work
   },
   title: {
     ...theme.typography.headline,
     fontSize: 16,
     lineHeight: "20px",
     fontWeight: 700,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
   },
   postCount: {
     ...theme.typography.commentStyle,

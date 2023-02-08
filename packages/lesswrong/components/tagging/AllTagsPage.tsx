@@ -8,13 +8,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { isEAForum, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
   portalSection: {
     marginBottom: theme.spacing.unit*8,
   },
@@ -45,17 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
     verticalAlign: "middle",
   },
-  coreTagsSection: {
-    /**
-     * I'm slightly abusing the ToCColumn component by using an empty table of contents for the top core tags section.
-     * This makes it way easier to line up with the rest of the page, while keeping the table of contents for the
-     * lower wiki section. This works fine apart from the fact that the table of contents component has a fixed height of 80vh,
-     * this removes that
-     */
-    '& .ToCColumn-stickyBlockScroller': {
-      height: "unset !important"
-    },
-  }
 })
 
 
@@ -67,7 +54,7 @@ const AllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading, CoreTagsSection } = Components;
+  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, Loading, CoreTagsSection, SingleColumnSection } = Components;
 
   let portalTitle = forumSelect({
     EAForum: 'EA Forum Wiki',
@@ -84,84 +71,49 @@ const AllTagsPage = ({classes}: {
 
   return (
     <AnalyticsContext pageContext="allTagsPage">
-      <div className={classes.root}>
-        {isEAForum && <div className={classes.coreTagsSection}>
-          <ToCColumn
-            tableOfContents={<div/>}
-            header={<SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin />}
-            centerEarly
-          >
-            <AnalyticsContext pageSectionContext="coreTagsSection">
-              <CoreTagsSection />
-            </AnalyticsContext>
-          </ToCColumn>
-        </div>}
+      <SingleColumnSection>
+        <SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin />
+        <CoreTagsSection />
         <div className={classes.portalSection}>
-          <AnalyticsContext pageSectionContext="tagPortal">
-            <ToCColumn
-              tableOfContents={tag ? <TagTableOfContents
-                tag={tag} showContributors={false}
-                displayOptions={{
-                  addedRows: [
-                    {
-                      title: `All ${taggingNamePluralCapitalSetting.get()}`,
-                      anchor: `all-${taggingNamePluralSetting.get()}`,
-                      level: 0,
-                    },
-                  ],
-                  ...forumSelect({
-                    // Changes to ToC presentation that're specific to the content on LW's version of the Concepts page
-                    LessWrong: {
-                      downcaseAllCapsHeadings: true,
-                      maxHeadingDepth: 1,
-                    },
-                    default: undefined,
-                  })
-                }}
-              /> : <div/>}
-              header={<SectionTitle title={portalTitle}>
-                <SectionButton>
-                  {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                    to={tagCreateUrl}
-                  >
-                    <AddBoxIcon className={classes.addTagButton}/>
-                    New {taggingNameCapitalSetting.get()}
-                  </Link>}
-                  {!currentUser && <a onClick={(ev) => {
-                    openDialog({
-                      componentName: "LoginPopup",
-                      componentProps: {}
-                    });
-                    ev.preventDefault();
-                  }}>
-                    <AddBoxIcon className={classes.addTagButton}/>
-                    New {taggingNameCapitalSetting.get()}
-                  </a>}
-                </SectionButton>
-              </SectionTitle>}
-              centerEarly
-            >
-              <ContentStyles contentType="comment" className={classes.portal}>
-                {!tag && <Loading/>}
-                {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
-                  Edit
-                </a>}
-                {editing && tag ?
-                  <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
-                  :
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: htmlWithAnchors}}
-                    description={`tag ${tag?.name}`} noHoverPreviewPrefetch
-                  />
-                }
-              </ContentStyles>
-              <AnalyticsContext pageSectionContext="allTagsAlphabetical">
-                <AllTagsAlphabetical />
-              </AnalyticsContext>
-            </ToCColumn>
+          <SectionTitle title={portalTitle}>
+            <SectionButton>
+              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+                to={tagCreateUrl}
+              >
+                <AddBoxIcon className={classes.addTagButton}/>
+                New {taggingNameCapitalSetting.get()}
+              </Link>}
+              {!currentUser && <a onClick={(ev) => {
+                openDialog({
+                  componentName: "LoginPopup",
+                  componentProps: {}
+                });
+                ev.preventDefault();
+              }}>
+                <AddBoxIcon className={classes.addTagButton}/>
+                New {taggingNameCapitalSetting.get()}
+              </a>}
+            </SectionButton>
+          </SectionTitle>
+          <ContentStyles contentType="comment" className={classes.portal}>
+            {!tag && <Loading/>}
+            {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+              Edit
+            </a>}
+            {editing && tag ?
+              <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+              :
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: htmlWithAnchors}}
+                description={`tag ${tag?.name}`} noHoverPreviewPrefetch
+              />
+            }
+          </ContentStyles>
+          <AnalyticsContext pageSectionContext="allTagsAlphabetical">
+            <AllTagsAlphabetical />
           </AnalyticsContext>
         </div>
-      </div>
+      </SingleColumnSection>
     </AnalyticsContext>
   );
 }

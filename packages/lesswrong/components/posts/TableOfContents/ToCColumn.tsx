@@ -41,22 +41,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  tocActivatedCenterEarly: {
-    [theme.breakpoints.down('md')]: {
-      '@supports (grid-template-areas: "title")': {
-        display: 'grid',
-        gridTemplateColumns: `
-          1fr
-          minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-          1fr
-        `,
-        gridTemplateAreas: `
-          "... title ..."
-          "... content ..."
-        `,
-      },
-    }
-  },
   sideCommentsActive: {
     gridTemplateColumns: `
       1fr minmax(200px,270px) minmax(10px,25px) minmax(min-content,720px) minmax(10px, 25px) min-content 350px 1fr !important
@@ -111,12 +95,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     scrollbarColor: theme.palette.tocScrollbarColors,
 
     [theme.breakpoints.down('sm')]:{
-      display: 'none'
-    }
-  },
-  stickyBlockScrollerCenterEarly: {
-    [theme.breakpoints.down('md')]:{
-      display: 'none'
+      display:'none'
     }
   },
   stickyBlock: {
@@ -135,13 +114,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap3: { gridArea: 'gap3' }
 });
 
-export const ToCColumn = ({tableOfContents, header, welcomeBox, centerEarly=false, children, classes}: {
+export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
   welcomeBox?: React.ReactNode,
-  centerEarly?: boolean,
 }) => {
   const {sideCommentsActive} = useContext(SidebarsContext)!;
   
@@ -150,7 +128,6 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, centerEarly=fals
       classes.root,
       {
         [classes.tocActivated]: !!tableOfContents || !!welcomeBox,
-        [classes.tocActivatedCenterEarly]: centerEarly,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
@@ -158,7 +135,7 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, centerEarly=fals
         {header}
       </div>
       {tableOfContents && <div className={classes.toc}>
-        <div className={classNames(classes.stickyBlockScroller, classes.stickyBlockScrollerCenterEarly)}>
+        <div className={classes.stickyBlockScroller}>
           <div className={classes.stickyBlock}>
             {tableOfContents}
           </div>
