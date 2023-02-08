@@ -20,7 +20,7 @@ Sessions.checkAccess = async (
   _context: ResolverContext|null,
   outReasonDenied: {reason?: string},
 ): Promise<boolean> => {
-  outReasonDenied.reason = "Sessions cannot be edited manually";
+  outReasonDenied.reason = "Sessions cannot be accessed manually";
   return false;
 }
 
