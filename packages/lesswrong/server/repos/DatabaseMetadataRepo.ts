@@ -15,15 +15,15 @@ export default class DatabaseMetadataRepo extends AbstractRepo<DbDatabaseMetadat
     );
   }
 
-  async getServerSettings(): Promise<DbDatabaseMetadata | null> {
+  getServerSettings(): Promise<DbDatabaseMetadata | null> {
     return this.getByName("serverSettings");
   }
 
-  async getPublicSettings(): Promise<DbDatabaseMetadata | null> {
+  getPublicSettings(): Promise<DbDatabaseMetadata | null> {
     return this.getByName("publicSettings");
   }
 
-  async getDatabaseId(): Promise<DbDatabaseMetadata | null> {
+  getDatabaseId(): Promise<DbDatabaseMetadata | null> {
     return this.getByName("databaseId");
   }
 }
