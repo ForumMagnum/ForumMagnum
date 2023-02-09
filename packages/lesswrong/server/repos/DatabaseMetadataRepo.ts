@@ -6,12 +6,13 @@ export default class DatabaseMetadataRepo extends AbstractRepo<DbDatabaseMetadat
     super(DatabaseMetadata);
   }
 
-  private async getByName(name: string): Promise<DbDatabaseMetadata | null> {
-    const result = await this.getRawDb().oneOrNone(
-      `SELECT "value" from "DatabaseMetadata" WHERE "name" = $1`,
+  private getByName(name: string): Promise<DbDatabaseMetadata | null> {
+    // We use getRawDb here as this may be executed during server startup
+    // before the collection is properly initialized
+    return this.getRawDb().oneOrNone(
+      `SELECT * from "DatabaseMetadata" WHERE "name" = $1`,
       [name],
     );
-    return result?.value;
   }
 
   async getServerSettings(): Promise<DbDatabaseMetadata | null> {
