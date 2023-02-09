@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip, UserTooltip } = Components
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip, UserTooltip, ErrorAccessDenied } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
@@ -74,9 +74,7 @@ export const AdminPaymentsPage = ({classes}: {
   })
 
   const currentUser = useCurrentUser()
-  if (!currentUser?.isAdmin) return <SingleColumnSection>
-    You don't have permission to view this page
-  </SingleColumnSection>
+  if (!currentUser?.isAdmin) return <ErrorAccessDenied />
 
   return <div className={classes.root}>
     <SingleColumnSection>
