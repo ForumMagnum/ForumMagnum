@@ -90,11 +90,6 @@
     "timestamp": "2023-01-30T15:00:41.000Z"
   },
   {
-    "acceptsSchemaHash": "c4ad9670df04a3753f9e2db9bb5bade8",
-    "acceptedByMigration": "20230131T232642.add_showCommunityInRecentDiscussion_user_field.ts",
-    "timestamp": "2023-01-31T23:26:42.000Z"
-  },
-  {
     "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
     "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
     "timestamp": "2023-02-01T15:58:39.000Z"
@@ -123,6 +118,11 @@
     "acceptsSchemaHash": "a7887d09050fb7d8f7117f498534d322",
     "acceptedByMigration": "20230208T174449.add_shortName.ts",
     "timestamp": "2023-02-08T17:44:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c4ad9670df04a3753f9e2db9bb5bade8",
+    "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
+    "timestamp": "2023-02-09T21:26:42.000Z"
   },
   {
     "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
