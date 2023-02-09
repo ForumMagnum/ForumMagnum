@@ -328,26 +328,27 @@ export const runCallbacksAsync = function <T extends DbObject> (options: {
   }
 };
 
-
-// For unit tests. Wait (in 20ms incremements) until there are no callbacks
-// in progress. Many database operations trigger asynchronous callbacks to do
-// things like generate notifications and add to search indexes; if you have a
-// unit test that depends on the results of these async callbacks, writing them
-// the naive way would create a race condition. But if you insert an
-// `await waitUntilCallbacksFinished()`, it will wait for all the background
-// processing to finish before proceeding with the rest of the test.
-//
-// This is NOT suitable for production (non-unit-test) use, because if other
-// threads/fibers are doing things which trigger callbacks, it could wait for
-// a long time. It DOES wait for callbacks that were triggered after
-// `waitUntilCallbacksFinished` was called, and that were triggered from
-// unrelated contexts.
-//
-// What this tracks specifically is that all callbacks which were registered
-// with `addCallback` and run with `runCallbacksAsync` have returned. Note that
-// it is possible for a callback to bypass this, by calling a function that
-// should have been await'ed without the await, effectively spawning a new
-// thread which isn't tracked.
+/**
+ * For unit tests. Wait (in 20ms incremements) until there are no callbacks
+ * in progress. Many database operations trigger asynchronous callbacks to do
+ * things like generate notifications and add to search indexes; if you have a
+ * unit test that depends on the results of these async callbacks, writing them
+ * the naive way would create a race condition. But if you insert an
+ * `await waitUntilCallbacksFinished()`, it will wait for all the background
+ * processing to finish before proceeding with the rest of the test.
+ *
+ * This is NOT suitable for production (non-unit-test) use, because if other
+ * threads/fibers are doing things which trigger callbacks, it could wait for
+ * a long time. It DOES wait for callbacks that were triggered after
+ * `waitUntilCallbacksFinished` was called, and that were triggered from
+ * unrelated contexts.
+ *
+ * What this tracks specifically is that all callbacks which were registered
+ * with `addCallback` and run with `runCallbacksAsync` have returned. Note that
+ * it is possible for a callback to bypass this, by calling a function that
+ * should have been await'ed without the await, effectively spawning a new
+ * thread which isn't tracked.
+ */
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {

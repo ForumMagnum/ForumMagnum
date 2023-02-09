@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
@@ -40,6 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     }
   },
+  loadMore: {
+    marginLeft: 8,
+    color: theme.palette.grey[500],
+  },
 });
 
 interface TagsChecklistItem {
@@ -54,6 +58,8 @@ const TagsChecklist = ({
   selectedTagIds: selectedTagIds = [],
   tags,
   displaySelected = "hide",
+  tooltips = true,
+  truncate = false,
 }: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
@@ -64,8 +70,11 @@ const TagsChecklist = ({
   selectedTagIds?: Array<string | undefined>;
   tags: TagFragment[];
   displaySelected?: "highlight" | "hide";
+  tooltips?: boolean;
+  truncate?: boolean;
 }) => {
-  const { LWTooltip } = Components;
+  const { LWTooltip, LoadMore } = Components;
+  const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
     if (displaySelected === "hide") {
@@ -74,7 +83,24 @@ const TagsChecklist = ({
       return tags.map((tag) => ({ tag, selected: selectedTagIds.includes(tag._id) }));
     }
   };
-  const tagsToDisplay = getTagsToDisplay();
+
+  const actuallyTruncate = truncate && !loadMoreClicked;
+
+  const allRelevantTags = getTagsToDisplay();
+  const selectedTags = allRelevantTags.filter((tag) => tag.selected);
+
+  let tagsToDisplay = allRelevantTags;
+  // The first 5 tags can always be displayed if the list is truncated.
+  // If another tag beyonf this is selected, it should be added to the front of the list.
+  if (actuallyTruncate) {
+    const initialTagsToDisplay = allRelevantTags.slice(0, 5);
+    const selectedHiddenTags = selectedTags.filter((tag) => !initialTagsToDisplay.includes(tag));
+
+    // Add hidden tags to the front of the list
+    tagsToDisplay = selectedHiddenTags.length > 0 ? selectedHiddenTags.concat(initialTagsToDisplay) : initialTagsToDisplay;
+  }
+  const shouldDisplayLoadMore = actuallyTruncate && tagsToDisplay.length < allRelevantTags.length;
+  const numHidden = allRelevantTags.length - tagsToDisplay.length;
 
   const handleOnTagSelected = (tag, existingTagIds) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
   const handleOnTagRemoved = (tag, existingTagIds) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
@@ -90,6 +116,7 @@ const TagsChecklist = ({
         ) : (
           <LWTooltip
             key={tagChecklistItem.tag._id}
+            disabled={!tooltips}
             title={
               <div>
                 Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}
@@ -103,6 +130,11 @@ const TagsChecklist = ({
           </LWTooltip>
         )
       )}
+      {shouldDisplayLoadMore && <LoadMore
+        message={`${numHidden} more`}
+        loadMore={() => setLoadMoreClicked(true)}
+        className={classes.loadMore}
+      />}
     </>
   );
 };

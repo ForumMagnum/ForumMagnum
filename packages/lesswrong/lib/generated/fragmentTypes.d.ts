@@ -298,6 +298,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
@@ -363,6 +364,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
+  readonly relevantTagIds: Array<string>,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1235,6 +1237,8 @@ interface CommentsList { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
+  readonly relevantTagIds: Array<string>,
+  readonly relevantTags: Array<TagBasicInfo>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1295,6 +1299,7 @@ interface CommentsList_contents { // fragment on Revisions
 
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
@@ -1305,6 +1310,7 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
+  readonly relevantTagIds: Array<string>,
   readonly contents: RevisionEdit|null,
 }
 
@@ -1746,6 +1752,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -2439,6 +2446,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly slug: string,
   readonly displayName: string,
   readonly bannedUserIds: Array<string>,
+  readonly bannedPersonalUserIds: Array<string>,
 }
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
@@ -2875,6 +2883,13 @@ interface CronHistoriesDefaultFragment { // fragment on CronHistories
   readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface SessionsDefaultFragment { // fragment on Sessions
+  readonly _id: string,
+  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3063,6 +3078,7 @@ interface FragmentTypes {
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
+  SessionsDefaultFragment: SessionsDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3243,8 +3259,9 @@ interface CollectionNamesByFragmentName {
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   CronHistoriesDefaultFragment: "CronHistories"
+  SessionsDefaultFragment: "Sessions"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
 

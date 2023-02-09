@@ -5,6 +5,8 @@ import mapValues from 'lodash/mapValues';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import { shouldHideTag } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,6 +40,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
   const showCoreTopicSection = forumTypeSetting.get() === "EAForum";
+  const currentUser = useCurrentUser();
   
   const { results: coreTags, loading } = useMulti({
     terms: {
@@ -50,9 +53,11 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 
   if (loading) return <Loading/>
   if (!coreTags) return null
-
+  
+  const coreTagsToDisplay = coreTags.filter(tag => tag.isSubforum && !shouldHideTag(currentUser, tag));
+  
   const selectedTagIds = Object.keys(value||{})
-  const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTags.find(tag => tag._id === tagId)) : []
+  const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTagsToDisplay.find(tag => tag._id === tagId)) : []
 
   /**
    * post tagRelevance field needs to look like {string: number}
@@ -107,7 +112,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
           <>
             <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
             <TagsChecklist
-              tags={coreTags}
+              tags={coreTagsToDisplay}
               selectedTagIds={selectedTagIds}
               onTagSelected={onTagSelected}
               onTagRemoved={onTagRemoved}

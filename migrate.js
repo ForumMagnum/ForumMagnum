@@ -9,7 +9,7 @@ const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
 const { readFile } = require("fs").promises;
 
-const initGlobals = (isProd) => {
+const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
   global.bundleIsTest = false;
   global.bundleIsProduction = isProd;
@@ -17,6 +17,9 @@ const initGlobals = (isProd) => {
   global.defaultSiteAbsoluteUrl = "";
   global.serverPort = 5001;
   global.estrellaPid = -1;
+
+  const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
+  getInstanceSettings(args); // These args will be cached for later
 }
 
 const credentialsFile = (fileName) => {
@@ -55,7 +58,7 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
     args.mongoUrl = await readUrlFile(`${mode}-db-conn.txt`);
     args.postgresUrl = await readUrlFile(`${mode}-pg-conn.txt`);
     args.settingsFileName = credentialsFile(`settings-${mode}.json`);
-    if (isRunCommand) {
+    if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
     }
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
@@ -64,12 +67,9 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
     throw new Error('Unable to run migration without a mode or environment (PG_URL, MONGO_URL and SETTINGS_FILE)');
   }
 
+  initGlobals(args, mode === "prod");
+
   if (isRunCommand) {
-    initGlobals(mode === "prod");
-
-    const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
-    getInstanceSettings(args); // These args will be cached for later
-
     const {initServer} = require("./packages/lesswrong/server/serverStartup");
     await initServer(args);
   }
