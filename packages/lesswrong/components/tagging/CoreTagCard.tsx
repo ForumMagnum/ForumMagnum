@@ -77,7 +77,6 @@ const CoreTagCard = ({tag, classes}: {
         </Link>
         <div className={classes.postCount}>{tag.postCount} posts</div>
         <div className={classes.subscribeButton}>
-          {/* TODO possibly redesign this button */}
           <SubscribeButton
             subscribeMessage={"Subscribe"}
             unsubscribeMessage={"Subscribed"}
