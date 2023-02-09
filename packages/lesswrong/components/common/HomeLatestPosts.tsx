@@ -14,7 +14,6 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import { useMulti } from '../../lib/crud/withMulti';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
