@@ -85,6 +85,7 @@ const loadDatabaseSettings = (): Promise<DatabaseSettings> => {
     try {
       return loadDatabaseSettingsPostgres();
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.warn("Failed to load database settings from Postgres - trying Mongo...");
       return loadDatabaseSettingsMongo();
     }
