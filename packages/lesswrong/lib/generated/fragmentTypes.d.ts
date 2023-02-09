@@ -383,6 +383,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -403,6 +404,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
@@ -1967,6 +1969,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
@@ -1991,6 +1994,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
