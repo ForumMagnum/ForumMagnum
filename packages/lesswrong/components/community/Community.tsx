@@ -370,7 +370,7 @@ const Community = ({classes}: {
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
-            Community
+            Connect
           </h1>
           <div className={classes.sectionDescription}>
             Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.

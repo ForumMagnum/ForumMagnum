@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     name
+    shortName
     slug
     core
     postCount
@@ -37,6 +38,7 @@ registerFragment(`
       html
     }
     bannerImageId
+    squareImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
     sequence {
