@@ -446,7 +446,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               </Link>
             </LWTooltip>}
           {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
-            {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
+            {startCase(comment.tag.name)}
           </Link>}
         </div>
         <div className={classes.body}>

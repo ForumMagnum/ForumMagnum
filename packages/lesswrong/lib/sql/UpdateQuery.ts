@@ -86,6 +86,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     if (returnUpdated) {
       this.atoms.push("RETURNING *");
+    } else {
+      this.atoms.push(`RETURNING "_id"`);
     }
   }
 

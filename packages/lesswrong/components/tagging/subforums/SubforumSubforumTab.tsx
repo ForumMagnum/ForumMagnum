@@ -150,10 +150,11 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   const shortformButton = (
     <LWTooltip
-      title="Create a shortform which will appear in this subforum"
+      title={"You must be logged in to create a shortform"}
+      disabled={!!currentUser}
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={clickNewShortform}>
+      <SectionButton onClick={currentUser ? clickNewShortform : () => {}}>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
       </SectionButton>
     </LWTooltip>
