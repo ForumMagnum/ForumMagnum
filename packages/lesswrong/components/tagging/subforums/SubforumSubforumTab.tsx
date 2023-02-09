@@ -57,6 +57,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 16,
     padding: "0px 8px 8px 8px",
   },
+  shortformComment: {
+    '&&': {
+      marginTop: 0,
+      marginBottom: 32,
+    }
+  },
   centerChild: {
     display: "flex",
     justifyContent: "center",
@@ -136,7 +142,6 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   const commentNodeProps = {
     treeOptions: {
       postPage: true,
-      showPostTitle: false,
       refetch,
       tag,
     },
@@ -255,6 +260,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               comment={comment}
               commentNodeProps={commentNodeProps}
               initialMaxChildren={5}
+              className={classes.shortformComment}
             />
           ),
         },

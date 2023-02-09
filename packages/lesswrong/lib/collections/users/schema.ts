@@ -748,6 +748,21 @@ const schema: SchemaType<DbUser> = {
     label: "Do not truncate comments (on home page)"
   },
   
+  // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
+  showCommunityInRecentDiscussion: {
+    order: 94,
+    type: Boolean,
+    optional: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Show Community posts in Recent Discussion"
+  },
+  
   petrovOptOut: {
     order: 95,
     type: Boolean,
