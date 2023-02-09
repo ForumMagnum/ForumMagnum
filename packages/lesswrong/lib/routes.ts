@@ -11,7 +11,7 @@ import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, g
 
 export const communityPath = '/community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 

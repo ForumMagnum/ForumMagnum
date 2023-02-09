@@ -309,7 +309,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentName: "EventsList",
     }, {
       id: 'community',
-      title: 'Community',
+      title: 'Connect',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'Join a group near you or meet others online',

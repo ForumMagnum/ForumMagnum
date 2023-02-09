@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
