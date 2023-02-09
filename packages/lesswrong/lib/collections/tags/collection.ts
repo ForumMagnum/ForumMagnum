@@ -103,6 +103,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
