@@ -92,7 +92,8 @@ makeEditable({
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    order: 25
+    order: 25,
+    pingbacks: true, 
   }
 })
 

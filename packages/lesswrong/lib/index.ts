@@ -211,6 +211,10 @@ import './components';
 // PostRelation
 import './collections/postRelations';
 
+// Collections supporting vendored libraries
+import './collections/cronHistories';
+import './collections/sessions';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

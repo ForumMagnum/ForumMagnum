@@ -3,6 +3,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep } from '../../lib/helpers';
+import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -85,13 +86,17 @@ export async function runMigration(name: string) {
     started: new Date(),
   });
   
+  const db = getSqlClient();
+
+  // TODO: do this atomically in a single transaction
   try {
+    await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: true,
     }});
-
+    
     // eslint-disable-next-line no-console
     console.log(`Finished migration: ${name}`);
   } catch(e) {
@@ -103,6 +108,8 @@ export async function runMigration(name: string) {
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: false,
     }});
+  } finally {
+    await safeRun(db, `refresh_lowercase_views`) // add the views back in
   }
 }
 
@@ -465,3 +472,17 @@ export function makeMigrationProgressStats({numFinished, numTotal,startedAt}: {
 }
 
 Vulcan.dropUnusedField = dropUnusedField
+
+  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
+  // This wraapper runs the function and ignores if it's not defined yet
+export async function safeRun(db : SqlClient | null, fn : string) : Promise<void> {
+  if(!db) return;
+
+  await db.any(`DO $$
+    BEGIN
+      PERFORM ${fn}();
+    EXCEPTION WHEN undefined_function THEN
+      -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
+    END;
+  $$;`)
+}

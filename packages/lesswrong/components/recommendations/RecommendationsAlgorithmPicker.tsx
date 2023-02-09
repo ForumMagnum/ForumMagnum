@@ -39,7 +39,7 @@ const recommendationAlgorithms = [
     name: "sample",
     description: "Weighted sample"
   }
-];
+] as const;
 
 export function getRecommendationSettings({settings, currentUser, configName}: {
   settings: Partial<RecommendationsAlgorithm>|null,
@@ -54,14 +54,14 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   }
 
   if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName]||{});
+    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName as keyof UsersCurrent['recommendationSettings']]||{});
   } else {
     return defaultAlgorithmSettings;
   }
 }
 
 // TODO: Probably to be removed when Community becomes a tag
-const forumIncludeExtra: ForumOptions<{humanName: string, machineName: string}> = {
+const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includePersonal' | 'includeMeta'}> = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
@@ -79,7 +79,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-  function applyChange(newSettings) {
+  function applyChange(newSettings: RecommendationsAlgorithm) {
     if (currentUser) {
       const mergedSettings = {
         ...currentUser.recommendationSettings,
@@ -153,7 +153,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[includeExtra.machineName]}
+          value={settings[includeExtra.machineName] ?? false}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
           tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
@@ -163,7 +163,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
-          onChange={(ev) => applyChange({ ...settings, method: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, method: ev.target.value as RecommendationsAlgorithm['method'] })}
           value={settings.method}
         >
           {recommendationAlgorithms.map(method =>
@@ -176,40 +176,40 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <div>{"Count "}
         <Input type="number"
           value={settings.count}
-          onChange={(ev) => applyChange({ ...settings, count: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, count: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Weight: (score - "}
         <Input type="number"
           value={settings.scoreOffset}
-          onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value as unknown as number })}
         />
         {") ^ "}
         <Input type="number"
           value={settings.scoreExponent}
-          onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Personal blogpost modifier "}
         <Input type="number"
           value={settings.personalBlogpostModifier}
-          onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Frontpage modifier "}
         <Input type="number"
           value={settings.frontpageModifier}
-          onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Curated modifier "}
         <Input type="number"
           value={settings.curatedModifier}
-          onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>

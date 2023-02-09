@@ -6,21 +6,22 @@ import Settings from '@material-ui/icons/Settings';
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[600],
+    fontSize: 18
   },
   iconWithLabelGroup: {
     display: "flex",
     alignItems: "center",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   iconWithLabel: {
-    marginRight: theme.spacing.unit,
+    marginRight: 4,
+    marginLeft: 4,
   },
   label: {
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-    fontStyle: "italic"
   }
 })
 
@@ -32,15 +33,18 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: 
   showIcon?: boolean
 }) => {
   if (label) {
-    return <span className={classes.iconWithLabelGroup} onClick={onClick}>
-      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
+    return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
+      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel)}/>}
       <span className={classes.label}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
+const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {

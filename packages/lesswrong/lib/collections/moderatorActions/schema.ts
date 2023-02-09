@@ -1,6 +1,7 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { userOwns } from '../../vulcan-users/permissions';
+
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
 export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
 export const RATE_LIMIT_ONE_PER_WEEK = 'rateLimitOnePerWeek';
@@ -13,6 +14,9 @@ export const NEGATIVE_KARMA_USER_ALERT = 'negativeUserKarmaAlert';
 export const MOVED_POST_TO_DRAFT = 'movedPostToDraft';
 export const SENT_MODERATOR_MESSAGE = 'sentModeratorMessage';
 export const MANUAL_FLAG_ALERT = 'manualFlag';
+export const RECEIVED_VOTING_PATTERN_WARNING = 'votingPatternWarningDelivered';
+export const FLAGGED_FOR_N_DMS = 'flaggedForNDMs';
+export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 
 export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
 
@@ -33,8 +37,16 @@ export const MODERATOR_ACTION_TYPES = {
   [NEGATIVE_KARMA_USER_ALERT]: 'Negative Karma User',
   [MOVED_POST_TO_DRAFT]: 'Moved Post to Draft',
   [SENT_MODERATOR_MESSAGE]: 'Sent Moderator Message',
-  [MANUAL_FLAG_ALERT]: 'Manually Flagged'
+  [MANUAL_FLAG_ALERT]: 'Manually Flagged',
+  [RECEIVED_VOTING_PATTERN_WARNING]: 'Received automatic warning for voting too fast',
+  [FLAGGED_FOR_N_DMS]: 'Auto-flagged for sending suspiciously many DMs',
+  [AUTO_BLOCKED_FROM_SENDING_DMS]: 'Auto-blocked from sending DMs for trying to send suspiciously many DMs',
 };
+
+/** The max # of users an unapproved account is allowed to DM before being flagged */
+export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
+/** The max # of users an unapproved account is allowed to DM */
+export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = 9;
 
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.

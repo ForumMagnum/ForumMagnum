@@ -1,13 +1,12 @@
-import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
+import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { subforumSlugsSetting } from './routeUtil';
+import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 
 
 export const communityPath = '/community';
@@ -26,33 +25,6 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
-
-async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
-  if (!postId)
-    return null;
-
-  // If the URL contains a hash, it leads to either a comment, a landmark within
-  // the post, or a builtin ID.
-  // TODO: In the case of a comment, we should generate a comment-specific
-  // pingback in addition to the pingback to the post the comment is on.
-  // TODO: In the case of a landmark, we want to customize the hover preview to
-  // reflect where in the post the link was to.
-  return ({ collectionName: "Posts", documentId: postId })
-}
-
-async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
-  const parsedId = parseInt(legacyId, 36);
-  const post = await Posts.findOne({"legacyId": parsedId.toString()});
-  if (!post) return null;
-  return await getPostPingbackById(parsedUrl, post._id);
-}
-
-async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
-  const post = await Posts.findOne({slug: slug});
-  if (!post) return null;
-  return await getPostPingbackById(parsedUrl, post._id);
-}
-
 
 const postBackground = "white"
 
@@ -120,7 +92,8 @@ addRoute(
     path:'/users/:slug',
     componentName: 'UsersSingle',
     //titleHoC: userPageTitleHoC,
-    titleComponentName: 'UserPageTitle'
+    titleComponentName: 'UserPageTitle',
+    getPingback: getUserPingbackBySlug,
   },
   {
     name:'users.single.user',
@@ -220,7 +193,6 @@ addRoute(
     background: "white",
     initialScroll: "bottom",
   },
-
   {
     name: 'newPost',
     path: '/newPost',
@@ -265,6 +237,21 @@ addRoute(
     title: "Review Voting",
     componentName: "ReviewVotingPage",
     subtitleComponentName: "ReviewHeaderTitle"
+  },
+
+  {
+    name: 'reviewQuickPage',
+    path: '/reviewQuickPage',
+    componentName: 'ReviewQuickPage',
+    title: "Review Quick Page",
+    subtitle: "Quick Review Page"
+  },
+
+  {
+    name: "newLongformReviewForm",
+    path: '/newLongformReview',
+    title: "New Longform Review",
+    componentName: "NewLongformReviewForm",
   },
 
   // Sequences
@@ -719,7 +706,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       redirect: (routerLocation: RouterLocation) => {
         const { params: {slug}, query, hash } = routerLocation
-        const isRouteSubforum = subforumSlugsSetting.get().includes(slug)
 
         const redirectQuery = pickBy({
           ...query,
@@ -727,8 +713,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
           commentId: query.commentId || hash?.slice(1)
         }, v => v)
 
-        // If the route is not declared as a subforum but somehow the user has clicked on a subforum link, redirect to the /subforum2 path, which will always display like a subforum
-        return `/${taggingNamePluralSetting.get()}/${slug}${isRouteSubforum ? '' : '/subforum2'}?${qs.stringify(redirectQuery)}${hash}`
+        // Redirect to the /subforum2 path, which will always display like a subforum regardless of whether isSubforum is true
+        return `/${taggingNamePluralSetting.get()}/${slug}/subforum2?${qs.stringify(redirectQuery)}${hash}`
       }
     },
     {
@@ -870,12 +856,14 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'editPaymentInfo',
       path: '/payments/account',
-      componentName: 'EditPaymentInfoPage'
+      componentName: 'EditPaymentInfoPage',
+      title: "Account Payment Info"
     },
     {
       name: 'paymentsAdmin',
       path: '/payments/admin',
-      componentName: 'AdminPaymentsPage'
+      componentName: 'AdminPaymentsPage',
+      title: "Payments Admin"
     },
     {
       name: 'payments',
@@ -926,12 +914,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/reviews/2019`,
     },
     {
-      name: 'reviewQuickPage',
-      path: '/reviewQuickPage',
-      componentName: 'ReviewQuickPage',
-      title: "Review Quick Page",
-    },
-    {
       name: 'library',
       path: '/library',
       componentName: 'LibraryPage',
@@ -959,12 +941,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
-    {
-      name: 'SpotlightsPage',
-      path: '/spotlights',
-      componentName: 'SpotlightsPage',
-      title: 'Spotlights Page'
-    }
   ],
   AlignmentForum: [
     {
@@ -1264,6 +1240,7 @@ addRoute(
     componentName: 'TagPageRevisionSelect',
     titleComponentName: 'TagPageTitle',
   },
+  // ----- Admin / Moderation -----
   {
     name: 'admin',
     path: '/admin',
@@ -1316,6 +1293,15 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
+  {
+    name: 'SpotlightsPage',
+    path: '/spotlights',
+    componentName: 'SpotlightsPage',
+    title: 'Spotlights Page'
+  },
+);
+
+addRoute(
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',

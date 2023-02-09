@@ -7,6 +7,7 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
+import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -31,6 +32,8 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
+  await ensureMongo2PgLockTableExists(client);
+
   preparePgTables();
 
   for (let collection of Collections) {
@@ -65,7 +68,8 @@ const buildTables = async (client: SqlClient) => {
 }
 
 const makeDbName = (id?: string) => {
-  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}_${process.env.JEST_WORKER_ID}`;
+  const jestWorkerIdSuffix = process.env.JEST_WORKER_ID ? `_${process.env.JEST_WORKER_ID}` : "";
+  id ??= `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}${jestWorkerIdSuffix}`;
   return `unittest_${id}`.toLowerCase();
 }
 
@@ -83,11 +87,20 @@ const createTemporaryConnection = async () => {
   return client;
 }
 
+export type TestingSqlClient = {
+  sql: SqlClient,
+  dbName: string,
+}
+
 export const createTestingSqlClient = async (
   id: string | undefined = undefined,
   dropExisting = false,
   setAsGlobalClient = true,
-): Promise<SqlClient> => {
+): Promise<TestingSqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client - PG_URL not set");
+  }
   const dbName = makeDbName(id);
   // eslint-disable-next-line no-console
   console.log(`Creating test database '${dbName}'...`);
@@ -96,28 +109,44 @@ export const createTestingSqlClient = async (
     await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   await buildTables(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
-export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+export const createTestingSqlClientFromTemplate = async (template: string): Promise<TestingSqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client from template - PG_URL not set");
+  }
   if (!template) {
     throw new Error("No template database provided");
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql.any(`CREATE DATABASE ${dbName} TEMPLATE ${template}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
-  return sql;
+  return {
+    sql,
+    dbName,
+  };
 }
 
+/**
+ * Our approach to database cleanup is to just delete all the runs older than 1 day.
+ * This allows us to inspect the databases created during the last run if necessary
+ * for debugging whilst also making sure that we clean up after ourselves eventually
+ * (assuming that the tests are run again some day).
+ */
 export const dropTestingDatabases = async (olderThan?: string | Date) => {
   const sql = await createTemporaryConnection();
   const databases = await sql.any(`
@@ -127,14 +156,20 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
-  olderThan = new Date(olderThan ?? Date.now());
+  const secondsPerDay = 1000 * 60 * 60 * 24;
+  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
   for (const database of databases) {
     const {datname} = database;
+    if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {
+      continue;
+    }
+
+    // Replace underscores with dashes and colons etc
     const tokens = datname.split("_").slice(1, 7);
-    const day = tokens.slice(0, 2);
-    const time = tokens.slice(2, 5);
+    const yearMonth = tokens.slice(0, 2);
+    const dayTime = tokens.slice(2, 5);
     const millis = tokens[5];
-    const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
+    const dateString = (yearMonth.join("-") + "-" + dayTime.join(":") + "." + millis).toUpperCase();
     const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
       await sql.none(`DROP DATABASE ${datname}`);

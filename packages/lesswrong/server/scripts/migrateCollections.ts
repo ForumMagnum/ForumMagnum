@@ -10,8 +10,16 @@ import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
+import { ObjectId } from "mongodb";
 
 type Transaction = ITask<{}>;
+
+const extractObjectId = (value: Record<string, any>): Record<string, any> => {
+  if (value._id instanceof ObjectId) {
+    value._id = value._id.toString();
+  }
+  return value;
+}
 
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
@@ -37,6 +45,27 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     migration.finished ??= false;
     migration.succeeded ??= false;
     return migration;
+  },
+  Users: (user: DbUser): DbUser => {
+    user.isAdmin = !!user.isAdmin;
+    if (user.legacyData) {
+      for (const field in user.legacyData) {
+        const value = user.legacyData[field];
+        if (typeof value === "string") {
+          user.legacyData[field] = value.replace("\0", "");
+        }
+      }
+    }
+    user.emails = user.emails?.map((email) => {
+      return typeof email === "string"
+        ? { address: email, verified: false }
+        : email;
+    });
+    return user;
+  },
+  DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
+    extractObjectId(metadata);
+    return metadata;
   },
 };
 
@@ -111,10 +140,14 @@ const pickBatchSize = (collection: SwitchingCollection<DbObject>) => {
   return Math.floor(max / numFields);
 }
 
-const makeBatchFilter = (createdSince?: Date) =>
-  createdSince
-    ? { createdAt: { $gte: createdSince } }
-    : {};
+const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
+  if (!createdSince) {
+    return {};
+  }
+  return collectionName === "cronHistory"
+    ? { startedAt: { $gte: createdSince } }
+    : { createdAt: { $gte: createdSince } };
+}
 
 const copyData = async (
   sql: Transaction,
@@ -134,7 +167,7 @@ const copyData = async (
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      filter: makeBatchFilter(createdSince),
+      filter: makeBatchFilter(collection.getMongoCollection().collectionName, createdSince),
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
@@ -144,6 +177,8 @@ const copyData = async (
         try {
           await sql.none(compiled.sql, compiled.args);
         } catch (e) {
+          console.log(documents);
+          console.error(e);
           throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
         }
       },

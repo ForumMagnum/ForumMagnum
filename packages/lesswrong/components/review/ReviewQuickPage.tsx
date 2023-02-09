@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { useCurrentUser } from '../common/withUser';
+import sortBy from 'lodash/sortBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -43,9 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       gridArea: "unset"
     },
   },
-  faded: {
-    opacity: .25
-  },
   root: {
     display: "flex"
   },
@@ -73,6 +67,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewProgressBar: {
     marginRight: "auto"
+  },
+  postRoot: {
+    position: "relative",
+    paddingLeft: 6,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderBottomWidth: 2,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+  },
+  loading: {
+    opacity: .5
+  },  
+  loadMore: {
+    ...theme.typography.body2,
+    color: theme.palette.primary.main,
+    marginRight: "auto"
   }
 });
 
@@ -81,15 +90,14 @@ export const ReviewQuickPage = ({classes}: {
 }) => {
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
+  const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
 
-  const currentUser = useCurrentUser()
-
-  const { results: posts, loadMoreProps } = useMulti({
+  const { results: posts, loadMore, loading, totalCount } = useMulti({
     terms: {
       view: "reviewQuickPage",
       before: `${reviewYear+1}-01-01`,
       after: `${reviewYear}-01-01`,
-      limit: 12,
+      limit: 25,
     },
     collectionName: "Posts",
     fragmentName: 'PostsReviewVotingList',
@@ -102,51 +110,60 @@ export const ReviewQuickPage = ({classes}: {
   // useMulti is incorrectly typed
   const postsResults = posts as PostsListWithVotes[] | null;
 
-  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, LoadMore, LWTooltip, ReviewPhaseInformation } = Components
+  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
+
+  const sortedPostsResults = !!postsResults ? sortBy(posts, (post1,post2) => {
+    return post1.currentUserVote === null
+  }) as PostsListWithVotes[] : []
+
+  const truncatedPostsResults = truncatePosts ? sortedPostsResults.slice(0,12) : sortedPostsResults
+
+  const handleLoadMore = () => {
+    if (truncatePosts) {
+      setTruncatePosts(false)
+    } else {
+      loadMore()
+    }
+  }
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
       {!expandedPost && <div>
         <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-        <ReviewPhaseInformation reviewYear={reviewYear}/>
-        <SectionFooter>
-          {userIsAdmin(currentUser) && <LWTooltip title={`Look at metrics related to the Review`}>
-            <Link to={`/reviewAdmin/${reviewYear}`} className={classNames(classes.actionButton, classes.adminButton)}>
-              Review Admin
-            </Link>
-          </LWTooltip>}
-          <LWTooltip title={`Look over your upvotes from ${reviewYear}. (This is most useful during the nomination phase, but you may still enjoy looking them over in the latter phases to help compare)`}>
-            <Link to={`/votesByYear/${reviewYear}`}>
-              Your {reviewYear} Upvotes
-            </Link>
-          </LWTooltip>
-          <LWTooltip title="Look at reviews, update your votes, and see more detailed info from the Nomination Vote results">
-           <Link to={`/reviewVoting/${reviewYear}`}>
-              Advanced Dashboard
-            </Link>
-          </LWTooltip>
-        </SectionFooter>
+        <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={"REVIEWS"}/>
+        <ReviewDashboardButtons 
+          reviewYear={reviewYear} 
+          reviewPhase={getReviewPhase()}
+          showAdvancedDashboard
+        />
       </div>}
       {expandedPost && <ReviewVotingExpandedPost
+        showReviewButton={false}
         post={expandedPost}
         setExpandedPost={setExpandedPost}
       />}
     </div>
-    <div className={classNames(classes.rightColumn, {[classes.faded]: !!expandedPost})}>
+    <div className={classes.rightColumn}>
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>
-      {postsResults?.map(post => {
-        return <div key={post._id} onClick={() => setExpandedPost(post)}>
-          <PostsItem2 
-            post={post} 
-            showKarma={false}
-            showPostedAt={false}
-          />
-        </div>
-      })}
+      <div className={loading ? classes.loading : null}>
+        {truncatedPostsResults.map(post => {
+          return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
+            <PostsItem2 
+              post={post} 
+              showKarma={false}
+              showPostedAt={false}
+            />
+            <KarmaVoteStripe post={post}/>
+          </div>
+        })}
+      </div>
       <SectionFooter>
-        <LoadMore {...loadMoreProps} sectionFooterStyles/>
+        <div className={classes.loadMore}>
+          {loading && <Loading/>}
+          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
+        </div>
       </SectionFooter>
     </div>
   </div>;

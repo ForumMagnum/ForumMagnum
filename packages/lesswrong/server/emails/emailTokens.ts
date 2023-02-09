@@ -4,6 +4,7 @@ import { randomSecret } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { updateMutator } from '../vulcan-lib/mutators';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 
@@ -128,7 +129,7 @@ export const UnsubscribeAllToken = new EmailTokenType({
       unset: {},
       validate: false,
     });
-    return {message: "You have been unsubscribed from all emails on LessWrong." };
+    return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
   },
   resultComponentName: "EmailTokenResult",
 });

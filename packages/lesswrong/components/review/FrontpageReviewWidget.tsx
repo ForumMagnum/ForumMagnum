@@ -66,13 +66,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: 8
   },
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 7,
+    paddingBottom: 7,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -84,8 +83,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   actionButtonCTA2: {
     backgroundColor: theme.palette.panelBackground.default,
     border: `solid 2px ${theme.palette.primary.light}`,
-    paddingTop: 7,
-    paddingBottom: 7,
+    paddingTop: 6,
+    paddingBottom: 6,
     paddingLeft: 14,
     paddingRight: 14,
     borderRadius: 3,
@@ -96,8 +95,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 7,
+    paddingBottom: 7,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -127,7 +126,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
     ...theme.typography.commentStyle,
     fontSize: 14,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    marginLeft: 12
   },
   nominationTimeRemaining: {
     marginRight: "auto",
@@ -135,7 +135,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "left"
   },
   reviewProgressBar: {
-    marginRight: "auto",
+    marginRight: 2,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
@@ -212,7 +215,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -359,45 +362,63 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <UserReviewsProgressBar reviewYear={reviewYear}/>
     </span>}
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
-      {reviewEndDate.fromNow()} remaining
-    </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     <LWTooltip title="A detailed view of all nominated posts">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
         Advanced Dashboard
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA2}>
+      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
+      {reviewEndDate.fromNow()} remaining
+    </span>}
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
-      {voteEndDate.fromNow()} remaining
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
     </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     {
-      <Link to={"/reviews"} className={classes.actionButtonCTA}>
+      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
         Cast Final Votes
       </Link>
     }
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
+      {voteEndDate.fromNow()} remaining
+    </span>}  
   </div>
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
     <PostsList2 
-      showLoadMore={false}
+      itemsPerPage={10}
       terms={{
         view:"reviewVoting",
         before: `${reviewYear+1}-01-01`,
         ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
         limit: 3,
-        itemsPerPage: 10,
       }}
-    />
+    >
+      {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}  
+
+      {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+
+      {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
+    </PostsList2>
   </AnalyticsContext>
 
   return (
@@ -423,9 +444,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
         {/* Post list */}
         {showFrontpageItems && postList}
-        {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
-        {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
+
 
       </div>
     </AnalyticsContext>

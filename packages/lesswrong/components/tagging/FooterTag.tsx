@@ -104,16 +104,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard, link=true, isTopTag=false, highlightAsAutoApplied=false}: {
+const FooterTag = ({
+  tagRel,
+  tag,
+  hideScore=false,
+  smallText,
+  popperCard,
+  link=true,
+  isTopTag=false,
+  highlightAsAutoApplied=false,
+  neverCoreStyling=false,
+  className,
+  classes,
+}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   popperCard?: React.ReactNode,
-  classes: ClassesType,
   link?: boolean
   isTopTag?: boolean
   highlightAsAutoApplied?: boolean,
+  neverCoreStyling?: boolean,
+  className?: string,
+  classes: ClassesType,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tagItem",
@@ -137,9 +151,9 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
   const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
-    <span {...eventHandlers} className={classNames(classes.root, {
+    <span {...eventHandlers} className={classNames(classes.root, className, {
       [classes.topTag]: isTopTag,
-      [classes.core]: tag.core,
+      [classes.core]: !neverCoreStyling && tag.core,
       [classes.smallText]: smallText,
     })}>
       {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
@@ -155,7 +169,10 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
   </AnalyticsContext>);
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag, {styles});
+const FooterTagComponent = registerComponent("FooterTag", FooterTag, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {

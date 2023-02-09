@@ -167,6 +167,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -212,6 +218,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly smallDownvoteCount: number,
   readonly bigUpvoteCount: number,
   readonly bigDownvoteCount: number,
+  readonly usersContactedBeforeReview: Array<string>,
   readonly fullName: string,
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
@@ -269,6 +276,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly subforumPreferredLayout: "feed" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
@@ -281,63 +289,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface LWEventsDefaultFragment { // fragment on LWEvents
-  readonly userId: string,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface newEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lastEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly documentId: string,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lwEventsAdminPageFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly user: UsersMinimumInfo|null,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface emailHistoryFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
-}
-
 interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly type: string,
   readonly sourcePostId: string,
@@ -347,6 +298,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
@@ -412,6 +364,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
+  readonly relevantTagIds: Array<string>,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -425,6 +378,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly userId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -461,6 +415,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly canVoteOnRels: Array<string>,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
+  readonly subforumIntroPostId: string,
   readonly parentTagId: string,
   readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
@@ -687,6 +642,86 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly documentIsAf: boolean,
 }
 
+interface LWEventsDefaultFragment { // fragment on LWEvents
+  readonly userId: string,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface newEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lastEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly documentId: string,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lwEventsAdminPageFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface emailHistoryFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface ClientIdsDefaultFragment { // fragment on ClientIds
+  readonly clientId: string,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string>,
+}
+
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
+}
+
+interface SessionsDefaultFragment { // fragment on Sessions
+  readonly _id: string,
+  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
+}
+
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -696,6 +731,7 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly status: string,
   readonly rawFeed: any /*{"definitions":[{}]}*/,
   readonly setCanonicalUrl: boolean,
+  readonly importAsDraft: boolean,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -719,6 +755,12 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
+  readonly endedAt: Date | null,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -1051,6 +1093,7 @@ interface PostSequenceNavigation_prevPost { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly commentCount: number,
+  readonly afCommentCount: number,
   readonly baseScore: number,
   readonly sequence: PostSequenceNavigation_prevPost_sequence|null,
 }
@@ -1064,6 +1107,7 @@ interface PostSequenceNavigation_nextPost { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly commentCount: number,
+  readonly afCommentCount: number,
   readonly baseScore: number,
   readonly sequence: PostSequenceNavigation_nextPost_sequence|null,
 }
@@ -1100,6 +1144,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly tableOfContents: any,
   readonly subforumTagId: string,
   readonly sideComments: any,
+  readonly socialPreviewImageId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1204,6 +1249,9 @@ interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly tag: CommentsList_tag|null,
+  readonly relevantTagIds: Array<string>,
+  readonly relevantTags: Array<TagBasicInfo>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1217,6 +1265,7 @@ interface CommentsList { // fragment on Comments
   readonly deletedPublic: boolean,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
+  readonly authorIsUnreviewed: boolean,
   readonly user: UsersMinimumInfo|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
@@ -1250,6 +1299,10 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
 }
 
+interface CommentsList_tag { // fragment on Tags
+  readonly slug: string,
+}
+
 interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
@@ -1259,6 +1312,7 @@ interface CommentsList_contents { // fragment on Revisions
 
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
@@ -1269,6 +1323,7 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
+  readonly relevantTagIds: Array<string>,
   readonly contents: RevisionEdit|null,
 }
 
@@ -1424,22 +1479,6 @@ interface NotificationsList { // fragment on Notifications
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
-}
-
 interface messageListFragment { // fragment on Messages
   readonly _id: string,
   readonly user: messageListFragment_user|null,
@@ -1487,6 +1526,7 @@ interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface newRSSFeedFragment { // fragment on RSSFeeds
@@ -1498,6 +1538,7 @@ interface newRSSFeedFragment { // fragment on RSSFeeds
   readonly nickname: string,
   readonly url: string,
   readonly status: string,
+  readonly importAsDraft: boolean,
 }
 
 interface RSSFeedMutationFragment { // fragment on RSSFeeds
@@ -1507,6 +1548,7 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+  readonly importAsDraft: boolean,
 }
 
 interface ReportsDefaultFragment { // fragment on Reports
@@ -1723,6 +1765,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1924,12 +1967,13 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly currentUserExtendedVote: any,
 }
 
-interface UserTagRelNotifications { // fragment on UserTagRels
+interface UserTagRelDetails { // fragment on UserTagRels
   readonly _id: string,
   readonly userId: string,
   readonly tagId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -1947,6 +1991,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
   readonly deleted: boolean,
+  readonly isSubforum: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -1955,7 +2000,6 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
-  readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
@@ -1971,21 +2015,9 @@ interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagFragment_parentTag|null,
-  readonly subTags: Array<TagFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-}
-
-interface TagFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2010,22 +2042,10 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
 }
 
 interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagRevisionFragment_parentTag|null,
-  readonly subTags: Array<TagRevisionFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
-}
-
-interface TagRevisionFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagRevisionFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
@@ -2038,21 +2058,9 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
-  readonly parentTag: TagPreviewFragment_parentTag|null,
-  readonly subTags: Array<TagPreviewFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-}
-
-interface TagPreviewFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagPreviewFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2061,7 +2069,6 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
-  readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly tableOfContents: any,
   readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
@@ -2079,7 +2086,6 @@ interface TagSubtagFragment { // fragment on Tags
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -2104,7 +2110,7 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2116,13 +2122,12 @@ interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2137,7 +2142,8 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagEditFragment_parentTag|null,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly autoTagModel: string | null,
@@ -2145,12 +2151,6 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
-}
-
-interface TagEditFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
@@ -2323,6 +2323,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
@@ -2437,6 +2438,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly subforumPreferredLayout: "feed" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
@@ -2457,6 +2459,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly slug: string,
   readonly displayName: string,
   readonly bannedUserIds: Array<string>,
+  readonly bannedPersonalUserIds: Array<string>,
 }
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
@@ -2490,6 +2493,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly conversationsDisabled: boolean,
   readonly snoozedUntilContentCount: number,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
+  readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientId: SunshineUsersList_associatedClientId|null,
 }
 
@@ -2669,6 +2673,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
@@ -2789,7 +2799,9 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly customSubtitle: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
+  readonly showAuthor: boolean,
   readonly spotlightImageId: string | null,
+  readonly spotlightDarkImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -2797,12 +2809,14 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
+  readonly spotlightDarkImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
   readonly duration: number,
+  readonly showAuthor: boolean,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2814,6 +2828,13 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
+  readonly user: SpotlightDisplay_document_user|null,
+}
+
+interface SpotlightDisplay_document_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
@@ -2824,17 +2845,11 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
   readonly description: RevisionEdit|null,
 }
 
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
-  readonly endedAt: Date | null,
-}
-
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2872,6 +2887,15 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly contents: RevisionEdit|null,
 }
 
+interface CronHistoriesDefaultFragment { // fragment on CronHistories
+  readonly _id: string,
+  readonly intendedAt: Date,
+  readonly name: string,
+  readonly startedAt: Date,
+  readonly finishedAt: Date | null,
+  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -2885,12 +2909,6 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
 
 interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
-  LWEventsDefaultFragment: LWEventsDefaultFragment
-  newEventFragment: newEventFragment
-  lastEventFragment: lastEventFragment
-  lwEventsAdminPageFragment: lwEventsAdminPageFragment
-  emailHistoryFragment: emailHistoryFragment
-  ClientIdsDefaultFragment: ClientIdsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
@@ -2902,8 +2920,18 @@ interface FragmentTypes {
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
+  LWEventsDefaultFragment: LWEventsDefaultFragment
+  newEventFragment: newEventFragment
+  lastEventFragment: lastEventFragment
+  lwEventsAdminPageFragment: lwEventsAdminPageFragment
+  emailHistoryFragment: emailHistoryFragment
+  ClientIdsDefaultFragment: ClientIdsDefaultFragment
+  ConversationsDefaultFragment: ConversationsDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
+  SessionsDefaultFragment: SessionsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
@@ -2953,8 +2981,6 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
-  ConversationsDefaultFragment: ConversationsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
@@ -2998,7 +3024,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
-  UserTagRelNotifications: UserTagRelNotifications
+  UserTagRelDetails: UserTagRelDetails
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -3054,23 +3080,17 @@ interface FragmentTypes {
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
+  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
 interface CollectionNamesByFragmentName {
   UsersDefaultFragment: "Users"
-  LWEventsDefaultFragment: "LWEvents"
-  newEventFragment: "LWEvents"
-  lastEventFragment: "LWEvents"
-  lwEventsAdminPageFragment: "LWEvents"
-  emailHistoryFragment: "LWEvents"
-  ClientIdsDefaultFragment: "ClientIds"
   PostRelationsDefaultFragment: "PostRelations"
   LocalgroupsDefaultFragment: "Localgroups"
   CommentsDefaultFragment: "Comments"
@@ -3082,8 +3102,18 @@ interface CollectionNamesByFragmentName {
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
+  LWEventsDefaultFragment: "LWEvents"
+  newEventFragment: "LWEvents"
+  lastEventFragment: "LWEvents"
+  lwEventsAdminPageFragment: "LWEvents"
+  emailHistoryFragment: "LWEvents"
+  ClientIdsDefaultFragment: "ClientIds"
+  ConversationsDefaultFragment: "Conversations"
+  MessagesDefaultFragment: "Messages"
+  SessionsDefaultFragment: "Sessions"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
@@ -3133,8 +3163,6 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  ConversationsDefaultFragment: "Conversations"
-  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
@@ -3178,7 +3206,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
-  UserTagRelNotifications: "UserTagRels"
+  UserTagRelDetails: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"
@@ -3234,14 +3262,14 @@ interface CollectionNamesByFragmentName {
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
+  CronHistoriesDefaultFragment: "CronHistories"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
 

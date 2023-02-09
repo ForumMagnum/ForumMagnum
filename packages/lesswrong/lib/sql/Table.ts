@@ -67,7 +67,9 @@ class Table {
 
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {
-      if (field === "_id") {
+      // Force `_id` fields to use the IdType type, with an exception for `Sessions`
+      // which uses longer custom ids.
+      if (field === "_id" && collection.collectionName !== "Sessions") {
         table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
@@ -80,11 +82,8 @@ class Table {
 
     const indexes = expectedIndexes[collection.collectionName] ?? [];
     for (const index of indexes) {
-      table.addIndex(index.key, {
-        name: index.name,
-        unique: !!index.unique,
-        partialFilterExpression: index.partialFilterExpression,
-      });
+      const {key, ...options} = index;
+      table.addIndex(key, options);
     }
 
     return table;

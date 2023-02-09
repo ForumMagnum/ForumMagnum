@@ -4,7 +4,7 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { tagUserHasSufficientKarma } from './helpers';
+import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
 import { forumTypeSetting } from '../../instanceSettings';
 
@@ -62,11 +62,6 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 }
 
 addUniversalFields({collection: Tags})
-
-export const userIsSubforumModerator = (user: DbUser|null, tag: DbTag): boolean => {
-  if (!user || !tag) return false;
-  return tag.subforumModeratorIds?.includes(user._id);
-}
 
 makeEditable({
   collection: Tags,

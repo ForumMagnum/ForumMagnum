@@ -7,8 +7,8 @@ function datesDifference(a:Date, b:Date): number {
 }
 
 export const withHover = (trackingData?: any, propsToTrackingData?: any) => {
-  return (WrappedComponent) => (props) => {
-    const eventProps = {...trackingData, ...(propsToTrackingData || (props=>{}))(props)};
+  return <P extends {}>(WrappedComponent: React.FunctionComponent<P>) => (props: P) => {
+    const eventProps = {...trackingData, ...(propsToTrackingData || ((props: P)=>{}))(props)};
     const { eventHandlers, hover, anchorEl } = useHover(eventProps);
     return (
       <span {...eventHandlers}>

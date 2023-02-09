@@ -10,7 +10,8 @@ import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
-import { getPositiveVoteThreshold, getReviewThreshold } from '../../reviewUtils';
+import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
+import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -55,11 +56,12 @@ declare global {
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     reviewYear?: number,
+    reviewPhase?: ReviewPhase,
     excludeContents?: boolean,
     includeArchived?: boolean,
     includeDraftEvents?: boolean
     includeShared?: boolean
-    distance?: number,
+    distance?: number
   }
 }
 
@@ -1237,7 +1239,7 @@ ensureIndex(Posts,
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      "pingbacks.Posts": terms.postId,
+      ...jsonArrayContainsSelector(Posts, "pingbacks.Posts", terms.postId),
       baseScore: {$gt: 0}
     },
     options: {
@@ -1377,8 +1379,8 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
-      reviewCount: { $gte: getReviewThreshold() }
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
+      reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1401,8 +1403,8 @@ Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {
       reviewCount: 0,
-      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
-      reviewVoteScoreAllKarma: { $gte: 4 }
+      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
+      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
     },
     options: {
       sort: {
@@ -1417,8 +1419,8 @@ Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: { $gte: getReviewThreshold() },
-      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() }
+      reviewCount: { $gte: VOTING_PHASE_REVIEW_THRESHOLD },
+      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
     },
     options: {
       // This sorts the posts deterministically, which is important for the

@@ -2,7 +2,7 @@ import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -37,7 +37,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 
-const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
@@ -50,34 +50,43 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
+  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
   if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
-  if (currentDate < reviewEnd) return "VOTING"
+  if (currentDate < votingEnd) return "VOTING"
+  if (currentDate < reviewEnd) return "RESULTS"
   return "COMPLETE"
 }
 
-export function getPositiveVoteThreshold(): Number {
+// The number of positive review votes required for a post to appear in the ReviewVotingPage  
+// during the nominations phase
+export const INITIAL_VOTECOUNT_THRESHOLD = 1
+
+// The number of positive review votes required for a post to enter the Review Phase
+export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
+
+// The Quick Review Page is optimized for prioritizing people's attention.
+// Among other things, this means only loading posts that got at either at least one
+// person thought was reasonably important, or at least 4 people thought were "maybe important?"
+export const QUICK_REVIEW_SCORE_THRESHOLD = 4
+
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.
   // 
   // Starting in the review phase, posts require at least 2 votes, 
   // ensuring the post is at least plausibly worth everyone's time to review
-  return getReviewPhase() === "NOMINATIONS" ? 1 : 2
+  const phase = reviewPhase ?? getReviewPhase()
+  
+  return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 }
 
-export function getReviewThreshold(): Number {
-  // During the voting phase, only show posts with at least 1 review.
-  // (it's known that users can still go write reviews in the middle of the 
-  // voting phase to add them to lists, and I (Ray) think it's fine. Posts are 
-  // still penalized for not having been visible during the full voting period,
-  // and it seems fine for people who go out of their way to last-minute-review things
-  // to get them at least visible during part of the voting period)
-  return getReviewPhase() === "VOTING" ? 1 : 0
-}
+export const INITIAL_REVIEW_THRESHOLD = 0
+export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
@@ -98,7 +107,8 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= getPositiveVoteThreshold()
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+
 }
 
 
@@ -116,18 +126,26 @@ export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   return true
 }
 
-const getPointsFromCost = (cost) => {
+const getPointsFromCost = (cost: number) => {
   // the formula to quadratic cost from a number of points is (n^2 + n)/2
   // this uses the inverse of that formula to take in a cost and output a number of points
   return (-1 + Math.sqrt((8 * cost)+1)) / 2
 }
 
-const getLabelFromCost = (cost) => {
+const getLabelFromCost = (cost: number) => {
   // rounds the points to 1 decimal for easier reading
   return round(getPointsFromCost(cost), 1)
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
+export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+interface CostData {
+  value: number | null;
+  cost: number;
+  tooltip: JSX.Element | null;
+}
+
+export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

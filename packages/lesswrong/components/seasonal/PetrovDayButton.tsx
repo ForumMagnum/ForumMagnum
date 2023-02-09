@@ -173,7 +173,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
     });
   }
 
-  const updateLaunchCode = (event) => {
+  const updateLaunchCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!alreadyLaunched) {
       setLaunchCode(event.target.value)
     }
