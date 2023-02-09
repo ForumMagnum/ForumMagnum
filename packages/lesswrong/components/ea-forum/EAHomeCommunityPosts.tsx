@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
 
@@ -19,7 +20,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   const recentPostsTerms = {
     view: "magic",
     filterSettings: {tags: [{
-      tagId: 'ZCihBFp5P64JCvQY6', // "Community" topic
+      tagId: EA_FORUM_COMMUNITY_TOPIC_ID,
       filterMode: 'Required'
     }]},
     after: dateCutoff,
