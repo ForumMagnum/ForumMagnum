@@ -132,6 +132,7 @@ export class EventDebouncer<KeyType = string>
       af: af,
       key: JSON.stringify(key),
       dispatched: false,
+      createdAt: formatDate(new Date()),
     }, {
       $max: { delayTime: formatDate(newDelayTime) },
       $min: { upperBoundTime: formatDate(newUpperBoundTime) },
