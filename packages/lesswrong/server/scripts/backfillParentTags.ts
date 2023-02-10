@@ -3,6 +3,7 @@ import Tags from "../../lib/collections/tags/collection";
 import { Globals } from "../vulcan-lib";
 import { v4 as uuid } from 'uuid';
 import { updatePostDenormalizedTags } from "../tagging/tagCallbacks";
+import { ObjectId } from "mongodb";
 
 const backfillParentTags = async (parentTagSlug: string) => {
   const parentTag = (await Tags.find({slug: parentTagSlug}).fetch())[0];
@@ -10,13 +11,11 @@ const backfillParentTags = async (parentTagSlug: string) => {
   for (const childTag of childTags) {
     // For use in determine what already exists - no need to add
     const parentTagRelPostIds = (await TagRels.find({tagId: parentTag._id}).fetch()).map(rel => rel.postId);
-  
     const childTagRelPostIds = (await TagRels.find({tagId: childTag._id}).fetch())
       .filter(rel => !parentTagRelPostIds.includes(rel.postId))
       .map(rel => rel.postId);
-  
-    const parentTagRelIds = childTagRelPostIds.map(_ => uuid({}).slice(0, 17));
-  
+    const parentTagRelIds = childTagRelPostIds.map(_ => (new ObjectId().toHexString().slice(0, 17)))
+
     await TagRels.rawCollection().bulkWrite(childTagRelPostIds.map((postId, i) => ({
       insertOne: {
         document: {
