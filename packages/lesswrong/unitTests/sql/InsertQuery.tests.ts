@@ -71,7 +71,7 @@ describe("InsertQuery", () => {
         {},
         {conflictStrategy: "upsert"},
       ),
-      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = GREATEST( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = GREATEST( "TestCollection". "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
       expectedArgs: ["abc", 5, "test", null, 1, 5, "test", 1],
     },
     {
@@ -82,7 +82,7 @@ describe("InsertQuery", () => {
         {},
         {conflictStrategy: "upsert"},
       ),
-      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = LEAST( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = LEAST( "TestCollection". "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
       expectedArgs: ["abc", 5, "test", null, 1, 5, "test", 1],
     },
     {
@@ -93,7 +93,7 @@ describe("InsertQuery", () => {
         {},
         {conflictStrategy: "upsert"},
       ),
-      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = ARRAY_APPEND( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = ARRAY_APPEND( "TestCollection". "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
       expectedArgs: ["abc", [5], "test", null, 1, 5, "test", 1],
     },
     {

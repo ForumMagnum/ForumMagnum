@@ -182,9 +182,10 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     if (fields.length !== 1) {
       throw new Error(`Too many keys in ${key} upsert: ${value}`);
     }
+    const tableName = this.resolveTableName();
     const fieldName = this.resolveFieldName(fields[0]);
     const arg = this.createArg(value[fields[0]]);
-    return [fieldName, `= ${op}(`, fieldName, ",", arg, ")"];
+    return [fieldName, `= ${op}(`, tableName, fieldName, ",", arg, ")"];
   }
 
   private getConflictField(fieldName: string): string {
