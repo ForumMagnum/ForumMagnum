@@ -161,16 +161,16 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   onClickComment: (html: string)=>void,
   children: React.ReactNode,
 }) => {
-  const wrapperSpanRef = useRef<HTMLSpanElement|null>(null);
+  const wrapperDivRef = useRef<HTMLDivElement|null>(null);
   const currentUser = useCurrentUser();
   
   useEffect(() => {
-    if (wrapperSpanRef.current) {
-      let modifiedSpan = (wrapperSpanRef.current as any)
-      modifiedSpan.onClickComment = onClickComment;
+    if (wrapperDivRef.current) {
+      let modifiedDiv = (wrapperDivRef.current as any)
+      modifiedDiv.onClickComment = onClickComment;
       
       return () => {
-        modifiedSpan.onClickComment = null;
+        modifiedDiv.onClickComment = null;
       }
     }
   }, [onClickComment]);
@@ -179,9 +179,9 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
     return <>{children}</>;
   }
   
-  return <span className="commentOnSelection" ref={wrapperSpanRef}>
+  return <div className="commentOnSelection" ref={wrapperDivRef}>
     {children}
-  </span>
+  </div>
 }
 
 /**
