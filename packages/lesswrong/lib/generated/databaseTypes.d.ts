@@ -875,6 +875,7 @@ interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
+  shortName: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -895,6 +896,7 @@ interface DbTag extends DbObject {
   wikiGrade: number
   wikiOnly: boolean
   bannerImageId: string
+  squareImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
@@ -984,6 +986,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  showCommunityInRecentDiscussion: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

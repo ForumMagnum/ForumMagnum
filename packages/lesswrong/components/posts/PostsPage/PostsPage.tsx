@@ -182,15 +182,6 @@ const PostsPage = ({post, refetch, classes}: {
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
-  const shouldHideAsSpam = () => {
-    // Logged-out users shouldn't be able to see spam posts
-    if (post.authorIsUnreviewed && !currentUser) {
-      return true;
-    }
-
-    return false;
-  }
-
   const { query, params } = location;
 
   const sortBy = query.answersSorting || "top";
@@ -224,10 +215,6 @@ const PostsPage = ({post, refetch, classes}: {
     });
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
-  
-  if (shouldHideAsSpam()) {
-    throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
-  }
   
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")

@@ -38,6 +38,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -383,6 +384,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -403,6 +405,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
@@ -1967,6 +1970,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
@@ -1991,6 +1995,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
@@ -2354,6 +2359,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2523,6 +2529,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,

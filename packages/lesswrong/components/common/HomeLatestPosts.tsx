@@ -14,7 +14,6 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import { useMulti } from '../../lib/crud/withMulti';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -54,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
