@@ -15,6 +15,8 @@ export type DebouncerTiming =
   | { type: "daily", timeOfDayGMT: number }
   | { type: "weekly", timeOfDayGMT: number, dayOfWeekGMT: string }
 
+const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.getTime();
+
 // Defines a debouncable event type; that is, an event which, some time after
 // it happens, causes a function call, with events grouped together into a
 // single call. We store these events in the database, rather than use a simple
@@ -131,8 +133,8 @@ export class EventDebouncer<KeyType = string>
       key: JSON.stringify(key),
       dispatched: false,
     }, {
-      $max: { delayTime: newDelayTime.getTime() },
-      $min: { upperBoundTime: newUpperBoundTime.getTime() },
+      $max: { delayTime: formatDate(newDelayTime) },
+      $min: { upperBoundTime: formatDate(newUpperBoundTime) },
       ...pendingEvent,
     }, {
       upsert: true
@@ -223,7 +225,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
-  const now = new Date().getTime();
+  const now = formatDate(new Date());
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let eventToHandle: any = null;
   
@@ -287,7 +289,7 @@ export const forcePendingEvents = async (
   // Default time condition is nothing
   let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
   if (upToDate) {
-    const upToDateTime = new Date(upToDate).getTime()
+    const upToDateTime = formatDate(new Date(upToDate));
     timeCondition = {
       $or: [
         { delayTime: { $lt: upToDateTime } },
