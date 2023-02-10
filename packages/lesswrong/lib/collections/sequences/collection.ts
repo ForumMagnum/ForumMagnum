@@ -17,8 +17,7 @@ const options: MutationOptions<DbSequence> = {
   },
 
   editCheck: (user: DbUser|null, document: DbSequence|null) => {
-    if (!user || !document) return false;
-    return userOwns(user, document) ? userCanDo(user, 'sequences.edit.own') : userCanDo(user, `sequences.edit.all`)
+    return Sequences.checkEditAccess(user, document);
   },
 
   removeCheck: (user: DbUser|null, document: DbSequence|null) => {
@@ -29,7 +28,8 @@ const options: MutationOptions<DbSequence> = {
 
 interface ExtendedSequencesCollection extends SequencesCollection {
   // Functions in search/utils.ts
-  toAlgolia: (sequence: DbSequence) => Promise<Array<AlgoliaDocument>|null>
+  toAlgolia: (sequence: DbSequence) => Promise<Array<AlgoliaDocument>|null>,
+  checkEditAccess: (user: DbUser|null, sequence: DbSequence|null) => boolean
 }
 
 export const Sequences: ExtendedSequencesCollection = createCollection({

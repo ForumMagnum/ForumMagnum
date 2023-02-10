@@ -40,3 +40,8 @@ Sequences.checkAccess = async (user, document) => {
     return false;
   }
 }
+
+Sequences.checkEditAccess = (user, document) => {
+  if (!user || !document) return false;
+  return userOwns(user, document) ? userCanDo(user, 'sequences.edit.own') : userCanDo(user, `sequences.edit.all`)
+}

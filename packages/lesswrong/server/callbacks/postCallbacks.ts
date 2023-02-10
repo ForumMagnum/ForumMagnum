@@ -24,7 +24,6 @@ import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import { sequenceContainsPost } from '../../lib/collections/sequences/helpers';
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { Chapters } from '../../lib/collections/chapters/collection';
-import { mongoFind } from '../../lib/mongoQueries';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -436,9 +435,9 @@ async function addPostToSequence(post: DbPost, props: CreateCallbackProperties<D
   if (await sequenceContainsPost(post.canonicalSequenceId, post._id, context)) return post;
 
   const sequence = await Sequences.findOne({ _id: post.canonicalSequenceId });
-  if (!Sequences.options.mutations.edit.check(currentUser, sequence)) return null;
+  if (!Sequences.checkEditAccess(currentUser, sequence)) return null;
 
-  const chapters = await mongoFind("Chapters", {sequenceId: post.canonicalSequenceId}, {sort: {number: 1}});
+  const chapters = await Chapters.find({sequenceId: post.canonicalSequenceId}, {sort: {number: 1}}).fetch();
   const lastChapter = chapters.at(-1);
   if (!lastChapter) return post;
 

@@ -26,7 +26,6 @@ import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { Sequences } from '../sequences/collection';
-import { mongoFind } from '../../mongoQueries';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -135,11 +134,11 @@ const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
 
-const sequenceIdIfPermitted = async (post, currentUser) => {
+const sequenceIdIfPermitted = async (post: DbPost|Partial<DbPost>, currentUser: DbUser|null) => {
   if (!post.canonicalSequenceId) return null;
 
   const sequence = await Sequences.findOne({ _id: post.canonicalSequenceId });
-  if (!Sequences.options.mutations.edit.check(currentUser, sequence)) return null;
+  if (!Sequences.checkEditAccess(currentUser, sequence)) return null;
 
   return post.canonicalSequenceId;
 }
