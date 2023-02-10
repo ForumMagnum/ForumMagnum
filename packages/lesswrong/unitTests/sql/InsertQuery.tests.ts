@@ -64,6 +64,39 @@ describe("InsertQuery", () => {
       expectedArgs: ["abc", 3, "test2", null, 1, 3, "test2", 1],
     },
     {
+      name: "can build insert query updating on conflicts with $max operator",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", $max: {a: 5}, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "upsert"},
+      ),
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = GREATEST( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedArgs: ["abc", 5, "test", null, 1, 5, "test", 1],
+    },
+    {
+      name: "can build insert query updating on conflicts with $min operator",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", $min: {a: 5}, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "upsert"},
+      ),
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = LEAST( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedArgs: ["abc", 5, "test", null, 1, 5, "test", 1],
+    },
+    {
+      name: "can build insert query updating on conflicts with $push operator",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", $push: {a: 5}, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "upsert"},
+      ),
+      expectedSql: `INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = ARRAY_APPEND( "a" , $6 ) , "b" = $7 , "schemaVersion" = $8 RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`,
+      expectedArgs: ["abc", [5], "test", null, 1, 5, "test", 1],
+    },
+    {
       name: "can build insert query with multiple items",
       getQuery: () => new InsertQuery<DbTestObject>(testTable, [
         {_id: "abc", a: 3, b: "test", schemaVersion: 1},
