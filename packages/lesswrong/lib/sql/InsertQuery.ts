@@ -135,6 +135,8 @@ class InsertQuery<T extends DbObject> extends Query<T> {
       } else {
         if (key === "_id" && !item[key]) {
           item[key] = randomId();
+        } else if (key === "createdAt" && !item[key]) {
+          item[key] = new Date();
         }
         this.atoms.push(this.createArg(item[key] ?? null, fields[key]));
       }
