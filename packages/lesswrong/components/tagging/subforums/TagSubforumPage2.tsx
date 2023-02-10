@@ -148,7 +148,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
-const defaultTab: SubforumTab = "posts"
+const defaultTab: SubforumTab = "wiki"
 
 const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
