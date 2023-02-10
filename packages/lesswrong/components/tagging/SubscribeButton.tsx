@@ -13,9 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
-    [theme.breakpoints.up('sm')]: {
-      marginTop: 8,
-    }
   },
   button: {
     textTransform: 'none',

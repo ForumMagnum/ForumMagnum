@@ -16,8 +16,12 @@ import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collection
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  tabRow: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   tabs: {
-    margin: '0 auto 0px',
+    marginRight: 'auto',
     '& .MuiTab-root': {
       minWidth: 80,
       [theme.breakpoints.down('xs')]: {
@@ -25,11 +29,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       }
     },
     '& .MuiTab-labelContainer': {
-      fontSize: '1rem'
+      fontSize: '1rem',
+      padding: '24px 12px'
     }
-  },
-  contentGivenImage: {
-    marginTop: 185,
   },
   imageContainer: {
     position: 'absolute',
@@ -40,7 +42,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('sm')]: {
       '& > picture > img': {
-        height: 270,
+        height: 200,
       },
       top: 77,
       left: -4,
@@ -48,7 +50,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('sm')]: {
       top: 90,
       '& > picture > img': {
-        height: 300,
+        height: 250,
       },
     }
   },
@@ -58,10 +60,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: MAX_COLUMN_WIDTH,
   },
   header: {
-    paddingTop: 19,
-    paddingBottom: 0,
-    paddingLeft: 42,
-    paddingRight: 34,
+    height: 64,
     background: theme.palette.panelBackground.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
@@ -69,19 +68,30 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 32,
     }
   },
-  titleRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
+  titleComponent: {
+    paddingTop: 150,
+    paddingBottom: 24,
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography.headline,
+    color: theme.palette.text.alwaysWhite,
+    // TODO come back to text outline
+    // 3px blur radius, TODO shorten this
+    // textShadow: "0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5)",
     marginTop: 0,
+    fontSize: 40,
     fontWeight: 600,
-    fontVariant: "small-caps",
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
     }
+  },
+  subtitle: {
+    ...theme.typography.headline,
+    // white font with black outline
+    color: theme.palette.text.alwaysWhite,
+    // 2px blur radius, TODO shorten this
+    // textShadow: "0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5)",
+    fontSize: 14,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -103,6 +113,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: 24,
+    marginTop: 24, // FIXME temporary hack to make it not look weird, actually line up with feed/list
   },
   tableOfContentsWrapper: {
     padding: 24,
@@ -165,7 +176,6 @@ const TagSubforumPage2 = ({classes}: {
     SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
-    SubforumWelcomeBox,
     SubforumWikiTab,
     SubforumSubforumTab,
   } = Components;
@@ -304,10 +314,20 @@ const TagSubforumPage2 = ({classes}: {
           )}
         </span>
       )}
-      <div className={classes.titleRow}>
-        <Typography variant="display3" className={classes.title}>
-          {tag.name}
-        </Typography>
+      {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
+      Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
+      <div className={classes.tabRow}>
+        <Tabs
+          value={tab}
+          onChange={handleChangeTab}
+          className={classes.tabs}
+          textColor="primary"
+          aria-label="select tab"
+          scrollButtons="off"
+        >
+          <Tab label="Posts" value="posts" />
+          <Tab label="Wiki" value="wiki" />
+        </Tabs>
         <SubscribeButton
           tag={tag}
           userTagRel={userTagRel}
@@ -317,30 +337,17 @@ const TagSubforumPage2 = ({classes}: {
           className={classes.notifyMeButton}
         />
       </div>
-      {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
-      Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
-      <Tabs
-        value={tab}
-        onChange={handleChangeTab}
-        className={classes.tabs}
-        textColor="primary"
-        aria-label="select tab"
-        scrollButtons="off"
-      >
-        <Tab label="Posts" value="posts" />
-        <Tab label="Wiki" value="wiki" />
-      </Tabs>
     </div>
   );
 
+  const titleComponent = <div className={classNames(classes.titleComponent, classes.centralColumn)}>
+    <div className={classes.title}>{tag.name}</div>
+    {/* TODO add new field for this (don't reuse welcome text) */}
+    <div className={classes.subtitle}>Effective giving is the branch of effective altruism focused on charitable donations.</div>
+  </div>
+
   const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
     posts: [
-      // Welcome box: "Welcome to the [subforum name] subforum!"
-      <SubforumWelcomeBox
-        html={tag.subforumWelcomeText?.html}
-        className={classes.sidebarBoxWrapper}
-        key={"welcome_box"}
-      />,
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
     wiki: [
@@ -369,19 +376,18 @@ const TagSubforumPage2 = ({classes}: {
     >
       <HeadTags description={headTagDescription} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
-      {tag.bannerImageId && (
+      {/* {tag.bannerImageId && (
         <div className={classes.imageContainer}>
           <CloudinaryImage2 publicId={tag.bannerImageId} fullWidthHeader />
         </div>
-      )}
-      <div className={tag.bannerImageId ? classes.contentGivenImage : ""}>
-        <RightSidebarColumn
-          sidebarComponents={rightSidebarComponents[tab]}
-          header={headerComponent}
-        >
-          {tabComponents[tab]}
-        </RightSidebarColumn>
-      </div>
+      )} */}
+      <RightSidebarColumn
+        titleComponent={titleComponent}
+        headerComponent={headerComponent}
+        sidebarComponents={rightSidebarComponents[tab]}
+      >
+        {tabComponents[tab]}
+      </RightSidebarColumn>
     </AnalyticsContext>
   );
 }

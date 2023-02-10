@@ -29,9 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     }
   },
-  feedWrapper: {
-    padding: "0 10px",
-  },
   feedHeader: {
     display: "flex",
     marginLeft: 10,
@@ -316,7 +313,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   }
 
   return (
-    <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+    <div className={classes.centralColumn}>
       {query.commentId && (
         <div className={classes.commentPermalink}>
           <CommentPermalink documentId={query.commentId} />
