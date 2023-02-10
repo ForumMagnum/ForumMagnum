@@ -138,6 +138,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
+  query.sortedBy = sortBy // make sure to set the default sorting if necessary
   
   const commentNodeProps = {
     treeOptions: {
