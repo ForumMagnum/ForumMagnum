@@ -7,7 +7,7 @@ export const Sessions: SessionsCollection = createCollection({
   collectionName: 'Sessions',
   dbCollectionName: 'sessions',
   typeName: 'Session',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   logChanges: false,
 });
