@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "e99446368f7b5fd3d5f9c3b5d62ab7ed";
+export const acceptsSchemaHash = "db6fd1542308531319a4ee016d060516";
 
 export const up = async (_: MigrationContext) => {
   /*
@@ -6,3 +6,5 @@ export const up = async (_: MigrationContext) => {
    * will be created by the `migrateCollections` script
    */
 }
+
+export const down = async (_: MigrationContext) => {}

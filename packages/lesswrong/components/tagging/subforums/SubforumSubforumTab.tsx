@@ -57,6 +57,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 16,
     padding: "0px 8px 8px 8px",
   },
+  shortformComment: {
+    '&&': {
+      marginTop: 0,
+      marginBottom: 32,
+    }
+  },
   centerChild: {
     display: "flex",
     justifyContent: "center",
@@ -132,11 +138,11 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
+  query.sortedBy = sortBy // make sure to set the default sorting if necessary
   
   const commentNodeProps = {
     treeOptions: {
       postPage: true,
-      showPostTitle: false,
       refetch,
       tag,
     },
@@ -150,10 +156,11 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   const shortformButton = (
     <LWTooltip
-      title="Create a shortform which will appear in this subforum"
+      title={"You must be logged in to create a shortform"}
+      disabled={!!currentUser}
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
-      <SectionButton onClick={clickNewShortform}>
+      <SectionButton onClick={currentUser ? clickNewShortform : () => {}}>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
       </SectionButton>
     </LWTooltip>
@@ -254,6 +261,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               comment={comment}
               commentNodeProps={commentNodeProps}
               initialMaxChildren={5}
+              className={classes.shortformComment}
             />
           ),
         },

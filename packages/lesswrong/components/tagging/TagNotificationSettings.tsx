@@ -77,6 +77,7 @@ const TagNotificationSettings = ({
   const { LWClickAwayListener, LWPopper, Typography, Loading, NotifyMeButton } = Components;
 
   const isSubforum = !!(tag.isSubforum && userTagRel)
+  const allowSubforumMenu = false // TODO - enable this when we have proper notifications for shortform
 
   // Get existing subscription, if there is one
   const subscriptionType = "newTagPosts"
@@ -104,7 +105,7 @@ const TagNotificationSettings = ({
     fragmentName: 'UserTagRelDetails',
   });
 
-  if (!isSubforum) {
+  if (!isSubforum || !allowSubforumMenu) {
     return (
       <AnalyticsContext pageSection="tagNotificationSettings">
         <NotifyMeButton
@@ -119,6 +120,8 @@ const TagNotificationSettings = ({
       </AnalyticsContext>
     )
   }
+  
+  // NOTE: EVERTHING BELOW THIS POINT IS CURRENTLY DISABLED (by allowSubforumMenu)
 
   const getIsSubscribedToPosts = () => {
     // Get the last element of the results array, which will be the most recent subscription

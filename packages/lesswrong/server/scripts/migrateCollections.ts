@@ -77,6 +77,10 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     event.createdAt ??= event.delayTime;
     return event;
   },
+  DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
+    extractObjectId(metadata);
+    return metadata;
+  },
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};

@@ -14,6 +14,7 @@ import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -195,8 +196,10 @@ export async function convertImagesInObject(
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
-      // eslint-disable-next-line no-console
-      console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      if (!isAnyTest) {
+        // eslint-disable-next-line no-console
+        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      }
       return 0;
     }
     
