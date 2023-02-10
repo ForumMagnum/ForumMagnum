@@ -5,7 +5,9 @@ import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
 
-let eventDebouncersByName: Partial<Record<string,EventDebouncer<any,any>>> = {};
+let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
+
+type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
 
 export type DebouncerTiming =
     { type: "none" }
@@ -71,16 +73,16 @@ export type DebouncerTiming =
 //    rule specified, this timing rule is used. If this argument is omitted,
 //    then a timing rule is required when adding an event.
 //  * callback: (key:JSON, events: Array[JSONObject])=>None
-export class EventDebouncer<KeyType,ValueType>
+export class EventDebouncer<KeyType = string>
 {
   name: string
   defaultTiming?: DebouncerTiming
-  callback: (key: KeyType, events: Array<ValueType>)=>void
-  
+  callback: DebouncerCallback<KeyType>
+
   constructor({ name, defaultTiming, callback }: {
     name: string,
     defaultTiming: DebouncerTiming,
-    callback: (key: KeyType, events: Array<ValueType>)=>void,
+    callback: DebouncerCallback<KeyType>,
   }) {
     if (!name || !callback)
       throw new Error("EventDebouncer constructor: missing required argument");
@@ -102,7 +104,7 @@ export class EventDebouncer<KeyType,ValueType>
   //  * af: (bool)
   recordEvent = async ({key, data, timing=null, af=false}: {
     key: KeyType,
-    data?: ValueType,
+    data?: string,
     timing?: DebouncerTiming|null,
     af?: boolean,
   }) => {
@@ -168,7 +170,7 @@ export class EventDebouncer<KeyType,ValueType>
     }
   }
   
-  _dispatchEvent = async (key: KeyType, events: Array<ValueType>) => {
+  _dispatchEvent = async (key: KeyType, events: string[]) => {
     try {
       //eslint-disable-next-line no-console
       console.log(`Handling ${events.length} grouped ${this.name} events`);
