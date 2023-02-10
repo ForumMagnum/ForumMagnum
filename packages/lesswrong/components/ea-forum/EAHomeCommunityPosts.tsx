@@ -5,6 +5,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
 
@@ -34,7 +35,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
           <AnalyticsContext listContext={"communityPosts"}>
             <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
             <SectionFooter>
-              <Link to={"/topics/community"}>Read more</Link>
+              <Link to={tagGetUrl({slug: 'community'}, {tab: "posts"})}>Read more</Link>
             </SectionFooter>
           </AnalyticsContext>
       </SingleColumnSection>
