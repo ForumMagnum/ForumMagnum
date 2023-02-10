@@ -7,6 +7,7 @@ import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,7 +69,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
-  displayShortform: any,
+  displayShortform?: boolean,
   classes: ClassesType,
   includeTags?: boolean,
 }) => {
@@ -77,7 +78,9 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   const { timezone } = useTimezone();
 
   const [tagFilter, setTagFilter] = useState<string|null>(null)
-  
+  const {query} = useLocation()
+  const displayPostsTagsList = query.limit
+
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
@@ -169,7 +172,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               `this ${timeBlock}`
             }
           </div> }
-          <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>
+          {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
           {postGroups.map(({name, filteredPosts, label}) => {
             if (filteredPosts?.length > 0) return <div key={name}>
               <div
