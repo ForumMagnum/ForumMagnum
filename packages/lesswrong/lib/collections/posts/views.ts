@@ -61,7 +61,8 @@ declare global {
     includeArchived?: boolean,
     includeDraftEvents?: boolean
     includeShared?: boolean
-    distance?: number
+    distance?: number,
+    audioOnly?: boolean
   }
 }
 
@@ -1193,9 +1194,11 @@ ensureIndex(Posts,
   { name: "posts.sunshineNewUsersPosts" }
 );
 
-Posts.addView("sunshineCuratedSuggestions", function () {
+Posts.addView("sunshineCuratedSuggestions", function (terms) {
+  const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
   return {
     selector: {
+      ...audio,
       suggestForCuratedUserIds: {$exists:true, $ne: []},
       reviewForCuratedUserId: {$exists:false}
     },

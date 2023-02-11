@@ -11,9 +11,21 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import StarIcon from '@material-ui/icons/Star';
 import ClearIcon from '@material-ui/icons/Clear';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import * as _ from 'underscore';
 
-const SunshineCuratedSuggestionsItem = ({post}: {
+const styles = (theme: ThemeType): JssStyles => ({
+  audioIcon: {
+    width: 14,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 2
+  }
+});
+
+
+const SunshineCuratedSuggestionsItem = ({classes, post}: {
+  classes: ClassesType,
   post: PostsList
 }) => {
   const currentUser = useCurrentUser();
@@ -92,6 +104,7 @@ const SunshineCuratedSuggestionsItem = ({post}: {
           {post.postedAt && <Components.SidebarInfo>
             <Components.FormatDate date={post.postedAt}/>
           </Components.SidebarInfo>}
+          {post.podcastEpisodeId && <VolumeUpIcon className={classes.audioIcon}/>}
         </div>
         <Components.SidebarInfo>
           Endorsed by { post.suggestForCuratedUsernames }
@@ -118,7 +131,7 @@ const SunshineCuratedSuggestionsItem = ({post}: {
   )
 }
 
-const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
+const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
