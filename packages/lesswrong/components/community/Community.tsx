@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -370,7 +370,7 @@ const Community = ({classes}: {
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
-            Community
+            Connect
           </h1>
           <div className={classes.sectionDescription}>
             Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.

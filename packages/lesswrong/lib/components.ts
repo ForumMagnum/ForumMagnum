@@ -18,6 +18,7 @@ if(forumTypeSetting.get() === 'AlignmentForum') {
 
 if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
   importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
@@ -546,6 +547,9 @@ importComponent("RandomTagPage", () => require('../components/tagging/RandomTagP
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("EAAllTagsPage", () => require('../components/tagging/EAAllTagsPage'));
+importComponent("CoreTagsSection", () => require('../components/tagging/CoreTagsSection'));
+importComponent("CoreTagCard", () => require('../components/tagging/CoreTagCard'));
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
 importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
@@ -601,7 +605,6 @@ importComponent("SubforumMembersDialog", () => require('../components/tagging/su
 importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
 importComponent("SubforumListSettings", () => require('../components/tagging/subforums/SubforumListSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
-importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
 importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
 importComponent("SubforumWikiTab", () => require('../components/tagging/subforums/SubforumWikiTab'));
 importComponent("SubforumSubforumTab", () => require('../components/tagging/subforums/SubforumSubforumTab'));
@@ -690,6 +693,7 @@ importComponent("FormComponentMultiSelect", () => require('../components/form-co
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent("FormComponentDateTime", () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
+importComponent("FormComponentTagsChecklist", () => require('../components/form-components/FormComponentTagsChecklist'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
