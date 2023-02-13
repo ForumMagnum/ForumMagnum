@@ -29,15 +29,15 @@ const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.ge
 // Each debounced event also has a key (a JSON object); events with different
 // keys are also independent. For example, when debouncing notifications to
 // users, the key would contain a userId. Finally, each debounced event has
-// eventData (a JSON object); events with different eventData are *not*
-// independent, and the callback will receive an array containing the eventData
-// for all of the grouped events.
+// eventData (a string); events with different eventData are *not* independent,
+// and the callback will receive an array containing the eventData for all of
+// the grouped events.
 //
 // Within events that are grouped (ie, that share a name and a key), the way
 // timing works is:
 //  * When a debounced event happens, it goes into a "pending" state
 //  * When the callback fires, it handles all pending events that share a name
-//    and key, and moves them out of the pending the state
+//    and key, and moves them out of the pending state
 //  * A callback fires when either delayTime or upperBoundTime is passed
 //
 // There are several different possible timing rules. In some cases, these
@@ -132,11 +132,11 @@ export class EventDebouncer<KeyType = string>
       af: af,
       key: JSON.stringify(key),
       dispatched: false,
-      createdAt: formatDate(new Date()),
     }, {
       $max: { delayTime: formatDate(newDelayTime) },
       $min: { upperBoundTime: formatDate(newUpperBoundTime) },
       ...pendingEvent,
+      $set: { createdAt: formatDate(new Date()), },
     }, {
       upsert: true
     });
