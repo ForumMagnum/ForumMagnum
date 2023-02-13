@@ -376,8 +376,8 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     if (filter.$gt) {
       greaterThan = new Date(Math.max(greaterThan.getTime(), filter.$gt.getTime()));
     } else if (filter.$gte) {
-      const gt = new Date(filter.$gte.getTime() + 1);
-      greaterThan = new Date(Math.max(greaterThan.getTime(), gt.getTime()));
+      const gt = Math.max(filter.$gte.getTime() - 1, 0);
+      greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
     } else {
       throw new Error("Unsupported createdAt filter in getNextBatchByCreatedAt");
     }
