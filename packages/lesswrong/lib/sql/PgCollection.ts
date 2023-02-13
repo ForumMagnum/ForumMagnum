@@ -158,10 +158,15 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T> & {upsert: true},
   ) {
-    const data = modifier.$set ?? modifier as T;
+    const {$set, ...rest} = modifier;
+    const data = {
+      ...$set,
+      ...rest,
+      ...selector,
+    } as T;
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
-        conflictStrategy: "upsert",
-        upsertSelector: selector,
+      conflictStrategy: "upsert",
+      upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
     const action = result[0]?.action;

@@ -135,8 +135,8 @@ export class EventDebouncer<KeyType = string>
     }, {
       $max: { delayTime: formatDate(newDelayTime) },
       $min: { upperBoundTime: formatDate(newUpperBoundTime) },
-      ...pendingEvent,
       $set: { createdAt: formatDate(new Date()), },
+      ...pendingEvent,
     }, {
       upsert: true
     });
