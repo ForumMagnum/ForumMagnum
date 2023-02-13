@@ -203,6 +203,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
+    options = Object.assign({noSafetyHarness: true}, options);
     const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
     const result = await this.executeQuery(query, {selector, options});
     return {deletedCount: result.length};
