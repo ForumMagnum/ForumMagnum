@@ -300,6 +300,7 @@ const SearchPageTabbed = ({classes}:{
   }
   const HitComponent = hitComponents[tab]
 
+
   return <div className={classes.root}>
     <InstantSearch
       indexName={getAlgoliaIndexName(tab)}
@@ -343,8 +344,8 @@ const SearchPageTabbed = ({classes}:{
           defaultRefinement={true}
         />}
         {tab === 'Tags' && <ToggleRefinement
-          attribute="isSubforum"
-          label="Has subforum"
+          attribute="core"
+          label="Core topic"
           value={true}
         />}
         <ClearRefinements />
