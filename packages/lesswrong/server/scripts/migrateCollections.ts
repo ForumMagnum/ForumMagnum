@@ -182,6 +182,7 @@ const copyData = async (
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
       filter: makeBatchFilter(collection.getMongoCollection().collectionName, createdSince),
+      useCreatedAt: true,
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);

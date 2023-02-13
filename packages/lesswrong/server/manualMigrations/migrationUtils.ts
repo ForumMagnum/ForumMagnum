@@ -289,6 +289,123 @@ export async function dropUnusedField(collection, fieldName) {
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
+const getBatchSort = <T extends DbObject>(useCreatedAt: boolean) =>
+  (useCreatedAt
+    ? {createdAt: 1}
+    : {_id: 1}) as Record<keyof T, number>;
+
+const getFirstBatchById = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+}): Promise<T[]> => {
+  // As described in the docstring, we need to be able to query on the _id.
+  // Without this check, someone trying to use _id in the filter would overwrite
+  // this function's query and find themselves with an infinite loop.
+  if (filter && "_id" in filter) {
+    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
+  }
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(false),
+      limit: batchSize,
+    }
+  ).fetch();
+}
+
+const getNextBatchById = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  lastRows,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  lastRows: T[],
+}): Promise<T[]> => {
+  return collection.find(
+    {
+      _id: {$gt: lastRows[lastRows.length - 1]._id},
+      ...filter,
+    },
+    {
+      sort: getBatchSort(false),
+      limit: batchSize
+    }
+  ).fetch();
+}
+
+const getFirstBatchByCreatedAt = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+}): Promise<T[]> => {
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(true),
+      limit: batchSize,
+    }
+  ).fetch();
+}
+
+const getNextBatchByCreatedAt = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  lastRows,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  lastRows: T[],
+}): Promise<T[]> => {
+  const lastRow = lastRows[lastRows.length - 1] as unknown as HasCreatedAtType;
+  let greaterThan = lastRow.createdAt;
+  if (filter && "createdAt" in filter) {
+    if (filter.$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.$gt.getTime()));
+    } else if (filter.$gte) {
+      const gt = new Date(filter.$gte.getTime() + 1);
+      greaterThan = new Date(Math.max(greaterThan.getTime(), gt.getTime()));
+    } else {
+      throw new Error("Unsupported createdAt filter in getNextBatchByCreatedAt");
+    }
+    delete filter.createdAt;
+  }
+  return collection.find(
+    {
+      createdAt: {$gt: greaterThan},
+      ...filter,
+    },
+    {
+      sort: getBatchSort(true),
+      limit: batchSize
+    }
+  ).fetch();
+}
+
+const getBatchProviders = (useCreatedAt: boolean) =>
+  useCreatedAt
+    ? {
+      getFirst: getFirstBatchByCreatedAt,
+      getNext: getNextBatchByCreatedAt,
+    }
+    : {
+      getFirst: getFirstBatchById,
+      getNext: getNextBatchById,
+    };
+
 // Given a collection and a batch size, run a callback for each row in the
 // collection, grouped into batches of up to the given size. Rows created or
 // deleted while this is running might or might not get included (neither is
@@ -300,39 +417,27 @@ export async function dropUnusedField(collection, fieldName) {
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection<T extends DbObject>({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+export async function forEachDocumentBatchInCollection<T extends DbObject>({
+  collection,
+  batchSize=1000,
+  filter=null,
+  callback,
+  loadFactor=1.0,
+  useCreatedAt=false,
+}: {
   collection: CollectionBase<T>,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,
-  callback: (batch: T[]) => void,
-  loadFactor?: number
-})
-{
-  // As described in the docstring, we need to be able to query on the _id.
-  // Without this check, someone trying to use _id in the filter would overwrite
-  // this function's query and find themselves with an infinite loop.
-  if (filter && '_id' in filter) {
-    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
-  }
-  const sort = {_id: 1} as Record<keyof T, number>;
-  let rows = await collection.find({ ...filter },
-    {
-      sort,
-      limit: batchSize
-    }
-  ).fetch();
-  
-  while(rows.length > 0) {
+  callback: (batch: T[]) => void | Promise<void>,
+  loadFactor?: number,
+  useCreatedAt?: boolean,
+}): Promise<void> {
+  const {getFirst, getNext} = getBatchProviders(useCreatedAt);
+  let rows = await getFirst({collection, batchSize, filter});
+  while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
-      const lastID = rows[rows.length - 1]._id
-      rows = await collection.find(
-        { _id: {$gt: lastID}, ...filter },
-        {
-          sort,
-          limit: batchSize
-        }
-      ).fetch();
+      rows = await getNext({collection, batchSize, filter, lastRows: rows});
     });
   }
 }
