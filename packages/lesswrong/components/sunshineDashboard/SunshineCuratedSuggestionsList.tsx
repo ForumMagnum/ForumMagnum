@@ -64,7 +64,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
     return null
   }
 
-  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore } = Components
+  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore, LWTooltip } = Components
     
   if (results && results.length) {
     return (
@@ -74,7 +74,9 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
           <MetaInfo>
             <FormatDate date={curatedDate}/>
           </MetaInfo>
-          <VolumeUpIcon className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})} onClick={() => setAudioOnly(!audioOnly)}/>
+          <LWTooltip title="Filter to only show audio">
+            <VolumeUpIcon className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})} onClick={() => setAudioOnly(!audioOnly)}/>
+          </LWTooltip>
         </SunshineListTitle>
         {results.map(post =>
           <div key={post._id} >

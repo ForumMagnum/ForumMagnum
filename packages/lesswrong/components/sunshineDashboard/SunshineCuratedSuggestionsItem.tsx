@@ -17,6 +17,7 @@ import * as _ from 'underscore';
 const styles = (theme: ThemeType): JssStyles => ({
   audioIcon: {
     width: 14,
+    height: 14,
     color: theme.palette.grey[500],
     position: "relative",
     top: 2
