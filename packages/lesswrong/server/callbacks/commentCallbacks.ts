@@ -409,22 +409,25 @@ getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCo
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async function ApproveOwnComment (comment: DbComment, { currentUser }) {
+getCollectionHooks("Comments").createAfter.add(async function ApproveOwnComment (comment: DbComment, { currentUser, context }) {
   // Only bother checking if the post requires comment approvals if it's the user's own comment
   if (comment.userId === currentUser?._id) {
     const post = await Posts.findOne(comment.postId);
     // If it does, automatically approve the post author's own comments
-    if (post?.requireCommentApproval) {
+    if (post?.requireCommentApproval && post.userId === comment.userId) {
       await createMutator({
         collection: CommentApprovals,
         document: {
           commentId: comment._id,
           userId: comment.userId,
           status: 'approved'
-        }
+        },
+        context
       });  
     }
   }
+
+  return comment;
 });
 
 getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {
