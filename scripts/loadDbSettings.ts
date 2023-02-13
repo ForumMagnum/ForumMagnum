@@ -57,7 +57,8 @@ const setDatabaseId = async (db: Database, id: string, databaseId: string) => {
   await db.none(`
     INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
     VALUES ($1, $2, TO_JSONB($3::TEXT))
-    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE SET "value" = $3
+    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+    SET "value" = TO_JSONB($3::TEXT)
   `, [ id, "databaseId", databaseId ]);
 }
 
