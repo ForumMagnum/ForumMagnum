@@ -300,7 +300,6 @@ const SearchPageTabbed = ({classes}:{
   }
   const HitComponent = hitComponents[tab]
 
-
   return <div className={classes.root}>
     <InstantSearch
       indexName={getAlgoliaIndexName(tab)}
