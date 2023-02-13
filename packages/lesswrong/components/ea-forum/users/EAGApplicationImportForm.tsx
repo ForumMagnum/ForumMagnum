@@ -2,16 +2,14 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import Users from '../../../lib/vulcan-users';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
-import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
-import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
