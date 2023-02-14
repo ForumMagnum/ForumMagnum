@@ -14,7 +14,7 @@ import countBy from 'lodash/countBy';
 import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
-import Tags from '../../lib/collections/tags/collection';
+import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
@@ -221,7 +221,7 @@ addGraphQLResolvers({
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
       
       // Get the top 3 topics that the user has read (filtering out the Community topic)
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== 'ZCihBFp5P64JCvQY6')
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t![0])
       

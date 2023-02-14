@@ -30,6 +30,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
+        const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
+        logger('multi resolver()')
+        logger('multi terms', terms)
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
