@@ -65,32 +65,28 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   }
 
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore, LWTooltip } = Components
-    
-  if (results && results.length) {
-    return (
-      <div className={classes.root}>
-        <SunshineListTitle>
-          Suggestions for Curated
-          <MetaInfo>
-            <FormatDate date={curatedDate}/>
-          </MetaInfo>
-          <LWTooltip title="Filter to only show audio">
-            <VolumeUpIcon className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})} onClick={() => setAudioOnly(!audioOnly)}/>
-          </LWTooltip>
-        </SunshineListTitle>
-        {results.map(post =>
-          <div key={post._id} >
-            <SunshineCuratedSuggestionsItem post={post} />
-          </div>
-        )}
-        {showLoadMore && <div className={classes.loadMorePadding}>
-          <LoadMore {...loadMoreProps}/>
-        </div>}
-      </div>
-    )
-  } else {
-    return null
-  }
+  
+  return (
+    <div className={classes.root}>
+      <SunshineListTitle>
+        Suggestions for Curated
+        <MetaInfo>
+          <FormatDate date={curatedDate}/>
+        </MetaInfo>
+        <LWTooltip title="Filter to only show audio">
+          <VolumeUpIcon className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})} onClick={() => setAudioOnly(!audioOnly)}/>
+        </LWTooltip>
+      </SunshineListTitle>
+      {results?.map(post =>
+        <div key={post._id} >
+          <SunshineCuratedSuggestionsItem post={post} />
+        </div>
+      )}
+      {showLoadMore && <div className={classes.loadMorePadding}>
+        <LoadMore {...loadMoreProps}/>
+      </div>}
+    </div>
+  )
 }
 
 const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles})
