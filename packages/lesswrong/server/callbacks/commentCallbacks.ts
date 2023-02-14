@@ -339,6 +339,7 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
         (deletedPublic || deleted) &&
         !userCanDo(currentUser, 'comment.remove.all')
       ) {
+        console.log({ currentUser, userCanRemoveComments: userCanDo(currentUser, 'comment.remove.all') })
         throw new Error("You cannot delete a comment that has children")
       }
     }
