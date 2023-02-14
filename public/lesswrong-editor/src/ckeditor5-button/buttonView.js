@@ -44,19 +44,19 @@ export default class FormView extends View {
   }
 
   get text() {
-	return this.textInputView.element.value;
+    return this.textInputView.fieldView.value;
   }
 
   set text( text ) {
-	this.textInputView.element.value = text;
+    this.textInputView.fieldView.value = text;
   }
 
   get link() {
-	return this.linkInputView.element.value;
+    return this.linkInputView.fieldView.value;
   }
 
   set link( link ) {
-	this.linkInputView.element.value = link;
+    this.linkInputView.fieldView.value = link;
   }
 
   render() {
@@ -65,9 +65,9 @@ export default class FormView extends View {
     // Submit the form when the user clicked the save button
     // or pressed enter in the input.
     submitHandler( {
-        view:   this
+        view: this
     } );
-    }
+  }
   
   focus() {
     this.childViews.first.focus();
@@ -76,7 +76,7 @@ export default class FormView extends View {
   _createInput( label ) {
     const labeledInput = new LabeledFieldView( this.locale, createLabeledInputText );
     labeledInput.label = label;
-      return labeledInput;
+    return labeledInput;
   }
   
   _createButton( label, icon, className ) {
