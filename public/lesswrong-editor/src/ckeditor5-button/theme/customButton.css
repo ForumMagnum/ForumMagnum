@@ -13,7 +13,7 @@
 	padding: var(--ck-spacing-large);
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: repeat(3, 1fr);
+	grid-template-rows: repeat(4, 1fr);
 	grid-column-gap: 0px;
 	grid-row-gap: var(--ck-spacing-standard);
 }
@@ -32,4 +32,12 @@
 
 .ck.ck-customButton-form .ck-button:nth-of-type(2) {
 	grid-area: 3 / 2 / 4 / 3;
+}
+
+.ck.ck-customButton-form .ck-button:nth-of-type(3) {
+	grid-area: 4 / 1 / 5 / 2;
+}
+
+.ck.ck-customButton-form .ck-button:nth-of-type(4) {
+	grid-area: 4 / 2 / 5 / 3;
 }

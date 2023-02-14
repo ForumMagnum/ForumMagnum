@@ -6,7 +6,8 @@ export default class InsertButtonCommand extends Command {
     this.editor.model.enqueueChange(modelWriter => {
       const button = modelWriter.createElement(BUTTON_ELEMENT, {
         'data-href': attributes.link || '',
-        'data-text': attributes.text || 'Apply now'
+        'data-text': attributes.text || 'Apply now',
+        'data-alignment': attributes.alignment || 'left',
       });
       console.log('button', button)
       this.editor.model.insertContent(button);
@@ -24,7 +25,7 @@ export default class InsertButtonCommand extends Command {
     const selectedButtonWidget = this._getSelectedButtonWidget(selection);
     this.text = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-text' ) : null;
     this.link = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-href' ) : null;
-    console.log('refresh text', this.text)
+    this.alignment = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-alignment' ) : null;
 
     this.isEnabled = allowedIn !== null;
   }

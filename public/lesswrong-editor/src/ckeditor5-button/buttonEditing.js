@@ -25,6 +25,7 @@ export default class ButtonEditing extends Plugin {
         'data-button',
         'data-text',
         'data-href',
+		'data-alignment',
       ],
     });
 
@@ -36,6 +37,7 @@ export default class ButtonEditing extends Plugin {
           'data-button': true,
           'data-text': modelElement.getAttribute('data-text'),
           'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+          'data-alignment': modelElement.getAttribute('data-href'),
         });
         const text = writer.createText(modelElement.getAttribute('data-text'));
         writer.insert(writer.createPositionAt(button, 0), text);

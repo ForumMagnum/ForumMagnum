@@ -46,6 +46,14 @@ export default class ButtonUI extends Plugin {
   _createFormView() {
     const editor = this.editor;
     const formView = new FormView( editor.locale );
+
+    this.listenTo( formView, 'left-align', () => {
+      this.formView.alignment = 'left';
+    } );
+
+    this.listenTo( formView, 'center-align', () => {
+      this.formView.alignment = 'center';
+    } );
     
     this.listenTo( formView, 'submit', () => {
       const text = formView.textInputView.fieldView.element.value;
@@ -59,7 +67,7 @@ export default class ButtonUI extends Plugin {
 		return;
 	  }
       
-      editor.execute(INSERT_BUTTON_COMMAND, {text, link})
+      editor.execute(INSERT_BUTTON_COMMAND, {text, link, alignment: this.formView.alignment})
 
       // editor.model.change( writer => {
       //     editor.model.insertContent(
@@ -111,6 +119,7 @@ export default class ButtonUI extends Plugin {
 
     this.formView.text = buttonCommand.text;
     this.formView.link = buttonCommand.link;
+	this.formView.alignment = buttonCommand.alignment;
 
     this.formView.focus();
   }

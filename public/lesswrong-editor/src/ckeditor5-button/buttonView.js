@@ -12,6 +12,14 @@ export default class FormView extends View {
     this.textInputView = this._createInput( 'Button text' );
     this.linkInputView = this._createInput( 'Link to' );
     
+    this.leftAlignButtonView = this._createButton(
+		'Left-align', icons.alignLeft, 'ck-button-align-left'
+	);
+    this.leftAlignButtonView.delegate( 'execute' ).to( this, 'left-align' );
+    this.centerAlignButtonView = this._createButton(
+		'Center-align', icons.alignCenter, 'ck-button-align-center'
+	);
+    this.centerAlignButtonView.delegate( 'execute' ).to( this, 'center-align' );
     // Create the save and cancel buttons.
     this.saveButtonView = this._createButton(
       'Save', icons.check, 'ck-button-save'
@@ -29,6 +37,8 @@ export default class FormView extends View {
     this.childViews = this.createCollection( [
       this.textInputView,
       this.linkInputView,
+	  this.leftAlignButtonView,
+	  this.centerAlignButtonView,
       this.saveButtonView,
       this.cancelButtonView
     ] );
@@ -82,12 +92,15 @@ export default class FormView extends View {
   _createButton( label, icon, className ) {
     const button = new ButtonView();
 
+	const bind = inputView.bindTemplate;
+
     button.set( {
         label,
         icon,
         tooltip: true,
-        class: className
+        class: className,
     } );
+
 
     return button;
   }
