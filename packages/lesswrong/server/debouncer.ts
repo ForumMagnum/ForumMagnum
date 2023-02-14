@@ -4,6 +4,7 @@ import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
+import { DebouncerEventsRepo } from './repos';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
@@ -126,22 +127,33 @@ export class EventDebouncer<KeyType = string>
       }
     : {};
 
-    // On rawCollection because minimongo doesn't support $max/$min on Dates
-    await DebouncerEvents.rawCollection().updateOne({
-      name: this.name,
-      af: af,
-      key: JSON.stringify(key),
-      dispatched: false,
-    }, {
-      $max: { delayTime: formatDate(newDelayTime) },
-      $min: { upperBoundTime: formatDate(newUpperBoundTime) },
-      $set: { createdAt: formatDate(new Date()), },
-      ...pendingEvent,
-    }, {
-      upsert: true
-    });
+    if (DebouncerEvents.isPostgres()) {
+      await new DebouncerEventsRepo().recordEvent(
+        this.name,
+        af,
+        new Date(newDelayTime),
+        new Date(newUpperBoundTime),
+        JSON.stringify(key),
+        data,
+      );
+    } else {
+      // On rawCollection because minimongo doesn't support $max/$min on Dates
+      await DebouncerEvents.rawCollection().updateOne({
+        name: this.name,
+        af: af,
+        key: JSON.stringify(key),
+        dispatched: false,
+      }, {
+        $max: { delayTime: formatDate(newDelayTime) },
+        $min: { upperBoundTime: formatDate(newUpperBoundTime) },
+        $set: { createdAt: formatDate(new Date()), },
+        ...pendingEvent,
+      }, {
+        upsert: true
+      });
+    }
   }
-  
+
   parseTiming = (timing: DebouncerTiming) => {
     const now = new Date();
     const msPerMin = 60*1000;
