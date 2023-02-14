@@ -210,7 +210,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -218,7 +218,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
-  scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
   setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
@@ -481,11 +480,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>}
             <CommentUserName comment={comment} className={classes.username}/>
-            <CommentsItemDate
-              comment={comment} post={post} tag={tag}
-              scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage && !isParentComment}
-            />
+            <CommentsItemDate comment={comment} post={post} tag={tag} />
             {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
               {moderatorCommentAnnotation}
             </span>}

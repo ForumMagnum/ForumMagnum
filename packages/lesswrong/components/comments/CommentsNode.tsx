@@ -250,7 +250,6 @@ const CommentsNode = ({
               parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
               toggleCollapse={toggleCollapse}
               key={comment._id}
-              scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
               displayTagIcon={displayTagIcon}
               { ...passedThroughItemProps}

@@ -1,12 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import classNames from 'classnames';
-import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
-import qs from 'qs'
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,30 +45,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollIntoView, permalink=true }: {
+const CommentsItemDate = ({comment, post, tag, classes, permalink=true }: {
   comment: CommentsList,
   post?: PostsMinimumInfo|null,
   tag?: TagBasicInfo,
   classes: ClassesType,
-  scrollOnClick?: boolean,
-  scrollIntoView?: ()=>void,
   permalink?: boolean,
 }) => {
-  const { history } = useNavigation();
-  const { location, query } = useLocation();
   const { captureEvent } = useTracking();
+  const { flash } = useMessages();
 
-  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink})
+  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink, isAbsolute: true})
 
-  const handleLinkClick = (event: React.MouseEvent) => {
-    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
-    
-    // If the current location is not the same as the link's location (e.g. if a comment on a post is showing on the frontpage), fall back to just following the link
-    if (location.pathname !== url.split("?")[0]) return
-
+  const handleLinkClick = async (event: React.MouseEvent) => {
     event.preventDefault()
-    history.replace({...location, search: qs.stringify({...query, commentId: comment._id})})
-    if(scrollIntoView) scrollIntoView();
+    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
+    await navigator.clipboard.writeText(url)
+    flash({messageString: "Copied to clipboard", type: "success"})
   };
 
   const date = <>
@@ -83,9 +74,8 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      {scrollOnClick ? <a rel="nofollow" href={url} onClick={handleLinkClick}>{ date } </a>
-        : <Link rel="nofollow" to={url}>{ date }</Link>
-      }
+      {/* It never actually follows the link on click, but making this an <a> means you can also copy the link by right clicking, which some people might instinctively do */}
+      <a rel="nofollow" href={url} onClick={handleLinkClick}>{ date }</a>
     </span>
   );
 }
