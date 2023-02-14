@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
 const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
-export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"frontpageSubforumDiscussion"|"subforumDiscussion";
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
 interface ContentTypeSettings {
   tooltipTitle?: string,
   tooltipBody?: React.ReactNode,
@@ -47,7 +47,6 @@ type ContentTypeRecord = {
   curated: ContentTypeSettings,
   shortform: ContentTypeSettings,
   tags: ContentTypeSettings,
-  frontpageSubforumDiscussion?: ContentTypeSettings,
   subforumDiscussion?: ContentTypeSettings,
 }
 
@@ -221,12 +220,6 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       </div>,
       Icon: TagIcon,
       linkTarget: '/tags/all',
-    },
-    frontpageSubforumDiscussion: {
-      tooltipTitle: 'Subforum Discussion',
-      tooltipBody: 'Discussion comments on subforums that you are a member of',
-      Icon: QuestionAnswerIcon,
-      linkTarget: null,
     },
     subforumDiscussion: {
       Icon: QuestionAnswerIcon,

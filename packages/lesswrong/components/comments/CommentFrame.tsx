@@ -113,7 +113,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, showPinnedOnProfile, children, classes}: {
+const CommentFrame = ({
+  comment,
+  treeOptions,
+  onClick,
+  id,
+  nestingLevel,
+  hasChildren,
+  highlighted,
+  isSingleLine,
+  isChild,
+  isNewComment,
+  isReplyToAnswer,
+  hoverPreview,
+  shortform,
+  showPinnedOnProfile,
+  children,
+  className,
+  classes
+}: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
@@ -131,6 +149,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
   showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
+  className?: string,
   classes: ClassesType,
 }) => {
   const { condensed, postPage } = treeOptions;
@@ -139,6 +158,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
     "comments-node",
     nestingLevelToClass(nestingLevel, classes),
     classes.node,
+    className,
     {
       "af":comment.af,
       [classes.highlightAnimation]: highlighted,
@@ -184,7 +204,7 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string
 }
 
 
-const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles});
+const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

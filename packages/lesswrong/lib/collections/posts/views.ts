@@ -823,25 +823,24 @@ ensureIndex(Posts, {legacyId: "hashed"});
 
 
 // Corresponds to the postCommented subquery in recentDiscussionFeed.ts
-ensureIndex(Posts,
-  {
-    status: 1,
-    isFuture: 1,
-    draft: 1,
-    unlisted: 1,
-    authorIsUnreviewed: 1,
-    hideFrontpageComments: 1,
-    
-    lastCommentedAt: -1,
-    _id: 1,
-    
-    baseScore: 1,
-    af: 1,
-    isEvent: 1,
-    globalEvent: 1,
-    commentCount: 1,
-  },
-);
+const postCommentedViewFields = {
+  status: 1,
+  isFuture: 1,
+  draft: 1,
+  unlisted: 1,
+  authorIsUnreviewed: 1,
+  hideFrontpageComments: 1,
+  
+  lastCommentedAt: -1,
+  _id: 1,
+  
+  baseScore: 1,
+  af: 1,
+  isEvent: 1,
+  globalEvent: 1,
+  commentCount: 1,
+}
+ensureIndex(Posts, postCommentedViewFields);
 
 const recentDiscussionFilter = {
   baseScore: {$gt:0},

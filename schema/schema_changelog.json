@@ -101,7 +101,22 @@
   },
   {
     "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
-    "acceptedByMigration": "20230206T192711.auto.ts",
+    "acceptedByMigration": "20230206T192711.add_relevantTagIds_to_comments.ts",
     "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ffaf4a437b864708e0990e38ece649f1",
+    "acceptedByMigration": "20230208T135321.create_sessions_collection.ts",
+    "timestamp": "2023-02-08T13:53:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a7887d09050fb7d8f7117f498534d322",
+    "acceptedByMigration": "20230208T174449.add_shortName.ts",
+    "timestamp": "2023-02-08T17:44:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
+    "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
+    "timestamp": "2023-02-09T21:26:42.000Z"
   }
 ]

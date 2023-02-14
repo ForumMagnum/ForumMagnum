@@ -260,9 +260,9 @@ export const NewSubforumCommentNotification = registerNotificationType({
   userSettingField: "notificationSubforumUnread",
   allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId}: GetMessageProps) {
-    // e.g. "Forecasting Subforum: Will Howard left a new comment"
+    // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await `${startCase(await getCommentParentTitle(document))} Subforum: ${await commentGetAuthorName(document)} left a new comment`;
+    return await `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -500,7 +500,7 @@ export const NewSubforumMemberNotification = registerNotificationType({
     if (documentType !== 'user') throw new Error("documentType must be user")
     const newUser = await Users.findOne(documentId)
     if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
-    return `A new user has joined your subforum: ${newUser.displayName}`
+    return `A new user has joined your topic: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />

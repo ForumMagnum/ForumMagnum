@@ -290,6 +290,11 @@ describe('Voting', function() {
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
+        // NB: The addition of collectionName is to work with the custom-written
+        // postgres-specific function in VotesRepo -- it is not returned by the
+        // mongo aggregation. To run these tests in mongo again, remove
+        // collectionName from the expected object.
+        collectionName: "Posts",
         scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
@@ -326,6 +331,8 @@ describe('Voting', function() {
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
+        // NB: See above
+        collectionName: "Posts",
         scoreChange: 2,
         title: post.title,
         slug: slugify(post.title),

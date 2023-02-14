@@ -158,6 +158,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -250,6 +251,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 
@@ -346,6 +348,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    showCommunityInRecentDiscussion
     beta
     theme
 
