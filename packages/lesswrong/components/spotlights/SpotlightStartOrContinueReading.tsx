@@ -61,6 +61,8 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
   const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
+  
+  if (spotlight.documentType !== "Sequence" || !posts.length) return null;
 
   if (firstPost) {
     return <div className={classes.firstPost}>
