@@ -1,3 +1,4 @@
+import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
 import PostsRepo from "./PostsRepo";
@@ -9,6 +10,7 @@ declare global {
 }
 
 const getAllRepos = () => ({
+  databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
@@ -17,6 +19,7 @@ const getAllRepos = () => ({
 } as const);
 
 export {
+  DatabaseMetadataRepo,
   DebouncerEventsRepo,
   PostRelationsRepo,
   PostsRepo,

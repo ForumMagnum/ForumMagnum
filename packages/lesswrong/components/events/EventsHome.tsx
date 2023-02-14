@@ -9,7 +9,7 @@ import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';

@@ -101,7 +101,7 @@
   },
   {
     "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
-    "acceptedByMigration": "20230206T192711.auto.ts",
+    "acceptedByMigration": "20230206T192711.add_relevantTagIds_to_comments.ts",
     "timestamp": "2023-02-06T19:27:11.000Z"
   },
   {
@@ -115,14 +115,9 @@
     "timestamp": "2023-02-08T17:44:49.000Z"
   },
   {
-    "acceptsSchemaHash": "c4ad9670df04a3753f9e2db9bb5bade8",
+    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
     "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
     "timestamp": "2023-02-09T21:26:42.000Z"
-  },
-  {
-    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
-    "acceptedByMigration": "20230209T220741.auto.ts",
-    "timestamp": "2023-02-09T22:07:41.000Z"
   },
   {
     "acceptsSchemaHash": "db6fd1542308531319a4ee016d060516",
