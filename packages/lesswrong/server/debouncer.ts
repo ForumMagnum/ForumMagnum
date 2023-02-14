@@ -119,13 +119,6 @@ export class EventDebouncer<KeyType = string>
     if (data !== undefined && typeof data !== "string") {
       throw new Error(`Invalid debouncer event data: ${data}`);
     }
-    const pendingEvent = data !== undefined
-      ? {
-        $push: {
-          pendingEvents: data,
-        },
-      }
-    : {};
 
     if (DebouncerEvents.isPostgres()) {
       await new DebouncerEventsRepo().recordEvent(
@@ -137,6 +130,14 @@ export class EventDebouncer<KeyType = string>
         data,
       );
     } else {
+      const pendingEvent = data !== undefined
+        ? {
+          $push: {
+            pendingEvents: data,
+          },
+        }
+      : {};
+
       // On rawCollection because minimongo doesn't support $max/$min on Dates
       await DebouncerEvents.rawCollection().updateOne({
         name: this.name,
