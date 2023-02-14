@@ -50,6 +50,14 @@ export default class ButtonUI extends Plugin {
     this.listenTo( formView, 'submit', () => {
       const text = formView.textInputView.fieldView.element.value;
       const link = formView.linkInputView.fieldView.element.value;
+	  if(!text) {
+		formView.textInputView.errorText = "Button text is required."
+		return;
+	  }
+	  if(!link || !/https?:\/\/.*/.test(link)) {
+		formView.linkInputView.errorText = "Invalid link."
+		return;
+	  }
       
       editor.execute(INSERT_BUTTON_COMMAND, {text, link})
 
