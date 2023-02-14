@@ -301,6 +301,7 @@ export const sanitize = function(s: string): string {
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      a: ['customButton'],
       div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
