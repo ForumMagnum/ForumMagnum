@@ -8,7 +8,11 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  boxesRoot: {
+    marginTop: 4,
+  },
   firstPost: {
+    marginTop: 4,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
@@ -65,7 +69,7 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
       </LWTooltip>
     </div>
   } else {
-    return <div>
+    return <div className={classes.boxesRoot}>
     {posts.map(post => (
       <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
@@ -84,4 +88,3 @@ declare global {
     SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReadingComponent
   }
 }
-
