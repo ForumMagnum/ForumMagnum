@@ -16,6 +16,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }
   
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
+    // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
       SELECT *
       FROM "Users"
