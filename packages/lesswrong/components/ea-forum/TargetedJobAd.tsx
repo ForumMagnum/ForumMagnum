@@ -407,30 +407,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       </div>
     </>
   },
-  'general-alvea': {
-    standardApplyBtn: true,
-    eagOccupations: ['Biosecurity'],
-    tagId: 'aELNHEKtcZtMwEkdK', // Biosecurity
-    logo: 'https://80000hours.org/wp-content/uploads/2022/04/Avela-160x160.png',
-    occupation: 'biosecurity',
-    feedbackLinkPrefill: 'General+Interest+at+Alvea',
-    bitlyLink: "https://efctv.org/3Yce5vH", // https://airtable.com/shrSmfwzBMj05d3tL
-    role: 'General Interest',
-    org: 'Alvea',
-    orgLink: '/topics/alvea',
-    location: 'Boston, MA / Remote',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://alvea.bio" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Alvea
-        </a> is a startup biotechnology company focused on building a streamlined platform for developing and deploying
-        DNA vaccines against COVID-19 variants and other pathogens.
-      </div>
-      <div className={classes.description}>
-        They are looking for motivated, fast-moving people with a broad range of backgrounds and specialties.
-      </div>
-    </>
-  },
   'project-management-gfi': {
     eagOccupations: ['Project management/ Program management', 'Alternative proteins'],
     tagId: 'sXXqo3rbghiNW7SwN', // Animal product alternatives
