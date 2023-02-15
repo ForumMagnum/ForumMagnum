@@ -31,6 +31,10 @@ export const deleteUserContent = async (
 
   const userComments = await Comments.find({ userId, deleted: false }).fetch();
 
+  if (userComments.length > 1000) {
+    throw new Error(`About to delete ${userComments.length} comments, please double-check that you want to do this and comment this line out if so!`);
+  }
+
   const adminContext = createAdminContext();
   const adminTeamAccount = await getAdminTeamAccount();
 
@@ -44,13 +48,17 @@ export const deleteUserContent = async (
         deletedByUserId: adminTeamAccount._id,
         deletedReason: noDeletionPmReason
       },
-      context: adminContext
+      context: adminContext,
+      currentUser: adminContext.currentUser
     });
 
     await sleep(50);
   }
 
   const userPosts = await Posts.find({ userId, deletedDraft: false }).fetch();
+  if (userPosts.length > 100) {
+    throw new Error(`About to delete ${userPosts.length} posts, please double-check that you want to do this and comment this line out if so!`);
+  }
 
   for (const userPost of userPosts) {
     await updateMutator({
@@ -60,7 +68,8 @@ export const deleteUserContent = async (
         draft: true,
         deletedDraft: true,
       },
-      context: adminContext
+      context: adminContext,
+      currentUser: adminContext.currentUser
     });
 
     await sleep(50);
