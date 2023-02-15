@@ -9,7 +9,6 @@ export default class InsertButtonCommand extends Command {
         'data-text': attributes.text || '',
         'data-alignment': attributes.alignment || 'left',
       });
-      console.log('button', button)
       this.editor.model.insertContent(button);
     });
   }

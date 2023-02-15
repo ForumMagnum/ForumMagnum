@@ -4,7 +4,7 @@ import ContextualBalloon from '@ckeditor/ckeditor5-ui//src/panel/balloon/context
 import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
 import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
 import { BUTTON_ELEMENT, INSERT_BUTTON_COMMAND, TOOLBAR_COMPONENT_NAME } from './constants';
-import footnoteIcon from './theme/icon.svg';
+import buttonIcon from './theme/icon.svg';
 import FormView from './buttonView';
 
 export default class ButtonUI extends Plugin {
@@ -28,9 +28,9 @@ export default class ButtonUI extends Plugin {
       const button = new ButtonView();
 
       button.set( {
-        label: translate( 'Button' ),
-        icon: footnoteIcon,
-        withText: true,
+        label: translate( 'Insert button' ),
+        icon: buttonIcon,
+        tooltip: true,
       } );
 
       button.on('execute', () => {
@@ -72,12 +72,6 @@ export default class ButtonUI extends Plugin {
       }
       
       editor.execute(INSERT_BUTTON_COMMAND, {text, link, alignment: this.formView.alignment})
-
-      // editor.model.change( writer => {
-      //     editor.model.insertContent(
-      //         writer.createText( , { abbreviation: text } )
-      //     );
-      // } );
       
       // Hide the form view after submit.
       this._hideUI();

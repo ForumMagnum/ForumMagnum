@@ -1,5 +1,5 @@
 import View from '@ckeditor/ckeditor5-ui/src/view';
-import LabeledFieldView from '@ckeditor/ckeditor5-ui/src/labeledfield/labeledFieldView';
+import LabeledFieldView from '@ckeditor/ckeditor5-ui/src/labeledfield/labeledfieldview';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { createLabeledInputText } from '@ckeditor/ckeditor5-ui/src/labeledfield/utils';
 import submitHandler from '@ckeditor/ckeditor5-ui/src/bindings/submithandler';
