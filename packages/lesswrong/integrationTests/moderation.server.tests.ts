@@ -194,7 +194,7 @@ describe('User moderation fields --', () => {
   
   it("new trusted users do not have a moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
-    expect(user.moderationStyle).to.equal(undefined)
+    expect(user.moderationStyle).to.equal(null)
   });
   it("non-trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser()
