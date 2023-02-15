@@ -39,7 +39,7 @@ const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }) => {
   const { results } = useMulti({
-    terms: {view: 'coreTags'},
+    terms: {view: 'coreTags', limit: 100},
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
