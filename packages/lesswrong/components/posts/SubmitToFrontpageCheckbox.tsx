@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '1.25em'
   },
   checkbox: {
-    padding: 8
+    padding: 6
   },
   tooltip: {
     '& ul': {

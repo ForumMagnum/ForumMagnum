@@ -11,15 +11,27 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 5,
-    textTransform: 'none',
-    fontWeight: 400,
+    ...(isEAForum ? {
+      textTransform: 'none',
+      fontWeight: 400,
+    } : {
+      paddingBottom: 4,
+      fontWeight: 500,
+      "&:hover": {
+        background: theme.palette.buttons.hoverGrayHighlight,
+      }
+    })
   },
 
   secondaryButton: {
-    color: theme.palette.grey[680],
-    padding: '8px 12px'
+    ...(isEAForum ? {
+      color: theme.palette.grey[680],
+      padding: '8px 12px'
+    } : {
+      color: theme.palette.text.dim40,
+    })
   },
 
   submitButtons: {
@@ -27,8 +39,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   submitButton: {
-    boxShadow: 'none',
-    marginLeft: 10,
+    ...(isEAForum ? {
+      boxShadow: 'none',
+      marginLeft: 10,
+    } : {
+      color: theme.palette.secondary.main
+    })
   },
   cancelButton: {
   },
@@ -115,8 +131,10 @@ const PostSubmit = ({
           type="submit"
           onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          variant="contained"
-          color="primary"
+          {...(isEAForum ? {
+            variant: "contained",
+            color: "primary",
+          } : {})}
         >
           {submitLabel}
         </Button>

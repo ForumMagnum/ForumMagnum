@@ -112,7 +112,7 @@ export class PublicInstanceSetting<SettingValueType> {
 
 export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
 export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
-export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumfddgType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
 export const isLW = forumTypeSetting.get() === "LessWrong"
 export const isEAForum = forumTypeSetting.get() === "EAForum"

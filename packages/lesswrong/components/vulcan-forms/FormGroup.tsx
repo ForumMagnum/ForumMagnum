@@ -51,7 +51,7 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(isEAForum ? {borderRadius: 8} : {})
+    ...(isEAForum ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
