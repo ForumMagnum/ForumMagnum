@@ -25,42 +25,48 @@ export default class ButtonEditing extends Plugin {
         'data-button',
         'data-text',
         'data-href',
-		'data-alignment',
+				'data-alignment',
       ],
     });
 
     conversion.for('editingDowncast').elementToElement({
       model: BUTTON_ELEMENT,
       view: (modelElement, { writer }) => {
-        const button = writer.createContainerElement('span', {
-          class: BUTTON_CLASS,
-          'data-button': true,
+        const container = writer.createContainerElement('div', {
+					'data-button': true,
           'data-text': modelElement.getAttribute('data-text'),
-          'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
-          'data-alignment': modelElement.getAttribute('data-href'),
+          'data-href': modelElement.getAttribute('data-href'),
+          'data-alignment': modelElement.getAttribute('data-alignment'),
+					style: `text-align: ${modelElement.getAttribute('data-alignment')}`
+				});
+        const button = writer.createContainerElement('span', {
+          class: BUTTON_CLASS
         });
         const text = writer.createText(modelElement.getAttribute('data-text'));
         writer.insert(writer.createPositionAt(button, 0), text);
-        return toWidget(button, writer);
+        writer.insert(writer.createPositionAt(container, 0), button);
+        return toWidget(container, writer);
       }
     });
 
     conversion.for('dataDowncast').elementToElement({
       model: BUTTON_ELEMENT,
       view: (modelElement, { writer }) => {
-        const button = writer.createContainerElement('span', {
+        const container = writer.createContainerElement('div', {
           'data-button': true,
           'data-text': modelElement.getAttribute('data-text'),
-          'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
+          'data-href': modelElement.getAttribute('data-href'),
+          'data-alignment': modelElement.getAttribute('data-alignment'),
+          style: `text-align: ${modelElement.getAttribute('data-alignment')}`
         });
-        const link = writer.createContainerElement('a', {
+        const button = writer.createContainerElement('a', {
           class: BUTTON_CLASS,
           href: modelElement.getAttribute('data-href'), // TODO: sanitize?
         });
         const text = writer.createText(modelElement.getAttribute('data-text'));
-        writer.insert(writer.createPositionAt(link, 0), text);
-        writer.insert(writer.createPositionAt(button, 0), link);
-        return button;
+        writer.insert(writer.createPositionAt(button, 0), text);
+        writer.insert(writer.createPositionAt(container, 0), button);
+        return container;
       }
     });
 
@@ -73,7 +79,8 @@ export default class ButtonEditing extends Plugin {
       model: ( viewElement, { writer } ) => {
         return writer.createElement(BUTTON_ELEMENT, {
           'data-text': viewElement.getAttribute('data-text'),
-          'data-href': viewElement.getAttribute('data-href')
+          'data-href': viewElement.getAttribute('data-href'),
+          'data-alignment': viewElement.getAttribute('data-alignment')
         });
       }
     });
@@ -87,20 +94,5 @@ export default class ButtonEditing extends Plugin {
     );
 
     this.editor.commands.add( INSERT_BUTTON_COMMAND, new InsertButtonCommand( this.editor ) );
-  }
-
-  createButtonViewElement(modelElement, { writer }) {
-    const button = writer.createContainerElement('span', {
-      'data-button': true,
-      'data-text': modelElement.getAttribute('data-text'),
-      'data-href': modelElement.getAttribute('data-href'), // TODO: sanitize?
-    });
-    const link = writer.createContainerElement('a', {
-      class: BUTTON_CLASS,
-      href: modelElement.getAttribute('data-href'), // TODO: sanitize?
-    });
-    const text = writer.createText(modelElement.getAttribute('data-text'));
-    writer.insert(writer.createPositionAt(link, 0), text);
-    writer.insert(writer.createPositionAt(button, 0), link);
   }
 }

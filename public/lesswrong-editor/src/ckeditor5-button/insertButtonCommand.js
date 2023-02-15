@@ -6,7 +6,7 @@ export default class InsertButtonCommand extends Command {
     this.editor.model.enqueueChange(modelWriter => {
       const button = modelWriter.createElement(BUTTON_ELEMENT, {
         'data-href': attributes.link || '',
-        'data-text': attributes.text || 'Apply now',
+        'data-text': attributes.text || '',
         'data-alignment': attributes.alignment || 'left',
       });
       console.log('button', button)

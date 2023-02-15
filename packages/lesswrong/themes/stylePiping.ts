@@ -179,13 +179,13 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
 const buttonStyles = (theme: ThemeType): JssStyles => ({
   '& .customButton': {
     display: "inline-block",
-    background: "#0c869b",
-    color: "#fff",
-    fontSize: "14px",
-    fontFamily: 'Merriweather Sans',
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    fontSize: 14,
+    fontFamily: theme.typography.fontFamily,
     padding: "12px 16px",
     margin: "1em 0",
-    borderRadius: "6px",
+    borderRadius: 6,
   }
   
 })

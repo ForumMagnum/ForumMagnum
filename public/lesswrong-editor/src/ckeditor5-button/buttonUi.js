@@ -46,6 +46,10 @@ export default class ButtonUI extends Plugin {
   _createFormView() {
     const editor = this.editor;
     const formView = new FormView( editor.locale );
+		
+		const buttonCommand = this.editor.commands.get('customButton');
+		formView.leftAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val !== 'center' );
+		formView.centerAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val === 'center' );
 
     this.listenTo( formView, 'left-align', () => {
       this.formView.alignment = 'left';
@@ -58,14 +62,14 @@ export default class ButtonUI extends Plugin {
     this.listenTo( formView, 'submit', () => {
       const text = formView.textInputView.fieldView.element.value;
       const link = formView.linkInputView.fieldView.element.value;
-	  if(!text) {
-		formView.textInputView.errorText = "Button text is required."
-		return;
-	  }
-	  if(!link || !/https?:\/\/.*/.test(link)) {
-		formView.linkInputView.errorText = "Invalid link."
-		return;
-	  }
+      if (!text) {
+        formView.textInputView.errorText = "Button text is required"
+        return;
+      }
+      if (!link || !/https?:\/\/.*/.test(link)) {
+        formView.linkInputView.errorText = "Please enter a valid URL"
+        return;
+      }
       
       editor.execute(INSERT_BUTTON_COMMAND, {text, link, alignment: this.formView.alignment})
 
@@ -81,6 +85,9 @@ export default class ButtonUI extends Plugin {
     
     // Hide the form view after clicking the "Cancel" button.
     this.listenTo( formView, 'cancel', () => {
+			// clear any errors
+			formView.textInputView.errorText = '';
+			formView.linkInputView.errorText = '';
       this._hideUI();
     } );
     
@@ -119,7 +126,7 @@ export default class ButtonUI extends Plugin {
 
     this.formView.text = buttonCommand.text;
     this.formView.link = buttonCommand.link;
-	this.formView.alignment = buttonCommand.alignment;
+  	this.formView.alignment = buttonCommand.alignment;
 
     this.formView.focus();
   }

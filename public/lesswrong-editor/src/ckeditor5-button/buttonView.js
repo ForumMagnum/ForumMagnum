@@ -13,12 +13,12 @@ export default class FormView extends View {
     this.linkInputView = this._createInput( 'Link to' );
     
     this.leftAlignButtonView = this._createButton(
-		'Left-align', icons.alignLeft, 'ck-button-align-left'
-	);
+      'Left', icons.alignLeft, 'ck-button-align-left', true
+    );
     this.leftAlignButtonView.delegate( 'execute' ).to( this, 'left-align' );
     this.centerAlignButtonView = this._createButton(
-		'Center-align', icons.alignCenter, 'ck-button-align-center'
-	);
+      'Center', icons.alignCenter, 'ck-button-align-center', true
+    );
     this.centerAlignButtonView.delegate( 'execute' ).to( this, 'center-align' );
     // Create the save and cancel buttons.
     this.saveButtonView = this._createButton(
@@ -29,7 +29,7 @@ export default class FormView extends View {
     this.saveButtonView.type = 'submit';
 
     this.cancelButtonView = this._createButton(
-        'Cancel', icons.cancel, 'ck-button-cancel'
+      'Cancel', icons.cancel, 'ck-button-cancel'
     );
     // Delegate ButtonView#execute to FormView#cancel.
     this.cancelButtonView.delegate( 'execute' ).to( this, 'cancel' );
@@ -37,8 +37,8 @@ export default class FormView extends View {
     this.childViews = this.createCollection( [
       this.textInputView,
       this.linkInputView,
-	  this.leftAlignButtonView,
-	  this.centerAlignButtonView,
+      this.leftAlignButtonView,
+      this.centerAlignButtonView,
       this.saveButtonView,
       this.cancelButtonView
     ] );
@@ -68,6 +68,20 @@ export default class FormView extends View {
   set link( link ) {
     this.linkInputView.fieldView.value = link;
   }
+  
+  get alignment() {
+    return this.centerAlignButtonView.isOn ? 'center' : 'left'
+  }
+
+  set alignment( alignment ) {
+    if (alignment === 'center') {
+      this.centerAlignButtonView.isOn = true;
+      this.leftAlignButtonView.isOn = false;
+    } else {
+      this.centerAlignButtonView.isOn = false;
+      this.leftAlignButtonView.isOn = true;
+    }
+  }
 
   render() {
     super.render();
@@ -89,16 +103,16 @@ export default class FormView extends View {
     return labeledInput;
   }
   
-  _createButton( label, icon, className ) {
+  _createButton( label, icon, className, withText=false ) {
     const button = new ButtonView();
-
-	const bind = inputView.bindTemplate;
 
     button.set( {
         label,
         icon,
-        tooltip: true,
+        withText,
+        tooltip: !withText,
         class: className,
+        isOn: false
     } );
 
 
