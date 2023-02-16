@@ -384,6 +384,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    recentComments(commentsLimit: 5, maxAgeHours: 10000, af: false) {
+      ...CommentsList
+    }
   }
 `)
 
@@ -393,6 +396,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    recentComments(commentsLimit: 5, maxAgeHours: 10000, af: false) {
+      ...CommentsList
+    }
   }
 `)
 

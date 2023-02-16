@@ -20,6 +20,7 @@ import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { styles as commentsItemStyles } from '../../comments/CommentsItem/CommentsItem';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -141,6 +142,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
+  debateComments: {
+    ...commentsItemStyles(theme)
+  }
 })
 
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
@@ -203,7 +207,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, CommentBody, CommentUserName
   } = Components
 
   useEffect(() => {
@@ -327,6 +331,16 @@ const PostsPage = ({post, refetch, classes}: {
               />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
+        </ContentStyles>
+
+        <ContentStyles contentType="comment" className={'outerDebateComments'}>
+          {/** Debate contents go here? */}
+          {post.recentComments.map(comment => {
+            return <div className={'innerDebateComment'}>
+              <CommentUserName comment={comment} />
+              <CommentBody comment={comment} />
+            </div>;
+          })}
         </ContentStyles>
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
