@@ -1,5 +1,5 @@
 import { preferredHeadingCase } from "../../forumTypeUtils";
-import { forumTypeSetting, taggingNamePluralSetting } from "../../instanceSettings";
+import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
@@ -86,7 +86,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   tags: {
     order: isEAForum ? 22 : 60,
     name: "tags",
-    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralSetting.get()}`,
+    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
   }
 };

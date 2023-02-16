@@ -11,7 +11,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 14,
+    fontSize: isEAForum ? 14 : 16,
     marginLeft: 5,
     ...(isEAForum ? {
       textTransform: 'none',
