@@ -13,6 +13,8 @@ import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import startCase from 'lodash/startCase';
+import { communityTimeDecaySetting } from '../../ea-forum/EAHomeCommunityPosts';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -290,8 +292,10 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   const terms = {
     ...tagPostTerms(tag, query),
-    limit: 10
-  }
+    limit: 10,
+    // Add extra recency bias for Community posts
+    ...(tag._id === EA_FORUM_COMMUNITY_TOPIC_ID ? { timeDecayFactor: communityTimeDecaySetting.get() } : {}),
+  };
   const listLayoutComponent = (
     <div className={classes.listLayout}>
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>

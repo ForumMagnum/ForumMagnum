@@ -5,6 +5,9 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+
+export const communityTimeDecaySetting = new DatabasePublicSetting<number>('communityTimeDecayFactor', 2)
 
 const styles = (theme: ThemeType): JssStyles => ({
 
@@ -24,6 +27,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
       filterMode: 'Required'
     }]},
     after: dateCutoff,
+    timeDecayFactor: communityTimeDecaySetting.get(),
     limit: 3
   }
 

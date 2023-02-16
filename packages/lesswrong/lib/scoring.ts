@@ -79,7 +79,8 @@ export const recalculateScore = (item: VoteableType) => {
   }
 };
 
-export const timeDecayExpr = () => {
+export const timeDecayExpr = (timeDecayFactor?: number) => {
+  const exponent = timeDecayFactor ?? TIME_DECAY_FACTOR.get();
   return {$pow: [
     {$add: [
       {$divide: [
@@ -90,7 +91,7 @@ export const timeDecayExpr = () => {
       ] }, // Age in hours
       SCORE_BIAS,
     ]},
-    TIME_DECAY_FACTOR.get()
+    exponent
   ]}
 }
 
