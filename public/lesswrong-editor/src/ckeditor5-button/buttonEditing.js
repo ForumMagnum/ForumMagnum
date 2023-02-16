@@ -56,6 +56,9 @@ export default class ButtonEditing extends Plugin {
 				console.log('dataDowncast')
         const container = writer.createContainerElement('div', {
           'data-button': true,
+          'data-text': modelElement.getAttribute('data-text'),
+          'data-href': modelElement.getAttribute('data-href'),
+          'data-alignment': modelElement.getAttribute('data-alignment'),
           style: `text-align: ${modelElement.getAttribute('data-alignment')}`
         });
         const button = writer.createContainerElement('a', {
