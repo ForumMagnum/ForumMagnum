@@ -29,7 +29,7 @@ export const withRouter = (WrappedComponent) => {
 
 type LinkProps = Omit<HashLinkProps, 'to'> & {
   to: HashLinkProps['to'] | null
-  eventProps?: Record<string, any>
+  eventProps?: Record<string, string>
 };
 
 const isLinkValid = (props: LinkProps): props is HashLinkProps => {
