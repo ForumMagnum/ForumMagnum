@@ -47,7 +47,7 @@ export default class ButtonUI extends Plugin {
     const editor = this.editor;
     const formView = new FormView( editor.locale );
 		
-		const buttonCommand = this.editor.commands.get('customButton');
+		const buttonCommand = this.editor.commands.get(INSERT_BUTTON_COMMAND);
 		formView.leftAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val !== 'center' );
 		formView.centerAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val === 'center' );
 
@@ -61,15 +61,18 @@ export default class ButtonUI extends Plugin {
     
     this.listenTo( formView, 'submit', () => {
       const text = formView.textInputView.fieldView.element.value;
-      const link = formView.linkInputView.fieldView.element.value;
+      let link = formView.linkInputView.fieldView.element.value;
       if (!text) {
         formView.textInputView.errorText = "Button text is required"
         return;
       }
-      if (!link || !/https?:\/\/.*/.test(link)) {
-        formView.linkInputView.errorText = "Please enter a valid URL"
+      if (!link) {
+        formView.linkInputView.errorText = 'Link is required'
         return;
       }
+			if (!link.startsWith('http')) {
+				link = `https://${link}`
+			}
       
       editor.execute(INSERT_BUTTON_COMMAND, {text, link, alignment: this.formView.alignment})
       
@@ -116,7 +119,7 @@ export default class ButtonUI extends Plugin {
       view: this.formView,
       position: this._getBalloonPositionData()
     } );
-    const buttonCommand = this.editor.commands.get('customButton');
+    const buttonCommand = this.editor.commands.get(INSERT_BUTTON_COMMAND);
 
     this.formView.text = buttonCommand.text;
     this.formView.link = buttonCommand.link;

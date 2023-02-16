@@ -329,6 +329,7 @@ declare global {
       },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
+      primaryHoverBackground: ColorString,
     },
     tag: {
       background: ColorString,

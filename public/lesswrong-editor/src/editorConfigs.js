@@ -109,7 +109,6 @@ export const postEditorConfig = {
 			'trackChanges',
 			'math',
 			'footnote',
-			'button',
 		],
 		shouldNotGroupWhenFull: true,
 	},

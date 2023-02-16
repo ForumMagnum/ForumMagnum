@@ -257,9 +257,12 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   };
   
   markHoverableLinks = () => {
-    if(this.bodyRef?.current) {
+    if (this.bodyRef?.current) {
       const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
       for (let linkTag of linkTags) {
+        // if it's a customButton added via the CKEditor toolbar, ignore it
+        if (linkTag.className === 'customButton')
+          continue;
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
         if (!href || linkIsExcludedFromPreview(href))

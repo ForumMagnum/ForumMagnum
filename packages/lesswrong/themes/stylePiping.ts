@@ -182,10 +182,16 @@ const buttonStyles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
+    lineHeight: '20px',
     fontFamily: theme.typography.fontFamily,
     padding: "12px 16px",
     margin: "1em 0",
     borderRadius: 6,
+    '&:hover': {
+      background: theme.palette.buttons.primaryHoverBackground,
+      color: theme.palette.text.alwaysWhite,
+      opacity: 1
+    }
   }
   
 })

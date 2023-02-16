@@ -64,6 +64,8 @@ export default class ButtonEditing extends Plugin {
         const button = writer.createContainerElement('a', {
           class: BUTTON_CLASS,
           href: modelElement.getAttribute('data-href'), // TODO: sanitize?
+					target: '_blank',
+					rel: 'noopener noreferrer'
         });
         const text = writer.createText(modelElement.getAttribute('data-text'));
         writer.insert(writer.createPositionAt(button, 0), text);

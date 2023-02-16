@@ -399,6 +399,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
+    primaryHoverBackground: '#2F778A'
   },
   tag: {
     background: shades.grey[200],
