@@ -98,11 +98,11 @@ export const SpotlightsPage = ({classes}: {
       <SectionTitle title="Upcoming Spotlights">
         <div>Total: {totalUpcomingDuration} days</div>
       </SectionTitle>
-      {upcomingSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <SectionTitle title="Draft Spotlights">
         <div>Total: {totalDraftDuration} days</div>
       </SectionTitle>
-      {draftSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
     </SingleColumnSection>
   </ToCColumn>
 }
