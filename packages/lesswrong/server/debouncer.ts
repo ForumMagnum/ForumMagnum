@@ -18,64 +18,66 @@ export type DebouncerTiming =
 
 const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.getTime();
 
-// Defines a debouncable event type; that is, an event which, some time after
-// it happens, causes a function call, with events grouped together into a
-// single call. We store these events in the database, rather than use a simple
-// callback function, because this happens over long time scales, the server
-// might restart before the handler fires, and the handler might run on a
-// different server than the event(s) was/were generated.
-//
-// Each debounced event has a name, which is used in the database to identify
-// its type and the callback that will handle it. Event types are independent.
-// Each debounced event also has a key (a JSON object); events with different
-// keys are also independent. For example, when debouncing notifications to
-// users, the key would contain a userId. Finally, each debounced event has
-// eventData (a string); events with different eventData are *not* independent,
-// and the callback will receive an array containing the eventData for all of
-// the grouped events.
-//
-// Within events that are grouped (ie, that share a name and a key), the way
-// timing works is:
-//  * When a debounced event happens, it goes into a "pending" state
-//  * When the callback fires, it handles all pending events that share a name
-//    and key, and moves them out of the pending state
-//  * A callback fires when either delayTime or upperBoundTime is passed
-//
-// There are several different possible timing rules. In some cases, these
-// correspond to user configuration, so different (name,key) pairs can have
-// different timing rules. A timing rule is an object with a string field "type"
-// plus other fields depending on the type. The possible timing rules are:
-//
-//   none:
-//     Events fire on the next cron-tick after they're added (up to 1min).
-//   delayed:
-//     * delayMinutes: number
-//     * maxDelayMinutes: number
-//     Events fire when either it has
-//     been delayMinutes since any event was added to the group, or
-//     maxDelayMinutes since the first event was added to the group
-//   daily:
-//     * timeOfDayGMT: number
-//     There is a day-boundary once per day, at timeOfDayGMT. Events fire
-//     when the current time and the oldest event in the group are on opposite
-//     sides of a day-boundary.
-//   weekly:
-//     * timeOfDayGMT: number
-//     * dayOfWeekGMT: string
-//     As daily, except that in addition to timeOfDayGMT there is also a
-//     dayOfWeekGMT, which is a string like "Saturday".
-//
-// The timing rule is specified when each event is being added. If an event
-// would be added to a group with a different timing rule, that group fires
-// according to whichever timing rule would make it fire soonest.
-//
-// Constructor parameters:
-//  * name: (String) - Used to identify this event type in the database. Must
-//    be unique across EventDebouncers.
-//  * defaultTiming: (Object, optional) - If an event is added with no timing
-//    rule specified, this timing rule is used. If this argument is omitted,
-//    then a timing rule is required when adding an event.
-//  * callback: (key:JSON, events: Array[JSONObject])=>None
+/**
+ * Defines a debouncable event type; that is, an event which, some time after
+ * it happens, causes a function call, with events grouped together into a
+ * single call. We store these events in the database, rather than use a simple
+ * callback function, because this happens over long time scales, the server
+ * might restart before the handler fires, and the handler might run on a
+ * different server than the event(s) was/were generated.
+ *
+ * Each debounced event has a name, which is used in the database to identify
+ * its type and the callback that will handle it. Event types are independent.
+ * Each debounced event also has a key (a JSON object); events with different
+ * keys are also independent. For example, when debouncing notifications to
+ * users, the key would contain a userId. Finally, each debounced event has
+ * eventData (a string); events with different eventData are *not* independent,
+ * and the callback will receive an array containing the eventData for all of
+ * the grouped events.
+ *
+ * Within events that are grouped (ie, that share a name and a key), the way
+ * timing works is:
+ *  * When a debounced event happens, it goes into a "pending" state
+ *  * When the callback fires, it handles all pending events that share a name
+ *    and key, and moves them out of the pending state
+ *  * A callback fires when either delayTime or upperBoundTime is passed
+ *
+ * There are several different possible timing rules. In some cases, these
+ * correspond to user configuration, so different (name,key) pairs can have
+ * different timing rules. A timing rule is an object with a string field "type"
+ * plus other fields depending on the type. The possible timing rules are:
+ *
+ *   none:
+ *     Events fire on the next cron-tick after they're added (up to 1min).
+ *   delayed:
+ *     * delayMinutes: number
+ *     * maxDelayMinutes: number
+ *     Events fire when either it has
+ *     been delayMinutes since any event was added to the group, or
+ *     maxDelayMinutes since the first event was added to the group
+ *   daily:
+ *     * timeOfDayGMT: number
+ *     There is a day-boundary once per day, at timeOfDayGMT. Events fire
+ *     when the current time and the oldest event in the group are on opposite
+ *     sides of a day-boundary.
+ *   weekly:
+ *     * timeOfDayGMT: number
+ *     * dayOfWeekGMT: string
+ *     As daily, except that in addition to timeOfDayGMT there is also a
+ *     dayOfWeekGMT, which is a string like "Saturday".
+ *
+ * The timing rule is specified when each event is being added. If an event
+ * would be added to a group with a different timing rule, that group fires
+ * according to whichever timing rule would make it fire soonest.
+ *
+ * Constructor parameters:
+ *  * name: (String) - Used to identify this event type in the database. Must
+ *    be unique across EventDebouncers.
+ *  * defaultTiming: (Object, optional) - If an event is added with no timing
+ *    rule specified, this timing rule is used. If this argument is omitted,
+ *    then a timing rule is required when adding an event.
+ *  * callback: (key:JSON, events: Array[JSONObject])=>None
+ */
 export class EventDebouncer<KeyType = string>
 {
   name: string
