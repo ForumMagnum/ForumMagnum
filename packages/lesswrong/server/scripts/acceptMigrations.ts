@@ -16,6 +16,9 @@ export const migrationNameToDate = (name: string): Date => {
   if (s.length !== 15 || s[8] !== "T") {
     throw new Error(`Invalid migration name: '${s}'`);
   }
+  if (name.match(/^.*\.auto\.ts$/)) {
+    throw new Error(`You must rename the migration from 'auto' to something more recognizable: ${name}`);
+  }
   const stamp = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 11)}:${s.slice(11, 13)}:${s.slice(13, 15)}.000Z`;
   return new Date(stamp);
 }

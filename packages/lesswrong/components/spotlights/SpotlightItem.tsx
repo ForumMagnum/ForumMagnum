@@ -91,7 +91,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 7,
-    marginBottom: 13,
+    marginBottom: 10,
     ...descriptionStyles(theme),
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -125,7 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   author: {
-    marginTop: -6,
+    marginTop: 4,
     color: theme.palette.grey[600],
   },
   authorName: {

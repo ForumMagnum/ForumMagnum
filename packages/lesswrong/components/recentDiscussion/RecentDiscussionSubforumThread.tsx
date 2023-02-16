@@ -1,7 +1,7 @@
 import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
+import { tagGetSubforumUrl, tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -118,8 +118,7 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
           <TopTagIcon tag={tag} />
         </div>
         <div className={classes.subforumTitleText}>
-          <Link to={tagGetSubforumUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
-          <div className={classes.subforumSubtitle}>Subforum discussion</div>
+          <Link to={tag.isSubforum ? tagGetSubforumUrl(tag) : tagGetUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
         </div>
       </div>
     </div>

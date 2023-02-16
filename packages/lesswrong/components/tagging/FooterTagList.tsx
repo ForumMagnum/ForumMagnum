@@ -11,6 +11,7 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -53,6 +54,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
+  const { flash } = useMessages();
   const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
@@ -86,17 +88,22 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   `);
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
-    setIsAwaiting(true)
-    await mutate({
-      variables: {
-        tagId: tagId,
-        postId: post._id,
-      },
-    });
-    setIsAwaiting(false)
-    refetch()
-    captureEvent("tagAddedToItem", {tagId, tagName})
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
+    try {
+      setIsAwaiting(true);
+      await mutate({
+        variables: {
+          tagId: tagId,
+          postId: post._id,
+        },
+      });
+      setIsAwaiting(false);
+      refetch();
+      captureEvent("tagAddedToItem", {tagId, tagName});
+    } catch (e) {
+      setIsAwaiting(false);
+      flash(e.message);
+    }
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
   const { Loading, FooterTag, ContentStyles } = Components
   

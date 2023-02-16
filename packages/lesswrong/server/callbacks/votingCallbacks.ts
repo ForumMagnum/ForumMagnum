@@ -30,6 +30,10 @@ voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: Vote
 
 
 voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
@@ -38,6 +42,10 @@ voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}
 });
 
 voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
