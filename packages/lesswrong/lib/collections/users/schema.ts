@@ -867,6 +867,14 @@ const schema: SchemaType<DbUser> = {
     canCreate: 'guests',
     hidden: true,
   },
+  allPostsHideCommunity: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   allPostsOpenSettings: {
     type: Boolean,
     optional: true,

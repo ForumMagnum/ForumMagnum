@@ -998,6 +998,7 @@ interface DbUser extends DbObject {
   allPostsSorting: string
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
+  allPostsHideCommunity: boolean
   allPostsOpenSettings: boolean
   draftsListSorting: string
   draftsListShowArchived: boolean
