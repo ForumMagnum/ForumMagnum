@@ -25,21 +25,20 @@ export default class ButtonEditing extends Plugin {
         'data-button',
         'data-text',
         'data-href',
-				'data-alignment',
+        'data-alignment',
       ],
     });
 
     conversion.for('editingDowncast').elementToElement({
       model: BUTTON_ELEMENT,
       view: (modelElement, { writer }) => {
-				console.log('editingDowncast')
         const container = writer.createContainerElement('div', {
-					'data-button': true,
+          'data-button': true,
           'data-text': modelElement.getAttribute('data-text'),
           'data-href': modelElement.getAttribute('data-href'),
           'data-alignment': modelElement.getAttribute('data-alignment'),
-					style: `text-align: ${modelElement.getAttribute('data-alignment')}`
-				});
+          style: `text-align: ${modelElement.getAttribute('data-alignment')}`
+        });
         const button = writer.createContainerElement('span', {
           class: BUTTON_CLASS
         });
@@ -53,7 +52,6 @@ export default class ButtonEditing extends Plugin {
     conversion.for('dataDowncast').elementToElement({
       model: BUTTON_ELEMENT,
       view: (modelElement, { writer }) => {
-				console.log('dataDowncast')
         const container = writer.createContainerElement('div', {
           'data-button': true,
           'data-text': modelElement.getAttribute('data-text'),
@@ -64,8 +62,8 @@ export default class ButtonEditing extends Plugin {
         const button = writer.createContainerElement('a', {
           class: BUTTON_CLASS,
           href: modelElement.getAttribute('data-href'), // TODO: sanitize?
-					target: '_blank',
-					rel: 'noopener noreferrer'
+          target: '_blank',
+          rel: 'noopener noreferrer'
         });
         const text = writer.createText(modelElement.getAttribute('data-text'));
         writer.insert(writer.createPositionAt(button, 0), text);
@@ -81,7 +79,6 @@ export default class ButtonEditing extends Plugin {
         },
       },
       model: ( viewElement, { writer } ) => {
-				console.log('upcast')
         return writer.createElement(BUTTON_ELEMENT, {
           'data-text': viewElement.getAttribute('data-text'),
           'data-href': viewElement.getAttribute('data-href'),

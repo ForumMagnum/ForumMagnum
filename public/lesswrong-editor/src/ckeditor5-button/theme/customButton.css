@@ -1,38 +1,38 @@
 .ck.ck-customButton-form {
-	padding: var(--ck-spacing-large);
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	grid-column-gap: 0px;
-	grid-row-gap: var(--ck-spacing-standard);
+  padding: var(--ck-spacing-large);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: var(--ck-spacing-standard);
 }
 
 .ck.ck-customButton-form .ck.ck-labeled-field-view:nth-of-type(1) {
-	grid-area: 1 / 1 / 2 / 3;
+  grid-area: 1 / 1 / 2 / 3;
 }
 
 .ck.ck-customButton-form .ck.ck-labeled-field-view:nth-of-type(2) {
-	grid-area: 2 / 1 / 3 / 3;
+  grid-area: 2 / 1 / 3 / 3;
 }
 
 .ck.ck-customButton-form .ck-button:nth-of-type(1) {
-	grid-area: 3 / 1 / 4 / 2;
-	justify-content: center;
-	border: 1px solid #c7c7c7;
-	border-radius: var(--ck-border-radius) 0 0 var(--ck-border-radius);
+  grid-area: 3 / 1 / 4 / 2;
+  justify-content: center;
+  border: 1px solid #c7c7c7;
+  border-radius: var(--ck-border-radius) 0 0 var(--ck-border-radius);
 }
 
 .ck.ck-customButton-form .ck-button:nth-of-type(2) {
-	grid-area: 3 / 2 / 4 / 3;
-	justify-content: center;
-	border: 1px solid #c7c7c7;
-	border-radius: 0 var(--ck-border-radius) var(--ck-border-radius) 0;
-	border-left: none;
+  grid-area: 3 / 2 / 4 / 3;
+  justify-content: center;
+  border: 1px solid #c7c7c7;
+  border-radius: 0 var(--ck-border-radius) var(--ck-border-radius) 0;
+  border-left: none;
 }
 
 .ck.ck-customButton-form .ck-button:nth-of-type(3) {
-	grid-area: 4 / 1 / 5 / 2;
+  grid-area: 4 / 1 / 5 / 2;
 }
 
 .ck.ck-customButton-form .ck-button:nth-of-type(4) {
-	grid-area: 4 / 2 / 5 / 3;
+  grid-area: 4 / 2 / 5 / 3;
 }

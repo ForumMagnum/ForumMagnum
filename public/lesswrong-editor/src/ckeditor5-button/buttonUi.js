@@ -46,10 +46,10 @@ export default class ButtonUI extends Plugin {
   _createFormView() {
     const editor = this.editor;
     const formView = new FormView( editor.locale );
-		
-		const buttonCommand = this.editor.commands.get(INSERT_BUTTON_COMMAND);
-		formView.leftAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val !== 'center' );
-		formView.centerAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val === 'center' );
+    
+    const buttonCommand = this.editor.commands.get(INSERT_BUTTON_COMMAND);
+    formView.leftAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val !== 'center' );
+    formView.centerAlignButtonView.bind( 'isSelected' ).to( buttonCommand, 'alignment', val => val === 'center' );
 
     this.listenTo( formView, 'left-align', () => {
       this.formView.alignment = 'left';
@@ -70,9 +70,9 @@ export default class ButtonUI extends Plugin {
         formView.linkInputView.errorText = 'Link is required'
         return;
       }
-			if (!link.startsWith('http')) {
-				link = `https://${link}`
-			}
+      if (!link.startsWith('http')) {
+        link = `https://${link}`
+      }
       
       editor.execute(INSERT_BUTTON_COMMAND, {text, link, alignment: this.formView.alignment})
       
@@ -82,9 +82,9 @@ export default class ButtonUI extends Plugin {
     
     // Hide the form view after clicking the "Cancel" button.
     this.listenTo( formView, 'cancel', () => {
-			// clear any errors
-			formView.textInputView.errorText = '';
-			formView.linkInputView.errorText = '';
+      // clear any errors
+      formView.textInputView.errorText = '';
+      formView.linkInputView.errorText = '';
       this._hideUI();
     } );
     
@@ -123,7 +123,7 @@ export default class ButtonUI extends Plugin {
 
     this.formView.text = buttonCommand.text;
     this.formView.link = buttonCommand.link;
-  	this.formView.alignment = buttonCommand.alignment;
+    this.formView.alignment = buttonCommand.alignment;
 
     this.formView.focus();
   }
