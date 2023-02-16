@@ -5,9 +5,9 @@ export default class InsertButtonCommand extends Command {
   execute(attributes) {
     this.editor.model.enqueueChange(modelWriter => {
       const button = modelWriter.createElement(BUTTON_ELEMENT, {
-        'data-href': attributes.link || '',
-        'data-text': attributes.text || '',
-        'data-alignment': attributes.alignment || 'left',
+        'data-href': (attributes && attributes.link) || '',
+        'data-text': (attributes && attributes.text) || 'Apply now',
+        'data-alignment': (attributes && attributes.alignment) || 'left',
       });
       this.editor.model.insertContent(button);
     });

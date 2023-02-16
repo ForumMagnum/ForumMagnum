@@ -35,7 +35,7 @@ export default class ButtonUI extends Plugin {
 
       button.on('execute', () => {
         this._showUI();
-        // editor.execute(INSERT_BUTTON_COMMAND);
+        editor.execute(INSERT_BUTTON_COMMAND);
       })
 
       return button;

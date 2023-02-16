@@ -180,7 +180,7 @@ const buttonStyles = (theme: ThemeType): JssStyles => ({
   '& .customButton': {
     display: "inline-block",
     background: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.grey[0],
     fontSize: 14,
     lineHeight: '20px',
     fontFamily: theme.typography.fontFamily,
@@ -189,7 +189,7 @@ const buttonStyles = (theme: ThemeType): JssStyles => ({
     borderRadius: 6,
     '&:hover': {
       background: theme.palette.buttons.primaryHoverBackground,
-      color: theme.palette.text.alwaysWhite,
+      color: theme.palette.grey[0],
       opacity: 1
     }
   }
