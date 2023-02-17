@@ -448,12 +448,15 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 async function recomputeKarma(userId: string) {
   const user = await Users.findOne({_id: userId})
   if (!user) throw Error("Can't find user")
-  const allTargetVotes = await Votes.find({
+  const selector: Record<string, any> = {
     authorIds: user._id,
     userId: {$ne: user._id},
-    legacy: {$ne: true},
     cancelled: false
-  }).fetch()
+  };
+  if (!Votes.isPostgres()) {
+    selector.legacy = {$ne: true};
+  }
+  const allTargetVotes = await Votes.find(selector).fetch()
   const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
     return vote.power
   })
