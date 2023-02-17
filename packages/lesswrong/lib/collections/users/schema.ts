@@ -1032,6 +1032,11 @@ const schema: SchemaType<DbUser> = {
     foreignKey: "Posts",
     optional: true
   },
+  "bookmarkedPostsMetadata.$.archived": {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+  },
 
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
   // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
