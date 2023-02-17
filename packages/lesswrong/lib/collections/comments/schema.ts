@@ -676,6 +676,15 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     foreignKey: "Tags",
   },
+
+  debateComment: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins']
+  }
 };
 
 /* Alignment Forum fields */

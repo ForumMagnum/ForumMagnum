@@ -2378,6 +2378,15 @@ const schema: SchemaType<DbPost> = {
     canRead: ['admins'],
     // Implementation in postSummaryResolver.ts
   },
+
+  debate: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins']
+  }
 };
 
 /* subforum-related fields */
