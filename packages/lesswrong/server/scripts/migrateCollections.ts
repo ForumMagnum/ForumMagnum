@@ -317,6 +317,7 @@ const migrateLWEvents = async (resumeTime?: Date) => {
   const windowSizeMonths = 6;
   const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
   let maxTime = resumeTime ?? new Date();
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const minTime = new Date(maxTime.getTime() - windowSizeMS);
     const filter = {
