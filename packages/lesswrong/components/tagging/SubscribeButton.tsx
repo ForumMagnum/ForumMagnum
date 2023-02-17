@@ -17,6 +17,21 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     }
   },
+  button: {
+    textTransform: 'none',
+    boxShadow: 'none',
+    padding: '8px 12px',
+    fontSize: '13px',
+    backgroundColor: theme.palette.grey[200],
+  },
+  subscribedButton: {
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    border: `1px solid ${theme.palette.grey[600]}`,
+    color: theme.palette.grey[600],
+  },
+  notSubscribedButton: {
+    backgroundColor: theme.palette.grey[200],
+  }
 })
 
 export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
@@ -26,6 +41,7 @@ const SubscribeButton = ({
   userTagRel,
   subscribeMessage,
   unsubscribeMessage,
+  showNotificationBell = true,
   className,
   classes,
 }: {
@@ -34,6 +50,7 @@ const SubscribeButton = ({
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
+  showNotificationBell?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -70,11 +87,11 @@ const SubscribeButton = ({
       `Remove homepage boost for ${taggedPostWording}` :
       `See more ${taggedPostWording} on the homepage`
     }>
-      <Button variant="outlined" onClick={onSubscribe}>
+      <Button variant="contained" onClick={onSubscribe} className={classNames(classes.button, {[classes.subscribedButton]: isSubscribed, [classes.notSubscribedButton]: !isSubscribed})}>
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    {currentUser && <TagNotificationSettings
+    {showNotificationBell && currentUser && <TagNotificationSettings
       tag={tag}
       userTagRel={userTagRel}
       currentUser={currentUser}

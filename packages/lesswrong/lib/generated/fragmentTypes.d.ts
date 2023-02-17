@@ -38,6 +38,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -298,6 +299,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
@@ -363,6 +365,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
+  readonly relevantTagIds: Array<string>,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -381,6 +384,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -401,6 +405,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
@@ -1235,6 +1240,8 @@ interface CommentsList { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
+  readonly relevantTagIds: Array<string>,
+  readonly relevantTags: Array<TagBasicInfo>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1295,6 +1302,7 @@ interface CommentsList_contents { // fragment on Revisions
 
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
@@ -1305,6 +1313,7 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
+  readonly relevantTagIds: Array<string>,
   readonly contents: RevisionEdit|null,
 }
 
@@ -1746,6 +1755,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly nameInAnotherLanguage: string,
   readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1960,6 +1970,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
   readonly name: string,
+  readonly shortName: string | null,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
@@ -1984,6 +1995,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
+  readonly squareImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
@@ -2347,6 +2359,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2439,6 +2452,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly slug: string,
   readonly displayName: string,
   readonly bannedUserIds: Array<string>,
+  readonly bannedPersonalUserIds: Array<string>,
 }
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
@@ -2515,6 +2529,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly showCommunityInRecentDiscussion: boolean,
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
@@ -2875,6 +2890,13 @@ interface CronHistoriesDefaultFragment { // fragment on CronHistories
   readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface SessionsDefaultFragment { // fragment on Sessions
+  readonly _id: string,
+  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3063,6 +3085,7 @@ interface FragmentTypes {
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
+  SessionsDefaultFragment: SessionsDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3243,8 +3266,9 @@ interface CollectionNamesByFragmentName {
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   CronHistoriesDefaultFragment: "CronHistories"
+  SessionsDefaultFragment: "Sessions"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
 

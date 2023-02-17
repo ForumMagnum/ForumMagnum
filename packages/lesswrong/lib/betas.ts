@@ -22,7 +22,7 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userHasCommentOnSelection = isEAForum ? disabled : shippedFeature;
+export const userHasCommentOnSelection = shippedFeature;
 export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
@@ -36,7 +36,9 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
-export const userHasSideComments = isEAForum ? optInOnly : shippedFeature;
+export const userHasSideComments = shippedFeature;
+
+export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

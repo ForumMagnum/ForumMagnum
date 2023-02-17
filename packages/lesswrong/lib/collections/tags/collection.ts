@@ -17,6 +17,8 @@ interface ExtendedTagsCollection extends TagsCollection {
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
+
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
@@ -103,6 +105,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {

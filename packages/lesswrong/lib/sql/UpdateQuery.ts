@@ -86,6 +86,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     if (returnUpdated) {
       this.atoms.push("RETURNING *");
+    } else {
+      this.atoms.push(`RETURNING "_id"`);
     }
   }
 
@@ -176,9 +178,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`, e);
-      return [];
+      // @ts-ignore
+      throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }
 
