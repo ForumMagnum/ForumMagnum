@@ -118,5 +118,10 @@
     "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
     "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
     "timestamp": "2023-02-09T21:26:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0a82b29a9f761a79f5587f6469f51465",
+    "acceptedByMigration": "20230216T223955.add_allPostsHideCommunity.ts",
+    "timestamp": "2023-02-16T22:39:55.000Z"
   }
 ]
