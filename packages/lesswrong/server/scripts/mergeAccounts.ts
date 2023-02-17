@@ -7,7 +7,7 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo } from '../repos';
+import { ConversationsRepo, VotesRepo } from '../repos';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -218,7 +218,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
         await Conversations.rawUpdateMany(
           {participantIds: sourceUserId},
           {$set: {"participantIds.$": targetUserId}},
-          { multi: true },
+          {multi: true},
         );
       }
     }
@@ -286,9 +286,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       // Transfer votes that target content from source user (authorId)
       // eslint-disable-next-line no-console
       console.log("Transferring votes that target source user")
-      // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
-      await Votes.rawUpdateMany({authorIds: sourceUserId}, {$set: {"authorIds.$": targetUserId}}, {multi: true})
-  
+      if (Votes.isPostgres()) {
+        await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
+      } else {
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
+        await Votes.rawUpdateMany(
+          {authorIds: sourceUserId},
+          {$set: {"authorIds.$": targetUserId}},
+          {multi: true},
+        );
+      }
+
       // Transfer votes cast by source user
       // eslint-disable-next-line no-console
       console.log("Transferring votes cast by source user")
