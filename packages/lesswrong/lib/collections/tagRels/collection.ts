@@ -5,6 +5,7 @@ import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
 import { forumTypeSetting } from '../../instanceSettings';
+import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
@@ -46,7 +47,7 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
