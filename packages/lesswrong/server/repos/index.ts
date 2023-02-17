@@ -1,3 +1,4 @@
+import ConversationsRepo from "./ConversationsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
 import PostsRepo from "./PostsRepo";
@@ -9,6 +10,7 @@ declare global {
 }
 
 const getAllRepos = () => ({
+  conversations: new ConversationsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
@@ -17,6 +19,7 @@ const getAllRepos = () => ({
 } as const);
 
 export {
+  ConversationsRepo,
   DatabaseMetadataRepo,
   PostRelationsRepo,
   PostsRepo,

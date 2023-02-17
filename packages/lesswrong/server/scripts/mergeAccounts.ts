@@ -7,6 +7,7 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
+import { ConversationsRepo } from '../repos';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -211,7 +212,15 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
     if (!dryRun) {
       // Transfer conversations
-      await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
+      if (Conversations.isPostgres()) {
+        await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
+      } else {
+        await Conversations.rawUpdateMany(
+          {participantIds: sourceUserId},
+          {$set: {"participantIds.$": targetUserId}},
+          { multi: true },
+        );
+      }
     }
   } catch (err) {
     // eslint-disable-next-line no-console
