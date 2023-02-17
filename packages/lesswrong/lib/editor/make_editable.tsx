@@ -43,10 +43,10 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
-  `Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
-  `Write here. Select text for formatting options.
-  We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
-  You can switch between rich text and markdown in your user settings.`
+`Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
+`Write here. Select text for formatting options.
+We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
+You can switch between rich text and markdown in your user settings.`
 
 const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
