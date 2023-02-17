@@ -7,7 +7,8 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, VotesRepo } from '../repos';
+import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
+import Localgroups from '../../lib/collections/localgroups/collection';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -268,7 +269,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   await transferCollection({sourceUserId, targetUserId, collectionName: "Collections", dryRun})
 
   // Transfer localgroups
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups", dryRun})
+  if (!dryRun) {
+    if (Localgroups.isPostgres()) {
+      await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
+    } else {
+      await Localgroups.rawUpdateMany(
+        {organizerIds: sourceUserId},
+        {$set: {"organizerIds.$": targetUserId}},
+        {multi: true},
+      );
+    }
+  }
 
   // Transfer review votes
   await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes", dryRun})
