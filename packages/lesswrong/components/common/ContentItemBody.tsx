@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
@@ -74,6 +75,7 @@ interface ContentItemBodyProps extends WithStylesProps {
   dangerouslySetInnerHTML: { __html: string },
   className?: string,
   description?: string,
+  postId?: string,
   // Only Implemented for Tag Hover Previews
   noHoverPreviewPrefetch?: boolean,
   nofollow?: boolean,
@@ -260,9 +262,11 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     if (this.bodyRef?.current) {
       const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
       for (let linkTag of linkTags) {
-        // if it's a customButton added via the CKEditor toolbar, ignore it
-        if (linkTag.className === 'customButton')
+        // if it's a customButton added via the CKEditor toolbar, attach an event to it instead
+        if (linkTag.className === 'customButton') {
+          linkTag.onclick = () => captureEvent("postCtaClick", {postId: this.props.postId})
           continue;
+        }
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
         if (!href || linkIsExcludedFromPreview(href))

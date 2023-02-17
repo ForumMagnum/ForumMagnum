@@ -36,6 +36,7 @@ const PostBody = ({post, html, sideCommentMode}: {
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       key={`${post._id}_${sideCommentMode}`}
       description={`post ${post._id}`}
+      postId={post._id}
       nofollow={nofollow}
       idInsertions={sideCommentsMap}
     />
@@ -44,6 +45,7 @@ const PostBody = ({post, html, sideCommentMode}: {
   return <ContentItemBody
     dangerouslySetInnerHTML={{__html: html}}
     description={`post ${post._id}`}
+    postId={post._id}
     nofollow={nofollow}
   />
 }
