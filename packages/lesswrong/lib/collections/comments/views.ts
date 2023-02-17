@@ -227,7 +227,9 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
 
 Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
-    selector: {deletedPublic: false},
+    selector: {
+      deletedPublic: false,
+    },
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
