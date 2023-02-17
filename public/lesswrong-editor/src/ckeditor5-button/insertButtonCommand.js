@@ -22,6 +22,7 @@ export default class InsertButtonCommand extends Command {
     const selection = model.document.selection;
     const allowedIn = model.schema.findAllowedParent( selection.getFirstPosition(), BUTTON_ELEMENT );
     const selectedButtonWidget = this._getSelectedButtonWidget(selection);
+		// these are used to prefill the edit form with the values from the selected button
     this.text = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-text' ) : null;
     this.link = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-href' ) : null;
     this.alignment = selectedButtonWidget ? selectedButtonWidget.getAttribute( 'data-alignment' ) : null;

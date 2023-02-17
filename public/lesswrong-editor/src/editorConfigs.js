@@ -84,10 +84,10 @@ export const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'customButton',
 		'mathDisplay',
 		'mediaEmbed',
 		'footnote',
-		'customButton',
 	],
 	toolbar: {
 		items: [

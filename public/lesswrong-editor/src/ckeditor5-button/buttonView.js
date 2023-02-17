@@ -12,6 +12,7 @@ export default class FormView extends View {
     this.textInputView = this._createInput( 'Button text' );
     this.linkInputView = this._createInput( 'Link to' );
     
+    // alignment buttons are handled in buttonUI.js _createFormView()
     this.leftAlignButtonView = this._createButton(
       'Left', icons.alignLeft, 'ck-button-align-left', true
     );
@@ -20,11 +21,12 @@ export default class FormView extends View {
       'Center', icons.alignCenter, 'ck-button-align-center', true
     );
     this.centerAlignButtonView.delegate( 'execute' ).to( this, 'center-align' );
+  
     // Create the save and cancel buttons.
     this.saveButtonView = this._createButton(
       'Save', icons.check, 'ck-button-save'
     );
-    //   Set the type to 'submit', which will trigger
+    // Set the type to 'submit', which will trigger
     // the submit event on entire form when clicked.
     this.saveButtonView.type = 'submit';
 
@@ -70,6 +72,7 @@ export default class FormView extends View {
   }
   
   get alignment() {
+    // the state of the buttons decides what the current alignment is
     return this.centerAlignButtonView.isOn ? 'center' : 'left'
   }
 
@@ -107,12 +110,12 @@ export default class FormView extends View {
     const button = new ButtonView();
 
     button.set( {
-        label,
-        icon,
-        withText,
-        tooltip: !withText,
-        class: className,
-        isOn: false
+      label,
+      icon,
+      withText,
+      tooltip: !withText,
+      class: className,
+      isOn: false
     } );
 
 

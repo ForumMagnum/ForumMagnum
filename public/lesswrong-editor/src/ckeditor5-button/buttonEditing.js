@@ -61,7 +61,7 @@ export default class ButtonEditing extends Plugin {
         });
         const button = writer.createContainerElement('a', {
           class: BUTTON_CLASS,
-          href: modelElement.getAttribute('data-href'), // TODO: sanitize?
+          href: modelElement.getAttribute('data-href'),
           target: '_blank',
           rel: 'noopener noreferrer'
         });
