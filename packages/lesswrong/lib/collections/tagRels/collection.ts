@@ -4,7 +4,7 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
@@ -47,7 +47,8 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    // Hide who applied the tag on the EA Forum
+    canRead: isEAForum ? [userOwns, 'sunshineRegiment', 'admins'] : ['guests'],
     canCreate: ['members'],
   },
 
