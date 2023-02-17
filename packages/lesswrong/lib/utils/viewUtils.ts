@@ -167,7 +167,7 @@ export const jsonArrayContainsSelector = <T extends DbObject>(
   ? {$expr: {$jsonArrayContains: [field, value]}}
   : {[field]: value};
 
-const removeAndOr = (selector: MongoSelector<T>) => {
+const removeAndOr = <T extends DbObject>(selector: MongoSelector<T>) => {
   const copy = {...selector}
   delete copy.$and
   delete copy.$or
