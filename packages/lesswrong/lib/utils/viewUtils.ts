@@ -4,7 +4,6 @@ import { viewFieldNullOrMissing, viewFieldAllowAny } from '../vulcan-lib/collect
 import { DatabasePublicSetting } from '../publicSettings';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
-import util from 'util';
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
@@ -168,7 +167,13 @@ export const jsonArrayContainsSelector = <T extends DbObject>(
   ? {$expr: {$jsonArrayContains: [field, value]}}
   : {[field]: value};
 
-// TODO tests
+const removeAndOr = (selector: MongoSelector<T>) => {
+  const copy = {...selector}
+  delete copy.$and
+  delete copy.$or
+  return copy
+}
+
 const mergeTwoSelectors = <T extends DbObject>(
   baseSelector?: MongoSelector<T>,
   newSelector?: MongoSelector<T>,
@@ -177,11 +182,11 @@ const mergeTwoSelectors = <T extends DbObject>(
   if (!newSelector) return baseSelector;
 
   // Remove $ands and $ors before merging, and then add them back in with the correct logic
-  let mergedSelector = merge({...baseSelector, $and: undefined, $or: undefined}, {...newSelector, $and: undefined, $or: undefined})
+  let mergedSelector = merge(removeAndOr(baseSelector), removeAndOr(newSelector));
   if ("$and" in baseSelector || "$and" in newSelector) {
     mergedSelector = {
       ...mergedSelector,
-      $and: [...(baseSelector.$and ?? {}), ...(newSelector.$and ?? {})]
+      $and: [...(baseSelector.$and ?? []), ...(newSelector.$and ?? [])]
     }
   }
   if ("$or" in baseSelector || "$or" in newSelector) {
