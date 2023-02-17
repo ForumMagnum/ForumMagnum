@@ -33,27 +33,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       padding: '24px 12px'
     }
   },
-  imageContainer: {
-    position: 'absolute',
-    width: "100%",
-    '& > picture > img': {
-      objectFit: 'cover',
-      width: '100%',
-    },
-    [theme.breakpoints.down('sm')]: {
-      '& > picture > img': {
-        height: 200,
-      },
-      top: 77,
-      left: -4,
-    },
-    [theme.breakpoints.up('sm')]: {
-      top: 90,
-      '& > picture > img': {
-        height: 250,
-      },
-    }
-  },
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -75,9 +54,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headline,
     color: theme.palette.text.alwaysWhite,
-    // TODO come back to text outline
-    // 3px blur radius, TODO shorten this
-    // textShadow: "0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.5)",
     marginTop: 0,
     fontSize: 40,
     fontWeight: 600,
@@ -87,10 +63,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   subtitle: {
     ...theme.typography.headline,
-    // white font with black outline
     color: theme.palette.text.alwaysWhite,
-    // 2px blur radius, TODO shorten this
-    // textShadow: "0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5)",
     fontSize: 14,
   },
   notifyMeButton: {
@@ -376,11 +349,6 @@ const TagSubforumPage2 = ({classes}: {
     >
       <HeadTags description={headTagDescription} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
-      {/* {tag.bannerImageId && (
-        <div className={classes.imageContainer}>
-          <CloudinaryImage2 publicId={tag.bannerImageId} fullWidthHeader />
-        </div>
-      )} */}
       <RightSidebarColumn
         titleComponent={titleComponent}
         headerComponent={headerComponent}

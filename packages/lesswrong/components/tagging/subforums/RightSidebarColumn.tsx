@@ -68,7 +68,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     // TODO pass in image
-    backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces,h_600,w_iw/Banner/s36j3n2gvmpzvcbmxixi)`,
+    background: `url(https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces,h_600,w_iw/Banner/s36j3n2gvmpzvcbmxixi) rgba(0, 0, 0, 0.4)`,
+    backgroundBlendMode: 'multiply',
     marginTop: -50,
   },
   titleComponent: {
@@ -78,6 +79,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: {
     gridArea: 'content',
     marginTop: 24,
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 8px',
+    }
   },
   gap1: { gridArea: 'gap1'},
   sidebar: {
