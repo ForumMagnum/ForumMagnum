@@ -61,11 +61,12 @@ export const AdminPaymentsPage = ({classes}: {
   const [search, setSearch] = useState<string>("")
   const filteredResults = results?.filter(user => {
     const searchLower = search.toLowerCase()
-    const { displayName, previousDisplayName, username, slug, paymentEmail, paymentInfo } = user
+    const { displayName, fullName, previousDisplayName, username, slug, paymentEmail, paymentInfo } = user
     const email = getUserEmail(user)
 
     return displayName.toLowerCase().includes(searchLower) || 
       username.toLowerCase().includes(searchLower) || 
+      fullName?.toLowerCase().includes(searchLower) || 
       previousDisplayName?.toLowerCase().includes(searchLower) ||
       slug.toLowerCase().includes(searchLower) ||
       paymentEmail?.toLowerCase().includes(searchLower) ||
@@ -80,7 +81,8 @@ export const AdminPaymentsPage = ({classes}: {
     <SingleColumnSection>
       <SectionTitle title="Payment Admin"/>
       <div>
-        <Input 
+        <Input
+          autoFocus
           className={classes.search}
           onChange={e => setSearch(e.target.value)} 
           placeholder="Search..."
