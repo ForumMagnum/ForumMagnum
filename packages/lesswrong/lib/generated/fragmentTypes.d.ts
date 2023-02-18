@@ -717,6 +717,13 @@ interface MessagesDefaultFragment { // fragment on Messages
   readonly noEmail: boolean,
 }
 
+interface SessionsDefaultFragment { // fragment on Sessions
+  readonly _id: string,
+  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
+}
+
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -866,6 +873,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
+  readonly podcastEpisodeId: string | null,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
@@ -991,7 +999,6 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
-  readonly podcastEpisodeId: string | null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -2890,13 +2897,6 @@ interface CronHistoriesDefaultFragment { // fragment on CronHistories
   readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface SessionsDefaultFragment { // fragment on Sessions
-  readonly _id: string,
-  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly expires: Date | null,
-  readonly lastModified: Date | null,
-}
-
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -2929,6 +2929,7 @@ interface FragmentTypes {
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
+  SessionsDefaultFragment: SessionsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
@@ -3085,7 +3086,6 @@ interface FragmentTypes {
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
-  SessionsDefaultFragment: SessionsDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3110,6 +3110,7 @@ interface CollectionNamesByFragmentName {
   ClientIdsDefaultFragment: "ClientIds"
   ConversationsDefaultFragment: "Conversations"
   MessagesDefaultFragment: "Messages"
+  SessionsDefaultFragment: "Sessions"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
@@ -3266,7 +3267,6 @@ interface CollectionNamesByFragmentName {
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   CronHistoriesDefaultFragment: "CronHistories"
-  SessionsDefaultFragment: "Sessions"
   SuggestAlignmentComment: "Comments"
 }
 
