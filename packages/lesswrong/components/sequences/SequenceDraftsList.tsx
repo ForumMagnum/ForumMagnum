@@ -33,12 +33,14 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   const { Loading } = Components
   
   const { query } = useLocation();
-  
+
+  const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
+
   const terms: PostsViewTerms = {
     view: "drafts",
     userId: userId ?? currentUser?._id,
     limit,
-    sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
+    sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
@@ -52,8 +54,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   });
 
   if (!currentUser) return null
-
-  const currentSorting = terms.sortDraftsBy || "lastModified"
 
   return <>
     {(!results && loading) ? <Loading /> : <>
