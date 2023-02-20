@@ -18,6 +18,8 @@ const BookmarksPage = () => {
       <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
         <SectionTitle title="Bookmarks"/>
         <BookmarksList/>
+        <SectionTitle title="Archived Bookmarks"/>
+        <BookmarksList archivedList/>
         <SectionTitle title="Continue Reading"/>
         <ContinueReadingList continueReading={continueReading}/>
       </AnalyticsContext>

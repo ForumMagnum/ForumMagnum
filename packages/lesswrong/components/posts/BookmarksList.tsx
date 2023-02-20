@@ -6,9 +6,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
 
-const BookmarksList = ({limit=20, hideLoadMore=false}: {
+const BookmarksList = ({limit=20, hideLoadMore=false, archivedList=false}: {
   limit?: number,
   hideLoadMore?: boolean,
+  archivedList?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem2, LoadMore, Loading } = Components
@@ -18,6 +19,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
     terms: {
       view: "myBookmarkedPosts",
       limit: limit,
+      archivedList,
     },
     itemsPerPage: 20,
     fragmentName: "PostsList",

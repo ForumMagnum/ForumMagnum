@@ -62,6 +62,7 @@ declare global {
     includeDraftEvents?: boolean
     includeShared?: boolean
     distance?: number
+    archivedList?: boolean
   }
 }
 
@@ -1442,7 +1443,10 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
   // Get list of bookmarked posts from the user object. This is ordered by when
   // the bookmark was created (earlier is older).
   let bookmarkedPostIds = (context?.currentUser?.bookmarkedPostsMetadata
-    ? uniq(context?.currentUser?.bookmarkedPostsMetadata.map(bookmark => bookmark.postId))
+    ? uniq(context?.currentUser?.bookmarkedPostsMetadata
+        .filter(bookmark => terms.archivedList ? bookmark.archived : !bookmark.archived)
+        .map(bookmark => bookmark.postId)
+      )
     : []
   );
   
