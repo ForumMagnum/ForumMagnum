@@ -329,8 +329,8 @@ const migrateLWEvents = async (resumeTime?: Date) => {
 
     console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
 
-    const collection = LWEvents as unknown as SwitchingCollection<DbLWEvent>;
-    if (!(LWEvents instanceof SwitchingCollection)) {
+    const collection = LWEvents;
+    if (!(collection instanceof SwitchingCollection)) {
       throw new Error("LWEvents is not a switching collection");
     }
     const table = collection.getPgCollection().table;
