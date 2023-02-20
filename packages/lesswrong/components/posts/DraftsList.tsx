@@ -54,12 +54,14 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft
     })
   }, [updatePost])
-  
+
+  const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
+
   const terms: PostsViewTerms = {
     view: "drafts",
     userId: userId ?? currentUser?._id,
     limit,
-    sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
+    sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
@@ -73,9 +75,6 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   });
   
   if (!currentUser) return null
-  
-  const currentSorting = terms.sortDraftsBy || "lastModified"
-  
   
   return <>
     {!hideHeaderRow && <Components.SectionTitle title={title}>
