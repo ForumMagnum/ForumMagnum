@@ -16,18 +16,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: 16,
+    height: 18,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: 8
+    marginLeft: 7,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,
