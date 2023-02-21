@@ -101,6 +101,9 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
+    warning: {
+      main: ColorString,
+    }
     text: {
       primary: ColorString,
       secondary: ColorString
