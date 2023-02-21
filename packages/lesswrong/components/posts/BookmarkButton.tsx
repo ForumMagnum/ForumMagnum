@@ -11,6 +11,8 @@ import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
+import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -24,12 +26,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 20,
     "@media print": { display: "none" },
     '& svg': {
+      fontSize: "1.35em",
+      transform: "translateY(6px)",
+      marginLeft: -3,
+      marginRight: -3,
+    },
+  },
+  iconWithTextEAForum: {
+    '& svg': {
       fontSize: "1.45em",
       transform: "translateY(5px)",
-      marginLeft: -3,
       marginRight: -1,
     },
-  }
+  },
 })
 
 const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
@@ -76,8 +85,9 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
   const title = bookmarked ? "Un-bookmark" : "Bookmark"
-  const saveText = bookmarked ? "Saved" : "Save"
-  const saveHoverText = bookmarked ? "Remove from saved posts" : "Save post for later"
+  const bookmarkLabelText = bookmarked ? "Bookmarked" : "Bookmark"
+  const bookmarkHoverText = bookmarked ? "Remove from bookmarks" : "Bookmark post for later"
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   switch(variant) {
     case 'menuItem':
@@ -91,9 +101,9 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
       )
     case 'iconWithText':
       return (
-        <LWTooltip title={saveHoverText} placement={placement}>
-          <a onClick={toggleBookmark} className={classes.iconWithText}>
-            { icon } { saveText }
+        <LWTooltip title={bookmarkHoverText} placement="bottom">
+          <a onClick={toggleBookmark} className={classNames(classes.iconWithText, {[classes.iconWithTextEAForum]: isEAForum})}>
+            {icon} {bookmarkLabelText}
           </a>
         </LWTooltip>
       )

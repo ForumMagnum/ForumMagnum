@@ -10,6 +10,7 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
@@ -87,8 +88,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'transparent'
   },
   commentIcon: {
-    fontSize: "1.4em",
+    fontSize: "1.3em",
     marginRight: 1,
+    transform: "translateY(6px)",
+  },
+  commentIconEAForum: {
+    fontSize: "1.4em",
     transform: "translateY(5px)",
   },
 });
@@ -172,6 +177,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
   const readTime = post.readTimeMinutes ?? 1
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const {
     answerCount,
@@ -213,7 +219,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}><CommentIcon className={classes.commentIcon} /> {commentCount}</a>
+          <a className={classes.commentsLink} href={"#comments"}><CommentIcon className={classNames(classes.commentIcon, {[classes.commentIconEAForum]: isEAForum})} /> {commentCount}</a>
           <BookmarkButton post={post} variant='iconWithText' />
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
