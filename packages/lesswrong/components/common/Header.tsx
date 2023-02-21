@@ -13,7 +13,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -63,6 +63,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
+  },
+  userMenuSection: {
+    display: "flex",
+    flexDirection: "row",
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -253,7 +257,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, WriteMenu,
   } = Components;
 
   return (
@@ -295,11 +299,16 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
+                {currentUser &&
+                  <div className={classNames(classes.userMenuSection, {[classes.hideMdDown]: searchOpen})}>
+                    {isEAForum && <AnalyticsContext pageSectionContext="writeMenu">
+                      <WriteMenu />
+                    </AnalyticsContext>}
                     <AnalyticsContext pageSectionContext="usersMenu">
                       <UsersMenu />
                     </AnalyticsContext>
-                  </div>}
+                  </div>
+                }
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
