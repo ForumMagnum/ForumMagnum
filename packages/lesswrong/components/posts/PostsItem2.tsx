@@ -501,25 +501,31 @@ const PostsItem2 = ({
   )
   
   const archiveButton = (currentUser && post.draft && postCanDelete(currentUser, post) && 
-    <LWTooltip title={archiveDraftTooltip} placement="right">
-      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
-    </LWTooltip>
+    <div className={classes.archiveButton}>
+      <LWTooltip title={archiveDraftTooltip} placement="right">
+        <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
+      </LWTooltip>
+    </div>
   )
   
   const bookmarkArchiveButton = (currentUser && currentUser.bookmarkedPostsMetadata
     .filter(bookmarkMetadata => !bookmarkMetadata.archived)
     .map(bookmarkMetadata => bookmarkMetadata.postId).includes(post._id) &&
-    <LWTooltip title={archiveBookmarkTooltip} placement="right">
-      <ArchiveIcon onClick={() => setBookmarkArchived(post._id, true)}/>
-    </LWTooltip>
+    <div className={classes.archiveButton}>
+      <LWTooltip title={archiveBookmarkTooltip} placement="right">
+        <ArchiveIcon onClick={() => setBookmarkArchived(post._id, true)}/>
+      </LWTooltip>
+    </div>
   )
 
   const bookmarkUnarchiveButton = (currentUser && currentUser.bookmarkedPostsMetadata
     .filter(bookmarkMetadata => bookmarkMetadata.archived)
     .map(bookmarkMetadata => bookmarkMetadata.postId).includes(post._id) &&
-    <LWTooltip title={unarchiveBookmarkTooltip} placement="right">
-      <UnarchiveIcon onClick={() => setBookmarkArchived(post._id, false)}/>
-    </LWTooltip>
+    <div className={classes.archiveButton}>
+      <LWTooltip title={unarchiveBookmarkTooltip} placement="right">
+        <UnarchiveIcon onClick={() => setBookmarkArchived(post._id, false)}/>
+      </LWTooltip>
+    </div>
   )
 
   const commentTerms: CommentsViewTerms = {
@@ -678,15 +684,9 @@ const PostsItem2 = ({
               {dismissButton}
               {!resumeReading && <PostActionsButton post={post} vertical />}
             </div>}
-            {<div className={classes.archiveButton}>
-              {archiveButton}
-            </div>}
-            {<div className={classes.archiveButton}>
-              {bookmarkArchiveButton}
-            </div>}
-            {<div className={classes.archiveButton}>
-              {bookmarkUnarchiveButton}
-            </div>}
+            {archiveButton}
+            {bookmarkArchiveButton}
+            {bookmarkUnarchiveButton}
           </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
