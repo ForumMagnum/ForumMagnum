@@ -1,5 +1,8 @@
 import React, { FC, ComponentType } from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useHover } from "./withHover";
+import { useDialog } from "./withDialog";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import {
   DocumentIcon,
@@ -7,7 +10,6 @@ import {
   LightBulbIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline";
-import { useHover } from "./withHover";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 
@@ -78,19 +80,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+type WriteMenuItemAction = string | (() => void);
+
 type WriteMenuItemProps = {
   title: string,
   description: string,
   Icon: ComponentType<{className?: string}>,
-  action: string | (() => {}),
+  action: WriteMenuItemAction,
   classes: ClassesType,
 }
 
+const WriteMenuItemWrapper: FC<{action: WriteMenuItemAction}> = ({action, children}) =>
+  typeof action === "string"
+    ? <Link to={action}>{children}</Link>
+    : <a onClick={action}>{children}</a>;
+
 const WriteMenuItem: FC<WriteMenuItemProps> = ({
   title, description, Icon, action, classes,
-}) => {
-  void action;
-  return (
+}) => (
+  <WriteMenuItemWrapper action={action}>
     <div className={classes.itemRoot}>
       <Icon className={classes.itemIcon} />
       <div className={classes.itemInfo}>
@@ -98,14 +106,13 @@ const WriteMenuItem: FC<WriteMenuItemProps> = ({
         <div className={classes.itemDescription}>{description}</div>
       </div>
     </div>
-  );
-}
+  </WriteMenuItemWrapper>
+);
 
 const WriteMenu = ({classes}: {classes: ClassesType}) => {
   const {eventHandlers, hover, anchorEl} = useHover();
-
+  const {openDialog} = useDialog();
   const {LWPopper} = Components;
-
   return (
     <div className={classes.root} {...eventHandlers}>
       <Button classes={{root: classes.mainButtonRoot}}>
@@ -139,7 +146,7 @@ const WriteMenu = ({classes}: {classes: ClassesType}) => {
               title="New Shortform"
               description="Exploratory, draft-stage, rough and off-the-cuff thougths"
               Icon={LightBulbIcon}
-              action=""
+              action={() => openDialog({componentName: "NewShortformDialog"})}
               classes={classes}
             />
           </div>
