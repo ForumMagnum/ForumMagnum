@@ -14,35 +14,34 @@ export default class FormView extends View {
     
     // alignment buttons are handled in buttonUI.js _createFormView()
     this.leftAlignButtonView = this._createButton(
-      'Left', icons.alignLeft, 'ck-button-align-left', true
+      'Left', 'ck-button-align-left', icons.alignLeft
     );
     this.leftAlignButtonView.delegate( 'execute' ).to( this, 'left-align' );
     this.centerAlignButtonView = this._createButton(
-      'Center', icons.alignCenter, 'ck-button-align-center', true
+      'Center', 'ck-button-align-center', icons.alignCenter
     );
     this.centerAlignButtonView.delegate( 'execute' ).to( this, 'center-align' );
+    
+    this.cancelButtonView = this._createButton(
+      'Cancel', ''
+    );
+    // Delegate ButtonView#execute to FormView#cancel.
+    this.cancelButtonView.delegate( 'execute' ).to( this, 'cancel' );
   
-    // Create the save and cancel buttons.
     this.saveButtonView = this._createButton(
-      'Save', icons.check, 'ck-button-save'
+      'Save', ''
     );
     // Set the type to 'submit', which will trigger
     // the submit event on entire form when clicked.
     this.saveButtonView.type = 'submit';
-
-    this.cancelButtonView = this._createButton(
-      'Cancel', icons.cancel, 'ck-button-cancel'
-    );
-    // Delegate ButtonView#execute to FormView#cancel.
-    this.cancelButtonView.delegate( 'execute' ).to( this, 'cancel' );
     
     this.childViews = this.createCollection( [
       this.textInputView,
       this.linkInputView,
       this.leftAlignButtonView,
       this.centerAlignButtonView,
+      this.cancelButtonView,
       this.saveButtonView,
-      this.cancelButtonView
     ] );
     
     this.setTemplate({
@@ -106,18 +105,16 @@ export default class FormView extends View {
     return labeledInput;
   }
   
-  _createButton( label, icon, className, withText=false ) {
+  _createButton( label, className, icon=null ) {
     const button = new ButtonView();
 
     button.set( {
       label,
       icon,
-      withText,
-      tooltip: !withText,
+      withText: true,
       class: className,
       isOn: false
     } );
-
 
     return button;
   }
