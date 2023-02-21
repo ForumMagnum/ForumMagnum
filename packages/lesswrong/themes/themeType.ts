@@ -414,6 +414,9 @@ declare global {
       unit: number,
       titleDividerSpacing: number,
     },
+    borderRadius: {
+      default: number,
+    },
     palette: ThemePalette,
     typography: {
       fontFamily: string,

@@ -84,6 +84,9 @@ export const baseTheme: BaseThemeSpecification = {
         unit: spacingUnit,
         titleDividerSpacing,
       },
+      borderRadius: {
+        default: 0,
+      },
       typography: {
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
