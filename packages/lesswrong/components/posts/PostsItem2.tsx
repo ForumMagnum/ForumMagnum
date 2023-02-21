@@ -17,6 +17,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import qs from "qs";
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useHideRepeatedPosts } from './HideRepeatedPostsContext';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 32
 
@@ -324,6 +325,9 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const archiveDraftTooltip = "Archive this draft (hide from list)"
 
+const archiveBookmarkTooltip = "Archive this bookmark"
+const unarchiveBookmarkTooltip = "Unarchive this bookmark"
+
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) => {
@@ -429,6 +433,7 @@ const PostsItem2 = ({
   const { isPostRepeated, addPost } = useHideRepeatedPosts();
 
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const toggleComments = React.useCallback(
     () => {
@@ -461,6 +466,21 @@ const PostsItem2 = ({
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
+  const setBookmarkArchived = (postId, isArchived) => {
+    console.log("Archiving post", postId, isArchived)
+    const bookmarkedPostsMetadata = currentUser?.bookmarkedPostsMetadata || [];
+
+    updateCurrentUser({
+      bookmarkedPostsMetadata: bookmarkedPostsMetadata.reduce(
+        (acc, bookmarkMetadata) => 
+          [...acc, bookmarkMetadata.postId === postId ?
+            {...bookmarkMetadata, archived: isArchived} :
+            bookmarkMetadata
+          ], []
+      )
+    });
+  };
+
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
@@ -482,6 +502,22 @@ const PostsItem2 = ({
   const archiveButton = (currentUser && post.draft && postCanDelete(currentUser, post) && 
     <LWTooltip title={archiveDraftTooltip} placement="right">
       <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
+    </LWTooltip>
+  )
+  
+  const bookmarkArchiveButton = (currentUser && currentUser.bookmarkedPostsMetadata
+    .filter(bookmarkMetadata => !bookmarkMetadata.archived)
+    .map(bookmarkMetadata => bookmarkMetadata.postId).includes(post._id) &&
+    <LWTooltip title={archiveBookmarkTooltip} placement="right">
+      <ArchiveIcon onClick={() => setBookmarkArchived(post._id, true)}/>
+    </LWTooltip>
+  )
+
+  const bookmarkUnarchiveButton = (currentUser && currentUser.bookmarkedPostsMetadata
+    .filter(bookmarkMetadata => bookmarkMetadata.archived)
+    .map(bookmarkMetadata => bookmarkMetadata.postId).includes(post._id) &&
+    <LWTooltip title={unarchiveBookmarkTooltip} placement="right">
+      <ArchiveIcon onClick={() => setBookmarkArchived(post._id, false)}/>
     </LWTooltip>
   )
 
@@ -643,6 +679,12 @@ const PostsItem2 = ({
             </div>}
             {<div className={classes.archiveButton}>
               {archiveButton}
+            </div>}
+            {<div className={classes.archiveButton}>
+              {bookmarkArchiveButton}
+            </div>}
+            {<div className={classes.archiveButton}>
+              {bookmarkUnarchiveButton}
             </div>}
           </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>

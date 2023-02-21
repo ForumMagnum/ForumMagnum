@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -14,7 +14,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false, archivedList=false}: {
   const currentUser = useCurrentUser();
   const { PostsItem2, LoadMore, Loading } = Components
   
-  const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
+  const {results: bookmarkedPosts, loading, loadMoreProps, refetch: refetchBookmarkedPosts } = useMulti({
     collectionName: "Posts",
     terms: {
       view: "myBookmarkedPosts",
@@ -26,6 +26,10 @@ const BookmarksList = ({limit=20, hideLoadMore=false, archivedList=false}: {
     skip: !currentUser?._id,
   });
   
+  useEffect(() => {
+    refetchBookmarkedPosts()
+  }, [currentUser, refetchBookmarkedPosts]);
+
   // HACK: The results have limit/pagination which correctly reflects the order
   // of currentUser.bookmarkedPostsMetadata, but within the limited result set
   // the posts themselves may be out of order. Sort them. See also comments in
@@ -36,6 +40,10 @@ const BookmarksList = ({limit=20, hideLoadMore=false, archivedList=false}: {
       (bookmark)=>bookmark.postId === post._id
     )
   );
+
+  if(loading) {
+    return <Loading/>
+  }
 
   return <div>
     {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsList, i: number) =>
