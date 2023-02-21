@@ -7,6 +7,7 @@ import { collectionGetPageUrl } from "../../lib/collections/collections/helpers"
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import ArchiveIcon from '@material-ui/icons/Archive';
+import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
@@ -517,7 +518,7 @@ const PostsItem2 = ({
     .filter(bookmarkMetadata => bookmarkMetadata.archived)
     .map(bookmarkMetadata => bookmarkMetadata.postId).includes(post._id) &&
     <LWTooltip title={unarchiveBookmarkTooltip} placement="right">
-      <ArchiveIcon onClick={() => setBookmarkArchived(post._id, false)}/>
+      <UnarchiveIcon onClick={() => setBookmarkArchived(post._id, false)}/>
     </LWTooltip>
   )
 
