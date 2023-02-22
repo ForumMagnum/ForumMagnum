@@ -76,21 +76,22 @@ const loadDatabaseSettingsMongo = async (): Promise<DatabaseSettings> => {
   };
 }
 
-const loadDatabaseSettings = (): Promise<DatabaseSettings> => {
+const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
   if (getSqlClient()) {
     // This is run very early on in server startup before collections have been
     // built (so we need to use raw queries) and, therefore, before we can check
     // DatabaseMetadata.isPostgres(), so we just try to read from Postgres first
     // and switch to Mongo if that fails.
     try {
-      return loadDatabaseSettingsPostgres();
+      // This needs to be awaited for it to be caught by the try/catch block
+      return await loadDatabaseSettingsPostgres();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn("Failed to load database settings from Postgres - trying Mongo...");
-      return loadDatabaseSettingsMongo();
+      return await loadDatabaseSettingsMongo();
     }
   } else {
-    return loadDatabaseSettingsMongo();
+    return await loadDatabaseSettingsMongo();
   }
 }
 

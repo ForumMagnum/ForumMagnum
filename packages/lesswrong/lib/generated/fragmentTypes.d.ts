@@ -873,6 +873,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
+  readonly podcastEpisodeId: string | null,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
@@ -998,7 +999,6 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
-  readonly podcastEpisodeId: string | null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -1914,7 +1914,6 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afBaseScore: number,
   readonly voteCount: number,
-  readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
   readonly autoApplied: boolean,
@@ -1956,7 +1955,6 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
 interface WithVoteTagRel { // fragment on TagRels
   readonly __typename: string,
   readonly _id: string,
-  readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,

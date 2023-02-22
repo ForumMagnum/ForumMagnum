@@ -10,8 +10,6 @@ import { shouldHideTag } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 8,
-    paddingRight: 8,
   },
   header: {
     marginTop: 6,

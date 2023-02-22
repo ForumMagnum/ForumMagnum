@@ -74,7 +74,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 
 // Create new vote object
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
-  document: VoteableType,
+  document: DbVoteableType,
   collectionName: CollectionNameString,
   voteType: string,
   extendedVote: any,

@@ -6,6 +6,8 @@ import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
+import filter from 'lodash/filter';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,14 +69,18 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
-  displayShortform: any,
+  displayShortform?: boolean,
   classes: ClassesType,
   includeTags?: boolean,
 }) => {
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
   const { timezone } = useTimezone();
-  
+
+  const [tagFilter, setTagFilter] = useState<string|null>(null)
+  const {query} = useLocation()
+  const displayPostsTagsList = query.limit
+
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
@@ -82,6 +88,16 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     enableTotal: true,
     itemsPerPage: 50,
   });
+
+  const filteredPosts = tagFilter ? filter(posts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : posts
+
+  const handleTagFilter = (tagId: string) => {
+    if (tagFilter === tagId) { 
+      setTagFilter(null)
+    } else {
+      setTagFilter(tagId)
+    }
+  }
 
   useEffect(() => {
     if (!loading && timeBlockLoadComplete) {
@@ -108,10 +124,10 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography, PostsTagsList } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
-    const noPosts = !loading && (!posts || (posts.length === 0))
+    const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0))
     // The most recent timeBlock is hidden if there are no posts or shortforms
     // on it, to avoid having an awkward empty partial timeBlock when it's close
     // to midnight.
@@ -121,7 +137,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
 
     const postGroups = postTypes.map(type => ({
       ...type,
-      posts: posts?.filter(type.postIsType) || []
+      filteredPosts: filteredPosts?.filter(type.postIsType) || []
     }))
 
     return (
@@ -156,23 +172,23 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               `this ${timeBlock}`
             }
           </div> }
-
-          {postGroups.map(({name, posts, label}) => {
-            if (posts?.length > 0) return <div key={name}>
+          {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
+          {postGroups.map(({name, filteredPosts, label}) => {
+            if (filteredPosts?.length > 0) return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
                 <ContentType type={name} label={label} />
               </div>
               <div className={classes.posts}>
-                {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
+                {filteredPosts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
                 )}
               </div>
             </div>
           })}
 
-          {(posts && posts.length < totalCount!) && <div className={classes.loadMore}>
+          {(filteredPosts && filteredPosts.length < totalCount!) && <div className={classes.loadMore}>
             <LoadMore
               {...loadMoreProps}
             />

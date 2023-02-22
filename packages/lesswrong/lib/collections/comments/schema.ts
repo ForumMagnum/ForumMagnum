@@ -314,6 +314,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
+    label: "Pinned"
   },
 
   promotedByUserId: {
