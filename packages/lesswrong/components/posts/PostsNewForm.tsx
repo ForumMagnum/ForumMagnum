@@ -95,6 +95,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+    marginTop: 20
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main

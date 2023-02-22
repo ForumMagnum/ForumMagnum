@@ -164,7 +164,7 @@ const Answer = ({ comment, post, classes }: {
                 />
               </div>
               { comment.promotedByUser && <div className={classes.metaNotice}>
-                Promoted by {comment.promotedByUser.displayName}
+                Pinned by {comment.promotedByUser.displayName}
               </div>}
               { showEdit ?
                 <Components.CommentsEditForm
