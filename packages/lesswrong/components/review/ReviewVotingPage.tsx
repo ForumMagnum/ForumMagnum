@@ -494,7 +494,7 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
-            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account Settings</Link>
+            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account settings</Link>
             </ContentStyles>}
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
@@ -541,7 +541,7 @@ const ReviewVotingPage = ({classes}: {
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
-                  <span className={classes.sortBy}>Sort by</span> Last Commented
+                  <span className={classes.sortBy}>Sort by</span> Last commented
                 </MenuItem>
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)

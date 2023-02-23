@@ -11,9 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -23,9 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       cursor: "pointer",
       width: START_TIME_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -33,8 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipSmallText: {
     ...theme.typography.tinyText,
-    fontStyle: "italic"
-  }
+    }
 });
 
 const PostsItemDate = ({post, classes}: {

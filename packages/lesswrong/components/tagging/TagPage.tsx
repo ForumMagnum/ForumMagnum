@@ -67,11 +67,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography.display2,
+    ...theme.typography.headerStyle,
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: 700,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {

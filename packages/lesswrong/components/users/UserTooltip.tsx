@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 250,
   },
   joined: {
-    fontStyle: "italic",
     marginBottom: theme.spacing.unit
   },
   bookIcon: {

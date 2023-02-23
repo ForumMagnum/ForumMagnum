@@ -341,7 +341,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: 'Contact us',
       link: '/contact',
       subItem: true,
     }
@@ -413,7 +413,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: 'Contact us',
       link: '/contact',
       subItem: true,
     }

@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionHeadingCount: {
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '450',
     color: theme.palette.grey[600],
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
@@ -364,7 +364,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
         {ownPage && <Link to="/newPost">
           <SectionButton>
-            <DescriptionIcon /> New Post
+            <DescriptionIcon /> New post
           </SectionButton>
         </Link>}
       </div>
@@ -377,7 +377,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
-            <LibraryAddIcon /> New Sequence
+            <LibraryAddIcon /> New sequence
           </SectionButton>
         </Link>}
       </div>
@@ -593,13 +593,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
               Edit Profile
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage Subscriptions
+            Manage subscriptions
             </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-              Account Settings
+              Account settings
             </Link>}
             {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log Out
+              Log out
             </a>}
           </Typography>
         </div>

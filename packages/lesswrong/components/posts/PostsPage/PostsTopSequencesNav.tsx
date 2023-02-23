@@ -18,7 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     fontSize: 22,
     verticalAlign: '-webkit-baseline-middle',
-    fontVariant: 'small-caps',
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
     color: theme.palette.text.dim,

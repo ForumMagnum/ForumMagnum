@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
-    marginTop: theme.spacing.unit*4
+    marginTop: theme.spacing.unit*2
   }
 })
 

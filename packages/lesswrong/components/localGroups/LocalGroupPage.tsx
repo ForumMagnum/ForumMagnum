@@ -429,7 +429,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
             <Components.Typography variant="headline" className={classes.contactUsHeadline}>
-              Contact Us
+              Contact us
             </Components.Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>

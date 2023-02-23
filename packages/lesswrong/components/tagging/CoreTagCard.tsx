@@ -35,10 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography.headline,
+    ...theme.typography.headerStyle,
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: 700,
+    fontWeight: 600,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },

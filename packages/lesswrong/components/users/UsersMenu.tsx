@@ -45,7 +45,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
   },
@@ -79,7 +78,7 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          LOG OUT
+          Log out
         </span>
       </Button>
     </div>
@@ -120,29 +119,29 @@ const UsersMenu = ({classes}: {
               }
             }}>
               {userCanPost(currentUser) && <Link to={`/newPost?question=true`}>
-                <MenuItem>New Question</MenuItem>
+                <MenuItem>New question</MenuItem>
               </Link>}
               {userCanPost(currentUser) && <Link to={`/newPost`}>
-                <MenuItem>New Post</MenuItem>
+                <MenuItem>New post</MenuItem>
               </Link>}
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-               New Shortform
+               New shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}
             {showNewButtons && userCanPost(currentUser) && 
               <Link to={`/newPost?eventForm=true`}>
-                <MenuItem>New Event</MenuItem>
+                <MenuItem>New event</MenuItem>
               </Link>
             }
             {(showNewButtons && currentUser.karma >= 1000) &&
               <Link to={`/sequencesnew`}>
-                <MenuItem>New Sequence</MenuItem>
+                <MenuItem>New sequence</MenuItem>
               </Link>
             }
             <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
-              Apply for Membership
+              Apply for membership
             </MenuItem> }
             {currentUser.noKibitz && <div>
               <MenuItem onClick={() => {
@@ -165,7 +164,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EditIcon className={classes.icon}/>
                 </ListItemIcon>
-                My Drafts
+                My drafts
               </MenuItem>
             </Link>}
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
@@ -189,7 +188,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Account Settings
+                Account settings
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>
@@ -197,7 +196,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EmailIcon className={classes.icon}/>
                 </ListItemIcon>
-                Private Messages
+                Private messages
               </MenuItem>
             </Link>
             {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
@@ -214,13 +213,13 @@ const UsersMenu = ({classes}: {
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />
                   </ListItemIcon>
-                  Shortform Page
+                  Shortform page
                 </MenuItem>
               </Link>
             }
             <Divider/>
             <MenuItem component="a" href="/logout">
-              Log Out
+              Log out
             </MenuItem>
           </Paper>
         </LWPopper>

@@ -272,7 +272,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </div>
               }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage Subscriptions
+                Manage subscriptions
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
@@ -283,7 +283,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account Settings
+                Account settings
               </Link>}
             </Typography>
 

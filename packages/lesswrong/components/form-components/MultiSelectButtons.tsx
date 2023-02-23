@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
-    fontWeight: 500,
+    fontWeight: 600,
     fontSize: "16px",
     fontFamily: "Roboto, sans-serif",
   },

@@ -31,7 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     fontFamily: theme.typography.fontFamily,
     fontSize: 17,
-    fontVariant: "small-caps",
   },
   expandedBody: {
     marginTop: 8,

@@ -11,8 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: 700,
   },
   description: {
     marginBottom: 18,

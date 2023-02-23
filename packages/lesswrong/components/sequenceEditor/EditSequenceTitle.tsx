@@ -34,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 650,
     fontSize: '36px',
     color: theme.palette.text.invertedBackgroundText,
-    fontVariant: 'small-caps',
     zIndex: theme.zIndexes.editSequenceTitleInput,
     height: '1em',
     resize: 'none',

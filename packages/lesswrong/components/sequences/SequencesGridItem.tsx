@@ -39,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": "vertical",
     textOverflow: "ellipsis",
     overflow: "hidden",
-    fontVariant: "small-caps",
     marginBottom: 0,
     "&:hover": {
       color: "inherit",

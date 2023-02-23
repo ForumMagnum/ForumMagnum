@@ -232,7 +232,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     const confirmText = forumTypeSetting.get() === 'EAForum' ?
-      "You're subscribed to the EA Forum Digest!" :
+      "You're subscribed to the EA Forum Digest" :
       "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
       <div className={classes.message}>

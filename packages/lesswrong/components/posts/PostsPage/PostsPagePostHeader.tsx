@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
+    fontWeight: 450,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },

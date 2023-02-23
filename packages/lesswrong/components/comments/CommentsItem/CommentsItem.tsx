@@ -61,6 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
+    fontWeight: 450,
     color: theme.palette.link.dim,
     "@media print": {
       display: "none",
@@ -103,8 +104,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "baseline",
   },
   bottom: {
-    paddingBottom: 5,
-    fontSize: 12,
+    paddingBottom: theme.spacing.unit,
     minHeight: 12
   },
   replyForm: {
@@ -135,7 +135,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   metaNotice: {
     color: theme.palette.lwTertiary.main,
-    fontStyle: "italic",
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
@@ -160,6 +159,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
+    fontWeight: 450,
     color: theme.palette.link.dim2,
   },
   reviewVotingButtons: {
@@ -508,7 +508,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
               {relevantTagsTruncated.map(tag =>
-                <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
+                <FooterTag tag={tag} key={tag._id} className={classes.relevantTag} neverCoreStyling />
               )}
               {shouldDisplayLoadMore && <LoadMore
                 loadMore={() => setShowMoreClicked(true)}

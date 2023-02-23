@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline",
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
-    fontVariant: "small-caps",
     marginRight: 8,
     textDecoration: "none",
     "& a:hover": {

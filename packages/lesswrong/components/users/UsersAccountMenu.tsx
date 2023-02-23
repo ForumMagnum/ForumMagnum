@@ -13,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: 400,
     opacity: .8,
     color: theme.palette.header.text,
   },

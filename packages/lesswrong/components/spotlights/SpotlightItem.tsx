@@ -103,7 +103,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     ...(isEAForum ?
       {fontFamily: theme.typography.postStyle.fontFamily /* serifStack */} :
-      {fontVariant: "small-caps"}
     ),
     lineHeight: "1.2em",
     display: "flex",

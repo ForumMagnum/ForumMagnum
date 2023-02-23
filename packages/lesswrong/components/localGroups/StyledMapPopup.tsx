@@ -27,11 +27,11 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: 400,
+    fontWeight: 450,
     color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: 400,
+    fontWeight: 450,
     color: theme.palette.link.dim3,
     flex: 'none'
   },

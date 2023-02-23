@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: 500,
+    fontWeight: 450,
     right: "-15px",
     top: 0,
     pointerEvents: "none",

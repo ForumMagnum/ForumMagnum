@@ -44,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
+    fontWeight: 450,
     color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
   },
@@ -53,7 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagLabel: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    fontWeight: 450
   },
   filterScore: {
     color: theme.palette.primary.main,
