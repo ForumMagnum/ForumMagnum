@@ -2,12 +2,10 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import PersonIcon from '@material-ui/icons/Person';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { useFriendlyIcons } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {

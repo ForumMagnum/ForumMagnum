@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
-import LinkIcon from '@material-ui/icons/Link';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 import qs from 'qs'
-import { useFriendlyIcons } from '../../common/ForumIcon';
+import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     fontSize: "0.9rem",
-    transform: useFriendlyIcons() ? undefined : "rotate(-45deg)",
+    transform: USE_FRIENDLY_ICONS ? undefined : "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",

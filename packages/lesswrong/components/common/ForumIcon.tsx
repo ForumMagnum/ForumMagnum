@@ -60,9 +60,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const USE_FRIENDLY_ICONS = isEAForum;
-
-export const useFriendlyIcons = () => USE_FRIENDLY_ICONS;
+export const USE_FRIENDLY_ICONS = isEAForum;
 
 const getIcon = (name: ForumIconName): IconComponent =>
   USE_FRIENDLY_ICONS

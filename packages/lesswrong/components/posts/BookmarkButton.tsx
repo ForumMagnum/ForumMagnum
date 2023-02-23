@@ -9,7 +9,7 @@ import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
-import { useFriendlyIcons } from '../common/ForumIcon';
+import { USE_FRIENDLY_ICONS } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   container: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim3,
   },
   icon: {
-    ...(useFriendlyIcons() ? {width: 24} : {})
+    ...(USE_FRIENDLY_ICONS ? {width: 24} : {})
   },
 })
 
