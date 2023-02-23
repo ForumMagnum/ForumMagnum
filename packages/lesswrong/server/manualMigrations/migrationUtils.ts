@@ -292,7 +292,7 @@ export async function dropUnusedField(collection, fieldName) {
 const getBatchSort = <T extends DbObject>(useCreatedAt: boolean) =>
   (useCreatedAt
     ? {createdAt: 1}
-    : {_id: 1}) as Record<keyof T, number>;
+    : {_id: 1}) as Record<keyof T, 1>; // It's the callers responsability to ensure the sort by a field that actally exists
 
 const getFirstBatchById = async <T extends DbObject>({
   collection,
