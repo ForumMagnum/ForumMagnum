@@ -2,12 +2,12 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useFriendlyIcons } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -25,11 +25,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
     '&&': {
-      fontSize: "1.2rem",
       color: theme.palette.icon.dim4,
       position: "relative",
-      top: 3,
-    }
+      ...(useFriendlyIcons()
+        ? {
+          width: 15,
+          top: 1,
+        }
+        : {
+          fontSize: "1.2rem",
+          top: 3,
+        }),
+    },
   },
   question: {
     fontSize: "1.2rem",
@@ -51,13 +58,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
-  const { LWTooltip } = Components;
+  const { LWTooltip, ForumIcon } = Components;
 
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
-        <Link to={curatedUrl}><StarIcon className={classes.icon}/></Link>
-      </LWTooltip> 
-    </span> 
+        <Link to={curatedUrl}>
+          <ForumIcon icon="Star" className={classes.icon}/>
+        </Link>
+      </LWTooltip>
+    </span>
 }
 
 const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
@@ -69,7 +78,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
 }) => {
-  const { OmegaIcon, LWTooltip, CuratedIcon } = Components;
+  const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
 
   return <span className={classes.iconSet}>
     {post.curatedDate && !hideCuratedIcon && 
@@ -89,7 +98,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
-        <PersonIcon className={classes.icon}/>
+        <ForumIcon icon="User" className={classes.icon} />
       </LWTooltip>
     </span>}
 
