@@ -453,7 +453,9 @@ async function recomputeKarma(userId: string) {
     userId: {$ne: user._id},
     cancelled: false
   };
-  if (!Votes.isPostgres()) {
+  if (Votes.isPostgres()) {
+    selector["legacyData.legacy"] = {$ne: true};
+  } else {
     selector.legacy = {$ne: true};
   }
   const allTargetVotes = await Votes.find(selector).fetch()
