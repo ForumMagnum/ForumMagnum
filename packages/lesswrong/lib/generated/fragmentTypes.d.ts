@@ -366,6 +366,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
   readonly relevantTagIds: Array<string>,
+  readonly debateComment: boolean | null,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -618,6 +619,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly languageModelSummary: string,
+  readonly debate: boolean | null,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1296,6 +1298,7 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
+  readonly debateComment: boolean | null,
 }
 
 interface CommentsList_tag { // fragment on Tags

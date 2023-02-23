@@ -73,8 +73,14 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
     if(scrollIntoView) scrollIntoView();
   };
 
+  const dateFormat = comment.answer
+    ? "MMM DD, YYYY"
+    : comment.debateComment
+    ? "MMM DD, YYYY, h:mm:ss a"
+    : undefined;
+
   const date = <>
-    <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
+    <Components.FormatDate date={comment.postedAt} format={dateFormat}/>
     <LinkIcon className={classes.icon}/>
   </>
 

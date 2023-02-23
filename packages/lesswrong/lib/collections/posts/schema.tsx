@@ -185,7 +185,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm,
+    hidden: (props) => props.eventForm || props.debateForm,
   },
   // Title
   title: {
@@ -2136,6 +2136,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
+    hidden: (props) => props.debateForm
   },
   
   shareWithUsers: {
@@ -2385,7 +2386,8 @@ const schema: SchemaType<DbPost> = {
     nullable: true,
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    canUpdate: ['sunshineRegiment', 'admins']
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false)
   }
 };
 

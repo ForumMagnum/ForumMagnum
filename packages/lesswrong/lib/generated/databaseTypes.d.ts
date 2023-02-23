@@ -165,6 +165,7 @@ interface DbComment extends DbObject {
   isPinnedOnProfile: boolean
   title: string
   relevantTagIds: Array<string>
+  debateComment: boolean | null
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -633,6 +634,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  debate: boolean | null
   subforumTagId: string
   af: boolean
   afDate: Date

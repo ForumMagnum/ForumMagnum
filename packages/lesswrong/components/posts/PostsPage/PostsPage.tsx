@@ -142,8 +142,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
-  debateComments: {
-    ...commentsItemStyles(theme)
+  // debateComments: {
+  //   ...commentsItemStyles(theme)
+  // }
+  outerDebateComments: {},
+  innerDebateComment: {
+    marginBottom: 16,
+    padding: 8,
+    borderRadius: 8,
+    borderStyle: 'solid',
+    borderColor: theme.palette.primary.dark
+  },
+  username: {
+    marginRight: 10,
   }
 })
 
@@ -207,7 +218,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, CommentBody, CommentUserName
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, CommentBody, CommentUserName, CommentsItemDate
   } = Components
 
   useEffect(() => {
@@ -333,11 +344,17 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>
 
-        <ContentStyles contentType="comment" className={'outerDebateComments'}>
+        <ContentStyles contentType="comment" className={classes.outerDebateComments}>
           {/** Debate contents go here? */}
           {post.recentComments.map(comment => {
-            return <div className={'innerDebateComment'}>
-              <CommentUserName comment={comment} />
+            const debateComment = { ...comment, debateComment: true };
+            return <div className={classes.innerDebateComment}>
+              <CommentUserName comment={comment} className={classes.username} />
+              <CommentsItemDate
+                comment={debateComment} post={post}
+                // scrollIntoView={scrollIntoView}
+                // scrollOnClick={postPage && !isParentComment}
+              />
               <CommentBody comment={comment} />
             </div>;
           })}
