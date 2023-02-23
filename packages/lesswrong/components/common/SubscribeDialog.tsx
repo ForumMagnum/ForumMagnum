@@ -250,7 +250,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         {/* TODO: Forum digest */}
         <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-        <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
+        <MenuItem value="community" disabled={method === "email"}>All posts</MenuItem>
       </Select>
     </FormControl>
 
