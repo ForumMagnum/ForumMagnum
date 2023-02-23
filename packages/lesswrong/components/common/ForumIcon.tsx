@@ -1,11 +1,13 @@
 import React, { ComponentType, MouseEventHandler } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { isEAForum } from "../../lib/instanceSettings";
+import classNames from "classnames";
 import {
   SpeakerWaveIcon,
   BookmarkIcon,
   StarIcon,
   UserIcon,
+  LinkIcon,
 } from "@heroicons/react/24/solid";
 import {
   BookmarkIcon as BookmarkBorderIcon,
@@ -15,6 +17,7 @@ import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiPersonIcon from "@material-ui/icons/Person";
+import MuiLinkIcon from "@material-ui/icons/Link";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -29,7 +32,8 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "Star" |
-  "User";
+  "User" |
+  "Link";
 
 const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
   VolumeUp: MuiVolumeUpIcon,
@@ -37,6 +41,7 @@ const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
   BookmarkBorder: MuiBookmarkBorderIcon,
   Star: MuiStarIcon,
   User: MuiPersonIcon,
+  Link: MuiLinkIcon,
 };
 
 const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
@@ -45,6 +50,7 @@ const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
   BookmarkBorder: BookmarkBorderIcon,
   Star: StarIcon,
   User: UserIcon,
+  Link: LinkIcon,
 };
 
 export type IconProps = {
@@ -63,14 +69,14 @@ const getIcon = (name: ForumIconName): IconComponent =>
     ? FRIENDLY_ICONS[name] ?? DEFAULT_ICONS[name]
     : DEFAULT_ICONS[name];
 
-const ForumIcon = ({icon, ...props}: {icon: ForumIconName} & Partial<IconProps>) => {
+const ForumIcon = ({icon, className, ...props}: {icon: ForumIconName} & Partial<IconProps>) => {
   const Icon = getIcon(icon);
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
     return null;
   }
-  return <Icon {...props} />;
+  return <Icon className={classNames("MuiSvgIcon-root", className)} {...props} />;
 }
 
 const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {});

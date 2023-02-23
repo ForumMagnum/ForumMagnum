@@ -25,17 +25,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
     '&&': {
+      fontSize: "1.2rem",
       color: theme.palette.icon.dim4,
       position: "relative",
-      ...(useFriendlyIcons()
-        ? {
-          width: 15,
-          top: 1,
-        }
-        : {
-          fontSize: "1.2rem",
-          top: 3,
-        }),
+      top: 3,
     },
   },
   question: {

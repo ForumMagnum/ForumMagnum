@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 import qs from 'qs'
+import { useFriendlyIcons } from '../../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,12 +39,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     fontSize: "0.9rem",
-    transform: "rotate(-45deg)",
+    transform: useFriendlyIcons() ? undefined : "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",
     position: "relative",
-    top: -2
+    top: -2,
   },
 });
 
@@ -75,7 +76,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
 
   const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
-    <LinkIcon className={classes.icon}/>
+    <Components.ForumIcon icon="Link" className={classes.icon} />
   </>
 
   return (
