@@ -171,7 +171,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
-          ["JSONB_SET(", column, ",", path, ",", ...updateValue, ", TRUE)"],
+          ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
         );
       }
 

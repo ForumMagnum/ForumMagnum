@@ -66,6 +66,20 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     });
     return user;
   },
+  DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
+    extractObjectId(event);
+    if (typeof event.delayTime === "number") {
+      event.delayTime = new Date(event.delayTime);
+    }
+    if (typeof event.upperBoundTime === "number") {
+      event.upperBoundTime = new Date(event.upperBoundTime);
+    }
+    event.pendingEvents = (event.pendingEvents ?? []).filter(
+      (item: any) => typeof item === "string",
+    );
+    event.createdAt ??= event.delayTime;
+    return event;
+  },
   DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
     extractObjectId(metadata);
     return metadata;
@@ -200,6 +214,7 @@ const copyData = async (
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
+      useCreatedAt: true,
       filter: {
         ...makeBatchFilter(collectionName, createdSince),
         ...makeCollectionFilter(collectionName),
