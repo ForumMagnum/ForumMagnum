@@ -61,6 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     fontWeight: '450',
     color: theme.palette.grey[600],
+    fontSize: 13,
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
     }
@@ -102,7 +103,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.grey[600],
-    fontSize: 12,
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },

@@ -15,7 +15,7 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>
-      <DialogTitle>Conversation Options</DialogTitle>
+      <DialogTitle>Conversation options</DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm
           collection={Conversations}

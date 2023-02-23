@@ -162,7 +162,7 @@ export const ReviewQuickPage = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>Load more ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>

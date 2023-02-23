@@ -378,7 +378,7 @@ const EventsHome = ({classes}: {
   }
   
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
-    Load More
+    Load more
   </button>
   if (loading && results?.length) {
     loadMoreButton = <div className={classes.loading}><Loading /></div>

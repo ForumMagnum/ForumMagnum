@@ -103,7 +103,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         body2: {
           fontSize: "1.1rem",
           lineHeight: "1.5em",
-          fontWeight: 450
+          fontWeight: 450,
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
@@ -346,5 +346,4 @@ export const eaForumTheme: SiteThemeSpecification = {
         }
       }
     }
-  },
 };

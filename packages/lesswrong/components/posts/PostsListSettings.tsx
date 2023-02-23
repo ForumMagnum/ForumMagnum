@@ -50,7 +50,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   },
   "EAForum": {
     all: {
-      label: "All Posts",
+      label: "All posts",
       tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
     },
     frontpage: {
@@ -72,7 +72,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   },
   "default": {
     all: {
-      label: "All Posts",
+      label: "All posts",
       tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
     },
     frontpage: {
@@ -194,7 +194,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show Low Karma
+                Show low karma
               </MetaInfo>
             </QueryLink>
           </Tooltip>
@@ -210,7 +210,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show Events
+                Show events
               </MetaInfo>
             </QueryLink>
           </Tooltip>

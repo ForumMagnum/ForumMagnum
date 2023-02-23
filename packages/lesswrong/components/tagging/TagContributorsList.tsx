@@ -94,7 +94,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
-      Load More
+      Load more
     </a></div>}
   </div>
 }

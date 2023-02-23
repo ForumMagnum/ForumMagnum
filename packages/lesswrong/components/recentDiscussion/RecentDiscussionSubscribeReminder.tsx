@@ -35,7 +35,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 500,
   },
   adminNotice: {
-    fontStyle: "italic",
     textAlign: "left",
     marginTop: 22,
     fontSize: 12,

@@ -80,7 +80,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const descriptionHtml = tag.description?.html;
   const maybeTruncatedDescriptionHtml = truncated
-    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
+    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>()</a>")
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {

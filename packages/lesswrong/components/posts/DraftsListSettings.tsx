@@ -96,7 +96,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeArchived}/>
       
             <MetaInfo className={classes.checkboxLabel}>
-              Show Archived
+              Show archived
             </MetaInfo>
           </QueryLink>
         </Tooltip>
@@ -111,7 +111,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeShared}/>
       
             <MetaInfo className={classes.checkboxLabel}>
-              Show Shared with You
+              Show shared with you
             </MetaInfo>
           </QueryLink>
         </Tooltip>

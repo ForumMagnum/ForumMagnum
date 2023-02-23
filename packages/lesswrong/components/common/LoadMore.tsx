@@ -60,7 +60,7 @@ const LoadMore = ({
   classes,
   sectionFooterStyles,
   afterPostsListMarginTop,
-  message="Load More",
+  message="Load more",
 }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,

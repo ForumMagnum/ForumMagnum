@@ -28,7 +28,7 @@ addGraphQLSchema(`
 `);
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
-  relevance: { label: 'Most Relevant' },
+  relevance: { label: 'Most relevant' },
   ...SORT_ORDER_OPTIONS,
 }
 

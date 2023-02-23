@@ -46,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   eaTitle: {
     fontFamily: theme.typography.fontFamily,
     lineHeight: '1.4em',
+    fontWeight: 600
   },
   description: {
     ...theme.typography.body2,
@@ -89,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: "1.25rem !important",
+    fontSize: "1.2rem !important",
     margin: "8px 0 -8px 0 !important",
   },
   postIcon: {

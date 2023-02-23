@@ -4,7 +4,7 @@ import { addStrings } from '../vulcan-lib';
 
 addStrings('en', {
 
-  'posts.new_post': 'New Post',
+  'posts.new_post': 'New post',
   'posts.edit': 'Edit',
   'posts.edit_success': 'Post “{title}” edited.',
   'posts.delete': 'Delete',
@@ -15,8 +15,8 @@ addStrings('en', {
   'posts.categories': 'Categories',
   'posts.status': 'Status',
   'posts.sticky': 'Sticky',
-  'posts.load_more': 'Load More',
-  'posts.load_more_days': 'Load More Days',
+  'posts.load_more': 'Load more',
+  'posts.load_more_days': 'Load more days',
   'posts.no_more': 'No more posts.',
   'posts.no_results': 'No posts to display.',
   'posts.search': 'Search',

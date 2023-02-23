@@ -119,24 +119,24 @@ const UsersMenu = ({classes}: {
               }
             }}>
               {userCanPost(currentUser) && <Link to={`/newPost?question=true`}>
-                <MenuItem>New question</MenuItem>
+                <MenuItem>New Question</MenuItem>
               </Link>}
               {userCanPost(currentUser) && <Link to={`/newPost`}>
-                <MenuItem>New post</MenuItem>
+                <MenuItem>New Post</MenuItem>
               </Link>}
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-               New shortform
+               New Shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}
             {showNewButtons && userCanPost(currentUser) && 
               <Link to={`/newPost?eventForm=true`}>
-                <MenuItem>New event</MenuItem>
+                <MenuItem>New Event</MenuItem>
               </Link>
             }
             {(showNewButtons && currentUser.karma >= 1000) &&
               <Link to={`/sequencesnew`}>
-                <MenuItem>New sequence</MenuItem>
+                <MenuItem>New Sequence</MenuItem>
               </Link>
             }
             <Divider/>
@@ -164,7 +164,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EditIcon className={classes.icon}/>
                 </ListItemIcon>
-                My drafts
+                Your drafts
               </MenuItem>
             </Link>}
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
@@ -172,7 +172,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
-                User Profile
+                User profile
               </MenuItem>
             </Link>}
             {userHasThemePicker(currentUser) && <ThemePickerMenu>

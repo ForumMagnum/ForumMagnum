@@ -28,8 +28,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
-    fontVariant: "small-caps",
     marginTop: 0,
+    textTransform: "uppercase",
   },
   description: {
     marginTop: theme.spacing.unit * 2,

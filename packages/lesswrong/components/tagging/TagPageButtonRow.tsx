@@ -79,8 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
     marginLeft: 'auto',
-    color: theme.palette.grey[700],
-    fontStyle: "italic",
+    color: theme.palette.grey[700]
   },
 });
 

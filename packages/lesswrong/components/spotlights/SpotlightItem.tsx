@@ -103,6 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     ...(isEAForum ?
       {fontFamily: theme.typography.postStyle.fontFamily /* serifStack */} :
+      {fontVariant: "small-caps"}
     ),
     lineHeight: "1.2em",
     display: "flex",
@@ -112,8 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     fontSize: 15,
     color: theme.palette.grey[700],
-    marginTop: -1,
-    fontStyle: "italic"
+    marginTop: -1
   },
   image: {
     '& img': {

@@ -60,7 +60,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
-              Load More
+              Load more
             </div>
           </ListItem>}
       </List>
@@ -74,7 +74,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       : (terms.type === 'newComment') ? (<b>new comment</b>)
       : (terms.type === 'newMessage') ? (<b>new message</b>)
       : "of these";
-    return <div className={classes.empty}> You don't have any {modifier} notifications yet!</div>
+    return <div className={Typography-body2}> You don't have any {modifier} notifications yet</div>
   }
 }
 

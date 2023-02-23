@@ -87,7 +87,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardGroup: {
     ...theme.typography.commentStyle,
     maxWidth: 290,
-    fontStyle: 'italic',
     color: theme.palette.text.dim,
     fontSize: 14,
     textOverflow: 'ellipsis',

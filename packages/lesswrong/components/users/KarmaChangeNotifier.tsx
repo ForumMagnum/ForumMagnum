@@ -197,7 +197,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
         </div>
         }
       <Link to={`/account`} onClick={handleClose}>
-        <span className={classes.settings}>Change Settings </span>
+        <span className={classes.settings}>Change settings </span>
       </Link>
     </Components.Typography>
   );

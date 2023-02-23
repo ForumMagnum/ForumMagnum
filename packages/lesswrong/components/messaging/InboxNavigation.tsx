@@ -9,7 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
+const InboxNavigation = ({terms, currentUser, title="Your conversations"}: {
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
   title?: JSX.Element | String
@@ -68,7 +68,7 @@ const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
           <SectionFooterCheckbox
             onClick={showArchiveCheckboxClick}
             value={showArchive}
-            label={"Show Archived Conversations"}
+            label={"Show archived conversations"}
           />
         </SectionFooter>
     </SingleColumnSection>

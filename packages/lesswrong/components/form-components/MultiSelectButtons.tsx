@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Material UI v0 happened to use.)
     fontWeight: 600,
     fontSize: "16px",
-    fontFamily: "Roboto, sans-serif",
+    fontFamily: "sans-serif",
   },
 
   selected: {

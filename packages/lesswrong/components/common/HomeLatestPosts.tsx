@@ -110,7 +110,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             <SettingsButton
               className={classes.hideOnMobile}
               label={filterSettingsVisibleDesktop ?
-                "Customize Feed (Hide)" :
+                "Customize feed (hide)" :
                 "Customize Feed"}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
@@ -118,8 +118,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             <SettingsButton
               className={classes.hideOnDesktop}
               label={filterSettingsVisibleMobile ?
-                "Customize Feed (Hide)" :
-                "Customize Feed (Show)"}
+                "Customize feed (hide)" :
+                "Customize feed (show)"}
               showIcon={false}
               onClick={() => {
                 setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
@@ -152,7 +152,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
               >
-                <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+                <Link to={"/allPosts"}>Advanced sorting & filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
             {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to

@@ -41,7 +41,7 @@ const ConversationDetails = ({conversation, classes}: {
         </MetaInfo>)}
       </span>
       <span onClick={openConversationOptions}>
-        <MetaInfo button>Conversation Options</MetaInfo>
+        <MetaInfo button>Conversation options</MetaInfo>
       </span>
     </div>
   )

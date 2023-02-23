@@ -52,7 +52,7 @@ const NewTagItem = ({tag, classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
   
-  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
+  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read more)</a></p></span>") : tag.description?.html
   
   return <div className={classes.root}>
     <Link to={tagUrl} className={classes.title}>

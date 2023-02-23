@@ -126,7 +126,7 @@ const AddPostsToTag = ({classes, tag}: {
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
-      <AddBoxIcon className={classes.icon}/> Add Posts
+      <AddBoxIcon className={classes.icon}/> Add posts
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch

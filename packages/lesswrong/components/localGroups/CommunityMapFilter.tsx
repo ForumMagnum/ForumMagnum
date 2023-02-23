@@ -65,7 +65,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '0.7em'
   },
   checkboxLabel: {
-    ...theme.typography.body2
+    ...theme.typography.body2,
+    fontWeight: 600,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,
