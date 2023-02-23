@@ -56,11 +56,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
-  togglePodcastIcon: {
+  togglePodcastContainer: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: '24px'
+    height: 24,
+  },
+  togglePodcastIcon: {
+    width: 24,
+    height: 24,
   },
   actions: {
     display: 'inline-block',
@@ -151,7 +155,8 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
+    NewFeaturePulse, ForumIcon} = Components;
   const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -215,15 +220,15 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
-              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
                 <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <VolumeUpIcon />
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
                 </a>
               </LWTooltip> :
               <NewFeaturePulse dx={-10} dy={4}>
-                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
                 <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <VolumeUpIcon />
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
                 </a>
                 </LWTooltip>
               </NewFeaturePulse>

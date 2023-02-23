@@ -35,7 +35,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  
+
   const handleCurate = () => {
     void updatePost({
       selector: {_id: post._id},
@@ -105,7 +105,9 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
           {post.postedAt && <Components.SidebarInfo>
             <Components.FormatDate date={post.postedAt}/>
           </Components.SidebarInfo>}
-          {post.podcastEpisodeId && <VolumeUpIcon className={classes.audioIcon}/>}
+          {post.podcastEpisodeId &&
+            <Components.ForumIcon icon="VolumeUp" className={classes.audioIcon} />
+          }
         </div>
         <Components.SidebarInfo>
           Endorsed by { post.suggestForCuratedUsernames }
