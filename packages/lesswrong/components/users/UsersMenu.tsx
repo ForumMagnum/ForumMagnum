@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
+import { isEAForum } from "../../lib/instanceSettings";
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -28,6 +29,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -78,7 +80,7 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          Log out
+          {isEAForum ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
@@ -86,8 +88,7 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
+
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -141,7 +142,7 @@ const UsersMenu = ({classes}: {
             }
             <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
-              Apply for membership
+              {preferredHeadingCase("Apply for Membership")}
             </MenuItem> }
             {currentUser.noKibitz && <div>
               <MenuItem onClick={() => {
@@ -164,7 +165,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EditIcon className={classes.icon}/>
                 </ListItemIcon>
-                Your drafts
+                My Drafts
               </MenuItem>
             </Link>}
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
@@ -172,7 +173,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
-                User profile
+                {preferredHeadingCase("User Profile")}
               </MenuItem>
             </Link>}
             {userHasThemePicker(currentUser) && <ThemePickerMenu>
@@ -188,7 +189,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Account settings
+                {preferredHeadingCase("Account Settings")}
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>
@@ -196,7 +197,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EmailIcon className={classes.icon}/>
                 </ListItemIcon>
-                Private messages
+                {preferredHeadingCase("Private Messages")}
               </MenuItem>
             </Link>
             {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
@@ -213,13 +214,13 @@ const UsersMenu = ({classes}: {
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />
                   </ListItemIcon>
-                  Shortform page
+                  {preferredHeadingCase("Shortform Page")}
                 </MenuItem>
               </Link>
             }
             <Divider/>
             <MenuItem component="a" href="/logout">
-              Log out
+              {preferredHeadingCase("Log Out")}
             </MenuItem>
           </Paper>
         </LWPopper>

@@ -10,7 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
@@ -72,7 +72,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   },
   "default": {
     all: {
-      label: "All posts",
+      label: "All Posts",
       tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
     },
     frontpage: {
@@ -194,11 +194,11 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show low karma
+                {preferredHeadingCase("Show Low Karma")}
               </MetaInfo>
             </QueryLink>
           </Tooltip>
-          
+
           <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
             <QueryLink
               className={classes.checkboxGroup}
@@ -210,7 +210,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show events
+                {preferredHeadingCase("Show Events")}
               </MetaInfo>
             </QueryLink>
           </Tooltip>

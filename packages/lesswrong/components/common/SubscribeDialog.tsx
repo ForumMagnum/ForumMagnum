@@ -22,7 +22,7 @@ import { withTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { forumSelect } from '../../lib/forumTypeUtils';
+import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
@@ -250,7 +250,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         {/* TODO: Forum digest */}
         <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-        <MenuItem value="community" disabled={method === "email"}>All posts</MenuItem>
+        <MenuItem value="community" disabled={method === "email"}>{preferredHeadingCase("All Posts")}</MenuItem>
       </Select>
     </FormControl>
 

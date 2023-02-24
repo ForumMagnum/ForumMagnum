@@ -23,6 +23,7 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -272,7 +273,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </div>
               }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage subscriptions
+                {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
@@ -283,7 +284,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account settings
+                {preferredHeadingCase("Account Settings")}
               </Link>}
             </Typography>
 

@@ -3,6 +3,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,7 +39,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     limit: 20,
     enableTotal: false
   });
-  const [lastNotificationsCheck, setLastNotificationsCheck] = useState(
+  const [lastNotificationsCheck] = useState(
     ((currentUser?.lastNotificationsCheck) || ""),
   );
 
@@ -60,7 +61,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
-              Load more
+              {preferredHeadingCase("Load More")}
             </div>
           </ListItem>}
       </List>
@@ -74,7 +75,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       : (terms.type === 'newComment') ? (<b>new comment</b>)
       : (terms.type === 'newMessage') ? (<b>new message</b>)
       : "of these";
-    return <div className={Typography-body2}> You don't have any {modifier} notifications yet</div>
+    return <div className="Typography-body2"> You don't have any {modifier} notifications yet</div>
   }
 }
 

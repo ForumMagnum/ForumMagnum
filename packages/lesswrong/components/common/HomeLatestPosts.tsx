@@ -14,6 +14,7 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -54,6 +55,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
+
+const advancedSortingText = isEAForum
+  ? "Advanced sorting & filtering"
+  : "Advanced Sorting/Filtering";
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
@@ -109,17 +114,17 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
             <SettingsButton
               className={classes.hideOnMobile}
-              label={filterSettingsVisibleDesktop ?
-                "Customize feed (hide)" :
-                "Customize Feed"}
+              label={preferredHeadingCase(filterSettingsVisibleDesktop ?
+                "Customize Feed (Hide)" :
+                "Customize Feed")}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
             />
             <SettingsButton
               className={classes.hideOnDesktop}
-              label={filterSettingsVisibleMobile ?
-                "Customize feed (hide)" :
-                "Customize feed (show)"}
+              label={preferredHeadingCase(filterSettingsVisibleMobile ?
+                "Customize Feed (Hide)" :
+                "Customize Feed (Show)")}
               showIcon={false}
               onClick={() => {
                 setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
@@ -152,7 +157,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
               >
-                <Link to={"/allPosts"}>Advanced sorting & filtering</Link>
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
             {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to

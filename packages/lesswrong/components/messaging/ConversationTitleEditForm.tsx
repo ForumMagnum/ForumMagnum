@@ -9,13 +9,14 @@ import { Components, registerComponent, getFragment } from "../../lib/vulcan-lib
 import Conversations from '../../lib/collections/conversations/collection';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const ConversationTitleEditForm = ({onClose, documentId}: {
   onClose?: ()=>void,
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>
-      <DialogTitle>Conversation options</DialogTitle>
+      <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm
           collection={Conversations}

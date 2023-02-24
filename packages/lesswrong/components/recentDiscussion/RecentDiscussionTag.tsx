@@ -9,6 +9,7 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -79,8 +80,9 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   }, []);
   
   const descriptionHtml = tag.description?.html;
+  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
   const maybeTruncatedDescriptionHtml = truncated
-    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>()</a>")
+    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {

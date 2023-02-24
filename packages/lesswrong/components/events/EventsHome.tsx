@@ -24,6 +24,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -378,7 +379,7 @@ const EventsHome = ({classes}: {
   }
   
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
-    Load more
+    {preferredHeadingCase("Load More")}
   </button>
   if (loading && results?.length) {
     loadMoreButton = <div className={classes.loading}><Loading /></div>

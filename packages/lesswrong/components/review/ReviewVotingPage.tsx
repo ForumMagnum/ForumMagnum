@@ -20,6 +20,7 @@ import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -476,6 +477,8 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
+  const accountSettings = preferredHeadingCase("Account Settings");
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -494,7 +497,7 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
-            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account settings</Link>
+            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
             </ContentStyles>}
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
@@ -541,7 +544,7 @@ const ReviewVotingPage = ({classes}: {
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
-                  <span className={classes.sortBy}>Sort by</span> Last commented
+                  <span className={classes.sortBy}>Sort by</span> {preferredHeadingCase("Last Commented")}
                 </MenuItem>
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
