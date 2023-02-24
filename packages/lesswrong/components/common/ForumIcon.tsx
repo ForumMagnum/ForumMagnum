@@ -1,17 +1,13 @@
-import React, { ComponentType, MouseEventHandler } from "react";
+import React, { memo, ComponentType, MouseEventHandler } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
-import {
-  SpeakerWaveIcon,
-  BookmarkIcon,
-  StarIcon,
-  UserIcon,
-  LinkIcon,
-} from "@heroicons/react/24/solid";
-import {
-  BookmarkIcon as BookmarkBorderIcon,
-} from "@heroicons/react/24/outline";
+import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
+import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
+import StarIcon from "@heroicons/react/24/solid/StarIcon";
+import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import LinkIcon from "@heroicons/react/24/solid/LinkIcon";
+import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -47,7 +43,7 @@ const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
 const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
   VolumeUp: SpeakerWaveIcon,
   Bookmark: BookmarkIcon,
-  BookmarkBorder: BookmarkBorderIcon,
+  BookmarkBorder: BookmarkOutlineIcon,
   Star: StarIcon,
   User: UserIcon,
   Link: LinkIcon,
@@ -77,7 +73,7 @@ const ForumIcon = ({icon, className, ...props}: {icon: ForumIconName} & Partial<
   return <Icon className={classNames("MuiSvgIcon-root", className)} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {});
+const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {});
 
 declare global {
   interface ComponentTypes {
