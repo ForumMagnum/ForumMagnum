@@ -44,6 +44,9 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
       cloud_name: cloudName,
       api_key: apiKey,
       api_secret: apiSecret,
+      transformation: {
+        quality: 'auto'
+      }
     }
   );
   logger(`Result of moving image: ${result.secure_url}`);
