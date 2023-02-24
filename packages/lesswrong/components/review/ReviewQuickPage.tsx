@@ -127,7 +127,7 @@ export const ReviewQuickPage = ({classes}: {
     }
   }
 
-  const loadMore = `<a>(${preferredHeadingCase("Load More")})</a>`;
+  const loadMoreText = `<a>(${preferredHeadingCase("Load More")})</a>`;
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
@@ -165,7 +165,7 @@ export const ReviewQuickPage = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>{loadMore} ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>

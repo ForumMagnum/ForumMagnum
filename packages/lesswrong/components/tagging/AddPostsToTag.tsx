@@ -127,7 +127,7 @@ const AddPostsToTag = ({classes, tag}: {
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
-      <AddBoxIcon className={classes.icon}/> {preferredHeadingCase("Add posts")}
+      <AddBoxIcon className={classes.icon}/> {preferredHeadingCase("Add Posts")}
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch

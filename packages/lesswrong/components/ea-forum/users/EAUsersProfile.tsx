@@ -58,7 +58,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sectionHeadingCount: {
-    fontSize: 14,
     fontWeight: '450',
     color: theme.palette.grey[600],
     fontSize: 13,
@@ -83,7 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-  
+
   profileImage: {
     'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
@@ -593,7 +592,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               Edit Profile
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-            Manage subscriptions
+              Manage subscriptions
             </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account settings
