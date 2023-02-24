@@ -68,6 +68,9 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
   },
   DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
     extractObjectId(event);
+    if (typeof event.createdAt === "number") {
+      event.createdAt = new Date(event.createdAt);
+    }
     if (typeof event.delayTime === "number") {
       event.delayTime = new Date(event.delayTime);
     }
