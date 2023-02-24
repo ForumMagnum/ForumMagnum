@@ -373,13 +373,13 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   const lastRow = lastRows[lastRows.length - 1] as unknown as HasCreatedAtType;
   let greaterThan = lastRow.createdAt;
   if (filter && "createdAt" in filter) {
-    if (filter.$gt) {
-      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.$gt.getTime()));
-    } else if (filter.$gte) {
-      const gt = Math.max(filter.$gte.getTime() - 1, 0);
+    if (filter.createdAt.$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.createdAt.$gt.getTime()));
+    } else if (filter.createdAt.$gte) {
+      const gt = Math.max(filter.createdAt.$gte.getTime() - 1, 0);
       greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
     } else {
-      throw new Error("Unsupported createdAt filter in getNextBatchByCreatedAt");
+      throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
     }
     delete filter.createdAt;
   }
