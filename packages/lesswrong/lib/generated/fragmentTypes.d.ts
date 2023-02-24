@@ -818,6 +818,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
+  readonly debate: boolean | null,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,

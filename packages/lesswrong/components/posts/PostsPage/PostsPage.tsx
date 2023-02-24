@@ -214,6 +214,18 @@ const PostsPage = ({post, refetch, classes}: {
     skip: !post.question,
   });
 
+  const { results: debateComments } = useMulti({
+    terms: {
+      view: 'debateComments',
+      postId: post._id
+    },
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    skip: !post.debate
+  });
+
+  console.log({ debateComments });
+
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
@@ -332,7 +344,7 @@ const PostsPage = ({post, refetch, classes}: {
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+        {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
@@ -342,11 +354,11 @@ const PostsPage = ({post, refetch, classes}: {
               />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
-        </ContentStyles>
+        </ContentStyles>}
 
-        <ContentStyles contentType="comment" className={classes.outerDebateComments}>
+        {post.debate && debateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}>
           {/** Debate contents go here? */}
-          {post.recentComments.map(comment => {
+          {debateComments.map(comment => {
             const debateComment = { ...comment, debateComment: true };
             return <div className={classes.innerDebateComment}>
               <CommentUserName comment={comment} className={classes.username} />
@@ -358,7 +370,7 @@ const PostsPage = ({post, refetch, classes}: {
               <CommentBody comment={comment} />
             </div>;
           })}
-        </ContentStyles>
+        </ContentStyles>}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>

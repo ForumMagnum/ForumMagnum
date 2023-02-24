@@ -162,11 +162,17 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
+
+  const userIsDebateParticipant =
+    currentUser
+    && post?.debate
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses.some(coauthor => coauthor.userId === currentUser._id));
+
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
+      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && (!post?.draft || userIsDebateParticipant) &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
           {post?.isEvent && (post?.rsvps?.length > 0) && (
@@ -177,7 +183,9 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           <Components.CommentsNewForm
             post={post} tag={tag}
             prefilledProps={{
-              parentAnswerId: parentAnswerId}}
+              parentAnswerId: parentAnswerId,
+              ...(userIsDebateParticipant ? { debateComment: true } : {})
+            }}
             type="comment"
             {...newFormProps}
           />
