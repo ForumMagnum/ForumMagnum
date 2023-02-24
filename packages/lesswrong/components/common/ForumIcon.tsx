@@ -63,17 +63,33 @@ const getIcon = (name: ForumIconName): IconComponent =>
     ? FRIENDLY_ICONS[name] ?? DEFAULT_ICONS[name]
     : DEFAULT_ICONS[name];
 
-const ForumIcon = ({icon, className, ...props}: {icon: ForumIconName} & Partial<IconProps>) => {
+const styles = (_: ThemeType): JssStyles => ({
+  root: {
+    userSelect: "none",
+    width: "1em",
+    height: "1em",
+    display: "inline-block",
+    flexShrink: 0,
+    fontSize: 24,
+  },
+});
+
+type ForumIconProps = Partial<IconProps> & {
+  icon: ForumIconName,
+  classes: ClassesType,
+};
+
+const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
   const Icon = getIcon(icon);
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
     return null;
   }
-  return <Icon className={classNames("MuiSvgIcon-root", className)} {...props} />;
+  return <Icon className={classNames(classes.root, className)} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {});
+const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {styles});
 
 declare global {
   interface ComponentTypes {
