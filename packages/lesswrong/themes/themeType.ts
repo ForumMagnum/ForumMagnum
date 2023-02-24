@@ -451,6 +451,7 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
     },
     zIndexes: any,
     overrides: any,

@@ -29,7 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipSmallText: {
     ...theme.typography.tinyText,
-    }
+    ...theme.typography.italic,
+  },
 });
 
 const PostsItemDate = ({post, classes}: {

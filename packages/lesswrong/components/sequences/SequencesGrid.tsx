@@ -25,6 +25,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   noResults: {
     marginLeft: theme.spacing.unit,
     color: theme.palette.text.dim4,
+    ...theme.typography.italic,
   }
 });
 

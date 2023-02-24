@@ -14,7 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 250,
   },
   joined: {
-    marginBottom: theme.spacing.unit
+    ...theme.typography.italic,
+    marginBottom: theme.spacing.unit,
   },
   bookIcon: {
     filter: "invert(100%)",

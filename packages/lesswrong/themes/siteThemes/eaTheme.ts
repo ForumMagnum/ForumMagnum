@@ -186,7 +186,10 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         largeChapterTitle: {
           fontSize: "2.2rem"
-        }
+        },
+        italic: {
+          fontStyle: "normal",
+        },
       },
       overrides: {
         MuiTooltip: {
@@ -341,9 +344,9 @@ export const eaForumTheme: SiteThemeSpecification = {
         MuiSnackbarContent: {
           root: {
             backgroundColor: palette.lwTertiary.main
-              }
           }
         }
       }
     }
+  }
 };

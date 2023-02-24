@@ -54,6 +54,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   tooltipLogisticsTitle: {
     ...theme.typography.tinyText,
+    ...theme.typography.italic,
     marginTop: theme.spacing.unit
   },
   highlight: {

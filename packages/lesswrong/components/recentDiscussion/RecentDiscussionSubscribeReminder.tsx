@@ -39,6 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 22,
     fontSize: 12,
     lineHeight: 1.3,
+    ...theme.typography.italic,
   },
   loginForm: {
     margin: "0 auto -4px",

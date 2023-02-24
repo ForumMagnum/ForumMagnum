@@ -61,6 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     marginTop: 4,
+    ...theme.typography.italic,
   }
 })
 

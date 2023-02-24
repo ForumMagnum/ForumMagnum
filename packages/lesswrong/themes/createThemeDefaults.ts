@@ -225,6 +225,9 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight: 600,
           marginBottom: ".5rem"
         },
+        italic: {
+          fontStyle: "italic",
+        },
       },
       zIndexes: {
         ...zIndexes

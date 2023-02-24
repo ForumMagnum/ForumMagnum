@@ -5,6 +5,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     color: theme.palette.text.dim4,
+    ...theme.typography.italic,
   }
 });
 

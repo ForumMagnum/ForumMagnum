@@ -20,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: CONDENSED_MARGIN_BOTTOM,
+    ...theme.typography.italic,
     paddingTop: 4,
   }
 })
