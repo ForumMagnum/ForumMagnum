@@ -172,7 +172,7 @@ interface HasUserIdType {
   userId: string
 }
 
-interface VoteableType extends HasIdType, HasUserIdType {
+interface VoteableType extends HasIdType {
   score: number
   baseScore: number
   extendedScore: any,
@@ -188,7 +188,7 @@ interface VoteableTypeClient extends VoteableType {
   currentUserExtendedVote?: any,
 }
 
-interface DbVoteableType extends VoteableType, DbObject {
+interface DbVoteableType extends VoteableType, DbObject, HasUserIdType {
 }
 
 // Common base type for results of database lookups.

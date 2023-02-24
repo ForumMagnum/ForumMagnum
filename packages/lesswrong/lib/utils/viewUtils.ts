@@ -167,23 +167,32 @@ export const jsonArrayContainsSelector = <T extends DbObject>(
   ? {$expr: {$jsonArrayContains: [field, value]}}
   : {[field]: value};
 
+const removeAndOr = <T extends DbObject>(selector: MongoSelector<T>) => {
+  const copy = {...selector}
+  delete copy.$and
+  delete copy.$or
+  return copy
+}
+
 const mergeTwoSelectors = <T extends DbObject>(
   baseSelector?: MongoSelector<T>,
   newSelector?: MongoSelector<T>,
 ) => {
   if (!baseSelector) return newSelector;
   if (!newSelector) return baseSelector;
-  let mergedSelector = merge(baseSelector, newSelector)
-  if ("$and" in baseSelector && "$and" in newSelector) {
+
+  // Remove $ands and $ors before merging, and then add them back in with the correct logic
+  let mergedSelector = merge(removeAndOr(baseSelector), removeAndOr(newSelector));
+  if ("$and" in baseSelector || "$and" in newSelector) {
     mergedSelector = {
       ...mergedSelector,
-      $and: [...baseSelector.$and, ...newSelector.$and]
+      $and: [...(baseSelector.$and ?? []), ...(newSelector.$and ?? [])]
     }
   }
-  if ("$or" in baseSelector && "$or" in newSelector) {
+  if ("$or" in baseSelector || "$or" in newSelector) {
     mergedSelector = {
       ...mergedSelector,
-      $and: [{$or: baseSelector.$or}, {$or: newSelector.$or}, ...(mergedSelector.$and ?? [])]
+      $and: [...(baseSelector.$or ? [{$or: baseSelector.$or}] : []), ...(newSelector.$or ? [{$or: newSelector.$or}] : []), ...(mergedSelector.$and ?? [])]
     }
   }
   return mergedSelector;

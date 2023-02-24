@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, Typography, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -45,7 +45,7 @@ export const SpotlightsPage = ({classes}: {
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
-      <Typography variant="body2">You must be logged in as an admin to use this page.</Typography>
+      <ErrorAccessDenied/>
     </SingleColumnSection>;
   }
 

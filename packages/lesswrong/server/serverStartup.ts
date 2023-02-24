@@ -2,7 +2,7 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
@@ -21,6 +21,7 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
+import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
@@ -111,6 +112,8 @@ const initSettings = () => {
 
 const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
+
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {

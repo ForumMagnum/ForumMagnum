@@ -4,7 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -38,11 +39,12 @@ const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }) => {
   const { results } = useMulti({
-    terms: {view: 'currentUserSubforums'},
+    terms: {view: 'coreTags', limit: 100},
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
+    skip: !isEAForum
   })
   const [showAll, setShowAll] = useState(false)
 
@@ -64,15 +66,15 @@ const SubforumsList = ({ onClick, classes }) => {
   
   const { TabNavigationSubItem } = Components
   
-  const getListItem = (subforum) => (
+  const getListItem = (tag: TagSubforumSidebarFragment) => (
     <MenuItemUntyped
-      key={subforum._id}
+      key={tag._id}
       onClick={onClick}
       component={Link}
-      to={tagGetSubforumUrl(subforum)}
+      to={tag.isSubforum ? tagGetSubforumUrl(tag) : tagGetUrl(tag)}
       classes={{ root: classes.menuItem }}
     >
-      <TabNavigationSubItem className={classes.subItem}>{subforum.name}</TabNavigationSubItem>
+      <TabNavigationSubItem className={classes.subItem}>{tag.name}</TabNavigationSubItem>
     </MenuItemUntyped>
   );
 
@@ -80,7 +82,7 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Subforums</div>
+          <div className={classes.title}>Core topics</div>
           {initialResults.map((subforum) => getListItem(subforum))}
           {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (

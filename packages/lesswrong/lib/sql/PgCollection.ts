@@ -96,7 +96,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       const {sql, args} = query.compile();
       if (!quiet) {
         // eslint-disable-next-line no-console
-        console.error(`SQL Error for ${collectionName}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
+        console.error(`SQL Error for ${collectionName} at position ${error.position}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
       }
       throw error;
     } finally {
@@ -158,13 +158,30 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T> & {upsert: true},
   ) {
-    const data = modifier.$set ?? modifier as T;
+    const {$set, ...rest} = modifier;
+    const data = {
+      ...$set,
+      ...rest,
+      ...selector,
+    } as T;
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
-        conflictStrategy: "upsert",
-        upsertSelector: selector,
+      conflictStrategy: "upsert",
+      upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
-    return result.length;
+    const action = result[0]?.action;
+    if (!action) {
+      return 0;
+    }
+    const returnCount = options?.returnCount ?? "matchedCount";
+    switch (returnCount) {
+    case "matchedCount":
+      return action === "updated" ? 1 : 0;
+    case "upsertedCount":
+      return action === "inserted" ? 1 : 0;
+    default:
+      throw new Error(`Invalid upsert return count: ${returnCount}`);
+    }
   }
 
   rawUpdateOne = async (
@@ -191,7 +208,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
-    const query = new DeleteQuery<T>(this.getTable(), selector, options);
+    options = Object.assign({noSafetyHarness: true}, options);
+    const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
     const result = await this.executeQuery(query, {selector, options});
     return {deletedCount: result.length};
   }

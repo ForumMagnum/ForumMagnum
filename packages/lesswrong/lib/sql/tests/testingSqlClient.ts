@@ -141,6 +141,12 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   };
 }
 
+/**
+ * Our approach to database cleanup is to just delete all the runs older than 1 day.
+ * This allows us to inspect the databases created during the last run if necessary
+ * for debugging whilst also making sure that we clean up after ourselves eventually
+ * (assuming that the tests are run again some day).
+ */
 export const dropTestingDatabases = async (olderThan?: string | Date) => {
   const sql = await createTemporaryConnection();
   const databases = await sql.any(`
@@ -150,14 +156,20 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
-  olderThan = new Date(olderThan ?? Date.now());
+  const secondsPerDay = 1000 * 60 * 60 * 24;
+  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
   for (const database of databases) {
     const {datname} = database;
+    if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {
+      continue;
+    }
+
+    // Replace underscores with dashes and colons etc
     const tokens = datname.split("_").slice(1, 7);
-    const day = tokens.slice(0, 2);
-    const time = tokens.slice(2, 5);
+    const yearMonth = tokens.slice(0, 2);
+    const dayTime = tokens.slice(2, 5);
     const millis = tokens[5];
-    const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
+    const dateString = (yearMonth.join("-") + "-" + dayTime.join(":") + "." + millis).toUpperCase();
     const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
       await sql.none(`DROP DATABASE ${datname}`);

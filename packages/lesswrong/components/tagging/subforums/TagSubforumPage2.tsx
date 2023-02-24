@@ -146,9 +146,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const subforumTabs = ["subforum", "wiki"] as const
+const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
-const defaultTab: SubforumTab = "subforum"
+const defaultTab: SubforumTab = "posts"
 
 const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
@@ -165,7 +165,6 @@ const TagSubforumPage2 = ({classes}: {
     SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
-    SubforumIntroBox,
     SubforumWelcomeBox,
     SubforumWikiTab,
     SubforumSubforumTab,
@@ -174,14 +173,21 @@ const TagSubforumPage2 = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { history } = useNavigation();
-  
+
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
   
-  const handleChangeTab = (_, value: SubforumTab) => {
+  const handleChangeTab = useCallback((_, value: SubforumTab) => {
     const newQuery = {...query, tab: value}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
-  }
+  }, [history, query])
+
+  // "subforum" tab is now called "posts", so redirect to the new tab name
+  useEffect(() => {
+    if (query.tab === "subforum") {
+      handleChangeTab(null, "posts")
+    }
+  }, [handleChangeTab, query.tab, tab])
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -321,16 +327,14 @@ const TagSubforumPage2 = ({classes}: {
         aria-label="select tab"
         scrollButtons="off"
       >
-        <Tab label="Subforum" value="subforum" />
+        <Tab label="Posts" value="posts" />
         <Tab label="Wiki" value="wiki" />
       </Tabs>
     </div>
   );
 
   const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
-    subforum: [
-      // Intro box: "What is a subforum?"
-      <SubforumIntroBox key={"intro_box"} />,
+    posts: [
       // Welcome box: "Welcome to the [subforum name] subforum!"
       <SubforumWelcomeBox
         html={tag.subforumWelcomeText?.html}
@@ -352,7 +356,7 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
+    posts: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 
