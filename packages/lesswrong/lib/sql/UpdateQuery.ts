@@ -171,16 +171,15 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
-          ["JSONB_SET(", column, ",", path, ",", ...updateValue, ", TRUE)"],
+          ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
         );
       }
 
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`, e);
-      return [];
+      // @ts-ignore
+      throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }
 

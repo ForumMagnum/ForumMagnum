@@ -237,7 +237,7 @@ interface DbDebouncerEvents extends DbObject {
   delayTime: Date
   upperBoundTime: Date
   key: string
-  pendingEvents: Array<any /*{"definitions":[{"blackbox":true}]}*/>
+  pendingEvents: Array<string>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -998,6 +998,7 @@ interface DbUser extends DbObject {
   allPostsSorting: string
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
+  allPostsHideCommunity: boolean
   allPostsOpenSettings: boolean
   draftsListSorting: string
   draftsListShowArchived: boolean
