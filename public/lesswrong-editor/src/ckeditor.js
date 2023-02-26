@@ -69,8 +69,6 @@ import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 import Button from './ckeditor5-button/button';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
-export class PostEditor extends BalloonBlockEditorBase {}
-export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must then run:
 // `yarn run rebuild-ckeditor`
@@ -81,7 +79,6 @@ const sharedPlugins = [
 	Autoformat,
 	BlockQuote,
 	Bold,
-	Button,
 	CKFinder,
 	Essentials,
 	Heading,
@@ -142,10 +139,22 @@ const collaborativeEditorPlugins = [
 	PresenceList
 ];
 
-PostEditor.builtinPlugins = [ ...postEditorPlugins ];
-PostEditor.defaultConfig = { ...postEditorConfig };
-PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
-PostEditorCollaboration.defaultConfig = {...postEditorConfig};
+const siteSpecificPlugins = {
+  EAForum: [Button],
+};
+export function getPostEditor(forumType) {
+  class PostEditor extends BalloonBlockEditorBase {}
+  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditor.defaultConfig = { ...postEditorConfig };
+  return PostEditor;
+}
+export function getPostEditorCollaboration(forumType) {
+  class PostEditorCollaboration extends BalloonBlockEditorBase {}
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
+  return PostEditorCollaboration;
+}
+
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
 
