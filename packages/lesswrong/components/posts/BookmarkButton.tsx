@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim3,
   },
   icon: {
-    ...(USE_FRIENDLY_ICONS ? {width: 24} : {})
+    ...(USE_FRIENDLY_ICONS ? {fontSize: "22px !important"} : {})
   },
 })
 
