@@ -44,19 +44,25 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
       cloud_name: cloudName,
       api_key: apiKey,
       api_secret: apiSecret,
-      transformation: {
-        quality: 'auto'
-      }
     }
   );
   logger(`Result of moving image: ${result.secure_url}`);
+
+  // Serve all images with automatic quality and format transformations to save on bandwidth
+  const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    quality: 'auto',
+    fetch_format: 'auto'
+  });
   
   await Images.rawInsert({
     originalUrl: oldUrl,
-    cdnHostedUrl: result.secure_url,
+    cdnHostedUrl: autoQualityFormatUrl,
   });
   
-  return result.secure_url;
+  return autoQualityFormatUrl;
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.
