@@ -104,7 +104,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "baseline",
   },
   bottom: {
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: isEAForum ? theme.spacing.unit : 5,
     minHeight: 12,
     ...(isEAForum ? {} : {fontSize: 12}),
   },

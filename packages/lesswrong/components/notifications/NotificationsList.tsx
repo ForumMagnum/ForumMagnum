@@ -17,8 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isEAForum ? theme.typography.body2 : {}),
     padding: 10
   },
-  noNotificationsMessage: {
-  },
 
   loadMoreButton: {
     fontSize: "14px",
