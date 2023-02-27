@@ -14,6 +14,8 @@ import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
+import { PinIcon } from "../icons/pinIcon";
+import { StickyIcon } from "../icons/stickyIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -29,7 +31,8 @@ export type ForumIconName =
   "BookmarkBorder" |
   "Star" |
   "User" |
-  "Link";
+  "Link" |
+  "Pin";
 
 const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
   VolumeUp: MuiVolumeUpIcon,
@@ -38,6 +41,7 @@ const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
   Star: MuiStarIcon,
   User: MuiPersonIcon,
   Link: MuiLinkIcon,
+  Pin: StickyIcon,
 };
 
 const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
@@ -47,6 +51,7 @@ const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
   Star: StarIcon,
   User: UserIcon,
   Link: LinkIcon,
+  Pin: PinIcon,
 };
 
 export type IconProps = {
