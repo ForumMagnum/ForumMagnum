@@ -6,12 +6,13 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+const PODCAST_ICON_SIZE = USE_FRIENDLY_ICONS ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -60,11 +61,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: 24,
+    height: PODCAST_ICON_SIZE,
   },
   togglePodcastIcon: {
-    width: 24,
-    height: 24,
+    width: PODCAST_ICON_SIZE,
+    height: PODCAST_ICON_SIZE,
   },
   actions: {
     display: 'inline-block',
