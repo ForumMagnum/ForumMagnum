@@ -4,7 +4,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontWeight: 450,
+    fontWeight: 400,
     marginTop: 32,
     display: "flex",
     justifyContent: "center"

@@ -24,7 +24,7 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   checkboxContainer: {
     margin: '10px 0',
     fontSize: '1.1rem',
-    fontWeight: 450,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
   },
 });
 

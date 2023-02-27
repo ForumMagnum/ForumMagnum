@@ -11,7 +11,7 @@
   vertical-align: bottom;
   height: 34px;
   width: 36px;
-  font-weight: 600;
+  font-weight: var(--draftjs-button-font-weight);
 }
 
 .button svg {

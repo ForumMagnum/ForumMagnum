@@ -12,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '24px',
     color: theme.palette.text.dim,
     marginTop: -10,
+    ...theme.typography.smallCaps,
   },
   serif: {
     fontFamily: theme.typography.body1.fontFamily,

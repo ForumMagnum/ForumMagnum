@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    ...theme.typography.smallCaps,
   },
   description: {
     ...theme.typography.body2,

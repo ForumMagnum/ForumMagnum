@@ -6,7 +6,7 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
@@ -23,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
+    ...theme.typography.smallCaps,
     marginTop: 0,
     marginBottom: 8,
     display: "block",

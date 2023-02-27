@@ -190,6 +190,9 @@ export const eaForumTheme: SiteThemeSpecification = {
         italic: {
           fontStyle: "normal",
         },
+        smallCaps: {
+          fontVariant: "normal",
+        },
       },
       overrides: {
         MuiTooltip: {

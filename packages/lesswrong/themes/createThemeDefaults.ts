@@ -228,6 +228,9 @@ export const baseTheme: BaseThemeSpecification = {
         italic: {
           fontStyle: "italic",
         },
+        smallCaps: {
+          fontVariant: "small-caps",
+        },
       },
       zIndexes: {
         ...zIndexes

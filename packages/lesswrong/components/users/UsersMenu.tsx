@@ -46,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
+    fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
   },

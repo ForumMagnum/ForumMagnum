@@ -67,10 +67,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display2,
-    ...theme.typography.headerStyle,
+    ...theme.typography[isEAForum ? "display2" : "display3"],
+    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: 700,
+    fontWeight: isEAForum ? 700 : 600,
+    ...theme.typography.smallCaps,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {

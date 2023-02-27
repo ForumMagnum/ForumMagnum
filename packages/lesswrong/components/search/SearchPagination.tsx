@@ -5,6 +5,7 @@ import { Pagination } from 'react-instantsearch-dom';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontFamily: theme.typography.fontFamily,
+    ...theme.typography.smallCaps,
     '& .ais-Pagination': {
       width: 'auto',
       display: 'inline-block',

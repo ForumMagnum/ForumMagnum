@@ -61,7 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
-    fontWeight: 450,
+    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     "@media print": {
       display: "none",
@@ -105,7 +105,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   bottom: {
     paddingBottom: theme.spacing.unit,
-    minHeight: 12
+    minHeight: 12,
+    ...(isEAForum ? {} : {fontSize: 12}),
   },
   replyForm: {
     marginTop: 2,
@@ -160,7 +161,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
-    fontWeight: 450,
     color: theme.palette.link.dim2,
   },
   reviewVotingButtons: {
@@ -509,7 +509,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
               {relevantTagsTruncated.map(tag =>
-                <FooterTag tag={tag} key={tag._id} className={classes.relevantTag} neverCoreStyling />
+                <FooterTag
+                  tag={tag}
+                  key={tag._id}
+                  smallText={!isEAForum}
+                  className={classes.relevantTag}
+                  neverCoreStyling
+                />
               )}
               {shouldDisplayLoadMore && <LoadMore
                 loadMore={() => setShowMoreClicked(true)}

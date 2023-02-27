@@ -9,6 +9,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -29,7 +30,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
     marginTop: 0,
-    textTransform: "uppercase",
+    ...(isEAForum
+      ? {textTransform: "uppercase"}
+      : theme.typography.smallCaps),
   },
   description: {
     marginTop: theme.spacing.unit * 2,

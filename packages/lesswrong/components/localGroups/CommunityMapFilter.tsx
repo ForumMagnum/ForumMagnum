@@ -19,7 +19,7 @@ import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: 600,
+    fontWeight: isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,

@@ -17,6 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 10,
     fontSize: 20,
     lineHeight: 1.25,
+    ...theme.typography.smallCaps,
   },
   meta: {
     display: "inline-block",
