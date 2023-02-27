@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   link: {
   },
   icon: {
-    fontSize: "0.9rem",
+    fontSize: "0.9rem !important",
     transform: USE_FRIENDLY_ICONS ? undefined : "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,

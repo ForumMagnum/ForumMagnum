@@ -14,10 +14,10 @@ import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { StickyIcon } from '../../posts/PostsTitle';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
+import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -140,10 +140,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
   },
-  pinnedIcon: {
+  pinnedIconWrapper: {
     color: theme.palette.grey[400],
     paddingTop: 10,
-    marginBottom: '-3px'
+    marginBottom: '-3px',
+  },
+  pinnedIcon: {
+    ...(USE_FRIENDLY_ICONS
+      ? {fontSize: "12px !important"}
+      : {}),
   },
   title: {
     ...theme.typography.display2,
@@ -435,8 +440,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         )}
         
         <div className={classes.postTitleRow}>
-          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
-            <StickyIcon />
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
+            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
           {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
