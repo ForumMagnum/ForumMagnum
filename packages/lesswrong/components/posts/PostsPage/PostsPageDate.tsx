@@ -1,4 +1,5 @@
 import React from 'react';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 
@@ -20,6 +21,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   classes: ClassesType,
 }) => {
   const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -40,7 +42,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   return (<React.Fragment>
     <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
-          <FormatDate date={post.postedAt} format="D MMM YYYY" tooltip={false} />
+          <FormatDate date={post.postedAt} format={isEAForum ? "D MMM YYYY" : "Do MMM YYYY"} tooltip={false} />
         </span>
     </LWTooltip>
   </React.Fragment>);

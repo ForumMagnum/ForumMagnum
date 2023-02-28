@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount } from '../../../lib/collections/posts/helpers';
+import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -12,6 +12,14 @@ import moment from 'moment';
 import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
+/**
+ * [X] Use a comment icon rather than "n comments"
+ * [X] Remove ordinal from date (8th Feb 2023 -> 8 Feb 2023)
+ * [ ] Increase secondary info font size to unify styling with author name
+Make spacing before triple dot icon the same as other secondary info items
+Increase margin between secondary info and title on EA Forum to 16px (site-specific because the original margin was already site-specific)
+Minor modifications to menu item styling on the EA Forum
+ */
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
 
@@ -21,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
   },
   headerLeft: {
     width:"100%"
@@ -35,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:0,
   },
   secondaryInfo: {
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: theme.forumType === 'EAForum' ? theme.typography.body1.fontSize : theme.typography.body2.fontSize,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
   },
@@ -43,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
   },
-  commentsLink: {
+  secondaryInfoLink: {
     marginRight: SECONDARY_SPACING,
     whiteSpace: "no-wrap",
     display: "inline-block",
@@ -67,6 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "@media print": { display: "none" },
   },
   authors: {
+    fontSize: theme.typography.body1.fontSize,
     display: 'inline-block',
     marginRight: SECONDARY_SPACING
   },
@@ -88,12 +97,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'transparent'
   },
   commentIcon: {
-    fontSize: "1.3em",
-    marginRight: 1,
-    transform: "translateY(6px)",
-  },
-  commentIconEAForum: {
     fontSize: "1.4em",
+    marginRight: 1,
     transform: "translateY(5px)",
   },
 });
@@ -177,7 +182,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
   const readTime = post.readTimeMinutes ?? 1
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const isEAForum = forumTypeSetting.get() === 'LessWrong';
 
   const {
     answerCount,
@@ -218,9 +223,18 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}><CommentIcon className={classNames(classes.commentIcon, {[classes.commentIconEAForum]: isEAForum})} /> {commentCount}</a>
-          <BookmarkButton post={post} variant='iconWithText' />
+          {post.question && <a className={classes.secondaryInfoLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
+            <a className={classes.secondaryInfoLink} href={"#comments"}>
+              {isEAForum ?
+                <>
+                  <CommentIcon className={classes.commentIcon} /> {commentCount}
+                </> :
+                <>
+                  {postGetCommentCountStr(post, commentCount)}
+                </>
+              }
+            </a>
+          {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
@@ -237,13 +251,13 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
               </NewFeaturePulse>
             )
           }
-          {post.startTime && <div className={classes.commentsLink}>
+          {post.startTime && <div className={classes.secondaryInfoLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>}
           {!hideMenu &&
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} includeBookmark={false} />
+                <PostActionsButton post={post} includeBookmark={!isEAForum} />
               </AnalyticsContext>
             </span>
           }

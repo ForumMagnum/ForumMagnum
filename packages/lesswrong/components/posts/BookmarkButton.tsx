@@ -84,9 +84,9 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
   }
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
-  const title = bookmarked ? "Un-bookmark" : "Bookmark"
-  const bookmarkLabelText = bookmarked ? "Bookmarked" : "Bookmark"
-  const bookmarkHoverText = bookmarked ? "Remove from bookmarks" : "Bookmark post for later"
+  const bookmarkHoverText = bookmarked ? "Un-bookmark" : "Bookmark";
+  const saveLabelText = bookmarked ? "Save" : "Saved";
+  const saveHoverText = bookmarked ? "Remove from saved posts" : "Save post for later";
   const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   switch(variant) {
@@ -96,21 +96,21 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
           <ListItemIcon>
             { icon }
           </ListItemIcon>
-          {title}
+          {bookmarkHoverText}
         </MenuItem>
       )
     case 'iconWithText':
       return (
-        <LWTooltip title={bookmarkHoverText} placement="bottom">
+        <LWTooltip title={saveHoverText} placement="bottom">
           <a onClick={toggleBookmark} className={classNames(classes.iconWithText, {[classes.iconWithTextEAForum]: isEAForum})}>
-            {icon} {bookmarkLabelText}
+            {icon} {saveLabelText}
           </a>
         </LWTooltip>
       )
     case 'icon':
     default:
       return (
-        <LWTooltip title={title} placement={placement}>
+        <LWTooltip title={bookmarkHoverText} placement={placement}>
           <span onClick={toggleBookmark} className={classes.icon}>
           { icon }
           </span>
