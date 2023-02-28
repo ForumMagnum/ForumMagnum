@@ -330,13 +330,32 @@ const migrateLWEvents = async (resumeTime?: Date) => {
     }
   }
 
+  const collection = LWEvents;
+  if (!(collection instanceof SwitchingCollection)) {
+    throw new Error("LWEvents is not a switching collection");
+  }
+
+  const oldest = await collection.getMongoCollection().find({}, {
+    sort: {createdAt: 1},
+    limit: 1,
+    projection: {createdAt: 1},
+  }).fetch();
+
+  if (oldest.length !== 1) {
+    throw new Error("Can't find oldest event");
+  }
+
+  const oldestCreatedAt = oldest[0].createdAt;
+
+  // eslint-disable-next-line no-console
+  console.log("Oldest event created at", oldestCreatedAt);
+
   const sql = getSqlClientOrThrow();
 
-  const windowSizeMonths = 6;
+  const windowSizeMonths = 3;
   const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
   let maxTime = resumeTime ?? new Date();
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  while (maxTime > oldestCreatedAt) {
     const minTime = new Date(maxTime.getTime() - windowSizeMS);
     const filter = {
       createdAt: {
@@ -347,16 +366,15 @@ const migrateLWEvents = async (resumeTime?: Date) => {
 
     console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
 
-    const collection = LWEvents;
-    if (!(collection instanceof SwitchingCollection)) {
-      throw new Error("LWEvents is not a switching collection");
-    }
     const table = collection.getPgCollection().table;
     const collectionName = collection.getMongoCollection().collectionName;
 
     const totalCount = await collection.getMongoCollection().find(filter).count();
     if (totalCount < 1) {
-      break;
+      // eslint-disable-next-line no-console
+      console.log("No documents in batch - skipping...");
+      maxTime = minTime;
+      continue;
     }
 
     const formatter = getCollectionFormatter(collection);
@@ -365,6 +383,7 @@ const migrateLWEvents = async (resumeTime?: Date) => {
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
+      useCreatedAt: true,
       filter: {
         ...makeCollectionFilter(collectionName),
         ...filter,
