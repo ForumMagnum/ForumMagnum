@@ -12,14 +12,6 @@ import moment from 'moment';
 import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-/**
- * [X] Use a comment icon rather than "n comments"
- * [X] Remove ordinal from date (8th Feb 2023 -> 8 Feb 2023)
- * [ ] Increase secondary info font size to unify styling with author name
-Make spacing before triple dot icon the same as other secondary info items
-Increase margin between secondary info and title on EA Forum to 16px (site-specific because the original margin was already site-specific)
-Minor modifications to menu item styling on the EA Forum
- */
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
 

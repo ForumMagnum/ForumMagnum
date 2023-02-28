@@ -79,6 +79,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
   function applyChange(newSettings: RecommendationsAlgorithm) {
     if (currentUser) {
       const mergedSettings = {
@@ -106,7 +107,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label="Bookmarks"
+          label={isEAForum ? "Saved Posts" : "Bookmarks"}
           tooltip="Posts that you have bookmarked will appear in Recommendations."
         />
       </span>

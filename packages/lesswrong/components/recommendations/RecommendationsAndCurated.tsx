@@ -99,6 +99,7 @@ const RecommendationsAndCurated = ({
   const currentUser = useCurrentUser();
   const {continueReading} = useContinueReading();
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const toggleSettings = useCallback(() => {
     captureEvent("toggleSettings", {action: !showSettings})
@@ -210,7 +211,7 @@ const RecommendationsAndCurated = ({
             <LWTooltip placement="top-start" title={bookmarksTooltip}>
               <Link to={"/bookmarks"}>
                 <SectionSubtitle>
-                  Bookmarks
+                  {isEAForum ? "Saved Posts" : "Bookmarks"}
                 </SectionSubtitle>
               </Link>
             </LWTooltip>
