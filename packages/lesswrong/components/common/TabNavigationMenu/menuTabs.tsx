@@ -244,7 +244,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'allPosts',
-      title: 'All Posts',
+      title: 'All posts',
       link: '/allPosts',
       iconComponent: Sort,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
@@ -291,7 +291,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'takeAction',
-      title: 'Take Action',
+      title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
