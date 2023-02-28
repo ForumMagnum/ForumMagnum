@@ -422,7 +422,7 @@ abstract class Query<T extends DbObject> {
             this.createArg(lng),
             ",",
             this.createArg(lat),
-            ")) * 0.000621371) <", // Convert metres to miles
+            ")) / 6378000) <", // Convert meters to radians, for mongo compat, 6378000 is the radius of the earth in meters
             this.createArg(distance),
           ];
 
