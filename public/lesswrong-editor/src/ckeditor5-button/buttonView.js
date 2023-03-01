@@ -22,11 +22,11 @@ export default class FormView extends View {
     );
     this.centerAlignButtonView.delegate( 'execute' ).to( this, 'center-align' );
     
-    this.cancelButtonView = this._createButton(
-      'Cancel', ''
+    this.removeButtonView = this._createButton(
+      'Remove', ''
     );
-    // Delegate ButtonView#execute to FormView#cancel.
-    this.cancelButtonView.delegate( 'execute' ).to( this, 'cancel' );
+    // Delegate ButtonView#execute to FormView#remove.
+    this.removeButtonView.delegate( 'execute' ).to( this, 'remove' );
   
     this.saveButtonView = this._createButton(
       'Save', ''
@@ -40,7 +40,7 @@ export default class FormView extends View {
       this.linkInputView,
       this.leftAlignButtonView,
       this.centerAlignButtonView,
-      this.cancelButtonView,
+      this.removeButtonView,
       this.saveButtonView,
     ] );
     

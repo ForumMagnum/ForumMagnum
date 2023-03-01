@@ -80,12 +80,10 @@ export default class ButtonUI extends Plugin {
       this._hideUI();
     } );
     
-    // Hide the form view after clicking the "Cancel" button.
-    this.listenTo( formView, 'cancel', () => {
-      // clear any errors
-      formView.textInputView.errorText = '';
-      formView.linkInputView.errorText = '';
-      this._hideUI();
+    // Delete the button when clicking the "Remove" button.
+    this.listenTo( formView, 'remove', () => {
+      this.editor.model.change(modelWriter => modelWriter.remove(this.editor.model.document.selection.getSelectedElement()))
+      this._hideUI()
     } );
     
     // Hide the form view when clicking outside the balloon.
@@ -93,7 +91,12 @@ export default class ButtonUI extends Plugin {
       emitter: formView,
       activator: () => this._balloon.visibleView === formView,
       contextElements: [ this._balloon.view.element ],
-      callback: () => this._hideUI()
+      callback: () => {
+        // clear any errors
+        formView.textInputView.errorText = '';
+        formView.linkInputView.errorText = '';
+        this._hideUI()
+      }
     } );
 
     return formView;

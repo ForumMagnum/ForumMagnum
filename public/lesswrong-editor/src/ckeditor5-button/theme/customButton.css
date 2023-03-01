@@ -36,12 +36,21 @@
 .ck.ck-customButton-form .ck-button:nth-of-type(3) {
   grid-area: 4 / 1 / 5 / 2;
   justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #bf360c;
+}
+.ck.ck-customButton-form .ck-button:nth-of-type(3):hover {
+  background: none;
+  color: #812509;
 }
 
 .ck.ck-customButton-form .ck-button:nth-of-type(4) {
   grid-area: 4 / 2 / 5 / 3;
   justify-content: center;
   background: #0c869b;
+  font-weight: 600;
+  letter-spacing: 0.4px;
   color: #fff;
 }
 .ck.ck-customButton-form .ck-button:nth-of-type(4):hover {
