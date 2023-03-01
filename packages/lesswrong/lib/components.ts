@@ -267,7 +267,6 @@ importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsBy
 importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
-importComponent("PostsDebateCommentThread", () => require('../components/posts/PostsDebateCommentThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
