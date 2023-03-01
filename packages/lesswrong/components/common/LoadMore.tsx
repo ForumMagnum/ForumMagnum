@@ -5,6 +5,7 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,7 +61,7 @@ const LoadMore = ({
   classes,
   sectionFooterStyles,
   afterPostsListMarginTop,
-  message="Load More",
+  message=preferredHeadingCase("Load More"),
 }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,

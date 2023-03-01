@@ -2,7 +2,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'Raleway',
+  'Inter',
   'Helvetica Neue',
   'Helvetica',
   'Arial',
@@ -20,8 +20,7 @@ const serifStack = [
 // TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'Merriweather Sans',
-  'Lato',
+  'Inter',
   'Helvetica Neue',
   'Helvetica',
   'Arial',
@@ -84,17 +83,14 @@ export const eaForumTheme: SiteThemeSpecification = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
       lineHeight: '1.75em',
-      fontWeight: 400,
+      fontWeight: 450,
       fontFamily: serifStack
     }
     return {
       typography: {
         fontDownloads: [
           "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
-          "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
-          // TODO we use these?
-          "https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700",
-          "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
+          "https://fonts.googleapis.com/css?family=Inter:300,400,450,500,600,700",
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
@@ -106,7 +102,19 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         body2: {
           fontSize: "1.1rem",
-          lineHeight: "1.5em"
+          lineHeight: "1.5em",
+          fontWeight: 450,
+        },
+        smallText: {
+          fontFamily: palette.fonts.sansSerifStack,
+          fontWeight: 450,
+          fontSize: "1rem",
+          lineHeight: '1.4rem'
+        },
+        tinyText: {
+          fontWeight: 450,
+          fontSize: ".75rem",
+          lineHeight: '1.4rem'
         },
         postStyle: {
           ...basicText,
@@ -116,6 +124,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         commentStyle: {
           fontFamily: sansSerifStack,
+          fontWeight: 450
         },
         errorStyle: {
           color: palette.error.main,
@@ -137,7 +146,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display0: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '1.6rem',
           lineHeight: '1.25em',
         },
@@ -145,7 +154,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display1: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '2rem',
           lineHeight: '1.25em',
         },
@@ -153,7 +162,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display2: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '2.4rem',
           lineHeight: '1.25em',
         },
@@ -177,7 +186,13 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         largeChapterTitle: {
           fontSize: "2.2rem"
-        }
+        },
+        italic: {
+          fontStyle: "normal",
+        },
+        smallCaps: {
+          fontVariant: "normal",
+        },
       },
       overrides: {
         MuiTooltip: {
@@ -284,7 +299,8 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         PostsPageTitle: {
           root: {
-            lineHeight: 1.25
+            lineHeight: 1.25,
+            fontWeight: 700
           }
         },
         PostsTimeBlock: {
@@ -335,5 +351,5 @@ export const eaForumTheme: SiteThemeSpecification = {
         }
       }
     }
-  },
+  }
 };

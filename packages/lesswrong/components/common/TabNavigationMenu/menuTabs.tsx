@@ -19,7 +19,7 @@ import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
@@ -244,7 +244,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'allPosts',
-      title: 'All Posts',
+      title: 'All posts',
       link: '/allPosts',
       iconComponent: Sort,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
@@ -291,7 +291,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'takeAction',
-      title: 'Take Action',
+      title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
@@ -341,7 +341,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: preferredHeadingCase('Contact Us'),
       link: '/contact',
       subItem: true,
     }
@@ -413,7 +413,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: preferredHeadingCase('Contact Us'),
       link: '/contact',
       subItem: true,
     }

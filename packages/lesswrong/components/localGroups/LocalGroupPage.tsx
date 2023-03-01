@@ -16,6 +16,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import LinkIcon from '@material-ui/icons/Link';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -429,7 +430,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
             <Components.Typography variant="headline" className={classes.contactUsHeadline}>
-              Contact Us
+              {preferredHeadingCase("Contact Us")}
             </Components.Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>

@@ -67,11 +67,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography[isEAForum ? "display2" : "display3"],
+    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: isEAForum ? 700 : 600,
+    ...theme.typography.smallCaps,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -264,11 +264,10 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
+  if (isEAForum) {
     description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)

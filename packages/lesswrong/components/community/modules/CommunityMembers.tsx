@@ -110,7 +110,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   displayName: {
-    ...theme.typography.headline,
+    ...theme.typography.headerStyle,
     fontSize: 18,
     fontWeight: 'bold',
     display: '-webkit-box',
@@ -129,8 +129,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   location: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    fontSize: 12,
-    fontStyle: 'italic',
     marginTop: 4,
   },
   description: {

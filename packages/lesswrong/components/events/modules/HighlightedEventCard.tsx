@@ -39,7 +39,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     top: 20,
     left: 25,
     ...theme.typography.commentStyle,
-    fontStyle: 'italic',
+    ...theme.typography.italic,
     fontSize: 14,
     opacity: 0.7
   },

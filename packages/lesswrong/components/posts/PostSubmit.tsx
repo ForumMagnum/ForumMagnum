@@ -15,7 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 5,
     ...(isEAForum ? {
       textTransform: 'none',
-      fontWeight: 400,
     } : {
       paddingBottom: 4,
       fontWeight: 500,

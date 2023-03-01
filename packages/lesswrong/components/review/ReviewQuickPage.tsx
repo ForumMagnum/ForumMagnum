@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import sortBy from 'lodash/sortBy';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -126,6 +127,8 @@ export const ReviewQuickPage = ({classes}: {
     }
   }
 
+  const loadMoreText = `<a>(${preferredHeadingCase("Load More")})</a>`;
+
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
       {!expandedPost && <div>
@@ -162,7 +165,7 @@ export const ReviewQuickPage = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>

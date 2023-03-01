@@ -16,6 +16,7 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
+  fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
   color: theme.palette.tag.text,
@@ -40,6 +41,7 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   fontSize: 12,
   paddingTop: 1,
   paddingBottom: 2,
+  fontWeight: theme.typography.body1.fontWeight,
   marginBottom: 0
 });
 
