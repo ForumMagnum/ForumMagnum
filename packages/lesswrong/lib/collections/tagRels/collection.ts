@@ -56,9 +56,11 @@ const schema: SchemaType<DbTagRel> = {
     type: Boolean,
     graphQLtype: 'Boolean',
     viewableBy: ['guests'],
-    resolver: async (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+    resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
-      return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
+      return context.currentUser
+        ? !(await userCanVoteOnTag(context.currentUser, document.tagId, document.postId, context)).fail
+        : true;
     },
   }),
   
@@ -101,7 +103,13 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
-  userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
+  userCanVoteOn: (
+    user: DbUser,
+    document: DbTagRel,
+    _voteType: string|null,
+    _extendedVote: any,
+    context: ResolverContext,
+  ) => userCanVoteOnTag(user, document.tagId, document.postId, context),
 });
 
 export default TagRels;
