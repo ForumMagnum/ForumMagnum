@@ -264,17 +264,17 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-    
-    const { LWClickAwayListener, LWPopper } = Components;
+
+    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
         <div ref={anchorEl}>
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
-              ? <StarBorderIcon className={classes.starIcon}/>
+              ? <ForumIcon icon="StarBorder" className={classes.starIcon}/>
               : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                  <StarIcon className={classes.starIcon}/>
+                  <ForumIcon icon="Star" className={classes.starIcon}/>
                 </Badge>
             }
           </IconButton>

@@ -8,10 +8,12 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/24/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
+import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiStarIcon from "@material-ui/icons/Star";
+import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import { PinIcon } from "../icons/pinIcon";
@@ -30,6 +32,7 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "Star" |
+  "StarBorder" |
   "User" |
   "Link" |
   "Pin";
@@ -39,6 +42,7 @@ const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
   Bookmark: MuiBookmarkIcon,
   BookmarkBorder: MuiBookmarkBorderIcon,
   Star: MuiStarIcon,
+  StarBorder: MuiStarBorderIcon,
   User: MuiPersonIcon,
   Link: MuiLinkIcon,
   Pin: StickyIcon,
@@ -49,6 +53,7 @@ const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
   Bookmark: BookmarkIcon,
   BookmarkBorder: BookmarkOutlineIcon,
   Star: StarIcon,
+  StarBorder: StarOutlineIcon,
   User: UserIcon,
   Link: LinkIcon,
   Pin: PinIcon,
