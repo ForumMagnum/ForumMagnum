@@ -238,7 +238,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId, hideParentCommentToggle } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
@@ -466,7 +466,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
             {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
-            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+            {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
                 active={showParentState}

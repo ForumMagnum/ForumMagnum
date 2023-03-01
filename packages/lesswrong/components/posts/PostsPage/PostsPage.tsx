@@ -17,7 +17,7 @@ import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
-import { useDialog } from '../../common/withDialog';
+import { OpenDialogContextType, useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { styles as commentsItemStyles } from '../../comments/CommentsItem/CommentsItem';
@@ -167,7 +167,7 @@ const PostsPage = ({post, refetch, classes}: {
 }) => {
   const location = useSubscribedLocation();
   const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
+  const { openDialog, closeDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -177,6 +177,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const [showDebateCommentsReplyDialogs, setShowDebateCommentsReplyDialogs] = useState<CommentsList[]>([]);
 
   const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -224,13 +225,25 @@ const PostsPage = ({post, refetch, classes}: {
     skip: !post.debate
   });
 
-  console.log({ debateComments });
+  const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+    ? {...(query as CommentsViewTerms), limit:1000}
+    : {view: defaultView, limit: 1000}
+
+  const { results: nonDebateComments } = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    skip: !post.debate
+  });
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
+    PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, CommentBody, CommentUserName, CommentsItemDate
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateComment
   } = Components
 
   useEffect(() => {
@@ -252,11 +265,6 @@ const PostsPage = ({post, refetch, classes}: {
     [sideCommentMode, setSideCommentMode]
   );
   
-  const defaultView = commentGetDefaultView(post, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
@@ -281,6 +289,38 @@ const PostsPage = ({post, refetch, classes}: {
       noClickawayCancel: true,
     })
   }, [openDialog, post]);
+
+  const getReplyDebateCommentDialogProps = (parentComment?: CommentsList): Parameters<OpenDialogContextType<'ReplyCommentDialog'>['openDialog']>[0] => ({
+    componentName:"ReplyCommentDialog",
+    componentProps: {
+      post,
+      parentComment,
+      initialHtml: '',
+      overrideTitle: `${post.title} - reply to ${parentComment?.user?.displayName}`,
+      onCloseCallback: () => setShowDebateCommentsReplyDialogs([])
+    },
+    noClickawayCancel: true,
+  } as const);
+
+  const openDebateReplyCommentDialog = useCallback((parentComment: CommentsList, toggle: 'open' | 'close') => {
+    closeDialog();
+    const dialogsWithoutToggledComment = showDebateCommentsReplyDialogs.filter(comment => comment._id !== parentComment._id);
+
+    if (toggle === 'open') {
+      const replyDialogCommentsStack = [...dialogsWithoutToggledComment, parentComment];
+      setShowDebateCommentsReplyDialogs(replyDialogCommentsStack);
+
+      const dialogProps = getReplyDebateCommentDialogProps(parentComment);
+      openDialog(dialogProps);
+    } else {
+      if (dialogsWithoutToggledComment.length !== 0) {
+        const currentParentComment = dialogsWithoutToggledComment.at(-1);
+        const dialogProps = getReplyDebateCommentDialogProps(currentParentComment);  
+        openDialog(dialogProps);  
+      }
+      setShowDebateCommentsReplyDialogs(dialogsWithoutToggledComment);
+    }
+  }, [openDialog, post, showDebateCommentsReplyDialogs]);
 
   const tableOfContents = sectionData
     ? <TableOfContents sectionData={sectionData} title={post.title} />
@@ -330,7 +370,7 @@ const PostsPage = ({post, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
-  
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -356,19 +396,16 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.debate && debateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}>
+        {post.debate && debateComments && nonDebateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}>
           {/** Debate contents go here? */}
           {debateComments.map(comment => {
-            const debateComment = { ...comment, debateComment: true };
-            return <div className={classes.innerDebateComment}>
-              <CommentUserName comment={comment} className={classes.username} />
-              <CommentsItemDate
-                comment={debateComment} post={post}
-                // scrollIntoView={scrollIntoView}
-                // scrollOnClick={postPage && !isParentComment}
-              />
-              <CommentBody comment={comment} />
-            </div>;
+            return <DebateComment
+              comment={comment}
+              replies={nonDebateComments.filter(replyComment => replyComment.topLevelCommentId === comment._id)}
+              loadingReplies={false}
+              post={post}
+              toggleDebateCommentReplyForm={openDebateReplyCommentDialog}
+            />
           })}
         </ContentStyles>}
 

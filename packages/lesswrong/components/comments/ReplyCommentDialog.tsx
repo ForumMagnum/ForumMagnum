@@ -10,18 +10,25 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
  *   the selected content.
  * onClose: Called when the close button is clicked on the floating editor.
  */
-const ReplyCommentDialog = ({post, initialHtml, onClose}: {
+const ReplyCommentDialog = ({post, initialHtml, parentComment, overrideTitle, onCloseCallback, onClose}: {
   post: PostsList,
   initialHtml: string,
+  parentComment?: CommentsList,
+  overrideTitle?: string,
+  onCloseCallback?: () => void,
   onClose: ()=>void,
 }) => {
   const { PopupCommentEditor } = Components;
   
   return <PopupCommentEditor
-    title={post.title}
-    onClose={onClose}
+    title={overrideTitle ?? post.title}
+    onClose={() => {
+      onClose();
+      onCloseCallback?.();
+    }}
     commentFormProps={{
       post: post,
+      parentComment,
       prefilledProps: {
         contents: {
           originalContents: {

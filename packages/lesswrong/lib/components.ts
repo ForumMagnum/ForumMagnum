@@ -267,6 +267,7 @@ importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsBy
 importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
+importComponent("PostsDebateCommentThread", () => require('../components/posts/PostsDebateCommentThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
@@ -434,6 +435,8 @@ importComponent("CommentsViews", () => require('../components/comments/CommentsV
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
+importComponent("DebateComment", () => require('../components/comments/DebateComment'));
+importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
