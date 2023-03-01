@@ -27,7 +27,7 @@ const migrationTemplateFooter = `
  * (run \`git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql\` to see this more clearly)
  *
  * - [ ] Write a migration to represent these changes
- * - [ ] Rename this file to something more readable if you wish
+ * - [ ] Rename this file to something more readable
  * - [ ] Uncomment \`acceptsSchemaHash\` below
  * - [ ] Run \`yarn acceptmigrations\` to update the accepted schema hash (running makemigrations again will also do this)
  */

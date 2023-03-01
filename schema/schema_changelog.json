@@ -101,7 +101,7 @@
   },
   {
     "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
-    "acceptedByMigration": "20230206T192711.auto.ts",
+    "acceptedByMigration": "20230206T192711.add_relevantTagIds_to_comments.ts",
     "timestamp": "2023-02-06T19:27:11.000Z"
   },
   {
@@ -115,13 +115,18 @@
     "timestamp": "2023-02-08T17:44:49.000Z"
   },
   {
-    "acceptsSchemaHash": "c4ad9670df04a3753f9e2db9bb5bade8",
+    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
     "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
     "timestamp": "2023-02-09T21:26:42.000Z"
   },
   {
-    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
-    "acceptedByMigration": "20230209T220741.auto.ts",
-    "timestamp": "2023-02-09T22:07:41.000Z"
+    "acceptsSchemaHash": "0a82b29a9f761a79f5587f6469f51465",
+    "acceptedByMigration": "20230216T223955.add_allPostsHideCommunity.ts",
+    "timestamp": "2023-02-16T22:39:55.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c938b8b04e3c61dec2f0b640b6cb0b4d",
+    "acceptedByMigration": "20230223T115602.DebouncerEvents_pendingEvents_string_array.ts",
+    "timestamp": "2023-02-23T11:56:02.000Z"
   }
 ]

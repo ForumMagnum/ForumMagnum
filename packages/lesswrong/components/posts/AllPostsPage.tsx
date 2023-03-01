@@ -63,12 +63,13 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     })
   }
 
-  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents}: {
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents, currentHideCommunity}: {
     currentTimeframe: string;
     currentFilter: string;
     currentSorting: string;
     currentShowLowKarma: boolean;
     currentIncludeEvents: boolean;
+    currentHideCommunity: boolean;
   }) => {
     const { timezone, location } = this.props
     const { query } = location
@@ -78,6 +79,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const baseTerms: PostsViewTerms = {
       karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
       excludeEvents: !currentIncludeEvents && currentFilter !== 'events',
+      hideCommunity: currentHideCommunity,
       filter: currentFilter,
       sortedBy: currentSorting,
       after: query.after,
@@ -144,6 +146,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
       currentUser?.allPostsShowLowKarma || false
     const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false
+    const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false
 
     return (
       <React.Fragment>
@@ -164,10 +167,11 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}
+              currentHideCommunity={currentHideCommunity}
               persistentSettings
               showTimeframe
             />
-            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents})}
+            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity})}
           </SingleColumnSection>
         </AnalyticsContext>
       </React.Fragment>

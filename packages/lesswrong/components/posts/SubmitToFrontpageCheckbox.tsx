@@ -40,7 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",
@@ -49,12 +48,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   checkboxLabel: {
-    fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
-    color: theme.palette.text.dim40,
+    fontSize: 14,
+    color: theme.palette.grey[680],
     verticalAlign: 'middle',
     lineHeight: '1.25em'
+  },
+  checkbox: {
+    padding: 6
   },
   tooltip: {
     '& ul': {
@@ -111,7 +112,7 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     return <div className={classes.submitToFrontpageWrapper}>
       <Tooltip title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
-          <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick}/>
+          <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
           <span className={classes.checkboxLabel}>{label}</span>
         </div>
       </Tooltip>
