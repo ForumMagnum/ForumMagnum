@@ -18,14 +18,13 @@ import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
+import useUIStyle from "../themes/useUIStyle";
 
 /**
  * This exists to allow us to easily use different icon sets on different
- * forums. To add a new icon, add its name to `ForumIconName` and add a
- * default icon component to `DEFAULT_ICONS`, which generally uses icons
- * from MaterialUI. It is optional (but strongly encouraged) to also add
- * a "friendly" icon to `FRIENDLY_ICONS`, which generally uses icons from
- * HeroIcons.
+ * forums. To add a new icon, add its name to `ForumIconName` and add an
+ * icon component to each option in `ICONS`. `book` generally uses icons
+ * from MaterialUI and `friendly` generally uses icons from HeroIcons.
  */
 export type ForumIconName =
   "VolumeUp" |
@@ -37,26 +36,27 @@ export type ForumIconName =
   "Link" |
   "Pin";
 
-const DEFAULT_ICONS: Record<ForumIconName, IconComponent> = {
-  VolumeUp: MuiVolumeUpIcon,
-  Bookmark: MuiBookmarkIcon,
-  BookmarkBorder: MuiBookmarkBorderIcon,
-  Star: MuiStarIcon,
-  StarBorder: MuiStarBorderIcon,
-  User: MuiPersonIcon,
-  Link: MuiLinkIcon,
-  Pin: StickyIcon,
-};
-
-const FRIENDLY_ICONS: Partial<Record<ForumIconName, IconComponent>> = {
-  VolumeUp: SpeakerWaveIcon,
-  Bookmark: BookmarkIcon,
-  BookmarkBorder: BookmarkOutlineIcon,
-  Star: StarIcon,
-  StarBorder: StarOutlineIcon,
-  User: UserIcon,
-  Link: LinkIcon,
-  Pin: PinIcon,
+const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
+  book: {
+    VolumeUp: MuiVolumeUpIcon,
+    Bookmark: MuiBookmarkIcon,
+    BookmarkBorder: MuiBookmarkBorderIcon,
+    Star: MuiStarIcon,
+    StarBorder: MuiStarBorderIcon,
+    User: MuiPersonIcon,
+    Link: MuiLinkIcon,
+    Pin: StickyIcon,
+  },
+  friendly: {
+    VolumeUp: SpeakerWaveIcon,
+    Bookmark: BookmarkIcon,
+    BookmarkBorder: BookmarkOutlineIcon,
+    Star: StarIcon,
+    StarBorder: StarOutlineIcon,
+    User: UserIcon,
+    Link: LinkIcon,
+    Pin: PinIcon,
+  },
 };
 
 export type IconProps = {
@@ -66,12 +66,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-export const USE_FRIENDLY_ICONS = isEAForum;
-
-const getIcon = (name: ForumIconName): IconComponent =>
-  USE_FRIENDLY_ICONS
-    ? FRIENDLY_ICONS[name] ?? DEFAULT_ICONS[name]
-    : DEFAULT_ICONS[name];
+export const USE_FRIENDLY_ICONS = isEAForum; // TODO Delete this
 
 const styles = (_: ThemeType): JssStyles => ({
   root: {
@@ -90,7 +85,8 @@ type ForumIconProps = Partial<IconProps> & {
 };
 
 const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
-  const Icon = getIcon(icon);
+  const uiStyle = useUIStyle();
+  const Icon = ICONS[uiStyle][icon];
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
