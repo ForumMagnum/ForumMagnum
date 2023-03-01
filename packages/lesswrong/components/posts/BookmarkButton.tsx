@@ -9,16 +9,13 @@ import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
-import { USE_FRIENDLY_ICONS } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   container: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-  icon: {
-    ...(USE_FRIENDLY_ICONS ? {fontSize: "22px !important"} : {})
-  },
+  icon: theme.uiStyle === "friendly" ? {fontSize: "22px !important"} : {},
 })
 
 const BookmarkButton = ({classes, post, menuItem, placement="right"}: {

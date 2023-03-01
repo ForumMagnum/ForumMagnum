@@ -1,6 +1,5 @@
 import React, { memo, ComponentType, MouseEventHandler } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
@@ -65,8 +64,6 @@ export type IconProps = {
 }
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
-
-export const USE_FRIENDLY_ICONS = isEAForum; // TODO Delete this
 
 const styles = (_: ThemeType): JssStyles => ({
   root: {

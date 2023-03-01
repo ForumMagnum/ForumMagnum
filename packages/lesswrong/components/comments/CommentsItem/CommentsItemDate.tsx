@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 import qs from 'qs'
-import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     fontSize: "0.9rem !important",
-    transform: USE_FRIENDLY_ICONS ? undefined : "rotate(-45deg)",
+    transform: theme.uiStyle === "friendly" ? undefined : "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",

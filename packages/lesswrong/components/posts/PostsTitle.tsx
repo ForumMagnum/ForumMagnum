@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
-import { USE_FRIENDLY_ICONS } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,10 +39,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
     color: theme.palette.icon.slightlyDim3,
   },
-  stickyIcon: {
-    width: USE_FRIENDLY_ICONS ? 16 : undefined,
-    height: USE_FRIENDLY_ICONS ? 16 : undefined,
-  },
+  stickyIcon: theme.uiStyle === "friendly"
+    ? {
+      width: 16,
+      height: 16,
+    }
+    : {},
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,

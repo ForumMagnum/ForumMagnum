@@ -17,7 +17,6 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
-import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -146,11 +145,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: {
-    ...(USE_FRIENDLY_ICONS
-      ? {fontSize: "12px !important"}
-      : {}),
-  },
+  pinnedIcon: theme.uiStyle === "friendly"
+    ? {fontSize: "12px !important"}
+    : {},
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,

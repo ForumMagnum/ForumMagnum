@@ -4,14 +4,11 @@ import { useCurrentUser } from '../../common/withUser';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 
-const styles = (_: ThemeType) => ({
-  icon: {
-    ...(USE_FRIENDLY_ICONS
-      ? {fontSize: "18px !important"}
-      : {}),
-  },
+const styles = (theme: ThemeType) => ({
+  icon: theme.uiStyle === "friendly"
+    ? {fontSize: "18px !important"}
+    : {},
 });
 
 const PinToProfileMenuItem = ({ comment, classes }: {

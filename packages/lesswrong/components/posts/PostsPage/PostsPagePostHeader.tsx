@@ -8,12 +8,12 @@ import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
-import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
 import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
-const PODCAST_ICON_SIZE = USE_FRIENDLY_ICONS ? 20 : 24;
+
+const podcastIconSize = (theme: ThemeType) => theme.uiStyle === "friendly" ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -63,11 +63,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: PODCAST_ICON_SIZE,
+    height: podcastIconSize(theme),
   },
   togglePodcastIcon: {
-    width: PODCAST_ICON_SIZE,
-    height: PODCAST_ICON_SIZE,
+    width: podcastIconSize(theme),
+    height: podcastIconSize(theme),
   },
   actions: {
     display: 'inline-block',
