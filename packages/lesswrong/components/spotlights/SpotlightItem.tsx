@@ -114,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 15,
     color: theme.palette.grey[700],
     marginTop: -1,
-    fontStyle: "italic"
+    ...theme.typography.italic,
   },
   image: {
     '& img': {

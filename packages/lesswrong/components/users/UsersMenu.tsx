@@ -24,10 +24,11 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: 400,
+    fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
   },
@@ -79,7 +80,7 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          LOG OUT
+          {isEAForum ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
@@ -87,8 +88,7 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
+
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -142,7 +142,7 @@ const UsersMenu = ({classes}: {
             }
             <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
-              Apply for Membership
+              {preferredHeadingCase("Apply for Membership")}
             </MenuItem> }
             {currentUser.noKibitz && <div>
               <MenuItem onClick={() => {
@@ -173,7 +173,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
-                User Profile
+                {preferredHeadingCase("User Profile")}
               </MenuItem>
             </Link>}
             {userHasThemePicker(currentUser) && <ThemePickerMenu>
@@ -189,7 +189,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Account Settings
+                {preferredHeadingCase("Account Settings")}
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>
@@ -197,7 +197,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EmailIcon className={classes.icon}/>
                 </ListItemIcon>
-                Private Messages
+                {preferredHeadingCase("Private Messages")}
               </MenuItem>
             </Link>
             {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
@@ -214,13 +214,13 @@ const UsersMenu = ({classes}: {
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />
                   </ListItemIcon>
-                  Shortform Page
+                  {preferredHeadingCase("Shortform Page")}
                 </MenuItem>
               </Link>
             }
             <Divider/>
             <MenuItem component="a" href="/logout">
-              Log Out
+              {preferredHeadingCase("Log Out")}
             </MenuItem>
           </Paper>
         </LWPopper>

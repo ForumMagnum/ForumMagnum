@@ -12,6 +12,7 @@ import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/pu
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -155,7 +156,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
-                <SectionTitle title="All Posts">
+                <SectionTitle title={preferredHeadingCase("All Posts")}>
                   <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 </SectionTitle>
               </div>

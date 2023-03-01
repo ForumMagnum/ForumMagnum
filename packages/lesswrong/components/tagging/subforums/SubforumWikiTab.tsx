@@ -94,8 +94,8 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
+      ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+      : htmlWithAnchors
   }
 
   return <>

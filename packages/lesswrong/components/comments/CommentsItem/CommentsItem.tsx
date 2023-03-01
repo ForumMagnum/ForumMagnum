@@ -61,6 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
+    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     "@media print": {
       display: "none",
@@ -103,9 +104,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "baseline",
   },
   bottom: {
-    paddingBottom: 5,
-    fontSize: 12,
-    minHeight: 12
+    paddingBottom: isEAForum ? theme.spacing.unit : 5,
+    minHeight: 12,
+    ...(isEAForum ? {} : {fontSize: 12}),
   },
   replyForm: {
     marginTop: 2,
@@ -135,10 +136,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   metaNotice: {
     color: theme.palette.lwTertiary.main,
-    fontStyle: "italic",
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,
-    marginLeft: theme.spacing.unit/2
+    marginLeft: theme.spacing.unit/2,
+    ...theme.typography.italic,
   },
   pinnedIconWrapper: {
     color: theme.palette.grey[400],
@@ -513,7 +514,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
               {relevantTagsTruncated.map(tag =>
-                <FooterTag tag={tag} key={tag._id} smallText className={classes.relevantTag} neverCoreStyling />
+                <FooterTag
+                  tag={tag}
+                  key={tag._id}
+                  smallText={!isEAForum}
+                  className={classes.relevantTag}
+                  neverCoreStyling
+                />
               )}
               {shouldDisplayLoadMore && <LoadMore
                 loadMore={() => setShowMoreClicked(true)}

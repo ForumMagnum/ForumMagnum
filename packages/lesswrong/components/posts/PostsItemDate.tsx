@@ -2,18 +2,25 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
+
+const customStyles = (theme: ThemeType) => isEAForum
+  ? {}
+  : {
+    fontWeight: 300,
+    color: theme.palette.text.slightlyIntense2,
+  };
 
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
+      ...customStyles(theme),
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -23,9 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       cursor: "pointer",
       width: START_TIME_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
+      ...customStyles(theme),
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -33,8 +39,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipSmallText: {
     ...theme.typography.tinyText,
-    fontStyle: "italic"
-  }
+    ...theme.typography.italic,
+  },
 });
 
 const PostsItemDate = ({post, classes}: {

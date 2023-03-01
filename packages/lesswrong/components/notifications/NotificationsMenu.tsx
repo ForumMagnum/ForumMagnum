@@ -14,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: 500,
+    fontWeight: isEAForum ? 450 : 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",

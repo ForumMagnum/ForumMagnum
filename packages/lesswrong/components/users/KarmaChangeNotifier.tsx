@@ -7,7 +7,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
@@ -17,6 +16,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -197,7 +197,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
         </div>
         }
       <Link to={`/account`} onClick={handleClose}>
-        <span className={classes.settings}>Change Settings </span>
+        <span className={classes.settings}>{preferredHeadingCase("Change Settings")}</span>
       </Link>
     </Components.Typography>
   );

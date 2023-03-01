@@ -9,6 +9,7 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import { USE_FRIENDLY_ICONS } from '../../common/ForumIcon';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
@@ -54,6 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
