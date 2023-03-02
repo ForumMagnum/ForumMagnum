@@ -188,6 +188,8 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
+  
+  const firstClientId = user.associatedClientIds?.[0];
 
   return (
       <div className={classes.root}>
@@ -198,9 +200,9 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                 <div>
                   <UserReviewStatus user={user}/>
               
-                  {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
-                  {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
-                  {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+                  {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
+                  {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
+                  {user.altAccountsDetected && <div className={classes.qualitySignalRow}>
                     <em>Alternate accounts detected</em>
                   </div>}
                   <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>

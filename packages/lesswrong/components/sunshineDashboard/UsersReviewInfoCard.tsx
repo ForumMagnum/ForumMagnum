@@ -8,6 +8,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -181,6 +182,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
+  
+  const firstClientId = user.associatedClientIds?.[0];
 
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
@@ -191,11 +194,12 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
       <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
+        {firstClientId?.firstSeenReferrer && <div>Initial referrer: {firstClientId.firstSeenReferrer}</div>}
       </MetaInfo>
       <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
+        {firstClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={firstClientId.firstSeenLandingPage}>{firstClientId.firstSeenLandingPage}</a></div>}
       </MetaInfo>
+      {user.altAccountsDetected && <Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link>}
     </div>
 
     <div className={classes.row}>
