@@ -313,7 +313,9 @@ export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coaut
   return status && !status.confirmed;
 }
 
-export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
+export type CoauthoredPost = Partial<Pick<DbPost, "coauthorStatuses" | "hasCoauthorPermission">>;
+
+export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
   let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
@@ -323,7 +325,7 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
   return coauthorStatuses.map(({ userId }) => userId);
 }
 
-export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: DbPost|PostsList|PostsDetails): boolean => {
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
   if (!user) {
     return false;
   }

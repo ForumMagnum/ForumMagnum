@@ -51,9 +51,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 
   if (loading) return <Loading/>
   if (!coreTags) return null
-  
-  const coreTagsToDisplay = coreTags.filter(tag => tag.isSubforum && !shouldHideTag(currentUser, tag));
-  
+
+  const post = {userId: currentUser?._id};
+  const coreTagsToDisplay = coreTags.filter(
+    tag => tag.isSubforum && !shouldHideTag(currentUser, tag, post),
+  );
+
   const selectedTagIds = Object.keys(value||{})
   const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTagsToDisplay.find(tag => tag._id === tagId)) : []
 

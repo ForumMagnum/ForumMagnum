@@ -4,6 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTag } from '../../lib/collections/tags/permissions';
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -46,8 +47,9 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
   });
   const {eventHandlers, hover, anchorEl} = useHover();
   const currentUser = useCurrentUser();
+  const post = usePostsPageContext();
 
-  if (shouldHideTag(currentUser, tag ?? hit)) {
+  if (shouldHideTag(currentUser, tag ?? hit, post)) {
     return null;
   }
 

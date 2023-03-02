@@ -20,6 +20,7 @@ import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { PostsPageContext } from './PostsPageContext';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -305,6 +306,7 @@ const PostsPage = ({post, refetch, classes}: {
   }
   
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
       tableOfContents={tableOfContents}
@@ -350,6 +352,7 @@ const PostsPage = ({post, refetch, classes}: {
       </AnalyticsInViewTracker>
     </ToCColumn>
     </SideCommentVisibilityContext.Provider>
+    </PostsPageContext.Provider>
   </AnalyticsContext>);
 }
 
