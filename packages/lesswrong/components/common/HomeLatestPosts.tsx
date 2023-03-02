@@ -171,7 +171,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </div>
             <input
               type="number"
-              value={query.timescale || 2}
+              value={query.timescale || 1}
               onChange={(e) => {
                 console.log("Setting timescale:", e.target.value)
                 const newQuery = {...query, timescale: e.target.value}
