@@ -128,5 +128,10 @@
     "acceptsSchemaHash": "c938b8b04e3c61dec2f0b640b6cb0b4d",
     "acceptedByMigration": "20230223T115602.DebouncerEvents_pendingEvents_string_array.ts",
     "timestamp": "2023-02-23T11:56:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4f068c9deffbe10d8828def55e70e965",
+    "acceptedByMigration": "20230301T125511.add_subtitle.ts",
+    "timestamp": "2023-03-01T12:55:11.000Z"
   }
 ]

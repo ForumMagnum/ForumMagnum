@@ -1,8 +1,8 @@
 import React from 'react';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import classNames from 'classnames';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { makeCloudinaryImageUrl } from '../../common/CloudinaryImage2';
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
@@ -22,6 +22,9 @@ const gridTemplateColumns = `
 
 export const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
+    marginTop: -50,
+    // TODO comment
+    overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
       display: 'block !important',
     },
@@ -33,6 +36,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
         "... ... title   .... ....... .... ..."
       `,
     },
+  },
+  bannerImage: {
+    position: 'absolute',
   },
   header: {
     background: theme.palette.panelBackground.default,
@@ -64,14 +70,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerInner: {
     gridArea: 'header',
   },
-  titleImage: {
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    // TODO pass in image
-    background: `url(https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces,h_600,w_iw/Banner/s36j3n2gvmpzvcbmxixi) rgba(0, 0, 0, 0.4)`,
-    backgroundBlendMode: 'multiply',
-    marginTop: -50,
-  },
   titleComponent: {
     gridArea: 'title',
     zIndex: 10, // display over image
@@ -94,19 +92,29 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 // TODO rename this component to CoreTopicLayout or something
-export const RightSidebarColumn = ({titleComponent, headerComponent, sidebarComponents = [], children, classes}: {
+export const RightSidebarColumn = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
   titleComponent: React.ReactNode,
+  bannerImageId: string,
   headerComponent: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
   sidebarComponents?: React.ReactNode[],
 }) => {
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing
+  const { CloudinaryImage2 } = Components
+
+  // TODO: support having no image (even if just for admins to set up the page)
+  // const bannerImageUrl = makeCloudinaryImageUrl(bannerImageId, {c: 'fill', dpr: 'auto', q: 'auto', f: 'auto', g: 'auto:faces', h: '600', w: 'iw'})
   
   return (
     <>
-      {/* TODO put header image as background on this div */}
-      <div className={classNames(classes.titleWrapper, classes.titleImage)}>
+      <div className={classes.titleWrapper}>
+        <CloudinaryImage2
+          className={classes.bannerImage}
+          publicId={bannerImageId}
+          height={228} // FIXME explicitly set shared height
+          fullWidthHeader
+        />
         <div className={classes.titleComponent}>{titleComponent}</div>
       </div>
       <div className={classes.header}>

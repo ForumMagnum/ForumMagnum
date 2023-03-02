@@ -876,6 +876,7 @@ interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
   shortName: string | null
+  subtitle: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean

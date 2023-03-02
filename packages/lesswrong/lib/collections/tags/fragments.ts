@@ -24,6 +24,7 @@ registerFragment(`
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
+    subtitle
     oldSlugs
     isRead
     defaultOrder

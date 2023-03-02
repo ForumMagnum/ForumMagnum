@@ -62,7 +62,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   subtitle: {
-    ...theme.typography.headline,
+    ...theme.typography.commentStyle,
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
   },
@@ -315,8 +315,7 @@ const TagSubforumPage2 = ({classes}: {
 
   const titleComponent = <div className={classNames(classes.titleComponent, classes.centralColumn)}>
     <div className={classes.title}>{tag.name}</div>
-    {/* TODO add new field for this (don't reuse welcome text) */}
-    <div className={classes.subtitle}>Effective giving is the branch of effective altruism focused on charitable donations.</div>
+    <div className={classes.subtitle}>{tag.subtitle}</div>
   </div>
 
   const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
@@ -351,6 +350,7 @@ const TagSubforumPage2 = ({classes}: {
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <RightSidebarColumn
         titleComponent={titleComponent}
+        bannerImageId={tag.bannerImageId}
         headerComponent={headerComponent}
         sidebarComponents={rightSidebarComponents[tab]}
       >

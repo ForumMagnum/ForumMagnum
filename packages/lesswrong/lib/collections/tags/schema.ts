@@ -49,6 +49,15 @@ const schema: SchemaType<DbTag> = {
     nullable: true,
     group: formGroups.advancedOptions,
   },
+  subtitle: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    group: formGroups.advancedOptions,
+  },
   slug: {
     type: String,
     optional: true,
