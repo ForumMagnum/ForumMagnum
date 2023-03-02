@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   spotlightItem: {
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
@@ -121,7 +122,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "absolute",
       top: 0,
       right: 0,
-      height: "100%",  
+      height: "100%",
+      borderTopRightRadius: theme.borderRadius.default,
+      borderBottomRightRadius: theme.borderRadius.default,
     }
   },
   author: {
