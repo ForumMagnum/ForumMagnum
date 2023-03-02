@@ -57,8 +57,6 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     fetch_format: 'auto',
     secure: true
   });
-
-  console.log({ autoQualityFormatUrl, originalUrl: result.secure_url });
   
   await Images.rawInsert({
     originalUrl: oldUrl,
