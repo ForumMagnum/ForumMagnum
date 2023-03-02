@@ -52,7 +52,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: '1.05rem',
   },
   ctaButton: {
-    borderRadius: 'unset',
+    borderRadius: theme.borderRadius.small,
     minWidth: '50%',
     background: theme.palette.primary.main,
     color: theme.palette.buttons.featuredResourceCTAtext,

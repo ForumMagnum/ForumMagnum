@@ -66,6 +66,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.uiStyle === "friendly"
+      ? `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`
+      : undefined,
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -84,12 +87,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
+    borderRadius: theme.uiStyle === "friendly"
+      ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
+      : undefined,
     [legacyBreakpoints.maxSmall]: {
       height: "124px !important",
     },
     "& img": {
       width: "100%",
       height: 95,
+      borderRadius: theme.uiStyle === "friendly"
+        ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
+        : undefined,
       [legacyBreakpoints.maxSmall]: {
         width: "335px !important",
         height: "124px !important",

@@ -37,8 +37,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...eaUsersProfileSectionStyles(theme)
   },
   mainSection: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
+    [theme.breakpoints.down('sm')]: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
   },
   sunshineSection: {
     marginBottom: 24

@@ -101,7 +101,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: "12px 24px 8px 12px"
+    padding: "12px 24px 8px 12px",
+    borderRadius: theme.borderRadius.default,
   },
   hidden: {
     display: "none", // Uses CSS to show/hide
