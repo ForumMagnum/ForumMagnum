@@ -54,7 +54,8 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     api_key: apiKey,
     api_secret: apiSecret,
     quality: 'auto',
-    fetch_format: 'auto'
+    fetch_format: 'auto',
+    secure: true
   });
   
   await Images.rawInsert({
