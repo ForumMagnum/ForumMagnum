@@ -87,26 +87,37 @@ type TimeDecayExprProps = {
 }
 
 export const timeDecayExpr = (props?: TimeDecayExprProps) => {
-  const {now, timescale} = props || {};
+  const {now, timescale, mode} = props || {};
   
   const timeDecayFactor = TIME_DECAY_FACTOR.get() / (timescale || 1);
+  
+  const ageInHours = {$divide: [
+    // disallow negative age by falling back to a very large number
+    { $cond: {
+      if: { $gte: [ {$subtract: [
+      now ? new Date(now) : new Date,
+      '$postedAt' // Age in miliseconds
+    ]}, 0 ] },
+      then: {$subtract: [
+      now ? new Date(now) : new Date,
+      '$postedAt' // Age in miliseconds
+    ]},
+      else: 1e12 } },
+    60 * 60 * 1000
+  ] }
+  
+  if (mode === 'exponential') {
+    return {$exp: {$min: [
+      {$divide: [
+        ageInHours,
+        (timescale || 1) * 24
+      ]}, 20
+    ]}}
+  }
 
   return {$pow: [
     {$add: [
-      {$divide: [
-        // disallow negative age by falling back to a very large number
-        { $cond: {
-          if: { $gte: [ {$subtract: [
-          now ? new Date(now) : new Date,
-          '$postedAt' // Age in miliseconds
-        ]}, 0 ] },
-          then: {$subtract: [
-          now ? new Date(now) : new Date,
-          '$postedAt' // Age in miliseconds
-        ]},
-          else: 1e12 } },
-        60 * 60 * 1000
-      ] }, // Age in hours
+      ageInHours,
       SCORE_BIAS,
     ]},
     timeDecayFactor

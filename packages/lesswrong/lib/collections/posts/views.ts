@@ -67,6 +67,7 @@ declare global {
     // experimental-ish settings
     now?: Date|string|null,
     timescale?: number,
+    mode?: "hyperbolic" | "exponential"
   }
 }
 
@@ -365,7 +366,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
           }}
         )),
       ]},
-      timeDecayExpr({now: terms.now, timescale: terms.timescale})
+      timeDecayExpr({now: terms.now, timescale: terms.timescale, mode: terms.mode})
     ]}
   }
   

@@ -85,13 +85,15 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, CommentsListCondensed, SectionTitle, FormComponentDateTime
+    CuratedPostsList, CommentsListCondensed, SectionTitle, FormComponentDateTime, FormComponentRadioGroup
   } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
   console.log("now that is set at the top", now.format("YYYY-MM-DD HH:mm:ss"))
   const dateCutoff = now.clone().subtract(90, 'days').format("YYYY-MM-DD");
+  
+  const mode = query.mode ?? 'hyperbolic';
 
   const recentPostsTerms = {
     ...query,
@@ -102,7 +104,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit,
     // experimental settings
     now: query.now,
-    timescale: query.timescale, // the timescale over which to decay, in "days"
+    timescale: query.timescale ?? 1, // the timescale over which to decay, in "days"
+    mode: query.mode, // either hyperbolic or exponential
   }
   
   const changeShowTagFilterSettingsDesktop = () => {
@@ -175,6 +178,19 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               onChange={(e) => {
                 console.log("Setting timescale:", e.target.value)
                 const newQuery = {...query, timescale: e.target.value}
+                history.push({...location, search: `?${qs.stringify(newQuery)}`})
+              }}
+            />
+          </div>
+          <div>
+            <FormComponentRadioGroup
+              path={"mode"}
+              value={mode}
+              options={[{label: 'hyperbolic', value: 'hyperbolic'}, {label: 'exponential', value: 'exponential'},]}
+              name="Mode"
+              label="Mode"
+              onChange={(value) => {
+                const newQuery = {...query, mode: value}
                 history.push({...location, search: `?${qs.stringify(newQuery)}`})
               }}
             />
