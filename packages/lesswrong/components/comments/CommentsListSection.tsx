@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 60,
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
-    borderRadius: 2,
+    borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },

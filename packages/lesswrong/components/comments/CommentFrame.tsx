@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsNodeRoot: {
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
   },
   child: {
     marginLeft: theme.spacing.unit,
@@ -27,7 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: "2px 0 0 2px"
+    borderRadius: theme.uiStyle === "friendly"
+      ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
+      : "2px 0 0 2px",
   },
   new: {
     '&&': {

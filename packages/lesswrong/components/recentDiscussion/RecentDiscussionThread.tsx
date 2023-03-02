@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.uiStyle === "book" ? 3 : theme.borderRadius.default,
+    borderRadius: theme.borderRadius[theme.uiStyle === "book" ? "small" : "default"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,

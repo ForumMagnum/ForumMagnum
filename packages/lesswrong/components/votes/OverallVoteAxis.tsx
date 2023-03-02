@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: 2,
+    borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },

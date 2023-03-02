@@ -419,6 +419,7 @@ declare global {
     },
     borderRadius: {
       default: number,
+      small: number,
     },
     palette: ThemePalette,
     typography: {

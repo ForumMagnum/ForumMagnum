@@ -86,6 +86,7 @@ export const baseTheme: BaseThemeSpecification = {
       },
       borderRadius: {
         default: 0,
+        small: 3,
       },
       typography: {
         postStyle: {
