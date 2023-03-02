@@ -79,18 +79,37 @@ export const recalculateScore = (item: VoteableType) => {
   }
 };
 
-export const timeDecayExpr = () => {
+// type for timeDecayExpr props
+type TimeDecayExprProps = {
+  now?: string | Date | null,
+  timescale?: number
+  mode?: "hyperbolic" | "exponential"
+}
+
+export const timeDecayExpr = (props?: TimeDecayExprProps) => {
+  const {now, timescale} = props || {};
+  
+  const timeDecayFactor = TIME_DECAY_FACTOR.get() / (timescale || 1);
+
   return {$pow: [
     {$add: [
       {$divide: [
-        {$subtract: [
-          new Date(), '$postedAt' // Age in miliseconds
+        // disallow negative age by falling back to a very large number
+        { $cond: {
+          if: { $gte: [ {$subtract: [
+          now ? new Date(now) : new Date,
+          '$postedAt' // Age in miliseconds
+        ]}, 0 ] },
+          then: {$subtract: [
+          now ? new Date(now) : new Date,
+          '$postedAt' // Age in miliseconds
         ]},
+          else: 1e12 } },
         60 * 60 * 1000
       ] }, // Age in hours
       SCORE_BIAS,
     ]},
-    TIME_DECAY_FACTOR.get()
+    timeDecayFactor
   ]}
 }
 

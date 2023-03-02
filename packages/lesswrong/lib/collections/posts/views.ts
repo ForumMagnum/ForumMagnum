@@ -64,6 +64,9 @@ declare global {
     hideCommunity?: boolean,
     distance?: number,
     audioOnly?: boolean,
+    // experimental-ish settings
+    now?: Date|string|null,
+    timescale?: number,
   }
 }
 
@@ -210,7 +213,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     }
   }
   if (terms.filterSettings) {
-    const filterParams = filterSettingsToParams(terms.filterSettings);
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -307,7 +310,7 @@ function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -362,7 +365,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
           }}
         )),
       ]},
-      timeDecayExpr()
+      timeDecayExpr({now: terms.now, timescale: terms.timescale})
     ]}
   }
   

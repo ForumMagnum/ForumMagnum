@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
@@ -14,6 +14,8 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
+import DateTimePicker from 'react-datetime';
+import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -51,12 +53,26 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
+  timescaleExperiment: {
+    display: "flex",
+    paddingLeft: 8,
+  },
+  timescaleExperimentHeading: {
+    fontSize: 14,
+    paddingBottom: 6,
+  },
+  timescaleSetting: {
+    display: 'inline-flex',
+    flexDirection: 'column',
+    padding: 8,
+  }
 })
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
+  const { history } = useNavigation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
@@ -69,12 +85,13 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, CommentsListCondensed, SectionTitle
+    CuratedPostsList, CommentsListCondensed, SectionTitle, FormComponentDateTime
   } = Components
   const limit = parseInt(query.limit) || 13
   
-  const now = moment().tz(timezone);
-  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
+  const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
+  console.log("now that is set at the top", now.format("YYYY-MM-DD HH:mm:ss"))
+  const dateCutoff = now.clone().subtract(90, 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {
     ...query,
@@ -82,7 +99,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
+    limit:limit,
+    // experimental settings
+    now: query.now,
+    timescale: query.timescale, // the timescale over which to decay, in "days"
   }
   
   const changeShowTagFilterSettingsDesktop = () => {
@@ -131,7 +151,35 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               }} />
           </LWTooltip>
         </SectionTitle>
-  
+        {/* TODO REMOVE, this div is for fiddling with experimental settings */}
+        <div className={classes.timescaleExperiment}>
+          <FormComponentDateTime
+            path={"now"}
+            value={now.format("YYYY-MM-DD HH:mm:ss")}
+            name={"Effective Datetime"}
+            label={"Effective Datetime"}
+            onChange={(value) => {
+              console.log("Setting current date:", value)
+              const newQuery = {...query, now: value?.toISOString()}
+              history.push({...location, search: `?${qs.stringify(newQuery)}`})
+            }}
+          />
+          {/* Input for setting characteristic timescale in days */}
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>
+              Timescale (1 is current, higher is "slower")
+            </div>
+            <input
+              type="number"
+              value={query.timescale || 2}
+              onChange={(e) => {
+                console.log("Setting timescale:", e.target.value)
+                const newQuery = {...query, timescale: e.target.value}
+                history.push({...location, search: `?${qs.stringify(newQuery)}`})
+              }}
+            />
+          </div>
+        </div>
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
             [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
