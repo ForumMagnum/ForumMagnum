@@ -149,7 +149,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: 12
+    fontSize: 13
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -181,7 +181,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: 13,
+    fontSize: 14,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10

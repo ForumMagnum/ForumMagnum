@@ -90,8 +90,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   onlineGroupName: {
-    ...theme.typography.headline,
-    fontSize: 20,
+    ...theme.typography.headerStyle,
+    fontWeight: 700,
+    fontSize: 18,
   },
   inactiveGroupTag: {
     color: theme.palette.grey[500],
@@ -126,6 +127,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
+    fontSize: 14,
   },
   postGroupsCTA: {
     textAlign: 'center',
@@ -203,7 +205,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
               </div>
               <div className={classes.onlineGroupJoin}>
                 <Link to={`/groups/${group._id}`} className={classes.onlineGroupBtn}>
-                  Learn More
+                  Learn more
                 </Link>
               </div>
             </div>

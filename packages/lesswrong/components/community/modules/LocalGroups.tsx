@@ -85,8 +85,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography.headline,
+    ...theme.typography.headerStyle,
     fontSize: 18,
+    fontWeight: 700,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',

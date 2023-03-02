@@ -49,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: 13,
+    fontSize: 14,
     margin: '0 5px'
   },
   noResults: {

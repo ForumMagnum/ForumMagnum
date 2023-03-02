@@ -7,7 +7,7 @@ const EventsUpcoming = () => {
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="Upcoming Events"/>
+      <SectionTitle title="Upcoming events"/>
       <PostsList2 terms={terms}/>
     </SingleColumnSection>
   )
