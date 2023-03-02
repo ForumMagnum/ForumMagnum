@@ -18,7 +18,7 @@ export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
-    margin: "10px auto 15px auto",
+    margin: "10px auto 5px auto",
     ...theme.typography.commentStyle,
     position: "relative"
   },
@@ -59,6 +59,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontStyle: 'italic',
     marginTop: 4,
+  },
+  debateCommentsList: {
+    // marginLeft: 'auto',
+    // width: '95%'
   }
 })
 
@@ -165,18 +169,21 @@ const DebateCommentsListSection = ({post, totalComments, comments, startThreadTr
         <Components.CantCommentExplanation post={post}/>
       }
       {/* { totalComments ? renderTitleComponent() : null } */}
-      <CommentsList
-        treeOptions={{
-          highlightDate: highlightDate,
-          post: post,
-          postPage: true,
-          showCollapseButtons: true,
-          hideParentCommentToggle: true
-        }}
-        totalComments={totalComments}
-        comments={commentTree}
-        startThreadTruncated={startThreadTruncated}
-      />
+      <div className={classes.debateCommentsList}>
+        <CommentsList
+          treeOptions={{
+            highlightDate: highlightDate,
+            post: post,
+            postPage: true,
+            showCollapseButtons: true,
+            hideParentCommentToggle: true,
+            forceSingleLine: true
+          }}
+          totalComments={totalComments}
+          comments={commentTree}
+          startThreadTruncated={startThreadTruncated}
+        />
+      </div>
       <PostsPageCrosspostComments />
     </div>
   );
