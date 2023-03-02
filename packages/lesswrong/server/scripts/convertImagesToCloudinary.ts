@@ -46,7 +46,6 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
       api_secret: apiSecret,
     }
   );
-  logger(`Result of moving image: ${result.secure_url}`);
 
   // Serve all images with automatic quality and format transformations to save on bandwidth
   const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
@@ -54,8 +53,10 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     api_key: apiKey,
     api_secret: apiSecret,
     quality: 'auto',
-    fetch_format: 'auto'
+    fetch_format: 'auto',
+    secure: true
   });
+  logger(`Result of moving image: ${autoQualityFormatUrl}`);
   
   await Images.rawInsert({
     originalUrl: oldUrl,
