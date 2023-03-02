@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -13,6 +13,8 @@ export const UserReviewStatus = ({classes, user}: {
   user: SunshineUsersList
 }) => {
   const { FormatDate, UsersNameWrapper } = Components
+
+  const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
 
   const approvalStatus = user.banned 
     ? "Banned"
@@ -30,7 +32,10 @@ export const UserReviewStatus = ({classes, user}: {
     {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
     {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
     {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
-      <em>Alternate accounts detected</em>
+      <a onClick={() => setShowAlternateAccounts(true)}><em>Alternate accounts detected ({user.associatedClientId?.userIds?.length})</em></a>
+      {showAlternateAccounts && <ul>
+        {user.associatedClientId?.userIds.map(userId => <li key={userId}><UsersNameWrapper documentId={userId}/> {userId}</li>)}
+      </ul>}
     </div>}
     <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
