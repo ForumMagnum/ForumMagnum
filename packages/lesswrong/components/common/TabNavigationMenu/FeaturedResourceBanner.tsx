@@ -20,6 +20,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    borderRadius: theme.borderRadius.default,
   },
   closeButton: {
     padding: '.25em',
