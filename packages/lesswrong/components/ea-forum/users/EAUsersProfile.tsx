@@ -30,10 +30,15 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { useMessages } from '../../common/withMessages';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
+  },
+  mainSection: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
   },
   sunshineSection: {
     marginBottom: 24
@@ -505,7 +510,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     />
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.mainSection)}>
           {user.profileImageId && <Components.CloudinaryImage2
             height={96}
             width={96}

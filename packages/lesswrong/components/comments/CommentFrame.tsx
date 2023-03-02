@@ -11,6 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: theme.palette.border.commentBorder,
+    borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -106,6 +107,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
   },
   isPinnedOnProfile: {
+    // TODO: border-radius doesn't work with border-image. Potential solution here:
+    // https://stackoverflow.com/a/47513208
     borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
     borderImageSlice: '1',
     '&.CommentFrame-isAnswer': {
