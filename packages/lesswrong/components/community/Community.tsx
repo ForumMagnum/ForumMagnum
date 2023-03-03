@@ -23,6 +23,7 @@ import Search from '@material-ui/icons/Search';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
+import { isEAForum } from '../../lib/instanceSettings';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -149,7 +150,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: 13
+    fontSize: isEAForum ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -181,7 +182,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: 14,
+    fontSize: isEAForum ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10

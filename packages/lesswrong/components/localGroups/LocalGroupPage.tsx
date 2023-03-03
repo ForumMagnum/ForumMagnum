@@ -500,7 +500,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         </div>}
 
         <Components.Typography variant="headline" className={classes.eventsHeadline}>
-          Upcoming events
+          {preferredHeadingCase("Upcoming Events")}
         </Components.Typography>
         {upcomingEventsList}
 
