@@ -35,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryInfo: {
     fontSize: '1.4rem',
+    fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   groupLinks: {
@@ -46,6 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },

@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { truncate } from '../../../lib/editor/ellipsize';
+import { isEAForum } from '../../../lib/instanceSettings';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -49,7 +50,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: 13,
+    fontSize: isEAForum ? 14 : 13,
     margin: '0 5px'
   },
   noResults: {
