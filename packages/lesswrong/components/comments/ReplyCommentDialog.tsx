@@ -18,7 +18,7 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   const { PopupCommentEditor } = Components;
   
   return <PopupCommentEditor
-    title="New Comment"
+    title={"New Comment: " + post.title}
     onClose={onClose}
     commentFormProps={{
       post: post,
