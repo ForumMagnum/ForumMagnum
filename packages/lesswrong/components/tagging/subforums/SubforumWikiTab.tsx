@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
   },
 })
 

@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: 3,
+    borderRadius: theme.borderRadius[theme.uiStyle === "book" ? "small" : "default"],
     marginBottom:4,
     
     [theme.breakpoints.down('xs')]: {
