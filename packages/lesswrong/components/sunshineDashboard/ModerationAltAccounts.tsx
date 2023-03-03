@@ -132,7 +132,7 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
   const {document: user, loading} = useSingle({
     documentId: userId,
     collectionName: "Users",
-    fragmentName: "UsersProfile",
+    fragmentName: "UserAltAccountsFragment",
   });
   const { Loading } = Components;
   
@@ -153,6 +153,7 @@ const AltAccountsNodeUser = ({user, classes}: {
     <div><UsersNameDisplay user={user}/></div>
     
     <ul>
+      <li>Vote count: {user.voteCount} (small downvotes: {user.smallDownvoteCount}; big downvotes: {user.bigDownvoteCount})</li>
       {expandedClientIDs
         ? user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
             <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
