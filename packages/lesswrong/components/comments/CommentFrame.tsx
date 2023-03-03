@@ -107,14 +107,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
   },
   isPinnedOnProfile: {
-    // TODO: border-radius doesn't work with border-image. Potential solution here:
-    // https://stackoverflow.com/a/47513208
-    borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
-    borderImageSlice: '1',
+    // What we _really_ want to do here is apply a 1px border with the given linear
+    // gradient, however, the `border-image` property isn't compatible with
+    // `border-radius`. Using the `::before` selector is a hack to get around this.
+    "&::before": {
+      content: "''",
+      position: "absolute",
+      zIndex: -1,
+      top: 1,
+      right: 1,
+      bottom: 1,
+      left: 1,
+      boxSizing: "border-box",
+      backgroundColor: theme.palette.panelBackground.default,
+      borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : 0,
+    },
+    position: "relative",
+    backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
+    border: "none",
+    zIndex: 0,
     '&.CommentFrame-isAnswer': {
-      borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
-      borderImageSlice: '1',
-    }
+      backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
+    },
   },
 });
 
