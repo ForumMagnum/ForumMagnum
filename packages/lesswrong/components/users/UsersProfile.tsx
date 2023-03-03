@@ -190,7 +190,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    if (!user || !user._id || user.deleted) {
+    if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
       return <Error404/>

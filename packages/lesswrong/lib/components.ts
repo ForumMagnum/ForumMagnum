@@ -485,6 +485,7 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
+importComponent("AltAccountInfo", () => require('../components/sunshineDashboard/ModeratorUserInfo/AltAccountInfo'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
 importComponent("NewUserDMSummary", () => require('../components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary'));
 importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
