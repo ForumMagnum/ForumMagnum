@@ -2,10 +2,11 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 
-const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hidePostCount=false}:{
+const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hidePostCount=false, filters}:{
   clickAction: (id: string, tag: AlgoliaTag | null) => void,
   placeholder?: string,
-  hidePostCount?: boolean
+  hidePostCount?: boolean,
+  filters?: string
 }) => {
   return <Components.SearchAutoComplete
     indexName={getAlgoliaIndexName("Tags")}
@@ -13,6 +14,7 @@ const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hi
     renderSuggestion={(hit: any) => <Components.TagSearchHit hit={hit} hidePostCount={hidePostCount} />}
     placeholder={placeholder}
     noSearchPlaceholder='Tag ID'
+    filters={filters}
   />
 }
 
