@@ -40,43 +40,43 @@ const TargetedJobAdSection = () => {
   })
   
   // we only advertise one job per page view
-  const [activeJob, setActiveJob] = useState<string>()
+  const [activeJob, setActiveJob] = useState<string>('founder-charity-entrepreneurship')
   
   // select a job ad to show to the current user
-  useEffect(() => {
-    if (!currentUser || !results || activeJob) return
+  // useEffect(() => {
+  //   if (!currentUser || !results || activeJob) return
     
-    // user's relevant interests from EAG, such as "software engineering"
-    const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
-    // the topics that the user has displayed on their profile
-    const userTags = currentUser.profileTagIds ?? []
-    const userJobAds = results[0]?.jobAds ?? {}
+  //   // user's relevant interests from EAG, such as "software engineering"
+  //   const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
+  //   // the topics that the user has displayed on their profile
+  //   const userTags = currentUser.profileTagIds ?? []
+  //   const userJobAds = results[0]?.jobAds ?? {}
     
-    for (let jobName in JOB_AD_DATA) {
-      // skip any jobs where the deadline to apply has passed
-      const deadline = JOB_AD_DATA[jobName].deadline
-      if (deadline && moment().isAfter(deadline, 'day')) {
-        continue
-      }
+  //   for (let jobName in JOB_AD_DATA) {
+  //     // skip any jobs where the deadline to apply has passed
+  //     const deadline = JOB_AD_DATA[jobName].deadline
+  //     if (deadline && moment().isAfter(deadline, 'day')) {
+  //       continue
+  //     }
       
-      const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
-      const interestedIn = JOB_AD_DATA[jobName].interestedIn
-      const occupationTag = JOB_AD_DATA[jobName].tagId
-      const jobAdState = userJobAds[jobName]?.state
-      // check if the ad fits the user's interests
-      const userIsMatch = intersection(userEAGInterests, eagOccupations).length ||
-        intersection(currentUser.interestedIn, interestedIn).length ||
-        (occupationTag && userTags.includes(occupationTag))
-      // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
-      const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)
+  //     const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
+  //     const interestedIn = JOB_AD_DATA[jobName].interestedIn
+  //     const occupationTag = JOB_AD_DATA[jobName].tagId
+  //     const jobAdState = userJobAds[jobName]?.state
+  //     // check if the ad fits the user's interests
+  //     const userIsMatch = intersection(userEAGInterests, eagOccupations).length ||
+  //       intersection(currentUser.interestedIn, interestedIn).length ||
+  //       (occupationTag && userTags.includes(occupationTag))
+  //     // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
+  //     const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)
 
-      if (userIsMatch && shouldShowAd) {
-        setActiveJob(jobName)
-        return
-      }
-    }
+  //     if (userIsMatch && shouldShowAd) {
+  //       setActiveJob(jobName)
+  //       return
+  //     }
+  //   }
     
-  }, [currentUser, results, activeJob])
+  // }, [currentUser, results, activeJob])
 
   // record when this user has seen the selected ad
   useEffect(() => {
