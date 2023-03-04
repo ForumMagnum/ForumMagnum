@@ -50,17 +50,17 @@ export const DebateComment = ({ comment, replies, loadingReplies, post, toggleDe
     e.preventDefault();
 
     const toggle = showReplyState ? 'close' : 'open';
-    toggleDebateCommentReplyForm(comment, toggle);
+    // toggleDebateCommentReplyForm(comment, toggle);
 
     setShowReplyState(!showReplyState);
   };
 
   const replyCommentList = (
-    !!replies.length && <DebateCommentsListSection
+    <DebateCommentsListSection
       comments={replies}
       totalComments={replies.length}
       post={post}
-      newForm={false}
+      newForm={true}
       newFormProps={{
         parentComment: comment,
         removeFields: ['debateComment'],
