@@ -56,11 +56,13 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
     grey: ThemeGreyscale,

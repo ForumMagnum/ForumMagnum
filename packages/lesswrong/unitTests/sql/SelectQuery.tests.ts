@@ -449,7 +449,7 @@ describe("SelectQuery", () => {
           },
         },
       }),
-      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) * 0.000621371) < $3`,
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) / 6378000) < $3`,
       expectedArgs: [123, 456, 789],
     },
     {
