@@ -12,8 +12,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
-
-const podcastIconSize = (theme: ThemeType) => theme.uiStyle === "friendly" ? 20 : 24;
+const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -63,11 +62,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: podcastIconSize(theme),
+    height: PODCAST_ICON_SIZE,
   },
   togglePodcastIcon: {
-    width: podcastIconSize(theme),
-    height: podcastIconSize(theme),
+    width: PODCAST_ICON_SIZE,
+    height: PODCAST_ICON_SIZE,
   },
   actions: {
     display: 'inline-block',

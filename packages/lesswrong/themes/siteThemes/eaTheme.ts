@@ -31,7 +31,6 @@ const sansSerifStack = [
 const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
-  uiStyle: "friendly",
   shadePalette: {
     fonts: {sansSerifStack, serifStack},
   },

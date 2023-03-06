@@ -143,7 +143,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: theme.uiStyle === "friendly"
+  pinnedIcon: isEAForum
     ? {fontSize: 12}
     : {},
   title: {

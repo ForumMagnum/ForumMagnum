@@ -17,13 +17,13 @@ import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
-import useUIStyle from "../themes/useUIStyle";
+import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 
 /**
  * This exists to allow us to easily use different icon sets on different
  * forums. To add a new icon, add its name to `ForumIconName` and add an
- * icon component to each option in `ICONS`. `book` generally uses icons
- * from MaterialUI and `friendly` generally uses icons from HeroIcons.
+ * icon component to each option in `ICONS`. `default` generally uses icons
+ * from MaterialUI and `EAForum` generally uses icons from HeroIcons.
  */
 export type ForumIconName =
   "VolumeUp" |
@@ -35,8 +35,8 @@ export type ForumIconName =
   "Link" |
   "Pin";
 
-const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
-  book: {
+const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
+  default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -46,7 +46,7 @@ const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
     Link: MuiLinkIcon,
     Pin: StickyIcon,
   },
-  friendly: {
+  EAForum: {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
@@ -58,11 +58,9 @@ const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
   },
 };
 
-const CUSTOM_CLASSES: Record<UIStyle, Partial<Record<ForumIconName, string>>> = {
-  book: {
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
+  default: {
     Link: "linkRotation",
-  },
-  friendly: {
   },
 };
 
@@ -94,14 +92,17 @@ type ForumIconProps = Partial<IconProps> & {
 };
 
 const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
-  const uiStyle = useUIStyle();
-  const Icon = ICONS[uiStyle][icon];
+  const icons = forumSelect(ICONS);
+  const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
     return null;
   }
-  const customClass = classes[CUSTOM_CLASSES[uiStyle][icon] ?? ""];
+
+  const customClasses = forumSelect(CUSTOM_CLASSES);
+  const customClass = customClasses[icon];
+
   return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
 }
 

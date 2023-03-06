@@ -4,9 +4,10 @@ import { useCurrentUser } from '../../common/withUser';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { isEAForum } from '../../../lib/instanceSettings';
 
-const styles = (theme: ThemeType) => ({
-  icon: theme.uiStyle === "friendly"
+const styles = (_: ThemeType) => ({
+  icon: isEAForum
     ? {fontSize: "18px"}
     : {},
 });

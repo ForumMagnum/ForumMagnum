@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,9 +38,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon[theme.uiStyle === "friendly" ? "dim4" : "slightlyDim3"],
+    color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
   },
-  stickyIcon: theme.uiStyle === "friendly"
+  stickyIcon: isEAForum
     ? {
       width: 16,
       height: 16,

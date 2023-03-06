@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   linkIcon: {
     color: theme.palette.icon.dim4,
     position: "relative",
-    ...(theme.uiStyle === "friendly"
+    ...(isEAForum
       ? {
         fontSize: "1rem",
         top: 1,
