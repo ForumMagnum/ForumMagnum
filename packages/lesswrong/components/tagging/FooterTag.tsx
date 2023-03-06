@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
 import { isEAForum } from '../../lib/instanceSettings';
+import { coreTagIconMap } from './CoreTagIcon';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -69,6 +70,19 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.tag.coreTagBackgroundHover,
     },
   },
+  coreIcon: {
+    position: "relative",
+    display: "inline-block",
+    minWidth: 20,
+    "& svg": {
+      position: "absolute",
+      top: -11,
+      left: -3,
+      width: 20,
+      height: 13,
+      fill: theme.palette.tag.coreTagText,
+    },
+  },
   score:  {
     paddingLeft: 5,
     color: theme.palette.text.slightlyDim2,
@@ -76,32 +90,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   name: {
     display: 'inline-block',
   },
-  hovercard: {
-  },
   smallText: {
     ...smallTagTextStyle(theme),
-  },
-  coreTag: {
-    background: theme.palette.primary.main,
-    color: theme.palette.text.invertedBackgroundText,
-    border: 'none',
-    padding: '6px 12px',
-    fontWeight: 600,
-    '& svg': {
-      height: 22,
-      width: 20,
-      fill: theme.palette.icon.inverted,
-      padding: '1px 0px'
-    },
-    marginBottom: 16,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 16,
-    },
-  },
-  flexContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 8,
   },
   robotIcon: {
     "& svg": {
@@ -119,7 +109,6 @@ const FooterTag = ({
   smallText,
   popperCard,
   link=true,
-  isTopTag=false,
   highlightAsAutoApplied=false,
   neverCoreStyling=false,
   className,
@@ -131,7 +120,6 @@ const FooterTag = ({
   smallText?: boolean,
   popperCard?: React.ReactNode,
   link?: boolean
-  isTopTag?: boolean
   highlightAsAutoApplied?: boolean,
   neverCoreStyling?: boolean,
   className?: string,
@@ -145,31 +133,30 @@ const FooterTag = ({
   });
   const { PopperCard, TagRelCard, CoreTagIcon } = Components
 
-  const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
-
   if (tag.adminOnly) { return null }
 
+  const showIcon = !!tag.core && !!coreTagIconMap[tag.slug];
+
   const renderedTag = <>
-    {!!isTopTag && <CoreTagIcon tag={tag} />}
+    {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tag.name}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
-  
+
   // Fall back to TagRelCard if no popperCard is provided
   const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
 
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
+  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
     <span {...eventHandlers} className={classNames(classes.root, className, {
-      [classes.coreTag]: isTopTag,
       [classes.core]: !neverCoreStyling && tag.core,
       [classes.smallText]: smallText,
     })}>
-      {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
+      {link ? <Link to={tagGetUrl(tag)}>
         {renderedTag}
         {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
       </Link> : renderedTag}
       {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
-        <div className={classes.hovercard}>
+        <div>
           {popperCardToRender}
         </div>
       </PopperCard>}
