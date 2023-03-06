@@ -1,31 +1,13 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
-import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
-import classNames from 'classnames';
 import { userCanDo } from '../../lib/vulcan-users';
-import { UserReviewStatus } from './ModeratorUserInfo/UserReviewStatus';
-import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[50]
-  },
-  icon: {
-    height: 13,
-    color: theme.palette.grey[500],
-    position: "relative",
-    top: 3
-  },
-  hoverPostIcon: {
-    height: 16,
-    color: theme.palette.grey[700],
-    position: "relative",
-    top: 3
   },
   topRow: {
     display: "flex",
@@ -36,18 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  qualitySignalRow: {
-  },
-  permissionsRow: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: 8,
-    marginTop: 8
-  },
-  disabled: {
-    opacity: .2,
-    cursor: "default"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -94,29 +64,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: "none",
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
   },
-  notes: {
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
-    marginTop: 8,
-    marginBottom: 8
-  },
-  defaultMessage: { //UNUSED
-    maxWidth: 500,
-    backgroundColor: theme.palette.panelBackground.default,
-    padding:12,
-    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
-  },
-  sortButton: {
-    marginLeft: 6,
-    cursor: "pointer"
-  },
-  sortSelected: {
-    color: theme.palette.grey[900]
-  },
   bio: {
     '& a': {
       color: theme.palette.primary.main,
@@ -130,32 +77,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     },
   },
-  modButton:{
-    marginTop: 6,
-    marginRight: 16,
-    cursor: "pointer",
-    '&:hover': {
-      opacity: .5
-    }
-  },
-  snooze10: {
-    color: theme.palette.primary.main,
-    fontSize: 34,
-    marginTop: 4
-  },
-  permissionsButton: {
-    fontSize: 10,
-    padding: 6,
-    paddingTop: 3,
-    paddingBottom: 3,
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    marginRight: 10,
-    cursor: "pointer"
-  },
-  permissionDisabled: {
-    border: "none"
-  }
 })
 
 const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
@@ -189,8 +110,6 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
-  const firstClientId = user.associatedClientIds?.[0];
-
   // All elements in this component should also appar in UsersReviewInfoCard
   return (
       <div className={classes.root}>
