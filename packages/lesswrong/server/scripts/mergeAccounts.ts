@@ -7,6 +7,8 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
+import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
+import Localgroups from '../../lib/collections/localgroups/collection';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -211,7 +213,15 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
     if (!dryRun) {
       // Transfer conversations
-      await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
+      if (Conversations.isPostgres()) {
+        await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
+      } else {
+        await Conversations.rawUpdateMany(
+          {participantIds: sourceUserId},
+          {$set: {"participantIds.$": targetUserId}},
+          {multi: true},
+        );
+      }
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -259,7 +269,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   await transferCollection({sourceUserId, targetUserId, collectionName: "Collections", dryRun})
 
   // Transfer localgroups
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups", dryRun})
+  if (!dryRun) {
+    if (Localgroups.isPostgres()) {
+      await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
+    } else {
+      await Localgroups.rawUpdateMany(
+        {organizerIds: sourceUserId},
+        {$set: {"organizerIds.$": targetUserId}},
+        {multi: true},
+      );
+    }
+  }
 
   // Transfer review votes
   await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes", dryRun})
@@ -277,9 +297,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       // Transfer votes that target content from source user (authorId)
       // eslint-disable-next-line no-console
       console.log("Transferring votes that target source user")
-      // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
-      await Votes.rawUpdateMany({authorIds: sourceUserId}, {$set: {"authorIds.$": targetUserId}}, {multi: true})
-  
+      if (Votes.isPostgres()) {
+        await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
+      } else {
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
+        await Votes.rawUpdateMany(
+          {authorIds: sourceUserId},
+          {$set: {"authorIds.$": targetUserId}},
+          {multi: true},
+        );
+      }
+
       // Transfer votes cast by source user
       // eslint-disable-next-line no-console
       console.log("Transferring votes cast by source user")
@@ -420,12 +448,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 async function recomputeKarma(userId: string) {
   const user = await Users.findOne({_id: userId})
   if (!user) throw Error("Can't find user")
-  const allTargetVotes = await Votes.find({
+  const selector: Record<string, any> = {
     authorIds: user._id,
     userId: {$ne: user._id},
-    legacy: {$ne: true},
     cancelled: false
-  }).fetch()
+  };
+  if (Votes.isPostgres()) {
+    selector["legacyData.legacy"] = {$ne: true};
+  } else {
+    selector.legacy = {$ne: true};
+  }
+  const allTargetVotes = await Votes.find(selector).fetch()
   const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
     return vote.power
   })

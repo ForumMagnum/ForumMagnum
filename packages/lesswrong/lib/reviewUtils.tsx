@@ -2,7 +2,7 @@ import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -37,7 +37,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 
-const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
@@ -50,12 +50,14 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
+  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
   if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
-  if (currentDate < reviewEnd) return "VOTING"
+  if (currentDate < votingEnd) return "VOTING"
+  if (currentDate < reviewEnd) return "RESULTS"
   return "COMPLETE"
 }
 
@@ -124,18 +126,26 @@ export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   return true
 }
 
-const getPointsFromCost = (cost) => {
+const getPointsFromCost = (cost: number) => {
   // the formula to quadratic cost from a number of points is (n^2 + n)/2
   // this uses the inverse of that formula to take in a cost and output a number of points
   return (-1 + Math.sqrt((8 * cost)+1)) / 2
 }
 
-const getLabelFromCost = (cost) => {
+const getLabelFromCost = (cost: number) => {
   // rounds the points to 1 decimal for easier reading
   return round(getPointsFromCost(cost), 1)
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
+export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+interface CostData {
+  value: number | null;
+  cost: number;
+  tooltip: JSX.Element | null;
+}
+
+export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

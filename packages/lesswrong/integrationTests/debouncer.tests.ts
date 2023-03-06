@@ -53,14 +53,12 @@ describe('EventDebouncer', () => {
       await dispatchPendingEvents();
       (numEventBatchesHandled as any).should.equal(2);
       (numEventsHandled as any).should.equal(3);
-      (eventsHandled as any).should.deep.equal({
-        "firstKey": {
-          "1": 1,
-          "2": 1
-        },
-        "secondKey": {
-          "3": 1
-        }
+      (eventsHandled.firstKey as any).should.deep.equal({
+        "1": 1,
+        "2": 1,
+      });
+      (eventsHandled.secondKey as any).should.deep.equal({
+        "3": 1,
       });
       
       // Record another event, make sure it doesn't group together with already

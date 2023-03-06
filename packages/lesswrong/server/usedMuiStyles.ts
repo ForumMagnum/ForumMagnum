@@ -47,7 +47,6 @@ const getUsedMuiStyles = () => {
     MuiMenu: require("@material-ui/core/Menu/Menu").styles,
     MuiMenuItem: require("@material-ui/core/MenuItem/MenuItem").styles,
     MuiModal: require("@material-ui/core/Modal/Modal").styles,
-    MuiNoSsr: require("@material-ui/core/NoSsr/NoSsr").styles,
     MuiOutlinedInput: require("@material-ui/core/OutlinedInput/OutlinedInput").styles,
     MuiPaper: require("@material-ui/core/Paper/Paper").styles,
     MuiPopover: require("@material-ui/core/Popover/Popover").styles,

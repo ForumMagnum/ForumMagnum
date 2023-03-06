@@ -84,7 +84,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
       [classes.answerDate]: comment.answer,
     })}>
       {scrollOnClick ? <a rel="nofollow" href={url} onClick={handleLinkClick}>{ date } </a>
-        : <Link rel="nofollow" to={url}>{ date }</Link>
+        : <Link rel="nofollow" to={url} eventProps={{furtherContext: "dateIcon"}} >{ date }</Link>
       }
     </span>
   );

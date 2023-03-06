@@ -3,6 +3,9 @@ import { getCookieFromReq, setCookieOnResponse } from './utils/httpUtil';
 import { createMutator } from './vulcan-lib/mutators';
 import { ClientIds } from '../lib/collections/clientIds/collection';
 
+const isApplicableUrl = (url: string) =>
+  url !== "/robots.txt" && url.indexOf("/api/") < 0;
+
 // Middleware for assigning a client ID, if one is not currently assigned.
 export const addClientIdMiddleware = (addMiddleware) => {
   addMiddleware(function addClientId(req, res, next) {
@@ -16,7 +19,7 @@ export const addClientIdMiddleware = (addMiddleware) => {
       });
       
       try {
-        if (req.url !== '/robots.txt') {
+        if (isApplicableUrl(req.url)) {
           const referrer = req.headers?.["referer"] ?? null;
           const url = req.url;
           

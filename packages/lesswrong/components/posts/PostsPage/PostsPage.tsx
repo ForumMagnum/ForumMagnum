@@ -33,7 +33,7 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 ];
 
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
+export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
   if (post.contents?.plaintextDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
     const plaintextPars = post.contents.plaintextDescription
@@ -182,15 +182,6 @@ const PostsPage = ({post, refetch, classes}: {
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
-  const shouldHideAsSpam = () => {
-    // Logged-out users shouldn't be able to see spam posts
-    if (post.authorIsUnreviewed && !currentUser) {
-      return true;
-    }
-
-    return false;
-  }
-
   const { query, params } = location;
 
   const sortBy = query.answersSorting || "top";
@@ -224,10 +215,6 @@ const PostsPage = ({post, refetch, classes}: {
     });
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
-  
-  if (shouldHideAsSpam()) {
-    throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
-  }
   
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")

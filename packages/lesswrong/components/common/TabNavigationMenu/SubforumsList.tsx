@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
-import { Link } from "../../../lib/reactRouterWrapper";
-import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -28,41 +28,62 @@ const styles = ((theme: ThemeType): JssStyles => ({
     textTransform: 'capitalize',
     whiteSpace: 'break-spaces !important',
   },
-  unreadCount: {
-    color: theme.palette.primary.main,
-  },
+  showMoreLess: {
+    color: `${theme.palette.grey[500]} !important`,
+  }
 }))
+
+const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }) => {
   const { results } = useMulti({
-    terms: {view: 'currentUserSubforums'},
+    terms: {view: 'coreTags', limit: 100},
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
+    skip: !isEAForum
   })
+  const [showAll, setShowAll] = useState(false)
+
+  const onClickShowMoreOrLess = useCallback((e) => {
+    e.preventDefault() // Prevent ripple
+    setShowAll(!showAll)
+  }, [showAll])
   
   if (!results || !results.length) return <></>
   
-  const { TabNavigationSubItem, MenuItemLink } = Components
+  const initialResults = results.slice(0, INITIAL_LIMIT)
+  const maybeHiddenResults = results.slice(INITIAL_LIMIT)
+  const displayShowMoreOrLess = results.length > INITIAL_LIMIT
+
+  const { TabNavigationSubItem, MenuItem, MenuItemLink } = Components
   
+  const getListItem = (tag: TagSubforumSidebarFragment) => (
+    <MenuItemLink
+      key={tag._id}
+      onClick={onClick}
+      to={tag.isSubforum ? tagGetSubforumUrl(tag) : tagGetUrl(tag)}
+      className={classes.menuItem}
+    >
+      <TabNavigationSubItem className={classes.subItem}>{tag.name}</TabNavigationSubItem>
+    </MenuItemLink>
+  );
+
   return (
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Subforums</div>
-          {results.map((subforum) => (
-            <MenuItemLink
-              key={subforum._id}
-              onClick={onClick}
-              to={tagGetSubforumUrl(subforum)}
-              rootClass={classes.menuItem}
-            >
-              <TabNavigationSubItem className={classes.subItem}>
-                {subforum.name}
+          <div className={classes.title}>Core topics</div>
+          {initialResults.map((subforum) => getListItem(subforum))}
+          {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
+          {displayShowMoreOrLess && (
+            <MenuItem onClick={onClickShowMoreOrLess} className={classes.menuItem} disableRipple>
+              <TabNavigationSubItem className={classes.showMoreLess}>
+                (show {showAll ? "less" : `${maybeHiddenResults.length} more`})
               </TabNavigationSubItem>
-            </MenuItemLink>
-          ))}
+            </MenuItem>
+          )}
         </div>
       </AnalyticsContext>
     </span>

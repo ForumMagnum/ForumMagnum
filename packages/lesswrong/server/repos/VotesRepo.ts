@@ -1,4 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
+import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 
 export type KarmaChangesArgs = {
@@ -31,13 +32,17 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
 
-export default class VotesRepo extends AbstractRepo {
+export default class VotesRepo extends AbstractRepo<DbVote> {
+  constructor() {
+    super(Votes);
+  }
+
   private getKarmaChanges<T extends KarmaChangeBase>(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
     collectionName: CollectionNameString,
     dataFields: string[],
   ): Promise<T[]> {
-    return this.db.any(`
+    return this.getRawDb().any(`
       SELECT
         v.*,
         '${collectionName}' AS "collectionName",
@@ -84,7 +89,7 @@ export default class VotesRepo extends AbstractRepo {
   }
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {
-    return this.db.any(`
+    return this.any(`
       SELECT * FROM "Votes" WHERE
         $1::TEXT[] @> ARRAY["documentId"]::TEXT[] AND
         "collectionName" = 'Revisions' AND
@@ -92,5 +97,13 @@ export default class VotesRepo extends AbstractRepo {
         "isUnvote" = FALSE AND
         "authorIds" @> ARRAY["userId"]
     `, [tagRevisionIds]);
+  }
+
+  transferVotesTargetingUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      UPDATE "Votes"
+      SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
+      WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
+    `, [oldUserId, newUserId]);
   }
 }

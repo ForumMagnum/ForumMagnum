@@ -1,18 +1,19 @@
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
+import * as _ from 'underscore';
+import { useTracking } from "../../lib/analyticsEvents";
+import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations';
+import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
-import { useCurrentUser } from '../common/withUser';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import classNames from 'classnames';
-import { useTracking } from "../../lib/analyticsEvents";
-import * as _ from 'underscore';
+import { Components, getCollectionName, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -52,7 +53,7 @@ const NotifyMeButton = ({
   componentIfSubscribed,
 }: {
   document: any,
-  subscriptionType?: string,
+  subscriptionType?: SubscriptionType,
   subscribeMessage?: string,
   tooltip?: string,
   asMenuItem?: boolean,
@@ -79,7 +80,7 @@ const NotifyMeButton = ({
   
   const collectionName = getCollectionName(document.__typename);
   const documentType = collectionName.toLowerCase();
-  const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
+  const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName as keyof typeof defaultSubscriptionTypeTable];
 
   const { captureEvent } = useTracking({eventType: "subscribeClicked", eventProps: {documentId: document._id, documentType: documentType}})
   
@@ -115,7 +116,7 @@ const NotifyMeButton = ({
       subscriptionType, collectionName, document
     });
   }
-  const onSubscribe = async (e) => {
+  const onSubscribe = async (e: React.MouseEvent) => {
     if (!currentUser) {
       openDialog({componentName: "LoginPopup"})
       return

@@ -8,15 +8,14 @@ import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
 import Messages from "../lib/collections/messages/collection";
 import LocalGroups from "../lib/collections/localgroups/collection";
-// TODO: Import this when Users is migrated to postgres
-// import Users from "../lib/collections/users/collection";
+import Users from "../lib/collections/users/collection";
 
 import seedPosts from "../../../cypress/fixtures/posts";
 import seedComments from "../../../cypress/fixtures/comments";
 import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
-// import seedUsers from "../../../cypress/fixtures/users";
+import seedUsers from "../../../cypress/fixtures/users";
 
 const seedData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
   // eslint-disable-next-line no-console
@@ -46,7 +45,7 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
       seedData(Conversations, seedConversations),
       seedData(Messages, seedMessages),
       seedData(LocalGroups, seedLocalGroups),
-      // importData(Users, seedUsers),
+      seedData(Users, seedUsers),
     ]);
   }
 }
@@ -56,15 +55,34 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
 export const addCypressRoutes = (app: Application) => {
   // TODO: better check for dev mode
   if (testServerSetting.get()) {
-    const route = "/api/recreateCypressPgDb";
-    app.use(route, json({ limit: "1mb" }));
-    app.post(route, async (req: Request, res: Response) => {
+    const cypressRoute = "/api/recreateCypressPgDb";
+    app.use(cypressRoute, json({ limit: "1mb" }));
+    app.post(cypressRoute, async (req: Request, res: Response) => {
       try {
         const { templateId } = req.body;
         if (!templateId || typeof templateId !== "string") {
           throw new Error("No templateId provided");
         }
-        await createTestingSqlClientFromTemplate(templateId)
+        const {dbName} = await createTestingSqlClientFromTemplate(templateId)
+        res.status(200).send({status: "ok", dbName});
+      } catch (e) {
+        res.status(500).send({status: "error", message: e.message});
+      }
+    });
+
+    const integrationRoute = "/api/dropAndCreatePg";
+    app.use(integrationRoute, json({ limit: "1mb" }));
+    app.post(integrationRoute, async (req: Request, res: Response) => {
+      try {
+        const { templateId } = req.body;
+        if (!templateId || typeof templateId !== "string") {
+          throw new Error("No templateId provided");
+        }
+        await dropAndCreatePg({
+          templateId,
+          dropExisting: true,
+          seed: false,
+        });
         res.status(200).send({status: "ok"});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});

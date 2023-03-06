@@ -1,10 +1,14 @@
 import { isActionActive, MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { loggerConstructor } from '../../lib/utils/logging';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 
 getCollectionHooks('ModeratorActions').createAfter.add(async function triggerReview(doc) {
+  const logger = loggerConstructor('callbacks-moderatoractions');
+  logger('ModeratorAction created, triggering review if necessary')
   if (isActionActive(doc)) {
+    logger('isActionActive truthy')
     void triggerReviewIfNeeded(doc.userId, true);
   }
   return doc;

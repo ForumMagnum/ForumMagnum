@@ -1,8 +1,13 @@
+import PostRelations from "../../lib/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
 
-export default class PostRelationsRepo extends AbstractRepo {
+export default class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
+  constructor() {
+    super(PostRelations);
+  }
+
   getPostRelationsByPostId(postId: string, depth = 3): Promise<DbPostRelation[]> {
-    return this.db.any(`
+    return this.any(`
       WITH RECURSIVE search_tree(
         "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
       ) AS (

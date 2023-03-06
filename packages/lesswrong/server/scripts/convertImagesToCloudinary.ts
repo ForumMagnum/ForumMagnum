@@ -9,10 +9,13 @@ import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
+import { loggerConstructor } from '../../lib/utils/logging';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -21,6 +24,7 @@ const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecr
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
 // the URL is already Cloudinary or can't be downloaded, returns null instead.
 async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+  const logger = loggerConstructor("image-conversion")
   const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
   if (alreadyRehosted) return alreadyRehosted;
   
@@ -43,15 +47,24 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
       api_secret: apiSecret,
     }
   );
-  // eslint-disable-next-line no-console
-  console.log(`Result of moving image: ${result.secure_url}`);
+  logger(`Result of moving image: ${result.secure_url}`);
+
+  // Serve all images with automatic quality and format transformations to save on bandwidth
+  const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    quality: 'auto',
+    fetch_format: 'auto',
+    secure: true
+  });
   
   await Images.rawInsert({
     originalUrl: oldUrl,
-    cdnHostedUrl: result.secure_url,
+    cdnHostedUrl: autoQualityFormatUrl,
   });
   
-  return result.secure_url;
+  return autoQualityFormatUrl;
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.
@@ -83,8 +96,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(html, null, false);
+  const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
   
@@ -180,6 +192,7 @@ export async function convertImagesInObject(
   fieldName = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
 ): Promise<number> {
+  const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
     const collection = getCollection(collectionName);
@@ -193,8 +206,10 @@ export async function convertImagesInObject(
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
-      // eslint-disable-next-line no-console
-      console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      if (!isAnyTest) {
+        // eslint-disable-next-line no-console
+        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      }
       return 0;
     }
     
@@ -205,12 +220,10 @@ export async function convertImagesInObject(
     const oldHtml = obj[fieldName].html;
     const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
     if (!uploadCount) {
-      // eslint-disable-next-line no-console
-      console.log("No images to convert.");
+      logger("No images to convert.");
       return 0;
     } else {
-      // eslint-disable-next-line no-console
-      console.log(`Converted ${uploadCount} images`)
+      logger(`Converted ${uploadCount} images`)
     }
     
     const newRevision = {

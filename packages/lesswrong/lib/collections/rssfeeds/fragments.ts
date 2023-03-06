@@ -12,6 +12,7 @@ registerFragment(`
     displayFullContent
     nickname
     url
+    importAsDraft
   }
 `);
 
@@ -25,6 +26,7 @@ registerFragment(`
     nickname
     url
     status
+    importAsDraft
   }
 `);
 
@@ -38,5 +40,6 @@ registerFragment(`
     displayFullContent
     nickname
     url
+    importAsDraft
   }
 `);

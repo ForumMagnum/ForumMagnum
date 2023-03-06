@@ -71,6 +71,7 @@ export interface CommentsNodeProps {
   showParentDefault?: boolean,
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
+  className?: string,
   classes: ClassesType,
 }
 /**
@@ -103,6 +104,7 @@ const CommentsNode = ({
   showParentDefault=false,
   noAutoScroll=false,
   displayTagIcon=false,
+  className,
   classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
@@ -223,6 +225,7 @@ const CommentsNode = ({
       hoverPreview={hoverPreview}
       shortform={shortform}
       showPinnedOnProfile={showPinnedOnProfile}
+      className={className}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine

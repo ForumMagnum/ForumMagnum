@@ -41,6 +41,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
@@ -55,6 +56,8 @@ import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/importLocalgroups";
+import "./server/scripts/setUserTagFilters";
 import "./server/scripts/languageModels/generateTaggingPostSets";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -95,9 +98,11 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/conversationCallbacks';
 import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
+import './server/resolvers/notificationResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
@@ -107,6 +112,7 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
+import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
@@ -147,6 +153,7 @@ import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
 
 import './server/exportUserData';
+import './server/deleteUserContent';
 
 import './server/spotlightCron';
 

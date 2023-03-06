@@ -195,7 +195,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
-          { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
+          { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
           {contentToRender}
         </ContentStyles>}
         {showDescendentCount && comment.descendentCount>0 && <PostsItemComments

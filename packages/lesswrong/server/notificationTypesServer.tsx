@@ -17,7 +17,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
-import { taggedPostMessage } from '../lib/notificationTypes';
+import {getDocumentSummary, taggedPostMessage, NotificationDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -141,7 +141,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const {documentId, documentType} = notifications[0]
-    return await taggedPostMessage({documentId, documentType})
+    return await taggedPostMessage({documentId, documentType: documentType as NotificationDocument})
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const {documentId, documentType} = notifications[0]
@@ -192,12 +192,12 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
 
     const commentCount = comments.length
     const subforumIds = uniq(comments.map(c => c.tagId))
-    
+
     if (subforumIds.length === 1) {
       const subforum = await Tags.findOne(subforumIds[0])
-      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} subforum`
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} topic`
     } else {
-      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} subforums you are subscribed to`
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} topics you are subscribed to`
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -596,5 +596,29 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
         - The {forumTitleSetting.get()} Team
       </p>
     </div>
+  },
+});
+
+export const NewMentionNotification = serverRegisterNotificationType({
+  name: "newMention",
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notifications[0]}`);
+    }
+    
+    return `${summary.associatedUserName} mentioned you in ${summary.displayName}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notifications[0]}`);
+    }
+
+    return (
+      <p>
+        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notifications[0].link)}>{summary.displayName}</a>.
+      </p>
+    );
   },
 });

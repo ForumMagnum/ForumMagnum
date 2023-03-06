@@ -14,13 +14,13 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 };
 
 // Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = false): Promise<string> {
+export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute): Promise<string> {
   if (comment.postId) {
-    const post = await mongoFindOne("Posts", comment.postId);
+    const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const tag = await mongoFindOne("Tags", {_id:comment.tagId});
+    const tag = await context.loaders.Tags.load(comment.tagId);
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
 
     return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});

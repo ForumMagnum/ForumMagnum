@@ -29,14 +29,15 @@ export const withRouter = (WrappedComponent) => {
 
 type LinkProps = Omit<HashLinkProps, 'to'> & {
   to: HashLinkProps['to'] | null
+  eventProps?: Record<string, string>
 };
 
 const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
-export const Link = (props: LinkProps) => {
-  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
+export const Link = ({eventProps, ...props}: LinkProps) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
   const handleClick = (e) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)

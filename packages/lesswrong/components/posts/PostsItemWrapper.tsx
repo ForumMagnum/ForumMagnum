@@ -3,6 +3,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import AddIcon from '@material-ui/icons/Add';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -12,9 +14,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: theme.palette.border.itemSeparatorBottom,
     paddingBottom: 5,
     '&:hover': {
+      '& $addIcon': {
+        opacity: 1,
+      },
       '& $removeIcon': {
         opacity: 1,
-      }
+      },
     }
   },
   title: {
@@ -38,16 +43,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: theme.spacing.unit,
     cursor: "pointer",
   },
+  addIcon: {
+    opacity: 0,
+    color: theme.palette.icon.dim5
+  },
   removeIcon: {
     opacity: 0,
     color: theme.palette.icon.dim5
+  },
+  disabled: {
+    opacity: 0.3,
+    cursor: "default",
   }
 });
 
-const PostsItemWrapper = ({documentId, classes, removeItem}: {
+const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
   classes: ClassesType,
-  removeItem: any,
+  addItem?: any,
+  removeItem?: any,
+  disabled?: boolean,
+  simpleAuthor?: boolean,
+  draggable?: boolean
 }) => {
   const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { document, loading } = useSingle({
@@ -57,8 +74,11 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
   });
 
   if (document && !loading) {
-    return <div className={classes.root}>
-      <DragIcon className={classes.dragHandle}/>
+    return <div className={classNames(
+        classes.root,
+        {[classes.disabled]: disabled}
+      )}>
+      {draggable && <DragIcon className={classes.dragHandle}/>}
       <PostsItem2MetaInfo className={classes.karma}>
         {document.baseScore}
       </PostsItem2MetaInfo>
@@ -66,9 +86,10 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
         <PostsTitle post={document} isLink={false}/>
       </span>
       <PostsItem2MetaInfo className={classes.author}>
-        <PostsUserAndCoauthors post={document} abbreviateIfLong={true}/>
+        <PostsUserAndCoauthors post={document} abbreviateIfLong={true} simple={simpleAuthor}/>
       </PostsItem2MetaInfo>
-      <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
+      {addItem && <AddIcon className={classes.addIcon} onClick={() => addItem(document._id)} />}
+      {removeItem && <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />}
     </div>
   } else {
     return <Components.Loading />

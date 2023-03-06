@@ -4,14 +4,22 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const MenuItem = ({value, disabled, dense, onClick, children}: {
+const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, children}: {
   value?: string|number,
   disabled?: boolean,
+  disableRipple?: boolean,
   dense?: boolean,
   onClick?: (event: React.MouseEvent)=>void,
+  className?: string,
   children: React.ReactNode,
 }) => {
-  return <MuiMenuItem value={value} disabled={disabled} dense={dense} onClick={onClick}>{children}</MuiMenuItem>;
+  return <MuiMenuItem
+    value={value} disabled={disabled} disableRipple={disableRipple}
+    dense={dense} onClick={onClick}
+    classes={className ? {root: className} : undefined}
+  >
+    {children}
+  </MuiMenuItem>;
 }
 
 const MenuItemLink = ({to, className, rootClass, disabled, disableGutters, disableTouchRipple, onClick, children}: {

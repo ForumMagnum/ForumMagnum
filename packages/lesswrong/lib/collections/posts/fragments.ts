@@ -131,6 +131,8 @@ registerFragment(`
       organizerIds
     }
 
+    podcastEpisodeId
+
     # deprecated
     nominationCount2018
     reviewCount2018
@@ -322,7 +324,6 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
-    podcastEpisodeId
   }
 `);
 
@@ -459,6 +460,7 @@ registerFragment(`
     tableOfContents
     subforumTagId
     sideComments
+    socialPreviewImageId
   }
 `);
 

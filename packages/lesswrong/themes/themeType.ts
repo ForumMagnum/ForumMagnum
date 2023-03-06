@@ -46,7 +46,6 @@ declare global {
     20: ColorString,
     25: ColorString,
     30: ColorString,
-    40: ColorString,
     55: ColorString,
     60: ColorString,
     110: ColorString,
@@ -57,14 +56,16 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
-    grey: MuiColorShades,
+    grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
@@ -324,6 +325,10 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      imageUpload2: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
     },
@@ -402,6 +407,7 @@ declare global {
     forumType: ForumTypeString,
     
     breakpoints: {
+      /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
       values: Record<BreakpointName,number>,
