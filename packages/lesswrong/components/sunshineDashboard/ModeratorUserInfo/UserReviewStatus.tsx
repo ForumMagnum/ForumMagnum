@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Link } from '../../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,7 +32,7 @@ export const UserReviewStatus = ({classes, user}: {
     {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
     {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
     {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
-      <em>Alternate accounts detected</em>
+      <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link></em>
     </div>}
     <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;

@@ -34,8 +34,8 @@ const ModerationAltAccounts = ({classes}: {
   const { SingleColumnSection, SectionTitle, ContentStyles } = Components;
   const currentUser = useCurrentUser();
   
-  const { params } = useLocation();
-  const { slug,clientId,userId,ip } = params;
+  const { query } = useLocation();
+  const { slug,clientId,userId,ip } = query;
   const {initialAccountIdentifierType, initialAccountIdentifier} = (
        (userId   ? {initialAccountIdentifierType: "userId",   initialAccountIdentifier: userId} : null)
     ?? (slug     ? {initialAccountIdentifierType: "slug",     initialAccountIdentifier: slug} : null)
