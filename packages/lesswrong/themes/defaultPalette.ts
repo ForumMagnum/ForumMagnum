@@ -401,12 +401,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eventCardTag: "#CC5500",
   },
   tag: {
+    text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
+    coreTagText: shades.grey[600],
+    coreTagBackground: "transparent",
     coreTagBorder: shades.greyBorder("1px", .15),
-    text: shades.greyAlpha(.9),
-    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     hollowTagBackground: shades.grey[0],
+    hollowTagBorder: shades.greyBorder("1px", .15),
+    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {

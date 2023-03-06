@@ -77,6 +77,21 @@ export const eaForumTheme: SiteThemeSpecification = {
       individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
     },
+    tag: {
+      text: shadePalette.grey[1000],
+      background: shadePalette.grey[0],
+      backgroundHover: shadePalette.greyAlpha(0.03),
+      border: shadePalette.greyBorder("1px", .15),
+      coreTagText: shadePalette.grey[1000],
+      coreTagBackground: shadePalette.grey[250],
+      coreTagBackgroundHover: shadePalette.grey[340],
+      coreTagBorder: `1px solid ${shadePalette.grey[250]}`,
+      hollowTagBorder: shadePalette.greyBorder("1px", .15),
+      hollowTagBackground: shadePalette.grey[0],
+      hollowTagBackgroundHover: shadePalette.greyAlpha(0.03),
+      boxShadow: `1px 2px 5px ${shadePalette.boxShadowColor(.2)}`,
+      addTagButtonBackground: shadePalette.grey[300],
+    },
   }),
   make: (palette: ThemePalette) => {
     const basicText = {

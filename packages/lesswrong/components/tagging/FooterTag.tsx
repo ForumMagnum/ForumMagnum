@@ -7,6 +7,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -51,17 +52,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...theme.typography.commentStyle,
     "&:hover": {
-      opacity: 1
+      opacity: 1,
+      backgroundColor: theme.palette.tag.backgroundHover,
     },
-    ...(useExperimentalTagStyleSetting.get()
+    "& a:hover": isEAForum ? {opacity: 1} : {},
+    ...(useExperimentalTagStyleSetting.get() && !isEAForum
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
   },
   core: {
-    backgroundColor: theme.palette.tag.hollowTagBackground,
+    backgroundColor: theme.palette.tag.coreTagBackground,
     border: theme.palette.tag.coreTagBorder,
-    color: theme.palette.text.dim3,
+    color: theme.palette.tag.coreTagText,
+    "&:hover": {
+      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+    },
   },
   score:  {
     paddingLeft: 5,
