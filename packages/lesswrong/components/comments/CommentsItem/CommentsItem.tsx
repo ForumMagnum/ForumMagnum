@@ -518,7 +518,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             </span>}
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
-            Promoted by {comment.promotedByUser.displayName}
+            Pinned by {comment.promotedByUser.displayName}
           </div>}
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}

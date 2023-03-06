@@ -12,6 +12,8 @@ import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
 import { ObjectId } from "mongodb";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
+import { LWEvents } from "../../lib/collections/lwevents";
+import { inspect } from "util";
 
 type Transaction = ITask<{}>;
 
@@ -63,6 +65,23 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
         : email;
     });
     return user;
+  },
+  DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
+    extractObjectId(event);
+    if (typeof event.createdAt === "number") {
+      event.createdAt = new Date(event.createdAt);
+    }
+    if (typeof event.delayTime === "number") {
+      event.delayTime = new Date(event.delayTime);
+    }
+    if (typeof event.upperBoundTime === "number") {
+      event.upperBoundTime = new Date(event.upperBoundTime);
+    }
+    event.pendingEvents = (event.pendingEvents ?? []).filter(
+      (item: any) => typeof item === "string",
+    );
+    event.createdAt ??= event.delayTime;
+    return event;
   },
   DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
     extractObjectId(metadata);
@@ -176,18 +195,29 @@ const copyData = async (
   createdSince?: Date,
 ) => {
   console.log(`...Copying data (pass ${pass})`);
+  if (createdSince) {
+    console.log(`...(using createdSince = ${createdSince})`);
+  }
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
     const collectionName = collection.getMongoCollection().collectionName;
 
-    const totalCount = await collection.getMongoCollection().find({}).count();
+    const totalCount = await collection.getMongoCollection().find({
+      ...(createdSince ? { createdAt: {$gte: createdSince} } : {}),
+    }).count();
+
+    if (totalCount < 1) {
+      return;
+    }
+
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
     let count = 0;
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
+      useCreatedAt: true,
       filter: {
         ...makeBatchFilter(collectionName, createdSince),
         ...makeCollectionFilter(collectionName),
@@ -234,7 +264,7 @@ const writeCollectionTargets = async (
   });
 }
 
-export const migrateCollections = async (collectionNames: CollectionNameString[]) => {
+export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date) => {
   console.log(`=== Migrating collections '${collectionNames}' from Mongo to Postgres ===`);
 
   console.log("...Preparing collections");
@@ -262,7 +292,7 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
 
       // Copy the initial data - this can take a *long* time depending on the collection
       const copyStart = new Date();
-      await copyData(transaction, collections, 1);
+      await copyData(transaction, collections, 1, maxCopyAge);
       await setLogged(transaction, collections, true);
 
       // Copy anything that was inserted during the first copy - this should be ~instant
@@ -280,11 +310,102 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     await writeCollectionTargets(collections, "pg", "pg");
 
     console.log("\ud83c\udfc1 Done!");
+    return true;
   } catch (e) {
     console.error("Error:", e.message);
     await writeCollectionTargets(collections, "mongo", "mongo");
     console.log("\ud83d\uded1 Migration aborted!");
+    return false;
   }
 }
 
 Vulcan.migrateCollections = migrateCollections;
+
+const migrateLWEvents = async (resumeTime?: Date) => {
+  if (!resumeTime) {
+    const startTime = new Date();
+    const success = await migrateCollections(["LWEvents"], startTime);
+    if (!success) {
+      return;
+    }
+  }
+
+  const collection = LWEvents;
+  if (!(collection instanceof SwitchingCollection)) {
+    throw new Error("LWEvents is not a switching collection");
+  }
+
+  const oldest = await collection.getMongoCollection().find({}, {
+    sort: {createdAt: 1},
+    limit: 1,
+    projection: {createdAt: 1},
+  }).fetch();
+
+  if (oldest.length !== 1) {
+    throw new Error("Can't find oldest event");
+  }
+
+  const oldestCreatedAt = oldest[0].createdAt;
+
+  // eslint-disable-next-line no-console
+  console.log("Oldest event created at", oldestCreatedAt);
+
+  const sql = getSqlClientOrThrow();
+
+  const windowSizeMonths = 3;
+  const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
+  let maxTime = resumeTime ?? new Date();
+  while (maxTime > oldestCreatedAt) {
+    const minTime = new Date(maxTime.getTime() - windowSizeMS);
+    const filter = {
+      createdAt: {
+        $gt: minTime,
+        $lte: maxTime,
+      },
+    };
+
+    console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
+
+    const table = collection.getPgCollection().table;
+    const collectionName = collection.getMongoCollection().collectionName;
+
+    const totalCount = await collection.getMongoCollection().find(filter).count();
+    if (totalCount < 1) {
+      // eslint-disable-next-line no-console
+      console.log("No documents in batch - skipping...");
+      maxTime = minTime;
+      continue;
+    }
+
+    const formatter = getCollectionFormatter(collection);
+    const batchSize = pickBatchSize(collection);
+    let count = 0;
+    await forEachDocumentBatchInCollection({
+      collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
+      batchSize,
+      useCreatedAt: true,
+      filter: {
+        ...makeCollectionFilter(collectionName),
+        ...filter,
+      },
+      callback: async (documents: DbObject[]) => {
+        const end = count + documents.length;
+        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
+        count += batchSize;
+        const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
+        const compiled = query.compile();
+        try {
+          await sql.none(compiled.sql, compiled.args);
+        } catch (e) {
+          console.log(documents);
+          console.error(e);
+          throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+        }
+      },
+    });
+
+    maxTime = minTime;
+  }
+}
+
+Vulcan.migrateLWEvents = migrateLWEvents;
