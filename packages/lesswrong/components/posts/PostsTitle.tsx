@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon.slightlyDim3,
+    color: theme.palette.icon[theme.uiStyle === "friendly" ? "dim4" : "slightlyDim3"],
   },
   stickyIcon: theme.uiStyle === "friendly"
     ? {
