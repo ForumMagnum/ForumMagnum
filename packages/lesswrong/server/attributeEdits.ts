@@ -2,6 +2,7 @@ import { diff } from './vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
+import { cheerioParse } from './utils/htmlUtil';
 import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
 import filter from 'lodash/filter';
@@ -101,16 +102,13 @@ function isSpace(s: string): boolean {
 }
 
 export const attributeEdits = (oldHtml: string, newHtml: string, userId: string, oldAttributions: EditAttributions): EditAttributions => {
-  // @ts-ignore
-  const parsedOldHtml = cheerio.load(oldHtml, null, false);
-  // @ts-ignore
-  const parsedNewHtml = cheerio.load(newHtml, null, false);
+  const parsedOldHtml = cheerioParse(oldHtml);
+  const parsedNewHtml = cheerioParse(newHtml);
   const oldText = treeToText(parsedOldHtml);
   const newText = treeToText(parsedNewHtml);
   
   const diffHtml = diff(oldHtml, newHtml);
-  // @ts-ignore
-  const parsedDiffs = cheerio.load(diffHtml, null, false);
+  const parsedDiffs = cheerioParse(diffHtml);
   // @ts-ignore
   const insDelAnnotations = annotateInsDel(parsedDiffs.root()[0]);
   
@@ -203,8 +201,7 @@ function authorIdToClasses(authorId: string|null): string|null {
 }
 
 export const spansToAttributions = (html: string): EditAttributions => {
-  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const $ = cheerio.load(html, null, false);
+  const $ = cheerioParse(html);
   const ret: EditAttributions = [];
   let currentAuthorId: string|null = null;
   walkHtmlPreorder<void>($.root()[0], undefined, (node: cheerio.Element, props: void) => {
@@ -267,8 +264,7 @@ export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, 
 }
 
 export const attributionsToSpans = (html: string, attributions: EditAttributions): string => {
-  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const $ = cheerio.load(html, null, false);
+  const $ = cheerioParse(html);
   let attributionPos = 0;
   
   return cheerio.html(mapHtmlPostorder($, $.root()[0], ($node: cheerio.Cheerio) => {

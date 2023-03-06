@@ -9,6 +9,7 @@ import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
@@ -95,8 +96,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(html, null, false);
+  const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
   
