@@ -148,6 +148,9 @@ export function getPostEditor(forumType) {
   PostEditor.defaultConfig = { ...postEditorConfig };
   return PostEditor;
 }
+
+// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
+// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
 export function getPostEditorCollaboration(forumType) {
   class PostEditorCollaboration extends BalloonBlockEditorBase {}
   PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];

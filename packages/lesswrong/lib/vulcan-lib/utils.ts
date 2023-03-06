@@ -285,7 +285,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['style', 'class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      div: ['style', 'class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-button', 'data-text', 'data-href', 'data-alignment'],
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
