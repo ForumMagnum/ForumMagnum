@@ -218,7 +218,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </Tooltip>
 
-          {isEAForum && <Tooltip title={<div><div>By default, Community posts are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+          {isEAForum && <Tooltip title={<div><div>By default, Community posts are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
             <QueryLink
               className={classes.checkboxGroup}
               onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
