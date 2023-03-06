@@ -43,10 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
   },
-  disabled: {
-    opacity: .2,
-    cursor: "default"
-  },
   bigDownvotes: {
     color: theme.palette.error.dark,
     padding: 6,
@@ -183,8 +179,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
-  const firstClientId = user.associatedClientIds?.[0];
-
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
       <div className={classes.displayName}>
@@ -193,13 +187,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {firstClientId?.firstSeenReferrer && <div>Initial referrer: {firstClientId.firstSeenReferrer}</div>}
-      </MetaInfo>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {firstClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={firstClientId.firstSeenLandingPage}>{firstClientId.firstSeenLandingPage}</a></div>}
-      </MetaInfo>
-      {user.altAccountsDetected && <Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link>}
+      <UserReviewStatus user={user}/>
     </div>
 
     <div className={classes.row}>
