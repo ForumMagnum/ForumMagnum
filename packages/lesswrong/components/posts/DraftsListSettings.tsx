@@ -65,7 +65,7 @@ const DraftsListSettings = ({
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
-  const setSetting = (type, newSetting) => {
+  const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,

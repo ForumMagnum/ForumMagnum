@@ -4,7 +4,7 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
-import { subforumSlugsSetting, useLocation } from '../lib/routeUtil';
+import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
@@ -17,7 +17,9 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
+import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
+import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -31,7 +33,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum', 'EAForumWrapped'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -160,7 +162,7 @@ const Layout = ({currentUser, children, classes}: {
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
-  const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
+  const layoutOptionsState = React.useContext(LayoutOptionsContext);
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -201,23 +203,32 @@ const Layout = ({currentUser, children, classes}: {
       }
     }
   }, [useWhiteBackground, classes.whiteBackground]);
+
+  if (!layoutOptionsState) {
+    throw new Error("LayoutOptionsContext not set");
+  }
   
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 
-    // Check whether the current route is one which should have standalone
-    // navigation on the side. If there is no current route (ie, a 404 page),
-    // then it should.
-    // FIXME: This is using route names, but it would be better if this was
-    // a property on routes themselves.
+    const baseLayoutOptions: LayoutOptions = {
+      // Check whether the current route is one which should have standalone
+      // navigation on the side. If there is no current route (ie, a 404 page),
+      // then it should.
+      // FIXME: This is using route names, but it would be better if this was
+      // a property on routes themselves.
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      unspacedGridLayout: !!currentRoute?.unspacedGrid,
+    }
 
-    const standaloneNavigation =
-      !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
+    const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
 
-    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
-    
-    const shouldUseGridLayout = standaloneNavigation
-    const unspacedGridLayout = currentRoute?.unspacedGrid || isSubforum
+    const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
+    const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
+    const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -295,7 +306,9 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <Components.SunshineSidebar/>
+                  <NoSSR>
+                    <Components.SunshineSidebar/>
+                  </NoSSR>
                 </div>}
               </div>
             </CommentBoxManager>

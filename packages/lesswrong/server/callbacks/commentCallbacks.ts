@@ -10,7 +10,7 @@ import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -43,6 +43,10 @@ export const getAdminTeamAccount = async () => {
   return account;
 }
 
+/**
+ * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
+ */
+export const noDeletionPmReason = 'Requested account deletion';
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
   if (comment.shortform && !comment.postId) {
@@ -207,7 +211,13 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 });
 
 export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
-  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
+  const commentDeletedByAnotherUser =
+    (!comment.deletedByUserId || comment.deletedByUserId !== comment.userId)
+    && comment.deleted
+    && comment.contents?.html;
+
+  const noPmDeletionReason = comment.deletedReason === noDeletionPmReason;
+  if (commentDeletedByAnotherUser && !noPmDeletionReason) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
@@ -290,7 +300,14 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
   var commentAuthor = await Users.findOne(comment.userId);
-  const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
+  if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
+  const {modifiedDocument: votedComment} = await performVoteServer({
+    document: comment,
+    voteType: 'smallUpvote',
+    collection: Comments,
+    user: commentAuthor,
+    skipRateLimits: true,
+  })
   return {...comment, ...votedComment} as DbComment;
 });
 
@@ -422,3 +439,16 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
   await triggerReviewIfNeeded(document.userId);
 })
+
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
+  if (!currentUser) return;
+  currentUser.snoozedUntilContentCount && await updateMutator({
+    collection: Users,
+    documentId: currentUser._id,
+    set: {
+      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+    },
+    validate: false,
+  })
+  await triggerReviewIfNeeded(currentUser._id)
+});

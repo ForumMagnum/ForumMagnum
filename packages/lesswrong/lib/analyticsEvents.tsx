@@ -150,8 +150,9 @@ will overwrite the first.
 NOTE! AnalyticsContext components will only add context data to events that are already
 being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
 will likely have to add tracking manually with a captureEvent call. (Search codebase for examples or consult others)
-The best way to ensure you are tracking correctly with is to insert a console.log statement 
-in captureEvent in this file, e.g. console.log({eventType: eventProps}).
+
+The best way to ensure you are tracking correctly with is to look at the logs
+in the client or server (ensure getShowAnalyticsDebug is returning true).
 */
 
 export const AnalyticsContext = ({children, ...props}: any) => {
@@ -175,7 +176,7 @@ export const AnalyticsContext = ({children, ...props}: any) => {
 // value were set to {} in the usual way, it would be a new instance of {} each
 // time; this way, it's the same {}, which in turn matters for making
 // useCallback return the same thing each tie.
-const emptyEventProps = {};
+const emptyEventProps = {} as any;
 
 export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
   eventType?: string,
@@ -196,10 +197,10 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps, sk
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
+export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
-  eventProps?: any,
-  captureOnMount?: any,
+  eventProps?: T,
+  captureOnMount?: boolean | ((eventProps: T) => boolean),
   skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)

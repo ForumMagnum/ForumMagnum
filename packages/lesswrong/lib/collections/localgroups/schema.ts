@@ -23,7 +23,7 @@ const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
-    label: "Advanced Options",
+    label: isEAForum ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
 };
@@ -32,11 +32,23 @@ const schema: SchemaType<DbLocalgroup> = {
   name: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: ['members'],
-    order:10,
     insertableBy: ['members'],
+    editableBy: ['members'],
+    order: 10,
     control: "MuiTextField",
-    label: "Group Name"
+    label: isEAForum ? "Group name" : "Group Name"
+  },
+  
+  nameInAnotherLanguage: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    order: 11,
+    control: "MuiTextField",
+    tooltip: 'Useful for multilingual groups - this will help people find your group in search',
+    label: "Group name in another language (optional)",
+    optional: true,
   },
 
   organizerIds: {
@@ -49,9 +61,9 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    order:20,
+    order: 20,
     control: "UsersListEditor",
-    label: "Add Organizers",
+    label: isEAForum ? "Add organizers" : "Add Organizers",
   },
 
   'organizerIds.$': {
@@ -144,7 +156,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Group Location",
+    label: isEAForum ? "Group location" : "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
     hidden: data => data.document.isOnline,
@@ -165,7 +177,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Contact Info",
+    label: isEAForum ? "Contact info" : "Contact Info",
     control: "MuiTextField",
     optional: true,
   },
@@ -175,7 +187,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook Group",
+    label: isEAForum ? "Facebook group" : "Facebook Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -187,7 +199,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook Page",
+    label: isEAForum ? "Facebook page" : "Facebook Page",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -199,7 +211,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Meetup.com Group",
+    label: isEAForum ? "Meetup.com group" : "Meetup.com Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -211,7 +223,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Slack Workspace",
+    label: isEAForum ? "Slack workspace" : "Slack Workspace",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -236,7 +248,7 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    label: "Banner Image",
+    label: isEAForum ? "Banner image" : "Banner Image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
     form: {
@@ -263,6 +275,14 @@ const schema: SchemaType<DbLocalgroup> = {
     optional: true,
     tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
     ...schemaDefaultValue(false),
+  },
+  
+  // used by the EA Forum to associate groups with their listing in salesforce - currently only populated via script
+  salesforceId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    hidden: true,
   },
 };
 

@@ -113,7 +113,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     this.applyLocalModifications();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: ContentItemBodyProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
       this.replacedElements = [];
       this.applyLocalModifications();
@@ -159,11 +159,11 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   // Given an HTMLCollection, return an array of the elements inside it. Note
   // that this is covering for a browser-specific incompatibility: in Edge 17
   // and earlier, HTMLCollection has `length` and `item` but isn't iterable.
-  htmlCollectionToArray(collection) {
+  htmlCollectionToArray(collection: HTMLCollectionOf<HTMLElement>) {
     if (!collection) return [];
-    let ret: Array<any> = [];
+    let ret: Array<HTMLElement> = [];
     for (let i=0; i<collection.length; i++)
-      ret.push(collection.item(i));
+      ret.push(collection.item(i)!);
     return ret;
   }
   
@@ -210,7 +210,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   //
   // Attaches a handler to `block.onscrol` which shows and hides the scroll
   // indicators when it's scrolled all the way.
-  addHorizontalScrollIndicators = (block) => {
+  addHorizontalScrollIndicators = (block: HTMLElement) => {
     const { classes } = this.props;
     
     // If already wrapped, don't re-wrap (so this is idempotent).
@@ -223,7 +223,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     const scrollIndicatorLeft = document.createElement("div");
     scrollIndicatorWrapper.append(scrollIndicatorLeft);
     
-    block.parentElement.insertBefore(scrollIndicatorWrapper, block);
+    block.parentElement?.insertBefore(scrollIndicatorWrapper, block);
     block.remove();
     scrollIndicatorWrapper.append(block);
     
@@ -262,10 +262,10 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
-        if (linkIsExcludedFromPreview(href))
+        if (!href || linkIsExcludedFromPreview(href))
           continue;
-        const id = linkTag.getAttribute("id");
-        const rel = linkTag.getAttribute("rel")
+        const id = linkTag.getAttribute("id") ?? undefined;
+        const rel = linkTag.getAttribute("rel") ?? undefined;
         const replacementElement = <Components.HoverPreviewLink
           href={href}
           innerHTML={tagContentsHTML}
@@ -298,22 +298,22 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       const addedElement = this.props.idInsertions[id];
       const container = document.getElementById(id);
       // TODO: Check that it's inside this ContentItemBody
-      this.insertElement(container, <>{addedElement}</>);
+      if (container) this.insertElement(container, <>{addedElement}</>);
     }
   }
   
-  replaceElement = (replacedElement, replacementElement) => {
+  replaceElement = (replacedElement: HTMLElement, replacementElement: JSX.Element) => {
     const replacementContainer = document.createElement("span");
     if (replacementContainer) {
       this.replacedElements.push({
         replacementElement: replacementElement,
         container: replacementContainer,
       });
-      replacedElement.parentElement.replaceChild(replacementContainer, replacedElement);
+      replacedElement.parentElement?.replaceChild(replacementContainer, replacedElement);
     }
   }
   
-  insertElement = (container, insertedElement) => {
+  insertElement = (container: HTMLElement, insertedElement: JSX.Element) => {
     const insertionContainer = document.createElement("span");
     this.replacedElements.push({
       replacementElement: insertedElement,

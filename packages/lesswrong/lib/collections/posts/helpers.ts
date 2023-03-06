@@ -133,7 +133,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
   }
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost): number => {
+export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -321,6 +321,14 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
     coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
   }
   return coauthorStatuses.map(({ userId }) => userId);
+}
+
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: DbPost|PostsList|PostsDetails): boolean => {
+  if (!user) {
+    return false;
+  }
+  const userIds = getConfirmedCoauthorIds(post);
+  return userIds.indexOf(user._id) >= 0;
 }
 
 export const isNotHostedHere = (post: PostsPage) => {

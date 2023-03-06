@@ -11,7 +11,7 @@ import * as _ from 'underscore';
 
 const autosaveInterval = 3000; //milliseconds
 
-export function isCollaborative(post, fieldName: string): boolean {
+export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
@@ -44,7 +44,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const isCollabEditor = isCollaborative(document, fieldName);
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
+    const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
@@ -72,6 +72,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       }
     }
   }, [getLocalStorageHandlers, currentEditorType]);
+
+  /**
+   * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
+   * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
+   */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSetContentsValue = useCallback(_.throttle(async () => {
+    if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
+    
+    // Preserve other fields in "contents" which may have been sent from the server
+    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+  }, autosaveInterval, {leading: true}), [autosaveInterval])
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSaveBackup = useCallback(
@@ -92,21 +104,21 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       }
     }
     
-    // Hack: Fill in ${fieldName}_type with the editor type, to enable other
+    // Hack: Fill in ${fieldName}_type with the editor type on every keystroke, to enable other
     // form components (in particular PostSharingSettings) to check whether we're
-    // using CkEditor vs draftjs vs etc. (We transfer the actual contents from
-    // the editor to vulcan-forms only as a final step upon form submit, because
-    // this is a serialization of the whole document which can be too slow to do
-    // on every keystroke).
+    // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
+    // callback to improve performance. Note that the contents are always recalculated on
+    // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    void throttledSetContentsValue()
     
     if (autosave) {
       throttledSaveBackup(contents);
     }
-  }, [throttledSaveBackup, updateCurrentValues, fieldName, isCollabEditor]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
   
   useEffect(() => {
-    const unloadEventListener = (ev) => {
+    const unloadEventListener = (ev: BeforeUnloadEvent) => {
       if (hasUnsavedDataRef?.current?.hasUnsavedData) {
         ev.preventDefault();
         ev.returnValue = 'Are you sure you want to close?';
@@ -127,16 +139,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm(async (submission) => {
+      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
-            [fieldName]: await editorRef.current.submitData(submission)
+            [fieldName]: await editorRef.current.submitData()
           };
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result, form, submitOptions) => {
+      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         if (editorRef.current && !submitOptions?.redirectToEditor) {
           wrappedSetContents({
@@ -154,7 +166,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
-  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
@@ -198,7 +210,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       commentEditor={commentEditor}
       hideControls={hideControls}
       maxHeight={maxHeight}
-      hasCommitMessages={hasCommitMessages}
+      hasCommitMessages={hasCommitMessages ?? undefined}
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&

@@ -67,8 +67,8 @@ const TagHistoryPage = ({classes}: {
             
             return <SingleLineFeedEvent>
               Applied to <LinkToPost post={application.post}/>
-              {" by "}
-              <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
+              {application.user && <> by <UsersName user={application.user}/></>}
+              {" "}<FormatDate date={application.createdAt}/> ago
             </SingleLineFeedEvent>
           }
         },

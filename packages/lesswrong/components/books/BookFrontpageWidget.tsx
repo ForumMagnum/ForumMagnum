@@ -149,7 +149,12 @@ const BookFrontpageWidget = ({ classes }: {
     }
   }
 
-  const BookMarketingText = ({title, subtitle, description, buttons}) => {
+  const BookMarketingText = ({title, subtitle, description, buttons}: {
+    title: string;
+    subtitle: string;
+    description: string | JSX.Element;
+    buttons: JSX.Element;
+  }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
       <h1 className={classes.mainHeading}>

@@ -7,13 +7,16 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
+import { Link } from '../../lib/reactRouterWrapper';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,6 +88,8 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   
+  const { LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row } = Components
+
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
@@ -98,7 +103,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
@@ -145,7 +150,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -182,7 +187,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         <Components.CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }
-      <Components.CommentsList
+      <CommentsList
         treeOptions={{
           highlightDate: highlightDate,
           post: post,
@@ -195,7 +200,14 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
-      <Components.PostsPageCrosspostComments />
+      <PostsPageCrosspostComments />
+      {!isEAForum && <Row justifyContent="flex-end">
+        <LWTooltip title="View deleted comments and banned users">
+          <Link to="/moderation">
+            <MetaInfo>Moderation Log</MetaInfo>
+          </Link>
+        </LWTooltip>
+      </Row>}
     </div>
   );
 }

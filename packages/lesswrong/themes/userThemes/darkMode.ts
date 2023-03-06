@@ -101,7 +101,7 @@ const colorReplacements: Partial<Record<string,string>> = {
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
 };
 function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: string) => {
+  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
     return `
       .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {

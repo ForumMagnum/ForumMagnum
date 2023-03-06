@@ -114,7 +114,10 @@ const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
-const EAHomeHandbook = ({ classes, documentId }) => {
+const EAHomeHandbook = ({ classes, documentId }: {
+  classes: ClassesType;
+  documentId: string;
+}) => {
   const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,

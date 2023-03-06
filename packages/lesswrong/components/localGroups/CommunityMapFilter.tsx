@@ -14,7 +14,7 @@ import RoomIcon from '@material-ui/icons/Room';
 import StarIcon from '@material-ui/icons/Star';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
 import Tooltip from '@material-ui/core/Tooltip';
-import withDialog from '../common/withDialog'
+import withDialog, { CloseableComponents, OpenDialogContextType } from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
@@ -178,7 +178,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
+const createFallBackDialogHandler = (
+  openDialog: OpenDialogContextType['openDialog'],
+  dialogName: CloseableComponents,
+  currentUser: UsersCurrent | null
+) => {
   return () => openDialog({
     componentName: currentUser ? dialogName : "LoginPopup",
   });
@@ -214,7 +218,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     }
   }
 
-  handleCheck = (filter) => {
+  handleCheck = (filter: string) => {
     const { location, history } = this.props
     let newFilters: Array<any> = [];
     if (Array.isArray(this.state.filters) && this.state.filters.includes(filter)) {

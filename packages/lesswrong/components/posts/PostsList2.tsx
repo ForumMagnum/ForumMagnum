@@ -7,11 +7,10 @@ import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const Error = ({error}) => <div>
+const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
@@ -21,24 +20,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
-  }
+  },
 })
 
-// A list of posts, defined by a query that returns them.
-//
-// Props:
-//  * children: Child elements will be put in a footer section
-//  * terms: The search terms used to select the posts that will be shown.
-//  * dimWhenLoading: Apply a style that grays out the list while it's in a
-//    loading state (default false)
-//  * topLoading: show the loading state at the top of the list in addition to the bottom
-//  * showLoading: Display a loading spinner while loading (default true)
-//  * showLoadMore: Show a Load More link in the footer if there are potentially
-//    more posts (default true)
-//  * showNoResults: Show a placeholder if there are no results (otherwise
-//    render only whiteness) (default true)
-//  * hideLastUnread: If the list ends with N sequential read posts, 
-//    hide them, except for the first post in the list
+type CommentsSection = {
+  title: string,
+  comments: CommentWithRepliesFragment[],
+  loading: boolean,
+}
+
+/** A list of posts, defined by a query that returns them. */
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
@@ -60,20 +51,34 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   hideTrailingButtons=false,
+  hideTagRelevance=false,
   tooltipPlacement="bottom-end",
   boxShadow=true,
   curatedIconLeft=false,
   showFinalBottomBorder=false,
   hideHiddenFrontPagePosts=false,
+  hideShortform=false,
+  commentsSection,
 }: {
+  /** Child elements will be put in a footer section */
   children?: React.ReactNode,
+  /** The search terms used to select the posts that will be shown. */
   terms?: any,
+  /** Apply a style that grays out the list while it's in a loading state (default false) */
   dimWhenLoading?: boolean,
+  /** Show the loading state at the top of the list in addition to the bottom */
   topLoading?: boolean,
+  /** Display a loading spinner while loading (default true) */
   showLoading?: boolean,
+  /** Show a Load More link in the footer if there are potentially more posts (default true) */
   showLoadMore?: boolean,
   alwaysShowLoadMore?: boolean,
+  /** Show a placeholder if there are no results (otherwise render only whiteness) (default true) */
   showNoResults?: boolean,
+  /**
+   * If the list ends with N sequential read posts, hide them, except for the
+   * first post in the list
+   */
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
   enableTotal?: boolean,
@@ -87,14 +92,15 @@ const PostsList2 = ({
   itemsPerPage?: number,
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
+  hideTagRelevance?: boolean,
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
+  hideShortform?: boolean,
+  commentsSection?: CommentsSection,
 }) => {
-  const {isPostRepeated, addPost} = useHideRepeatedPosts();
-
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId ? {
@@ -132,6 +138,14 @@ const PostsList2 = ({
       }
     }
 
+    if (hideShortform) {
+      for (const result of results) {
+        if (result.shortform) {
+          hiddenPosts[result._id] = true;
+        }
+      }
+    }
+
     if (currentUser && hideHiddenFrontPagePosts) {
       // Hide any posts that a user has explicitly hidden
       // 
@@ -156,7 +170,9 @@ const PostsList2 = ({
   //                     fix this for real when Apollo 2 comes out
   
 
-  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
+  const {
+    Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter, Typography, CommentsNode,
+  } = Components
 
 
   // We don't actually know if there are more posts here,
@@ -172,7 +188,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length > 0, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
   if (results && !results.length && !showNoResults) return null
@@ -185,17 +201,16 @@ const PostsList2 = ({
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
-          if (isPostRepeated(post._id)) {
+          if (post._id in hiddenPosts) {
             return null;
           }
-          addPost(post._id);
 
           const props = {
             post,
             index: i,
             terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
-            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from
@@ -204,9 +219,7 @@ const PostsList2 = ({
             tooltipPlacement,
           };
 
-          if (!(post._id in hiddenPosts)) {
-            return <PostsItem2 key={post._id} {...props} />
-          }
+          return <PostsItem2 key={post._id} {...props} />
         })}
       </div>
       {showLoadMore && <SectionFooter>

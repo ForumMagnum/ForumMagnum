@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -9,7 +8,6 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -142,6 +140,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...hideScrollBars
   },
+  flagged: {
+    border: theme.palette.border.intense,
+    borderColor: theme.palette.error.main
+  }
 })
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
@@ -150,7 +152,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  const { MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+  const {
+    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
+    UsersName, NewUserDMSummary
+  } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
@@ -232,7 +238,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const renderExpand = !!(posts?.length || comments?.length)
   
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
       {basicInfoRow}
       <div className={classes.columns}>
         <div className={classes.infoColumn}>
@@ -246,6 +252,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
+          <NewUserDMSummary user={user} />
           <div 
             className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
@@ -276,5 +283,3 @@ declare global {
     UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
-
-
