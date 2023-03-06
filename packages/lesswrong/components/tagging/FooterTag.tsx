@@ -81,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   smallText: {
     ...smallTagTextStyle(theme),
   },
-  topTag: {
+  coreTag: {
     background: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
     border: 'none',
@@ -143,14 +143,14 @@ const FooterTag = ({
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard, TopTagIcon } = Components
+  const { PopperCard, TagRelCard, CoreTagIcon } = Components
 
   const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
 
   if (tag.adminOnly) { return null }
 
   const renderedTag = <>
-    {!!isTopTag && <TopTagIcon tag={tag} />}
+    {!!isTopTag && <CoreTagIcon tag={tag} />}
     <span className={classes.name}>{tag.name}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
@@ -160,7 +160,7 @@ const FooterTag = ({
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, className, {
-      [classes.topTag]: isTopTag,
+      [classes.coreTag]: isTopTag,
       [classes.core]: !neverCoreStyling && tag.core,
       [classes.smallText]: smallText,
     })}>

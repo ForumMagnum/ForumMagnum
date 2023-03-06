@@ -17,7 +17,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 
 // Mapping from tag slug to icon
 // Don't want to fight the type system about the type of the MUI icon
-export const topTagIconMap = forumSelect<Record<string, any>>({
+export const coreTagIconMap = forumSelect<Record<string, any>>({
   EAForum: {
     biosecurity: DnaIcon,
     'biosecurity-and-pandemic-preparedness': DnaIcon, // Replacing biosecurity
@@ -42,16 +42,16 @@ export const topTagIconMap = forumSelect<Record<string, any>>({
   default: {}
 })
 
-const TopTagIcon = ({tag}: {tag: {slug: string}}) => {
-  const Icon = topTagIconMap[tag.slug]
+const CoreTagIcon = ({tag}: {tag: {slug: string}}) => {
+  const Icon = coreTagIconMap[tag.slug]
   if (!Icon) return null
   return <Icon />
 }
 
-const TopTagIconComponent = registerComponent("TopTagIcon", TopTagIcon);
+const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon);
 
 declare global {
   interface ComponentTypes {
-    TopTagIcon: typeof TopTagIconComponent
+    CoreTagIcon: typeof CoreTagIconComponent
   }
 }
