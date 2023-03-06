@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -242,16 +242,20 @@ const Community = ({classes}: {
    * @param {Object} location.gmaps - The Google Maps location data.
    * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-  const saveUserLocation = ({lat, lng, gmaps}) => {
+  const saveUserLocation = ({lat, lng, gmaps}: {
+    lat: number;
+    lng: number;
+    gmaps?: google.maps.GeocoderResult
+  }) => {
     // save it in the page state
-    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps?.formatted_address})
 
     if (currentUser) {
       // save it on the user document
       void updateUser({
         selector: {_id: currentUser._id},
         data: {
-          location: gmaps.formatted_address,
+          location: gmaps?.formatted_address,
           googleLocation: gmaps
         }
       })
@@ -259,7 +263,7 @@ const Community = ({classes}: {
       // save it in local storage
       const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps.formatted_address}))
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -271,7 +275,11 @@ const Community = ({classes}: {
   // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
+  const saveReverseGeocodedLocation = async ({lat, lng, known}: {
+    lat: number;
+    lng: number;
+    known: boolean;
+  }) => {
     if (
       mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
       !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
@@ -332,13 +340,13 @@ const Community = ({classes}: {
   
   const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
   
-  const handleChangeTab = (e, value) => {
+  const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
     history.replace({...location, hash: `#${value}`})
   }
   
-  const handleKeywordSearch = (e) => {
+  const handleKeywordSearch = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newKeyword = e.target.value
     setKeywordSearch(newKeyword)
     // log the event after typing has stopped for 1 second
@@ -362,7 +370,7 @@ const Community = ({classes}: {
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
-            Community
+            Connect
           </h1>
           <div className={classes.sectionDescription}>
             Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.

@@ -8,39 +8,45 @@ import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vu
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterCreate } from './cacheUpdates';
 import { getExtraVariables } from './utils'
+import { loggerConstructor } from '../utils/logging';
 
-// Create mutation query used on the client. Eg:
-//
-// mutation createMovie($data: CreateMovieDataInput!) {
-//   createMovie(data: $data) {
-//     data {
-//       _id
-//       name
-//       __typename
-//     }
-//     __typename
-//   }
-// }
+/**
+ * Create mutation query used on the client. Eg:
+ *
+ * mutation createMovie($data: CreateMovieDataInput!) {
+ *   createMovie(data: $data) {
+ *     data {
+ *       _id
+ *       name
+ *       __typename
+ *     }
+ *     __typename
+ *   }
+ * }
+ */
 const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   typeName: string,
   fragmentName: string,
   extraVariablesString?: string,
-}) =>
+}) => (
 `mutation create${typeName}($data: Create${typeName}DataInput!, ${extraVariablesString || ''}) {
   create${typeName}(data: $data) {
     data {
       ...${fragmentName}
     }
   }
-}`;
+}`
+);
 
-// Generic mutation wrapper to insert a new document in a collection and update
-// a related query on the client with the new item and a new total item count.
-//
-// Arguments:
-//  - data: the document to insert
-// Child Props:
-//  - createMovie({ data })
+/**
+ * Generic mutation wrapper to insert a new document in a collection and update
+ * a related query on the client with the new item and a new total item count.
+ *
+ * Arguments:
+ *  - data: the document to insert
+ * Child Props:
+ *  - createMovie({ data })
+ */
 export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
@@ -98,6 +104,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   data?: ObjectsByCollectionName[CollectionName],
 } => {
   const collection = getCollection(collectionName);
+  const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection!.options.typeName;
@@ -113,6 +120,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
     ignoreResults: ignoreResults
   });
   const wrappedCreate = ({ data }) => {
+    logger('useCreate, wrappedCreate()')
     return mutate({
       variables: { data },
       update: updateCacheAfterCreate(typeName, client)

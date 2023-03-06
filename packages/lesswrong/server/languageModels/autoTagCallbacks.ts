@@ -8,6 +8,7 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 /**
  * To set up automatic tagging:
@@ -205,8 +206,10 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
 async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
-    //eslint-disable-next-line no-console
-    console.log("Skipping autotagging (API not configured)");
+    if (!isAnyTest) {
+      //eslint-disable-next-line no-console
+      console.log("Skipping autotagging (API not configured)");
+    }
     return;
   }
   const tagBot = await getTagBotAccount(context);

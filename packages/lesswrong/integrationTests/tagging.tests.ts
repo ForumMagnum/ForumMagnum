@@ -20,8 +20,8 @@ describe('Tagging', function() {
           added: 10,
         },
       });
-      await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user });
-      await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter });
+      await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user, skipRateLimits: false });
+      await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter, skipRateLimits: false });
       await updateDenormalizedContributorsList(tag);
       await waitUntilCallbacksFinished();
       const updatedTag = await Tags.find({_id: tag._id}).fetch();

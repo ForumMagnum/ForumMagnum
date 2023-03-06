@@ -140,7 +140,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
    * @returns {number}
    */
  export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
-  const toRad = (num) => num * Math.PI / 180
+  const toRad = (num: number) => num * Math.PI / 180
   
   const dLat = toRad(end.lat - start.lat)
   const dLng = toRad(end.lng - start.lng)
@@ -195,7 +195,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   let localGroups = results
   if (results && keywordSearch) {
     localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.location.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
     ))
   }
 

@@ -22,24 +22,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   scoreTitleFormat: {
     width: 20,
     display: "inline-block"
+  },
+  highlight: {
+    color: theme.palette.primary.main,
+    fontWeight: 600
   }
 })
 
 
-const PostKarmaWithPreview = ({ post, classes, displayTitle }: {
+const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
   classes: ClassesType,
-  displayTitle: boolean
+  displayTitle: boolean,
+  reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
   const { LWPopper, PostsPreviewTooltip, MetaInfo } = Components
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={post.draft ? classes.draft : classes.default} to={postGetPageUrl(post)}>
+    <Link className={classNames({[classes.highlight]: post.postedAt > reviewedAt, [classes.draft]: post.draft, [classes.default]: !post.draft})}
+      to={postGetPageUrl(post)}>
       <span className={displayTitle ? classes.scoreTitleFormat : null}>
         {post.baseScore} 
       </span>
-      {displayTitle && <MetaInfo>{post.title}</MetaInfo>}
+      {displayTitle && post.title}
     </Link>
     <LWPopper
         open={hover}

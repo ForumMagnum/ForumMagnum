@@ -13,6 +13,7 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
   }
@@ -129,6 +130,8 @@ registerFragment(`
       name
       organizerIds
     }
+
+    podcastEpisodeId
 
     # deprecated
     nominationCount2018
@@ -321,7 +324,6 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
-    podcastEpisodeId
   }
 `);
 
@@ -407,6 +409,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
@@ -417,6 +420,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
@@ -456,6 +460,7 @@ registerFragment(`
     tableOfContents
     subforumTagId
     sideComments
+    socialPreviewImageId
   }
 `);
 

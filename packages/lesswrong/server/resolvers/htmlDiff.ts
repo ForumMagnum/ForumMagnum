@@ -1,6 +1,6 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { sanitize } from '../vulcan-lib/utils';
 import { cheerioParse } from '../utils/htmlUtil';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Diff the revisions

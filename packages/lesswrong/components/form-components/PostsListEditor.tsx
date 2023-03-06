@@ -30,7 +30,7 @@ const PostsListEditor = ({value, path, label, classes}: {
   path: string,
   label: string,
   classes: ClassesType,
-}, context) => {
+}, context: any) => {
   const { updateCurrentValues } = context;
   return <div className={classes.editor}>
     <SortableList

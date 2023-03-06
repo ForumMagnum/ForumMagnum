@@ -20,13 +20,13 @@ interface CollectionBase<
   N extends CollectionNameString = CollectionNameString
 > {
   collectionName: N
+  postProcess?: (data: T) => T;
   typeName: string,
   options: CollectionOptions
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
-  getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any
@@ -172,7 +172,7 @@ interface HasUserIdType {
   userId: string
 }
 
-interface VoteableType extends HasIdType, HasUserIdType {
+interface VoteableType extends HasIdType {
   score: number
   baseScore: number
   extendedScore: any,
@@ -188,7 +188,7 @@ interface VoteableTypeClient extends VoteableType {
   currentUserExtendedVote?: any,
 }
 
-interface DbVoteableType extends VoteableType, DbObject {
+interface DbVoteableType extends VoteableType, DbObject, HasUserIdType {
 }
 
 // Common base type for results of database lookups.
@@ -216,6 +216,12 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
   locale: string,
   isGreaterWrong: boolean,
+  /**
+   * This means that the request originated from the other FM instance's servers
+   *
+   * Do not set to true unless you have verified the authenticity of the request
+   */
+  isFMCrosspostRequest?: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
@@ -253,5 +259,56 @@ interface SpotlightFirstPost {
   title: string;
   url: string;
 }
+
+// Sorry for declaring these so far from their function definitions. The
+// functions are defined in /server, and import cycles, etc.
+
+type CreateMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  document: Partial<DbInsertion<T>>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+};
+type CreateMutator = <T extends DbObject>(args: CreateMutatorParams<T>) => Promise<{data: T}>;
+
+type UpdateMutatorParamsBase<T extends DbObject> = {
+  collection: CollectionBase<T>;
+  data?: Partial<DbInsertion<T>>;
+  set?: Partial<DbInsertion<T>>;
+  unset?: any;
+  currentUser?: DbUser | null;
+  validate?: boolean;
+  context?: ResolverContext;
+  document?: T | null;
+};
+type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId: string,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector?: never
+};
+type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId?: never,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector: MongoSelector<T>
+};
+type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> |
+  UpdateMutatorParamsWithSelector<T>;
+
+type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
+
+type DeleteMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  documentId: string,
+  selector?: MongoSelector<T>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+  document?: T|null,
+};
+type DeleteMutator = <T extends DbObject>(args: DeleteMutatorParams<T>) => Promise<{data: T}>
+
 
 }

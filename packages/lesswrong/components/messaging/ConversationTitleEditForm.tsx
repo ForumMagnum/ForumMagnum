@@ -23,7 +23,7 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
           fragment={getFragment('conversationsListFragment')}
           queryFragment={getFragment('conversationsListFragment')}
           mutationFragment={getFragment('conversationsListFragment')}
-          successCallback={document => {
+          successCallback={() => {
             if (onClose)
               onClose();
           }}

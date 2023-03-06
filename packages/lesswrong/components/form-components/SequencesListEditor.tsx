@@ -26,7 +26,7 @@ const SequencesListEditor = ({value, path, label, classes}: {
   path: string,
   label: string,
   classes: ClassesType,
-}, context) => {
+}, context: any) => {
   const { updateCurrentValues } = context;
   return <div className={classes.root}>
     <SortableList

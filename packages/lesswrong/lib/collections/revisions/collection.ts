@@ -7,10 +7,13 @@ import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
 import { forumTypeSetting } from '../../instanceSettings';
 
+export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
+export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
+
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a

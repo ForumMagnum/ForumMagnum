@@ -5,9 +5,6 @@ import { LocationContext, NavigationContext, ServerRequestStatusContext, Subscri
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
-import { DatabasePublicSetting } from './publicSettings';
-
-export const subforumSlugsSetting = new DatabasePublicSetting<string[]>('subforumTagSlugs', [])
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.

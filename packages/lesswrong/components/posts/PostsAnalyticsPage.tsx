@@ -1,4 +1,4 @@
-import NoSsr from '@material-ui/core/NoSsr'
+import NoSSR from 'react-no-ssr';
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -108,7 +108,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
   if (loading) {
     return <>
       <Typography variant="body1" className={classNames(classes.gutterBottom, classes.calculating)}>
-        <em>Calculating metrics. (This can take some time for popular posts.)</em>
+        <em>Calculating metrics. This might be slow for popular posts - if you get an error, try refreshing the page!</em>
       </Typography>
       <Loading />
     </>
@@ -160,7 +160,9 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
 
 }
 
-const PostsAnalyticsPage = ({ classes }) => {
+const PostsAnalyticsPage = ({ classes }: {
+  classes: ClassesType;
+}) => {
   const { query } = useLocation()
   // Cannot destructure and retain return type typing due to TS version
   const postReturn = useSingle({
@@ -231,9 +233,9 @@ const PostsAnalyticsPage = ({ classes }) => {
           Note 2: Data collection began on {dataCollectionFirstDay}.
         </em>
       </Typography>}
-      <NoSsr>
+      <NoSSR>
         <PostsAnalyticsInner post={post} classes={classes} />
-      </NoSsr>
+      </NoSSR>
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>

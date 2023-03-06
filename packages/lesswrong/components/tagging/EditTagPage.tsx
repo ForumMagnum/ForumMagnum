@@ -40,7 +40,7 @@ const EditTagPage = () => {
       <Components.SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
-        successCallback={ async (tag) => {
+        successCallback={ async (tag: any) => {
           await client.resetStore()
           history.push({pathname: tagGetUrl(tag)})
         }}

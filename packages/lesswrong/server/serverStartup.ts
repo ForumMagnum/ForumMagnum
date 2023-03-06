@@ -2,7 +2,7 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
@@ -16,12 +16,18 @@ import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
+import { dropAndCreatePg } from './createTestingPgDb';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
+import { basename, join } from 'path';
+import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
+
+// Do this here to avoid a dependency cycle
+Globals.dropAndCreatePg = dropAndCreatePg;
 
 const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
     // eslint-disable-next-line no-console
     const originalFn = console[functionName];
     // eslint-disable-next-line no-console
@@ -104,8 +110,10 @@ const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-const initPostgres = () => {
+const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
+
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {
@@ -117,11 +125,13 @@ const initPostgres = () => {
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
+  const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      collection.startPolling();
+      polls.push(collection.startPolling());
     }
   }
+  await Promise.all(polls);
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
@@ -140,7 +150,7 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
     const result = await func();
     // eslint-disable-next-line no-console
     console.log("Finished. Result: ", result);
-    process.exit(0);
+    process.kill(estrellaPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
     // eslint-disable-next-line no-console
@@ -155,7 +165,7 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
-  initPostgres();
+  await initPostgres();
   return args;
 }
 
@@ -218,7 +228,8 @@ const watchForShellCommands = () => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
-    fs.unlinkSync(path);
+    const newPath = join("tmp/runningShellCommands", basename(path));
+    fs.renameSync(path, newPath);
     try {
       const func = compileWithGlobals(fileContents);
       const result = await func();
@@ -229,6 +240,8 @@ const watchForShellCommands = () => {
       console.log("Failed.");
       // eslint-disable-next-line no-console
       console.log(e);
+    } finally {
+      fs.unlinkSync(newPath);
     }
   });
 }

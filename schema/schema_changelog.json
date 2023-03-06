@@ -31,7 +31,102 @@
   },
   {
     "acceptsSchemaHash": "746fe67809bf748504782256c202744c",
-    "acceptedByMigration": "20221226T210853.auto.ts",
+    "acceptedByMigration": "20221226T210853.add_initial_language_model_fields.ts",
     "timestamp": "2022-12-26T21:08:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f9a5c9f182dad6b94bd1361b603906fd",
+    "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
+    "timestamp": "2022-12-29T22:08:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea71916ffaa87ae0a21302ce831261e6",
+    "acceptedByMigration": "20221230T181110.fix_editable_fields.ts",
+    "timestamp": "2022-12-30T18:11:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "82e629fdd1fb2659bd379e8503ec8b6d",
+    "acceptedByMigration": "20230110T105025.init_sub_tag_ids.ts",
+    "timestamp": "2023-01-10T10:50:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d92682d72d3bee6deb63b3b6419e027c",
+    "acceptedByMigration": "20230118T104229.add_subforumIntroPostId.ts",
+    "timestamp": "2023-01-18T10:42:29.000Z"
+  },
+  {
+    "acceptsSchemaHash": "afb5555a6e3a18714877036b68c63786",
+    "acceptedByMigration": "20230118T135840.createdAt_default_value.ts",
+    "timestamp": "2023-01-18T13:58:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "707023204349d37156630a9823919f65",
+    "acceptedByMigration": "20230124T120350.add_subforumPreferredLayout.ts",
+    "timestamp": "2023-01-24T12:03:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f167b9a94ae9eebe159267d6ca82d3a4",
+    "acceptedByMigration": "20230124T210513.spotlight_new_fields.ts",
+    "timestamp": "2023-01-24T21:05:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f74d70468a0d76011ef39059dc9584d5",
+    "acceptedByMigration": "20230125T223259.user_mentions_newMentionNotifictions.ts",
+    "timestamp": "2023-01-25T22:32:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "619ed0268e244678740dac4731f64051",
+    "acceptedByMigration": "20230128T010215.hide_frontpage_filter_settings_desktop.ts",
+    "timestamp": "2023-01-28T01:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d50f15282182788bd0774a231773097a",
+    "acceptedByMigration": "20230128T162824.add_usersContactedBeforeReview.ts",
+    "timestamp": "2023-01-28T16:28:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2ad14f1cd0db6f2fdf93dfa328568fe5",
+    "acceptedByMigration": "20230130T150041.create_cronHistory_collection.ts",
+    "timestamp": "2023-01-30T15:00:41.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
+    "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
+    "timestamp": "2023-02-01T15:58:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "df6daf9edd46c15e6eb9a3862852ae85",
+    "acceptedByMigration": "20230202T211013.add_nameInAnotherLanguage_localgroups_field.ts",
+    "timestamp": "2023-02-02T21:10:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
+    "acceptedByMigration": "20230206T192711.add_relevantTagIds_to_comments.ts",
+    "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ffaf4a437b864708e0990e38ece649f1",
+    "acceptedByMigration": "20230208T135321.create_sessions_collection.ts",
+    "timestamp": "2023-02-08T13:53:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a7887d09050fb7d8f7117f498534d322",
+    "acceptedByMigration": "20230208T174449.add_shortName.ts",
+    "timestamp": "2023-02-08T17:44:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
+    "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
+    "timestamp": "2023-02-09T21:26:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0a82b29a9f761a79f5587f6469f51465",
+    "acceptedByMigration": "20230216T223955.add_allPostsHideCommunity.ts",
+    "timestamp": "2023-02-16T22:39:55.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c938b8b04e3c61dec2f0b640b6cb0b4d",
+    "acceptedByMigration": "20230223T115602.DebouncerEvents_pendingEvents_string_array.ts",
+    "timestamp": "2023-02-23T11:56:02.000Z"
   }
 ]

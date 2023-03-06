@@ -12,6 +12,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
+import { isEAForum } from '../../lib/instanceSettings';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
@@ -125,10 +126,11 @@ const USER_SETTING_NAMES = {
   sortedBy: 'allPostsSorting',
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
-  showEvents: 'allPostsIncludeEvents'
+  showEvents: 'allPostsIncludeEvents',
+  hideCommunity: 'allPostsHideCommunity'
 }
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -136,6 +138,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
+  currentHideCommunity?: boolean,
   timeframes?: any,
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
@@ -145,7 +148,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
-  const setSetting = (type, newSetting) => {
+  const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,
@@ -214,6 +217,21 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               </MetaInfo>
             </QueryLink>
           </Tooltip>
+
+          {isEAForum && <Tooltip title={<div><div>By default, Community posts are hidden from the Frontpage list</div><div>Toggle to hide them here too.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
+              query={{hideCommunity: !currentHideCommunity}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentHideCommunity}/>
+              <MetaInfo className={classes.checkboxLabel}>
+                Hide Community
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>}
         </div>
       </div>
   );

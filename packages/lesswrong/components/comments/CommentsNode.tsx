@@ -70,6 +70,8 @@ export interface CommentsNodeProps {
    */
   showParentDefault?: boolean,
   noAutoScroll?: boolean,
+  displayTagIcon?: boolean,
+  className?: string,
   classes: ClassesType,
 }
 /**
@@ -101,6 +103,8 @@ const CommentsNode = ({
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
+  displayTagIcon=false,
+  className,
   classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
@@ -221,6 +225,7 @@ const CommentsNode = ({
       hoverPreview={hoverPreview}
       shortform={shortform}
       showPinnedOnProfile={showPinnedOnProfile}
+      className={className}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine
@@ -233,6 +238,7 @@ const CommentsNode = ({
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
                   showDescendentCount={loadChildrenSeparately}
+                  displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -246,6 +252,7 @@ const CommentsNode = ({
               key={comment._id}
               scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
+              displayTagIcon={displayTagIcon}
               { ...passedThroughItemProps}
             />
         }
@@ -298,4 +305,3 @@ declare global {
     CommentsNode: typeof CommentsNodeComponent,
   }
 }
-

@@ -5,7 +5,7 @@ import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents"];
+const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
 
 export const isResolverOnly =
   <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
@@ -78,7 +78,9 @@ export abstract class Type {
       case Boolean:
         return new BoolType();
       case Date:
-        return new DateType();
+        return fieldName === "createdAt"
+          ? new DefaultValueType(new DateType(), "CURRENT_TIMESTAMP")
+          : new DateType();
       case Number:
         return new FloatType();
       case "SimpleSchema.Integer":

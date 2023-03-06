@@ -283,6 +283,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
+    primaryTranslucent: 'rgba(12,134,155,.7)'
   },
   background: {
     default: shades.grey[60],
@@ -390,6 +391,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     imageUpload: {
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
+    },
+    imageUpload2: {
+      // Because this displays over an image, make it the same in both light and dark mode
+      background: 'rgba(0,0,0,0.6)',
+      hoverBackground: 'rgba(0,0,0,0.8)',
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
