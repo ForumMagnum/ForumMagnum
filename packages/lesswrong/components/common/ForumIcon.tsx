@@ -58,6 +58,14 @@ const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
   },
 };
 
+const CUSTOM_CLASSES: Record<UIStyle, Partial<Record<ForumIconName, string>>> = {
+  book: {
+    Link: "linkRotation",
+  },
+  friendly: {
+  },
+};
+
 export type IconProps = {
   className: string,
   onClick: MouseEventHandler<SVGElement>,
@@ -74,6 +82,9 @@ const styles = (_: ThemeType): JssStyles => ({
     flexShrink: 0,
     fontSize: 24,
   },
+  linkRotation: {
+    transform: "rotate(-45deg)",
+  },
 });
 
 type ForumIconProps = Partial<IconProps> & {
@@ -89,7 +100,8 @@ const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
     console.error(`Invalid ForumIcon name: ${icon}`);
     return null;
   }
-  return <Icon className={classNames(classes.root, className)} {...props} />;
+  const customClass = classes[CUSTOM_CLASSES[uiStyle][icon] ?? ""];
+  return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
 }
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {styles});
