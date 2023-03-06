@@ -99,7 +99,7 @@ const colorReplacements: Record<string,string> = {
   "#FFEEBB":            invertHexColor("#ffeebb"),
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
-};
+} as const;
 function generateColorOverrides(): string {
   return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
