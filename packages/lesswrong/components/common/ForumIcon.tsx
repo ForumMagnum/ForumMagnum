@@ -1,4 +1,4 @@
-import React, { memo, ComponentType, MouseEventHandler } from "react";
+import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
@@ -90,6 +90,7 @@ const styles = (_: ThemeType): JssStyles => ({
 type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   classes: ClassesType,
+  style?: CSSProperties,
 };
 
 const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
