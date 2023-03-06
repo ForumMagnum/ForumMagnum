@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   link: {
   },
   icon: {
-    fontSize: "0.9rem !important",
+    fontSize: "0.9rem",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",

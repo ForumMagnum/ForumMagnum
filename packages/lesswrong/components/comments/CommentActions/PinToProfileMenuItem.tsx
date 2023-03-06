@@ -7,7 +7,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 const styles = (theme: ThemeType) => ({
   icon: theme.uiStyle === "friendly"
-    ? {fontSize: "18px !important"}
+    ? {fontSize: "18px"}
     : {},
 });
 
