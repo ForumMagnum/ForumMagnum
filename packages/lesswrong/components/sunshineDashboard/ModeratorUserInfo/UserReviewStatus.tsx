@@ -12,9 +12,7 @@ export const UserReviewStatus = ({classes, user}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { FormatDate, UsersNameWrapper, LWTooltip, AltAccountInfo } = Components
-
-  const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
+  const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components
 
   const approvalStatus = user.banned 
     ? "Banned"

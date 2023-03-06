@@ -38,10 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 14,
     borderBottom: theme.palette.border.extraFaint
   },
-  row: {
-    display: "flex",
-    alignItems: "center",
-  },
   disabled: {
     opacity: .2,
     cursor: "default"
@@ -153,9 +149,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary
+    UsersName, NewUserDMSummary, SunshineUserMessages
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -183,22 +179,13 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div>
-      <div className={classes.displayName}>
-        <UsersName user={user}/>
-        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
-        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
-      </div>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
-      </MetaInfo>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
-      </MetaInfo>
+    <div className={classes.displayName}>
+      <UsersName user={user}/>
+      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
+      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
-
-    <div className={classes.row}>
+    <Row>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -208,7 +195,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
-    </div>
+    </Row>
+    <UserReviewStatus user={user}/>
   </div>
 
   const votesRow = <div className={classes.votesRow}>
@@ -244,7 +232,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
