@@ -104,7 +104,10 @@ const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
   return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {styles});
+const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {
