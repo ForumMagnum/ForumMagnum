@@ -135,7 +135,7 @@ const FooterTag = ({
 
   if (tag.adminOnly) { return null }
 
-  const showIcon = !!tag.core && !!coreTagIconMap[tag.slug];
+  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
