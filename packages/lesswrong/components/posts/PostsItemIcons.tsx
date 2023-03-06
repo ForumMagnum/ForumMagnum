@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -40,12 +39,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   linkIcon: {
-    fontSize: "1.2rem",
     color: theme.palette.icon.dim4,
-    transform: 'rotate(-45deg)',
     position: "relative",
-    top: 3
-  }
+    ...(theme.uiStyle === "friendly"
+      ? {
+        fontSize: "1rem",
+        top: 1,
+      }
+      : {
+        fontSize: "1.2rem",
+        top: 3,
+      }),
+  },
 });
 
 export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
@@ -83,7 +88,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {post.url && <span className={classes.postIcon}>
       <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
-        <a href={post.url}><LinkIcon className={classes.linkIcon}/></a>
+        <a href={post.url}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
       </LWTooltip>
     </span>}
 

@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-  icon: theme.uiStyle === "friendly" ? {fontSize: "22px !important"} : {},
+  icon: theme.uiStyle === "friendly" ? {fontSize: 22} : {},
 })
 
 const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
