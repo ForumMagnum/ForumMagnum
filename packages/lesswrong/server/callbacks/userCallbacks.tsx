@@ -373,7 +373,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 });
 
 
-const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
   // Delay 60 minutes between when you create an account, and when we send the
@@ -392,7 +392,6 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
 getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    data: {},
   });
 });
 

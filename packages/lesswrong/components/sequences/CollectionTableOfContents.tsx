@@ -1,9 +1,8 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
-import { ToCSection } from '../../server/tableOfContents';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import type { ToCSection } from '../../server/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { getAnchorId } from '../common/SectionTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

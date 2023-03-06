@@ -116,6 +116,7 @@ registerFragment(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived

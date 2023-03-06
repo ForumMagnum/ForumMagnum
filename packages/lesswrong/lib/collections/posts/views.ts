@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -12,11 +12,11 @@ import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
 import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
 
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
@@ -59,9 +59,11 @@ declare global {
     reviewPhase?: ReviewPhase,
     excludeContents?: boolean,
     includeArchived?: boolean,
-    includeDraftEvents?: boolean
-    includeShared?: boolean
-    distance?: number
+    includeDraftEvents?: boolean,
+    includeShared?: boolean,
+    hideCommunity?: boolean,
+    distance?: number,
+    audioOnly?: boolean,
   }
 }
 
@@ -158,6 +160,11 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
+  const postCommentedExcludeCommunity = {$or: [
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+  ]}
+
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
@@ -169,6 +176,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       authorIsUnreviewed: false,
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
+      ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum
     },
@@ -448,7 +456,13 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
+  let selector = { isEvent: false };
+  if (isEAForum) {
+    selector = {
+      ...selector,
+      ...filters.nonSticky,
+    };
+  }
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
@@ -1193,9 +1207,11 @@ ensureIndex(Posts,
   { name: "posts.sunshineNewUsersPosts" }
 );
 
-Posts.addView("sunshineCuratedSuggestions", function () {
+Posts.addView("sunshineCuratedSuggestions", function (terms) {
+  const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
   return {
     selector: {
+      ...audio,
       suggestForCuratedUserIds: {$exists:true, $ne: []},
       reviewForCuratedUserId: {$exists:false}
     },

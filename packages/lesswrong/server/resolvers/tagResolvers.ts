@@ -19,7 +19,6 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
 import {
   defaultSubforumSorting,
   SubforumSorting,
@@ -29,6 +28,27 @@ import {
 } from '../../lib/collections/tags/subforumHelpers';
 import { VotesRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
+import UserTagRels from '../../lib/collections/userTagRels/collection';
+import { createMutator, updateMutator } from '../vulcan-lib';
+
+// DEPRECATED: here for backwards compatibility
+export async function recordSubforumView(userId: string, tagId: string) {
+  const existingRel = await UserTagRels.findOne({userId, tagId});
+  if (existingRel) {
+    await updateMutator({
+      collection: UserTagRels,
+      documentId: existingRel._id,
+      set: {subforumLastVisitedAt: new Date()},
+      validate: false,
+    })
+  } else {
+    await createMutator({
+      collection: UserTagRels,
+      document: {userId, tagId, subforumLastVisitedAt: new Date()},
+      validate: false,
+    })
+  }
+}
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,

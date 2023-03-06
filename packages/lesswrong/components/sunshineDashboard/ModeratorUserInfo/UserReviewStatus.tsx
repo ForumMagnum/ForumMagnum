@@ -18,6 +18,7 @@ export const UserReviewStatus = ({classes, user}: {
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
 
+  const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
     {user.reviewedAt
       ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
@@ -27,6 +28,12 @@ export const UserReviewStatus = ({classes, user}: {
       ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
       : null 
     }
+    {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
+    {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
+    {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+      <em>Alternate accounts detected</em>
+    </div>}
+    <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
 }
 

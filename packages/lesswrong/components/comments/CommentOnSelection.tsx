@@ -4,6 +4,7 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -17,6 +18,11 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
     
     "&:hover": {
       background: theme.palette.panelBackground.darken08,
+    },
+
+    // Hide on mobile to avoid horizontal scrolling
+    [theme.breakpoints.down('xs')]: {
+      display: isEAForum ? "none" : "initial",
     },
   },
 });

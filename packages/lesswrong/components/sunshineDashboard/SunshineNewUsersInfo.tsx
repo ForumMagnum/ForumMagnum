@@ -191,22 +191,14 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   
   const firstClientId = user.associatedClientIds?.[0];
 
+  // All elements in this component should also appar in UsersReviewInfoCard
   return (
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
             <div className={classes.info}>
               <div className={classes.topRow}>
-                <div>
-                  <UserReviewStatus user={user}/>
-              
-                  {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
-                  {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
-                  {user.altAccountsDetected && <div className={classes.qualitySignalRow}>
-                    <em>Alternate accounts detected</em>
-                  </div>}
-                  <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                </div>
+                <UserReviewStatus user={user}/>
                 <div className={classes.row}>
                   <ModeratorMessageCount userId={user._id} />
                   <SunshineSendMessageWithDefaults user={user}/>

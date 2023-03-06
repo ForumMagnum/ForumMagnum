@@ -7,6 +7,9 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
+  },
+  loadMorePadding: {
+    paddingLeft: 16
   }
 })
 
@@ -14,7 +17,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
   terms: PostsViewTerms,
   classes: ClassesType,
 }) => {
-  const { results, totalCount, refetch } = useMulti({
+  const { results, totalCount, refetch, loadMoreProps, showLoadMore } = useMulti({
     terms,
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
@@ -22,7 +25,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
   });
   const currentUser = useCurrentUser();
   
-  const { SunshineListCount, SunshineListTitle, SunshineNewPostsItem } = Components
+  const { SunshineListCount, SunshineListTitle, SunshineNewPostsItem, LoadMore } = Components
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
@@ -34,6 +37,10 @@ const SunshineNewPostsList = ({ terms, classes }: {
             <SunshineNewPostsItem post={post} refetch={refetch}/>
           </div>
         )}
+      
+      {showLoadMore && <div className={classes.loadMorePadding}>
+        <LoadMore {...loadMoreProps}/>
+      </div>}
       </div>
     )
   } else {
