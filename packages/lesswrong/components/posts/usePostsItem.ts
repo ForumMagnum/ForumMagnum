@@ -20,7 +20,7 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) =>
 
 export type PostsItemConfig = {
   /** post: The post displayed.*/
-  post: PostsList,
+  post: PostsListWithVotes,
   /** tagRel: (Optional) The relationship between this post and a tag. If
   /* provided, UI will be shown with the score and voting on this post's
   /* relevance to that tag.*/

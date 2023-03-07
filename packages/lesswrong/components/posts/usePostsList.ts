@@ -101,7 +101,7 @@ export const usePostsList = ({
   const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
     terms,
     collectionName: "Posts",
-    fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
+    fragmentName: !!tagId ? 'PostsListTagWithVotes' : 'PostsListWithVotes',
     enableTotal,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",

@@ -4,6 +4,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePostsItem, PostsItemConfig } from './usePostsItem';
 import { Link } from '../../lib/reactRouterWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { useVote } from '../votes/withVote';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,6 +73,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     showReadCheckbox,
     analyticsProps,
   } = usePostsItem(props);
+  const voteProps = useVote(post, "Posts");
 
   const { PostsTitle, PostsItemDate, ForumIcon, BookmarkButton } = Components;
 

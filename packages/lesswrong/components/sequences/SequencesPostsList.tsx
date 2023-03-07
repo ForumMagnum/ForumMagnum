@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const SequencesPostsList = ({posts, chapter}: {
-  posts: Array<PostsList>,
+  posts: Array<PostsListWithVotes>,
   chapter?: ChaptersFragment,
 }) => {
   return <div>

@@ -20,7 +20,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
       limit: limit,
     },
     itemsPerPage: 20,
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
     skip: !currentUser?._id,
   });
   
@@ -36,7 +36,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   );
 
   return <div>
-    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsList, i: number) =>
+    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
       <PostsItem2
         key={post._id} post={post} bookmark
         showBottomBorder={i < sortedBookmarkedPosts.length-1}

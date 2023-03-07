@@ -84,7 +84,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsListWithVotes',
     enableTotal: true,
     itemsPerPage: 50,
   });

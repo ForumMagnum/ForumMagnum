@@ -73,7 +73,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   const { document: postVoting } = useSingle({
     documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",
-    fragmentName: "PostsList"
+    fragmentName: "PostsListWithVotes",
   });
   
   return <div className={classes.root}>

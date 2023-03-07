@@ -20,7 +20,7 @@ const PostsByVote = ({postIds, year, showMostValuableCheckbox=false}: {
       ...(year === '≤2020' ? {} : {after}),
     },
     collectionName: "Posts",
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
     limit: 1000,
   })
 

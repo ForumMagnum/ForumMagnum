@@ -238,6 +238,16 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListTagWithVotes on Post {
+    ...PostsListWithVotes
+    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsDetails on Post {
     ...PostsListBase
 
@@ -304,7 +314,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -313,7 +323,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
