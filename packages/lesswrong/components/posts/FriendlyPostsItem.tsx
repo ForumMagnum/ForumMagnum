@@ -13,12 +13,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: 6, // TODO Use theme.borderRadius.default once it's merged
-    padding: 12,
+    padding: `10px 12px 10px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
     color: theme.palette.grey[600],
     cursor: "pointer",
+  },
+  karma: {
+    width: 40,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  voteButton: {
+    fontSize: 25,
+    margin: "-8px 0",
   },
   details: {
     flexGrow: 1,
@@ -39,7 +49,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
   },
   comments: {
-    width: 55,
+    width: 50,
     display: "flex",
     alignItems: "center",
     marginLeft: 10,
@@ -75,52 +85,62 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   } = usePostsItem(props);
   const voteProps = useVote(post, "Posts");
 
-  const { PostsTitle, PostsItemDate, ForumIcon, BookmarkButton } = Components;
+  const {
+    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
+  } = Components;
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <Link to={postLink}>
-        <div className={classes.root}>
-          <div className={classes.karma}>
+      <div className={classes.root}>
+        <div className={classes.karma}>
+          <div className={classes.voteButton}>
+            <OverallVoteButton
+              orientation="up"
+              color="secondary"
+              upOrDown="Upvote"
+              solidArrow
+              {...voteProps}
+            />
           </div>
-          <div className={classes.details}>
-            <div className={classes.titleOverflow}>
-              <PostsTitle
-                {...{
-                  post,
-                    postLink,
-                    sticky,
-                    showDraftTag,
-                    showPersonalIcon,
-                    curatedIconLeft,
-                    strikethroughTitle,
-                }}
-                read={isRead && !showReadCheckbox}
-                className={classes.title}
-              />
-            </div>
-            <div className={classes.meta}>
-              <Link to={userLink}>{post.user?.displayName}</Link>
-              , <PostsItemDate post={post} noStyles />{" "}
-              <span className={classes.smHide}>ago</span>
-            </div>
+          {voteProps.baseScore}
+        </div>
+        <div className={classes.details}>
+          <div className={classes.titleOverflow}>
+            <PostsTitle
+              {...{
+                post,
+                  postLink,
+                  sticky,
+                  showDraftTag,
+                  showPersonalIcon,
+                  curatedIconLeft,
+                  strikethroughTitle,
+              }}
+              read={isRead && !showReadCheckbox}
+              className={classes.title}
+            />
           </div>
-          <div className={classes.audio}>
-          </div>
-          <div className={classes.tag}>
-          </div>
-          <div className={classes.readTime}>
-            {post.readTimeMinutes || 1}m read
-          </div>
-          <div className={classes.comments}>
-            <ForumIcon icon="Comment" />
-            {commentCount}
-          </div>
-          <div className={classes.bookmark}>
-            <BookmarkButton post={post} />
+          <div className={classes.meta}>
+            <Link to={userLink}>{post.user?.displayName}</Link>
+            , <PostsItemDate post={post} noStyles />{" "}
+            <span className={classes.smHide}>ago</span>
           </div>
         </div>
-      </Link>
+        <div className={classes.audio}>
+        </div>
+        <div className={classes.tag}>
+        </div>
+        <div className={classes.readTime}>
+          {post.readTimeMinutes || 1}m read
+        </div>
+        <div className={classes.comments}>
+          <ForumIcon icon="Comment" />
+          {commentCount}
+        </div>
+        <div className={classes.bookmark}>
+          <BookmarkButton post={post} />
+        </div>
+      </div>
     </AnalyticsContext>
   );
 }
