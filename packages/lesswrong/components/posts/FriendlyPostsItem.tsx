@@ -83,7 +83,6 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     sticky,
     showDraftTag,
     showPersonalIcon,
-    curatedIconLeft,
     strikethroughTitle,
     isRead,
     showReadCheckbox,
@@ -115,14 +114,15 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
             <PostsTitle
               {...{
                 post,
-                  postLink,
-                  sticky,
-                  showDraftTag,
-                  showPersonalIcon,
-                  curatedIconLeft,
-                  strikethroughTitle,
+                postLink,
+                sticky,
+                showDraftTag,
+                showPersonalIcon,
+                strikethroughTitle,
               }}
               read={isRead && !showReadCheckbox}
+              curatedIconLeft={false} // (will be rendered by secondary icons which will all be moved left)
+              iconsOnLeft
               className={classes.title}
             />
           </div>

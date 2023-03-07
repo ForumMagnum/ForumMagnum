@@ -8,8 +8,8 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: isEAForum ? undefined : theme.spacing.unit,
+    marginRight: isEAForum ? 2 : theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',

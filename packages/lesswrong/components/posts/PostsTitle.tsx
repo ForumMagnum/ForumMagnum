@@ -105,7 +105,8 @@ const PostsTitle = ({
   showPersonalIcon=true, 
   showDraftTag=true, 
   wrap=false, 
-  showIcons=true, 
+  showIcons=true,
+  iconsOnLeft=false,
   isLink=true, 
   curatedIconLeft=true, 
   strikethroughTitle=false,
@@ -120,6 +121,7 @@ const PostsTitle = ({
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
+  iconsOnLeft?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
@@ -136,13 +138,21 @@ const PostsTitle = ({
 
   const url = postLink || postGetPageUrl(post)
   
-  const Icon = postIcon(post);
+  const PrimaryIcon = postIcon(post);
+  const secondaryIcons = showIcons && <span className={classes.hideSmDown}>
+    <PostsItemIcons
+      post={post}
+      hideCuratedIcon={curatedIconLeft}
+      hidePersonalIcon={!showPersonalIcon}
+    />
+  </span>
+
 
   const title = <span>
     {sticky && <span className={classes.sticky}>
       <ForumIcon icon="Pin" className={classes.stickyIcon} />
     </span>}
-    {Icon && <Icon className={classes.primaryIcon}/>}
+    {PrimaryIcon && <PrimaryIcon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
@@ -162,10 +172,9 @@ const PostsTitle = ({
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
+      {iconsOnLeft && secondaryIcons}
       {isLink ? <Link to={url}>{title}</Link> : title }
-      {showIcons && <span className={classes.hideSmDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
-      </span>}
+      {!iconsOnLeft && secondaryIcons}
     </span>
   )
 
