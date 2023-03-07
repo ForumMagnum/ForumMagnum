@@ -392,7 +392,7 @@ const TagPage = ({classes}: {
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
             {tag.sequence ?
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
+              <SectionTitle title={`Posts tagged ${tag.name}`} noBottomPadding>
                 <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
               </SectionTitle> :
               <div className={classes.tagHeader}>

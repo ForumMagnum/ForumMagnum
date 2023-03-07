@@ -1,12 +1,27 @@
 import React from 'react';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
+import { forumSelect } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
-export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
-  margin:0,
-  ...theme.typography.postStyle,
-  fontSize: "2.2rem"
-})
+export const sectionTitleStyle = (theme: ThemeType): JssStyles => (
+  forumSelect({
+    EAForum: {
+      color: theme.palette.grey[600],
+      fontSize: 16,
+      lineHeight: '23px',
+      fontWeight: 700,
+      fontFamily: theme.typography.fontFamily,
+      textTransform: 'uppercase',
+      margin: 0,
+    },
+    default: {
+      margin: 0,
+      ...theme.typography.postStyle,
+      fontSize: "2.2rem"
+    }
+  })
+)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,13 +72,15 @@ const SectionTitle = ({children, classes, className, title, noTopMargin, noBotto
 }) => {
   return (
     <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
-      <Components.Typography
+      {isEAForum ? <h1 id={getAnchorId(anchor, title)} className={classNames(classes.title, className)}>
+        {title}
+      </h1> : <Components.Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
         className={classNames(classes.title, className)}
       >
         {title}
-      </Components.Typography>
+      </Components.Typography>}
       <div className={classes.children}>{ children }</div>
     </div>
   )

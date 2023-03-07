@@ -8,7 +8,6 @@ import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents'
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
-import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
@@ -28,11 +27,6 @@ const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper,
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto"
-  },
   toggleFilters: {
     [theme.breakpoints.up('sm')]: {
       display: "none"
@@ -53,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
+const latestPostsName = isEAForum ? 'Frontpage' : 'Latest Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
@@ -105,7 +99,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noBottomPadding>
+        <SectionTitle title={latestPostsName} noBottomPadding={!isEAForum}>
           <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
             <SettingsButton
               className={classes.hideOnMobile}
