@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostActionsButton = ({post, vertical, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   vertical?: boolean,
   classes: ClassesType,
 }) => {

@@ -216,6 +216,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    tagRelevance
     deletedDraft
     contents {
       _id
@@ -230,7 +231,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
-    tagRelevance
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -240,7 +240,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTagWithVotes on Post {
     ...PostsListWithVotes
-    tagRelevance
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }

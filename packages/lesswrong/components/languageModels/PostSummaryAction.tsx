@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostSummaryAction = ({post, closeMenu, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   closeMenu?: ()=>void,
   classes: ClassesType,
 }) => {
@@ -30,7 +30,7 @@ const PostSummaryAction = ({post, closeMenu, classes}: {
 }
 
 const PostSummaryDialog = ({post, onClose, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   onClose?: ()=>void,
   classes: ClassesType,
 }) => {

@@ -24,7 +24,8 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer"
+  cursor: "pointer",
+  whiteSpace: isEAForum ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType): JssStyles => ({

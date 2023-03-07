@@ -305,7 +305,9 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+export type CoauthoredPost = Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">
+
+export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
     return false;
   }
@@ -313,7 +315,7 @@ export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coaut
   return status && !status.confirmed;
 }
 
-export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
+export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
   let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
@@ -323,7 +325,7 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
   return coauthorStatuses.map(({ userId }) => userId);
 }
 
-export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: DbPost|PostsList|PostsDetails): boolean => {
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
   if (!user) {
     return false;
   }

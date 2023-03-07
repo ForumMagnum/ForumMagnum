@@ -3,17 +3,32 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePostsItem, PostsItemConfig } from './usePostsItem';
 import { Link } from '../../lib/reactRouterWrapper';
-import withErrorBoundary from '../common/withErrorBoundary';
 import { useVote } from '../votes/withVote';
+import { max } from "underscore";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+
+const mostRelevantTag = (
+  tags: TagPreviewFragment[],
+  tagRelevance: Record<string, number>,
+): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+
+const getPrimaryTag = (post: PostsListWithVotes) => {
+  const {tags, tagRelevance} = post;
+  const core = tags.filter(({core}) => core);
+  const result = mostRelevantTag(core?.length ? core : tags, tagRelevance);
+  return typeof result === "object" ? result : null;
+}
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    width: SECTION_WIDTH,
     display: "flex",
     alignItems: "center",
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: 6, // TODO Use theme.borderRadius.default once it's merged
-    padding: `10px 12px 10px 0`,
+    padding: `10px 12px 10px 4px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
@@ -28,7 +43,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   voteButton: {
     fontSize: 25,
-    margin: "-8px 0",
+    margin: "-12px 0 -8px 0",
   },
   details: {
     flexGrow: 1,
@@ -47,12 +62,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   readTime: {
     textAlign: "right",
+    whiteSpace: "nowrap",
+    width: 75,
+    paddingRight: 10,
   },
   comments: {
     width: 50,
     display: "flex",
     alignItems: "center",
-    marginLeft: 10,
     "& svg": {
       height: 18,
     },
@@ -84,9 +101,11 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     analyticsProps,
   } = usePostsItem(props);
   const voteProps = useVote(post, "Posts");
+  const primaryTag = getPrimaryTag(post);
+  console.log("p", primaryTag);
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
+    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton, FooterTag,
   } = Components;
 
   return (
@@ -129,6 +148,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
         <div className={classes.audio}>
         </div>
         <div className={classes.tag}>
+          {primaryTag && <FooterTag tag={primaryTag} smallText />}
         </div>
         <div className={classes.readTime}>
           {post.readTimeMinutes || 1}m read

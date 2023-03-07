@@ -939,6 +939,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
   readonly fmCrosspost: {
@@ -956,12 +957,10 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
 interface PostsListTagWithVotes extends PostsListWithVotes { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
