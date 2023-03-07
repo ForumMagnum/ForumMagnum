@@ -11,6 +11,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
+import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -47,7 +48,6 @@ export type PostsItemConfig = {
   /** if this a draft, a callback to archive/unarchive it */
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
-  showQuestionTag?: boolean,
   showDraftTag?: boolean,
   showPersonalIcon?: boolean
   showIcons?: boolean,
@@ -83,7 +83,6 @@ export const usePostsItem = ({
   dismissRecommendation,
   toggleDeleteDraft,
   showBottomBorder = true,
-  showQuestionTag = true,
   showDraftTag = true,
   showPersonalIcon = true,
   showIcons = true,
@@ -135,8 +134,8 @@ export const usePostsItem = ({
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentPromotedAt);
 
   const postLink = post.draft
-    ? postGetPageUrl(post, false, sequenceId || chapter?.sequenceId)
-    : `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`;
+    ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
+    : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const showDismissButton = Boolean(currentUser && resumeReading);
   const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post));
@@ -162,6 +161,7 @@ export const usePostsItem = ({
   return {
     post,
     postLink,
+    userLink: userGetProfileUrl(post.user),
     commentCount: postGetCommentCount(post),
     tagRel,
     resumeReading,
@@ -178,7 +178,6 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     showReadCheckbox,
-    showQuestionTag,
     showDraftTag,
     showPersonalIcon,
     showBottomBorder,

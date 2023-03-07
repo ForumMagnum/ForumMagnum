@@ -66,7 +66,6 @@ const RelatedQuestionsList = ({ post, classes }: {
             <PostsItem2 
               post={rel.targetPost} 
               index={i}
-              showQuestionTag={false}
               showPostedAt={false}
               showIcons={false}
               showBottomBorder={!showSubQuestions}
@@ -76,7 +75,6 @@ const RelatedQuestionsList = ({ post, classes }: {
               {subQuestionTargetPostRelations.map((rel, i) => rel.targetPost && <PostsItem2 
                 key={rel._id}
                 post={rel.targetPost} 
-                showQuestionTag={false}
                 showPostedAt={false}
                 showIcons={false}
                 defaultToShowComments={true}

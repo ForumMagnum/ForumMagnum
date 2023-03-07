@@ -102,30 +102,28 @@ const PostsTitle = ({
   classes, 
   sticky, 
   read, 
-  showQuestionTag=true, 
   showPersonalIcon=true, 
-  showLinkTag=true, 
   showDraftTag=true, 
   wrap=false, 
   showIcons=true, 
   isLink=true, 
   curatedIconLeft=true, 
-  strikethroughTitle=false
+  strikethroughTitle=false,
+  className,
 }:{
   post: PostsBase|PostsListBase,
   postLink?: string,
   classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
-  showQuestionTag?: boolean,
   showPersonalIcon?: boolean
-  showLinkTag?: boolean,
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
+  className?: string
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
@@ -133,7 +131,6 @@ const PostsTitle = ({
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
-  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
@@ -161,7 +158,7 @@ const PostsTitle = ({
       [classes.read]: read,
       [classes.wrap]: wrap,
       [classes.strikethroughTitle]: strikethroughTitle
-    })}>
+    }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}

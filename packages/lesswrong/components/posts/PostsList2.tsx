@@ -36,10 +36,11 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     loadMoreProps,
     maybeMorePosts,
     orderedResults,
+    PostsItem,
     itemProps,
   }= usePostsList(props);
 
-  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components;
+  const { Loading, LoadMore, PostsNoResults, SectionFooter } = Components;
 
   if (!orderedResults && loading) {
     return <Loading />
@@ -56,7 +57,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
       <div className={boxShadow ? classes.posts : null}>
-        {itemProps?.map((props) => <PostsItem2 key={props.post._id} {...props} />)}
+        {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
       </div>
       {showLoadMore && <SectionFooter>
         <LoadMore

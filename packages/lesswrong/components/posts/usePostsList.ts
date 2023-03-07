@@ -5,6 +5,8 @@ import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
+import { isEAForum } from "../../lib/instanceSettings";
+import { Components } from "../../lib/vulcan-lib";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -184,6 +186,7 @@ export const usePostsList = ({
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
+  const PostsItem = isEAForum ? Components.FriendlyPostsItem : Components.PostsItem2;
   const itemProps = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
@@ -199,7 +202,6 @@ export const usePostsList = ({
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
     defaultToShowUnreadComments, showPostedAt,
-    showQuestionTag: terms?.filter !== "questions",
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
@@ -224,6 +226,7 @@ export const usePostsList = ({
     loadMoreProps,
     maybeMorePosts,
     orderedResults,
+    PostsItem,
     itemProps,
   };
 }

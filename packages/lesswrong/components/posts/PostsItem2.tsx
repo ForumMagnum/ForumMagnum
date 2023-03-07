@@ -346,7 +346,6 @@ const PostsItem2 = ({classes, ...props}: PostsList2Props) => {
     showIcons,
     showKarma,
     showReadCheckbox,
-    showQuestionTag,
     showDraftTag,
     showPersonalIcon,
     showBottomBorder,
@@ -438,7 +437,6 @@ const PostsItem2 = ({classes, ...props}: PostsList2Props) => {
                   post={post}
                   read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                   sticky={sticky}
-                  showQuestionTag={showQuestionTag}
                   showDraftTag={showDraftTag}
                   {...(showPersonalIcon ? {showPersonalIcon} : {})}
                   curatedIconLeft={curatedIconLeft}

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -43,8 +44,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsItemDate = ({post, classes}: {
+const PostsItemDate = ({post, noStyles, classes}: {
   post: PostsBase,
+  noStyles?: boolean,
   classes: ClassesType,
 }) => {
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
@@ -95,7 +97,7 @@ const PostsItemDate = ({post, classes}: {
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classes.postedAt}>
+    <PostsItem2MetaInfo className={classNames({[classes.postedAt]: !noStyles})}>
       {moment(new Date(post.postedAt)).fromNow()}
     </PostsItem2MetaInfo>
   </LWTooltip>
