@@ -3,7 +3,7 @@ import { BUTTON_ELEMENT } from './constants';
 
 export default class InsertButtonCommand extends Command {
   execute(attributes) {
-    this.editor.model.enqueueChange(modelWriter => {
+    this.editor.model.change(modelWriter => {
       const button = modelWriter.createElement(BUTTON_ELEMENT, {
         'data-href': (attributes && attributes.link) || '',
         'data-text': (attributes && attributes.text) || 'Apply now',
