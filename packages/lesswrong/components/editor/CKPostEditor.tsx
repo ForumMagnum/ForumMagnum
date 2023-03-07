@@ -109,15 +109,15 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const applyCollabModeToCkEditor = (editor: any, mode: CollaborationMode) => {
     switch(mode) {
       case "Viewing":
-        editor.isReadOnly = true;
+        editor.enableReadOnlyMode("viewing");
         editor.commands.get('trackChanges').value = false;
         break;
       case "Commenting":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode("viewing");
         editor.commands.get('trackChanges').value = true;
         break;
       case "Editing":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode("viewing");
         editor.commands.get('trackChanges').value = false;
         break;
     }
