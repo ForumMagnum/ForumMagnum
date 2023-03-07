@@ -7,7 +7,7 @@ export const shouldHideTagForVoting = (user: UsersCurrent | null, tag?: {slug: s
     return false;
   }
   if (tag && adminOnlyTagSlugs.includes(tag.slug)) {
-    return user?.isAdmin || user?.groups?.includes("sunshineRegiment")
+    return !user || (!user.isAdmin && !user.groups?.includes("sunshineRegiment"))
   }
   return false;
 }
