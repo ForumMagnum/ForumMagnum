@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isEAForum } from '../../lib/instanceSettings';
-import classNames from 'classnames';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -17,6 +16,7 @@ const customStyles = (theme: ThemeType) => isEAForum
 
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
+    display: "flex",
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
@@ -42,13 +42,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.tinyText,
     ...theme.typography.italic,
   },
+  xsHide: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
 });
 
-const PostsItemDate = ({post, noStyles, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
   post: PostsBase,
   noStyles?: boolean,
+  includeAgo?: boolean,
   classes: ClassesType,
 }) => {
+  if (noStyles) {
+    classes.postedAt = undefined;
+    classes.startTime = undefined;
+  }
+
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -97,8 +108,9 @@ const PostsItemDate = ({post, noStyles, classes}: {
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classNames({[classes.postedAt]: !noStyles})}>
+    <PostsItem2MetaInfo className={classes.postedAt}>
       {moment(new Date(post.postedAt)).fromNow()}
+      {includeAgo && <span className={classes.xsHide}>&nbsp;ago</span>}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }

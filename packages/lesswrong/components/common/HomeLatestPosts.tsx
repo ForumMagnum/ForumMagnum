@@ -73,8 +73,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
   const { query } = location;
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, CommentsListCondensed, SectionTitle
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
+    CuratedPostsList, SectionTitle
   } = Components
   const limit = parseInt(query.limit) || 13
   

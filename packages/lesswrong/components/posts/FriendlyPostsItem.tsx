@@ -9,13 +9,13 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: SECTION_WIDTH,
+    maxWidth: SECTION_WIDTH,
     display: "flex",
     alignItems: "center",
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: 6, // TODO Use theme.borderRadius.default once it's merged
-    padding: `10px 12px 10px 4px`,
+    padding: `10px 8px 10px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
@@ -24,47 +24,49 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   karma: {
     width: 40,
+    minWidth: 40,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
   voteButton: {
     fontSize: 25,
-    margin: "-12px 0 -8px 0",
+    margin: "-12px 0 -4px 0",
   },
   details: {
     flexGrow: 1,
+    minWidth: 0, // flexbox black magic
   },
   titleOverflow: {
     overflow: "hidden",
     textOverflow: "ellipsis",
-    maxWidth: 450,
   },
   title: {
     fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
-    maxWidth: 540,
+  },
+  tag: {
+    margin: "0 5px 0 15px",
   },
   readTime: {
+    minWidth: 75,
     textAlign: "right",
     whiteSpace: "nowrap",
-    width: 75,
     paddingRight: 10,
   },
   comments: {
-    width: 50,
+    minWidth: 50,
     display: "flex",
     alignItems: "center",
     "& svg": {
       height: 18,
+      marginRight: 2,
     },
   },
-  smHide: {
-    [theme.breakpoints.down('xs')]: {
-      display: "none",
-    },
+  bookmark: {
+    minWidth: 22,
   },
 });
 
@@ -121,15 +123,14 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
                 strikethroughTitle,
               }}
               read={isRead && !showReadCheckbox}
-              curatedIconLeft={false} // (will be rendered by secondary icons which will all be moved left)
+              curatedIconLeft={false}
               iconsOnLeft
               className={classes.title}
             />
           </div>
           <div className={classes.meta}>
             <Link to={userLink}>{post.user?.displayName}</Link>
-            , <PostsItemDate post={post} noStyles />{" "}
-            <span className={classes.smHide}>ago</span>
+            , <PostsItemDate post={post} noStyles includeAgo />
           </div>
         </div>
         <div className={classes.audio}>
