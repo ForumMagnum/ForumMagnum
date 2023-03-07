@@ -9,14 +9,27 @@ import {
   postGetLastCommentPromotedAt,
   postGetPageUrl,
 } from "../../lib/collections/posts/helpers";
+import { userGetProfileUrl } from "../../lib/collections/users/helpers";
+import { max } from "underscore";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
     ? post.sticky || (terms.af && post.afSticky) || (terms.meta && post.metaSticky)
     : false;
+
+const mostRelevantTag = (
+  tags: TagPreviewFragment[],
+  tagRelevance: Record<string, number>,
+): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+
+const getPrimaryTag = (post: PostsListWithVotes) => {
+  const {tags, tagRelevance} = post;
+  const core = tags.filter(({core}) => core);
+  const result = mostRelevantTag(core?.length ? core : tags, tagRelevance);
+  return typeof result === "object" ? result : null;
+}
 
 export type PostsItemConfig = {
   /** post: The post displayed.*/
@@ -164,6 +177,7 @@ export const usePostsItem = ({
     commentsLink: postLink + "#comments",
     userLink: userGetProfileUrl(post.user),
     commentCount: postGetCommentCount(post),
+    primaryTag: getPrimaryTag(post),
     tagRel,
     resumeReading,
     sticky: forceSticky || isSticky(post, terms),

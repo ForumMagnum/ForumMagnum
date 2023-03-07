@@ -4,21 +4,8 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePostsItem, PostsItemConfig } from './usePostsItem';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useVote } from '../votes/withVote';
-import { max } from "underscore";
-import withErrorBoundary from '../common/withErrorBoundary';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-
-const mostRelevantTag = (
-  tags: TagPreviewFragment[],
-  tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
-
-const getPrimaryTag = (post: PostsListWithVotes) => {
-  const {tags, tagRelevance} = post;
-  const core = tags.filter(({core}) => core);
-  const result = mostRelevantTag(core?.length ? core : tags, tagRelevance);
-  return typeof result === "object" ? result : null;
-}
+import withErrorBoundary from '../common/withErrorBoundary';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -92,6 +79,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     commentsLink,
     userLink,
     commentCount,
+    primaryTag,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -102,8 +90,6 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     analyticsProps,
   } = usePostsItem(props);
   const voteProps = useVote(post, "Posts");
-  const primaryTag = getPrimaryTag(post);
-  console.log("p", primaryTag);
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton, FooterTag,
