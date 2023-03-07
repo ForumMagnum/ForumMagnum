@@ -76,10 +76,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 20,
     "& svg": {
       position: "absolute",
-      top: -11,
-      left: -3,
+      top: -13,
+      left: -4,
       width: 20,
-      height: 13,
+      height: 18,
       fill: theme.palette.tag.coreTagText,
     },
   },
