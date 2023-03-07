@@ -1,22 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount, postCanDelete } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import ArchiveIcon from '@material-ui/icons/Archive';
-import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
-import { useRecordPostView } from '../hooks/useRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
-import qs from "qs";
-import { PopperPlacementType } from '@material-ui/core/Popper';
-import { useHideRepeatedPosts } from './HideRepeatedPostsContext';
+import { PostsItemConfig, usePostsItem } from './usePostsItem';
+
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 32
 
@@ -326,181 +322,80 @@ const archiveDraftTooltip = "Archive this draft (hide from list)"
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isSticky = (post: PostsList, terms: PostsViewTerms) => {
-  if (post && terms && terms.forum) {
-    return (
-      post.sticky ||
-      (terms.af && post.afSticky) ||
-      (terms.meta && post.metaSticky)
-    )
-  }
-}
-
-const PostsItem2 = ({
-  post,
-  tagRel=null,
-  defaultToShowComments=false,
-  sequenceId, 
-  chapter,
-  terms,
-  resumeReading,
-  dismissRecommendation,
-  toggleDeleteDraft, 
-  showBottomBorder=true,
-  showQuestionTag=true,
-  showDraftTag=true,
-  showPersonalIcon=true,
-  showIcons=true,
-  showPostedAt=true,
-  defaultToShowUnreadComments=false,
-  dense=false,
-  bookmark=false,
-  showNominationCount=false,
-  showReviewCount=false,
-  hideAuthor=false,
-  hideTrailingButtons=false,
-  tooltipPlacement="bottom-end",
-  classes,
-  curatedIconLeft=false,
-  strikethroughTitle=false,
-  translucentBackground=false,
-  forceSticky=false,
-  showReadCheckbox=false,
-  showMostValuableCheckbox=false,
-  showKarma=true
-}: {
-  /** post: The post displayed.*/
-  post: PostsList,
-  /** tagRel: (Optional) The relationship between this post and a tag. If
-  /* provided, UI will be shown with the score and voting on this post's
-  /* relevance to that tag.*/
-  tagRel?: WithVoteTagRel|null,
-  /** defaultToShowComments: (bool) If set, comments will be expanded by default.*/
-  defaultToShowComments?: boolean,
-  /** sequenceId, chapter: If set, these will be used for making a nicer URL.*/
-  sequenceId?: string,
-  chapter?: any,
-  /** index: If this is part of a list of PostsItems, its index (starting from
-  /* zero) into that list. Used for special casing some styling at start of
-  /* the list.*/
-  index?: number,
-  /**
-   * terms: If this is part of a list generated from a query, the terms of that
-   * query. Used for figuring out which sticky icons to apply, if any.
-   */
-  terms?: any,
-  /** resumeReading: If this is a Resume Reading suggestion, the corresponding
-  /* partiallyReadSequenceItem (see schema in users/schema). Used for
-  /* the sequence-image background.*/
-  resumeReading?: any,
-  /** dismissRecommendation: If this is a Resume Reading suggestion, a callback to dismiss it.*/
-  dismissRecommendation?: any,
-  /** if this a draft, a callback to archive/unarchive it */
-  toggleDeleteDraft?: (post: PostsList) => void,
-  showBottomBorder?: boolean,
-  showQuestionTag?: boolean,
-  showDraftTag?: boolean,
-  showPersonalIcon?: boolean
-  showIcons?: boolean,
-  showPostedAt?: boolean,
-  defaultToShowUnreadComments?: boolean,
-  /** dense: (bool) Slightly reduce margins to make this denser. Used on the AllPosts page.*/
-  dense?: boolean,
-  /** bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark icon.*/
-  bookmark?: boolean,
-  /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
-  showNominationCount?: boolean,
-  showReviewCount?: boolean,
-  hideAuthor?: boolean,
-  hideTrailingButtons?: boolean,
-  tooltipPlacement?: PopperPlacementType,
+export type PostsList2Props = PostsItemConfig & {
   classes: ClassesType,
-  curatedIconLeft?: boolean,
-  strikethroughTitle?: boolean,
-  translucentBackground?: boolean,
-  forceSticky?: boolean,
-  showReadCheckbox?: boolean,
-  showKarma?: boolean,
-  showMostValuableCheckbox?: boolean
-}) => {
-  const [showComments, setShowComments] = React.useState(defaultToShowComments);
-  const [readComments, setReadComments] = React.useState(false);
-  const { isRead, recordPostView } = useRecordPostView(post);
-  const { isPostRepeated, addPost } = useHideRepeatedPosts();
+};
 
-  const currentUser = useCurrentUser();
+const PostsItem2 = ({classes, ...props}: PostsList2Props) => {
+  const {
+    post,
+    postLink,
+    commentCount,
+    tagRel,
+    resumeReading,
+    sticky,
+    renderComments,
+    condensedAndHiddenComments,
+    toggleComments,
+    showAuthor,
+    showDate,
+    showTrailingButtons,
+    showMostValuableCheckbox,
+    showNominationCount,
+    showReviewCount,
+    showIcons,
+    showKarma,
+    showReadCheckbox,
+    showQuestionTag,
+    showDraftTag,
+    showPersonalIcon,
+    showBottomBorder,
+    showDismissButton,
+    showArchiveButton,
+    onDismiss,
+    onArchive,
+    hasUnreadComments,
+    hasNewPromotedComments,
+    commentTerms,
+    isRepeated,
+    analyticsProps,
+    translucentBackground,
+    isRead,
+    tooltipPlacement,
+    dense,
+    curatedIconLeft,
+    strikethroughTitle,
+    bookmark,
+  } = usePostsItem(props);
 
-  const toggleComments = React.useCallback(
-    () => {
-      recordPostView({post, extraEventProperties: {type: "toggleComments"}})
-      setShowComments(!showComments);
-      setReadComments(true);
-    },
-    [post, recordPostView, setShowComments, showComments, setReadComments]
-  );
-
-  const compareVisitedAndCommentedAt = (lastVisitedAt: Date, lastCommentedAt: Date | null) => {
-    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
-    return (isRead && newComments && !readComments)
+  if (isRepeated) {
+    return null;
   }
 
-  const hasUnreadComments = () => {
-    const lastCommentedAt = postGetLastCommentedAt(post)
-    const lastVisitedAt = post.lastVisitedAt
-    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
-  }
-
-  const hasNewPromotedComments = () => {
-    const lastVisitedAt = post.lastVisitedAt
-    const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
-    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
-  }
-
-  const hadUnreadComments = () => {
-    const lastCommentedAt = postGetLastCommentedAt(post)
-    return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
-  }
-
-  const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
+  const {
+    PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip,
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
     AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
-    PostMostValuableCheckbox } = (Components as ComponentTypes)
+    PostMostValuableCheckbox,
+  } = Components;
 
-  const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
-  const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
-
-  const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
-  const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
-
-  const dismissButton = (currentUser && resumeReading &&
+  const dismissButton = (showDismissButton &&
     <LWTooltip title={dismissRecommendationTooltip} placement="right">
-      <CloseIcon onClick={() => dismissRecommendation()}/>
+      <CloseIcon onClick={onDismiss} />
     </LWTooltip>
-  )
-  
-  const archiveButton = (currentUser && post.draft && postCanDelete(currentUser, post) && 
-    <LWTooltip title={archiveDraftTooltip} placement="right">
-      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
-    </LWTooltip>
-  )
+  );
 
-  const commentTerms: CommentsViewTerms = {
-    view:"postsItemComments", 
-    limit:7, 
-    postId: post._id, 
-    after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
-  }
+  const archiveButton = (showArchiveButton &&
+    <LWTooltip title={archiveDraftTooltip} placement="right">
+      <ArchiveIcon onClick={onArchive} />
+    </LWTooltip>
+  );
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
-  if (isPostRepeated(post._id)) {
-    return null;
-  }
-  addPost(post._id);
-
   return (
-    <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+    <AnalyticsContext {...analyticsProps}>
       <div className={classes.row}>
         {showReadCheckbox && <div className={classes.checkbox}>
           <PostReadCheckbox post={post} width={14} />
@@ -527,116 +422,115 @@ const PostsItem2 = ({
               }
             )}
           >
-                {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                {showKarma && <PostsItem2MetaInfo className={classes.karma}>
-                  {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
-                </PostsItem2MetaInfo>}
+            {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
+            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+              {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
+            </PostsItem2MetaInfo>}
 
-                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
-                  <AnalyticsTracker
-                      eventType={"postItem"}
-                      captureOnMount={(eventData) => eventData.capturePostItemOnMount}
-                      captureOnClick={false}
-                  >
-                    <PostsTitle
-                      postLink={post.draft ? postEditLink : postLink}
-                      post={post}
-                      read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
-                      sticky={isSticky(post, terms) || forceSticky}
-                      showQuestionTag={showQuestionTag}
-                      showDraftTag={showDraftTag}
-                      {...(showPersonalIcon ? {showPersonalIcon} : {})}
-                      curatedIconLeft={curatedIconLeft}
-                      strikethroughTitle={strikethroughTitle}
-                    />
-                  </AnalyticsTracker>
-                </span>
+            <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
+              <AnalyticsTracker
+                  eventType={"postItem"}
+                  captureOnMount={(eventData) => eventData.capturePostItemOnMount}
+                  captureOnClick={false}
+              >
+                <PostsTitle
+                  postLink={postLink}
+                  post={post}
+                  read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
+                  sticky={sticky}
+                  showQuestionTag={showQuestionTag}
+                  showDraftTag={showDraftTag}
+                  {...(showPersonalIcon ? {showPersonalIcon} : {})}
+                  curatedIconLeft={curatedIconLeft}
+                  strikethroughTitle={strikethroughTitle}
+                />
+              </AnalyticsTracker>
+            </span>
 
-                {(resumeReading?.sequence || resumeReading?.collection) &&
-                  <div className={classes.subtitle}>
-                    {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                      resumeReading.sequence
-                        ? sequenceGetPageUrl(resumeReading.sequence)
-                        : collectionGetPageUrl(resumeReading.collection)
-                    }>
-                      {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
-                    </Link>
-                    {" "}
-                    {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
-                  </div>
-                
-                }
+            {(resumeReading?.sequence || resumeReading?.collection) &&
+              <div className={classes.subtitle}>
+                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                  resumeReading.sequence
+                    ? sequenceGetPageUrl(resumeReading.sequence)
+                    : collectionGetPageUrl(resumeReading.collection)
+                }>
+                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
+                </Link>
+                {" "}
+                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+              </div>
+            }
 
-                { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
-                  <Components.EventVicinity post={post} />
-                </PostsItem2MetaInfo>}
+            { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
+              <Components.EventVicinity post={post} />
+            </PostsItem2MetaInfo>}
 
-                {/* space in-between title and author if there is width remaining */}
-                <span className={classes.spacer} />
+            {/* space in-between title and author if there is width remaining */}
+            <span className={classes.spacer} />
 
-                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()} tooltipPlacement="top"/>
-                </PostsItem2MetaInfo>}
+            {showAuthor && <PostsItem2MetaInfo className={classes.author}>
+              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+            </PostsItem2MetaInfo>}
 
-                {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
+            {showDate && <PostsItemDate post={post} />}
 
-                <div className={classes.mobileSecondRowSpacer}/>
+            <div className={classes.mobileSecondRowSpacer}/>
 
-                {<div className={classes.mobileActions}>
-                  {!resumeReading && <PostActionsButton post={post} />}
-                </div>}
+            {<div className={classes.mobileActions}>
+              {!resumeReading && <PostActionsButton post={post} />}
+            </div>}
 
-                {showIcons && <div className={classes.nonMobileIcons}>
-                  <PostsItemIcons post={post}/>
-                </div>}
+            {showIcons && <div className={classes.nonMobileIcons}>
+              <PostsItemIcons post={post}/>
+            </div>}
 
-                {!resumeReading && <div className={classes.commentsIcon}>
-                  <PostsItemComments
-                    small={false}
-                    commentCount={postGetCommentCount(post)}
-                    onClick={toggleComments}
-                    unreadComments={hasUnreadComments()}
-                    newPromotedComments={hasNewPromotedComments()}
-                  />
-                </div>}
+            {!resumeReading && <div className={classes.commentsIcon}>
+              <PostsItemComments
+                small={false}
+                commentCount={commentCount}
+                onClick={toggleComments}
+                unreadComments={hasUnreadComments}
+                newPromotedComments={hasNewPromotedComments}
+              />
+            </div>}
 
-                {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
-                
-                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
-                  <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
-                  Review
-                </LWTooltip>}/></span>}
+            {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
 
-                {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
-                  
-                  <PostsItem2MetaInfo className={classes.reviewCounts}>
-                    {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
-                    {/* TODO:(Review) still 2019 */}
-                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
-                  </PostsItem2MetaInfo>
-                  
-                </LWTooltip>}
-                {bookmark && <div className={classes.bookmark}>
-                  <BookmarkButton post={post}/>
-                </div>}
-                <div className={classes.mobileDismissButton}>
-                  {dismissButton}
-                </div>
+            {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
+              <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
+              Review
+            </LWTooltip>}/></span>}
 
-                {resumeReading &&
-                  <div className={classes.sequenceImage}>
-                    <img className={classes.sequenceImageImg}
-                      src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-                        resumeReading.sequence?.gridImageId
-                          || resumeReading.collection?.gridImageId
-                          || "sequences/vnyzzznenju0hzdv6pqb.jpg"
-                      }`}
-                    />
-                  </div>
-                }
+            {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
+
+              <PostsItem2MetaInfo className={classes.reviewCounts}>
+                {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                {/* TODO:(Review) still 2019 */}
+                {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
+              </PostsItem2MetaInfo>
+
+            </LWTooltip>}
+            {bookmark && <div className={classes.bookmark}>
+              <BookmarkButton post={post}/>
+            </div>}
+            <div className={classes.mobileDismissButton}>
+              {dismissButton}
+            </div>
+
+            {resumeReading &&
+              <div className={classes.sequenceImage}>
+                <img className={classes.sequenceImageImg}
+                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    resumeReading.sequence?.gridImageId
+                      || resumeReading.collection?.gridImageId
+                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                  }`}
+                />
+              </div>
+            }
           </PostsItemTooltipWrapper>
 
-          {!hideTrailingButtons && !showMostValuableCheckbox && <>
+          {showTrailingButtons && !showMostValuableCheckbox && <>
             {<div className={classes.actions}>
               {dismissButton}
               {!resumeReading && <PostActionsButton post={post} vertical />}
