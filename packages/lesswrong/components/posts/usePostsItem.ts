@@ -161,6 +161,7 @@ export const usePostsItem = ({
   return {
     post,
     postLink,
+    commentsLink: postLink + "#comments",
     userLink: userGetProfileUrl(post.user),
     commentCount: postGetCommentCount(post),
     tagRel,

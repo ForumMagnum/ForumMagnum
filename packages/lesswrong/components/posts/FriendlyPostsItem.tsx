@@ -89,6 +89,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   const {
     post,
     postLink,
+    commentsLink,
     userLink,
     commentCount,
     sticky,
@@ -153,10 +154,10 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
         <div className={classes.readTime}>
           {post.readTimeMinutes || 1}m read
         </div>
-        <div className={classes.comments}>
+        <Link to={commentsLink} className={classes.comments}>
           <ForumIcon icon="Comment" />
           {commentCount}
-        </div>
+        </Link>
         <div className={classes.bookmark}>
           <BookmarkButton post={post} />
         </div>
