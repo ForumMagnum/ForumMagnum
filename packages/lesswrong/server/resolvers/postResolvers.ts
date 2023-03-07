@@ -4,9 +4,9 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { Utils } from '../../lib/vulcan-lib/utils';
+import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { addBlockIDsToHTML, getSideComments, matchSideComments } from '../sideComments';
+import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
@@ -72,7 +72,10 @@ augmentFieldsDict(Posts, {
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<SideCommentsResolverResult> => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
+        if (isNotHostedHere(post)) {
+          return null;
+        }
         const cache = post.sideCommentsCache as SideCommentsCache|undefined;
         const cacheIsValid = cache
           && cache.generatedAt>post.lastCommentedAt
