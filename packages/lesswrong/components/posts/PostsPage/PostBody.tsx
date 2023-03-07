@@ -19,7 +19,7 @@ const PostBody = ({post, html, sideCommentMode}: {
     documentId: post._id,
     collectionName: "Posts",
     fragmentName: 'PostSideComments',
-    skip: !includeSideComments,
+    skip: !includeSideComments || (post.fmCrosspost?.isCrosspost && !post.fmCrosspost?.hostedHere),
   });
   
   const { ContentItemBody, SideCommentIcon } = Components;
