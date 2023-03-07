@@ -56,8 +56,10 @@ const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
   classes: ClassesType,
 }) => {
   if (noStyles) {
-    classes.postedAt = undefined;
-    classes.startTime = undefined;
+    classes = {
+      tooltipSmallText: classes.tooltipSmallText,
+      xsHide: classes.xsHide,
+    };
   }
 
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
