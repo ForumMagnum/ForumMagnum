@@ -47,6 +47,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
   },
+  audio: {
+    "& svg": {
+      width: 15,
+      margin: "3px -8px 0 3px",
+    },
+  },
   tag: {
     margin: "0 5px 0 15px",
   },
@@ -62,11 +68,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     "& svg": {
       height: 18,
-      marginRight: 2,
+      marginRight: 1,
     },
   },
   bookmark: {
-    minWidth: 22,
+    minWidth: 20,
+  },
+  bookmarkIcon: {
+    fontSize: 18,
+    marginTop: 2,
+    color: theme.palette.grey[600],
   },
 });
 
@@ -81,6 +92,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     commentsLink,
     commentCount,
     primaryTag,
+    hasAudio,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -134,6 +146,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
           </div>
         </div>
         <div className={classes.audio}>
+          {hasAudio && <ForumIcon icon="VolumeUp" />}
         </div>
         <div className={classes.tag}>
           {primaryTag && <FooterTag tag={primaryTag} smallText />}
@@ -146,7 +159,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
           {commentCount}
         </Link>
         <div className={classes.bookmark}>
-          <BookmarkButton post={post} />
+          <BookmarkButton post={post} className={classes.bookmarkIcon} />
         </div>
       </div>
     </AnalyticsContext>

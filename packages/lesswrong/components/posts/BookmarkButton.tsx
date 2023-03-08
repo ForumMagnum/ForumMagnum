@@ -10,6 +10,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   container: {
@@ -19,11 +20,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: isEAForum ? {fontSize: 22} : {},
 })
 
-const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
+const BookmarkButton = ({classes, post, menuItem, placement="right", className}: {
   classes: ClassesType,
   post: PostsBase,
   menuItem?: boolean,
   placement?: TooltipProps["placement"],
+  className?: string,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -68,7 +70,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
     return (
       <MenuItem onClick={toggleBookmark}>
         <ListItemIcon>
-          <ForumIcon icon={icon} className={classes.icon} />
+          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
         </ListItemIcon>
         {title}
       </MenuItem>
@@ -77,7 +79,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
     return (
       <LWTooltip title={title} placement={placement}>
         <span onClick={toggleBookmark} className={classes.container}>
-          <ForumIcon icon={icon} className={classes.icon} />
+          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
         </span>
       </LWTooltip>
     )
