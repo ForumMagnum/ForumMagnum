@@ -47,6 +47,15 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   marginBottom: 0
 });
 
+export const coreTagStyle = (theme: ThemeType): JssStyles => ({
+    backgroundColor: theme.palette.tag.coreTagBackground,
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.tag.coreTagText,
+    "&:hover": {
+      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+    },
+});
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
@@ -63,12 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   core: {
-    backgroundColor: theme.palette.tag.coreTagBackground,
-    border: theme.palette.tag.coreTagBorder,
-    color: theme.palette.tag.coreTagText,
-    "&:hover": {
-      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
-    },
+    ...coreTagStyle(theme),
   },
   coreIcon: {
     position: "relative",
