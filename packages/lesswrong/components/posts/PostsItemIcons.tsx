@@ -5,6 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import LinkIcon from '@material-ui/icons/Link';
+import ForumIcon from '@material-ui/icons/Forum';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -85,6 +86,10 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
         <a href={post.url}><LinkIcon className={classes.linkIcon}/></a>
       </LWTooltip>
+    </span>}
+
+    {post.debate && <span className={classes.postIcon}>
+      <ForumIcon className={classes.icon} />
     </span>}
 
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>

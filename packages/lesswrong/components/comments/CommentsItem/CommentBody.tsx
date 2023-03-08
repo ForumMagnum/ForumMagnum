@@ -30,6 +30,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   retracted: {
     textDecoration: "line-through",
+  },
+  debateCommentStyling: {
+    fontSize: '1.3rem'
   }
 })
 
@@ -47,7 +50,8 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   const bodyClasses = classNames(
     { [classes.commentStyling]: !comment.answer,
       [classes.answerStyling]: comment.answer,
-      [classes.retracted]: comment.retracted }
+      [classes.retracted]: comment.retracted,
+      [classes.debateCommentStyling]: comment.debateComment }
   );
 
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }

@@ -435,6 +435,8 @@ importComponent("LegacyCommentRedirect", () => require('../components/comments/L
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
 importComponent("DebateComment", () => require('../components/comments/DebateComment'));
+importComponent("DebateCommentBlock", () => require('../components/comments/DebateCommentBlock'));
+importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));

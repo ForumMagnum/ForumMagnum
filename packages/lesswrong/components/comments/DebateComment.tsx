@@ -8,17 +8,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
     marginBottom: 16,
     padding: 8,
-    borderRadius: 8,
-    borderStyle: 'solid',
-    borderColor: theme.palette.primary.dark
+    // borderRadius: 8,
+    borderLeft: 'solid',
+    borderLeftWidth: '1.5px',
+    borderColor: theme.palette.primary.dark,
+    '&:hover $menu': {
+      opacity: 0.2
+    },
+    ...theme.typography.commentStyle,
   },
   commentWithReplyButton: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'end',
+    // fontSize: '1.3rem'
   },
   username: {
-    marginRight: 10
+    marginRight: 10,
+    fontSize: '1.35rem'
   },
   replyLink: {
     color: theme.palette.link.dim,
@@ -29,20 +36,33 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hideReplyLink: {
     visibility: 'hidden'
+  },
+  menu: {
+    opacity: 0,
+    marginRight: '-30px',
+    float: 'right'
+  },
+  editForm: {
+    width: '100%'
   }
+  // hideMenu: {
+  //   visibility: 'hidden'
+  // }
 });
 
-export const DebateComment = ({ comment, replies, loadingReplies, post, toggleDebateCommentReplyForm, classes }: {
+export const DebateComment = ({ comment, replies, loadingReplies, post, toggleDebateCommentReplyForm, blockPosition, classes }: {
   comment: CommentsList,
   replies: CommentsList[],
   loadingReplies: boolean,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   toggleDebateCommentReplyForm: (parentComment: CommentsList, action: 'open' | 'close') => void,
+  blockPosition: 'first' | 'middle' | 'last',
   classes: ClassesType,
 }) => {
-  const { CommentUserName, CommentsItemDate, CommentBody, DebateCommentsListSection, Loading } = Components;
+  const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, Loading, ContentStyles } = Components;
 
   const [showReplyState, setShowReplyState] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   const { everHovered, hover, eventHandlers } = useHover();
 
@@ -70,10 +90,25 @@ export const DebateComment = ({ comment, replies, loadingReplies, post, toggleDe
   );
 
   return <div key={`debate-comment-${comment._id}`} className={classes.innerDebateComment} {...eventHandlers}>
-    <CommentUserName comment={comment} className={classes.username} />
-    <CommentsItemDate comment={comment} post={post} />
+    {<>
+      <CommentUserName comment={comment} className={classes.username} />
+      <CommentsItemDate comment={comment} post={post} />
+    </>}
+    <CommentsMenu
+      comment={comment}
+      post={post}
+      showEdit={() => setShowEdit(true)}
+      className={classes.menu}
+    />
     <div className={classes.commentWithReplyButton}>
-      <CommentBody comment={comment} />
+      {/* <ContentStyles contentType="comment"> */}
+      {showEdit ? <CommentsEditForm
+        comment={comment}
+        successCallback={() => setShowEdit(false)}
+        cancelCallback={() => setShowEdit(false)}
+        className={classes.editForm}
+      /> : <CommentBody comment={comment} />}
+      {/* </ContentStyles> */}
       {<a className={classNames("comments-item-reply-link", classes.replyLink/*, { [classes.hideReplyLink]: !hover }*/)} onClick={e => showRepliesForComment(e)}>
         Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
       </a>}
@@ -84,7 +119,7 @@ export const DebateComment = ({ comment, replies, loadingReplies, post, toggleDe
   </div>;
 }
 
-const DebateCommentComponent = registerComponent('DebateComment', DebateComment, {styles});
+const DebateCommentComponent = registerComponent('DebateComment', DebateComment, {styles, stylePriority: 200});
 
 declare global {
   interface ComponentTypes {

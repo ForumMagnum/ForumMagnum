@@ -21,6 +21,7 @@ import { OpenDialogContextType, useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { styles as commentsItemStyles } from '../../comments/CommentsItem/CommentsItem';
+import { DebateCommentWithReplies } from '../../comments/DebateCommentBlock';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -243,7 +244,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateComment
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateComment, DebateBody
   } = Components
 
   useEffect(() => {
@@ -279,6 +280,12 @@ const PostsPage = ({post, refetch, classes}: {
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
+
+  const debateCommentIds = new Set((debateComments ?? []).map(comment => comment._id));
+  const debateCommentReplies = nonDebateComments?.filter(comment => debateCommentIds.has(comment.topLevelCommentId));
+  const excludeCommentIds = debateComments && debateCommentReplies
+    ? new Set(debateCommentReplies.map(comment => comment._id))
+    : undefined;
   
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
@@ -371,6 +378,13 @@ const PostsPage = ({post, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
+  const getDebateCommentBlocks = (comments: CommentsList[], replies: CommentsList[]) =>
+    comments.map(debateComment => ({
+      comment: debateComment,
+      replies: replies.filter(reply => reply.topLevelCommentId === debateComment._id)
+    }));
+  
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -396,18 +410,23 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.debate && debateComments && nonDebateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}>
+        {/* {post.debate && debateComments && nonDebateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}> */}
           {/** Debate contents go here? */}
-          {debateComments.map(comment => {
+          {post.debate && debateComments && debateCommentReplies &&
+            <DebateBody
+              debateComments={getDebateCommentBlocks(debateComments, debateCommentReplies)}
+              post={post}
+            />}
+          {/* {post.debate && debateComments && debateCommentReplies && debateComments.map(comment => {
             return <DebateComment
               comment={comment}
-              replies={nonDebateComments.filter(replyComment => replyComment.topLevelCommentId === comment._id)}
+              replies={debateCommentReplies}
               loadingReplies={false}
               post={post}
               toggleDebateCommentReplyForm={openDebateReplyCommentDialog}
             />
-          })}
-        </ContentStyles>}
+          })} */}
+        {/* </ContentStyles>} */}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
@@ -423,7 +442,7 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} excludeCommentIds={excludeCommentIds}/>
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>

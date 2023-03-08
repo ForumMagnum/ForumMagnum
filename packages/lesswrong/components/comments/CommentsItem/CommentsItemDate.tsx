@@ -76,7 +76,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
   const dateFormat = comment.answer
     ? "MMM DD, YYYY"
     : comment.debateComment
-    ? "h:mm a, MMM DD"
+    ? "h:mm a"
     : undefined;
 
   const date = <>

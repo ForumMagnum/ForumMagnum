@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
+import ForumIcon from '@material-ui/icons/Forum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsIconSmall: {
@@ -58,17 +59,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, debate, classes }: {
   commentCount: number,
   small: boolean,
   onClick?: ()=>void,
   unreadComments: boolean,
   newPromotedComments: boolean,
+  debate?: boolean,
   classes: ClassesType,
 }) => {
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }
   if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
+
+  // const Icon = debate ? ForumIcon : CommentIcon;
 
   return (
     <div className={small ? classes.commentsIconSmall : classes.commentsIconLarge} onClick={onClick}>
