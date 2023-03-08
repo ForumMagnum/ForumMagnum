@@ -12,6 +12,7 @@ import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import FormLabel from '@material-ui/core/FormLabel';
+import {checkEditorValid} from './validation'
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -153,10 +154,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
+  editorWarningText: {
+    margin: `${theme.spacing.unit * 3}px 0`,
+    color: theme.palette.warning.main,
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
-const checkImgErrsInterval = 500; //milliseconds
+const validationInterval = 500; //milliseconds
 export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
@@ -240,6 +245,7 @@ interface EditorComponentState {
   ckEditorReference: any,
   loading: boolean,
   markdownImgErrs: boolean
+  editorWarning?: string
 }
 
 export const getBlankEditorContents = (editorType: EditorTypeString): EditorContents => {
@@ -327,6 +333,7 @@ export const shouldSubmitContents = (editorRef: Editor) => {
 export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
+  debouncedValidateEditor: typeof this.validateCkEditor
 
   constructor(props: EditorProps) {
     super(props)
@@ -336,11 +343,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       commitMessage: "",
       ckEditorReference: null,
       loading: true,
-      markdownImgErrs: false
+      markdownImgErrs: false,
     }
     
     this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
-    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
+    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, validationInterval);
+    this.debouncedValidateEditor = _.debounce(this.validateCkEditor, validationInterval);
   }
 
   async componentDidMount() {
@@ -490,6 +498,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
   
   renderCkEditor = (contents: EditorContents) => {
+    const { editorWarning } = this.state
     const { ckEditorReference } = this.state
     const value = (typeof contents?.value === 'string') ? contents.value : ckEditorReference?.getData();
     const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative, _classes: classes } = this.props
@@ -506,6 +515,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
         onChange: (event: any, editor: any) => {
+          this.debouncedValidateEditor(editor.model.document)
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
           // implications that motivated having throttling in the first place,
@@ -533,8 +543,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
               accessLevel={this.props.accessLevel}
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
+        {editorWarning && <Components.Typography component='aside' variant='body2' className={classes.editorWarningText}>
+          {editorWarning}
+        </Components.Typography>}
       </div>
     }
+  }
+
+  validateCkEditor = (document) => {
+    const result = checkEditorValid(document, this.props.currentUser)
+    this.setState({editorWarning: result.message})
   }
 
   checkMarkdownImgErrs = () => {
