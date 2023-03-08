@@ -16,7 +16,7 @@ const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, HomeLatestPosts, EAHomeCommunityPosts, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
+    SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, CurrentSpotlightItem
   } = Components
 
@@ -34,9 +34,8 @@ const EAHome = () => {
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-      
+
       <CurrentSpotlightItem />
-      <StickiedPosts />
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>

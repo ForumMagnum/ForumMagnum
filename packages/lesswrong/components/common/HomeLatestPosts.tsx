@@ -74,7 +74,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle
+    CuratedPostsList, SectionTitle, StickiedPosts,
   } = Components
   const limit = parseInt(query.limit) || 13
   
@@ -147,6 +147,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             />
           </div>
         </AnalyticsContext>
+        {isEAForum && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
