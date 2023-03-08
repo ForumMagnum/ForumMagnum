@@ -9,7 +9,6 @@ import {
   postGetLastCommentPromotedAt,
   postGetPageUrl,
 } from "../../lib/collections/posts/helpers";
-import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { max } from "underscore";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
@@ -175,7 +174,6 @@ export const usePostsItem = ({
     post,
     postLink,
     commentsLink: postLink + "#comments",
-    userLink: userGetProfileUrl(post.user),
     commentCount: postGetCommentCount(post),
     primaryTag: getPrimaryTag(post),
     tagRel,

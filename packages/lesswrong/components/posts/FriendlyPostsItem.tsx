@@ -79,7 +79,6 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     post,
     postLink,
     commentsLink,
-    userLink,
     commentCount,
     primaryTag,
     sticky,
@@ -94,6 +93,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton, FooterTag,
+    PostsUserAndCoauthors,
   } = Components;
 
   return (
@@ -129,7 +129,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
             />
           </div>
           <div className={classes.meta}>
-            <Link to={userLink}>{post.user?.displayName}</Link>
+            <PostsUserAndCoauthors post={post} />
             , <PostsItemDate post={post} noStyles includeAgo />
           </div>
         </div>
