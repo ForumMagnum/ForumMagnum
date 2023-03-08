@@ -921,6 +921,7 @@ const schema: SchemaType<DbUser> = {
   karma: {
     type: Number,
     optional: true,
+    // TODO: add nullable: true
     canRead: ['guests'],
   },
 
