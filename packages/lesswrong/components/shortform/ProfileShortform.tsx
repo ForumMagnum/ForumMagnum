@@ -13,7 +13,7 @@ export const ProfileShortform = ({classes, user}: {
   user: UsersProfile
 }) => {
 
-  const { PostsItem2 } = Components
+  const { PostsItem } = Components
 
   const { document } = useSingle({
     documentId: user.shortformFeedId,
@@ -22,7 +22,7 @@ export const ProfileShortform = ({classes, user}: {
   });
 
   return <div className={classes.root}>
-      {document && <PostsItem2 post={document} hideAuthor forceSticky />}
+      {document && <PostsItem post={document} hideAuthor forceSticky />}
   </div>;
 }
 

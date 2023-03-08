@@ -111,7 +111,7 @@ export const ReviewQuickPage = ({classes}: {
   // useMulti is incorrectly typed
   const postsResults = posts as PostsListWithVotes[] | null;
 
-  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
+  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
 
   const sortedPostsResults = !!postsResults ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
@@ -153,7 +153,7 @@ export const ReviewQuickPage = ({classes}: {
       <div className={loading ? classes.loading : null}>
         {truncatedPostsResults.map(post => {
           return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
-            <PostsItem2 
+            <PostsItem 
               post={post} 
               showKarma={false}
               showPostedAt={false}

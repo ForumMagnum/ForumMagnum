@@ -238,6 +238,7 @@ importComponent("SuggestAlignment", () => require('../components/posts/SuggestAl
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
+importComponent("PostsItem", () => require('../components/posts/PostsItem.tsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
 importComponent("FriendlyPostsItem", () => require('../components/posts/FriendlyPostsItem.tsx'));
 importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));

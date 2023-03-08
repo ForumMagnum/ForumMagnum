@@ -68,7 +68,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType,
   reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
 
   const { document: postVoting } = useSingle({
     documentId: "zajNa9fdr8JYJpxrG",
@@ -81,7 +81,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title={`Best of LessWrong ${reviewYear}`}>
       </SectionTitle></div>
-      {postVoting && <PostsItem2 post={postVoting} translucentBackground forceSticky />}
+      {postVoting && <PostsItem post={postVoting} translucentBackground forceSticky />}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
     </SingleColumnSection>
   </div>;

@@ -36,11 +36,10 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     loadMoreProps,
     maybeMorePosts,
     orderedResults,
-    PostsItem,
     itemProps,
   }= usePostsList(props);
 
-  const { Loading, LoadMore, PostsNoResults, SectionFooter } = Components;
+  const { Loading, LoadMore, PostsNoResults, SectionFooter, PostsItem } = Components;
 
   if (!orderedResults && loading) {
     return <Loading />

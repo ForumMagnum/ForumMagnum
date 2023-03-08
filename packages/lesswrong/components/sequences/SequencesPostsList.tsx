@@ -6,7 +6,7 @@ const SequencesPostsList = ({posts, chapter}: {
   chapter?: ChaptersFragment,
 }) => {
   return <div>
-    {posts.map((post) => <Components.PostsItem2 key={post._id} post={post} chapter={chapter} />)}
+    {posts.map((post) => <Components.PostsItem key={post._id} post={post} chapter={chapter} />)}
   </div>
 }
 

@@ -38,7 +38,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem2, Loading } = Components
+  const { PostsItem, Loading } = Components
   
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
@@ -108,7 +108,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     />}
     {(!results && loading) ? <Loading /> : <>
       {results && results.map((post: PostsListWithVotes, i: number) =>
-        <PostsItem2
+        <PostsItem
           key={post._id}
           post={post}
           toggleDeleteDraft={toggleDelete}
