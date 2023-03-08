@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -11,7 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : undefined,
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: theme.uiStyle === "friendly"
+    borderRadius: isEAForum
       ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
       : "2px 0 0 2px",
   },
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       left: 1,
       boxSizing: "border-box",
       backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: theme.uiStyle === "friendly" ? theme.borderRadius.small : 0,
+      borderRadius: isEAForum ? theme.borderRadius.small : 0,
     },
     position: "relative",
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
@@ -184,7 +184,7 @@ const CommentFrame = ({
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
-      [classes.isPinnedOnProfile]: forumTypeSetting.get() === 'EAForum' && showPinnedOnProfile && comment.isPinnedOnProfile,
+      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
