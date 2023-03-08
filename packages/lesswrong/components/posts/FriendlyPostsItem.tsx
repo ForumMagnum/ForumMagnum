@@ -91,6 +91,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   bookmark: {
     minWidth: 20,
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
   bookmarkIcon: {
     fontSize: 18,
