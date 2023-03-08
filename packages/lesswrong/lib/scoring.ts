@@ -82,45 +82,97 @@ export const recalculateScore = (item: VoteableType) => {
 // type for timeDecayExpr props
 type TimeDecayExprProps = {
   now?: string | Date | null,
-  timescale?: number
-  mode?: "hyperbolic" | "exponential"
+  hypStartingAgeHours?: number
+  hypDecayFactorSlowest?: number
+  hypDecayFactorFastest?: number
+  expHalfLifeHours?: number
+  expWeight?: number
+  // userActivityDecayFactor?: number // TODO
 }
 
 export const timeDecayExpr = (props?: TimeDecayExprProps) => {
-  const {now, timescale, mode} = props || {};
+  const {
+    now,
+    hypStartingAgeHours,
+    hypDecayFactorSlowest,
+    hypDecayFactorFastest,
+    expHalfLifeHours,
+    expWeight,
+  } = {
+    now: props?.now,
+    hypStartingAgeHours: props?.hypStartingAgeHours ?? SCORE_BIAS,
+    hypDecayFactorSlowest: props?.hypDecayFactorSlowest ?? TIME_DECAY_FACTOR.get(),
+    hypDecayFactorFastest: props?.hypDecayFactorFastest ?? TIME_DECAY_FACTOR.get(),
+    expHalfLifeHours: props?.expHalfLifeHours ?? 24,
+    expWeight: props?.expWeight ?? 0,
+  };
   
-  const timeDecayFactor = TIME_DECAY_FACTOR.get() / (timescale || 1);
-  
-  const ageInHours = {$divide: [
-    // disallow negative age by falling back to a very large number
-    { $cond: {
-      if: { $gte: [ {$subtract: [
-      now ? new Date(now) : new Date,
-      '$postedAt' // Age in miliseconds
-    ]}, 0 ] },
-      then: {$subtract: [
-      now ? new Date(now) : new Date,
-      '$postedAt' // Age in miliseconds
-    ]},
-      else: 1e12 } },
-    60 * 60 * 1000
-  ] }
-  
-  if (mode === 'exponential') {
-    return {$exp: {$min: [
-      {$divide: [
-        ageInHours,
-        (timescale || 1) * 24
-      ]}, 20
-    ]}}
-  }
+  // log all of these
+  console.log("now", now)
+  console.log("hypStartingAgeHours", hypStartingAgeHours)
+  console.log("hypDecayFactorSlowest", hypDecayFactorSlowest)
+  console.log("hypDecayFactorFastest", hypDecayFactorFastest)
+  console.log("expHalfLifeHours", expHalfLifeHours)
+  console.log("expWeight", expWeight)
 
+  // TODO this is where the activity factor is going to come in
+  const hypDecayFactor = hypDecayFactorSlowest;
+  // Half life is directly related to decay factor exp(-lambda * t) <=> exp(-(ln(2)/halfLife) * t)
+  const expDecayFactor = Math.log(2) / expHalfLifeHours;
+  const hypWeight = 1 - expWeight;
+
+  const ageInHours = {
+    $divide: [
+      {
+        $subtract: [
+          now ? new Date(now) : new Date(),
+          "$postedAt", // Age in miliseconds
+        ],
+      },
+      60 * 60 * 1000,
+    ],
+  };
+  // Disallow negative ages by falling back to a very large number
+  const ageInHoursNonNegative = {
+    $cond: {
+      if: { $gte: [ageInHours, 0] },
+      then: ageInHours,
+      else: 1e15,
+    },
+  };
+
+  const exponentialTerm = { $exp:
+    // $min to prevent overflow
+    { $min: [
+      { $multiply: [expDecayFactor, ageInHoursNonNegative] }, 20
+    ] } };
+  const hyperbolicTerm = { $pow: [{ $add: [ageInHoursNonNegative, hypStartingAgeHours] }, hypDecayFactor] };
+
+  // The karma based part of the score is divided by this in view.ts, we want to end up with something like:
+  // karma-part * (expWeight / exponentialTerm + hypWeight / hyperbolicTerm)
+  // This requires some algebra here because we are dividing instead of multiplying:
+  // == karma-part / ((exponentialTerm * hyperbolicTerm) / (expWeight * hyperbolicTerm + hypWeight * exponentialTerm))
+  const numerator = { $multiply: [exponentialTerm, hyperbolicTerm] };
+  const denominator = { $add: [
+    { $multiply: [expWeight, hyperbolicTerm] },
+    { $multiply: [hypWeight, exponentialTerm] },
+  ] };
+  return { $divide: [numerator, denominator] };
+}
+
+// TODO rename or something
+export const timeDecayExprLegacy = () => {
   return {$pow: [
     {$add: [
-      ageInHours,
+      {$divide: [
+        {$subtract: [
+          new Date(), '$postedAt' // Age in miliseconds
+        ]},
+        60 * 60 * 1000
+      ] }, // Age in hours
       SCORE_BIAS,
     ]},
-    timeDecayFactor
+    TIME_DECAY_FACTOR.get()
   ]}
 }
 

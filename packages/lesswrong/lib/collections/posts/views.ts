@@ -66,8 +66,11 @@ declare global {
     audioOnly?: boolean,
     // experimental-ish settings
     now?: Date|string|null,
-    timescale?: number,
-    mode?: "hyperbolic" | "exponential"
+    hypStartingAgeHours?: number
+    hypDecayFactorSlowest?: number
+    hypDecayFactorFastest?: number
+    expHalfLifeHours?: number
+    expWeight?: number
   }
 }
 
@@ -212,6 +215,10 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
         terms.view ? ` for view ${terms.view}` : ''
       )
     }
+  }
+  // TODO rename "now" to something clearer, or just delete on prod (I would like to keep it in though)
+  if (terms.now) {
+    params.selector.postedAt = {$lte: terms.now}
   }
   if (terms.filterSettings) {
     const filterParams = filterSettingsToParams(terms.filterSettings, terms);
@@ -366,7 +373,14 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
           }}
         )),
       ]},
-      timeDecayExpr({now: terms.now, timescale: terms.timescale, mode: terms.mode})
+      timeDecayExpr({
+        now: terms.now,
+        hypStartingAgeHours: terms.hypStartingAgeHours,
+        hypDecayFactorSlowest: terms.hypDecayFactorSlowest,
+        hypDecayFactorFastest: terms.hypDecayFactorFastest,
+        expHalfLifeHours: terms.expHalfLifeHours,
+        expWeight: terms.expWeight,
+      })
     ]}
   }
   

@@ -14,7 +14,6 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import DateTimePicker from 'react-datetime';
 import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -55,6 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   timescaleExperiment: {
     display: "flex",
+    flexWrap: "wrap",
     paddingLeft: 8,
   },
   timescaleExperimentHeading: {
@@ -167,30 +167,72 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               history.push({...location, search: `?${qs.stringify(newQuery)}`})
             }}
           />
-          {/* Input for setting characteristic timescale in days */}
           <div className={classes.timescaleSetting}>
             <div className={classes.timescaleExperimentHeading}>
-              Timescale (1 is current, higher is "slower")
+              hypStartingAgeHours
             </div>
             <input
               type="number"
-              value={query.timescale || 1}
+              value={query.hypStartingAgeHours || undefined}
               onChange={(e) => {
-                console.log("Setting timescale:", e.target.value)
-                const newQuery = {...query, timescale: e.target.value}
+                console.log("Setting hypStartingAgeHours:", e.target.value)
+                const newQuery = {...query, hypStartingAgeHours: e.target.value}
                 history.push({...location, search: `?${qs.stringify(newQuery)}`})
               }}
             />
           </div>
-          <div>
-            <FormComponentRadioGroup
-              path={"mode"}
-              value={mode}
-              options={[{label: 'hyperbolic', value: 'hyperbolic'}, {label: 'exponential', value: 'exponential'},]}
-              name="Mode"
-              label="Mode"
-              onChange={(value) => {
-                const newQuery = {...query, mode: value}
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>
+              hypDecayFactorSlowest
+            </div>
+            <input
+              type="number"
+              value={query.hypDecayFactorSlowest || undefined}
+              onChange={(e) => {
+                console.log("Setting hypDecayFactorSlowest:", e.target.value)
+                const newQuery = {...query, hypDecayFactorSlowest: e.target.value}
+                history.push({...location, search: `?${qs.stringify(newQuery)}`})
+              }}
+            />
+          </div>
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>
+              hypDecayFactorFastest
+            </div>
+            <input
+              type="number"
+              value={query.hypDecayFactorFastest || undefined}
+              onChange={(e) => {
+                console.log("Setting hypDecayFactorFastest:", e.target.value)
+                const newQuery = {...query, hypDecayFactorFastest: e.target.value}
+                history.push({...location, search: `?${qs.stringify(newQuery)}`})
+              }}
+            />
+          </div>
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>
+              expHalfLifeHours
+            </div>
+            <input
+              type="number"
+              value={query.expHalfLifeHours || 48}
+              onChange={(e) => {
+                console.log("Setting expHalfLifeHours:", e.target.value)
+                const newQuery = {...query, expHalfLifeHours: e.target.value}
+                history.push({...location, search: `?${qs.stringify(newQuery)}`})
+              }}
+            />
+          </div>
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>
+              expWeight
+            </div>
+            <input
+              type="number"
+              value={query.expWeight || 0}
+              onChange={(e) => {
+                console.log("Setting expWeight:", e.target.value)
+                const newQuery = {...query, expWeight: e.target.value}
                 history.push({...location, search: `?${qs.stringify(newQuery)}`})
               }}
             />
