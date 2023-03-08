@@ -16,6 +16,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.uiStyle === "book" ? "small" : "default"],
+    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
@@ -89,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: theme.borderRadius[theme.uiStyle === "book" ? "small" : "default"],
+    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
     marginBottom:4,
     
     [theme.breakpoints.down('xs')]: {
