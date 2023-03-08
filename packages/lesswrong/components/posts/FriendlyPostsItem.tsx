@@ -137,7 +137,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
-    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance,
+    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance, PostsItemKarma,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -173,7 +173,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
                   {...voteProps}
                 />
               </div>
-              {voteProps.baseScore}
+              <PostsItemKarma post={post} />
             </>
           }
         </div>
