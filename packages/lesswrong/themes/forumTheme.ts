@@ -43,7 +43,6 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
   let themeWithPalette = {
-    uiStyle: siteTheme?.uiStyle ?? "book",
     forumType,
     ...combinedTheme,
     palette

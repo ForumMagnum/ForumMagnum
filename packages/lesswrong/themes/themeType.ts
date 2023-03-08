@@ -6,8 +6,6 @@ import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
-  type UIStyle = "book" | "friendly";
-
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
   type ColorString = string;
 
@@ -405,7 +403,6 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
-    uiStyle: UIStyle,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
@@ -481,7 +478,6 @@ declare global {
     make: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>
   };
   type SiteThemeSpecification = {
-    uiStyle?: UIStyle,
     shadePalette?: PartialDeep<ThemeShadePalette>,
     componentPalette?: (shadePalette: ThemeShadePalette) => PartialDeep<ThemeComponentPalette>,
     make?: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>

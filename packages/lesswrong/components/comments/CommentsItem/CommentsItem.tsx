@@ -11,14 +11,12 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
-
-const isEAForum= forumTypeSetting.get() === "EAForum"
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -146,8 +144,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: theme.uiStyle === "friendly"
-    ? {fontSize: "12px !important"}
+  pinnedIcon: isEAForum
+    ? {fontSize: 12}
     : {},
   title: {
     ...theme.typography.display2,

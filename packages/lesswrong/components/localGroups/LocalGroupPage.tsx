@@ -13,7 +13,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@material-ui/icons/Email';
-import LinkIcon from '@material-ui/icons/Link';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
@@ -156,8 +155,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 14,
   },
   linkIcon: {
-    transform: "rotate(-45deg)",
-    fontSize: 17
+    fontSize: 17,
   },
   emailIcon: {
     fontSize: 17,
@@ -484,7 +482,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <LinkIcon className={classes.linkIcon} />
+                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}

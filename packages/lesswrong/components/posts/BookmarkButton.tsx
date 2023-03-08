@@ -9,13 +9,14 @@ import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   container: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-  icon: theme.uiStyle === "friendly" ? {fontSize: "22px !important"} : {},
+  icon: isEAForum ? {fontSize: 22} : {},
 })
 
 const BookmarkButton = ({classes, post, menuItem, placement="right"}: {

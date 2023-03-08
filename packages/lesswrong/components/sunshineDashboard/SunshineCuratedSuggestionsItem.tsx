@@ -9,9 +9,7 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
-import StarIcon from '@material-ui/icons/Star';
 import ClearIcon from '@material-ui/icons/Clear';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -123,7 +121,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
             </Components.SidebarAction>
           }
           <Components.SidebarAction title="Curate Post" onClick={handleCurate}>
-            <StarIcon/>
+            <Components.ForumIcon icon="Star" />
           </Components.SidebarAction>
           <Components.SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
             <ClearIcon/>

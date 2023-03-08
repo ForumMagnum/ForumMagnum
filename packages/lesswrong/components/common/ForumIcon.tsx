@@ -1,4 +1,4 @@
-import React, { memo, ComponentType, MouseEventHandler } from "react";
+import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
@@ -17,13 +17,13 @@ import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
-import useUIStyle from "../themes/useUIStyle";
+import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 
 /**
  * This exists to allow us to easily use different icon sets on different
  * forums. To add a new icon, add its name to `ForumIconName` and add an
- * icon component to each option in `ICONS`. `book` generally uses icons
- * from MaterialUI and `friendly` generally uses icons from HeroIcons.
+ * icon component to each option in `ICONS`. `default` generally uses icons
+ * from MaterialUI and `EAForum` generally uses icons from HeroIcons.
  */
 export type ForumIconName =
   "VolumeUp" |
@@ -35,8 +35,8 @@ export type ForumIconName =
   "Link" |
   "Pin";
 
-const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
-  book: {
+const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
+  default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -46,7 +46,7 @@ const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
     Link: MuiLinkIcon,
     Pin: StickyIcon,
   },
-  friendly: {
+  EAForum: {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
@@ -55,6 +55,12 @@ const ICONS: Record<UIStyle, Record<ForumIconName, IconComponent>> = {
     User: UserIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+  },
+};
+
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
+  default: {
+    Link: "linkRotation",
   },
 };
 
@@ -74,25 +80,36 @@ const styles = (_: ThemeType): JssStyles => ({
     flexShrink: 0,
     fontSize: 24,
   },
+  linkRotation: {
+    transform: "rotate(-45deg)",
+  },
 });
 
 type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   classes: ClassesType,
+  style?: CSSProperties,
 };
 
 const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
-  const uiStyle = useUIStyle();
-  const Icon = ICONS[uiStyle][icon];
+  const icons = forumSelect(ICONS);
+  const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
     return null;
   }
-  return <Icon className={classNames(classes.root, className)} {...props} />;
+
+  const customClasses = forumSelect(CUSTOM_CLASSES);
+  const customClass = customClasses[icon];
+
+  return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {styles});
+const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {
