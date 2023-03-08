@@ -32,6 +32,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     alignItems: "center",
   },
+  tagRelWrapper: {
+    position: "relative",
+    marginLeft: 30,
+  },
   voteButton: {
     fontSize: 25,
     margin: "-12px 0 -4px 0",
@@ -113,6 +117,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   const {
     post,
     postLink,
+    tagRel,
     commentsLink,
     commentCount,
     primaryTag,
@@ -128,8 +133,8 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   const voteProps = useVote(post, "Posts");
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton, FooterTag,
-    PostsUserAndCoauthors,
+    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
+    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -151,16 +156,23 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     <AnalyticsContext {...analyticsProps}>
       <div className={classes.root}>
         <div className={classes.karma}>
-          <div className={classes.voteButton}>
-            <OverallVoteButton
-              orientation="up"
-              color="secondary"
-              upOrDown="Upvote"
-              solidArrow
-              {...voteProps}
-            />
-          </div>
-          {voteProps.baseScore}
+          {tagRel
+            ? <div className={classes.tagRelWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} post={post} />
+            </div>
+            : <>
+              <div className={classes.voteButton}>
+                <OverallVoteButton
+                  orientation="up"
+                  color="secondary"
+                  upOrDown="Upvote"
+                  solidArrow
+                  {...voteProps}
+                />
+              </div>
+              {voteProps.baseScore}
+            </>
+          }
         </div>
         <div className={classes.details}>
           <div className={classes.titleOverflow}>
