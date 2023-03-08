@@ -6,6 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useVote } from '../votes/withVote';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import withErrorBoundary from '../common/withErrorBoundary';
+import classNames from 'classnames';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +21,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     fontSize: 14,
     color: theme.palette.grey[600],
-    cursor: "pointer",
+    [theme.breakpoints.down("xs")]: {
+      paddingRight: 12,
+    },
   },
   karma: {
     width: 40,
@@ -37,15 +40,26 @@ export const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     minWidth: 0, // flexbox black magic
   },
-  titleOverflow: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
   title: {
     fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
+  },
+  titleOverflow: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  meta: {
+    display: "flex",
+    alignItems: "center",
+    "& > :first-child": {
+      flexGrow: 1,
+    },
+  },
+  secondaryContainer: {
+    display: "flex",
+    alignItems: "center",
   },
   audio: {
     "& svg": {
@@ -79,6 +93,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     color: theme.palette.grey[600],
   },
+  hideOnMobile: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  onlyMobile: {
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
+  },
 });
 
 export type FriendlyPostsListProps = PostsItemConfig & {
@@ -107,6 +131,21 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton, FooterTag,
     PostsUserAndCoauthors,
   } = Components;
+
+  const SecondaryInfo = () => (
+    <>
+      <div className={classes.readTime}>
+        {post.readTimeMinutes || 1}m read
+      </div>
+      <Link to={commentsLink} className={classes.comments}>
+        <ForumIcon icon="Comment" />
+        {commentCount}
+      </Link>
+      <div className={classes.bookmark}>
+        <BookmarkButton post={post} className={classes.bookmarkIcon} />
+      </div>
+    </>
+  );
 
   return (
     <AnalyticsContext {...analyticsProps}>
@@ -141,25 +180,23 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
             />
           </div>
           <div className={classes.meta}>
-            <PostsUserAndCoauthors post={post} />
-            , <PostsItemDate post={post} noStyles includeAgo />
+            <div>
+              <PostsUserAndCoauthors post={post} />
+              , <PostsItemDate post={post} noStyles includeAgo />
+            </div>
+            <div className={classNames(classes.secondaryContainer, classes.onlyMobile)}>
+              <SecondaryInfo />
+            </div>
           </div>
         </div>
-        <div className={classes.audio}>
-          {hasAudio && <ForumIcon icon="VolumeUp" />}
-        </div>
-        <div className={classes.tag}>
-          {primaryTag && <FooterTag tag={primaryTag} smallText />}
-        </div>
-        <div className={classes.readTime}>
-          {post.readTimeMinutes || 1}m read
-        </div>
-        <Link to={commentsLink} className={classes.comments}>
-          <ForumIcon icon="Comment" />
-          {commentCount}
-        </Link>
-        <div className={classes.bookmark}>
-          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+        <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+          <div className={classes.audio}>
+            {hasAudio && <ForumIcon icon="VolumeUp" />}
+          </div>
+          <div className={classes.tag}>
+            {primaryTag && <FooterTag tag={primaryTag} smallText />}
+          </div>
+          <SecondaryInfo />
         </div>
       </div>
     </AnalyticsContext>

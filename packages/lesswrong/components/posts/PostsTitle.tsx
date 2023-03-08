@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
-      whiteSpace: "unset",
+      whiteSpace: isEAForum ? "nowrap" : "unset",
       lineHeight: "1.8rem",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
