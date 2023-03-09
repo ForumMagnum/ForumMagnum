@@ -232,6 +232,8 @@ const reactDateTimeStyles = (theme: ThemeType): JssStyles => ({
 });
 
 
+// FormComponentDateTime: Wrapper to make ReactDateTime fit in the Vulcan forms
+// system.
 const FormComponentDateTime = ({ path, value, name, label, classes }: {
   path: string;
   value: string | Date;
