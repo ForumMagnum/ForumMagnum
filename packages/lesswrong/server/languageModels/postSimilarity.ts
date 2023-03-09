@@ -40,6 +40,7 @@ getCollectionHooks("Posts").editAsync.add(async (newPost,oldPost) => {
 
 getCollectionHooks("Posts").newAfter.add(async (post) => {
   await createOrUpdatePostEmbedding(post);
+  return post;
 })
 
 async function createOrUpdatePostEmbedding(post: DbPost) {

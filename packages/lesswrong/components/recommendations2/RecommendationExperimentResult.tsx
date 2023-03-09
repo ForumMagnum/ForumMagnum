@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecommendationExperimentListItem = ({postId, rubric, overallScore, classes}: {
-  postId: "string",
+  postId: string,
   rubric: RecommendationRubric,
   overallScore: number,
   classes: ClassesType,
@@ -28,7 +28,7 @@ const RecommendationExperimentListItem = ({postId, rubric, overallScore, classes
     collectionName: "Posts",
     fragmentName: "PostsList",
   });
-  const { Loading, PostsItem2, RecommendationsRubric, RecentDiscussionThread } = Components;
+  const { Loading, PostsItem2, RecommendationsRubric } = Components;
   
   if (loading || !post) {
     return <Loading/>;
@@ -45,7 +45,7 @@ const RecommendationExperimentListItem = ({postId, rubric, overallScore, classes
 }
 
 const RecommendationExperimentFeedItem = ({postId, rubric, overallScore, classes}: {
-  postId: "string",
+  postId: string,
   rubric: RecommendationRubric,
   overallScore: number,
   classes: ClassesType,
@@ -65,7 +65,7 @@ const RecommendationExperimentFeedItem = ({postId, rubric, overallScore, classes
       maxAgeHours: 18, //TODO: given a current-date override, `maxAgeHours` won't work sensibly
     },
   });
-  const { Loading, PostsItem2, RecommendationsRubric, RecentDiscussionThread } = Components;
+  const { Loading, RecommendationsRubric, RecentDiscussionThread } = Components;
   
   if (loading || !post) {
     return <Loading/>;

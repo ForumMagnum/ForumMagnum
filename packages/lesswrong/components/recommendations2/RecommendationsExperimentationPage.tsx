@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { PostSamplingAlgorithm, RecommendationsExperimentSettings, RecommendationsQuery, scoringFeatures, FeatureName, RecommendationResult, RecommendationRubric } from '../../lib/recommendationTypes';
+import { PostSamplingAlgorithm, RecommendationsExperimentSettings, RecommendationsQuery, scoringFeatures, FeatureName, RecommendationResult } from '../../lib/recommendationTypes';
 import { useQuery, gql } from '@apollo/client';
 import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import keyBy from 'lodash/keyBy';
 
@@ -72,9 +71,8 @@ const RecommendationsExperimentationPage = ({classes}: {
   const [samplingAlgorithm,setSamplingAlgorithm] = useState<PostSamplingAlgorithm>(defaultSamplingAlgorithm);
   
   const [selectedQuery,setSelectedQuery] = useState<RecommendationsQuery|null>(null);
-  const [presentationFormat,setPresentationFormat] = useState<"list"|"feed">("list");
   
-  const { SingleColumnSection, SectionTitle, RecommendationsExperimentSettingsPicker, PostSamplingAlgorithmPicker, RecommendationsRubric, RecommendationExperimentListItem, RecommendationExperimentFeedItem } = Components;
+  const { SingleColumnSection, SectionTitle, RecommendationsExperimentSettingsPicker, PostSamplingAlgorithmPicker, RecommendationExperimentListItem, RecommendationExperimentFeedItem } = Components;
   
   const { data, loading } = useQuery(gql`
     query RecommendationsExperiment($options: JSON!) {
@@ -108,7 +106,7 @@ const RecommendationsExperimentationPage = ({classes}: {
       Get Recommendations
     </Button>
     
-    {data?.getCustomRecommendations?.map((rec) => {
+    {recommendations?.map((rec) => {
       if (experimentSettings.outputFormat === "list") {
         return <RecommendationExperimentListItem
           key={rec.postId}
@@ -133,6 +131,8 @@ const RecommendationsExperimentSettingsPicker = ({settings, setSettings, classes
   setSettings: (newSettings: RecommendationsExperimentSettings)=>void,
   classes: ClassesType
 }) => {
+  const { MenuItem } = Components;
+
   return <div className={classes.experimentConfigBlock}>
     <div className={classes.experimentConfigRow}>
       <div className={classes.experimentConfigLabel}>Simulated date</div>
