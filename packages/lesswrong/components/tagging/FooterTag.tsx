@@ -48,12 +48,12 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
 });
 
 export const coreTagStyle = (theme: ThemeType): JssStyles => ({
-    backgroundColor: theme.palette.tag.coreTagBackground,
-    border: theme.palette.tag.coreTagBorder,
-    color: theme.palette.tag.coreTagText,
-    "&:hover": {
-      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
-    },
+  backgroundColor: theme.palette.tag.coreTagBackground,
+  border: theme.palette.tag.coreTagBorder,
+  color: theme.palette.tag.coreTagText,
+  "&:hover": {
+    backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+  },
 });
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -78,6 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
+    margin: isEAForum ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
