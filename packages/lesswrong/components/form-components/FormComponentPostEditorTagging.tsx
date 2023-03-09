@@ -6,7 +6,7 @@ import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/ins
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { shouldHideTag } from '../../lib/collections/tags/permissions';
+import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,7 +54,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 
   const post = {userId: currentUser?._id};
   const coreTagsToDisplay = coreTags.filter(
-    tag => tag.isSubforum && !shouldHideTag(currentUser, tag, post),
+    tag => tag.isSubforum && !shouldHideTagForVoting(currentUser, tag, post),
   );
 
   const selectedTagIds = Object.keys(value||{})
@@ -127,6 +127,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
           placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
           value={selectedTagIds.filter((tagId) => !selectedCoreTagIds.includes(tagId))}
           updateCurrentValues={onMultiselectUpdate}
+          isVotingContext
         />
       </div>
     );

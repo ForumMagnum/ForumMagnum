@@ -1,5 +1,5 @@
-# Node 18.12 is LTS
-FROM node:18.12.0
+# Node 18.x is LTS
+FROM node:18.15.0
 ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils

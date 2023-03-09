@@ -189,22 +189,14 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
+  // All elements in this component should also appar in UsersReviewInfoCard
   return (
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
             <div className={classes.info}>
               <div className={classes.topRow}>
-                <div>
-                  <UserReviewStatus user={user}/>
-              
-                  {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
-                  {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
-                  {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
-                    <em>Alternate accounts detected</em>
-                  </div>}
-                  <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                </div>
+                <UserReviewStatus user={user}/>
                 <div className={classes.row}>
                   <ModeratorMessageCount userId={user._id} />
                   <SunshineSendMessageWithDefaults user={user}/>

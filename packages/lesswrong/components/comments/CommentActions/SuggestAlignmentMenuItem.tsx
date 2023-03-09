@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import MenuItem from '@material-ui/core/MenuItem';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
@@ -42,7 +41,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
     collectionName: "Comments",
     fragmentName: 'SuggestAlignmentComment',
   });
-  const { OmegaIcon } = Components
+  const { OmegaIcon, MenuItem } = Components
 
   if (post.af && !comment.af && currentUser && userCanDo(currentUser, 'comments.alignment.suggest')) {
 

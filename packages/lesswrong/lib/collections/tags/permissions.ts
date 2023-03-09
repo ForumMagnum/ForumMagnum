@@ -3,7 +3,7 @@ import { CoauthoredPost } from "../posts/helpers";
 
 type TagWithVotePermissons = Pick<TagPreviewFragment, "slug" | "canVoteOnRels">;
 
-export const shouldHideTag = (
+export const shouldHideTagForVoting = (
   user: UsersCurrent | null,
   tag: TagWithVotePermissons,
   post: {userId?: string} & CoauthoredPost|null,

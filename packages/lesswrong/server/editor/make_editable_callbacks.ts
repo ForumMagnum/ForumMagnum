@@ -1,25 +1,20 @@
-import {getCollectionHooks} from '../mutationCallbacks'
-import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
-import {extractVersionsFromSemver} from '../../lib/editor/utils'
-import {ensureIndex} from '../../lib/collectionIndexUtils'
-import {htmlToPingbacks} from '../pingbacks'
-import {diff} from '../vendor/node-htmldiff/htmldiff'
-import {
-  editableCollections,
-  editableCollectionsFieldOptions,
-  editableCollectionsFields,
-  MakeEditableOptions,
-  sealEditableFields,
-} from '../../lib/editor/make_editable'
-import {getCollection} from '../../lib/vulcan-lib/getCollection'
-import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
-import {createMutator} from '../vulcan-lib/mutators'
-import * as _ from 'underscore'
-import cheerio from 'cheerio'
-import {onStartup} from '../../lib/executionEnvironment'
-import {dataToHTML, dataToWordCount} from './conversionUtils'
-import {Globals} from '../../lib/vulcan-lib/config'
-import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
+import { getCollectionHooks } from '../mutationCallbacks'
+import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
+import { extractVersionsFromSemver } from '../../lib/editor/utils'
+import { ensureIndex } from '../../lib/collectionIndexUtils'
+import { htmlToPingbacks } from '../pingbacks';
+import { diff } from '../vendor/node-htmldiff/htmldiff';
+import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
+import { createMutator } from '../vulcan-lib/mutators';
+import * as _ from 'underscore';
+import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
+import { onStartup } from '../../lib/executionEnvironment';
+import { dataToHTML, dataToWordCount } from './conversionUtils';
+import { Globals } from '../../lib/vulcan-lib/config';
+import { notifyUsersAboutMentions, PingbackDocumentPartial } from './mentions-notify'
 import {isBeingUndrafted, MaybeDrafteable} from './utils'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
@@ -318,8 +313,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");

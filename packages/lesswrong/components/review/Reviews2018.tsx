@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   setting: {
@@ -33,7 +32,7 @@ const Reviews2018 = ({classes}: {
   const [sortReviews, setSortReviews] = useState("new")
   const [sortNominations, setSortNominations] = useState("top")
 
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
 
   const handleSetExpandUnread = () => {
     void updateCurrentUser({
