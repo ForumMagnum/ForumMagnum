@@ -1,9 +1,8 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -25,6 +24,7 @@ const SuggestCurated = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { MenuItem } = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
