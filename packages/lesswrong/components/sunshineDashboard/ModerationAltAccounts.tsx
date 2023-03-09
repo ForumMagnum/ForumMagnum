@@ -18,6 +18,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userInfoArea: {
     margin: 16,
+    
+    "& ul": {
+      paddingInlineStart: "20px",
+    },
+  },
+  ipAddressReputationLink: {
+    color: theme.palette.primary.main,
+    textDecoration: "underline",
+  },
+  closedListItem: {
+    cursor: "pointer",
+    listStyleType: "disclosure-closed",
+  },
+  openListItem: {
+    listStyleType: "disclosure-open",
   },
 });
 
@@ -67,6 +82,13 @@ const ModerationAltAccounts = ({classes}: {
       violating site rules, and only proceed look at identifying information
       after a rule-violation is confirmed. Mere criticism is not abusive
       behavior, even if it's wrong!</p>
+      
+      <p>Accounts that are linked by clientID logged in from the same browser,
+      without clearing cookies in between; they are very unlikely to be different
+      people (though it's possible if they have shared a device). Accounts linked
+      by IP address are more likely to be different people; they could share an
+      office, group house, or (less likely but still possible) an ISP or a VPN
+      provider.</p>
     </ContentStyles>
 
     <div className={classes.selectUser}>
@@ -150,23 +172,33 @@ const AltAccountsNodeUser = ({user, classes}: {
   const [expandedIPs, setExpandedIPs] = useState(false);
 
   return <div>
-    <div><UsersNameDisplay user={user}/></div>
+    <div><UsersNameDisplay user={user} color={true}/></div>
     
     <ul>
       <li>Vote count: {user.voteCount} (small downvotes: {user.smallDownvoteCount}; big downvotes: {user.bigDownvoteCount})</li>
       {expandedClientIDs
-        ? user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
-            <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
-          </li>)
-        : <li onClick={() => setExpandedClientIDs(true)}>
+        ? <li className={classes.openListItem}>
+            <div>Client IDs</div>
+            <ul>
+              {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
+                <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
+              </li>)}
+            </ul>
+          </li>
+        : <li onClick={() => setExpandedClientIDs(true)} className={classes.closedListItem}>
             Client IDs: {user.associatedClientIds.map(clientId => clientId.clientId).join(", ")}
           </li>
       }
       {expandedIPs
-        ? user.IPs.map(ip => <li key={ip}>
-            <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
-          </li>)
-        : <li onClick={() => setExpandedIPs(true)}>
+        ? <li className={classes.openListItem}>
+            <div>IP Addresses</div>
+            <ul>
+              {user.IPs.map(ip => <li key={ip}>
+                <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
+              </li>)}
+            </ul>
+          </li>
+        : <li onClick={() => setExpandedIPs(true)} className={classes.closedListItem}>
             IP addresses: {user.IPs.length}x (click to expand)
           </li>
       }
@@ -192,24 +224,28 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
   });
   const clientIdInfo = (results?.length===1 ? results[0] : null);
   
-  return <div onClick={() => setExpanded(true)}>
+  return <div>
     ClientID {clientId}
     {loading && <Loading/>}
     {clientIdInfo && <div>
       <div>First seen referrer: {clientIdInfo.firstSeenReferrer}</div>
       <div>First seen landing page: {clientIdInfo.firstSeenLandingPage}</div>
       <div>First seen: <FormatDate date={clientIdInfo.createdAt}/></div>
-      <div>
-        {"Associated users: "}
-        {expanded
-          ? <ul>
-              {clientIdInfo.users.map(u => <li key={u._id}>
-                <AltAccountsNodeUserByID userId={u._id} classes={classes}/>
-              </li>)}
-            </ul>
-          : `${clientIdInfo.users.length}x (click to reveal)`
+      <ul>
+        {expanded /*TODO*/
+          ? <li className={classes.openListItem}>
+              <div>Associated users</div>
+              <ul>
+                {clientIdInfo.users.map(u => <li key={u._id}>
+                  <AltAccountsNodeUserByID userId={u._id} classes={classes}/>
+                </li>)}
+              </ul>
+            </li>
+          : <li className={classes.closedListItem} onClick={() => setExpanded(true)}>
+              {`Associated users: ${clientIdInfo.users.length}x (click to reveal)`}
+            </li>
         }
-      </div>
+      </ul>
     </div>}
   </div>
 }
@@ -237,23 +273,29 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   const {userIds} = data.moderatorViewIPAddress;
   const ipReputationCheckUrl = `https://www.ipqualityscore.com/free-ip-lookup-proxy-vpn-test/lookup/${ipAddress}`;
 
-  return <div onClick={() => setExpanded(true)}>
-    IP Address {ipAddress} (<a target="_blank" rel="noreferrer" href={ipReputationCheckUrl}
-    >check reputation</a>)
-    
+  return <div>
+    <div>IP Address {ipAddress}</div>
     <div>
-      <div>Associated user IDs:</div>
-      {expanded
-        ? <ul>
-            {userIds.map((userId: string) =>
-              <li key={userId}>
-                <AltAccountsNodeUserByID userId={userId} classes={classes}/>
-              </li>
-            )}
-          </ul>
-        : `${userIds.length} users (click to reveal)`
-      }
+      <a target="_blank" rel="noreferrer" href={ipReputationCheckUrl} className={classes.ipAddressReputationLink}>
+        Check IP address reputation
+      </a>
     </div>
+    
+    <ul>
+      {expanded
+        ? <li className={classes.openListItem}>
+            <div>Associated users</div>
+            <ul>
+              {userIds.map((userId: string) => <li key={userId}>
+                <AltAccountsNodeUserByID userId={userId} classes={classes}/>
+              </li>)}
+            </ul>
+          </li>
+        : <li className={classes.closedListItem} onClick={() => setExpanded(true)}>
+            {`${userIds.length} users (click to reveal)`}
+          </li>
+      }
+    </ul>
   </div>
 }
 
