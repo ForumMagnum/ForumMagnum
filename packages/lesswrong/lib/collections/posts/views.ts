@@ -71,6 +71,9 @@ declare global {
     hypDecayFactorFastest?: number
     expHalfLifeHours?: number
     expWeight?: number
+    activityHalfLifeHours?: number
+    activityWeight?: number
+    activity?: Array<number>
   }
 }
 
@@ -380,6 +383,9 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         hypDecayFactorFastest: terms.hypDecayFactorFastest,
         expHalfLifeHours: terms.expHalfLifeHours,
         expWeight: terms.expWeight,
+        activityHalfLifeHours: terms.activityHalfLifeHours,
+        activityWeight: terms.activityWeight,
+        activity: terms.activity ?? Array(28).fill(0)
       })
     ]}
   }

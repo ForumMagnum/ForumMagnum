@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import qs from 'qs';
+import { calculateDecayFactor, defaultTimeDecayExprProps } from '../../lib/scoring';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -65,6 +66,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-flex',
     flexDirection: 'column',
     padding: 8,
+  },
+  activityWidget: {
+    display: "flex",
+    flexDirection: "row",
+    paddingBottom: 16,
+  },
+  activityWidgetDay: {
+    // align center
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    flexBasis: 0,
+    flexGrow: 1,
   }
 })
 
@@ -125,6 +139,55 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
+  // experimental settings sections
+  const createNumberWidget = (name: string, defaultValue?: number, step = 1) => {
+    return <div className={classes.timescaleSetting}>
+      <div className={classes.timescaleExperimentHeading}>{name}</div>
+      <input
+        type="number"
+        value={query[name] || defaultValue}
+        onChange={(e) => {
+          console.log(`Setting ${name}:`, e.target.value);
+          const newQuery = { ...query, [name]: e.target.value };
+          history.push({ ...location, search: `?${qs.stringify(newQuery)}` });
+        }}
+        step={step}
+      />
+    </div>;
+  }
+
+  const activityArray = query.activity ? Object.keys(query.activity).map(k => query.activity[k]) : defaultTimeDecayExprProps.activity;
+  const hypDecayFactor = calculateDecayFactor({
+    activity: activityArray,
+    activityHalfLifeHours: query.activityHalfLifeHours ? Number(query.activityHalfLifeHours) : defaultTimeDecayExprProps.activityHalfLifeHours,
+    hypDecayFactorSlowest: query.hypDecayFactorSlowest ? Number(query.hypDecayFactorSlowest) : defaultTimeDecayExprProps.hypDecayFactorSlowest,
+    hypDecayFactorFastest: query.hypDecayFactorFastest ? Number(query.hypDecayFactorFastest) : defaultTimeDecayExprProps.hypDecayFactorFastest,
+    activityWeight: query.activityWeight ? Number(query.activityWeight) : defaultTimeDecayExprProps.activityWeight,
+  })
+
+  // checkbox for previous 28 days with e.g "-5" for 5 days ago
+  const activityWidget = <div className={classes.activityWidget}>
+    {new Array(28).fill(0).map((_, i) => {
+      const day = -i;
+      const dayString = day.toString();
+      return <div key={dayString} className={classes.activityWidgetDay}>
+        {dayString}
+        <input
+          type="checkbox"
+          checked={Number(activityArray[i]) !== 0}
+          onChange={(e) => {
+            let newActivityArray = [...activityArray];
+            newActivityArray[i] = e.target.checked ? 1 : 0;
+            console.log(`Setting activity for day ${dayString}`, newActivityArray[i])
+            const newQuery = { ...query, activity: newActivityArray };
+            history.push({ ...location, search: `?${qs.stringify(newQuery)}` });
+          }}
+        />
+      </div>
+    })}
+  </div>
+  // end experimental settings sections
+
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -167,77 +230,20 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               history.push({...location, search: `?${qs.stringify(newQuery)}`})
             }}
           />
-          <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>
-              hypStartingAgeHours
-            </div>
-            <input
-              type="number"
-              value={query.hypStartingAgeHours || undefined}
-              onChange={(e) => {
-                console.log("Setting hypStartingAgeHours:", e.target.value)
-                const newQuery = {...query, hypStartingAgeHours: e.target.value}
-                history.push({...location, search: `?${qs.stringify(newQuery)}`})
-              }}
-            />
-          </div>
-          <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>
-              hypDecayFactorSlowest
-            </div>
-            <input
-              type="number"
-              value={query.hypDecayFactorSlowest || undefined}
-              onChange={(e) => {
-                console.log("Setting hypDecayFactorSlowest:", e.target.value)
-                const newQuery = {...query, hypDecayFactorSlowest: e.target.value}
-                history.push({...location, search: `?${qs.stringify(newQuery)}`})
-              }}
-            />
-          </div>
-          <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>
-              hypDecayFactorFastest
-            </div>
-            <input
-              type="number"
-              value={query.hypDecayFactorFastest || undefined}
-              onChange={(e) => {
-                console.log("Setting hypDecayFactorFastest:", e.target.value)
-                const newQuery = {...query, hypDecayFactorFastest: e.target.value}
-                history.push({...location, search: `?${qs.stringify(newQuery)}`})
-              }}
-            />
-          </div>
-          <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>
-              expHalfLifeHours
-            </div>
-            <input
-              type="number"
-              value={query.expHalfLifeHours || 48}
-              onChange={(e) => {
-                console.log("Setting expHalfLifeHours:", e.target.value)
-                const newQuery = {...query, expHalfLifeHours: e.target.value}
-                history.push({...location, search: `?${qs.stringify(newQuery)}`})
-              }}
-            />
-          </div>
-          <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>
-              expWeight
-            </div>
-            <input
-              type="number"
-              value={query.expWeight || 0}
-              onChange={(e) => {
-                console.log("Setting expWeight:", e.target.value)
-                const newQuery = {...query, expWeight: e.target.value}
-                history.push({...location, search: `?${qs.stringify(newQuery)}`})
-              }}
-            />
-          </div>
+          {createNumberWidget("hypStartingAgeHours", defaultTimeDecayExprProps.hypStartingAgeHours, 1)}
+          {createNumberWidget("hypDecayFactorSlowest", defaultTimeDecayExprProps.hypDecayFactorSlowest, 0.05)}
+          {createNumberWidget("hypDecayFactorFastest", defaultTimeDecayExprProps.hypDecayFactorFastest, 0.05)}
+          {/* {createNumberWidget("expHalfLifeHours", 48)}
+          {createNumberWidget("expWeight", 0)} */}
+          {createNumberWidget("activityHalfLifeHours", defaultTimeDecayExprProps.activityHalfLifeHours, 1)}
+          {createNumberWidget("activityWeight", defaultTimeDecayExprProps.activityWeight, 0.1)}
         </div>
+        <br/>
+        {activityWidget}
+        <div>
+          Calculated hypDecayFactor: {hypDecayFactor}
+        </div>
+        <br/>
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
             [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,

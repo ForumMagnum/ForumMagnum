@@ -1,3 +1,4 @@
+import sum from 'lodash/sum';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
@@ -87,7 +88,60 @@ type TimeDecayExprProps = {
   hypDecayFactorFastest?: number
   expHalfLifeHours?: number
   expWeight?: number
-  // userActivityDecayFactor?: number // TODO
+  activityHalfLifeHours?: number
+  activityWeight?: number
+  activity: Array<number>
+}
+
+export const defaultTimeDecayExprProps = {
+  now: null,
+  hypStartingAgeHours: SCORE_BIAS,
+  hypDecayFactorSlowest: 0.5,
+  hypDecayFactorFastest: 1.08,
+  expHalfLifeHours: 48,
+  expWeight: 0,
+  activityHalfLifeHours: 72,
+  activityWeight: 0.2,
+  activity: Array(28).fill(0),
+}
+
+export const calculateDecayFactor = ({
+  activity,
+  activityHalfLifeHours,
+  hypDecayFactorSlowest,
+  hypDecayFactorFastest,
+  activityWeight
+}: {
+  activity: Array<number>,
+  activityHalfLifeHours: number,
+  hypDecayFactorSlowest: number,
+  hypDecayFactorFastest: number,
+  activityWeight: number,
+}
+  ) => {
+  const discountedActivity = activity.map((activity, i) => {
+    const ageInHours = i * 24;
+    const activityHalfLife = activityHalfLifeHours;
+    const activityDecayFactor = Math.log(2) / activityHalfLife;
+    return activity * Math.exp(-activityDecayFactor * ageInHours);
+  });
+  const maxActivity = Array(28).fill(1).map((activity, i) => {
+    const ageInHours = i * 24;
+    const activityHalfLife = activityHalfLifeHours;
+    const activityDecayFactor = Math.log(2) / activityHalfLife;
+    return activity * Math.exp(-activityDecayFactor * ageInHours);
+  })
+
+  // normalise such that being active every day results in a factor of 1
+  const activityFactor = sum(discountedActivity) / sum(maxActivity);
+  console.log("activityFactor", activityFactor)
+  console.log("activityWeight", activityWeight)
+  console.log("calculated hypDecayFactor", hypDecayFactorSlowest * (1 + (activityWeight * activityFactor)))
+  const hypDecayFactor = Math.min(
+    hypDecayFactorSlowest * (1 + (activityWeight * activityFactor)),
+    hypDecayFactorFastest
+  );
+  return hypDecayFactor;
 }
 
 export const timeDecayExpr = (props?: TimeDecayExprProps) => {
@@ -98,25 +152,34 @@ export const timeDecayExpr = (props?: TimeDecayExprProps) => {
     hypDecayFactorFastest,
     expHalfLifeHours,
     expWeight,
+    activityHalfLifeHours,
+    activityWeight,
+    activity,
   } = {
-    now: props?.now,
-    hypStartingAgeHours: props?.hypStartingAgeHours ?? SCORE_BIAS,
-    hypDecayFactorSlowest: props?.hypDecayFactorSlowest ?? TIME_DECAY_FACTOR.get(),
-    hypDecayFactorFastest: props?.hypDecayFactorFastest ?? TIME_DECAY_FACTOR.get(),
-    expHalfLifeHours: props?.expHalfLifeHours ?? 24,
-    expWeight: props?.expWeight ?? 0,
+    now: props?.now || defaultTimeDecayExprProps.now,
+    hypStartingAgeHours: props?.hypStartingAgeHours ?? defaultTimeDecayExprProps.hypStartingAgeHours,
+    hypDecayFactorSlowest: props?.hypDecayFactorSlowest ?? defaultTimeDecayExprProps.hypDecayFactorSlowest,
+    hypDecayFactorFastest: props?.hypDecayFactorFastest ?? defaultTimeDecayExprProps.hypDecayFactorFastest,
+    expHalfLifeHours: props?.expHalfLifeHours ?? defaultTimeDecayExprProps.expHalfLifeHours,
+    expWeight: props?.expWeight ?? defaultTimeDecayExprProps.expWeight,
+    activityHalfLifeHours: props?.activityHalfLifeHours ?? defaultTimeDecayExprProps.activityHalfLifeHours,
+    activityWeight: props?.activityWeight ?? defaultTimeDecayExprProps.activityWeight,
+    activity: props?.activity ? Object.keys(props.activity).map(k => props.activity[k]) : defaultTimeDecayExprProps.activity,
   };
-  
-  // log all of these
-  console.log("now", now)
-  console.log("hypStartingAgeHours", hypStartingAgeHours)
-  console.log("hypDecayFactorSlowest", hypDecayFactorSlowest)
-  console.log("hypDecayFactorFastest", hypDecayFactorFastest)
-  console.log("expHalfLifeHours", expHalfLifeHours)
-  console.log("expWeight", expWeight)
+
+  // console.log("activity in timeDecayExpr", activity)
 
   // TODO this is where the activity factor is going to come in
-  const hypDecayFactor = hypDecayFactorSlowest;
+  const hypDecayFactor = calculateDecayFactor({
+    activity,
+    activityHalfLifeHours,
+    hypDecayFactorSlowest,
+    hypDecayFactorFastest,
+    activityWeight
+  })
+  console.log("slowest possible hypDecayFactor", hypDecayFactorSlowest)
+  console.log("fastest possible hypDecayFactor", hypDecayFactorFastest)
+  console.log("hypDecayFactor", hypDecayFactor)
   // Half life is directly related to decay factor exp(-lambda * t) <=> exp(-(ln(2)/halfLife) * t)
   const expDecayFactor = Math.log(2) / expHalfLifeHours;
   const hypWeight = 1 - expWeight;
