@@ -1,12 +1,13 @@
-import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { usePostsItem, PostsItemConfig } from './usePostsItem';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useVote } from '../votes/withVote';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
+import React, { MouseEvent } from "react";
+import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { usePostsItem, PostsItemConfig } from "./usePostsItem";
+import { HashLink } from "../common/HashLink";
+import { useVote } from "../votes/withVote";
+import { useHistory } from "react-router";
+import { SECTION_WIDTH } from "../common/SingleColumnSection";
+import withErrorBoundary from "../common/withErrorBoundary";
+import classNames from "classnames";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,6 +22,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     fontSize: 14,
     color: theme.palette.grey[600],
+    cursor: "pointer",
     [theme.breakpoints.down("xs")]: {
       paddingRight: 12,
     },
@@ -134,6 +136,18 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     analyticsProps,
   } = usePostsItem(props);
   const voteProps = useVote(post, "Posts");
+  const history = useHistory();
+
+  // In order to make the entire "cell" a link to the post we need some special
+  // handling to make sure that all of the other links and buttons inside the cell
+  // still work. We do this by checking if the click happened inside an <a> tag
+  // before navigating to the post.
+  const onClick = (e: MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (typeof target.closest === "function" && !target.closest("a")) {
+      history.push(postLink);
+    }
+  }
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
@@ -145,19 +159,21 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
       <div className={classes.readTime}>
         {post.readTimeMinutes || 1}m read
       </div>
-      <Link to={commentsLink} className={classes.comments}>
+      <HashLink to={commentsLink} className={classes.comments}>
         <ForumIcon icon="Comment" />
         {commentCount}
-      </Link>
+      </HashLink>
       <div className={classes.bookmark}>
-        <BookmarkButton post={post} className={classes.bookmarkIcon} />
+        <a> {/* The `a` tag prevents clicks from navigating to the post */}
+          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+        </a>
       </div>
     </>
   );
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root}>
+      <div className={classes.root} onClick={onClick}>
         <div className={classes.karma}>
           {tagRel
             ? <div className={classes.tagRelWrapper}>
@@ -165,13 +181,15 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
             </div>
             : <>
               <div className={classes.voteButton}>
-                <OverallVoteButton
-                  orientation="up"
-                  color="secondary"
-                  upOrDown="Upvote"
-                  solidArrow
-                  {...voteProps}
-                />
+                <a> {/* The `a` tag prevents clicks from navigating to the post */}
+                  <OverallVoteButton
+                    orientation="up"
+                    color="secondary"
+                    upOrDown="Upvote"
+                    solidArrow
+                    {...voteProps}
+                  />
+                </a>
               </div>
               <PostsItemKarma post={post} />
             </>
@@ -219,7 +237,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 }
 
 const FriendlyPostsItemComponent = registerComponent(
-  'FriendlyPostsItem',
+  "FriendlyPostsItem",
   FriendlyPostsItem,
   {
     styles,
