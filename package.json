@@ -270,7 +270,6 @@
     "react-instantsearch": "^6.1.0",
     "react-instantsearch-core": "^6.8.1",
     "react-instantsearch-dom": "^6.8.1",
-    "react-intercom": "^1.0.13",
     "react-jss": "^8.1.0",
     "react-map-gl": "^5.2.9",
     "react-no-ssr": "^1.1.0",

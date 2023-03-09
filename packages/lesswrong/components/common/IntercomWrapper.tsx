@@ -5,7 +5,7 @@ import { useCurrentUser } from './withUser';
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { useLocation } from '../../lib/routeUtil';
 import withErrorBoundary from './withErrorBoundary'
-import Intercom from 'react-intercom';
+import Intercom from '../../lib/vendor/react-intercom';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 

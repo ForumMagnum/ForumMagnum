@@ -8178,7 +8178,7 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fbjs@^0.8.1, fbjs@^0.8.15, fbjs@^0.8.9:
+fbjs@^0.8.1, fbjs@^0.8.15:
   version "0.8.17"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.17.tgz"
   integrity sha1-xNWY6taUkRJlPWWIsBpc3Nn5D90=
@@ -13091,13 +13091,6 @@ prop-types-extra@^1.1.0:
     react-is "^16.3.2"
     warning "^4.0.0"
 
-prop-types@15.5.8:
-  version "15.5.8"
-  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.8.tgz"
-  integrity sha1-a3suFBCDvjjIWVqlH8VXdccZk5Q=
-  dependencies:
-    fbjs "^0.8.9"
-
 prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz"
@@ -13469,13 +13462,6 @@ react-instantsearch@^6.1.0:
     react-instantsearch-core "^6.8.2"
     react-instantsearch-dom "^6.8.2"
     react-instantsearch-native "^6.8.2"
-
-react-intercom@^1.0.13:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/react-intercom/-/react-intercom-1.0.15.tgz#29180aca961a319eaab88a66126e484e1abd428b"
-  integrity sha512-e4NhmearKjdxmu6EjiA0d29FqEXJUvWtyxo4ioipNsKBD7gZgvtyJMty9UhNRSf9RoPqtSX2Fw4ooy6Ld86ddw==
-  dependencies:
-    prop-types "15.5.8"
 
 react-is@16.10.2:
   version "16.10.2"
