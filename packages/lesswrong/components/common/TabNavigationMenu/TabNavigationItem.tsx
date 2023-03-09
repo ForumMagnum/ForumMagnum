@@ -1,6 +1,5 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -85,13 +84,8 @@ type TabNavigationItemProps = {
 }
 
 const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
-  const { TabNavigationSubItem, LWTooltip } = Components
+  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components
   const { pathname } = useLocation()
-  
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
   
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
@@ -106,18 +100,18 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   }
 
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
-    <MenuItemUntyped
+    <MenuItemLink
       onClick={handleClick}
-      // We tried making this a function that return an a tag once. It made the
+      // We tried making this [the 'component' of the underlying material-UI
+      // MenuItem component] a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
-      component={Link}
       to={tab.link}
       disableGutters
-      classes={{root: classNames({
+      rootClass={classNames({
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: pathname === tab.link,
-      })}}
+      })}
       disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
@@ -134,7 +128,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
           {tab.title}
         </span>
       }
-    </MenuItemUntyped>
+    </MenuItemLink>
   </LWTooltip>
 }
 
