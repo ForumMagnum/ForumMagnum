@@ -6,7 +6,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -51,7 +50,7 @@ const accountIdentifierTypes = [
 const ModerationAltAccounts = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, ContentStyles } = Components;
+  const { SingleColumnSection, SectionTitle, MenuItem, ContentStyles } = Components;
   const currentUser = useCurrentUser();
   
   const { query } = useLocation();
