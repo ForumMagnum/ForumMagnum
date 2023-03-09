@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -74,7 +73,7 @@ const MoveToAlignmentMenuItem = ({comment, post, classes}: {
   }
 
   const render = () => {
-    const { OmegaIcon } = Components
+    const { MenuItem, OmegaIcon } = Components
     if (post.af && userCanDo(currentUser, 'comments.alignment.move.all')) {
       if (!comment.af) {
         return (

@@ -1,8 +1,7 @@
 // TODO:(Review) delete
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -23,6 +22,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { history } = useNavigation();
+  const { MenuItem } = Components;
 
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
