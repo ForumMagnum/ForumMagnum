@@ -141,7 +141,7 @@ export const calculateDecayFactor = ({
     hypDecayFactorSlowest * (1 + (activityWeight * activityFactor)),
     hypDecayFactorFastest
   );
-  return hypDecayFactor;
+  return {hypDecayFactor, activityFactor};
 }
 
 export const timeDecayExpr = (props?: TimeDecayExprProps) => {
@@ -170,7 +170,7 @@ export const timeDecayExpr = (props?: TimeDecayExprProps) => {
   // console.log("activity in timeDecayExpr", activity)
 
   // TODO this is where the activity factor is going to come in
-  const hypDecayFactor = calculateDecayFactor({
+  const { hypDecayFactor } = calculateDecayFactor({
     activity,
     activityHalfLifeHours,
     hypDecayFactorSlowest,

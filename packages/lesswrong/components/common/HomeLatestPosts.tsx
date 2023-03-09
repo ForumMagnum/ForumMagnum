@@ -157,7 +157,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   }
 
   const activityArray = query.activity ? Object.keys(query.activity).map(k => query.activity[k]) : defaultTimeDecayExprProps.activity;
-  const hypDecayFactor = calculateDecayFactor({
+  const { hypDecayFactor, activityFactor } = calculateDecayFactor({
     activity: activityArray,
     activityHalfLifeHours: query.activityHalfLifeHours ? Number(query.activityHalfLifeHours) : defaultTimeDecayExprProps.activityHalfLifeHours,
     hypDecayFactorSlowest: query.hypDecayFactorSlowest ? Number(query.hypDecayFactorSlowest) : defaultTimeDecayExprProps.hypDecayFactorSlowest,
@@ -240,6 +240,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
         </div>
         <br/>
         {activityWidget}
+        <div>
+          Calculated activityFactor: {activityFactor}
+        </div>
+        <br/>
         <div>
           Calculated hypDecayFactor: {hypDecayFactor}
         </div>
