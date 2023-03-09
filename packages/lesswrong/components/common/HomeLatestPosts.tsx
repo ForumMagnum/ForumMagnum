@@ -105,7 +105,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   
   const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
   console.log("now that is set at the top", now.format("YYYY-MM-DD HH:mm:ss"))
-  const dateCutoff = now.clone().subtract(90, 'days').format("YYYY-MM-DD");
+  const dateCutoff = now.clone().subtract(14, 'days').format("YYYY-MM-DD");
   
   const mode = query.mode ?? 'hyperbolic';
 
