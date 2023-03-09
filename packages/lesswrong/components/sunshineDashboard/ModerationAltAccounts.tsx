@@ -34,6 +34,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   openListItem: {
     listStyleType: "disclosure-open",
   },
+  clickToReveal: {
+    cursor: "pointer",
+    color: theme.palette.primary.main,
+    textDecoration: "underline",
+  },
 });
 
 const accountIdentifierTypes = [
@@ -167,12 +172,11 @@ const AltAccountsNodeUser = ({user, classes}: {
   user: UserAltAccountsFragment,
   classes: ClassesType,
 }) => {
-  const { UsersNameDisplay } = Components;
   const [expandedClientIDs, setExpandedClientIDs] = useState(false);
   const [expandedIPs, setExpandedIPs] = useState(false);
 
   return <div>
-    <div><UsersNameDisplay user={user} color={true}/></div>
+    <div><CensoredUserName user={user} classes={classes}/></div>
     
     <ul>
       <li>Vote count: {user.voteCount} (small downvotes: {user.smallDownvoteCount}; big downvotes: {user.bigDownvoteCount})</li>
@@ -232,7 +236,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
       <div>First seen landing page: {clientIdInfo.firstSeenLandingPage}</div>
       <div>First seen: <FormatDate date={clientIdInfo.createdAt}/></div>
       <ul>
-        {expanded /*TODO*/
+        {expanded
           ? <li className={classes.openListItem}>
               <div>Associated users</div>
               <ul>
@@ -297,6 +301,20 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
       }
     </ul>
   </div>
+}
+
+const CensoredUserName = ({user, classes}: {
+  user: UserAltAccountsFragment,
+  classes: ClassesType,
+}) => {
+  const { UsersNameDisplay } = Components;
+  const [revealName,setRevealName] = useState(false);
+  
+  if (revealName) {
+    return <UsersNameDisplay user={user} color={true}/>
+  } else {
+    return <span className={classes.clickToReveal} onClick={() => setRevealName(true)}>{user._id}</span>
+  }
 }
 
 const ModerationAltAccountsComponent = registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
