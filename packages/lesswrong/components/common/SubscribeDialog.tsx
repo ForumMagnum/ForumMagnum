@@ -14,7 +14,6 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
@@ -81,27 +80,27 @@ function timePerWeekFromPosts(posts: number) {
 }
 
 /** Posts per week as of May 2022 */
-const postsPerWeek = forumSelect({
+const postsPerWeek = forumSelect<Record<string, number>>({
   EAForum: {
-    2: 119,
-    30: 24,
-    45: 20,
-    75: 10,
-    125: 4,
-    200: 1,
+    '2': 119,
+    '30': 24,
+    '45': 20,
+    '75': 10,
+    '125': 4,
+    '200': 1,
   },
   // (JP) I eyeballed these, you could query your db for better numbers
   LessWrong: {
-    2: 80,
-    30: 16,
-    45: 13,
-    75: 7,
-    125: 2,
+    '2': 80,
+    '30': 16,
+    '45': 13,
+    '75': 7,
+    '125': 2,
   },
   AlignmentForum: {
-    2: 10,
-    30: 2,
-    45: 1,
+    '2': 10,
+    '30': 2,
+    '45': 1,
   },
 });
 
@@ -126,12 +125,18 @@ interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesP
 }
 
 interface SubscribeDialogState {
-  view:  any,
-  method:  any,
+  view:  keyof typeof viewNames,
+  method:  string,
   threshold: string,
   copiedRSSLink: boolean,
   subscribedByEmail: boolean,
 }
+
+type EventWithSelectTarget = {
+  target: {
+    select: Function
+  }
+};
 
 class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogState> {
   constructor(props: SubscribeDialogProps) {
@@ -153,8 +158,9 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     return terms;
   }
 
-  autoselectRSSLink(event) {
-    event.target.select();
+  // FIXME: Not clear that this actually works for both onClick and onFocus!
+  autoselectRSSLink(event: any) {
+    event.target && 'select' in event.target && event.target.select();
   }
 
   sendVerificationEmail() {
@@ -189,7 +195,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     return this.props.currentUser && getUserEmail(this.props.currentUser) 
   }
 
-  emailFeedExists(view) {
+  emailFeedExists(view: string) {
     if (view === "curated") return true;
     return false;
   }
@@ -202,7 +208,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     return false;
   }
 
-  selectMethod(method) {
+  selectMethod(method: string) {
     this.setState({
       copiedRSSLink: false,
       subscribedByEmail: false,
@@ -210,7 +216,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     })
   }
 
-  selectThreshold(threshold) {
+  selectThreshold(threshold: string) {
     this.setState({
       copiedRSSLink: false,
       subscribedByEmail: false,
@@ -219,7 +225,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   }
 
 
-  selectView(view) {
+  selectView(view: keyof typeof viewNames) {
     this.setState({
       copiedRSSLink: false,
       subscribedByEmail: false,
@@ -230,13 +236,13 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   render() {
     const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
-    const { LWDialog } = Components;
+    const { LWDialog, MenuItem } = Components;
 
     const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
       <Select
         value={view}
-        onChange={ event => this.selectView(event.target.value) }
+        onChange={ event => this.selectView(event.target.value as keyof typeof viewNames) }
         disabled={method === "email" && !currentUser}
         inputProps={{ id: "subscribe-dialog-view" }}
       >

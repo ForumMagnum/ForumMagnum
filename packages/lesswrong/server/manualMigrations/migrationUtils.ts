@@ -3,6 +3,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep } from '../../lib/helpers';
+import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -85,13 +86,17 @@ export async function runMigration(name: string) {
     started: new Date(),
   });
   
+  const db = getSqlClient();
+
+  // TODO: do this atomically in a single transaction
   try {
+    await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: true,
     }});
-
+    
     // eslint-disable-next-line no-console
     console.log(`Finished migration: ${name}`);
   } catch(e) {
@@ -103,6 +108,8 @@ export async function runMigration(name: string) {
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: false,
     }});
+  } finally {
+    await safeRun(db, `refresh_lowercase_views`) // add the views back in
   }
 }
 
@@ -301,6 +308,126 @@ export async function dropUnusedField<T extends DbObject>(collection: Collection
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
+const getBatchSort = <T extends DbObject>(useCreatedAt: boolean) =>
+  (useCreatedAt
+    ? {createdAt: 1}
+    : {_id: 1}) as Record<keyof T, 1>; // It's the callers responsibility to ensure the sort field actally exists
+
+const getFirstBatchById = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+}): Promise<T[]> => {
+  // As described in the docstring, we need to be able to query on the _id.
+  // Without this check, someone trying to use _id in the filter would overwrite
+  // this function's query and find themselves with an infinite loop.
+  if (filter && "_id" in filter) {
+    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
+  }
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(false),
+      limit: batchSize,
+    }
+  ).fetch();
+}
+
+const getNextBatchById = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  lastRows,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  lastRows: T[],
+}): Promise<T[]> => {
+  return collection.find(
+    {
+      _id: {$gt: lastRows[lastRows.length - 1]._id},
+      ...filter,
+    },
+    {
+      sort: getBatchSort(false),
+      limit: batchSize
+    }
+  ).fetch();
+}
+
+const getFirstBatchByCreatedAt = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+}): Promise<T[]> => {
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(true),
+      limit: batchSize,
+    }
+  ).fetch();
+}
+
+const getNextBatchByCreatedAt = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  lastRows,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  lastRows: T[],
+}): Promise<T[]> => {
+  const lastRow = lastRows[lastRows.length - 1] as unknown as HasCreatedAtType;
+  let greaterThan = lastRow.createdAt;
+  if (filter && "createdAt" in filter) {
+    if (filter.createdAt.$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.createdAt.$gt.getTime()));
+    } else if (filter.createdAt.$gte) {
+      const gt = Math.max(filter.createdAt.$gte.getTime() - 1, 0);
+      greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
+      delete filter.createdAt.$gte;
+    } else {
+      throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
+    }
+  }
+  return collection.find(
+    {
+      ...filter,
+      createdAt: {
+        ...filter?.createdAt,
+        $gt: greaterThan,
+      },
+    },
+    {
+      sort: getBatchSort(true),
+      limit: batchSize
+    }
+  ).fetch();
+}
+
+const getBatchProviders = (useCreatedAt: boolean) =>
+  useCreatedAt
+    ? {
+      getFirst: getFirstBatchByCreatedAt,
+      getNext: getNextBatchByCreatedAt,
+    }
+    : {
+      getFirst: getFirstBatchById,
+      getNext: getNextBatchById,
+    };
+
 // Given a collection and a batch size, run a callback for each row in the
 // collection, grouped into batches of up to the given size. Rows created or
 // deleted while this is running might or might not get included (neither is
@@ -312,51 +439,27 @@ export async function dropUnusedField<T extends DbObject>(collection: Collection
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection<T extends DbObject>({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+export async function forEachDocumentBatchInCollection<T extends DbObject>({
+  collection,
+  batchSize=1000,
+  filter=null,
+  callback,
+  loadFactor=1.0,
+  useCreatedAt=false,
+}: {
   collection: CollectionBase<T>,
   batchSize?: number,
-  filter?: MongoSelector<DbObject> | null,
-  callback: (batch: T[], progress: MigrationProgressStats) => Promise<void>,
-  loadFactor?: number
-}) {
-  // As described in the docstring, we need to be able to query on the _id.
-  // Without this check, someone trying to use _id in the filter would overwrite
-  // this function's query and find themselves with an infinite loop.
-  if (filter && '_id' in filter) {
-    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
-  }
-  
-  const estimatedRowsTotal = await collection.find(filter).count();
-  const startedAt = new Date();
-  let rowsFinished = 0;
-  
-  const sort = {_id: 1} as Record<keyof T, number>;
-  let rows = await collection.find({ ...filter },
-    {
-      sort,
-      limit: batchSize
-    }
-  ).fetch();
-  
-  while(rows.length > 0) {
+  filter?: MongoSelector<T> | null,
+  callback: (batch: T[]) => void | Promise<void>,
+  loadFactor?: number,
+  useCreatedAt?: boolean,
+}): Promise<void> {
+  const {getFirst, getNext} = getBatchProviders(useCreatedAt);
+  let rows = await getFirst({collection, batchSize, filter});
+  while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
-      const progress = makeMigrationProgressStats({
-        numFinished: rowsFinished,
-        numTotal: estimatedRowsTotal,
-        startedAt
-      });
-      
-      await callback(rows, progress);
-      
-      rowsFinished += rows.length;
-      const lastID = rows[rows.length - 1]._id
-      rows = await collection.find(
-        { _id: {$gt: lastID}, ...filter },
-        {
-          sort,
-          limit: batchSize
-        }
-      ).fetch();
+      await callback(rows);
+      rows = await getNext({collection, batchSize, filter, lastRows: rows});
     });
   }
 }
@@ -465,3 +568,17 @@ export function makeMigrationProgressStats({numFinished, numTotal,startedAt}: {
 }
 
 Vulcan.dropUnusedField = dropUnusedField
+
+  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
+  // This wraapper runs the function and ignores if it's not defined yet
+export async function safeRun(db : SqlClient | null, fn : string) : Promise<void> {
+  if(!db) return;
+
+  await db.any(`DO $$
+    BEGIN
+      PERFORM ${fn}();
+    EXCEPTION WHEN undefined_function THEN
+      -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
+    END;
+  $$;`)
+}

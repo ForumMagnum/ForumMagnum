@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
+import WorkIcon from '@material-ui/icons/BusinessCenter'
 import CloseIcon from '@material-ui/icons/Close'
 import InfoIcon from '@material-ui/icons/Info'
 import ChevronRight from '@material-ui/icons/ChevronRight';
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
   },
   label: {
-    alignSelf: 'flex-end',
+    // alignSelf: 'flex-end',
     flexGrow: 1,
     display: 'flex',
     columnGap: 8,
@@ -95,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 18,
     lineHeight: '24px',
     color: theme.palette.grey[700],
-    margin: '3px 0'
+    margin: '3px 0 5px'
   },
   link: {
     color: theme.palette.primary.main
@@ -104,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 30,
-    rowGap: '3px'
+    rowGap: '5px'
   },
   metadata: {
     display: 'flex',
@@ -115,6 +116,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadataIcon: {
     fontSize: 12,
+  },
+  deadline: {
+    fontWeight: 600,
+    color: theme.palette.primary.dark
   },
   readMore: {
     display: 'flex',
@@ -176,118 +181,100 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// list of options from EAG
+type EAGOccupation =
+  'Academic research'|
+  'Operations'|
+  'Entrepreneurship'|
+  'Policymaking/Civil service'|
+  'EA community building/community management'|
+  'AI safety technical research'|
+  'Software development/Software engineering'|
+  'People management'|
+  'Education'|
+  'Global health & development'|
+  'Improving institutional decision making'|
+  'Earning to give'|
+  'AI strategy & policy'|
+  'Project management/ Program management'|
+  'Healthcare/Medicine'|
+  'Technology'|
+  'Grantmaking'|
+  'Information security'|
+  'Climate change mitigation'|
+  'Global coordination & peace-building'|
+  'Consulting'|
+  'Alternative proteins'|
+  'Global mental health & well-being'|
+  'Nuclear security'|
+  'Politics'|
+  'Writing'|
+  'Event production'|
+  'Product management'|
+  'Wild animal welfare'|
+  'Biosecurity'|
+  'Philanthropy'|
+  'Farmed animal welfare'|
+  'Communications/Marketing'|
+  'HR/People operations'|
+  'Global priorities research'|
+  'Journalism'|
+  'Finance/Accounting'|
+  'User experience design/research'|
+  'Data science/Data visualization'|
+  'Counselling/Social work'|
+  'Graphic design'|
+  'S-risk'
+
 type JobAdData = {
-  standardApplyBtn?: boolean, // set to show the "Apply now" button instead of "Yes, I'm interested"
-  occupationName?: string,    // used to match on EAG experience + interests
-  interestedIn?: string,      // used to match on EAG interests
-  tagId?: string,             // used to match on a topic
-  logo: string,
-  occupation: string,         // text displayed in the tooltip
-  feedbackLinkPrefill: string,
-  bitlyLink: string,          // bitly link to the job ad page
+  standardApplyBtn?: boolean,        // set to show the "Apply now" button instead of "Yes, I'm interested"
+  eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
+  interestedIn?: EAGOccupation[],    // used to match on EAG interests
+  tagId?: string,                    // used to match on a topic
+  logo: string,                      // url for org logo
+  occupation: string,                // text displayed in the tooltip
+  feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
+  bitlyLink: string,                 // bitly link to the job ad page
   role: string,
-  insertThe?: boolean,        // set if you want to insert a "the" before the org name
+  insertThe?: boolean,               // set if you want to insert a "the" before the org name
   org: string,
-  orgLink: string,
+  orgLink: string,                   // internal link on the org name
   salary?: string,
   location: string,
-  deadline?: moment.Moment,   // not displayed, only used to hide the ad after this date
+  roleType?: string,                 // i.e. part-time, contract
+  deadline?: moment.Moment,          // not displayed, only used to hide the ad after this date
   getDescription: (classes: ClassesType) => JSX.Element
 }
 
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'ai-policy-govai': {
-    occupationName: 'AI strategy & policy',
-    tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
-    logo: 'https://80000hours.org/wp-content/uploads/2021/12/centre-for-the-governance-of-ai-160x160.jpeg',
-    occupation: 'AI governance & policy',
-    feedbackLinkPrefill: 'Summer+Fellow+at+GovAI',
-    bitlyLink: "https://efctv.org/3hTf0Sl", // https://www.governance.ai/post/summer-fellowship-2023
-    role: 'Summer Fellow',
-    insertThe: true,
-    org: 'Centre for the Governance of AI',
-    orgLink: '/topics/centre-for-the-governance-of-ai',
-    salary: '£9,000 - £12,000 stipend',
-    location: 'Oxford, UK (Flexible)',
-    deadline: moment("01-16-2023", "MM-DD-YYYY"),
+  'founder-charity-entrepreneurship': {
+    standardApplyBtn: true,
+    logo: 'https://80000hours.org/wp-content/uploads/2023/02/CE-160x160.jpg',
+    occupation: 'entrepreneurship',
+    feedbackLinkPrefill: 'Founder+at+Charity+Entrepreneurship',
+    bitlyLink: "https://efctv.org/3Zvqrju", // https://form.jotform.com/230292346528356
+    role: 'Nonprofit Founder',
+    org: 'Charity Entrepreneurship',
+    orgLink: '/topics/charity-entrepreneurship',
+    salary: '$2k monthly stipend',
+    location: 'Remote',
+    deadline: moment("03-12-2023", "MM-DD-YYYY"),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        In this fellowship at the <a href="https://www.governance.ai" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Centre for the Governance of AI (GovAI)
-        </a>, you will conduct independent research on <a href="https://www.governance.ai/post/summer-fellowship-2022-wrap-up" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          a topic of your choice
-        </a>, with mentorship from leading experts in the field of <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-governance")} innerHTML="AI governance"/>
-        </span>.
+        <a href="https://www.charityentrepreneurship.com/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Charity Entrepreneurship
+        </a> is launching an <a href="https://www.charityentrepreneurship.com/incubation-program" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          8 week incubation program and a 2 week seed-funding process
+        </a> for people who want to start an effective charity.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Are interested in using their career to study or shape the long-term implications of advanced AI</li>
-          <li>Can produce clearly written, insightful, and even-handed research</li>
-          <li>Have a graduate degree or research experience relevant to AI governance, such as political science, economics, sociology, or law</li>
-        </ul>
-      </div>
-    </>
-  },
-  'biosecurity-warwick': {
-    interestedIn: 'Biosecurity',
-    tagId: 'aELNHEKtcZtMwEkdK', // Biosecurity
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/Warwick-University-160x160.png',
-    occupation: 'biosecurity',
-    feedbackLinkPrefill: 'PhD+Student+at+University+of+Warwick',
-    bitlyLink: "https://efctv.org/3IxWcD3", // https://warwick.ac.uk/fac/cross_fac/igpp/ab101/
-    role: 'PhD Student',
-    insertThe: true,
-    org: 'University of Warwick, Institute for Global Pandemic Planning',
-    orgLink: '/posts/gnk3FbdxJjZrrvoGA/link-post-fully-funded-phds-in-pandemic-planning',
-    location: 'Warwick, UK',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        This is a 4-year fully funded scholarship to work on a PhD in Public Health
-        at <a href="https://warwick.ac.uk/fac/cross_fac/igpp/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          IGPP
-        </a>, with the option to focus on Behavioural Science, Mathematical Epidemiology,
-        Pathogen Diagnostics or Pandemic Response Planning.
-      </div>
-      <div className={classes.description}>
-        General entry requirements for the university:
-        <ul>
-          <li>At least an upper second class UK honours degree or international equivalent</li>
-          <li>Evidence of English language capability</li>
-          <li>Two strong academic references</li>
-        </ul>
-      </div>
-    </>
-  },
-  'communications-cea': {
-    occupationName: 'Communications/Marketing',
-    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
-    occupation: 'communications/marketing',
-    feedbackLinkPrefill: 'Social+Media+Specialist+at+CEA',
-    bitlyLink: "https://efctv.org/3vTkVtP", // https://www.centreforeffectivealtruism.org/careers/social-media-specialist
-    role: 'Social Media Specialist',
-    insertThe: true,
-    org: 'Centre for Effective Altruism',
-    orgLink: '/topics/centre-for-effective-altruism-1',
-    salary: '£49k - £77k',
-    location: 'Remote',
-    deadline: moment("01-16-2023", "MM-DD-YYYY"),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        You'll be working at <a href="https://www.centreforeffectivealtruism.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          CEA
-        </a> to develop a social media strategy for effective altruism and work with EA organisations and spokespeople to implement it.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>Familiarity with EA ideas</li>
-          <li>Clear, nuanced, and compelling writing</li>
-          <li>Sound judgement about the risks and benefits of different communications strategies and tactics</li>
+          <li>Are happy to take initiative and work independently</li>
+          <li>Have some relevant experience, such as project management, entrepreneurship, statistics, or ethics</li>
+          <li>Are ambitiously altruistic</li>
         </ul>
       </div>
     </>
@@ -317,7 +304,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
   }
   
   const handleInterested = (showSuccessMsg?: boolean) => {
-    setClosed(true)
+    // setClosed(true)
     onInterested(showSuccessMsg)
   }
   
@@ -382,9 +369,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
         >
           Apply now <OpenInNew className={classes.btnIcon} />
         </Button>
-        <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
+        {/* <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
           This doesn't match my interests
-        </Button>
+        </Button> */}
       </div>
     </>
   }
@@ -397,12 +384,12 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <div className={classes.labelText}>
               Job  recommendation
             </div>
-            <LWTooltip title={
+            {/* <LWTooltip title={
               `You're seeing this recommendation because of your interest in ${adData.occupation}.
               We encourage you to consider jobs like this which might increase your impact significantly.`
             }>
               <InfoIcon className={classes.infoIcon} />
-            </LWTooltip>
+            </LWTooltip> */}
           </div>
           <div className={classes.feedbackLink}>
             <a href={`
@@ -435,6 +422,18 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
           </div>
+          {adData.roleType && <div className={classes.metadata}>
+            <WorkIcon className={classes.metadataIcon} />
+            {adData.roleType}
+          </div>}
+          {
+            // display the deadline when it's within 2 days away
+            adData.deadline &&
+            moment().add(2, 'days').isSameOrAfter(adData.deadline, 'day') &&
+            <div className={classNames(classes.metadata, classes.deadline)}>
+              Apply by {adData.deadline.format('MMM Do')}
+            </div>
+          }
         </div>
         {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
           <ChevronRight className={classes.readMoreIcon} /> Expand

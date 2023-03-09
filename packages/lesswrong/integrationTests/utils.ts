@@ -194,7 +194,8 @@ export const createDummyUser = async (data?: any) => {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
     reviewedByUserId: "fakeuserid", // TODO: make this user_id correspond to something real that would hold up if we had proper validation
-    previousDisplayName: randomId()
+    previousDisplayName: randomId(),
+    acceptedTos: true,
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await createMutator({

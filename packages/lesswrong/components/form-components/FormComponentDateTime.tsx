@@ -232,15 +232,18 @@ const reactDateTimeStyles = (theme: ThemeType): JssStyles => ({
 });
 
 
-// FormComponentDateTime: Wrapper to make ReactDateTime fit in the Vulcan forms
-// system.
-// TODO: This may not work right in nested contexts.
-const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
+const FormComponentDateTime = ({ path, value, name, label, classes }: {
+  path: string;
+  value: string | Date;
+  name: string;
+  label: string;
+  classes: ClassesType;
+}, context: any) => {
   const updateDate = (date: Date | undefined) => {
     if (date) context.updateCurrentValues({[path]: date})
   }
 
-  const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = date ? moment(date) : moment();

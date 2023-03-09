@@ -412,7 +412,7 @@ const SpreadsheetPage = ({classes}:{
   const sortedRowsAdded = _.sortBy(dataRows, (row: any) => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
-  const linkCell = (url, link, domain, type) => <div>
+  const linkCell = (url: string, link: string, domain: string, type: string) => <div>
       <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
       {domain && <div className={classes.domain}>{domain} {type && <span>• {type}</span>}</div>}
     </div>

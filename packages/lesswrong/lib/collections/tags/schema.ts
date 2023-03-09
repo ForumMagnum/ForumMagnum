@@ -9,7 +9,6 @@ import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
-import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
@@ -40,6 +39,15 @@ const schema: SchemaType<DbTag> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     order: 1,
+  },
+  shortName: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    group: formGroups.advancedOptions,
   },
   slug: {
     type: String,
@@ -289,6 +297,19 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     hidden: forumTypeSetting.get() !== 'EAForum',
   },
+  // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
+  squareImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Square Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x200 px",
+    group: formGroups.advancedOptions,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+  },
 
   tagFlagsIds: {
     ...arrayOfForeignKeysField({
@@ -501,6 +522,21 @@ const schema: SchemaType<DbTag> = {
     type: String,
     foreignKey: "Users",
     optional: true,
+  },
+  subforumIntroPostId: {
+    ...foreignKeyField({
+      idFieldName: "subforumIntroPostId",
+      resolverName: "subforumIntroPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Subforum intro post ID",
+    tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
+    group: formGroups.advancedOptions,
   },
   parentTagId: {
     ...foreignKeyField({

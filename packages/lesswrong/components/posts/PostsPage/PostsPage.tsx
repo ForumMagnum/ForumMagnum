@@ -33,7 +33,7 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 ];
 
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
+export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
   if (post.contents?.plaintextDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
     const plaintextPars = post.contents.plaintextDescription
@@ -182,15 +182,6 @@ const PostsPage = ({post, refetch, classes}: {
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
-  const shouldHideAsSpam = () => {
-    // Logged-out users shouldn't be able to see spam posts
-    if (post.authorIsUnreviewed && !currentUser) {
-      return true;
-    }
-
-    return false;
-  }
-
   const { query, params } = location;
 
   const sortBy = query.answersSorting || "top";
@@ -212,7 +203,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect
   } = Components
 
   useEffect(() => {
@@ -224,10 +215,6 @@ const PostsPage = ({post, refetch, classes}: {
     });
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
-  
-  if (shouldHideAsSpam()) {
-    throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
-  }
   
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")
@@ -310,6 +297,13 @@ const PostsPage = ({post, refetch, classes}: {
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
+  // If this is a non-AF post being viewed on AF, redirect to LW.
+  const isAF = (forumTypeSetting.get() === 'AlignmentForum');
+  if (isAF && !post.af) {
+    const lwURL = "https://www.lesswrong.com" + location.url;
+    return <PermanentRedirect url={lwURL}/>
+  }
+  
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -350,7 +344,7 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-            {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>

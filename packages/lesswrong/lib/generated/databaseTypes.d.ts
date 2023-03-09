@@ -164,6 +164,7 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string
+  relevantTagIds: Array<string>
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -174,6 +175,7 @@ interface DbComment extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string
+  pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -200,6 +202,18 @@ interface DbConversation extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface CronHistoriesCollection extends CollectionBase<DbCronHistory, "CronHistories"> {
+}
+
+interface DbCronHistory extends DbObject {
+  __collectionName?: "CronHistories"
+  intendedAt: Date
+  name: string
+  startedAt: Date
+  finishedAt: Date | null
+  result: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata, "DatabaseMetadata"> {
 }
 
@@ -223,7 +237,7 @@ interface DbDebouncerEvents extends DbObject {
   delayTime: Date
   upperBoundTime: Date
   key: string
-  pendingEvents: Array<any /*{"definitions":[{"blackbox":true}]}*/>
+  pendingEvents: Array<string>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -322,6 +336,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string
+  nameInAnotherLanguage: string
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
@@ -339,6 +354,7 @@ interface DbLocalgroup extends DbObject {
   bannerImageId: string
   inactive: boolean
   deleted: boolean
+  salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -393,7 +409,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -671,6 +687,7 @@ interface DbRSSFeed extends DbObject {
   status: string
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
+  importAsDraft: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -782,6 +799,16 @@ interface DbSequence extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface SessionsCollection extends CollectionBase<DbSession, "Sessions"> {
+}
+
+interface DbSession extends DbObject {
+  __collectionName?: "Sessions"
+  session: any /*{"definitions":[{"blackbox":true}]}*/
+  expires: Date | null
+  lastModified: Date | null
+}
+
 interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
 }
 
@@ -795,7 +822,9 @@ interface DbSpotlight extends DbObject {
   customSubtitle: string | null
   lastPromotedAt: Date
   draft: boolean
+  showAuthor: boolean
   spotlightImageId: string | null
+  spotlightDarkImageId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -859,6 +888,7 @@ interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
+  shortName: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -879,6 +909,7 @@ interface DbTag extends DbObject {
   wikiGrade: number
   wikiOnly: boolean
   bannerImageId: string
+  squareImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
@@ -890,6 +921,7 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   isSubforum: boolean
   subforumModeratorIds: Array<string>
+  subforumIntroPostId: string
   parentTagId: string
   subTagIds: Array<string>
   autoTagModel: string | null
@@ -926,6 +958,7 @@ interface DbUserTagRel extends DbObject {
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -966,16 +999,19 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  showCommunityInRecentDiscussion: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
+  allPostsHideCommunity: boolean
   allPostsOpenSettings: boolean
   draftsListSorting: string
   draftsListShowArchived: boolean
@@ -1095,6 +1131,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1140,6 +1182,7 @@ interface DbUser extends DbObject {
   smallDownvoteCount: number
   bigUpvoteCount: number
   bigDownvoteCount: number
+  usersContactedBeforeReview: Array<string>
   fullName: string
   shortformFeedId: string
   viewUnreviewedComments: boolean
@@ -1195,6 +1238,7 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
+  subforumPreferredLayout: "feed" | "list"
   experiencedIn: Array<string>
   interestedIn: Array<string>
   allowDatadogSessionReplay: boolean | null
@@ -1280,6 +1324,7 @@ interface CollectionsByName {
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
+  CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   EmailTokens: EmailTokensCollection
@@ -1306,6 +1351,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Sessions: SessionsCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1327,6 +1373,7 @@ interface ObjectsByCollectionName {
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
+  CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   EmailTokens: DbEmailTokens
@@ -1353,6 +1400,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Sessions: DbSession
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag

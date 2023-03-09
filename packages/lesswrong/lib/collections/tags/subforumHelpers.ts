@@ -1,3 +1,5 @@
+import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
+
 /**
  * This is the one-source-of-truth for sortings that are available on subforums.
  * As well as defining the GraphQL types for sorting, this also defines the order
@@ -22,3 +24,8 @@ export const subforumSortingToResolverName = (sort: SubforumSorting) =>
 
 export const isSubforumSorting = (sort: string): sort is SubforumSorting =>
   (subforumSortings as string []).includes(sort);
+
+export const subforumLayouts = new TupleSet(["feed", "list"] as const)
+export type SubforumLayout = UnionOf<typeof subforumLayouts>
+export const isSubforumLayout = (tab: string): tab is SubforumLayout => subforumLayouts.has(tab)
+export const defaultSubforumLayout: SubforumLayout = "list"

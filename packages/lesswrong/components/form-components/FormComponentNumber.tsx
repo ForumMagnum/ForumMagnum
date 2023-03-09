@@ -10,7 +10,7 @@ class FormComponentNumber extends PureComponent<any> {
       {...this.props as any}
       updateCurrentValues={
         // MuiTextField returns a string - convert it into a number to avoid database errors
-        (values) => {
+        (values: any[]) => {
           for (const key in values) {
             values[key] = parseInt(values[key]);
           }

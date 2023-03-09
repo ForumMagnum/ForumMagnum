@@ -27,6 +27,12 @@ export const UserReviewStatus = ({classes, user}: {
       ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
       : null 
     }
+    {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+    {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+    {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+      <em>Alternate accounts detected</em>
+    </div>}
+    <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
 }
 

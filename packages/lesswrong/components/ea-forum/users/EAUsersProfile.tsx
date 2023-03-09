@@ -27,7 +27,9 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-
+import CopyToClipboard from 'react-copy-to-clipboard';
+import CopyIcon from '@material-ui/icons/FileCopy'
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -181,6 +183,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 20,
     ...separatorBulletStyles(theme)
   },
+  copyLink: {
+    verticalAlign: 'text-top'
+  },
+  copyIcon: {
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
+  },
   registerRssLink: {
     cursor: 'pointer',
     '&:hover': {
@@ -200,7 +213,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const socialMediaIcon = (user: UsersProfile, field: string, className: string) => {
+export const socialMediaIcon = (user: UsersProfile, field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS, className: string) => {
   if (!user[field]) return null
   return <a key={field}
     href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
@@ -217,6 +230,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
+  const { flash } = useMessages()
   
   const {loading, results} = useMulti({
     terms,
@@ -233,7 +247,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
@@ -286,10 +300,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
   })
 
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
-    SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
+    ProfileShortform,
+  } = Components
 
   if (loading) {
     return <Loading/>
@@ -329,13 +345,15 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const ownPage = currentUser?._id === user._id
   const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
   const currentIncludeEvents = (query.includeEvents === 'true')
+  const currentHideCommunity = (query.hideCommunity === 'true')
   postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+  postTerms.hideCommunity = currentHideCommunity
 
   const username = userGetDisplayName(user)
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
   
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
@@ -523,7 +541,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
             </span>
             {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
+              {Object
+                .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
+                .map((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => 
+                socialMediaIcon(user, field, classes.socialMediaIcon)
+            )}
             </div>}
             {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
               <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
@@ -549,6 +571,15 @@ const EAUsersProfile = ({terms, slug, classes}: {
             />
           </div>}
           <Typography variant="body2" className={classes.links}>
+            {currentUser?.isAdmin &&
+              <div>
+                <LWTooltip title="Click to copy userId" placement="bottom" className={classes.copyLink}>
+                  <CopyToClipboard text={user._id} onCopy={() => flash({messageString: "userId copied!"})}>
+                    <CopyIcon className={classes.copyIcon} />
+                  </CopyToClipboard>
+                </LWTooltip>
+              </div>
+            }
             {currentUser?.isAdmin &&
               <div className={classes.registerRssLink}>
                 <DialogGroup
@@ -596,7 +627,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
+            <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
@@ -605,9 +636,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             currentIncludeEvents={currentIncludeEvents}
+            currentHideCommunity={currentHideCommunity}
           />}
           <AnalyticsContext listContext="userPagePosts">
-            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
+            <ProfileShortform user={user} />
+            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
           </AnalyticsContext>
         </div>}
         

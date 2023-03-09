@@ -130,7 +130,9 @@ const PostsPageEventData = ({classes, post}: {
     conference: LocalActivityIcon
   }
 
-  const eventTypeNode = (Icon, text) => <div className={classes.eventType}>
+  type EventTypeIcons = typeof eventTypeIcons;
+
+  const eventTypeNode = (Icon: EventTypeIcons[keyof EventTypeIcons], text: string) => <div className={classes.eventType}>
     <Icon className={classes.eventTypeIcon} /> {text.toUpperCase()}
   </div>
   
@@ -217,7 +219,7 @@ const PostsPageEventData = ({classes, post}: {
           <div className={classes.eventContact}>{contactInfo}</div>
         </div>}
         
-        { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType], eventType) }
+        { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType as keyof EventTypeIcons], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}
         </div>}

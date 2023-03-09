@@ -11,7 +11,7 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { filter } from 'underscore';
+import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,6 +54,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
+  const { flash } = useMessages();
   const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
@@ -71,9 +72,11 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     collectionName: "TagRels",
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
+    fetchPolicy: 'cache-and-network',
   });
-  const tagIds = (results||[]).map((tagRel) => tagRel.tag?._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+
+  const tagIds = (results||[]).map((tag) => tag._id)
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -85,17 +88,22 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   `);
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
-    setIsAwaiting(true)
-    await mutate({
-      variables: {
-        tagId: tagId,
-        postId: post._id,
-      },
-    });
-    setIsAwaiting(false)
-    refetch()
-    captureEvent("tagAddedToItem", {tagId, tagName})
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
+    try {
+      setIsAwaiting(true);
+      await mutate({
+        variables: {
+          tagId: tagId,
+          postId: post._id,
+        },
+      });
+      setIsAwaiting(false);
+      refetch();
+      captureEvent("tagAddedToItem", {tagId, tagName});
+    } catch (e) {
+      setIsAwaiting(false);
+      flash(e.message);
+    }
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
   const { Loading, FooterTag, ContentStyles } = Components
   
@@ -112,7 +120,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
   const contentTypeInfo = forumSelect(contentTypes);
   
-  const PostTypeTag = ({tooltipBody, label}) =>
+  const PostTypeTag = ({tooltipBody, label}: {
+    tooltipBody: React.ReactNode;
+    label: string;
+  }) =>
     <LWTooltip
       title={<Card className={classes.card}>
         <ContentStyles contentType="comment">
@@ -168,7 +179,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
       />
     )}
     { !hidePostTypeTag && postType }
-    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
+    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
     { isAwaiting && <Loading/>}
   </span>
 };

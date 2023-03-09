@@ -6,8 +6,6 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import indexOf from 'lodash/indexOf'
-import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -88,29 +86,9 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[55],
     borderTop: theme.palette.border.faint,
   },
-  userVote: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    height: "100%",
-    width: 6,
-    background: theme.palette.grey[405],
-  },
   expandIcon: {
     color: theme.palette.grey[500],
     width: 36,
-  },
-  bigUpvote: {
-    background: theme.palette.primary.dark
-  },
-  smallUpvote: {
-    background: theme.palette.primary.light
-  },
-  bigDownvote: {
-    background: theme.palette.error.dark
-  },
-  smallDownvote: {
-    background: theme.palette.error.light
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
@@ -190,7 +168,7 @@ const ReviewVoteTableRow = (
     voteTooltip: voteTooltipType
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments, KarmaVoteStripe } = Components
 
   const currentUser = useCurrentUser()
 
@@ -204,13 +182,6 @@ const ReviewVoteTableRow = (
   const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
-
-  const voteMap = {
-    'bigDownvote': 'a strong (karma) downvote',
-    'smallDownvote': 'a (karma) downvote',
-    'smallUpvote': 'a (karma) upvote',
-    'bigUpvote': 'a strong (karma) upvote'
-  }
 
   const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
@@ -247,9 +218,7 @@ const ReviewVoteTableRow = (
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You previously gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
-          <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
-        </LWTooltip>}
+      {showKarmaVotes && <KarmaVoteStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>

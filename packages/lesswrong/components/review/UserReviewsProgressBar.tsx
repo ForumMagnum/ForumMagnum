@@ -5,14 +5,12 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-import AddBoxIcon from '@material-ui/icons/AddBox';
 import range from 'lodash/range';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
-    marginLeft: 4
   },
   text: {
     ...theme.typography.body2,
@@ -38,6 +36,8 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
   classes: ClassesType,
   reviewYear: ReviewYear
 }) => {
+  const TARGET_NUM = 3
+
   const currentUser = useCurrentUser()
 
   const { LWTooltip } = Components
@@ -52,19 +52,19 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
     skip: !currentUser,
-    limit: 3
+    limit: TARGET_NUM
   });
 
   if (!reviewsResults) return null
 
   const totalReviews = totalCount || 0
 
-  const uncheckedBoxes = 3 - Math.min(totalReviews, 3)
+  const uncheckedBoxes = TARGET_NUM - Math.min(totalReviews, TARGET_NUM)
 
   return <LWTooltip title={<div>
-      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= 3 ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
-      {totalReviews < 3 && <>
-      <div>It'd be helpful if you did 3 reviews! They can be short!</div>
+      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
+      {totalReviews < TARGET_NUM && <>
+      <div>It'd be helpful if you did {TARGET_NUM} reviews! They can be short!</div>
       <div>If they're especially good, the LessWrong team will give you a $50-$500 prize.</div></>}
     </div>} placement="top">
     <div className={classes.root}>
@@ -72,7 +72,6 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
         return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
       })}
       {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
-      {((totalCount || 0) > 3) && <AddBoxIcon className={classes.extraIcon}/>}
     </div>
   </LWTooltip>
 }

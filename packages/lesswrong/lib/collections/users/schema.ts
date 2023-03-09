@@ -13,6 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import { subforumLayouts } from '../tags/subforumHelpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -147,7 +148,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  control: "NotificationTypeSettings" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -747,6 +748,21 @@ const schema: SchemaType<DbUser> = {
     label: "Do not truncate comments (on home page)"
   },
   
+  // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
+  showCommunityInRecentDiscussion: {
+    order: 94,
+    type: Boolean,
+    optional: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Show Community posts in Recent Discussion"
+  },
+  
   petrovOptOut: {
     order: 95,
     type: Boolean,
@@ -803,6 +819,14 @@ const schema: SchemaType<DbUser> = {
     // FIXME this isn't filling default values as intended
     // ...schemaDefaultValue(getDefaultFilterSettings),
   },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,
@@ -836,6 +860,14 @@ const schema: SchemaType<DbUser> = {
     hidden: true,
   },
   allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  allPostsHideCommunity: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
@@ -1246,8 +1278,12 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationSubforumUnread: {
-    label: `New messages in subforums I'm subscribed to`,
+    label: `New discussions in topics I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+  },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
   },
 
   // Karma-change notifier settings
@@ -1750,6 +1786,15 @@ const schema: SchemaType<DbUser> = {
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  usersContactedBeforeReview: {
+    type: Array,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  "usersContactedBeforeReview.$": {
+    type: String,
   },
 
   // Full Name field to display full name for alignment forum users
@@ -2369,7 +2414,16 @@ const schema: SchemaType<DbUser> = {
 
   'moderatorActions.$': {
     type: 'Object'
-  }
+  },
+  subforumPreferredLayout: {
+    type: String,
+    allowedValues: Array.from(subforumLayouts),
+    hidden: true, // only editable by changing the setting from the subforum page
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
 };
 
 /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */

@@ -1,6 +1,6 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { sanitize } from '../vulcan-lib/utils';
-import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Diff the revisions
@@ -16,8 +16,7 @@ export const diffHtml = (before: string, after: string, trim: boolean): string =
 // Given an HTML diff (with <ins> and <del> tags), remove sections that don't
 // have changes to make an abridged view.
 export const trimHtmlDiff = (html: string): string => {
-  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const $ = cheerio.load(html, null, false)
+  const $ = cheerioParse(html)
   
   // Does HTML contain a <body> tag? If so, look at children of the body tag.
   // Otherwise look at the root.

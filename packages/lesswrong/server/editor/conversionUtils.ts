@@ -1,5 +1,4 @@
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
-import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -14,7 +13,9 @@ import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { mjpage }  from 'mathjax-node-page'
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -103,8 +104,7 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 /// that all have a spoiler tag in a shared spoiler element (so that the
 /// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html: string): string {
-  //@ts-ignore
-  const $ = cheerio.load(html, null, false)
+  const $ = cheerioParse(html)
 
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
@@ -134,8 +134,7 @@ function wrapSpoilerTags(html: string): string {
 }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
-  //@ts-ignore
-  const $ = cheerio.load(`<div id="root">${html}</div>`, null, false)
+  const $ = cheerioParse(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)

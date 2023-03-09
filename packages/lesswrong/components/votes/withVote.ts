@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useMessages } from '../common/withMessages';
+import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
@@ -9,12 +10,15 @@ import * as _ from 'underscore';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const typeName = collection.options.typeName;
-  const mutationName = `setVote${typeName}`;
+  const mutationName = `performVote${typeName}`;
   
   return gql`
     mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
       ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
-        ...WithVote${typeName}
+        document {
+          ...WithVote${typeName}
+        }
+        showVotingPatternWarning
       }
     }
     ${getFragmentText(`WithVote${typeName}` as any)}
@@ -34,15 +38,31 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const collection = getCollection(collectionName);
+  const typeName = collection.options.typeName;
   const query = getVoteMutationQuery(collection);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
+  const {openDialog} = useDialog();
+  
+  const showVotingPatternWarningPopup= useCallback(() => {
+    openDialog({
+      componentName: "VotingPatternsWarningPopup",
+      componentProps: {},
+      noClickawayCancel: true,
+      closeOnNavigate: true,
+    });
+  }, [openDialog]);
   
   const [mutate] = useMutation(query, {
     onCompleted: useCallback((mutationResult) => {
       if (++mutationCounts.current.completedMutationIndex == mutationCounts.current.optimisticMutationIndex) {
         setOptimisticResponseDocument(null)
       }
-    }, []),
+      
+      const mutationName = `performVote${typeName}`;
+      if (mutationResult?.[mutationName]?.showVotingPatternWarning) {
+        showVotingPatternWarningPopup();
+      }
+    }, [typeName, showVotingPatternWarningPopup]),
   });
   
   const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {

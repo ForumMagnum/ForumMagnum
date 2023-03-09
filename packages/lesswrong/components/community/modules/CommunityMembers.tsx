@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { truncate } from '../../../lib/editor/ellipsize';
+import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -176,7 +177,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
-  currentUser,
+  currentUser: UsersCurrent | null,
   userLocation: {
     lat: number,
     lng: number,
@@ -192,7 +193,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
 
   const { NewConversationButton, SearchResultsMap, ContentStyles } = Components
   
-  const SearchBox = ({currentRefinement, refine}) => {
+  const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
         labelWidth={0}
@@ -215,7 +216,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomSearchBox = connectSearchBox(SearchBox)
   
-  const StateResults = ({ searchResults }) => {
+  const StateResults: React.FunctionComponent<StateResultsProvided<BasicDoc>> = ({ searchResults }) => {
     return (!searchResults || !searchResults.nbHits) ? <div className={classes.noResults}>
       <div className={classes.noResultsText}>No public profiles matching your search</div>
     </div> : null
