@@ -10,6 +10,7 @@ export const IntercomAPI = (...args) => {
   if (canUseDOM && window.Intercom) {
     window.Intercom.apply(null, args);
   } else {
+    // eslint-disable-next-line no-console
     console.warn('Intercom not initialized yet');
   }
 };
@@ -26,7 +27,7 @@ export default class Intercom extends Component {
 
     const {
       appID,
-      ...otherProps,
+      ...otherProps
     } = props;
 
     if (!appID || !canUseDOM) {
@@ -53,14 +54,14 @@ export default class Intercom extends Component {
     window.intercomSettings = { ...otherProps, app_id: appID };
 
     if (window.Intercom) {
-      window.Intercom('boot', otherProps);
+      window.Intercom('boot', otherProps); //eslint-disable-line babel/new-cap
     }
   }
 
   componentWillReceiveProps(nextProps) {
     const {
       appID,
-      ...otherProps,
+      ...otherProps
     } = nextProps;
 
     if (!canUseDOM) return;
@@ -70,10 +71,10 @@ export default class Intercom extends Component {
     if (window.Intercom) {
       if (this.loggedIn(this.props) && !this.loggedIn(nextProps)) {
         // Shutdown and boot each time the user logs out to clear conversations
-        window.Intercom('shutdown');
-        window.Intercom('boot', otherProps);
+        window.Intercom('shutdown'); //eslint-disable-line babel/new-cap
+        window.Intercom('boot', otherProps); //eslint-disable-line babel/new-cap
       } else {
-        window.Intercom('update', otherProps);
+        window.Intercom('update', otherProps); //eslint-disable-line babel/new-cap
       }
     }
   }
@@ -85,7 +86,7 @@ export default class Intercom extends Component {
   componentWillUnmount() {
     if (!canUseDOM || !window.Intercom) return false;
 
-    window.Intercom('shutdown');
+    window.Intercom('shutdown'); //eslint-disable-line babel/new-cap
 
     delete window.Intercom;
     delete window.intercomSettings;
