@@ -702,6 +702,15 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly userIds: Array<string>,
 }
 
+interface ModeratorClientIDInfo { // fragment on ClientIds
+  readonly _id: string,
+  readonly clientId: string,
+  readonly createdAt: Date,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly users: Array<UsersMinimumInfo>,
+}
+
 interface ConversationsDefaultFragment { // fragment on Conversations
   readonly title: string,
   readonly participantIds: Array<string>,
@@ -2494,13 +2503,19 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly snoozedUntilContentCount: number,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
   readonly usersContactedBeforeReview: Array<string>,
-  readonly associatedClientId: SunshineUsersList_associatedClientId|null,
+  readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
+  readonly altAccountsDetected: boolean,
 }
 
-interface SunshineUsersList_associatedClientId { // fragment on ClientIds
+interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
+  readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string>,
+}
+
+interface UserAltAccountsFragment extends SunshineUsersList { // fragment on Users
+  readonly IPs: Array<string>,
 }
 
 interface SharedUserBooleans { // fragment on Users
@@ -2927,6 +2942,7 @@ interface FragmentTypes {
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
+  ModeratorClientIDInfo: ModeratorClientIDInfo
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
@@ -3062,6 +3078,7 @@ interface FragmentTypes {
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   SunshineUsersList: SunshineUsersList
+  UserAltAccountsFragment: UserAltAccountsFragment
   SharedUserBooleans: SharedUserBooleans
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
@@ -3108,6 +3125,7 @@ interface CollectionNamesByFragmentName {
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
   ClientIdsDefaultFragment: "ClientIds"
+  ModeratorClientIDInfo: "ClientIds"
   ConversationsDefaultFragment: "Conversations"
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
@@ -3243,6 +3261,7 @@ interface CollectionNamesByFragmentName {
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
   SunshineUsersList: "Users"
+  UserAltAccountsFragment: "Users"
   SharedUserBooleans: "Users"
   UsersMapEntry: "Users"
   UsersEdit: "Users"
