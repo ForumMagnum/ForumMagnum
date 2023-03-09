@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sticky: {
     paddingLeft: 2,
-    paddingRight: 10,
+    paddingRight: 8,
     position: "relative",
     top: 2,
     color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
@@ -44,13 +44,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ? {
       width: 16,
       height: 16,
+      padding: 1.5,
     }
     : {},
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: "auto",
+    width: 28,
     position: "relative",
     verticalAlign: "middle",
   },
