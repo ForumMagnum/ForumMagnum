@@ -5,7 +5,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   metaInfo: {
     color: theme.palette.text.dim3,
-    fontSize: "1.1rem",
+    fontSize: "14px",
     textAlign: "center",
     flexShrink: 0,
     flexGrow: 0,
