@@ -58,7 +58,7 @@ export default class Intercom extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {
       appID,
       ...otherProps
