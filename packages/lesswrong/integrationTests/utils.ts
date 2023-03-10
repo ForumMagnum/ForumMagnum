@@ -1,4 +1,4 @@
-import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
+import { createMutator, runQuery, setOnGraphQLError, waitUntilCallbacksFinished } from '../server/vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -434,10 +434,12 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
 
 // Please don't use this unless the test is actually expecting an error
 export const withNoWarnings = async (fn: () => Promise<void>) => {
-  const {log, warn, error} = console;
-  console.log = console.warn = console.error = () => {}
+  const {log, warn, error, info} = console;
+  console.log = console.warn = console.error = console.info = () => {}
   await fn();
+  await waitUntilCallbacksFinished();
   console.log = log;
   console.warn = warn;
   console.error = error;
+  console.info = info;
 }
