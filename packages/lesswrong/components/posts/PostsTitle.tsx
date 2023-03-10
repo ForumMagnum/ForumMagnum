@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 16,
     }
     : {
-      fontSize: "1.3rem",
+      fontSize: "1.2rem",
     },
   primaryIcon: {
     color: theme.palette.icon.dim55,
