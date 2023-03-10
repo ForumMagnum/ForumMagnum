@@ -399,8 +399,10 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       }
     }
   `;
-  const response = runQuery(query,{},{currentUser:user})
-  await (response as any).should.be.rejected;
+  await withNoWarnings(async () => {
+    const response = runQuery(query,{},{currentUser:user})
+    await (response as any).should.be.rejected;
+  });
 }
 
 export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue, fragment}: any) => {
@@ -428,4 +430,14 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const response = runQuery(query,{},{currentUser:user})
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
+}
+
+// Please don't use this unless the test is actually expecting an error
+export const withNoWarnings = async (fn: () => Promise<void>) => {
+  const {log, warn, error} = console;
+  console.log = console.warn = console.error = () => {}
+  await fn();
+  console.log = log;
+  console.warn = warn;
+  console.error = error;
 }

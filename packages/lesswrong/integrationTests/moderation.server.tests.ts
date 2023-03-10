@@ -18,6 +18,7 @@ import {
   userCanModeratePost,
   userCanEditUsersBannedUserIds,
 } from '../lib/collections/users/helpers';
+import { withNoWarnings } from "./utils";
 
 describe('userIsBannedFromPost --', () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {
@@ -628,8 +629,10 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:user})
-    await (response as any).should.be.rejected;
+    await withNoWarnings(async () => {
+      const response = runQuery(query, {}, {currentUser:user})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author not in canCommentLock", async () => {
@@ -644,12 +647,13 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:author})
-    await (response as any).should.be.rejected;
+    await withNoWarnings(async () => {
+      const response = runQuery(query, {}, {currentUser:author})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
-  it("PostsEdit.commentLock should fail if author in canCommentLock", async () => {
-    // FIXME: Description says "should fail", but test body says it succeeds?
+  it("PostsEdit.commentLock should succeed if author in canCommentLock", async () => {
     const author = await createDummyUser({groups:["canCommentLock"]})
     const post = await createDummyPost(author)
     const query = `
@@ -677,8 +681,10 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:user})
-    await (response as any).should.be.rejected;
+    await withNoWarnings(async () => {
+      const response = runQuery(query, {}, {currentUser:user})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 
