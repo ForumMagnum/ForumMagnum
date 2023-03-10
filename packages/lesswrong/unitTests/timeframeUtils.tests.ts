@@ -30,8 +30,12 @@ describe('getDateRange', () => {
   // wouldn't come up, but I think the right way to handle it is to go further
   // back than expected
   it('handles partial timeBlocks', () => {
+    // This test calls console.warn by design
+    const warn = console.warn;
+    console.warn = () => {}
     const result = getDateRange('2019-01-02', '2019-01-15', 'week');
     (result as any).should.deep.equal(['2019-01-08', '2019-01-01'])
+    console.warn = warn;
   })
 
   it('handles reversed start and end dates', () => {
