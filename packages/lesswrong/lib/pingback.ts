@@ -56,7 +56,7 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
 
   const youCanStillPost = `This will not prevent you from posting, but the mentioned users won't be notified.`
 
-  if (currentUser.karma < karmaThreshold && mentionsCount > 0) {
+  if ((currentUser.karma || 0) < karmaThreshold && mentionsCount > 0) {
     return {
       result: false,
       reason: `You must have at least ${karmaThreshold} karma to mention users. ${youCanStillPost}`,
