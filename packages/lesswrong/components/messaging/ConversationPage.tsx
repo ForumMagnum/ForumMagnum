@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
@@ -9,7 +9,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
-import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -33,15 +32,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-// The Navigation for the Inbox components
-const ConversationPage = ({ documentId, terms, currentUser, classes }: {
-  documentId: string,
-  terms: MessagesViewTerms,
+/**
+ * Page for viewing a private messages conversation. Typically invoked from
+ * ConversationWrapper, which takes care of the URL parsing.
+ */
+const ConversationPage = ({ conversationId, currentUser, classes }: {
+  conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
   const { results, loading: loadingMessages } = useMulti({
-    terms,
+    terms: {
+      view: 'messagesConversation',
+      conversationId,
+    },
     collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
@@ -49,7 +53,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     enableTotal: false,
   });
   const { document: conversation, loading: loadingConversation } = useSingle({
-    documentId,
+    documentId: conversationId,
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
   });
