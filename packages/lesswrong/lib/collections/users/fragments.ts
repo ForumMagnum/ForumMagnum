@@ -293,11 +293,20 @@ registerFragment(`
       ...ModeratorActionDisplay
     }
     usersContactedBeforeReview
-    associatedClientId {
+    associatedClientIds {
+      clientId
       firstSeenReferrer
       firstSeenLandingPage
       userIds
     }
+    altAccountsDetected
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 

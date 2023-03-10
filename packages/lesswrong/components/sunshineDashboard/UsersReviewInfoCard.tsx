@@ -8,6 +8,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,10 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     paddingBottom: 14,
     borderBottom: theme.palette.border.extraFaint
-  },
-  disabled: {
-    opacity: .2,
-    cursor: "default"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -177,13 +174,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
+  
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div className={classes.displayName}>
       <UsersName user={user}/>
       {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
       {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
       {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+      <UserReviewStatus user={user}/>
     </div>
     <Row>
       <MetaInfo className={classes.info}>

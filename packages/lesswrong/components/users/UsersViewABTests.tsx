@@ -4,7 +4,6 @@ import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType) => ({
@@ -26,7 +25,7 @@ const styles = (theme: ThemeType) => ({
 const UsersViewABTests = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle } = Components;
+  const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();

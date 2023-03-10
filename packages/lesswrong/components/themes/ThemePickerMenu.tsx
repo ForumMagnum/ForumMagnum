@@ -7,7 +7,6 @@ import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import Divider from '@material-ui/core/Divider';
 import Check from '@material-ui/icons/Check';
-import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 
@@ -32,7 +31,7 @@ const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const { LWTooltip, Typography } = Components;
+  const { LWTooltip, Typography, MenuItem } = Components;
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
