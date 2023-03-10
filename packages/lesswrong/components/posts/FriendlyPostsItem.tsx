@@ -133,6 +133,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     strikethroughTitle,
     isRead,
     showReadCheckbox,
+    tooltipPlacement,
     analyticsProps,
   } = usePostsItem(props);
   const history = useHistory();
@@ -150,7 +151,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma,
-    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance,
+    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance, PostsItemTooltipWrapper,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -172,57 +173,65 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root} onClick={onClick}>
-        <div className={classes.karma}>
-          {tagRel
-            ? <div className={classes.tagRelWrapper}>
-              <PostsItemTagRelevance tagRel={tagRel} post={post} />
-            </div>
-            : <>
-              <div className={classes.voteArrow}>
-                <SoftUpArrowIcon />
+      <PostsItemTooltipWrapper
+        post={post}
+        placement={tooltipPlacement}
+      >
+        <div className={classes.root} onClick={onClick}>
+          <div className={classes.karma}>
+            {tagRel
+              ? <div className={classes.tagRelWrapper}>
+                <PostsItemTagRelevance tagRel={tagRel} post={post} />
               </div>
-              <PostsItemKarma post={post} />
-            </>
-          }
-        </div>
-        <div className={classes.details}>
-          <div className={classes.titleOverflow}>
-            <PostsTitle
-              {...{
-                post,
-                postLink,
-                sticky,
-                showDraftTag,
-                showPersonalIcon,
-                strikethroughTitle,
-              }}
-              read={isRead && !showReadCheckbox}
-              curatedIconLeft={false}
-              iconsOnLeft
-              className={classes.title}
-            />
+              : <>
+                <div className={classes.voteArrow}>
+                  <SoftUpArrowIcon />
+                </div>
+                <PostsItemKarma post={post} />
+              </>
+            }
           </div>
-          <div className={classes.meta}>
-            <div>
-              <PostsUserAndCoauthors post={post} />
-              , <PostsItemDate post={post} noStyles includeAgo />
+          <div className={classes.details}>
+            <div className={classes.titleOverflow}>
+              <PostsTitle
+                {...{
+                  post,
+                  postLink,
+                  sticky,
+                  showDraftTag,
+                  showPersonalIcon,
+                  strikethroughTitle,
+                }}
+                read={isRead && !showReadCheckbox}
+                curatedIconLeft={false}
+                iconsOnLeft
+                className={classes.title}
+              />
             </div>
-            <div className={classNames(classes.secondaryContainer, classes.onlyMobile)}>
-              <SecondaryInfo />
+            <div className={classes.meta}>
+              <div>
+                <PostsUserAndCoauthors post={post} />
+                , <PostsItemDate post={post} noStyles includeAgo />
+              </div>
+              <div className={classNames(
+                classes.secondaryContainer,
+                classes.onlyMobile,
+              )}>
+                <SecondaryInfo />
+              </div>
             </div>
           </div>
-        </div>
-        <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
-          <div className={classes.audio}>
-            {hasAudio && <ForumIcon icon="VolumeUp" />}
+          <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+            <div className={classes.audio}>
+              {hasAudio && <ForumIcon icon="VolumeUp" />}
+            </div>
+            <div className={classes.tag}>
+              {primaryTag && <FooterTag tag={primaryTag} smallText />}
+            </div>
+            <SecondaryInfo />
           </div>
-          <div className={classes.tag}>
-            {primaryTag && <FooterTag tag={primaryTag} smallText />}
-          </div>
-          <SecondaryInfo />
         </div>
-      </div>
+      </PostsItemTooltipWrapper>
     </AnalyticsContext>
   );
 }
