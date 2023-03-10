@@ -34,8 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTag = ({onTagSelected, classes}: {
+const AddTag = ({onTagSelected, isVotingContext, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  isVotingContext?: boolean,
   classes: ClassesType,
 }) => {
   const { TagSearchHit, WrappedSmartForm } = Components
@@ -98,13 +99,15 @@ const AddTag = ({onTagSelected, classes}: {
         hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>
-        <TagSearchHit hit={hit}
-            onClick={ev => {
-              onTagSelected({tagId: hit._id, tagName: hit.name});
-              ev.stopPropagation();
-            }}
-          />
-        }/>
+        <TagSearchHit
+          hit={hit}
+          onClick={ev => {
+            onTagSelected({tagId: hit._id, tagName: hit.name});
+            ev.stopPropagation();
+          }}
+          isVotingContext={isVotingContext}
+        />
+      }/>
     </InstantSearch>
     <Divider/>
     <Link target="_blank" to="/tags/all" className={classes.newTag}>

@@ -132,7 +132,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             />
           </LWTooltip>
           {hideKarma ?
-            <LWTooltip title={'The author of this post has disabled karma visibility'}>
+            <LWTooltip title={'This post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
             <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
@@ -165,4 +165,3 @@ declare global {
     OverallVoteAxis: typeof OverallVoteAxisComponent
   }
 }
-

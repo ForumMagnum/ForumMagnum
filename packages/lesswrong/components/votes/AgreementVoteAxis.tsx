@@ -68,11 +68,16 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
       </LWTooltip>
       
       <span className={classes.agreementScore}>
-        <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-          <span className={classes.voteScore}>
-            {karma}
-          </span>
-        </LWTooltip>
+        {hideKarma ?
+          <LWTooltip title={'This post has disabled karma visibility'}>
+            <span>{' '}</span>
+          </LWTooltip> :
+          <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            <span className={classes.voteScore}>
+              {karma}
+            </span>
+          </LWTooltip>
+        }
       </span>
       
       <LWTooltip
