@@ -87,6 +87,10 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
+      borderRadius: {
+        default: 6,
+        small: 4,
+      },
       typography: {
         fontDownloads: [
           "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",

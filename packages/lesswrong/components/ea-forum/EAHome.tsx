@@ -34,8 +34,10 @@ const EAHome = () => {
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-      
-      <CurrentSpotlightItem />
+
+      <SingleColumnSection>
+        <CurrentSpotlightItem />
+      </SingleColumnSection>
       <StickiedPosts />
 
       {reviewIsActive() && <SingleColumnSection>

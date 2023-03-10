@@ -414,6 +414,10 @@ declare global {
       unit: number,
       titleDividerSpacing: number,
     },
+    borderRadius: {
+      default: number,
+      small: number,
+    },
     palette: ThemePalette,
     typography: {
       fontFamily: string,

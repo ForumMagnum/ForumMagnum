@@ -109,9 +109,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
+    borderRadius: isEAForum ? theme.borderRadius.small : 0,
   },
   replyFormMinimalist: {
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
   },
   deleted: {
     backgroundColor: theme.palette.panelBackground.deletedComment,

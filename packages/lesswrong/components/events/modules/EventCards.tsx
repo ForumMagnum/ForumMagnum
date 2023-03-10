@@ -33,9 +33,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 373,
     height: 374,
-    borderRadius: 0,
     overflow: 'visible',
     boxShadow: theme.palette.boxShadow.eventCard,
+    borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       maxWidth: '100vw'
     }
@@ -105,6 +105,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'none'
     }
   },
+  eventCardImage: {
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
+    height: 200,
+    width: 373,
+  },
 }))
 
 
@@ -141,7 +146,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} /> :
-          <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
+          <img src={getDefaultEventImg(373)} className={classes.eventCardImage} />}
       </Link>
       {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
       <CardContent className={classes.eventCardContent}>

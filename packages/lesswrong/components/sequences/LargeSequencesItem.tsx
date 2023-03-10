@@ -12,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 40,
     marginBottom: 40,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
     width: "100%",
     overflow: "hidden",
     position: "relative"
