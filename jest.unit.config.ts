@@ -7,6 +7,9 @@ export default {
   testMatch: [
     `<rootDir>/${base}/**/?(*.)+(spec|test|tests).[tj]s?(x)`,
   ],
+  setupFiles: [
+    `<rootDir>/${base}/unitTestPreSetup.ts`,
+  ],
   setupFilesAfterEnv: [
     `<rootDir>/${base}/unitTestSetup.ts`,
   ],

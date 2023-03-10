@@ -22,20 +22,10 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
+import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
-
-const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
-    // eslint-disable-next-line no-console
-    const originalFn = console[functionName];
-    // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
-    }
-  }
-}
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;
@@ -43,6 +33,7 @@ const initConsole = () => {
   const blue = isTTY ? `${CSI}34m` : "";
   const endBlue = isTTY ? `${CSI}39m` : "";
 
+  filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
     process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
