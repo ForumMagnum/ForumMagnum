@@ -78,7 +78,7 @@ const TruncatedAuthorsList = ({post, after, classes}: {
     handler();
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
-  }, [isAnon, authors, topCommentAuthor, ref]);
+  }, [isAnon, authors, topCommentAuthor, ref, classes.item]);
 
   const {UsersName, UserNameDeleted, LWTooltip} = Components;
 
