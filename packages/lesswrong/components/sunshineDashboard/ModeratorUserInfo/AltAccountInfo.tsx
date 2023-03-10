@@ -31,26 +31,29 @@ export const AltAccountInfo = ({classes, user}: {
   const { results, loading } = useMulti({
     terms: {
       view: "usersByUserIds",
-      userIds: user.associatedClientId?.userIds
+      userIds:  user.associatedClientIds?.[0].userIds
     },
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
   });
-  
+
   const flaggedAccounts = results?.filter(result => result._id !== user._id && (!!result.banned || result.postingDisabled || result.allCommentingDisabled || result.commentingOnOtherUsersDisabled || result.conversationsDisabled || result.karma < 0))
+  
   const flaggedText = ((flaggedAccounts?.length || 0) >= 1) && <LWTooltip title="One or more users have been banned, had their permissions disabled, or have < 0 karma"><span>
     ({flaggedAccounts?.length} flagged)
   </span></LWTooltip>
 
+  const altAccounts = results?.filter(altUser => altUser._id !== user._id)
+
   return <div className={classes.root}>
-    <em>Alternate accounts detected {flaggedText}</em>
+    <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link> {flaggedText}</em>
     <LWTooltip title={<div><p>Click to show alts. Please don't look unless you have reason to suspect this account of suspicious activity</p><p><em>(it's fine for established users to have alts and the mods should not go out of our way to look at them).</em></p></div>}>
       <span onClick={() => setShowAlternateAccounts(!showAlternateAccounts)}>
         {showAlternateAccounts ? <LockOpenIcon className={classes.icon}/> : <LockIcon className={classes.icon}/>}
       </span>
     </LWTooltip>
     {loading && <Loading/>}
-    {showAlternateAccounts && results?.map(user => <li key={`${user._id}`}>
+    {showAlternateAccounts && altAccounts?.map(user => <li key={`${user._id}`}>
       <Link to={userGetProfileUrl(user)}>{user.displayName}</Link> {user.deleted && <>[Deleted]</>}
     </li>)}
   </div>;

@@ -7,6 +7,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
+import { useCurrentUser } from '../common/withUser';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -137,9 +138,11 @@ const FooterTag = ({
   });
   const { PopperCard, TagRelCard, TopTagIcon } = Components
 
+  const currentUser = useCurrentUser()
+  
   const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
 
-  if (tag.adminOnly) { return null }
+  if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
   const renderedTag = <>
     {!!isTopTag && <TopTagIcon tag={tag} />}

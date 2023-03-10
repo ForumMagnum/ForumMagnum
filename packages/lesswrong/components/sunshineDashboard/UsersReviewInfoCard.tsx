@@ -181,8 +181,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
       {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
       {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
-      <UserReviewStatus user={user}/>
     </div>
+    <UserReviewStatus user={user}/>
     <Row>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
@@ -194,7 +194,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
     </Row>
-    <UserReviewStatus user={user}/>
   </div>
 
   const votesRow = <div className={classes.votesRow}>

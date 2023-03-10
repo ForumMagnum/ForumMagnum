@@ -32,11 +32,8 @@ export const UserReviewStatus = ({classes, user}: {
     {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
     {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
     {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
-      <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link></em>
-    </div>}
-    {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
       <AltAccountInfo user={user}/>
-    </div>})
+    </div>}
     <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
 }
