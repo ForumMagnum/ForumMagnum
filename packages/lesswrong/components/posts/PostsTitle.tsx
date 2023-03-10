@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sticky: {
     paddingLeft: 2,
-    paddingRight: 8,
+    paddingRight: isEAForum ? 8 : 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: 28,
+    width: isEAForum ? 28 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
