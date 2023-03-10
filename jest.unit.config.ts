@@ -8,10 +8,10 @@ export default {
     `<rootDir>/${base}/**/?(*.)+(spec|test|tests).[tj]s?(x)`,
   ],
   setupFiles: [
-    `<rootDir>/${base}/unitTestPreSetup.ts`,
+    `<rootDir>/${base}/testPreSetup.ts`,
   ],
   setupFilesAfterEnv: [
-    `<rootDir>/${base}/unitTestSetup.ts`,
+    `<rootDir>/${base}/testSetup.ts`,
   ],
   coverageDirectory: "<rootDir>/unit-coverage/",
   coveragePathIgnorePatterns: [
