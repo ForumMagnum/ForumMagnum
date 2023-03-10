@@ -1,4 +1,5 @@
 import { getDateRange } from '../components/posts/timeframeUtils'
+import { withNoWarnings } from '../integrationTests/utils';
 import chai from 'chai';
 
 chai.should();
@@ -29,13 +30,11 @@ describe('getDateRange', () => {
   // Correct behavior for partial timeBlocks isn't super obvious. I'd hope it
   // wouldn't come up, but I think the right way to handle it is to go further
   // back than expected
-  it('handles partial timeBlocks', () => {
-    // This test calls console.warn by design
-    const warn = console.warn;
-    console.warn = () => {}
-    const result = getDateRange('2019-01-02', '2019-01-15', 'week');
-    (result as any).should.deep.equal(['2019-01-08', '2019-01-01'])
-    console.warn = warn;
+  it('handles partial timeBlocks', async () => {
+    await withNoWarnings(async () => {
+      const result = getDateRange('2019-01-02', '2019-01-15', 'week');
+      (result as any).should.deep.equal(['2019-01-08', '2019-01-01'])
+    });
   })
 
   it('handles reversed start and end dates', () => {

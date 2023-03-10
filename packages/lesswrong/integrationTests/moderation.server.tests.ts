@@ -9,6 +9,7 @@ import {
   userUpdateFieldFails,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
+  withNoWarnings,
 } from './utils';
 import Users from '../lib/collections/users/collection';
 import {
@@ -18,7 +19,6 @@ import {
   userCanModeratePost,
   userCanEditUsersBannedUserIds,
 } from '../lib/collections/users/helpers';
-import { withNoWarnings } from "./utils";
 
 describe('userIsBannedFromPost --', () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {

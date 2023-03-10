@@ -15,8 +15,8 @@ export const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: a
 export const filterConsoleLogSpam = () => {
   // Suppress this deprecation warning because MaterialUI is on an old version that 
   // produces a separate warning for every unit test.
-  const oldWarn = console.warn;
-  console.warn = (...message: any[]) => {
+  const oldWarn = console.warn; //eslint-disable-line no-console
+  console.warn = (...message: any[]) => { //eslint-disable-line no-console
     if (message[0]?.indexOf("React.createFactory() is deprecated") >= 0) {
       return;
     }

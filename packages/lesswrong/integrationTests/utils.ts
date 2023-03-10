@@ -435,11 +435,12 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
 // Please don't use this unless the test is actually expecting an error
 export const withNoWarnings = async (fn: () => Promise<void>) => {
   const {log, warn, error, info} = console;
+  //eslint-disable-next-line no-console
   console.log = console.warn = console.error = console.info = () => {}
   await fn();
   await waitUntilCallbacksFinished();
-  console.log = log;
-  console.warn = warn;
-  console.error = error;
-  console.info = info;
+  console.log = log; //eslint-disable-line no-console
+  console.warn = warn; //eslint-disable-line no-console
+  console.error = error; //eslint-disable-line no-console
+  console.info = info; //eslint-disable-line no-console
 }
