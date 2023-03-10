@@ -2,9 +2,9 @@ import React, { MouseEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
+import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { HashLink } from "../common/HashLink";
 import { useHistory } from "../../lib/reactRouterWrapper";
-import { useVote } from "../votes/withVote";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
@@ -38,9 +38,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     marginLeft: 30,
   },
-  voteButton: {
-    fontSize: 25,
-    margin: "-12px 0 -4px 0",
+  voteArrow: {
+    color: theme.palette.grey[400],
+    margin: "-6px 0 2px 0",
   },
   details: {
     flexGrow: 1,
@@ -135,7 +135,6 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     showReadCheckbox,
     analyticsProps,
   } = usePostsItem(props);
-  const voteProps = useVote(post, "Posts");
   const history = useHistory();
 
   // In order to make the entire "cell" a link to the post we need some special
@@ -150,8 +149,8 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, OverallVoteButton,
-    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance, PostsItemKarma,
+    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma,
+    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -180,16 +179,8 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
               <PostsItemTagRelevance tagRel={tagRel} post={post} />
             </div>
             : <>
-              <div className={classes.voteButton}>
-                <a> {/* The `a` tag prevents clicks from navigating to the post */}
-                  <OverallVoteButton
-                    orientation="up"
-                    color="secondary"
-                    upOrDown="Upvote"
-                    solidArrow
-                    {...voteProps}
-                  />
-                </a>
+              <div className={classes.voteArrow}>
+                <SoftUpArrowIcon />
               </div>
               <PostsItemKarma post={post} />
             </>
