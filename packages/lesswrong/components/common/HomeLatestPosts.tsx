@@ -105,7 +105,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   
   const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
   console.log("now that is set at the top", now.format("YYYY-MM-DD HH:mm:ss"))
-  const dateCutoff = now.clone().subtract(14, 'days').format("YYYY-MM-DD");
+  const [daysAgoCutoff, setDaysAgoCutoff] = useState(14);
+  const dateCutoff = now.clone().subtract(daysAgoCutoff, 'days').format("YYYY-MM-DD");
   
   const mode = query.mode ?? 'hyperbolic';
 
@@ -237,6 +238,18 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           {createNumberWidget("expWeight", 0)} */}
           {createNumberWidget("activityHalfLifeHours", defaultTimeDecayExprProps.activityHalfLifeHours, 1)}
           {createNumberWidget("activityWeight", defaultTimeDecayExprProps.activityWeight, 0.1)}
+          <div className={classes.timescaleSetting}>
+            <div className={classes.timescaleExperimentHeading}>{name}</div>
+            <input
+              type="number"
+              value={daysAgoCutoff}
+              onChange={(e) => {
+                console.log(`Setting daysAgoCutoff:`, e.target.value);
+                setDaysAgoCutoff(Number(e.target.value));
+              }}
+              step={1}
+            />
+          </div>
         </div>
         <br/>
         {activityWidget}
