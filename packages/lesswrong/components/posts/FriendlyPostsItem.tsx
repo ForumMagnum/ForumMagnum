@@ -28,8 +28,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   karma: {
-    width: 40,
-    minWidth: 40,
+    width: 50,
+    minWidth: 50,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -83,7 +83,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
   },
   comments: {
-    minWidth: 50,
+    minWidth: 58,
+    marginLeft: 4,
     display: "flex",
     alignItems: "center",
     "& svg": {
