@@ -47,7 +47,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 0, // flexbox black magic
   },
   title: {
-    fontWeight: 600,
+    fontWeight: 650,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
@@ -152,7 +152,7 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma,
-    FooterTag, PostsUserAndCoauthors, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    FooterTag, TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -210,10 +210,10 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
               />
             </div>
             <div className={classes.meta}>
-              <div>
-                <PostsUserAndCoauthors post={post} />
-                , <PostsItemDate post={post} noStyles includeAgo />
-              </div>
+              <TruncatedAuthorsList
+                post={post}
+                after={<>, <PostsItemDate post={post} noStyles includeAgo /></>}
+              />
               <div className={classNames(
                 classes.secondaryContainer,
                 classes.onlyMobile,

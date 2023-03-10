@@ -285,6 +285,7 @@ importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
+importComponent("TruncatedAuthorsList", () => require('../components/posts/TruncatedAuthorsList'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
 importComponent("ReportPostMenuItem", () => require('../components/posts/ReportPostMenuItem'));
