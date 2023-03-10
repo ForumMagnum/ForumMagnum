@@ -47,7 +47,6 @@ const recalculate = (
     const elemBounds = elems[i].getBoundingClientRect();
     if (elemBounds.right + afterWidth > containerRight) {
       setOverflowCount(elems.length - i);
-      // --i;
       elems[i].before(afterRef.current);
       for ( ; i < elems.length; ++i) {
         elems[i].style.opacity = "0%";
@@ -99,7 +98,7 @@ const TruncatedAuthorsList = ({post, after, classes}: {
               title={
                 <div className={classes.tooltip}>
                   {authors.slice(authors.length - overflowCount).map((author) =>
-                    <UsersName user={author} />
+                    <UsersName key={author._id} user={author} />
                   )}
                 </div>
               }
