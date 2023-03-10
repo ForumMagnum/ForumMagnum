@@ -239,7 +239,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           {createNumberWidget("activityHalfLifeHours", defaultTimeDecayExprProps.activityHalfLifeHours, 1)}
           {createNumberWidget("activityWeight", defaultTimeDecayExprProps.activityWeight, 0.1)}
           <div className={classes.timescaleSetting}>
-            <div className={classes.timescaleExperimentHeading}>{name}</div>
+            <div className={classes.timescaleExperimentHeading}>daysAgoCutoff</div>
             <input
               type="number"
               value={daysAgoCutoff}
