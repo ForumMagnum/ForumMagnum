@@ -249,32 +249,32 @@ type JobAdData = {
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'founder-charity-entrepreneurship': {
+  'malaria-researcher-givewell': {
     standardApplyBtn: true,
-    logo: 'https://80000hours.org/wp-content/uploads/2023/02/CE-160x160.jpg',
-    occupation: 'entrepreneurship',
-    feedbackLinkPrefill: 'Founder+at+Charity+Entrepreneurship',
-    bitlyLink: "https://efctv.org/3Zvqrju", // https://form.jotform.com/230292346528356
-    role: 'Nonprofit Founder',
-    org: 'Charity Entrepreneurship',
-    orgLink: '/topics/charity-entrepreneurship',
-    salary: '$2k monthly stipend',
+    logo: 'https://cdn.80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
+    occupation: 'research',
+    feedbackLinkPrefill: 'Senior+Malaria+Researcher+at+GiveWell',
+    bitlyLink: "https://efctv.org/3J7bY6v", // https://www.givewell.org/about/jobs/research-application
+    role: 'Senior Malaria Researcher',
+    org: 'GiveWell',
+    orgLink: '/topics/givewell',
+    salary: '$193k - $209k',
     location: 'Remote',
-    deadline: moment("03-12-2023", "MM-DD-YYYY"),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="https://www.charityentrepreneurship.com/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Charity Entrepreneurship
-        </a> is launching an <a href="https://www.charityentrepreneurship.com/incubation-program" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          8 week incubation program and a 2 week seed-funding process
-        </a> for people who want to start an effective charity.
+        <a href="https://www.givewell.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          GiveWell
+        </a>'s first Senior Malaria Researcher will be responsible for strengthening the quality of the research
+        and cost-effectiveness modeling guiding GiveWell's investments in <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")} innerHTML="malaria"/>
+        </span> interventions.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Are happy to take initiative and work independently</li>
-          <li>Have some relevant experience, such as project management, entrepreneurship, statistics, or ethics</li>
-          <li>Are ambitiously altruistic</li>
+          <li>Have a quantitatively-oriented advanced degree and substantial malaria expertise</li>
+          <li>Have a proven ability to plan and execute research that holds up over time</li>
+          <li>Are highly skilled at analyzing empirical research to solve real-world problems</li>
         </ul>
       </div>
     </>
