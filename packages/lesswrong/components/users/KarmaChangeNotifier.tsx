@@ -8,8 +8,6 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
 import Badge from '@material-ui/core/Badge';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
 import MenuItem from '@material-ui/core/MenuItem';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
@@ -264,17 +262,17 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-    
-    const { LWClickAwayListener, LWPopper } = Components;
+
+    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
         <div ref={anchorEl}>
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
-              ? <StarBorderIcon className={classes.starIcon}/>
+              ? <ForumIcon icon="StarBorder" className={classes.starIcon}/>
               : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                  <StarIcon className={classes.starIcon}/>
+                  <ForumIcon icon="Star" className={classes.starIcon}/>
                 </Badge>
             }
           </IconButton>

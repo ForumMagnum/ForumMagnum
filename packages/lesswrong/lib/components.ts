@@ -82,6 +82,7 @@ importComponent("CommentOnYourDraftNotificationHover", () => require('../compone
 importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
+importComponent("ForumIcon", () => require('../components/common/ForumIcon'));
 importComponent("Row", () => require('../components/common/Row'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
 importComponent("ContentStyles", () => require('../components/common/ContentStyles'));

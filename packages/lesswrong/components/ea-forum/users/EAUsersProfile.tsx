@@ -18,7 +18,6 @@ import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } fro
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
-import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
@@ -303,7 +302,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform,
+    ProfileShortform, ForumIcon,
   } = Components
 
   if (loading) {
@@ -527,7 +526,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentStyles contentType="comment" className={classes.iconsRow}>
             <Tooltip title={`${userKarma} karma`}>
               <span className={classes.userMetaInfo}>
-                <StarIcon className={classes.userMetaInfoIcon} />
+                <ForumIcon icon="Star" className={classes.userMetaInfoIcon} />
                 {userKarma}
               </span>
             </Tooltip>

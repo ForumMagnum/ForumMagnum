@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
-import LinkIcon from '@material-ui/icons/Link';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
@@ -38,12 +37,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     fontSize: "0.9rem",
-    transform: "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",
     position: "relative",
-    top: -2
+    top: -2,
   },
 });
 
@@ -75,7 +73,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
 
   const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
-    <LinkIcon className={classes.icon}/>
+    <Components.ForumIcon icon="Link" className={classes.icon} />
   </>
 
   return (
