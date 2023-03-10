@@ -145,7 +145,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+export const tagPostTerms = (tag: {_id: string, name: string} | null, query: any) => {
   if (!tag) return
   return ({
     ...query,

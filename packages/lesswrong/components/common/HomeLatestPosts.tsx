@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage' : 'Latest Posts'
 
 const advancedSortingText = isEAForum
   ? "Advanced sorting & filtering"
