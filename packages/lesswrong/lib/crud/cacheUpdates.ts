@@ -5,13 +5,18 @@ import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 import { loggerConstructor } from '../utils/logging';
 
+export type MingoDocument = any;
+export type MingoQueryResult = {totalCount: number, results: MingoDocument[], __typename: string};
+export type MingoSelector = MongoSelector<any>;
+export type MingoSort = MongoSort<any>;
+
 
 export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);
   return (store: ApolloCache<any>, mutationResult: any) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
     //updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
-    invalidateEachQueryThatWouldReturnDocument({client, store, typeName, document});;
+    invalidateEachQueryThatWouldReturnDocument({client, store, typeName, document});
   }
 }
 
@@ -30,13 +35,18 @@ export const updateCacheAfterDelete = (typeName: string) => {
   }
 }
 
-export const updateEachQueryResultOfType = ({ store, typeName, func, document }) => {
-  const watchesToUpdate = findWatchesByTypeName(Array.from(store.watches), typeName)
-  watchesToUpdate.forEach(({query, variables }) => {
+export const updateEachQueryResultOfType = ({ store, typeName, func, document }: {
+  store: ApolloCache<any>,
+  typeName: string,
+  func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string})=>MingoQueryResult,
+  document: MingoDocument,
+}) => {
+  const watchesToUpdate = findWatchesByTypeName(store, typeName)
+  watchesToUpdate.forEach(({query, variables}: {query: any, variables: any}) => {
     const { input: { terms } } = variables
-    const data = store.readQuery({query, variables})
+    const data: any = store.readQuery({query, variables})
     const multiResolverName = getMultiResolverName(typeName);
-    const parameters = getParametersByTypeName(terms, typeName);
+    const parameters = viewTermsToQuery(getCollectionByTypeName(typeName).collectionName, terms);
     const results = data[multiResolverName]
 
     const updatedResults = func({document, results, parameters, typeName})
@@ -55,12 +65,11 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
   document: any
 }) => {
   const mingoLogger = loggerConstructor(`mingo-${pluralize(typeName.toLowerCase())}`)
-  const watches = (store as any).watches; // Use a private variable on ApolloCache to cover an API hole (no good way to enumerate queries in the cache)
   
-  const watchesToCheck = findWatchesByTypeName(Array.from(watches), typeName)
-  watchesToCheck.forEach(({query, variables }) => {
+  const watchesToCheck = findWatchesByTypeName(store, typeName)
+  watchesToCheck.forEach(({query, variables}: {query: any, variables: any}) => {
     const { input: { terms } } = variables
-    const parameters = getParametersByTypeName(terms, typeName);
+    const parameters = viewTermsToQuery(getCollectionByTypeName(typeName).collectionName, terms);
     mingoLogger('parameters', parameters);
     mingoLogger('document', document);
     if (Utils.mingoBelongsToSet(document, parameters.selector)) {
@@ -78,13 +87,12 @@ const invalidateQuery = ({client, query, variables}: {
   void observableQuery.refetch(variables);
 }
 
-const getParametersByTypeName = (terms, typeName) => {
-  const collection = getCollectionByTypeName(typeName);
-  const collectionName = collection.collectionName;
-  return viewTermsToQuery(collectionName, terms); //NOTE: this once passed apolloClient but doesn't anymore
-}
 
-export const handleDeleteMutation = ({ document, results, typeName }) => {
+export const handleDeleteMutation = ({ document, results, typeName }: {
+  document: MingoDocument,
+  results: MingoQueryResult,
+  typeName: string
+}): MingoQueryResult => {
   if (!document) return results;
   results = Utils.mingoRemoveFromSet(results, document);
 
@@ -94,7 +102,12 @@ export const handleDeleteMutation = ({ document, results, typeName }) => {
   };
 }
 
-export const handleCreateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
+export const handleCreateMutation = ({ document, results, parameters: { selector, options }, typeName }: {
+  document: MingoDocument,
+  results: MingoQueryResult,
+  parameters: any,
+  typeName: string,
+}) => {
   if (!document) return results;
 
   if (Utils.mingoBelongsToSet(document, selector)) {
@@ -112,7 +125,12 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
 }
 
 // Theoretically works for upserts
-export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
+export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }: {
+  document: MingoDocument,
+  results: MingoQueryResult,
+  parameters: any,
+  typeName: string,
+}) => {
   if (!document) return results;
   if (Utils.mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list

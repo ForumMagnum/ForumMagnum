@@ -1,15 +1,28 @@
-/**
- * Helpers to update watched mutations
- */
 import Mingo from 'mingo';
 import { Utils } from '../lib/vulcan-lib/utils';
+import { MingoDocument, MingoQueryResult, MingoSelector, MingoSort } from '../lib/crud/cacheUpdates';
 
 /*
+ * This function contains helper functions for looking at mongodb-style
+ * selectors and result sets, particularly for the useMulti resolver, and
+ * incrementally updating the result set client-side given a mutation, using
+ * mingo to determine whether added results match the selectors and to sort the
+ * lists.
+ *
+ * What this amounts to in practice is that some created and update  operations,
+ * such as submitting a comment, operating on a user in the moderation UI, get
+ * reflected in what's displayed without a refresh, without the components that
+ * do those create/update operations needing to think too much about
+ * invalidation.
+ *
+ * Here be dragons! This feature is brittle and has been a source of bugs in
+ * the past.
+ */
 
-Test if a document is matched by a given selector
-
-*/
-export const belongsToSet = (document, selector) => {
+/**
+ * Test if a document is matched by a given selector
+ */
+export const belongsToSet = (document: MingoDocument, selector: MingoSelector) => {
   try {
     const mingoQuery = new Mingo.Query(selector);
     return mingoQuery.test(document);
@@ -17,24 +30,20 @@ export const belongsToSet = (document, selector) => {
     // eslint-disable-next-line no-console
     console.error(err)
     return false
-  }  
+  }
 };
 
-/*
-
-Test if a document is already in a result set
-
-*/
-export const isInSet = (data, document) => {
-  return data.results.find(item => item._id === document._id);
+/**
+ * Test if a document is already in a result set
+ */
+export const isInSet = (data: MingoQueryResult, document: MingoDocument) => {
+  return data.results.find((item: MingoDocument) => item._id === document._id);
 }
 
-/*
-
-Add a document to a set of results
-
-*/
-export const addToSet = (queryData, document) => {
+/**
+ * Add a document to a set of results
+ */
+export const addToSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const newData = {
     results: [...queryData.results, document],
     totalCount: queryData.totalCount + 1,
@@ -42,12 +51,10 @@ export const addToSet = (queryData, document) => {
   return newData;
 };
 
-/*
-
-Update a document in a set of results
-
-*/
-export const updateInSet = (queryData, document) => {
+/**
+ * Update a document in a set of results
+ */
+export const updateInSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const oldDocument = queryData.results.find(item => item._id === document._id);
   const newDocument = { ...oldDocument, ...document };
   const index = queryData.results.findIndex(item => item._id === document._id);
@@ -60,12 +67,10 @@ export const updateInSet = (queryData, document) => {
   return newData;
 };
 
-/*
-
-Reorder results according to a sort
-
-*/
-export const reorderSet = (queryData, sort, selector) => {
+/**
+ * Reorder results according to a sort
+ */
+export const reorderSet = (queryData: MingoQueryResult, sort: MingoSort, selector: MingoSelector) => {
   try {
     const mingoQuery = new Mingo.Query(selector);
     const cursor = mingoQuery.find(queryData.results);
@@ -78,12 +83,10 @@ export const reorderSet = (queryData, sort, selector) => {
   }
 };
 
-/*
-
-Remove a document from a set
-
-*/
-export const removeFromSet = (queryData, document) => {
+/**
+ * Remove a document from a set
+ */
+export const removeFromSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const newData = {
     results: queryData.results.filter(item => item._id !== document._id),
     totalCount: queryData.totalCount - 1,
