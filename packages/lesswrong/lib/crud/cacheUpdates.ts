@@ -1,14 +1,11 @@
-import { pluralize, Utils } from '../vulcan-lib';
+import { pluralize } from '../vulcan-lib';
 import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 import { loggerConstructor } from '../utils/logging';
-
-export type MingoDocument = any;
-export type MingoQueryResult = {totalCount: number, results: MingoDocument[], __typename: string};
-export type MingoSelector = MongoSelector<any>;
-export type MingoSort = MongoSort<any>;
+import { mingoIsInSet, mingoAddToSet, mingoBelongsToSet, mingoUpdateInSet, mingoReorderSet, mingoRemoveFromSet } from './mingoUpdates';
+import type { MingoDocument, MingoQueryResult } from './mingoUpdates';
 
 
 export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
@@ -72,7 +69,7 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
     const parameters = viewTermsToQuery(getCollectionByTypeName(typeName).collectionName, terms);
     mingoLogger('parameters', parameters);
     mingoLogger('document', document);
-    if (Utils.mingoBelongsToSet(document, parameters.selector)) {
+    if (mingoBelongsToSet(document, parameters.selector)) {
       invalidateQuery({client, query, variables});
     }
   });
@@ -94,7 +91,7 @@ export const handleDeleteMutation = ({ document, results, typeName }: {
   typeName: string
 }): MingoQueryResult => {
   if (!document) return results;
-  results = Utils.mingoRemoveFromSet(results, document);
+  results = mingoRemoveFromSet(results, document);
 
   return {
     ...results,
@@ -110,12 +107,12 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
 }) => {
   if (!document) return results;
 
-  if (Utils.mingoBelongsToSet(document, selector)) {
-    if (!Utils.mingoIsInSet(results, document)) {
+  if (mingoBelongsToSet(document, selector)) {
+    if (!mingoIsInSet(results, document)) {
       // make sure document hasn't been already added as this may be called several times
-      results = Utils.mingoAddToSet(results, document);
+      results = mingoAddToSet(results, document);
     }
-    results = Utils.mingoReorderSet(results, options.sort, selector);
+    results = mingoReorderSet(results, options.sort, selector);
   }
 
   return {
@@ -132,19 +129,19 @@ export const handleUpdateMutation = ({ document, results, parameters: { selector
   typeName: string,
 }) => {
   if (!document) return results;
-  if (Utils.mingoBelongsToSet(document, selector)) {
+  if (mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list
-    if (!Utils.mingoIsInSet(results, document)) {
+    if (!mingoIsInSet(results, document)) {
       // if document wasn't already in list, add it
-      results = Utils.mingoAddToSet(results, document);
+      results = mingoAddToSet(results, document);
     } else {
       // if document was already in the list, update it
-      results = Utils.mingoUpdateInSet(results, document);
+      results = mingoUpdateInSet(results, document);
     }
-    results = Utils.mingoReorderSet(results, options.sort, selector);
+    results = mingoReorderSet(results, options.sort, selector);
   } else {
     // if edited doesn't belong to current list anymore (based on view selector), remove it
-    results = Utils.mingoRemoveFromSet(results, document);
+    results = mingoRemoveFromSet(results, document);
   }
   return {
     ...results,

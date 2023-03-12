@@ -1,13 +1,10 @@
 import Mingo from 'mingo';
-import { Utils } from '../lib/vulcan-lib/utils';
-import { MingoDocument, MingoQueryResult, MingoSelector, MingoSort } from '../lib/crud/cacheUpdates';
 
 /*
- * This function contains helper functions for looking at mongodb-style
- * selectors and result sets, particularly for the useMulti resolver, and
- * incrementally updating the result set client-side given a mutation, using
- * mingo to determine whether added results match the selectors and to sort the
- * lists.
+ * This file contains helper functions for looking at mongodb-style selectors
+ * and result sets, particularly for the useMulti resolver, and incrementally
+ * updating the result set client-side given a mutation, using mingo to
+ * determine whether added results match the selectors and to sort the lists.
  *
  * What this amounts to in practice is that some created and update  operations,
  * such as submitting a comment, operating on a user in the moderation UI, get
@@ -19,10 +16,15 @@ import { MingoDocument, MingoQueryResult, MingoSelector, MingoSort } from '../li
  * the past.
  */
 
+export type MingoDocument = any;
+export type MingoQueryResult = {totalCount: number, results: MingoDocument[], __typename?: string};
+export type MingoSelector = MongoSelector<any>;
+export type MingoSort = MongoSort<any>;
+
 /**
  * Test if a document is matched by a given selector
  */
-export const belongsToSet = (document: MingoDocument, selector: MingoSelector) => {
+export const mingoBelongsToSet = (document: MingoDocument, selector: MingoSelector) => {
   try {
     const mingoQuery = new Mingo.Query(selector);
     return mingoQuery.test(document);
@@ -36,14 +38,14 @@ export const belongsToSet = (document: MingoDocument, selector: MingoSelector) =
 /**
  * Test if a document is already in a result set
  */
-export const isInSet = (data: MingoQueryResult, document: MingoDocument) => {
+export const mingoIsInSet = (data: MingoQueryResult, document: MingoDocument) => {
   return data.results.find((item: MingoDocument) => item._id === document._id);
 }
 
 /**
  * Add a document to a set of results
  */
-export const addToSet = (queryData: MingoQueryResult, document: MingoDocument) => {
+export const mingoAddToSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const newData = {
     results: [...queryData.results, document],
     totalCount: queryData.totalCount + 1,
@@ -54,7 +56,7 @@ export const addToSet = (queryData: MingoQueryResult, document: MingoDocument) =
 /**
  * Update a document in a set of results
  */
-export const updateInSet = (queryData: MingoQueryResult, document: MingoDocument) => {
+export const mingoUpdateInSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const oldDocument = queryData.results.find(item => item._id === document._id);
   const newDocument = { ...oldDocument, ...document };
   const index = queryData.results.findIndex(item => item._id === document._id);
@@ -70,7 +72,7 @@ export const updateInSet = (queryData: MingoQueryResult, document: MingoDocument
 /**
  * Reorder results according to a sort
  */
-export const reorderSet = (queryData: MingoQueryResult, sort: MingoSort, selector: MingoSelector) => {
+export const mingoReorderSet = (queryData: MingoQueryResult, sort: MingoSort, selector: MingoSelector) => {
   try {
     const mingoQuery = new Mingo.Query(selector);
     const cursor = mingoQuery.find(queryData.results);
@@ -86,17 +88,10 @@ export const reorderSet = (queryData: MingoQueryResult, sort: MingoSort, selecto
 /**
  * Remove a document from a set
  */
-export const removeFromSet = (queryData: MingoQueryResult, document: MingoDocument) => {
+export const mingoRemoveFromSet = (queryData: MingoQueryResult, document: MingoDocument) => {
   const newData = {
     results: queryData.results.filter(item => item._id !== document._id),
     totalCount: queryData.totalCount - 1,
   };
   return newData;
 };
-
-Utils.mingoBelongsToSet = belongsToSet;
-Utils.mingoIsInSet = isInSet;
-Utils.mingoAddToSet = addToSet;
-Utils.mingoUpdateInSet = updateInSet;
-Utils.mingoReorderSet = reorderSet;
-Utils.mingoRemoveFromSet = removeFromSet;
