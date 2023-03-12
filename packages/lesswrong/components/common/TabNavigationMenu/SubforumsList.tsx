@@ -74,7 +74,6 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Core topics</div>
           {initialResults.map((subforum) => getListItem(subforum))}
           {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (
