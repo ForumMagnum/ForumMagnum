@@ -128,7 +128,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noBottomPadding>
+        <SectionTitle title={latestPostsName} noTopMargin={isEAForum} noBottomPadding>
           <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
             <SettingsButton
               className={classes.hideOnMobile}

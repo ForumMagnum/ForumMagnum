@@ -10,7 +10,7 @@ import debounce from 'lodash/debounce';
 
 const styles = (theme: ThemeType): JssStyles => ({
   tabsSection: {
-    marginBottom: 0
+    marginBottom: 26
   },
   tabsRow: {
     position: 'relative',
@@ -197,7 +197,8 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
-    limit: 50
+    sortedBy: 'magic',
+    limit: 15
   }
   
   // the left arrow is visible/enabled if we have scrolled right at all
@@ -239,8 +240,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
       {activeTab.name === 'Frontpage' ? <HomeLatestPosts /> : <PostsList2
         terms={topicPostTerms}
         enableTotal
-        tagId={activeTab._id}
-        itemsPerPage={50}
+        itemsPerPage={15}
       />}
     </>
   )
