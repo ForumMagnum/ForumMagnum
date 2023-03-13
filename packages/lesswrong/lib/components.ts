@@ -307,6 +307,7 @@ importComponent("RepliesToCommentList", () => require('../components/shortform/R
 importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
+importComponent("ShortformListItem", () => require('../components/shortform/ShortformListItem'));
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
