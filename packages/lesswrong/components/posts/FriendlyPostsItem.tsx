@@ -16,7 +16,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[100]}`,
-    borderRadius: 6, // TODO Use theme.borderRadius.default once it's merged
+    borderRadius: theme.borderRadius.default,
     padding: `8px 12px 8px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
