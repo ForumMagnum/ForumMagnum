@@ -11,20 +11,29 @@ import classNames from "classnames";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: SECTION_WIDTH,
-    display: "flex",
-    alignItems: "center",
-    background: theme.palette.grey[0],
-    border: `1px solid ${theme.palette.grey[100]}`,
-    borderRadius: 6, // TODO Use theme.borderRadius.default once it's merged
-    padding: `8px 12px 8px 0`,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 500,
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    cursor: "pointer",
-    [theme.breakpoints.down("xs")]: {
-      paddingRight: 12,
+    position: "relative",
+    "& > :first-child": {
+      maxWidth: SECTION_WIDTH,
+      display: "flex",
+      alignItems: "center",
+      background: theme.palette.grey[0],
+      border: `1px solid ${theme.palette.grey[100]}`,
+      borderRadius: theme.borderRadius.default,
+      padding: `8px 12px 8px 0`,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontWeight: 500,
+      fontSize: 14,
+      color: theme.palette.grey[600],
+      cursor: "pointer",
+      [theme.breakpoints.down("xs")]: {
+        paddingRight: 12,
+      },
+    },
+    '&:hover .PostsItemTrailingButtons-actions': {
+      opacity: 0.2,
+    },
+    '&:hover .PostsItemTrailingButtons-archiveButton': {
+      opacity: 0.2,
     },
   },
   karma: {
@@ -115,11 +124,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export type FriendlyPostsListProps = PostsItemConfig & {
+export type EAPostsListProps = PostsItemConfig & {
   classes: ClassesType,
 };
 
-const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
+const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
   const {
     post,
     postLink,
@@ -131,6 +140,13 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
     sticky,
     showDraftTag,
     showPersonalIcon,
+    showTrailingButtons,
+    showMostValuableCheckbox,
+    showDismissButton,
+    showArchiveButton,
+    onDismiss,
+    onArchive,
+    resumeReading,
     strikethroughTitle,
     isRead,
     showReadCheckbox,
@@ -151,8 +167,9 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma,
-    FooterTag, TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
+    TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    PostsItemTrailingButtons,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -174,11 +191,11 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <PostsItemTooltipWrapper
-        post={post}
-        placement={tooltipPlacement}
-      >
-        <div className={classes.root} onClick={onClick}>
+      <div className={classes.root} onClick={onClick}>
+        <PostsItemTooltipWrapper
+          post={post}
+          placement={tooltipPlacement}
+        >
           <div className={classes.karma}>
             {tagRel
               ? <div className={classes.tagRelWrapper}>
@@ -231,15 +248,29 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
             </div>
             <SecondaryInfo />
           </div>
-        </div>
-      </PostsItemTooltipWrapper>
+        </PostsItemTooltipWrapper>
+        <a> {/* The `a` tag prevents clicks from navigating to the post */}
+          <PostsItemTrailingButtons
+            {...{
+              post,
+              showTrailingButtons,
+              showMostValuableCheckbox,
+              showDismissButton,
+              showArchiveButton,
+              resumeReading,
+              onDismiss,
+              onArchive,
+            }}
+          />
+        </a>
+      </div>
     </AnalyticsContext>
   );
 }
 
-const FriendlyPostsItemComponent = registerComponent(
-  "FriendlyPostsItem",
-  FriendlyPostsItem,
+const EAPostsItemComponent = registerComponent(
+  "EAPostsItem",
+  EAPostsItem,
   {
     styles,
     stylePriority: 1,
@@ -252,6 +283,6 @@ const FriendlyPostsItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    FriendlyPostsItem: typeof FriendlyPostsItemComponent
+    EAPostsItem: typeof EAPostsItemComponent
   }
 }

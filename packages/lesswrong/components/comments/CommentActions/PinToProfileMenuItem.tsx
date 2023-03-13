@@ -2,9 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import MenuItem from '@material-ui/core/MenuItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { isEAForum } from '../../../lib/instanceSettings';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 const styles = (_: ThemeType) => ({
   icon: isEAForum
@@ -17,6 +16,7 @@ const PinToProfileMenuItem = ({ comment, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
+  const { MenuItem } = Components;
 
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",

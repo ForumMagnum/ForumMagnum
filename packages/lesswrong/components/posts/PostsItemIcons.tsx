@@ -86,7 +86,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       </LWTooltip>
     </span>}
 
-    {post.url && <span className={classes.postIcon}>
+    {post.url && !isEAForum && <span className={classes.postIcon}>
       <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
         <a href={post.url}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
       </LWTooltip>

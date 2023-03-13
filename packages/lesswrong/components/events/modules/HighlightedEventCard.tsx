@@ -26,8 +26,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     color: theme.palette.text.alwaysWhite,
     overflow: 'visible',
-    borderRadius: 0,
     boxShadow: theme.palette.boxShadow.moreFocused,
+    borderRadius: theme.borderRadius.default,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -8,

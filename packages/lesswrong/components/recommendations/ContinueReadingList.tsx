@@ -45,7 +45,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading }: {
     }
   }
 
-  const { BookPostsItem, PostsLoading, SectionFooter } = Components;
+  const { PostsItem, PostsLoading, SectionFooter } = Components;
   if (continueReadingLoading || !continueReading)
     return <PostsLoading/>
 
@@ -55,7 +55,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading }: {
     <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
       {entries.map(resumeReading => {
         const { nextPost, sequence, collection } = resumeReading;
-        return <BookPostsItem
+        return <PostsItem
           post={nextPost}
           sequenceId={sequence?._id}
           resumeReading={resumeReading}

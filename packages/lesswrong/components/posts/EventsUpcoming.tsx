@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const EventsUpcoming = () => {
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
@@ -7,7 +8,7 @@ const EventsUpcoming = () => {
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="Upcoming Events"/>
+      <SectionTitle title={preferredHeadingCase("Upcoming Events")} />
       <PostsList2 terms={terms}/>
     </SingleColumnSection>
   )

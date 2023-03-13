@@ -4,6 +4,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,6 +39,8 @@ const PostActionsButton = ({post, vertical, classes}: {
   const { PopperCard, PostActions, LWClickAwayListener } = Components
   if (!currentUser) return null;
 
+  const placement = isEAForum ? "left-start" : "right-start";
+
   return <div className={classes.root}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
@@ -45,7 +48,7 @@ const PostActionsButton = ({post, vertical, classes}: {
     <PopperCard
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement="right-start"
+      placement={placement}
       allowOverflow
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}

@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     ...theme.typography.body2,
     boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius.default,
 
     marginLeft: "auto",
     marginRight: "auto",

@@ -20,7 +20,6 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
@@ -85,7 +84,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem } = Components
+  const { LWTooltip, ModeratorActionItem, MenuItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const { mutate: updateUser } = useUpdate({

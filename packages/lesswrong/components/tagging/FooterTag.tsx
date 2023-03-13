@@ -48,6 +48,16 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   marginBottom: 0
 });
 
+export const coreTagStyle = (theme: ThemeType): JssStyles => ({
+  backgroundColor: theme.palette.tag.coreTagBackground,
+  border: theme.palette.tag.coreTagBorder,
+  color: theme.palette.tag.coreTagText,
+  "&:hover": {
+    backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+    borderColor: theme.palette.tag.coreTagBackgroundHover,
+  },
+});
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
@@ -64,17 +74,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   core: {
-    backgroundColor: theme.palette.tag.coreTagBackground,
-    border: theme.palette.tag.coreTagBorder,
-    color: theme.palette.tag.coreTagText,
-    "&:hover": {
-      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
-    },
+    ...coreTagStyle(theme),
   },
   coreIcon: {
     position: "relative",
     display: "inline-block",
     minWidth: 20,
+    margin: isEAForum ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
@@ -138,9 +144,13 @@ const FooterTag = ({
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
+  const tagName = isEAForum && smallText
+    ? tag.shortName || tag.name
+    : tag.name;
+
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
-    <span className={classes.name}>{tag.name}</span>
+    <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 

@@ -101,7 +101,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: "12px 24px 8px 12px"
+    padding: "12px 24px 8px 12px",
+    borderRadius: theme.borderRadius.default,
   },
   hidden: {
     display: "none", // Uses CSS to show/hide
@@ -218,7 +219,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </Tooltip>
 
-          {isEAForum && <Tooltip title={<div><div>By default, Community posts are hidden from the Frontpage list</div><div>Toggle to hide them here too.</div></div>} placement="left-start">
+          {isEAForum && <Tooltip title={<div><div>By default, Community posts are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
             <QueryLink
               className={classes.checkboxGroup}
               onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
@@ -226,9 +227,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentHideCommunity}/>
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
               <MetaInfo className={classes.checkboxLabel}>
-                Hide Community
+                Show Community
               </MetaInfo>
             </QueryLink>
           </Tooltip>}
