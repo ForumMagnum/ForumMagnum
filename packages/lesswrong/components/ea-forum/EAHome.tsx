@@ -35,15 +35,17 @@ const EAHome = () => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
 
-      <CurrentSpotlightItem />
+      <SingleColumnSection>
+        <CurrentSpotlightItem />
+      </SingleColumnSection>
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
-      
+
       <HomeLatestPosts />
       <EAHomeCommunityPosts />
-      
+
       {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
       <RecentDiscussionFeed
         title="Recent discussion"

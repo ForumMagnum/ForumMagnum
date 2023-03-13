@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   setting: {
@@ -36,7 +35,7 @@ const Reviews2019 = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
 
   const handleSetExpandUnread = () => {
     if (currentUser) {

@@ -26,7 +26,7 @@ const options: MutationOptions<DbLWEvent> = {
 export const LWEvents: LWEventsCollection = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
-  collectionType: isEAForum ? "switching" : "mongo",
+  collectionType: isEAForum ? "pg" : "mongo",
   schema,
   resolvers: getDefaultResolvers('LWEvents'),
   mutations: getDefaultMutations('LWEvents', options),

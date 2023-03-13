@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
 import Comments from '../../lib/collections/comments/collection';
-import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 
 const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   try {
@@ -51,8 +51,7 @@ const updateCollection = async (collection) => {
       for (const document of documents) {
         const { html } = document.contents;
 
-        // @ts-ignore cheerio's type annotations are incorrect
-        const $ = cheerio.load(html, null, false);
+        const $ = cheerioParse(html);
         let edited = false;
 
         $('a').each((i, link) => {

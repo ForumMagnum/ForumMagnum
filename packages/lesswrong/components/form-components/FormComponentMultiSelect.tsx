@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import FormLabel from '@material-ui/core/FormLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 
@@ -40,6 +39,7 @@ const FormComponentMultiSelect = ({ value, label, placeholder, separator, option
   updateCurrentValues<T extends {}>(values: T): void,
   classes: ClassesType
 }) => {
+  const { MenuItem } = Components;
   
   return <FormControl className={classes.root}>
     {label && <FormLabel className={classes.label}>{label}</FormLabel>}

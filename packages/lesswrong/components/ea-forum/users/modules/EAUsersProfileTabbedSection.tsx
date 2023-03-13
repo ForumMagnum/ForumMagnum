@@ -11,6 +11,7 @@ export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   background: theme.palette.grey[0],
   padding: '24px 32px',
   marginBottom: 24,
+  borderRadius: theme.borderRadius.default,
   [theme.breakpoints.down('xs')]: {
     padding: 16,
   }
