@@ -18,13 +18,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+    ...(isEAForum
+      ? {}
+      : {
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+      }),
     alignItems: "center",
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
-      whiteSpace: isEAForum ? "nowrap" : "unset",
+      whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
