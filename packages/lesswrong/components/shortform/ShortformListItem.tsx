@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   comments: {
     display: "flex",
     alignItems: "center",
-    marginLeft: 10,
+    marginLeft: 8,
     "& svg": {
       height: 16,
     },
