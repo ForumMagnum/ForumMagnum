@@ -35,9 +35,9 @@ const EAHome = () => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
 
-      <SingleColumnSection>
+      {/* <SingleColumnSection>
         <CurrentSpotlightItem />
-      </SingleColumnSection>
+      </SingleColumnSection> */}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>

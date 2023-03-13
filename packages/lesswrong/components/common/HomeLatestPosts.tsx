@@ -14,7 +14,7 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -56,6 +56,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage' : 'Latest Posts'
 
+const filterSettingsToggleLabels = forumSelect({
+  EAForum: {
+    desktopVisible: "Customize feed",
+    desktopHidden: "Customize feed",
+    mobileVisible: "Customize feed",
+    mobileHidden: "Customize feed",
+  },
+  default: {
+    desktopVisible: "Customize Feed (Hide)",
+    desktopHidden: "Customize Feed",
+    mobileVisible: "Customize Feed (Hide)",
+    mobileHidden: "Customize Feed (Show)",
+  }
+})
+
 const advancedSortingText = isEAForum
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
@@ -69,7 +84,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(!currentUser?.hideFrontpageFilterSettingsDesktop);
+  // (except that on the EA Forum it always starts out hidden)
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isEAForum ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
@@ -116,17 +132,17 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
             <SettingsButton
               className={classes.hideOnMobile}
-              label={preferredHeadingCase(filterSettingsVisibleDesktop ?
-                "Customize Feed (Hide)" :
-                "Customize Feed")}
+              label={filterSettingsVisibleDesktop ?
+                filterSettingsToggleLabels.desktopVisible :
+                filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
             />
             <SettingsButton
               className={classes.hideOnDesktop}
-              label={preferredHeadingCase(filterSettingsVisibleMobile ?
-                "Customize Feed (Hide)" :
-                "Customize Feed (Show)")}
+              label={filterSettingsVisibleMobile ?
+                filterSettingsToggleLabels.mobileVisible :
+                filterSettingsToggleLabels.mobileHidden}
               showIcon={false}
               onClick={() => {
                 setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
