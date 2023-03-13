@@ -115,11 +115,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export type FriendlyPostsListProps = PostsItemConfig & {
+export type EAPostsListProps = PostsItemConfig & {
   classes: ClassesType,
 };
 
-const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
+const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
   const {
     post,
     postLink,
@@ -237,9 +237,9 @@ const FriendlyPostsItem = ({classes, ...props}: FriendlyPostsListProps) => {
   );
 }
 
-const FriendlyPostsItemComponent = registerComponent(
-  "FriendlyPostsItem",
-  FriendlyPostsItem,
+const EAPostsItemComponent = registerComponent(
+  "EAPostsItem",
+  EAPostsItem,
   {
     styles,
     stylePriority: 1,
@@ -252,6 +252,6 @@ const FriendlyPostsItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    FriendlyPostsItem: typeof FriendlyPostsItemComponent
+    EAPostsItem: typeof EAPostsItemComponent
   }
 }

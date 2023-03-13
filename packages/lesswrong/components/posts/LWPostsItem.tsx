@@ -326,7 +326,7 @@ export type PostsList2Props = PostsItemConfig & {
   classes: ClassesType,
 };
 
-const BookPostsItem = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   const {
     post,
     postLink,
@@ -556,7 +556,7 @@ const BookPostsItem = ({classes, ...props}: PostsList2Props) => {
   )
 };
 
-const BookPostsItemComponent = registerComponent('BookPostsItem', BookPostsItem, {
+const LWPostsItemComponent = registerComponent('LWPostsItem', LWPostsItem, {
   styles,
   stylePriority: 1,
   hocs: [withErrorBoundary],
@@ -567,6 +567,6 @@ const BookPostsItemComponent = registerComponent('BookPostsItem', BookPostsItem,
 
 declare global {
   interface ComponentTypes {
-    BookPostsItem: typeof BookPostsItemComponent
+    LWPostsItem: typeof LWPostsItemComponent
   }
 }
