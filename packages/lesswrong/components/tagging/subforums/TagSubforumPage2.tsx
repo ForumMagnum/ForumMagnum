@@ -63,6 +63,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 34,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 32,

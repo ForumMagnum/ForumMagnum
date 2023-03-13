@@ -62,9 +62,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
+// This is a map from forum types to icon names to keys in the `styles` object.
 const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
   default: {
     Link: "linkRotation",
+  },
+  EAForum: {
   },
 };
 
@@ -104,8 +107,8 @@ const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
     return null;
   }
 
-  const customClasses = forumSelect(CUSTOM_CLASSES);
-  const customClass = customClasses[icon];
+  const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
+  const customClass = customClassKey ? classes[customClassKey] : undefined;
 
   return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
 }

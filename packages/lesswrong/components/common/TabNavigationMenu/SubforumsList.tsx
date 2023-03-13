@@ -2,8 +2,6 @@ import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
-import MenuItem from "@material-ui/core/MenuItem";
-import { Link } from "../../../lib/reactRouterWrapper";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
 
@@ -59,23 +57,17 @@ const SubforumsList = ({ onClick, classes }) => {
   const maybeHiddenResults = results.slice(INITIAL_LIMIT)
   const displayShowMoreOrLess = results.length > INITIAL_LIMIT
 
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any
-  
-  const { TabNavigationSubItem } = Components
+  const { TabNavigationSubItem, MenuItem, MenuItemLink } = Components
   
   const getListItem = (tag: TagSubforumSidebarFragment) => (
-    <MenuItemUntyped
+    <MenuItemLink
       key={tag._id}
       onClick={onClick}
-      component={Link}
       to={tag.isSubforum ? tagGetSubforumUrl(tag) : tagGetUrl(tag)}
-      classes={{ root: classes.menuItem }}
+      className={classes.menuItem}
     >
       <TabNavigationSubItem className={classes.subItem}>{tag.name}</TabNavigationSubItem>
-    </MenuItemUntyped>
+    </MenuItemLink>
   );
 
   return (
@@ -85,11 +77,11 @@ const SubforumsList = ({ onClick, classes }) => {
           {initialResults.map((subforum) => getListItem(subforum))}
           {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (
-            <MenuItemUntyped onClick={onClickShowMoreOrLess} className={classes.menuItem} disableRipple>
+            <MenuItem onClick={onClickShowMoreOrLess} className={classes.menuItem} disableRipple>
               <TabNavigationSubItem className={classes.showMoreLess}>
                 (show {showAll ? "less" : `${maybeHiddenResults.length} more`})
               </TabNavigationSubItem>
-            </MenuItemUntyped>
+            </MenuItem>
           )}
         </div>
       </AnalyticsContext>

@@ -477,4 +477,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     light: "#cb5e3c",
     contrastText: shades.grey[0],
   },
+  warning: {
+    main: "#ff9800",
+  }
 })

@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   spotlightItem: {
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
@@ -121,7 +122,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "absolute",
       top: 0,
       right: 0,
-      height: "100%",  
+      height: "100%",
+      borderTopRightRadius: theme.borderRadius.default,
+      borderBottomRightRadius: theme.borderRadius.default,
     }
   },
   author: {
@@ -244,7 +247,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   };
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classes.root}>
+    <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>

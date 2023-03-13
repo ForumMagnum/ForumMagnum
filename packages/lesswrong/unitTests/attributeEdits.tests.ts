@@ -1,12 +1,12 @@
 import { attributeEdits, attributionsToSpans, spansToAttributions, applyAttributionsToText } from '../server/attributeEdits';
-import cheerio from 'cheerio';
+import { cheerioParse } from '../server/utils/htmlUtil';
 import chai from 'chai';
 import * as _ from 'underscore';
 
 describe('Diff attribution tracking', () => {
   it('applyAttributionsToText', () => {
     // @ts-ignore
-    const $ = cheerio.load('<div class="c">123456</div>', null, false);
+    const $ = cheerioParse('<div class="c">123456</div>');
     chai.assert.deepEqual(
       // @ts-ignore
       $.html(applyAttributionsToText($, $(".c")[0].children[0], ['a','a','a','b','c','c'], 0)),

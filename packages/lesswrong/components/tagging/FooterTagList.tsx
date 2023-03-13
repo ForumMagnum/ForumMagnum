@@ -197,7 +197,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
       />
     )}
     { !hidePostTypeTag && postType }
-    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
+    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
     { isAwaiting && <Loading/>}
   </span>
 };

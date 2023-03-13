@@ -12,7 +12,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
@@ -315,7 +314,7 @@ const EventsHome = ({classes}: {
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
   
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2

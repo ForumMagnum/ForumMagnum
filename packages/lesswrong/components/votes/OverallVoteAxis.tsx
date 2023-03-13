@@ -4,7 +4,7 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: 2,
+    borderRadius: isEAForum ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },
@@ -132,7 +132,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             />
           </LWTooltip>
           {hideKarma ?
-            <LWTooltip title={'The author of this post has disabled karma visibility'}>
+            <LWTooltip title={'This post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
             <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
@@ -165,4 +165,3 @@ declare global {
     OverallVoteAxis: typeof OverallVoteAxisComponent
   }
 }
-

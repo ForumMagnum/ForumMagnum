@@ -9,7 +9,10 @@ import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = (theme: ThemeType): JssStyles => ({
-  userName: {
+  color: {
+    color: theme.palette.primary.main,
+  },
+  noColor: {
     color: "inherit !important"
   }
 })
@@ -21,8 +24,9 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
+const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
   user: UsersMinimumInfo|null|undefined,
+  color?: boolean,
   nofollow?: boolean,
   simple?: boolean,
   classes: ClassesType,
@@ -46,9 +50,10 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const { UserTooltip, LWTooltip } = Components
   
   const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
+  const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {
-    return <span {...eventHandlers} className={classNames(classes.userName, className)}>
+    return <span {...eventHandlers} className={classNames(colorClass, className)}>
       {displayName}
     </span>
   }
@@ -56,7 +61,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={<UserTooltip user={user}/>} placement={tooltipPlacement} inlineBlock={false}>
-      <Link to={userGetProfileUrl(user)} className={classes.userName}
+      <Link to={userGetProfileUrl(user)} className={colorClass}
         {...(nofollow ? {rel:"nofollow"} : {})}
       >
         {displayName}
