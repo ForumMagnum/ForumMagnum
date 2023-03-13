@@ -9,12 +9,23 @@ import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock, TimeframeType 
 import { withTimezone } from '../common/withTimezone';
 import {AnalyticsContext, withTracking} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  // TODO: this is a placeholder to fix the SectionTitle styling,
+  // but once EAF redesigns the All Posts page, SectionTitles will be
+  // used elsewhere on the page so we should stop using it for the page title
+  sectionTitle: isEAForum ? {
+    fontSize: '30px',
+    lineHeight: '34px',
+    fontWeight: '600',
+    color: theme.palette.grey[800],
+    textTransform: 'none',
+    letterSpacing: 'normal'
+  } : {},
   title: {
     cursor: "pointer",
   }
@@ -156,7 +167,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
-                <SectionTitle title={preferredHeadingCase("All Posts")}>
+                <SectionTitle title={preferredHeadingCase("All Posts")} className={classes.sectionTitle}>
                   <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 </SectionTitle>
               </div>
