@@ -223,6 +223,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 read={isRead && !showReadCheckbox}
                 curatedIconLeft={false}
                 iconsOnLeft
+                wrap
                 className={classes.title}
               />
             </div>

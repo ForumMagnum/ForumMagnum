@@ -18,13 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
-    ...(isEAForum
-      ? {}
-      : {
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      }),
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
     alignItems: "center",
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
