@@ -123,6 +123,12 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
+/**
+ * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
+ * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
+ * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
+ * easier.
+ */
 export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
 
 /**
