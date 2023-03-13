@@ -3,8 +3,10 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
+import { useClickableCell } from "../common/useClickableCell";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
+import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -74,11 +76,17 @@ const ShortformListItem = ({comment, classes}: {
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
+  const url = commentGetPageUrlFromIds({
+    postId: comment.post?._id,
+    postSlug: comment.post?.slug,
+    commentId: comment._id,
+  });
+  const {onClick} = useClickableCell(url);
 
   const { LWTooltip, ForumIcon, UsersName, FooterTag } = Components;
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} onClick={onClick}>
       <div className={classes.karma}>
         <LWTooltip title={
           <div>
