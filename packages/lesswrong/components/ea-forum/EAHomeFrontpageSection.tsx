@@ -5,14 +5,20 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
+import debounce from 'lodash/debounce';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
+  tabsSection: {
+    marginBottom: 0
+  },
   tabsRow: {
     position: 'relative',
     [theme.breakpoints.down('sm')]: {
-      padding: '0 30px',
-      marginTop: 20
+      padding: '0 28px',
+      marginTop: 20,
+      marginLeft: -8,
+      marginRight: -8
     },
   },
   tabsWindow: {
@@ -35,19 +41,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 4,
     color: theme.palette.grey[600],
     cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-    '&:hover': {
-      color: theme.palette.grey[800],
-    }
   },
   arrowMobile: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'block',
       position: 'absolute',
-      top: 4,
+      top: 0,
       color: theme.palette.grey[600],
       cursor: 'pointer',
     }
@@ -58,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   leftArrowMobile: {
     [theme.breakpoints.down('sm')]: {
       left: 0,
+      width: 28
     }
   },
   rightArrow: {
@@ -66,6 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightArrowMobile: {
     [theme.breakpoints.down('sm')]: {
       right: 0,
+      width: 28
     }
   },
   disabledArrow: {
@@ -77,6 +85,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 8,
     whiteSpace: 'nowrap',
     transition: 'transform 0.2s ease',
+    [theme.breakpoints.down('sm')]: {
+      columnGap: 6,
+    }
   },
   tab: {
     backgroundColor: theme.palette.grey[300],
@@ -91,6 +102,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[400],
     },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 12,
+      lineHeight: '18px',
+      padding: '3px 6px',
+    }
   },
   activeTab: {
     backgroundColor: theme.palette.grey[1000],
@@ -101,28 +117,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+type TopicsBarTab = {
+  _id: string,
+  name: string,
+  shortName?: string|null
+}
+
 const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
   const tabsWindowRef = useRef<HTMLDivElement|null>(null)
   const topicsBarRef = useRef<HTMLDivElement|null>(null)
+
   // we store the topic bar offsets that correspond to displaying each "set" of topics
   const offsets = useRef<Array<number>>([0])
+  // we calculate the offsets when the page loads, and when the tabs window resizes
+  const resizeObserver = useRef<ResizeObserver|null>(null)
   
-  // we calculate the offsets when the page loads, and on resize
-  useEffect(() => {
-    if (!tabsWindowRef.current || !topicsBarRef.current || offsets.current.length > 1) return
-    
-    // TODO: recalculate on resize
-    Array.from(topicsBarRef.current.children).forEach((topic: HTMLElement) => {
+  const recalculateOffsets = debounce((topicsBarElem: HTMLDivElement, tabsWindowElem: HTMLElement) => {
+    // first reset the offsets list
+    offsets.current = [0]
+    Array.from(topicsBarElem.children).forEach((topic: HTMLElement) => {
       // we are looking for the topic that would get cut off at the end of each "set",
       // by checking if the right edge would be past the window
       // - if so, this will be the first in the next "set"
-      if (topic.offsetLeft + topic.offsetWidth - offsets.current[offsets.current.length-1] > tabsWindowRef.current!.clientWidth) {
+      if (topic.offsetLeft + topic.offsetWidth - offsets.current[offsets.current.length-1] > tabsWindowElem.clientWidth) {
         offsets.current.push(topic.offsetLeft)
       }
     })
-  }, [tabsWindowRef.current, topicsBarRef.current])
+  }, 300)
+
+  useEffect(() => {
+    if (!tabsWindowRef.current || !topicsBarRef.current) return
+    
+    resizeObserver.current = new ResizeObserver(elements => {
+      if (!topicsBarRef.current) return
+      recalculateOffsets(topicsBarRef.current, elements[0].target)
+    })
+    resizeObserver.current.observe(tabsWindowRef.current)
+
+    return () => resizeObserver.current?.disconnect()
+  }, [tabsWindowRef, topicsBarRef, recalculateOffsets])
   
   const { results: coreTopics } = useMulti({
     terms: {view: "coreTags"},
@@ -131,7 +166,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     limit: 40
   })
   const frontpageTab = {_id: '0', name: 'Frontpage'}
-  let allTabs = [frontpageTab]
+  let allTabs: TopicsBarTab[] = [frontpageTab]
   if (coreTopics) {
     allTabs = allTabs.concat(coreTopics)
   }
@@ -170,7 +205,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
 
   return (
     <>
-      <SingleColumnSection>
+      <SingleColumnSection className={classes.tabsSection}>
         <div className={classes.tabsRow}>
           {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
             <ForumIcon icon="ChevronLeft" />
