@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 const styles = (theme: ThemeType): JssStyles => ({
   root: isEAForum
     ? {
-      margin: "8px auto",
+      margin: "8px 0",
     }
     : {
       marginBottom: 24,
@@ -21,7 +21,7 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2 } = Components
+  const { SingleColumnSection, PostsList2, TargetedJobAd } = Components
 
   return <SingleColumnSection className={classes.root}>
     <PostsList2
