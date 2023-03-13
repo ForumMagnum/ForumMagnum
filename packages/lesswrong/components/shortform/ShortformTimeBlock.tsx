@@ -30,7 +30,6 @@ const ShortformItem = ({comment}: {comment: ShortformComments}) => {
         forceSingleLine: true
       }}
       comment={comment}
-      key={comment._id}
       loadChildrenSeparately
     />
   );
@@ -66,7 +65,9 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType type="shortform" label="Shortform"/>
       </div>
-      {comments?.map((comment) => <ShortformItem comment={comment} />)}
+      {comments?.map((comment) =>
+        <ShortformItem key={comment._id} comment={comment} />
+      )}
       {comments?.length < totalCount! &&
         <div className={classes.loadMore}>
           <LoadMore
