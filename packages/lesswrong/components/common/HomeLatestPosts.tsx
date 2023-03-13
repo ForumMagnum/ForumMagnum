@@ -60,6 +60,8 @@ const advancedSortingText = isEAForum
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
 
+const defaultLimit = isEAForum ? 11 : 13;
+
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -76,8 +78,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
     CuratedPostsList, SectionTitle, StickiedPosts,
   } = Components
-  const limit = parseInt(query.limit) || 13
-  
+  const limit = parseInt(query.limit) || defaultLimit;
+
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 
