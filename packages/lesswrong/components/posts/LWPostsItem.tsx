@@ -4,16 +4,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
-import CloseIcon from '@material-ui/icons/Close';
-import ArchiveIcon from '@material-ui/icons/Archive';
 import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
+import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 
-export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 32
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -28,10 +26,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
-    '&:hover $actions': {
+    '&:hover .PostsItemTrailingButtons-actions': {
       opacity: .2,
     },
-    '&:hover $archiveButton': {
+    '&:hover .PostsItemTrailingButtons-archiveButton': {
       opacity: .2,
     }
   },
@@ -316,10 +314,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
-
-const archiveDraftTooltip = "Archive this draft (hide from list)"
-
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
@@ -376,20 +370,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
     AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
-    PostMostValuableCheckbox,
+    PostMostValuableCheckbox, PostsItemTrailingButtons,
   } = Components;
-
-  const dismissButton = (showDismissButton &&
-    <LWTooltip title={dismissRecommendationTooltip} placement="right">
-      <CloseIcon onClick={onDismiss} />
-    </LWTooltip>
-  );
-
-  const archiveButton = (showArchiveButton &&
-    <LWTooltip title={archiveDraftTooltip} placement="right">
-      <ArchiveIcon onClick={onArchive} />
-    </LWTooltip>
-  );
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
@@ -512,7 +494,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <BookmarkButton post={post}/>
             </div>}
             <div className={classes.mobileDismissButton}>
-              {dismissButton}
+              <DismissButton {...{showDismissButton, onDismiss}} />
             </div>
 
             {resumeReading &&
@@ -528,15 +510,19 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             }
           </PostsItemTooltipWrapper>
 
-          {showTrailingButtons && !showMostValuableCheckbox && <>
-            {<div className={classes.actions}>
-              {dismissButton}
-              {!resumeReading && <PostActionsButton post={post} vertical />}
-            </div>}
-            {<div className={classes.archiveButton}>
-              {archiveButton}
-            </div>}
-          </>}
+          <PostsItemTrailingButtons
+            {...{
+              post,
+              showTrailingButtons,
+              showMostValuableCheckbox,
+              showDismissButton,
+              showArchiveButton,
+              resumeReading,
+              onDismiss,
+              onArchive,
+            }}
+          />
+
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

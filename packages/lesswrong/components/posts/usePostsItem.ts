@@ -85,6 +85,8 @@ export type PostsItemConfig = {
   showMostValuableCheckbox?: boolean
 }
 
+export type UsePostsItem = ReturnType<typeof usePostsItem>;
+
 export const usePostsItem = ({
   post,
   tagRel = null,
