@@ -53,6 +53,7 @@ export const coreTagStyle = (theme: ThemeType): JssStyles => ({
   color: theme.palette.tag.coreTagText,
   "&:hover": {
     backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+    borderColor: theme.palette.tag.coreTagBackgroundHover,
   },
 });
 
