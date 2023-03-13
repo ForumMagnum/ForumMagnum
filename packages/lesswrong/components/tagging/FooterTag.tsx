@@ -144,9 +144,13 @@ const FooterTag = ({
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
+  const tagName = isEAForum && smallText
+    ? tag.shortName || tag.name
+    : tag.name;
+
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
-    <span className={classes.name}>{tag.name}</span>
+    <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 
