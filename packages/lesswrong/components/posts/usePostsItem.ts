@@ -23,10 +23,11 @@ const mostRelevantTag = (
   tagRelevance: Record<string, number>,
 ): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
 
-const getPrimaryTag = (post: PostsListWithVotes) => {
+const getPrimaryTag = (post: PostsListWithVotes, includeNonCore: boolean = false) => {
   const {tags, tagRelevance} = post;
   const core = tags.filter(({core}) => core);
-  const result = mostRelevantTag(core?.length ? core : tags, tagRelevance);
+  const potentialTags = core.length < 1 && includeNonCore ? tags : core;
+  const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : null;
 }
 
