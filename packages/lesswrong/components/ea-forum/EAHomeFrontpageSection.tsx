@@ -14,10 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tabsRow: {
     position: 'relative',
     [theme.breakpoints.down('sm')]: {
-      padding: '0 28px',
       marginTop: 20,
-      marginLeft: -8,
-      marginRight: -8
     },
   },
   tabsWindowContainer: {
@@ -52,51 +49,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       color: theme.palette.grey[900],
     },
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 840px)': {
       display: 'none',
     },
   },
   arrowIcon: {
     fontSize: 15
   },
-  arrowMobile: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      position: 'absolute',
-      top: 0,
-      color: theme.palette.grey[600],
-      cursor: 'pointer',
-    }
-  },
   leftArrow: {
     left: -30,
   },
-  leftArrowMobile: {
-    [theme.breakpoints.down('sm')]: {
-      left: 0,
-      width: 28
-    }
-  },
   rightArrow: {
     right: -30,
-  },
-  rightArrowMobile: {
-    [theme.breakpoints.down('sm')]: {
-      right: 0,
-      width: 28
-    }
-  },
-  disabledArrow: {
-    color: theme.palette.grey[300],
-    cursor: 'default'
   },
   topicsBar: {
     display: 'flex',
     columnGap: 8,
     whiteSpace: 'nowrap',
     transition: 'transform 0.2s ease',
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 840px)': {
       columnGap: 6,
     }
   },
@@ -113,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[400],
     },
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 840px)': {
       fontSize: 12,
       lineHeight: '18px',
       padding: '3px 6px',
@@ -140,35 +111,22 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
   const tabsWindowRef = useRef<HTMLDivElement|null>(null)
   const topicsBarRef = useRef<HTMLDivElement|null>(null)
 
-  // we store the topic bar offsets that correspond to displaying each "set" of topics
+  // we store the topic bar scrollLeft offsets that correspond to displaying each "set" of topics
   const offsets = useRef<Array<number>>([0])
-  // we calculate the offsets when the page loads, and when the tabs window resizes
-  const resizeObserver = useRef<ResizeObserver|null>(null)
-  
-  const recalculateOffsets = debounce((topicsBarElem: HTMLDivElement, tabsWindowElem: HTMLElement) => {
-    // first reset the offsets list
-    offsets.current = [0]
-    Array.from(topicsBarElem.children).forEach((topic: HTMLElement) => {
-      // we are looking for the topic that would get cut off at the end of each "set",
-      // by checking if the right edge would be past the window
-      // - if so, this will be the first in the next "set"
-      if (topic.offsetLeft + topic.offsetWidth - offsets.current[offsets.current.length-1] > tabsWindowElem.clientWidth) {
-        offsets.current.push(topic.offsetLeft)
-      }
-    })
-  }, 300)
 
   useEffect(() => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
-    
-    resizeObserver.current = new ResizeObserver(elements => {
-      if (!topicsBarRef.current) return
-      recalculateOffsets(topicsBarRef.current, elements[0].target)
+    offsets.current = [0]
+    Array.from(topicsBarRef.current.children).forEach((topic: HTMLElement) => {
+      if (!tabsWindowRef.current || !topicsBarRef.current) return
+      // we are looking for the topic that would get cut off at the end of each "set",
+      // by checking if the right edge would be past the window
+      // - if so, this will be the first in the next "set"
+      if (topic.offsetLeft + topic.offsetWidth - offsets.current[offsets.current.length-1] > tabsWindowRef.current.offsetWidth) {
+        offsets.current.push(topic.offsetLeft)
+      }
     })
-    resizeObserver.current.observe(tabsWindowRef.current)
-
-    return () => resizeObserver.current?.disconnect()
-  }, [tabsWindowRef, topicsBarRef, recalculateOffsets])
+  }, [tabsWindowRef, topicsBarRef])
   
   const { results: coreTopics } = useMulti({
     terms: {view: "coreTags"},
@@ -185,19 +143,24 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
   
-  // when the topics bar is scrolled, check if we need to hide/show the left/right arrows
+  /**
+   * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
+   */
   const updateArrows = debounce(() => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
 
-    const currentOffset = tabsWindowRef.current.scrollLeft
-    // max amount we can scroll to the right, reduced a bit to make sure
+    const currentScrollLeft = tabsWindowRef.current.scrollLeft
+    // max amount we can scroll to the right, reduced a bit to make sure that
     // we hide the right arrow when scrolled all the way to the right
     const maxScrollLeft = topicsBarRef.current.scrollWidth - tabsWindowRef.current.clientWidth - 10
     
-    setLeftArrowVisible(currentOffset > 0)
-    setRightArrowVisible(currentOffset < maxScrollLeft)
-  }, 100)
+    setLeftArrowVisible(currentScrollLeft > 0)
+    setRightArrowVisible(currentScrollLeft < maxScrollLeft)
+  }, 80)
   
+  /**
+   * Clicking the left arrow smooth scrolls us to the previous offset (or defaults to 0).
+   */
   const scrollLeft = () => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
     // look for the offset that is to the left of us
@@ -209,8 +172,12 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
       left: nextOffset,
       behavior: 'smooth'
     })
+    setRightArrowVisible(true)
   }
   
+  /**
+   * Clicking the right arrow smooth scrolls us to the next offset (if one exists).
+   */
   const scrollRight = () => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
     // look for the offset that is to the right of us
@@ -223,6 +190,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
       left: nextOffset,
       behavior: 'smooth'
     })
+    setLeftArrowVisible(true)
   }
   
   const handleTabClick = (tab) => {
@@ -246,9 +214,6 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
             {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
               <ForumIcon icon="ChevronLeft" className={classes.arrowIcon} />
             </div>}
-            <div onClick={scrollLeft} className={classNames(classes.arrowMobile, classes.leftArrowMobile, {[classes.disabledArrow]: !leftArrowVisible})}>
-              <ForumIcon icon="ChevronLeft" />
-            </div>
             <div className={classes.tabsWindowContainer}>
               <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
                 <div ref={topicsBarRef} className={classes.topicsBar}>
@@ -265,9 +230,6 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
                 </div>
               </div>
               {rightArrowVisible && <div className={classes.tabsWindowFade}></div>}
-            </div>
-            <div onClick={scrollRight} className={classNames(classes.arrowMobile, classes.rightArrowMobile, {[classes.disabledArrow]: !rightArrowVisible})}>
-              <ForumIcon icon="ChevronRight" />
             </div>
             {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
               <ForumIcon icon="ChevronRight" className={classes.arrowIcon} />
