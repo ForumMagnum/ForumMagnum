@@ -4,9 +4,9 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
 import { useClickableCell } from "../common/useClickableCell";
+import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
-import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,6 +22,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     color: theme.palette.grey[600],
     cursor: "pointer",
+    "&:hover": {
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`,
+    },
   },
   karma: {
     display: "flex",
