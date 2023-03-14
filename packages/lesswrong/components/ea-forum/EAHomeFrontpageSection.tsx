@@ -9,13 +9,14 @@ import debounce from 'lodash/debounce';
 
 const styles = (theme: ThemeType): JssStyles => ({
   tabsSection: {
-    marginBottom: 26
-  },
-  tabsRow: {
-    position: 'relative',
+    marginTop: 10,
+    marginBottom: 26,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
     },
+  },
+  tabsRow: {
+    position: 'relative',
   },
   tabsWindowContainer: {
     position: 'relative',
@@ -87,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@media (max-width: 840px)': {
       fontSize: 12,
       lineHeight: '18px',
-      padding: '3px 6px',
+      padding: '4px 6px',
     }
   },
   activeTab: {
@@ -198,7 +199,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   
-  const { SingleColumnSection, ForumIcon, HomeLatestPosts, SectionTitle, PostsList2 } = Components
+  const { SingleColumnSection, ForumIcon, HomeLatestPosts, EAHomeCommunityPosts, SectionTitle, PostsList2 } = Components
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
@@ -238,11 +239,13 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
         </SingleColumnSection>
       </AnalyticsContext>
 
-      {activeTab.name === 'Frontpage' ? <HomeLatestPosts /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+      {activeTab.name === 'Frontpage' ? <>
+        <HomeLatestPosts />
+        <EAHomeCommunityPosts />
+      </> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SectionTitle title="New & upvoted" noTopMargin />
         <PostsList2
           terms={topicPostTerms}
-          enableTotal
           itemsPerPage={30}
           hideTag
         />

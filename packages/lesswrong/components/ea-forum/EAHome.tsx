@@ -16,7 +16,7 @@ const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMai
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, EAHomeFrontpageSection, EAHomeCommunityPosts, RecommendationsAndCurated,
+    RecentDiscussionFeed, EAHomeFrontpageSection, RecommendationsAndCurated,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, CurrentSpotlightItem
   } = Components
@@ -45,7 +45,6 @@ const EAHome = () => {
       </SingleColumnSection>}
       
       <EAHomeFrontpageSection />
-      <EAHomeCommunityPosts />
 
       {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
       <RecentDiscussionFeed
