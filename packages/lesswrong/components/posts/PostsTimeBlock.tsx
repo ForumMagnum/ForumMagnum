@@ -8,6 +8,7 @@ import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -63,6 +64,31 @@ const postTypes: PostTypeOptions[] = [
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
+const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"))
+
+const getTitle = (
+  startDate: moment.Moment,
+  timeframe: TimeframeType,
+  size: 'xsDown' | 'smUp' | null,
+) => {
+  if (timeframe === 'yearly') {
+    return startDate.format('YYYY');
+  }
+  if (timeframe === 'monthly') {
+    return startDate.format('MMMM YYYY');
+  }
+  const result = size === 'smUp'
+    ? startDate.format('ddd, MMM Do YYYY')
+    : startDate.format('dddd, MMMM Do YYYY');
+  if (timeframe === 'weekly') {
+    return `Week Of ${result}`;
+  }
+  if (isEAForum && isToday(startDate)) {
+    return result.replace(/.*,/, "Today,");
+  }
+  return result;
+}
+
 const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes, includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: ()=>void,
@@ -115,109 +141,101 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     setNoTags(true);
   }, []);
 
-  const getTitle = (startDate: moment.Moment, timeframe: TimeframeType, size: 'xsDown' | 'smUp' | null) => {
-    if (timeframe === 'yearly') return startDate.format('YYYY')
-    if (timeframe === 'monthly') return startDate.format('MMMM YYYY')
-    let result = size === 'smUp' ? startDate.format('ddd, MMM Do YYYY') : startDate.format('dddd, MMMM Do YYYY')
-    if (timeframe === 'weekly') result = `Week Of ${result}`
-    return result
+  const {
+    PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
+    Divider, Typography, PostsTagsList,
+  } = Components;
+  const timeBlock = timeframeToTimeBlock[timeframe];
+
+  const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0));
+  // The most recent timeBlock is hidden if there are no posts or shortforms
+  // on it, to avoid having an awkward empty partial timeBlock when it's close
+  // to midnight.
+  if (noPosts && noShortform && noTags && hideIfEmpty) {
+    return null;
   }
 
-  const render = () => {
-    const { PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography, PostsTagsList } = Components
-    const timeBlock = timeframeToTimeBlock[timeframe]
+  const postGroups = postTypes.map(type => ({
+    ...type,
+    filteredPosts: filteredPosts?.filter(type.postIsType) || []
+  }));
 
-    const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0))
-    // The most recent timeBlock is hidden if there are no posts or shortforms
-    // on it, to avoid having an awkward empty partial timeBlock when it's close
-    // to midnight.
-    if (noPosts && noShortform && noTags && hideIfEmpty) {
-      return null
-    }
-
-    const postGroups = postTypes.map(type => ({
-      ...type,
-      filteredPosts: filteredPosts?.filter(type.postIsType) || []
-    }))
-
-    return (
-      <div className={classes.root}>
-        <QueryLink merge rel="nofollow" query={{
-          after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
-          before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
-          limit: 100
-        }}>
-          <Typography variant="headline" className={classes.timeBlockTitle}>
-            {['yearly', 'monthly'].includes(timeframe) && <div>
-              {getTitle(startDate, timeframe, null)}
-            </div>}
-            {['weekly', 'daily'].includes(timeframe) && <div>
-              <div className={classes.smallScreenTitle}>
-                {getTitle(startDate, timeframe, 'xsDown')}
-              </div>
-              <div className={classes.largeScreenTitle}>
-                {getTitle(startDate, timeframe, 'smUp')}
-              </div>
-            </div>}
-          </Typography>
-        </QueryLink>
-
-        <div className={classes.dayContent}>
-          { noPosts && <div className={classes.noPosts}>
-            No posts for {
-            timeframe === 'daily' ?
-              startDate.format('MMMM Do YYYY') :
-              // Should be pretty rare. Basically people running off the end of
-              // the Forum history on yearly
-              `this ${timeBlock}`
-            }
-          </div> }
-          {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
-          {postGroups.map(({name, filteredPosts, label}) => {
-            if (filteredPosts?.length > 0) return <div key={name}>
-              <div
-                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
-              >
-                <ContentType type={name} label={label} />
-              </div>
-              <div className={classes.posts}>
-                {filteredPosts.map((post, i) =>
-                  <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
-                )}
-              </div>
-            </div>
-          })}
-
-          {(filteredPosts && filteredPosts.length < totalCount!) && <div className={classes.loadMore}>
-            <LoadMore
-              {...loadMoreProps}
-            />
+  return (
+    <div className={classes.root}>
+      <QueryLink merge rel="nofollow" query={{
+        after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
+        before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+        limit: 100
+      }}>
+        <Typography variant="headline" className={classes.timeBlockTitle}>
+          {['yearly', 'monthly'].includes(timeframe) && <div>
+            {getTitle(startDate, timeframe, null)}
           </div>}
-          
-          {displayShortform && <ShortformTimeBlock
-            reportEmpty={reportEmptyShortform}
-            terms={{
-              view: "topShortform",
-              // NB: The comments before differs from posts in that before is not
-              // inclusive
-              before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
-              after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
-            }}
-          />}
-          
-          {timeframe==="daily" && includeTags && <TagEditsTimeBlock
-            before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
-            after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
-            reportEmpty={reportEmptyTags}
-          />}
-        </div>
-        {!loading && <div className={classes.divider}>
-          <Divider wings={false} />
+          {['weekly', 'daily'].includes(timeframe) && <div>
+            <div className={classes.smallScreenTitle}>
+              {getTitle(startDate, timeframe, 'xsDown')}
+            </div>
+            <div className={classes.largeScreenTitle}>
+              {getTitle(startDate, timeframe, 'smUp')}
+            </div>
+          </div>}
+        </Typography>
+      </QueryLink>
+
+      <div className={classes.dayContent}>
+        { noPosts && <div className={classes.noPosts}>
+          No posts for {
+          timeframe === 'daily' ?
+            startDate.format('MMMM Do YYYY') :
+            // Should be pretty rare. Basically people running off the end of
+            // the Forum history on yearly
+            `this ${timeBlock}`
+          }
+        </div> }
+        {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
+        {postGroups.map(({name, filteredPosts, label}) => {
+          if (filteredPosts?.length > 0) return <div key={name}>
+            <div
+              className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+            >
+              <ContentType type={name} label={label} />
+            </div>
+            <div className={classes.posts}>
+              {filteredPosts.map((post, i) =>
+                <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
+              )}
+            </div>
+          </div>
+        })}
+
+        {(filteredPosts && filteredPosts.length < totalCount!) && <div className={classes.loadMore}>
+          <LoadMore
+            {...loadMoreProps}
+          />
         </div>}
+
+        {displayShortform && <ShortformTimeBlock
+          reportEmpty={reportEmptyShortform}
+          terms={{
+            view: "topShortform",
+            // NB: The comments before differs from posts in that before is not
+            // inclusive
+            before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
+            after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
+          }}
+        />}
+
+        {timeframe==="daily" && includeTags && <TagEditsTimeBlock
+          before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
+          after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
+          reportEmpty={reportEmptyTags}
+        />}
       </div>
-    );
-  }
-  return render();
+      {!loading && <div className={classes.divider}>
+        <Divider wings={false} />
+      </div>}
+    </div>
+  );
 };
 
 const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
