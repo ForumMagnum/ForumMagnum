@@ -1268,13 +1268,13 @@ addRoute(
     componentName: 'ModerationTemplatesPage',
     title: "Moderation Message Templates"
   },
-  {
-    name: 'moderation',
-    path: '/moderation',
-    componentName: 'ModerationLog',
-    title: "Moderation Log",
-    noIndex: true
-  },
+  // {
+  //   name: 'moderation',
+  //   path: '/moderation',
+  //   componentName: 'ModerationLog',
+  //   title: "Moderation Log",
+  //   noIndex: true
+  // },
   {
     name: 'moderatorComments',
     path: '/moderatorComments',
