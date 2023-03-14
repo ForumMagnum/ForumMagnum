@@ -21,7 +21,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "sticky",
     paddingTop: 4,
     paddingBottom: 4,
-    zIndex: 1
+    zIndex: 1,
+    ...(isEAForum ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontWeight: 600,
+      fontSize: 20,
+      color: theme.palette.grey[1000],
+    } : {}),
   },
   smallScreenTitle: {
     [theme.breakpoints.down('xs')]: {
@@ -143,7 +149,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
 
   const {
     PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList,
+    Divider, Typography, PostsTagsList, SectionTitle
   } = Components;
   const timeBlock = timeframeToTimeBlock[timeframe];
 
@@ -198,7 +204,10 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
             <div
               className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
             >
-              <ContentType type={name} label={label} />
+              {isEAForum ?
+                <SectionTitle title={label} className={classes.OLLIETODO} /> :
+                <ContentType type={name} label={label} />
+              }
             </div>
             <div className={classes.posts}>
               {filteredPosts.map((post, i) =>
