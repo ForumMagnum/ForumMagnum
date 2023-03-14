@@ -87,8 +87,8 @@ const PostsItemDate = ({post, classes}: {
     >
       <PostsItem2MetaInfo className={classes.postedAt}>
         {/* debug then real */}
-        {moment(new Date(post.curatedDate)).from(now)},
-        {moment(new Date(post.curatedDate)).fromNow()}
+        {moment(new Date(post.curatedDate)).from(now)}
+        {/* {moment(new Date(post.curatedDate)).fromNow()} */}
       </PostsItem2MetaInfo>
     </LWTooltip>
   }
@@ -99,8 +99,8 @@ const PostsItemDate = ({post, classes}: {
   >
     <PostsItem2MetaInfo className={classes.postedAt}>
       {/* debug then real */}
-      {moment(new Date(post.postedAt)).from(now)},
-      {moment(new Date(post.postedAt)).fromNow()}
+      {moment(new Date(post.postedAt)).from(now)}
+      {/* {moment(new Date(post.postedAt)).fromNow()} */}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }
