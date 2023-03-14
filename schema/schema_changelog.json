@@ -135,7 +135,7 @@
     "timestamp": "2023-03-06T18:25:40.000Z"
   },
   {
-    "acceptsSchemaHash": "f3bb9b35520db60be5d6640c1be3377b",
+    "acceptsSchemaHash": "9cc5aad21f36f801d9ce6b9e9e3ce213",
     "acceptedByMigration": "20230314T222203.add_backfilled.ts",
     "timestamp": "2023-03-14T22:22:03.000Z"
   }
