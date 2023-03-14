@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -193,6 +192,11 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     }
   }
   
+  const handleTabClick = (tab) => {
+    setActiveTab(tab)
+    captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
+  }
+  
   const { SingleColumnSection, ForumIcon, PostsList2, HomeLatestPosts } = Components
   
   const topicPostTerms = {
@@ -206,42 +210,46 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
 
   return (
     <>
-      <SingleColumnSection className={classes.tabsSection}>
-        <div className={classes.tabsRow}>
-          {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
-            <ForumIcon icon="ChevronLeft" />
-          </div>}
-          <div onClick={scrollLeft} className={classNames(classes.arrowMobile, classes.leftArrowMobile, {[classes.disabledArrow]: !leftArrowVisible})}>
-            <ForumIcon icon="ChevronLeft" />
-          </div>
-          <div ref={tabsWindowRef} className={classNames(classes.tabsWindow, {[classes.tabsWindowFade]: rightArrowVisible})}>
-            <div ref={topicsBarRef} className={classes.topicsBar} style={{transform: `translatex(-${currentOffset}px)`}}>
-              {allTabs.map(tab => {
-                const tabName = tab.shortName || tab.name
-                return <button
-                  key={tabName}
-                  onClick={() => setActiveTab(tab)}
-                  className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
-                >
-                  {tabName}
-                </button>
-              })}
+      <AnalyticsContext pageSectionContext="topicsBar">
+        <SingleColumnSection className={classes.tabsSection}>
+          <div className={classes.tabsRow}>
+            {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
+              <ForumIcon icon="ChevronLeft" />
+            </div>}
+            <div onClick={scrollLeft} className={classNames(classes.arrowMobile, classes.leftArrowMobile, {[classes.disabledArrow]: !leftArrowVisible})}>
+              <ForumIcon icon="ChevronLeft" />
             </div>
+            <div ref={tabsWindowRef} className={classNames(classes.tabsWindow, {[classes.tabsWindowFade]: rightArrowVisible})}>
+              <div ref={topicsBarRef} className={classes.topicsBar} style={{transform: `translatex(-${currentOffset}px)`}}>
+                {allTabs.map(tab => {
+                  const tabName = tab.shortName || tab.name
+                  return <button
+                    key={tabName}
+                    onClick={() => handleTabClick(tab)}
+                    className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
+                  >
+                    {tabName}
+                  </button>
+                })}
+              </div>
+            </div>
+            <div onClick={scrollRight} className={classNames(classes.arrowMobile, classes.rightArrowMobile, {[classes.disabledArrow]: !rightArrowVisible})}>
+              <ForumIcon icon="ChevronRight" />
+            </div>
+            {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
+              <ForumIcon icon="ChevronRight" />
+            </div>}
           </div>
-          <div onClick={scrollRight} className={classNames(classes.arrowMobile, classes.rightArrowMobile, {[classes.disabledArrow]: !rightArrowVisible})}>
-            <ForumIcon icon="ChevronRight" />
-          </div>
-          {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
-            <ForumIcon icon="ChevronRight" />
-          </div>}
-        </div>
-      </SingleColumnSection>
+        </SingleColumnSection>
+      </AnalyticsContext>
 
-      {activeTab.name === 'Frontpage' ? <HomeLatestPosts /> : <PostsList2
-        terms={topicPostTerms}
-        enableTotal
-        itemsPerPage={15}
-      />}
+      {activeTab.name === 'Frontpage' ? <HomeLatestPosts /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+        <PostsList2
+          terms={topicPostTerms}
+          enableTotal
+          itemsPerPage={15}
+        />
+      </AnalyticsContext>}
     </>
   )
 }

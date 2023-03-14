@@ -5,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -30,7 +31,7 @@ const EAHome = () => {
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
 
   return (
-    <React.Fragment>
+    <AnalyticsContext pageContext="homePage">
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
@@ -53,7 +54,7 @@ const EAHome = () => {
         commentsLimit={recentDiscussionCommentsPerPost}
         maxAgeHours={18}
       />
-    </React.Fragment>
+    </AnalyticsContext>
   )
 }
 
