@@ -12,18 +12,35 @@ import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 8,
     marginBottom: 8,
   },
+  postTypeLink: {
+    "&:hover": isEAForum ? {opacity: 1} : {},
+  },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    paddingTop: 4,
-    paddingBottom: 4,
-    border: theme.palette.tag.coreTagBorder,
+    ...(isEAForum
+      ? {
+        marginBottom: 0,
+        "&:hover": {
+          opacity: 1,
+          backgroundColor: theme.palette.tag.hollowTagBackgroundHover,
+        },
+        "& a:hover": {
+          opacity: 1,
+        },
+      }
+      : {
+        paddingTop: 4,
+        paddingBottom: 4,
+      }),
+    border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
   card: {
@@ -107,12 +124,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
 
   const { Loading, FooterTag, ContentStyles } = Components
   
-  const MaybeLink = ({to, children}: {
-    to: string|null
-    children: React.ReactNode
+  const MaybeLink = ({to, children, className}: {
+    to: string|null,
+    children: React.ReactNode,
+    className?: string,
   }) => {
     if (to) {
-      return <Link to={to}>{children}</Link>
+      return <Link to={to} className={className}>{children}</Link>
     } else {
       return <>{children}</>;
     }
@@ -139,15 +157,15 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
-    ? <Link to={contentTypeInfo.curated.linkTarget}>
+    ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
         <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
       </Link>
     : (post.frontpageDate
-      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
+      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
         </MaybeLink>
       : (post.reviewedByUserId
-        ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
+        ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
           </MaybeLink>
         : null

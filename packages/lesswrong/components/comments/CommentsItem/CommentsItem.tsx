@@ -367,7 +367,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const {
     ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
     CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, TopTagIcon, FooterTag, LoadMore,
+    LWHelpIcon, CoreTagIcon, FooterTag, LoadMore,
   } = Components
 
   if (!comment) {
@@ -454,7 +454,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         <div className={classes.body}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
-              <TopTagIcon tag={tag} />
+              <CoreTagIcon tag={tag} />
             </span> : <CommentDiscussionIcon
               comment={comment}
             />}

@@ -159,7 +159,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
+    PostsPageEventData, FooterTagList, AddToCalendarButton,
     NewFeaturePulse, ForumIcon} = Components;
   const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -194,8 +194,6 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
-    {!post.group && !post.sequence && !post.question && <PostsPageTopTag post={post} />}
-    
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />

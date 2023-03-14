@@ -8,6 +8,7 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/24/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
+import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -33,7 +34,8 @@ export type ForumIconName =
   "StarBorder" |
   "User" |
   "Link" |
-  "Pin";
+  "Pin" |
+  "Close";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -45,6 +47,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: MuiPersonIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Close: CloseIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -55,6 +58,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: UserIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Close: CloseIcon,
   },
 };
 
