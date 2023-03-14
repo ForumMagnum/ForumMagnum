@@ -411,6 +411,9 @@ const PostsItem2 = ({
   /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  /** hideAuthor: hide the post author (unless there are multiple authors). Used
+   * on user-profile pages where there's a list of posts all by the same author,
+   * to avoid the redundancy. */
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
   tooltipPlacement?: PopperPlacementType,
@@ -499,6 +502,9 @@ const PostsItem2 = ({
   }
   addPost(post._id);
 
+  const hasCoauthors = post.coauthors && post.coauthors.length>0;
+  const showAuthors = !post.isEvent && (!hideAuthor || hasCoauthors);
+  
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
       <div className={classes.row}>
@@ -574,7 +580,7 @@ const PostsItem2 = ({
                 {/* space in-between title and author if there is width remaining */}
                 <span className={classes.spacer} />
 
-                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
+                { showAuthors && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()} tooltipPlacement="top"/>
                 </PostsItem2MetaInfo>}
 
