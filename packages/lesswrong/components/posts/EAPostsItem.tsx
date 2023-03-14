@@ -60,6 +60,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    [theme.breakpoints.down("xs")]: {
+      "-webkit-line-clamp": 3,
+    },
   },
   titleOverflow: {
     overflow: "hidden",
@@ -210,23 +216,21 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
             }
           </div>
           <div className={classes.details}>
-            <div className={classes.titleOverflow}>
-              <PostsTitle
-                {...{
-                  post,
-                  postLink,
-                  sticky,
-                  showDraftTag,
-                  showPersonalIcon,
-                  strikethroughTitle,
-                }}
-                read={isRead && !showReadCheckbox}
-                curatedIconLeft={false}
-                iconsOnLeft
-                wrap
-                className={classes.title}
-              />
-            </div>
+            <PostsTitle
+              {...{
+                post,
+                postLink,
+                sticky,
+                showDraftTag,
+                showPersonalIcon,
+                strikethroughTitle,
+              }}
+              read={isRead && !showReadCheckbox}
+              curatedIconLeft={false}
+              iconsOnLeft
+              wrap
+              className={classes.title}
+            />
             <div className={classes.meta}>
               <TruncatedAuthorsList
                 post={post}
