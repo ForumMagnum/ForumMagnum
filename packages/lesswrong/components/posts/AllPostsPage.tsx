@@ -5,15 +5,32 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
-  }
+    "& .SectionTitle-title": isEAForum
+      ? {
+        color: theme.palette.grey[1000],
+        textTransform: "none",
+        fontWeight: 600,
+        fontSize: 28,
+        lineHeight: "34px",
+      }
+      : {},
+  },
+  divider: isEAForum
+    ? {
+      border: "none",
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+    }
+    : {
+      display: "none",
+    },
 });
 
 export const timeframes = {
@@ -25,6 +42,11 @@ export const timeframes = {
 }
 
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
+
+const formatSort = (sorting: string) => {
+  const sort = SORT_ORDER_OPTIONS[sorting].label
+  return isEAForum ? sort : `Sorted by ${sort}`;
+}
 
 const AllPostsPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
@@ -72,10 +94,11 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
           >
             <div className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                <SortButton label={`Sorted by ${SORT_ORDER_OPTIONS[currentSorting].label}`} />
+                <SortButton label={formatSort(currentSorting)} />
               </SectionTitle>
             </div>
           </Tooltip>
+          <hr className={classes.divider} />
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}
