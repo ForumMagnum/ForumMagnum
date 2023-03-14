@@ -8,6 +8,7 @@ const PostsItemKarma = ({post, placement="left"}: {
   placement?: PopperPlacementType
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const debugScore = post.debugScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
   const { LWTooltip } = Components
 
@@ -15,12 +16,13 @@ const PostsItemKarma = ({post, placement="left"}: {
     <LWTooltip
       placement={placement}
       title={<div>
+        <div>{ debugScore || 0 } karma</div>
         <div>{ baseScore || 0 } karma</div>
         <div>({ post.voteCount} votes)</div>
         {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
       </div>}
     >
-      { baseScore || 0 }
+      { debugScore || 0 }, { baseScore || 0 }
     </LWTooltip>
   );
 };

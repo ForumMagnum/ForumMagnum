@@ -16,6 +16,9 @@ import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import qs from 'qs';
 import { calculateDecayFactor, defaultTimeDecayExprProps } from '../../lib/scoring';
+import Button from '@material-ui/core/Button';
+import { useMutation } from '@apollo/client/react/hooks/useMutation';
+import { gql } from '@apollo/client';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -79,6 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     flexBasis: 0,
     flexGrow: 1,
+  },
+  karmaButton: {
+    width: 200
   }
 })
 
@@ -103,12 +109,25 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   } = Components
   const limit = parseInt(query.limit) || 13
   
+  const [updateDebugKarma] = useMutation(gql`
+    mutation updateDebugKarma($now: String!) {
+      updateDebugKarma(now: $now)
+    }
+  `);
+
   const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
   console.log("now that is set at the top", now.format("YYYY-MM-DD HH:mm:ss"))
   const [daysAgoCutoff, setDaysAgoCutoff] = useState(14);
   const dateCutoff = now.clone().subtract(daysAgoCutoff, 'days').format("YYYY-MM-DD");
   
-  const mode = query.mode ?? 'hyperbolic';
+  const updatePostKarma = (now: string) => {
+    if (!now) {
+      throw new Error("now is not set")
+    }
+    // call mutation to update post karma
+    void updateDebugKarma({variables: {now}})
+    console.log("updating post karma (does not affect actual karma, just the debug version we are using)")
+  }
 
   const recentPostsTerms = {
     ...query,
@@ -231,6 +250,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               history.push({...location, search: `?${qs.stringify(newQuery)}`})
             }}
           />
+          <Button className={classes.karmaButton} onClick={() => updatePostKarma(now.toISOString())}>
+            Update Karma to current effective date
+          </Button>
           {createNumberWidget("hypStartingAgeHours", defaultTimeDecayExprProps.hypStartingAgeHours, 1)}
           {createNumberWidget("hypDecayFactorSlowest", defaultTimeDecayExprProps.hypDecayFactorSlowest, 0.05)}
           {createNumberWidget("hypDecayFactorFastest", defaultTimeDecayExprProps.hypDecayFactorFastest, 0.05)}

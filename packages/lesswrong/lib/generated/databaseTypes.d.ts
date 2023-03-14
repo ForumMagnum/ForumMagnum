@@ -642,6 +642,7 @@ interface DbPost extends DbObject {
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
   agentFoundationsId: string
+  debugScore: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents

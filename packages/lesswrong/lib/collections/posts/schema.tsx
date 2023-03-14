@@ -2511,6 +2511,17 @@ Object.assign(schema, {
     insertableBy: [userOwns, 'admins'],
     editableBy: [userOwns, 'admins'],
   },
+  
+  debugScore: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests'],
+    onInsert: (document): number => {
+      // default to 0 if empty
+      return document.baseScore || 0;
+    }
+  },
 });
 
 export default schema;

@@ -357,7 +357,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     score: {$divide:[
       {$multiply: [
         {$add:[
-          "$baseScore",
+          terms.now ? "$debugScore" : "$baseScore",
           ...tagsSoftFiltered.map(t => (
             {$cond: {
               if: {$gt: ["$tagRelevance."+t.tagId, 0]},

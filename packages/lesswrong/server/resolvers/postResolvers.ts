@@ -12,6 +12,8 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
+import { PostsRepo } from '../repos';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -165,3 +167,18 @@ augmentFieldsDict(Posts, {
     },
   },
 })
+
+addGraphQLResolvers({
+  Mutation: {
+    async updateDebugKarma(root: void, {now}: {now: string}, context: ResolverContext) {
+      console.log("Updating debug karma")
+      const sanitisedNow = new Date(now); // potential SQL injection
+      const postsRepo = new PostsRepo();
+      console.log("now", now.toString())
+      await postsRepo.updateDebugScore(now.toString());
+      return 'success'
+    }
+  }
+});
+
+addGraphQLMutation('updateDebugKarma(now: String!): String');
