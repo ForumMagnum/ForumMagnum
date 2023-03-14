@@ -80,7 +80,8 @@ const SectionTitle = ({children, classes, className, title, noTopMargin, noBotto
 }
 
 const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {
-  styles, stylePriority: -1
+  styles,
+  stylePriority: -1,
 });
 
 declare global {

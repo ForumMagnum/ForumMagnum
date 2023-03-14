@@ -19,15 +19,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
     position: "sticky",
-    paddingTop: 4,
-    paddingBottom: 4,
     zIndex: 1,
-    ...(isEAForum ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 600,
-      fontSize: 20,
-      color: theme.palette.grey[1000],
-    } : {}),
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+        fontWeight: 600,
+        fontSize: 16,
+        color: theme.palette.grey[1000],
+        marginBottom: -10,
+        marginTop: 25,
+      }
+      : {
+        paddingTop: 4,
+        paddingBottom: 4,
+      }),
   },
   smallScreenTitle: {
     [theme.breakpoints.down('xs')]: {
@@ -53,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: 6,
+    marginTop: isEAForum ? -4 : 6,
     marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
@@ -70,7 +75,7 @@ const postTypes: PostTypeOptions[] = [
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
-const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"))
+const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"));
 
 const getTitle = (
   startDate: moment.Moment,
@@ -149,7 +154,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
 
   const {
     PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList, SectionTitle
+    Divider, Typography, PostsTagsList,
   } = Components;
   const timeBlock = timeframeToTimeBlock[timeframe];
 
@@ -204,10 +209,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
             <div
               className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
             >
-              {isEAForum ?
-                <SectionTitle title={label} className={classes.OLLIETODO} /> :
-                <ContentType type={name} label={label} />
-              }
+              <ContentType type={name} label={label} />
             </div>
             <div className={classes.posts}>
               {filteredPosts.map((post, i) =>
