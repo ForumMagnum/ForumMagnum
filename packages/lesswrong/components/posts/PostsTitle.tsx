@@ -1,5 +1,5 @@
+import React, { FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
-      whiteSpace: isEAForum ? "nowrap" : "unset",
+      whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -99,6 +99,8 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
+const DefaultWrapper: FC = ({children}) => <>{children}</>;
+
 const PostsTitle = ({
   post, 
   postLink, 
@@ -113,6 +115,7 @@ const PostsTitle = ({
   isLink=true, 
   curatedIconLeft=true, 
   strikethroughTitle=false,
+  Wrapper=DefaultWrapper,
   className,
 }:{
   post: PostsBase|PostsListBase,
@@ -128,6 +131,7 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
+  Wrapper?: FC,
   className?: string
 }) => {
   const currentUser = useCurrentUser();
@@ -150,7 +154,6 @@ const PostsTitle = ({
     />
   </span>
 
-
   const title = <span>
     {sticky && <span className={classes.sticky}>
       <ForumIcon icon="Pin" className={classes.stickyIcon} />
@@ -163,12 +166,14 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span>{post.title}</span>
+    <span className={classNames({[classes.read]: read && isEAForum})}>
+      <Wrapper>{post.title}</Wrapper>
+    </span>
   </span>
 
   return (
     <span className={classNames(classes.root, {
-      [classes.read]: read,
+      [classes.read]: read && !isEAForum,
       [classes.wrap]: wrap,
       [classes.strikethroughTitle]: strikethroughTitle
     }, className)}>

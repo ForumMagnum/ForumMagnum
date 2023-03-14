@@ -1,10 +1,10 @@
-import React, { MouseEvent } from "react";
+import React, { FC, MouseEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { HashLink } from "../common/HashLink";
-import { useHistory } from "../../lib/reactRouterWrapper";
+import { Link, useHistory } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
@@ -12,27 +12,29 @@ import classNames from "classnames";
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
-    "& > :first-child": {
-      maxWidth: SECTION_WIDTH,
-      display: "flex",
-      alignItems: "center",
-      background: theme.palette.grey[0],
-      border: `1px solid ${theme.palette.grey[100]}`,
-      borderRadius: theme.borderRadius.default,
-      padding: `8px 12px 8px 0`,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-      fontSize: 14,
-      color: theme.palette.grey[600],
-      cursor: "pointer",
-      [theme.breakpoints.down("xs")]: {
-        paddingRight: 12,
-      },
+    maxWidth: SECTION_WIDTH,
+    display: "flex",
+    alignItems: "center",
+    background: theme.palette.grey[0],
+    border: `1px solid ${theme.palette.grey[100]}`,
+    borderRadius: theme.borderRadius.default,
+    padding: `8px 12px 8px 0`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    [theme.breakpoints.down("xs")]: {
+      paddingRight: 12,
     },
-    '&:hover .PostsItemTrailingButtons-actions': {
+    "&:hover": {
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`,
+    },
+    "&:hover .PostsItemTrailingButtons-actions": {
       opacity: 0.2,
     },
-    '&:hover .PostsItemTrailingButtons-archiveButton': {
+    "&:hover .PostsItemTrailingButtons-archiveButton": {
       opacity: 0.2,
     },
   },
@@ -60,6 +62,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    [theme.breakpoints.down("xs")]: {
+      "-webkit-line-clamp": 3,
+    },
   },
   titleOverflow: {
     overflow: "hidden",
@@ -189,66 +197,67 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     </>
   );
 
+  const TitleWrapper: FC = ({children}) => (
+    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
+      <Link to={postLink}>{children}</Link>
+    </PostsItemTooltipWrapper>
+  );
+
   return (
     <AnalyticsContext {...analyticsProps}>
       <div className={classes.root} onClick={onClick}>
-        <PostsItemTooltipWrapper
-          post={post}
-          placement={tooltipPlacement}
-        >
-          <div className={classes.karma}>
-            {tagRel
-              ? <div className={classes.tagRelWrapper}>
-                <PostsItemTagRelevance tagRel={tagRel} post={post} />
+        <div className={classes.karma}>
+          {tagRel
+            ? <div className={classes.tagRelWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} post={post} />
+            </div>
+            : <>
+              <div className={classes.voteArrow}>
+                <SoftUpArrowIcon />
               </div>
-              : <>
-                <div className={classes.voteArrow}>
-                  <SoftUpArrowIcon />
-                </div>
-                <PostsItemKarma post={post} />
-              </>
-            }
-          </div>
-          <div className={classes.details}>
-            <div className={classes.titleOverflow}>
-              <PostsTitle
-                {...{
-                  post,
-                  postLink,
-                  sticky,
-                  showDraftTag,
-                  showPersonalIcon,
-                  strikethroughTitle,
-                }}
-                read={isRead && !showReadCheckbox}
-                curatedIconLeft={false}
-                iconsOnLeft
-                className={classes.title}
-              />
-            </div>
-            <div className={classes.meta}>
-              <TruncatedAuthorsList
-                post={post}
-                after={<>, <PostsItemDate post={post} noStyles includeAgo /></>}
-              />
-              <div className={classNames(
-                classes.secondaryContainer,
-                classes.onlyMobile,
-              )}>
-                <SecondaryInfo />
-              </div>
+              <PostsItemKarma post={post} />
+            </>
+          }
+        </div>
+        <div className={classes.details}>
+          <PostsTitle
+            {...{
+              post,
+              sticky,
+              showDraftTag,
+              showPersonalIcon,
+              strikethroughTitle,
+            }}
+            Wrapper={TitleWrapper}
+            read={isRead && !showReadCheckbox}
+            isLink={false}
+            curatedIconLeft={false}
+            iconsOnLeft
+            wrap
+            className={classes.title}
+          />
+          <div className={classes.meta}>
+            <TruncatedAuthorsList
+              post={post}
+              after={<>, <PostsItemDate post={post} noStyles includeAgo /></>}
+            />
+            <div className={classNames(
+              classes.secondaryContainer,
+              classes.onlyMobile,
+            )}>
+              <SecondaryInfo />
             </div>
           </div>
-          <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
-            <div className={classes.audio}>
-              {hasAudio && <ForumIcon icon="VolumeUp" />}
-            </div>
-            <div className={classes.tag}>
-              {primaryTag && <FooterTag tag={primaryTag} smallText />}
-            </div>
-            <SecondaryInfo />
+        </div>
+        <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+          <div className={classes.audio}>
+            {hasAudio && <ForumIcon icon="VolumeUp" />}
           </div>
-        </PostsItemTooltipWrapper>
+          <div className={classes.tag}>
+            {primaryTag && <FooterTag tag={primaryTag} smallText />}
+          </div>
+          <SecondaryInfo />
+        </div>
         <a> {/* The `a` tag prevents clicks from navigating to the post */}
           <PostsItemTrailingButtons
             {...{
