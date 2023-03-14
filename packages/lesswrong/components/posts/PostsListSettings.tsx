@@ -229,7 +229,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             >
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
               <MetaInfo className={classes.checkboxLabel}>
-                Show Community
+                Show community
               </MetaInfo>
             </QueryLink>
           </Tooltip>}
