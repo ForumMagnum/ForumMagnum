@@ -133,5 +133,10 @@
     "acceptsSchemaHash": "dc774f8734d7cc069d913d351d4225b8",
     "acceptedByMigration": "20230306T182540.userIdsDefault.ts",
     "timestamp": "2023-03-06T18:25:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9cc5aad21f36f801d9ce6b9e9e3ce213",
+    "acceptedByMigration": "20230314T222203.add_backfilled.ts",
+    "timestamp": "2023-03-14T22:22:03.000Z"
   }
 ]
