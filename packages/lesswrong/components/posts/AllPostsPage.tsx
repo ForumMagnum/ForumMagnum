@@ -98,7 +98,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               </SectionTitle>
             </div>
           </Tooltip>
-          <hr className={classes.divider} />
+          {!showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}
