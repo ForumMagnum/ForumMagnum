@@ -2427,7 +2427,6 @@ const schema: SchemaType<DbPost> = {
       const lastComment = filteredComments[0];
       const lastParticipantId = lastComment?.userId;
 
-      console.log({ comments, filteredComments, lastParticipantId });
       if (!lastParticipantId) return null;
 
       const lastParticipant = await context.loaders.Users.load(lastParticipantId);

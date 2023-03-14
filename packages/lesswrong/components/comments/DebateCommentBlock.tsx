@@ -133,8 +133,6 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
       const participantIndex = orderedParticipantList.indexOf(comment.userId);
       const borderStyle = getParticipantBorderStyle(participantIndex);
 
-      console.log({ participantIndex, borderStyle });
-
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />
         <CommentsItemDate comment={comment} post={post} />
