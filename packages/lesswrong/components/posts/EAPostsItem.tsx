@@ -148,6 +148,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     sticky,
     showDraftTag,
     showPersonalIcon,
+    showTag,
     showTrailingButtons,
     showMostValuableCheckbox,
     showDismissButton,
@@ -254,7 +255,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
             {hasAudio && <ForumIcon icon="VolumeUp" />}
           </div>
           <div className={classes.tag}>
-            {primaryTag && <FooterTag tag={primaryTag} smallText />}
+            {showTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
           </div>
           <SecondaryInfo />
         </div>

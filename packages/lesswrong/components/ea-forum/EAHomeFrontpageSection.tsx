@@ -20,32 +20,44 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: -8
     },
   },
+  tabsWindowContainer: {
+    position: 'relative',
+  },
   tabsWindow: {
     position: 'relative',
-    overflow: 'hidden',
+    overflowX: 'scroll',
+    '&::-webkit-scrollbar': {
+      height: 0
+    }
   },
   tabsWindowFade: {
-    '&::after': {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      height: '100%',
-      width: 50,
-      content: "''",
-      background: `linear-gradient(to left, ${theme.palette.background.default}, transparent)`,
-    }
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: '100%',
+    width: 50,
+    content: "''",
+    background: `linear-gradient(to left, ${theme.palette.background.default}, transparent)`,
+    pointerEvents: 'none'
   },
   arrow: {
     position: 'absolute',
-    top: 4,
+    top: 0,
+    height: 30,
+    width: 28,
     color: theme.palette.grey[600],
+    paddingTop: 8,
+    paddingLeft: 6,
     cursor: 'pointer',
     '&:hover': {
-      color: theme.palette.grey[800],
+      color: theme.palette.grey[900],
     },
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
+  },
+  arrowIcon: {
+    fontSize: 15
   },
   arrowMobile: {
     display: 'none',
@@ -58,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   leftArrow: {
-    left: -33,
+    left: -30,
   },
   leftArrowMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -67,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   rightArrow: {
-    right: -33,
+    right: -30,
   },
   rightArrowMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -170,26 +182,47 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     allTabs = allTabs.concat(coreTopics)
   }
   const [activeTab, setActiveTab] = useState(frontpageTab)
-  const [currentOffset, setCurrentOffset] = useState(0)
+  const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
+  
+  // when the topics bar is scrolled, check if we need to hide/show the left/right arrows
+  const updateArrows = debounce(() => {
+    if (!tabsWindowRef.current || !topicsBarRef.current) return
+
+    const currentOffset = tabsWindowRef.current.scrollLeft
+    // max amount we can scroll to the right, reduced a bit to make sure
+    // we hide the right arrow when scrolled all the way to the right
+    const maxScrollLeft = topicsBarRef.current.scrollWidth - tabsWindowRef.current.clientWidth - 10
+    
+    setLeftArrowVisible(currentOffset > 0)
+    setRightArrowVisible(currentOffset < maxScrollLeft)
+  }, 100)
   
   const scrollLeft = () => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
     // look for the offset that is to the left of us
-    setCurrentOffset(Array.from(offsets.current).reverse().find(os => os < currentOffset) || 0)
-    // make sure the right arrow is visible/enabled
-    setRightArrowVisible(true)
+    const nextOffset = Array.from(offsets.current).reverse().find(os => {
+      if (!tabsWindowRef.current || !topicsBarRef.current) return false
+      return os < tabsWindowRef.current.scrollLeft
+    }) || 0
+    tabsWindowRef.current.scrollTo({
+      left: nextOffset,
+      behavior: 'smooth'
+    })
   }
   
   const scrollRight = () => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
     // look for the offset that is to the right of us
-    const nextOffset = offsets.current.find(os => os > currentOffset) || currentOffset
-    setCurrentOffset(nextOffset)
-    // if this is the last time we can move to the right, hide/disable the right arrow
-    if (!offsets.current.some(os => os > nextOffset)) {
-      setRightArrowVisible(false)
-    }
+    const nextOffset = offsets.current.find(os => {
+      if (!tabsWindowRef.current || !topicsBarRef.current) return false
+      return os > tabsWindowRef.current.scrollLeft
+    })
+    if (!nextOffset) return
+    tabsWindowRef.current.scrollTo({
+      left: nextOffset,
+      behavior: 'smooth'
+    })
   }
   
   const handleTabClick = (tab) => {
@@ -197,16 +230,13 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   
-  const { SingleColumnSection, ForumIcon, PostsList2, HomeLatestPosts } = Components
+  const { SingleColumnSection, ForumIcon, HomeLatestPosts, SectionTitle, PostsList2 } = Components
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
     sortedBy: 'magic',
-    limit: 15
+    limit: 30
   }
-  
-  // the left arrow is visible/enabled if we have scrolled right at all
-  const leftArrowVisible = currentOffset > 0
 
   return (
     <>
@@ -214,40 +244,45 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
         <SingleColumnSection className={classes.tabsSection}>
           <div className={classes.tabsRow}>
             {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
-              <ForumIcon icon="ChevronLeft" />
+              <ForumIcon icon="ChevronLeft" className={classes.arrowIcon} />
             </div>}
             <div onClick={scrollLeft} className={classNames(classes.arrowMobile, classes.leftArrowMobile, {[classes.disabledArrow]: !leftArrowVisible})}>
               <ForumIcon icon="ChevronLeft" />
             </div>
-            <div ref={tabsWindowRef} className={classNames(classes.tabsWindow, {[classes.tabsWindowFade]: rightArrowVisible})}>
-              <div ref={topicsBarRef} className={classes.topicsBar} style={{transform: `translatex(-${currentOffset}px)`}}>
-                {allTabs.map(tab => {
-                  const tabName = tab.shortName || tab.name
-                  return <button
-                    key={tabName}
-                    onClick={() => handleTabClick(tab)}
-                    className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
-                  >
-                    {tabName}
-                  </button>
-                })}
+            <div className={classes.tabsWindowContainer}>
+              <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
+                <div ref={topicsBarRef} className={classes.topicsBar}>
+                  {allTabs.map(tab => {
+                    const tabName = tab.shortName || tab.name
+                    return <button
+                      key={tabName}
+                      onClick={() => handleTabClick(tab)}
+                      className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
+                    >
+                      {tabName}
+                    </button>
+                  })}
+                </div>
               </div>
+              {rightArrowVisible && <div className={classes.tabsWindowFade}></div>}
             </div>
             <div onClick={scrollRight} className={classNames(classes.arrowMobile, classes.rightArrowMobile, {[classes.disabledArrow]: !rightArrowVisible})}>
               <ForumIcon icon="ChevronRight" />
             </div>
             {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
-              <ForumIcon icon="ChevronRight" />
+              <ForumIcon icon="ChevronRight" className={classes.arrowIcon} />
             </div>}
           </div>
         </SingleColumnSection>
       </AnalyticsContext>
 
       {activeTab.name === 'Frontpage' ? <HomeLatestPosts /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+        <SectionTitle title="New & upvoted" noTopMargin />
         <PostsList2
           terms={topicPostTerms}
           enableTotal
-          itemsPerPage={15}
+          itemsPerPage={30}
+          hideTag
         />
       </AnalyticsContext>}
     </>

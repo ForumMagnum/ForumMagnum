@@ -8,7 +8,7 @@ export const sectionTitleStyle = isEAForum
     margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.3rem",
-    lineHeight: "17px",
+    lineHeight: "21px",
     fontWeight: 700,
     letterSpacing: "0.02em",
     color: theme.palette.grey[600],

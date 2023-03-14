@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'New & upvoted' : 'Latest Posts'
 
 const filterSettingsToggleLabels = forumSelect({
   EAForum: {
