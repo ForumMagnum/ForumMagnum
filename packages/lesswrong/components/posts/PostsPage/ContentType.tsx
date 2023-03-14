@@ -31,6 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionTitle: {
     fontSize: 14,
+    marginBottom: -4,
   },
 })
 

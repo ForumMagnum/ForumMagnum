@@ -98,6 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    marginTop: isEAForum ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
