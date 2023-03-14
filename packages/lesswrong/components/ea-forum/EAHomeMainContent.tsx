@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
@@ -106,7 +106,15 @@ type TopicsBarTab = {
   shortName?: string|null
 }
 
-const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
+/**
+ * This handles displaying the main content on the EA Forum home page,
+ * which includes the topics bar and the topic-specific tabs.
+ * The "Frontpage" tab content comes from EAHome.
+ */
+const EAHomeMainContent = ({frontpageNode, classes}:{
+  frontpageNode: ReactNode,
+  classes: ClassesType
+}) => {
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
   const tabsWindowRef = useRef<HTMLDivElement|null>(null)
@@ -199,7 +207,7 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   
-  const { SingleColumnSection, ForumIcon, HomeLatestPosts, EAHomeCommunityPosts, SectionTitle, PostsList2 } = Components
+  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2 } = Components
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
@@ -239,25 +247,24 @@ const EAHomeFrontpageSection = ({classes}:{classes: ClassesType}) => {
         </SingleColumnSection>
       </AnalyticsContext>
 
-      {activeTab.name === 'Frontpage' ? <>
-        <HomeLatestPosts />
-        <EAHomeCommunityPosts />
-      </> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
-        <SectionTitle title="New & upvoted" noTopMargin />
-        <PostsList2
-          terms={topicPostTerms}
-          itemsPerPage={30}
-          hideTag
-        />
+      {activeTab.name === 'Frontpage' ? frontpageNode : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+        <SingleColumnSection>
+          <SectionTitle title="New & upvoted" noTopMargin />
+          <PostsList2
+            terms={topicPostTerms}
+            itemsPerPage={30}
+            hideTag
+          />
+        </SingleColumnSection>
       </AnalyticsContext>}
     </>
   )
 }
 
-const EAHomeFrontpageSectionComponent = registerComponent('EAHomeFrontpageSection', EAHomeFrontpageSection, {styles});
+const EAHomeMainContentComponent = registerComponent('EAHomeMainContent', EAHomeMainContent, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHomeFrontpageSection: typeof EAHomeFrontpageSectionComponent
+    EAHomeMainContent: typeof EAHomeMainContentComponent
   }
 }
