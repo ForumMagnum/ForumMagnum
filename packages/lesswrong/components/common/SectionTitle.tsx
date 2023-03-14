@@ -7,10 +7,10 @@ export const sectionTitleStyle = isEAForum
   ? (theme: ThemeType): JssStyles => ({
     margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.3rem",
+    fontSize: "14px",
     lineHeight: "21px",
     fontWeight: 700,
-    letterSpacing: "0.02em",
+    letterSpacing: "0.03em",
     color: theme.palette.grey[600],
     textTransform: "uppercase",
   })
