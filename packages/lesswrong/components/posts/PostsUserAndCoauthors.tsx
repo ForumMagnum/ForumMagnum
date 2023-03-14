@@ -37,6 +37,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const getTopCommentAuthor = (post: PostsList | SunshinePostsList) => {
+  if (post.question) {
+    return post.bestAnswer?.user;
+  }
+
+  if (post.debate) {
+    return post.unreadDebateComments;
+  }
+
+  return post.lastPromotedComment?.user;
+};
+
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
@@ -48,7 +60,31 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   const { UsersName, UserNameDeleted } = Components
   if (!post.user || post.hideAuthor)
     return <UserNameDeleted/>;
-  
+
+  if (post.debate) {
+    const participants = [post.user, ...post.coauthors];
+    const lastUnreadParticipant = post.unreadDebateComments?.lastParticipant;
+
+    console.log({ unreadDebateComments: post.unreadDebateComments });
+
+    let otherParticipants = participants;
+    if (lastUnreadParticipant) {
+      otherParticipants = participants.filter(participant => participant._id !== lastUnreadParticipant._id);
+    }
+
+    return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
+      {otherParticipants.map((participant, idx) =>
+        <React.Fragment key={participant._id}>
+          {idx !== 0 ? ", " : ""}<UsersName user={participant} simple={simple} tooltipPlacement={tooltipPlacement}/>
+        </React.Fragment>
+      )}
+      {lastUnreadParticipant && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
+        {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
+        <UsersName user={lastUnreadParticipant} simple={simple} tooltipPlacement={tooltipPlacement} />
+      </span>}
+    </div>;
+  }
+
   const topCommentAuthor = post.question ? post.bestAnswer?.user : post.lastPromotedComment?.user
   const renderTopCommentAuthor = (forumTypeSetting.get() && topCommentAuthor && topCommentAuthor._id != post.user._id)
   

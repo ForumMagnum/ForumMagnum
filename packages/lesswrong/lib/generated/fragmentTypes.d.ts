@@ -924,6 +924,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly unreadDebateComments: any,
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions

@@ -25,6 +25,7 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import { addGraphQLSchema } from '../../vulcan-lib';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -93,6 +94,19 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
+async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+  const { currentUser, ReadStatuses } = context;
+  if (!currentUser) return null;
+
+  const readStatus = await getWithLoader(context, ReadStatuses,
+    `readStatuses`,
+    { userId: currentUser._id },
+    'postId', post._id
+  );
+  if (!readStatus.length) return null;
+  return readStatus[0];
+}
+
 function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>) {
   if (document.isEvent || !document.submitToFrontpage) {
     return undefined
@@ -132,6 +146,18 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
 const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
+
+addGraphQLSchema(`
+  type UnreadDebateComments {
+    count: Int!
+    lastParticipant: User!
+  }
+`);
+
+// const UnreadDebateCommentsSchema = new SimpleSchema({
+//   count: SimpleSchema.Integer,
+//   lastParticipant: 
+// })
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -1147,16 +1173,8 @@ const schema: SchemaType<DbPost> = {
     type: Date,
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { ReadStatuses, currentUser } = context;
-      if (!currentUser) return null;
-
-      const readStatus = await getWithLoader(context, ReadStatuses,
-        `readStatuses`,
-        { userId: currentUser._id },
-        'postId', post._id
-      );
-      if (!readStatus.length) return null;
-      return readStatus[0].lastUpdated;
+      const lastReadStatus = await getLastReadStatus(post, context);
+      return lastReadStatus?.lastUpdated;
     }
   }),
   
@@ -1164,16 +1182,8 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { ReadStatuses, currentUser } = context;
-      if (!currentUser) return false;
-      
-      const readStatus = await getWithLoader(context, ReadStatuses,
-        `readStatuses`,
-        { userId: currentUser._id },
-        'postId', post._id
-      );
-      if (!readStatus.length) return false;
-      return readStatus[0].isRead;
+      const lastReadStatus = await getLastReadStatus(post, context);
+      return lastReadStatus?.isRead;
     }
   }),
 
@@ -2388,7 +2398,43 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false)
-  }
+  },
+
+  unreadDebateComments: resolverOnlyField({
+    type: Object,
+    graphQLtype: "UnreadDebateComments",
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      const { Comments, currentUser } = context;
+
+      const lastReadStatus = await getLastReadStatus(post, context);
+      if (!lastReadStatus) return null;
+
+      const comments = await Comments.find({
+        ...getDefaultViewSelector("Comments"),
+        postId: post._id,
+        // This actually forces `deleted: false` by combining with the default view selector
+        deletedPublic: false,
+        debateComment: true,
+        postedAt: { $gt: lastReadStatus.lastUpdated },
+      }, {
+        sort: { postedAt: 1 }
+      }).fetch();
+
+      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
+      const count = filteredComments.length;
+      const lastComment = filteredComments[0];
+      const lastParticipantId = lastComment?.userId;
+
+      console.log({ comments, filteredComments, lastParticipantId });
+      if (!lastParticipantId) return null;
+
+      const lastParticipant = await context.loaders.Users.load(lastParticipantId);
+
+      return { count, lastParticipant };
+    }
+  })
 };
 
 /* subforum-related fields */

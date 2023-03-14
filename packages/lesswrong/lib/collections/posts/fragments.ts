@@ -211,6 +211,13 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateComments {
+      count
+      lastParticipant {
+        ...UsersMinimumInfo
+      }
+    }
   }
 `);
 

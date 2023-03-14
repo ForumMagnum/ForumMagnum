@@ -3,12 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import { DebateCommentWithReplies } from './DebateCommentBlock';
 import groupBy from 'lodash/groupBy';
+import uniq from 'lodash/uniq'
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
 
-  }
+  },
 });
 
 export const DebateBody = ({ debateComments, post, classes }: {
@@ -17,12 +18,14 @@ export const DebateBody = ({ debateComments, post, classes }: {
   classes: ClassesType,
 }) => {
   const { DebateCommentBlock } = Components;
+  const orderedParticipantList = uniq(debateComments.map(({ comment }) => comment.userId));
+
   return (<NoSSR>
     <div className={classes.root}>
       {
         Object.entries(groupBy(debateComments, ({ comment }) => moment(comment.postedAt).format('MMM DD, YYYY')))
         .sort(([firstDate], [secondDate]) => moment(firstDate).diff(secondDate))
-        .flatMap(([daySeparator ,perDayDebateComments], dayIdx) => {
+        .flatMap(([daySeparator, perDayDebateComments]) => {
           const debateCommentBlocks: DebateCommentWithReplies[][] = [];
           let lastAuthorId: string;
 
@@ -39,14 +42,16 @@ export const DebateBody = ({ debateComments, post, classes }: {
             }
           });
 
+
           return debateCommentBlocks.map((debateCommentBlock, blockIdx) => {
-            const showDaySeparator = /* dayIdx !== 0 && */ blockIdx === 0;
+            const showDaySeparator = blockIdx === 0;
             const daySeparatorAttribute = showDaySeparator ? { daySeparator } : {};
             return <DebateCommentBlock
               comments={debateCommentBlock}
               post={post}
               loadingReplies={false}
               toggleDebateCommentReplyForm={() => {}}
+              orderedParticipantList={orderedParticipantList}
               { ...daySeparatorAttribute }
             />;
           });

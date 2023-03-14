@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 8,
     borderLeft: 'solid',
     borderLeftWidth: '1.5px',
-    borderColor: theme.palette.primary.dark,
+    // borderColor: theme.palette.primary.dark,
     '&:hover $menu': {
       opacity: 0.2
     },
@@ -54,13 +54,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: '16px'
   },
   dividerLabel: {
-    marginTop: -1,
     width: 'fit-content',
     paddingLeft: 6,
     paddingRight: 6,
     background: theme.palette.background.pageActiveAreaBackground,
     ...theme.typography.subheading
-  }
+  },
+  greenBorder: {
+    borderColor: theme.palette.border.debateComment
+  },
+  redBorder: {
+    borderColor: theme.palette.border.debateComment2
+  },
+  blueBorder: {
+    borderColor: theme.palette.border.debateComment3
+  },
+  purpleBorder: {
+    borderColor: theme.palette.border.debateComment4
+  },
+  blackBorder: {
+    borderColor: theme.palette.border.debateComment5
+  },
 });
 
 export interface DebateCommentWithReplies {
@@ -68,11 +82,27 @@ export interface DebateCommentWithReplies {
   replies: CommentsList[];
 }
 
-export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebateCommentReplyForm, daySeparator, classes }: {
+const getParticipantBorderStyle = (participantIndex: number) => {
+  switch (participantIndex) {
+    case 0:
+      return 'greenBorder';
+    case 1:
+      return 'redBorder';
+    case 2:
+      return 'blueBorder';
+    case 3:
+      return 'purpleBorder';
+    default:
+      return 'blackBorder';
+  }
+};
+
+export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebateCommentReplyForm, orderedParticipantList, daySeparator, classes }: {
   comments: DebateCommentWithReplies[],
   loadingReplies: boolean,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   toggleDebateCommentReplyForm: (parentComment: CommentsList, action: 'open' | 'close') => void,
+  orderedParticipantList: string[],
   daySeparator?: string,
   classes: ClassesType,
 }) => {
@@ -100,6 +130,10 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
       const showHeader = idx === 0;
       const showReplyLink = replies.length > 0 || idx === (comments.length - 1);
       const addBottomMargin = idx === (comments.length - 1);
+      const participantIndex = orderedParticipantList.indexOf(comment.userId);
+      const borderStyle = getParticipantBorderStyle(participantIndex);
+
+      console.log({ participantIndex, borderStyle });
 
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />
@@ -146,7 +180,7 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
       return (
         <div
           key={`debate-comment-${comment._id}`}
-          className={classNames(classes.innerDebateComment, { [classes.blockMargin]: addBottomMargin })}
+          className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
           {...eventHandlers}
         >
           {header}
