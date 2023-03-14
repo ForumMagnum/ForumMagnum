@@ -29,10 +29,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
         paddingRight: 12,
       },
     },
-    '&:hover .PostsItemTrailingButtons-actions': {
+    "&:hover > :first-child": {
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`,
+    },
+    "&:hover .PostsItemTrailingButtons-actions": {
       opacity: 0.2,
     },
-    '&:hover .PostsItemTrailingButtons-archiveButton': {
+    "&:hover .PostsItemTrailingButtons-archiveButton": {
       opacity: 0.2,
     },
   },
