@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         fontWeight: 600,
         fontSize: 16,
         color: theme.palette.grey[1000],
-        marginBottom: -10,
+        marginBottom: -12,
         marginTop: 25,
       }
       : {
