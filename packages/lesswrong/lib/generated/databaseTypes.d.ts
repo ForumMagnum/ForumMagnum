@@ -858,6 +858,7 @@ interface DbTagRel extends DbObject {
   postId: string
   deleted: boolean
   userId: string
+  backfilled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number

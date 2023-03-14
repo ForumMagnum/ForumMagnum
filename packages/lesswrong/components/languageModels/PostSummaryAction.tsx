@@ -4,7 +4,6 @@ import { useDialog } from '../common/withDialog';
 import { useSingle } from '../../lib/crud/withSingle';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = (theme: ThemeType) => ({
 })
@@ -15,6 +14,7 @@ const PostSummaryAction = ({post, closeMenu, classes}: {
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
+  const { MenuItem } = Components;
   
   const showPostSummary = () => {
     closeMenu?.();
