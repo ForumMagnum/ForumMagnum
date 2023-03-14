@@ -7,9 +7,9 @@ import HtmlLexer from 'html-lexer';
  * config options, and works around a Typescript annotation problem (which
  * should go away when we version-upgrade Cheerio at some point).
  */
-export function cheerioParse(html: string) {
+export function cheerioParse(html: string|null) {
   //@ts-ignore (cheerio type annotations sadly don't quite match the actual imported library)
-  return cheerio.load(html, null, false);
+  return cheerio.load(html ?? "", null, false);
 }
 
 /**

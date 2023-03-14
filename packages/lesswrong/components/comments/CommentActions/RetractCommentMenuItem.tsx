@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const RetractCommentMenuItem = ({comment}: {
@@ -13,6 +12,7 @@ const RetractCommentMenuItem = ({comment}: {
     collectionName: "Comments",
     fragmentName: 'CommentsList',
   });
+  const { MenuItem } = Components;
   
   const handleRetract = (event: React.MouseEvent) => {
     void updateComment({
@@ -33,7 +33,7 @@ const RetractCommentMenuItem = ({comment}: {
 
   if (comment.retracted) {
     return <Tooltip title="Comment will be un-crossed-out, indicating you endorse it again.">
-    <MenuItem onClick={handleUnretract}>Unretract Comment</MenuItem>
+      <MenuItem onClick={handleUnretract}>Unretract Comment</MenuItem>
     </Tooltip>
   } else {
     return <Tooltip title="Comment will become crossed out, indicating you no longer endorse it.">

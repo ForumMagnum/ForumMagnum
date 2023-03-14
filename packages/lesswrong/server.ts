@@ -42,6 +42,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
@@ -56,6 +57,8 @@ import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/importLocalgroups";
+import "./server/scripts/setUserTagFilters";
 import "./server/scripts/languageModels/generateTaggingPostSets";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -110,6 +113,7 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
+import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
@@ -142,6 +146,7 @@ import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
+import './server/resolvers/moderationResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -150,6 +155,7 @@ import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
 
 import './server/exportUserData';
+import './server/deleteUserContent';
 
 import './server/spotlightCron';
 

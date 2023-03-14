@@ -60,7 +60,8 @@ const runRSSImport = async () => {
             }
           },
           feedId: feed._id,
-          feedLink: newPost.link
+          feedLink: newPost.link,
+          draft: !!feed.importAsDraft,
         };
 
         let lwUser = await Users.findOne({_id: feed.userId});

@@ -29,6 +29,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
       document: { tagId, postId, userId: currentUser._id },
       validate: false,
       currentUser,
+      context,
     });
     
     // If the tag has a parent which has not been applied to this post, apply it

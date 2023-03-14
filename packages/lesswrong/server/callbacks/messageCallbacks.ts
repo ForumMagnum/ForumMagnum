@@ -4,6 +4,14 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator } from '../vulcan-lib';
 
+getCollectionHooks("Messages").newValidate.add(function NewMessageEmptyCheck (message: DbMessage) {
+  const { data } = (message.contents && message.contents.originalContents) || {}
+  if (!data) {
+    throw new Error("You cannot send an empty message");
+  }
+  return message;
+});
+
 getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {
   void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
 });

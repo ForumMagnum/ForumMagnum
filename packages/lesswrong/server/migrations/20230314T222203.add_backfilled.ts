@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "f3bb9b35520db60be5d6640c1be3377b";
+export const acceptsSchemaHash = "9cc5aad21f36f801d9ce6b9e9e3ce213";
 
 import TagRels from "../../lib/collections/tagRels/collection";
 import { addField, dropField } from "./meta/utils"

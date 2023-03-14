@@ -31,7 +31,7 @@ const PostBody = ({post, html, sideCommentMode}: {
       ? document.sideComments.highKarmaCommentsByBlock
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
-    
+
     return <ContentItemBody
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       key={`${post._id}_${sideCommentMode}`}

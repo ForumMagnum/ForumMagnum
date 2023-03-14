@@ -1,9 +1,8 @@
 import TagRels from "../../lib/collections/tagRels/collection";
 import Tags from "../../lib/collections/tags/collection";
 import { Globals } from "../vulcan-lib";
-import { v4 as uuid } from 'uuid';
 import { updatePostDenormalizedTags } from "../tagging/tagCallbacks";
-import { ObjectId } from "mongodb";
+import { randomId } from "../../lib/random";
 
 const backfillParentTags = async (parentTagSlug: string) => {
   const parentTag = (await Tags.find({slug: parentTagSlug}).fetch())[0];
@@ -14,7 +13,10 @@ const backfillParentTags = async (parentTagSlug: string) => {
     const childTagRelPostIds = (await TagRels.find({tagId: childTag._id}).fetch())
       .filter(rel => !parentTagRelPostIds.includes(rel.postId))
       .map(rel => rel.postId);
-    const parentTagRelIds = childTagRelPostIds.map(_ => (new ObjectId().toHexString().slice(0, 17)))
+    const parentTagRelIds = childTagRelPostIds.map(_ => randomId())
+
+    // eslint-disable-next-line no-console
+    console.log(`Adding ${childTagRelPostIds.length} tagRels for ${childTag.name} to ${parentTag.name}`);
 
     await TagRels.rawCollection().bulkWrite(childTagRelPostIds.map((postId, i) => ({
       insertOne: {

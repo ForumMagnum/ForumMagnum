@@ -4,12 +4,12 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting } from "../../instanceSettings";
+import { forumTypeSetting, taggingNameSetting } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-
+import { userHasShortformTags } from '../../betas';
 
 export const moderationOptionsGroup: FormGroup = {
   order: 50,
@@ -314,6 +314,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
+    label: "Pinned"
   },
 
   promotedByUserId: {
@@ -649,6 +650,32 @@ const schema: SchemaType<DbComment> = {
       const comment = props?.document
       return !commentAllowTitle(comment)
     }
+  },
+
+  relevantTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "relevantTagIds",
+      resolverName: "relevantTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['members', 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    label: `Shortform ${taggingNameSetting.get()}`,
+    tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
+    control: "FormComponentTagsChecklist",
+    hidden: (
+      {currentUser, document}: {currentUser: UsersCurrent|DbUser|null, document: CommentsList}): boolean => {
+        if (!userHasShortformTags(currentUser)) return true;
+        return !document.shortform
+    },
+  },
+  'relevantTagIds.$': {
+    type: String,
+    optional: true,
+    foreignKey: "Tags",
   },
 };
 

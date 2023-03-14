@@ -1,7 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
-import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -56,7 +55,7 @@ const SetSideCommentVisibility = ({classes}: {
   classes: ClassesType
 }) => {
   const sideCommentVisibility = useContext(SideCommentVisibilityContext);
-  const { LWTooltip } = Components;
+  const { LWTooltip, MenuItem } = Components;
   
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
