@@ -9,7 +9,7 @@ import {
   userUpdateFieldSucceeds,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
-  withNoWarnings,
+  withNoLogs,
 } from '../utils';
 import moment from 'moment';
 
@@ -46,7 +46,7 @@ describe('createComment – ', function() {
   it('should fail if the user is banned', async function () {
     const user = await createDummyUser()
     const post = await createDummyPost()
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const queryPromise = runQuery(
         createCommentQuery(post._id),
         {},

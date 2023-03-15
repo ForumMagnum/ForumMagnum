@@ -5,7 +5,7 @@ import {
   userUpdateFieldFails,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
-  withNoWarnings,
+  withNoLogs,
 } from '../utils';
 
 describe('updateUser – ', () => {
@@ -105,7 +105,7 @@ describe('updateUser succeeds – ', () => {
   });
   it("succeeds when sunshineRegiment user updates their nullifyVotes", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       await userUpdateFieldSucceeds({
         user:user,
         document:user,
@@ -117,7 +117,7 @@ describe('updateUser succeeds – ', () => {
   });
   it("succeeds when user updates their voteBanned", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       await userUpdateFieldSucceeds({
         user:user,
         document:user,
@@ -129,7 +129,7 @@ describe('updateUser succeeds – ', () => {
   });
   it("succeeds when user updates their deleteContent", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       await userUpdateFieldSucceeds({
         user:user,
         document:user,

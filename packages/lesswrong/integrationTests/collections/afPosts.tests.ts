@@ -1,6 +1,6 @@
 import "../integrationTestSetup";
 import { runQuery } from '../../server/vulcan-lib';
-import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError, withNoWarnings } from '../utils'
+import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError, withNoLogs } from '../utils'
 
 describe('AlignmentForum PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
@@ -57,7 +57,7 @@ describe('AlignmentForum PostsEdit', () => {
       }
     `;
 
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const response = runQuery(query,{},{currentUser:user})
       await (response as any).should.be.rejected;
     });

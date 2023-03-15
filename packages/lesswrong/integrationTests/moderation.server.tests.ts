@@ -9,7 +9,7 @@ import {
   userUpdateFieldFails,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
-  withNoWarnings,
+  withNoLogs,
 } from './utils';
 import Users from '../lib/collections/users/collection';
 import {
@@ -629,7 +629,7 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const response = runQuery(query, {}, {currentUser:user})
       await (response as any).should.be.rejected;
     });
@@ -647,7 +647,7 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const response = runQuery(query, {}, {currentUser:author})
       await (response as any).should.be.rejected;
     });
@@ -681,7 +681,7 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const response = runQuery(query, {}, {currentUser:user})
       await (response as any).should.be.rejected;
     });

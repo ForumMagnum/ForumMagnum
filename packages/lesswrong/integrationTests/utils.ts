@@ -399,7 +399,7 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       }
     }
   `;
-  await withNoWarnings(async () => {
+  await withNoLogs(async () => {
     const response = runQuery(query,{},{currentUser:user})
     await (response as any).should.be.rejected;
   });
@@ -435,7 +435,7 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
 /**
  * Please don't use this unless the test is actually expecting an error
  */
-export const withNoWarnings = async (fn: () => Promise<void>) => {
+export const withNoLogs = async (fn: () => Promise<void>) => {
   const {log, warn, error, info} = console;
   //eslint-disable-next-line no-console
   console.log = console.warn = console.error = console.info = () => {}
