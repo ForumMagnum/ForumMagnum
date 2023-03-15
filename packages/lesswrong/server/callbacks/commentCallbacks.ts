@@ -15,6 +15,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -283,8 +284,10 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       validate: false
     })
 
-    // eslint-disable-next-line no-console
-    console.log("Sent moderation messages for comment", comment)
+    if (!isAnyTest) {
+      // eslint-disable-next-line no-console
+      console.log("Sent moderation messages for comment", comment._id)
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache'
 import { getDatabase } from '../lib/mongoCollection';
 import { DatabaseMetadataRepo } from "./repos";
 import { getSqlClient } from '../lib/sql/sqlClient';
+import { isAnyTest } from '../lib/executionEnvironment';
 
 let databaseIdPreloaded = false;
 let preloadedDatabaseId: string|null = null;
@@ -19,8 +20,10 @@ type DatabaseSettings = {
 }
 
 const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
-  // eslint-disable-next-line no-console
-  console.log("Loading settings from Postgres...");
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log("Loading settings from Postgres...");
+  }
 
   const repo = new DatabaseMetadataRepo();
 
@@ -42,8 +45,10 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
 }
 
 const loadDatabaseSettingsMongo = async (): Promise<DatabaseSettings> => {
-  // eslint-disable-next-line no-console
-  console.log("Loading settings from Mongo...");
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log("Loading settings from Mongo...");
+  }
 
   const db = getDatabase();
   if (!db) {
