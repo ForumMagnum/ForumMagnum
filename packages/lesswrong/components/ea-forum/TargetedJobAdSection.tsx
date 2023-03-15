@@ -40,7 +40,7 @@ const TargetedJobAdSection = () => {
   })
   
   // we only advertise one job per page view
-  const [activeJob, setActiveJob] = useState<string>('founder-charity-entrepreneurship')
+  const [activeJob, setActiveJob] = useState<string>('malaria-researcher-givewell')
   
   // select a job ad to show to the current user
   // useEffect(() => {
