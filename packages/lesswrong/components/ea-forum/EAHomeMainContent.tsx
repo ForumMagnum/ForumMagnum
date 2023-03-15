@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tabsWindow: {
     position: 'relative',
     overflowX: 'scroll',
+    scrollbarWidth: 'none',
     '&::-webkit-scrollbar': {
       height: 0
     }
