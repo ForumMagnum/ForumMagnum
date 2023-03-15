@@ -1,5 +1,5 @@
 import { getDateRange } from '../components/posts/timeframeUtils'
-import { withNoWarnings } from '../integrationTests/utils';
+import { withNoLogs } from '../integrationTests/utils';
 import chai from 'chai';
 
 chai.should();
@@ -31,7 +31,7 @@ describe('getDateRange', () => {
   // wouldn't come up, but I think the right way to handle it is to go further
   // back than expected
   it('handles partial timeBlocks', async () => {
-    await withNoWarnings(async () => {
+    await withNoLogs(async () => {
       const result = getDateRange('2019-01-02', '2019-01-15', 'week');
       (result as any).should.deep.equal(['2019-01-08', '2019-01-01'])
     });
