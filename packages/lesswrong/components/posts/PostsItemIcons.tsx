@@ -8,8 +8,8 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: isEAForum ? undefined : theme.spacing.unit,
+    marginRight: isEAForum ? 2 : theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',
@@ -86,7 +86,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       </LWTooltip>
     </span>}
 
-    {post.url && <span className={classes.postIcon}>
+    {post.url && !isEAForum && <span className={classes.postIcon}>
       <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
         <a href={post.url}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
       </LWTooltip>

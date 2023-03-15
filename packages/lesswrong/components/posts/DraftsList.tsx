@@ -38,7 +38,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem2, Loading } = Components
+  const { PostsItem, Loading } = Components
   
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
@@ -69,7 +69,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsListWithVotes',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
   });
@@ -107,8 +107,8 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       sortings={sortings}
     />}
     {(!results && loading) ? <Loading /> : <>
-      {results && results.map((post: PostsList, i: number) =>
-        <PostsItem2
+      {results && results.map((post: PostsListWithVotes, i: number) =>
+        <PostsItem
           key={post._id}
           post={post}
           toggleDeleteDraft={toggleDelete}

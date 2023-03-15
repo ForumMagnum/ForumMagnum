@@ -16,6 +16,7 @@ const customStyles = (theme: ThemeType) => isEAForum
 
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
+    display: "flex",
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
@@ -41,12 +42,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.tinyText,
     ...theme.typography.italic,
   },
+  xsHide: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
 });
 
-const PostsItemDate = ({post, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
   post: PostsBase,
+  noStyles?: boolean,
+  includeAgo?: boolean,
   classes: ClassesType,
 }) => {
+  if (noStyles) {
+    classes = {
+      tooltipSmallText: classes.tooltipSmallText,
+      xsHide: classes.xsHide,
+    };
+  }
+
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -77,6 +92,8 @@ const PostsItemDate = ({post, classes}: {
     </LWTooltip>
   }
 
+  const ago = includeAgo ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
+
   if (post.curatedDate) {
     return <LWTooltip
       placement="right"
@@ -87,6 +104,7 @@ const PostsItemDate = ({post, classes}: {
     >
       <PostsItem2MetaInfo className={classes.postedAt}>
         {moment(new Date(post.curatedDate)).fromNow()}
+        {ago}
       </PostsItem2MetaInfo>
     </LWTooltip>
   }
@@ -97,6 +115,7 @@ const PostsItemDate = ({post, classes}: {
   >
     <PostsItem2MetaInfo className={classes.postedAt}>
       {moment(new Date(post.postedAt)).fromNow()}
+      {ago}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }

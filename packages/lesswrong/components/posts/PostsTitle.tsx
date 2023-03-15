@@ -1,5 +1,5 @@
+import React, { FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sticky: {
     paddingLeft: 2,
-    paddingRight: 10,
+    paddingRight: isEAForum ? 8 : 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
@@ -44,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ? {
       width: 16,
       height: 16,
+      padding: 1.5,
     }
     : {
       fontSize: "1.2rem",
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: "auto",
+    width: isEAForum ? 28 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -98,36 +99,40 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
+const DefaultWrapper: FC = ({children}) => <>{children}</>;
+
 const PostsTitle = ({
   post, 
   postLink, 
   classes, 
   sticky, 
   read, 
-  showQuestionTag=true, 
   showPersonalIcon=true, 
-  showLinkTag=true, 
   showDraftTag=true, 
   wrap=false, 
-  showIcons=true, 
+  showIcons=true,
+  iconsOnLeft=false,
   isLink=true, 
   curatedIconLeft=true, 
-  strikethroughTitle=false
+  strikethroughTitle=false,
+  Wrapper=DefaultWrapper,
+  className,
 }:{
   post: PostsBase|PostsListBase,
   postLink?: string,
   classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
-  showQuestionTag?: boolean,
   showPersonalIcon?: boolean
-  showLinkTag?: boolean,
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
+  iconsOnLeft?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
+  Wrapper?: FC,
+  className?: string
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
@@ -135,19 +140,25 @@ const PostsTitle = ({
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
-  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
   
-  const Icon = postIcon(post);
+  const PrimaryIcon = postIcon(post);
+  const secondaryIcons = showIcons && <span className={classes.hideSmDown}>
+    <PostsItemIcons
+      post={post}
+      hideCuratedIcon={curatedIconLeft}
+      hidePersonalIcon={!showPersonalIcon}
+    />
+  </span>
 
   const title = <span>
     {sticky && <span className={classes.sticky}>
       <ForumIcon icon="Pin" className={classes.stickyIcon} />
     </span>}
-    {Icon && <Icon className={classes.primaryIcon}/>}
+    {PrimaryIcon && <PrimaryIcon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
@@ -155,22 +166,23 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span>{post.title}</span>
+    <span className={classNames({[classes.read]: read && isEAForum})}>
+      <Wrapper>{post.title}</Wrapper>
+    </span>
   </span>
 
   return (
     <span className={classNames(classes.root, {
-      [classes.read]: read,
+      [classes.read]: read && !isEAForum,
       [classes.wrap]: wrap,
       [classes.strikethroughTitle]: strikethroughTitle
-    })}>
+    }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
+      {iconsOnLeft && secondaryIcons}
       {isLink ? <Link to={url}>{title}</Link> : title }
-      {showIcons && <span className={classes.hideSmDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
-      </span>}
+      {!iconsOnLeft && secondaryIcons}
     </span>
   )
 

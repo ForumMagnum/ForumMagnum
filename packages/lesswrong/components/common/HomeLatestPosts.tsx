@@ -60,6 +60,8 @@ const advancedSortingText = isEAForum
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
 
+const defaultLimit = isEAForum ? 11 : 13;
+
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -73,11 +75,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
   const { query } = location;
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, CommentsListCondensed, SectionTitle
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
+    CuratedPostsList, SectionTitle, StickiedPosts,
   } = Components
-  const limit = parseInt(query.limit) || 13
-  
+  const limit = parseInt(query.limit) || defaultLimit;
+
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 
@@ -147,6 +149,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             />
           </div>
         </AnalyticsContext>
+        {isEAForum && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>

@@ -245,11 +245,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             fontFamily: sansSerifStack
           }
         },
-        SectionTitle: {
-          title: {
-            fontSize: 25
-          }
-        },
         PostsVote: {
           voteScore: {
             paddingTop:4,
