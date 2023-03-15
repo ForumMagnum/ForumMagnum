@@ -42,15 +42,12 @@ export const DebateBody = ({ debateComments, post, classes }: {
             }
           });
 
-
           return debateCommentBlocks.map((debateCommentBlock, blockIdx) => {
             const showDaySeparator = blockIdx === 0;
             const daySeparatorAttribute = showDaySeparator ? { daySeparator } : {};
             return <DebateCommentBlock
               comments={debateCommentBlock}
               post={post}
-              loadingReplies={false}
-              toggleDebateCommentReplyForm={() => {}}
               orderedParticipantList={orderedParticipantList}
               { ...daySeparatorAttribute }
             />;

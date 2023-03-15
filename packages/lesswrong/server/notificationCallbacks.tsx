@@ -415,11 +415,13 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
     });
 
     const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+    // Handle debate readers
     // Filter out debate participants, since they get a different notification type
     // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
     const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
     await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
 
+    // Handle debate participants
     const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
     await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
 

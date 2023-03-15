@@ -1,14 +1,12 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
     padding: 8,
     borderLeft: 'solid',
     borderLeftWidth: '1.5px',
-    // borderColor: theme.palette.primary.dark,
     '&:hover $menu': {
       opacity: 0.2
     },
@@ -97,11 +95,9 @@ const getParticipantBorderStyle = (participantIndex: number) => {
   }
 };
 
-export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebateCommentReplyForm, orderedParticipantList, daySeparator, classes }: {
+export const DebateCommentBlock = ({ comments, post, orderedParticipantList, daySeparator, classes }: {
   comments: DebateCommentWithReplies[],
-  loadingReplies: boolean,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
-  toggleDebateCommentReplyForm: (parentComment: CommentsList, action: 'open' | 'close') => void,
   orderedParticipantList: string[],
   daySeparator?: string,
   classes: ClassesType,
@@ -111,14 +107,8 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
 
-  const { everHovered, hover, eventHandlers } = useHover();
-
   const showRepliesForComment = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    const toggle = showReplyState ? 'close' : 'open';
-    // toggleDebateCommentReplyForm(comment, toggle);
-
     setShowReplyState(!showReplyState);
   };
 
@@ -154,7 +144,7 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
         />
       : <CommentBody comment={comment} />;
 
-      const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink/*, { [classes.hideReplyLink]: !hover }*/)} onClick={e => showRepliesForComment(e)}>
+      const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => showRepliesForComment(e)}>
         Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
       </a>;
 
@@ -171,15 +161,14 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
           }}
         />;
 
-      const replyState = showReplyState && (!loadingReplies
+      const replyState = showReplyState
         ? replyCommentList
-        : <Loading />);
+        : <Loading />;
 
       return (
         <div
           id={`debate-comment-${comment._id}`}
           className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
-          {...eventHandlers}
         >
           {header}
           {menu}

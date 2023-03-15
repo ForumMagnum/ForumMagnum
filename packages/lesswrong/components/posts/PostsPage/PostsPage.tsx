@@ -246,7 +246,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateComment, DebateBody
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
   } = Components
 
   useEffect(() => {
