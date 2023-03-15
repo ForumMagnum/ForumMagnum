@@ -1,10 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
-import { useClickableCell } from "../common/useClickableCell";
-import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 
@@ -36,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformIcon: {
     display: "flex",
-    alignitems: "center",
     marginLeft: 4,
     color: theme.palette.grey[1000],
     "& svg": {
@@ -80,17 +77,22 @@ const ShortformListItem = ({comment, classes}: {
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
-  const url = commentGetPageUrlFromIds({
-    postId: comment.post?._id,
-    postSlug: comment.post?.slug,
-    commentId: comment._id,
-  });
-  const {onClick} = useClickableCell(url);
+  const [expanded, setExpanded] = useState(false)
 
-  const { LWTooltip, ForumIcon, UsersName, FooterTag } = Components;
+  const { LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode } = Components;
+  
+  if (expanded) {
+    return <CommentsNode
+      treeOptions={{
+        post: comment.post || undefined,
+      }}
+      comment={comment}
+      loadChildrenSeparately
+    />
+  }
 
   return (
-    <div className={classes.root} onClick={onClick}>
+    <div className={classes.root} onClick={() => setExpanded(true)}>
       <div className={classes.karma}>
         <LWTooltip title={
           <div>
@@ -103,7 +105,7 @@ const ShortformListItem = ({comment, classes}: {
         <SoftUpArrowIcon />
       </div>
       <div className={classes.shortformIcon}>
-        <ForumIcon icon="Lightbulb" />
+        <ForumIcon icon="Shortform" />
       </div>
       <div className={classes.author}>
         <UsersName user={comment.user} />

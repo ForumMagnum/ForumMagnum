@@ -18,6 +18,7 @@ import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
+import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
@@ -39,7 +40,7 @@ export type ForumIconName =
   "Pin" |
   "Close" |
   "Comment" |
-  "Lightbulb";
+  "Shortform";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -53,7 +54,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
-    Lightbulb: LightbulbIcon,
+    Shortform: NotesIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -66,7 +67,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
-    Lightbulb: LightbulbIcon,
+    Shortform: LightbulbIcon,
   },
 };
 
