@@ -324,10 +324,7 @@ export default class MongoStore extends session.Store {
     debug('MongoStore#clear()');
     void (async () => {
       try {
-        await this.collection.rawRemove(
-          {},
-          {noSafetyHarness: true},
-        );
+        await this.collection.rawRemove({});
         callback(null);
       } catch (e) {
         callback(e);

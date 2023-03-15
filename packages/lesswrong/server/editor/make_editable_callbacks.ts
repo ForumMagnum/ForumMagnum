@@ -22,6 +22,7 @@ import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
+import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -364,8 +365,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");

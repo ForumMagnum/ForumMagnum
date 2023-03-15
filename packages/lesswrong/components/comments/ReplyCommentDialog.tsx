@@ -21,7 +21,7 @@ const ReplyCommentDialog = ({post, initialHtml, parentComment, overrideTitle, on
   const { PopupCommentEditor } = Components;
   
   return <PopupCommentEditor
-    title={overrideTitle ?? post.title}
+    title={overrideTitle ?? "New Comment: " + post.title}
     onClose={() => {
       onClose();
       onCloseCallback?.();

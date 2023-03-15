@@ -148,7 +148,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  control: "NotificationTypeSettings" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -867,6 +867,14 @@ const schema: SchemaType<DbUser> = {
     canCreate: 'guests',
     hidden: true,
   },
+  allPostsHideCommunity: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   allPostsOpenSettings: {
     type: Boolean,
     optional: true,
@@ -913,6 +921,7 @@ const schema: SchemaType<DbUser> = {
   karma: {
     type: Number,
     optional: true,
+    // TODO: add nullable: true
     canRead: ['guests'],
   },
 
@@ -2391,6 +2400,46 @@ const schema: SchemaType<DbUser> = {
       });
     }
   }),
+  
+  associatedClientIds: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[ClientId!]",
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId[]|null> => {
+      return await context.ClientIds.find(
+        {userIds: user._id},
+        {
+          sort: {createdAt: -1},
+          limit: 100
+        }
+      ).fetch();
+    }
+  }),
+  "associatedClientIds.$": {
+    type: "ClientId",
+  },
+  
+  altAccountsDetected: resolverOnlyField({
+    type: Boolean,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
+      const clientIds = await context.ClientIds.find(
+        {userIds: user._id},
+        {
+          sort: {createdAt: -1},
+          limit: 100
+        }
+      ).fetch();
+      const userIds = new Set<string>();
+      for (let clientId of clientIds) {
+        for (let userId of clientId.userIds)
+          userIds.add(userId);
+      }
+      return userIds.size > 1;
+    }
+  }),
+  
 
   acknowledgedNewUserGuidelines: {
     type: Boolean,

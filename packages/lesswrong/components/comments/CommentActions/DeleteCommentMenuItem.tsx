@@ -1,7 +1,6 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useModerateComment } from './withModerateComment'
 import { useDialog } from '../../common/withDialog'
@@ -15,6 +14,7 @@ const DeleteCommentMenuItem = ({comment, post, tag}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { flash } = useMessages();
+  const { MenuItem } = Components;
   const { moderateCommentMutation } = useModerateComment({fragmentName: "CommentsList"});
 
   console.log({ comment })

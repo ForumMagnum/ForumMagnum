@@ -4,7 +4,6 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
@@ -109,7 +108,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   }
 
   const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography } = Components
+    const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>

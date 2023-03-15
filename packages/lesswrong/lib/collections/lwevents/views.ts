@@ -60,3 +60,6 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
     }
   }
 })
+
+// Index used in manual user-by-IP queries, and in some moderator UI
+ensureIndex(LWEvents, {name:1, "properties.ip":1, createdAt:1, userId:1})

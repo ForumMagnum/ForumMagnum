@@ -237,7 +237,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   return usersToEmail
 }
 
-const curationEmailDelay = new EventDebouncer<string,null>({
+const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
     type: "delayed",
@@ -270,7 +270,6 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
     
     await curationEmailDelay.recordEvent({
       key: post._id,
-      data: null,
       af: false
     });
   }
