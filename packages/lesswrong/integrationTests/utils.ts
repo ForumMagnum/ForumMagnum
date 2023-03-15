@@ -432,7 +432,9 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   return (response as any).should.eventually.deep.equal(expectedOutput);
 }
 
-// Please don't use this unless the test is actually expecting an error
+/**
+ * Please don't use this unless the test is actually expecting an error
+ */
 export const withNoWarnings = async (fn: () => Promise<void>) => {
   const {log, warn, error, info} = console;
   //eslint-disable-next-line no-console
