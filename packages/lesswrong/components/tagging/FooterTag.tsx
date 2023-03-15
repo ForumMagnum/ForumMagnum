@@ -24,7 +24,8 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer"
+  cursor: "pointer",
+  whiteSpace: isEAForum ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType): JssStyles => ({
@@ -143,9 +144,13 @@ const FooterTag = ({
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
+  const tagName = isEAForum && smallText
+    ? tag.shortName || tag.name
+    : tag.name;
+
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
-    <span className={classes.name}>{tag.name}</span>
+    <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 

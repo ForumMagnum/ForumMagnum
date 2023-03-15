@@ -84,7 +84,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsListWithVotes',
     enableTotal: true,
     itemsPerPage: 50,
   });
@@ -124,7 +124,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography, PostsTagsList } = Components
+    const { PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography, PostsTagsList } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0))
@@ -182,7 +182,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               </div>
               <div className={classes.posts}>
                 {filteredPosts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
+                  <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
                 )}
               </div>
             </div>

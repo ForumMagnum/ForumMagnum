@@ -9,6 +9,7 @@ import LinkIcon from "@heroicons/react/24/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -35,7 +36,8 @@ export type ForumIconName =
   "User" |
   "Link" |
   "Pin" |
-  "Close";
+  "Close" |
+  "Comment";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -48,6 +50,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Link: MuiLinkIcon,
     Pin: StickyIcon,
     Close: CloseIcon,
+    Comment: CommentIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -59,6 +62,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Link: LinkIcon,
     Pin: PinIcon,
     Close: CloseIcon,
+    Comment: CommentIcon,
   },
 };
 
