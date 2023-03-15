@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
+import { Link } from '../../lib/reactRouterWrapper';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:before': {
       position: 'absolute',
       top: 0,
-      left: 0,
+      left: -1,
       height: '100%',
       width: 50,
       content: "''",
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:after': {
       position: 'absolute',
       top: 0,
-      right: 0,
+      right: -1,
       height: '100%',
       width: 50,
       content: "''",
@@ -113,13 +114,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[1000],
     },
+  },
+  learnMoreLink: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 600
   }
 })
 
 type TopicsBarTab = {
   _id: string,
   name: string,
-  shortName?: string|null
+  shortName?: string|null,
+  slug?: string
 }
 
 /**
@@ -165,7 +172,7 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
   if (coreTopics) {
     allTabs = allTabs.concat(coreTopics)
   }
-  const [activeTab, setActiveTab] = useState(frontpageTab)
+  const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
   
@@ -265,7 +272,9 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
 
       {activeTab.name === 'Frontpage' ? frontpageNode : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
-          <SectionTitle title="New & upvoted" noTopMargin />
+          <SectionTitle title="New & upvoted" noTopMargin>
+            <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
+          </SectionTitle>
           <PostsList2
             terms={topicPostTerms}
             itemsPerPage={30}
