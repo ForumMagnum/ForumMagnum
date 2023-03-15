@@ -306,6 +306,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
         initialLimit={8}
         itemsPerPage={20}
         showTotal
+        hideTag
       />
     </div>
   );

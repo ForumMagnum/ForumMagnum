@@ -70,8 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ShortformListItem = ({comment, classes}: {
+const ShortformListItem = ({comment, hideTag, classes}: {
   comment: ShortformComments,
+  hideTag?: boolean,
   classes: ClassesType,
 }) => {
   const karma = comment.baseScore ?? 0;
@@ -105,7 +106,7 @@ const ShortformListItem = ({comment, classes}: {
         <SoftUpArrowIcon />
       </div>
       <div className={classes.shortformIcon}>
-        <ForumIcon icon="Shortform" />
+        {comment.shortform && <ForumIcon icon="Shortform" />}
       </div>
       <div className={classes.author}>
         <UsersName user={comment.user} />
@@ -125,7 +126,7 @@ const ShortformListItem = ({comment, classes}: {
         </div>
       }
       <div className={classes.tag}>
-        {primaryTag && <FooterTag tag={primaryTag} smallText />}
+        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
       </div>
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}
