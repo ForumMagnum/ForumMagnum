@@ -161,9 +161,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
           }}
         />;
 
-      const replyState = showReplyState
-        ? replyCommentList
-        : <Loading />;
+      const replyState = showReplyState && replyCommentList;
 
       return (
         <div
