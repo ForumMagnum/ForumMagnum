@@ -27,6 +27,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
+import uniq from 'lodash/uniq';
 import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
@@ -400,8 +401,33 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
       }
     }
   }
+
+  // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
+  if (post && comment.debateComment) {
+    // Get all the debate participants, but exclude the comment author if they're a debate participant
+    const debateParticipantIds = _.difference([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)], [comment.userId]);
+
+    const debateSubscribers = await getSubscribedUsers({
+      documentId: comment.postId,
+      collectionName: "Posts",
+      type: subscriptionTypes.newDebateComments,
+      potentiallyDefaultSubscribedUserIds: debateParticipantIds
+    });
+
+    const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+    // Filter out debate participants, since they get a different notification type
+    // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
+    const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
+    await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
+
+    const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
+    await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
+
+    // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
+    notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
+  }
   
-  // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
+  // 3. Notify users who are subscribed to the post (which may or may not include the post's author)
   let userIdsSubscribedToPost: Array<string> = [];
   const usersSubscribedToPost = await getSubscribedUsers({
     documentId: comment.postId,
@@ -447,7 +473,7 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
     notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
   }
   
-  // 3. If this comment is in a subforum, notify members with email notifications enabled
+  // 4. If this comment is in a subforum, notify members with email notifications enabled
   if (
     comment.tagId &&
     comment.tagCommentType === "SUBFORUM" &&

@@ -1277,6 +1277,14 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "New debate content in a debate I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+  },
+  notificationDebateReplies: {
+    label: "New debate content in a debate I'm participating in",
+    ...notificationTypeSettingsField()
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
