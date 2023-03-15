@@ -168,7 +168,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             {/* {isEAForum && (
               <CommentsListCondensed
                 label={"Shortform discussion"}
-                contentType="shortform"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}
               />
