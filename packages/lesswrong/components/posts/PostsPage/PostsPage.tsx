@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
 import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -167,6 +167,7 @@ const PostsPage = ({post, refetch, classes}: {
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
   const { openDialog, closeDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
@@ -219,11 +220,12 @@ const PostsPage = ({post, refetch, classes}: {
   const { results: debateComments } = useMulti({
     terms: {
       view: 'debateComments',
-      postId: post._id
+      postId: post._id,
     },
     collectionName: 'Comments',
     fragmentName: 'CommentsList',
-    skip: !post.debate
+    skip: !post.debate,
+    limit: 1000
   });
 
   const defaultView = commentGetDefaultView(post, currentUser)
@@ -286,7 +288,15 @@ const PostsPage = ({post, refetch, classes}: {
   const excludeCommentIds = debateComments && debateCommentReplies
     ? new Set(debateCommentReplies.map(comment => comment._id))
     : undefined;
+
+  const isDebateCommentLink = commentId && debateCommentIds.has(commentId);
   
+  useEffect(() => {
+    if (isDebateCommentLink) {
+      history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
+    }
+  }, [isDebateCommentLink, commentId]);
+
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
       componentName:"ReplyCommentDialog",
@@ -352,7 +362,7 @@ const PostsPage = ({post, refetch, classes}: {
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
         <div className={classes.centralColumn}>
-          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {commentId && !isDebateCommentLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}

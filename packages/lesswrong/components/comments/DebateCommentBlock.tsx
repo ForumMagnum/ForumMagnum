@@ -177,7 +177,7 @@ export const DebateCommentBlock = ({ comments, loadingReplies, post, toggleDebat
 
       return (
         <div
-          key={`debate-comment-${comment._id}`}
+          id={`debate-comment-${comment._id}`}
           className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
           {...eventHandlers}
         >
