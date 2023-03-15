@@ -58,7 +58,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 0, // flexbox black magic
   },
   title: {
-    fontWeight: 650,
+    fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 3,
