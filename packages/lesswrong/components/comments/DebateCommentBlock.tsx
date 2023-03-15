@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
@@ -102,7 +103,9 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
   daySeparator?: string,
   classes: ClassesType,
 }) => {
-  const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, Loading, ContentStyles } = Components;
+  const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
+
+  const currentUser = useCurrentUser();
 
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -122,6 +125,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
       const addBottomMargin = idx === (comments.length - 1);
       const participantIndex = orderedParticipantList.indexOf(comment.userId);
       const borderStyle = getParticipantBorderStyle(participantIndex);
+      const showInlineReplyForm = !currentUser || !orderedParticipantList.includes(currentUser._id);
 
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />
@@ -153,7 +157,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
           comments={replies}
           totalComments={replies.length}
           post={post}
-          newForm={true}
+          newForm={showInlineReplyForm}
           newFormProps={{
             parentComment: comment,
             removeFields: ['debateComment'],

@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
-import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
-import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
@@ -60,10 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: 'italic',
     marginTop: 4,
   },
-  debateCommentsList: {
-    // marginLeft: 'auto',
-    // width: '95%'
-  }
+  debateCommentsList: {}
 })
 
 const DebateCommentsListSection = ({post, totalComments, comments, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
@@ -80,69 +71,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, startThreadTr
   
   const { CommentsList, PostsPageCrosspostComments } = Components
 
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
-  const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
-  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
-  const now = useCurrentTime();
-
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  }
-
-  const handleDateChange = (date: Date) => {
-    setHighlightDate(date)
-    setAnchorEl(null);
-  }
-
-  const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography } = Components
-    const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    return <CommentsListMeta>
-      <Typography
-        variant="body2"
-        component='span'
-        className={classes.inline}
-      >
-        <span>
-          {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
-        </span>
-      </Typography>
-      {post && <Typography
-        variant="body2"
-        component='span'
-        className={classes.clickToHighlightNewSince}
-      >
-        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
-        {highlightDate && !newCommentsSinceDate && "No new comments since "}
-        {!highlightDate && "Click to highlight new comments since: "}
-        <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate || now}/>
-        </a>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {currentUser && post && <Components.LastVisitList
-            postId={post._id}
-            currentUser={currentUser}
-            clickCallback={handleDateChange}/>}
-          <Divider />
-          {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
-              {date.calendar().toString()}
-            </MenuItem>
-          })}
-        </Menu>
-      </Typography>}
-    </CommentsListMeta>
-  }
-
-  // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
+  const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
 
   const postAuthor = post?.user || null;
 
@@ -168,7 +97,6 @@ const DebateCommentsListSection = ({post, totalComments, comments, startThreadTr
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
-      {/* { totalComments ? renderTitleComponent() : null } */}
       <div className={classes.debateCommentsList}>
         <CommentsList
           treeOptions={{
