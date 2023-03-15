@@ -29,15 +29,30 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 0
     }
   },
-  tabsWindowFade: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100%',
-    width: 50,
-    content: "''",
-    background: `linear-gradient(to left, ${theme.palette.background.default}, transparent)`,
-    pointerEvents: 'none'
+  leftFade: {
+    '&:before': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      width: 50,
+      content: "''",
+      background: `linear-gradient(to right, ${theme.palette.background.default}, transparent)`,
+      pointerEvents: 'none',
+      zIndex: 1
+    }
+  },
+  rightFade: {
+    '&:after': {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      height: '100%',
+      width: 50,
+      content: "''",
+      background: `linear-gradient(to left, ${theme.palette.background.default}, transparent)`,
+      pointerEvents: 'none'
+    }
   },
   arrow: {
     position: 'absolute',
@@ -133,7 +148,8 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
       // by checking if the right edge would be past the window
       // - if so, this will be the first in the next "set"
       if (topic.offsetLeft + topic.offsetWidth - offsets.current[offsets.current.length-1] > tabsWindowRef.current.offsetWidth) {
-        offsets.current.push(topic.offsetLeft)
+        // subtract 30px to account for the fade on the left side of the tabs window
+        offsets.current.push(topic.offsetLeft - 30)
       }
     })
   }, [tabsWindowRef, topicsBarRef])
@@ -224,7 +240,7 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
             {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
               <ForumIcon icon="ChevronLeft" className={classes.arrowIcon} />
             </div>}
-            <div className={classes.tabsWindowContainer}>
+            <div className={classNames(classes.tabsWindowContainer, {[classes.leftFade]: leftArrowVisible, [classes.rightFade]: rightArrowVisible})}>
               <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
@@ -239,7 +255,6 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
                   })}
                 </div>
               </div>
-              {rightArrowVisible && <div className={classes.tabsWindowFade}></div>}
             </div>
             {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
               <ForumIcon icon="ChevronRight" className={classes.arrowIcon} />
