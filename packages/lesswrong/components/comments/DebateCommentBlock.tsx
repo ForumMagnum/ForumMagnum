@@ -120,12 +120,15 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
       <span className={classes.dividerLabel}>{daySeparator}</span>
     </div>}
     {comments.map(({ comment, replies }, idx) => {
-      const showHeader = idx === 0;
-      const showReplyLink = replies.length > 0 || idx === (comments.length - 1);
-      const addBottomMargin = idx === (comments.length - 1);
+      const isFirstCommentInBlock = idx === 0;
+      const isLastCommentInBlock = idx === (comments.length - 1);
+
+      const showHeader = isFirstCommentInBlock;
+      const showReplyLink = replies.length > 0 || isLastCommentInBlock;
+      const addBottomMargin = isLastCommentInBlock;
       const participantIndex = orderedParticipantList.indexOf(comment.userId);
       const borderStyle = getParticipantBorderStyle(participantIndex);
-      const showInlineReplyForm = !currentUser || !orderedParticipantList.includes(currentUser._id);
+      const showInlineReplyForm = isLastCommentInBlock && (!currentUser || !orderedParticipantList.includes(currentUser._id));
 
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />

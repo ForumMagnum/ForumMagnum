@@ -220,7 +220,6 @@ const PostsNewForm = ({classes}: {
         <NoSSR>
           <WrappedSmartForm
             collection={Posts}
-            removeFields={debateForm ? ['debate'] : []}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {
