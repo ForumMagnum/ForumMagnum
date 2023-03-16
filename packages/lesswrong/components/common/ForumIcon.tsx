@@ -11,6 +11,8 @@ import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
+import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -18,6 +20,7 @@ import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
+import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
@@ -39,7 +42,9 @@ export type ForumIconName =
   "Pin" |
   "Close" |
   "Comment" |
-  "Lightbulb";
+  "Shortform" |
+  "ChevronLeft" |
+  "ChevronRight";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -53,7 +58,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
-    Lightbulb: LightbulbIcon,
+    Shortform: NotesIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -66,7 +73,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
-    Lightbulb: LightbulbIcon,
+    Shortform: LightbulbIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
   },
 };
 

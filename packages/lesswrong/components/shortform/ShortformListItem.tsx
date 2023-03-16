@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
-import { useClickableCell } from "../common/useClickableCell";
-import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
+import { useHover } from "../common/withHover";
+import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
-    padding: 12,
+    padding: "8px 12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
@@ -36,7 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformIcon: {
     display: "flex",
-    alignitems: "center",
     marginLeft: 4,
     color: theme.palette.grey[1000],
     "& svg": {
@@ -71,26 +70,47 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     color: theme.palette.grey[1000],
   },
+  hoverOver: {
+    width: 400,
+  },
 });
 
-const ShortformListItem = ({comment, classes}: {
+const ShortformListItem = ({comment, hideTag, classes}: {
   comment: ShortformComments,
+  hideTag?: boolean,
   classes: ClassesType,
 }) => {
+  const [expanded, setExpanded] = useState(false)
+  const {eventHandlers, hover, anchorEl} = useHover({
+    pageElementContext: "shortformItemTooltip",
+    commentId: comment._id,
+  });
+
+  const treeOptions = {post: comment.post || undefined};
+
+  const {
+    LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
+  } = Components;
+
+  if (expanded) {
+    return <CommentsNode
+      treeOptions={treeOptions}
+      comment={comment}
+      loadChildrenSeparately
+    />
+  }
+
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
-  const url = commentGetPageUrlFromIds({
-    postId: comment.post?._id,
-    postSlug: comment.post?.slug,
-    commentId: comment._id,
-  });
-  const {onClick} = useClickableCell(url);
-
-  const { LWTooltip, ForumIcon, UsersName, FooterTag } = Components;
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile();
 
   return (
-    <div className={classes.root} onClick={onClick}>
+    <div
+      className={classes.root}
+      onClick={() => setExpanded(true)}
+      {...eventHandlers}
+    >
       <div className={classes.karma}>
         <LWTooltip title={
           <div>
@@ -103,7 +123,7 @@ const ShortformListItem = ({comment, classes}: {
         <SoftUpArrowIcon />
       </div>
       <div className={classes.shortformIcon}>
-        <ForumIcon icon="Lightbulb" />
+        {comment.shortform && <ForumIcon icon="Shortform" />}
       </div>
       <div className={classes.author}>
         <UsersName user={comment.user} />
@@ -123,11 +143,32 @@ const ShortformListItem = ({comment, classes}: {
         </div>
       }
       <div className={classes.tag}>
-        {primaryTag && <FooterTag tag={primaryTag} smallText />}
+        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
       </div>
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}
       </div>
+      <LWPopper
+        open={displayHoverOver}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        clickable={false}
+      >
+        <div className={classes.hoverOver}>
+          <CommentsNode
+            truncated
+            nestingLevel={1}
+            comment={comment}
+            treeOptions={{
+              ...treeOptions,
+              hideReply: true,
+              forceSingleLine: false,
+              forceNotSingleLine: true,
+            }}
+            hoverPreview
+          />
+        </div>
+      </LWPopper>
     </div>
   );
 }

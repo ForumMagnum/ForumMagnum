@@ -61,13 +61,20 @@ const schema: SchemaType<DbTagRel> = {
       return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
-  
   autoApplied: {
     type: Boolean,
     viewableBy: ['guests'],
     optional: true, hidden: true,
     // Implementation in tagResolvers.ts
   },
+  // Indicates that a tagRel was applied via the script backfillParentTags.ts
+  backfilled: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export const TagRels: TagRelsCollection = createCollection({

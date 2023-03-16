@@ -21,8 +21,10 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
   if (!connectionString) {
     if (!missingConnectionStringWarned) {
       missingConnectionStringWarned = true;
-      //eslint-disable-next-line no-console
-      console.log("Analytics logging disabled: no analytics connectionString passed in");
+      if (!isAnyTest) {
+        //eslint-disable-next-line no-console
+        console.log("Analytics logging disabled: no analytics connectionString passed in");
+      }
     }
     return null;
   }
