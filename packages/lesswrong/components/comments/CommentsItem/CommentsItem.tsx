@@ -513,9 +513,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
                 <FooterTag
                   tag={tag}
                   key={tag._id}
-                  smallText={!isEAForum}
                   className={classes.relevantTag}
                   neverCoreStyling
+                  smallText
                 />
               )}
               {shouldDisplayLoadMore && <LoadMore
