@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import * as _ from 'underscore';
 import { CommentsNewFormProps } from './CommentsNewForm';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
@@ -57,11 +56,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   debateCommentsList: {}
 })
 
-const DebateCommentsListSection = ({post, totalComments, comments, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
+const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
   post: PostsDetails,
   totalComments: number,
   comments: CommentsList[],
-  startThreadTruncated?: boolean,
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
@@ -109,7 +107,6 @@ const DebateCommentsListSection = ({post, totalComments, comments, startThreadTr
           }}
           totalComments={totalComments}
           comments={commentTree}
-          startThreadTruncated={startThreadTruncated}
         />
       </div>
       <PostsPageCrosspostComments />

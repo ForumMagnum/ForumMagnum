@@ -684,7 +684,13 @@ const schema: SchemaType<DbComment> = {
     nullable: true,
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    canUpdate: ['sunshineRegiment', 'admins']
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: ({ currentUser, formProps: { post } }: { currentUser: UsersCurrent | null, formProps: { post?: PostsDetails } }) => {
+      if (!currentUser || !post?.debate) return true;
+      
+      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      return !debateParticipantsIds.includes(currentUser._id);
+    }
   }
 };
 

@@ -145,6 +145,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
           successCallback={() => setShowEdit(false)}
           cancelCallback={() => setShowEdit(false)}
           className={classes.editForm}
+          formProps={{ post }}
         />
       : <CommentBody comment={comment} />;
 
@@ -160,8 +161,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
           newForm={showInlineReplyForm}
           newFormProps={{
             parentComment: comment,
-            removeFields: ['debateComment'],
-            replyFormStyle: 'minimalist'
+            replyFormStyle: 'minimalist',
           }}
         />;
 

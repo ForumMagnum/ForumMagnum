@@ -3,11 +3,12 @@ import React from 'react';
 import { Comments } from "../../lib/collections/comments";
 import classNames from 'classnames';
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback, className }: {
-  comment: any,
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {
+  comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
-  className?: string
+  className?: string,
+  formProps?: Record<string, any>
 }) => {
   return (
     <div className={classNames("comments-edit-form", className)}>
@@ -21,6 +22,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className 
         queryFragment={getFragment('CommentEdit')}
         mutationFragment={getFragment('CommentsList')}
         submitLabel="Save"
+        formProps={formProps}
       />
     </div>
   )

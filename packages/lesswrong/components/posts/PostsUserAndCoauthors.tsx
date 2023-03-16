@@ -37,18 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getTopCommentAuthor = (post: PostsList | SunshinePostsList) => {
-  if (post.question) {
-    return post.bestAnswer?.user;
-  }
-
-  if (post.debate) {
-    return post.unreadDebateComments;
-  }
-
-  return post.lastPromotedComment?.user;
-};
-
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
@@ -64,8 +52,6 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   if (post.debate) {
     const participants = [post.user, ...post.coauthors];
     const lastUnreadParticipant = post.unreadDebateComments?.lastParticipant;
-
-    console.log({ unreadDebateComments: post.unreadDebateComments });
 
     let otherParticipants = participants;
     if (lastUnreadParticipant) {

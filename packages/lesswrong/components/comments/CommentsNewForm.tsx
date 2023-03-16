@@ -226,6 +226,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
+
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>

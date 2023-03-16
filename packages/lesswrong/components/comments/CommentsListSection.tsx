@@ -187,6 +187,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             }}
             type="comment"
             {...newFormProps}
+            {...(userIsDebateParticipant ? { formProps: { post } } : {})}
           />
         </div>
       }

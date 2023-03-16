@@ -20,8 +20,6 @@ import { useCookies } from 'react-cookie';
 import { OpenDialogContextType, useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
-import { styles as commentsItemStyles } from '../../comments/CommentsItem/CommentsItem';
-import { DebateCommentWithReplies } from '../../comments/DebateCommentBlock';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -143,21 +141,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
-  // debateComments: {
-  //   ...commentsItemStyles(theme)
-  // }
-  outerDebateComments: {},
-  innerDebateComment: {
-    marginBottom: 16,
-    padding: 8,
-    borderRadius: 8,
-    borderStyle: 'solid',
-    borderColor: theme.palette.primary.dark
-  },
-  username: {
-    marginRight: 10,
-  }
 })
+
+const getDebateCommentBlocks = (comments: CommentsList[], replies: CommentsList[]) =>
+comments.map(debateComment => ({
+  comment: debateComment,
+  replies: replies.filter(reply => reply.topLevelCommentId === debateComment._id)
+}));
 
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
@@ -388,13 +378,6 @@ const PostsPage = ({post, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
-  const getDebateCommentBlocks = (comments: CommentsList[], replies: CommentsList[]) =>
-    comments.map(debateComment => ({
-      comment: debateComment,
-      replies: replies.filter(reply => reply.topLevelCommentId === debateComment._id)
-    }));
-  
-
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -420,23 +403,11 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {/* {post.debate && debateComments && nonDebateComments && <ContentStyles contentType="comment" className={classes.outerDebateComments}> */}
-          {/** Debate contents go here? */}
-          {post.debate && debateComments && debateCommentReplies &&
-            <DebateBody
-              debateComments={getDebateCommentBlocks(debateComments, debateCommentReplies)}
-              post={post}
-            />}
-          {/* {post.debate && debateComments && debateCommentReplies && debateComments.map(comment => {
-            return <DebateComment
-              comment={comment}
-              replies={debateCommentReplies}
-              loadingReplies={false}
-              post={post}
-              toggleDebateCommentReplyForm={openDebateReplyCommentDialog}
-            />
-          })} */}
-        {/* </ContentStyles>} */}
+        {post.debate && debateComments && debateCommentReplies &&
+          <DebateBody
+            debateComments={getDebateCommentBlocks(debateComments, debateCommentReplies)}
+            post={post}
+          />}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>

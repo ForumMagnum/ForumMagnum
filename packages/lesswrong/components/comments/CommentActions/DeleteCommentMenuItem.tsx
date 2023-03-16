@@ -16,8 +16,6 @@ const DeleteCommentMenuItem = ({comment, post, tag}: {
   const { flash } = useMessages();
   const { MenuItem } = Components;
   const { moderateCommentMutation } = useModerateComment({fragmentName: "CommentsList"});
-
-  console.log({ comment })
   
   const showDeleteDialog = () => {
     openDialog({
