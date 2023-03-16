@@ -294,6 +294,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
+    // this is used to address a specific iOS Safari-related issue with linear-gradient:
+    // https://stackoverflow.com/questions/70446857/safari-linear-gradient
+    transparent: shades.inverseGreyAlpha(0),
   },
   panelBackground: {
     default: shades.grey[0],
