@@ -27,6 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       border: `1px solid ${theme.palette.grey[250]}`,
     },
   },
+  expandedRoot: {
+    "& .comments-node-root": {
+      marginBottom: 8,
+    },
+  },
   karma: {
     display: "flex",
     alignItems: "center",
@@ -88,11 +93,15 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   } = Components;
 
   if (expanded) {
-    return <CommentsNode
-      treeOptions={treeOptions}
-      comment={comment}
-      loadChildrenSeparately
-    />
+    return (
+      <div className={classes.expandedRoot}>
+        <CommentsNode
+          treeOptions={treeOptions}
+          comment={comment}
+          loadChildrenSeparately
+        />
+      </div>
+    );
   }
 
   const karma = comment.baseScore ?? 0;
