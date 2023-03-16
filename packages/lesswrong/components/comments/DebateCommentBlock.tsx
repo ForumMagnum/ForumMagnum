@@ -169,6 +169,7 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
 
       return (
         <div
+          key={`debate-comment-${comment._id}`}
           id={`debate-comment-${comment._id}`}
           className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
         >

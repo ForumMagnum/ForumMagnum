@@ -46,6 +46,7 @@ export const DebateBody = ({ debateComments, post, classes }: {
             const showDaySeparator = blockIdx === 0;
             const daySeparatorAttribute = showDaySeparator ? { daySeparator } : {};
             return <DebateCommentBlock
+              key={`debate-comment-block-${blockIdx}`}
               comments={debateCommentBlock}
               post={post}
               orderedParticipantList={orderedParticipantList}
