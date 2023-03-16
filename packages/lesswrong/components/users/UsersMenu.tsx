@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -124,7 +124,7 @@ const UsersMenu = ({classes}: {
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>}
-              {userCanPost(currentUser) && <Link to={`/newPost?debate=true`}>
+              {userCanPost(currentUser) && userIsMemberOf(currentUser, 'debaters') && <Link to={`/newPost?debate=true`}>
                 <MenuItem>New Debate</MenuItem>
               </Link>}
             </div>
