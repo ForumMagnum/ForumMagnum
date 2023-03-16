@@ -110,6 +110,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     display: "block",
     fontSize: "1.75rem",
+    ...(isEAForum ? {
+      fontSize: 22,
+      lineHeight: 1.25,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      marginBottom: 10,
+    } : {})
   },
   smallerTitle: {
     fontSize: '1.5rem',
