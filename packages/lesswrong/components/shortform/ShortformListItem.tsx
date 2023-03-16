@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
-    padding: 12,
+    padding: "8px 12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
