@@ -288,7 +288,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment2: '#df1d45a8',
     debateComment3: '#2671ffa8',
     debateComment4: '#eb26ffa8',
-    debateComment5: '#000000a8',
+    debateComment5: '#efdc00a8',
   },
   background: {
     default: shades.grey[60],
