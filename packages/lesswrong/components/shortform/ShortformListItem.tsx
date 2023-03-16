@@ -3,6 +3,8 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
+import { useHover } from "../common/withHover";
+import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 
@@ -68,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     color: theme.palette.grey[1000],
   },
+  hoverOver: {
+    width: 400,
+  },
 });
 
 const ShortformListItem = ({comment, hideTag, classes}: {
@@ -75,25 +80,37 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   hideTag?: boolean,
   classes: ClassesType,
 }) => {
-  const karma = comment.baseScore ?? 0;
-  const commentCount = comment.descendentCount ?? 0;
-  const primaryTag = comment.relevantTags?.[0];
   const [expanded, setExpanded] = useState(false)
+  const {eventHandlers, hover, anchorEl} = useHover({
+    pageElementContext: "shortformItemTooltip",
+    commentId: comment._id,
+  });
 
-  const { LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode } = Components;
-  
+  const treeOptions = {post: comment.post || undefined};
+
+  const {
+    LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
+  } = Components;
+
   if (expanded) {
     return <CommentsNode
-      treeOptions={{
-        post: comment.post || undefined,
-      }}
+      treeOptions={treeOptions}
       comment={comment}
       loadChildrenSeparately
     />
   }
 
+  const karma = comment.baseScore ?? 0;
+  const commentCount = comment.descendentCount ?? 0;
+  const primaryTag = comment.relevantTags?.[0];
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile();
+
   return (
-    <div className={classes.root} onClick={() => setExpanded(true)}>
+    <div
+      className={classes.root}
+      onClick={() => setExpanded(true)}
+      {...eventHandlers}
+    >
       <div className={classes.karma}>
         <LWTooltip title={
           <div>
@@ -131,6 +148,27 @@ const ShortformListItem = ({comment, hideTag, classes}: {
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}
       </div>
+      <LWPopper
+        open={displayHoverOver}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        clickable={false}
+      >
+        <div className={classes.hoverOver}>
+          <CommentsNode
+            truncated
+            nestingLevel={1}
+            comment={comment}
+            treeOptions={{
+              ...treeOptions,
+              hideReply: true,
+              forceSingleLine: false,
+              forceNotSingleLine: true,
+            }}
+            hoverPreview
+          />
+        </div>
+      </LWPopper>
     </div>
   );
 }
