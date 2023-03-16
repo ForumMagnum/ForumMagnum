@@ -34,7 +34,7 @@ const SingleColumnSection = ({classes, className, children}: {
   )
 };
 
-const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, {styles});
+const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

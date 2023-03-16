@@ -11,6 +11,8 @@ import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
+import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -40,7 +42,9 @@ export type ForumIconName =
   "Pin" |
   "Close" |
   "Comment" |
-  "Shortform";
+  "Shortform" |
+  "ChevronLeft" |
+  "ChevronRight";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -55,6 +59,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: NotesIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -68,6 +74,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
   },
 };
 
