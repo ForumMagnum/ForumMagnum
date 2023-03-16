@@ -87,11 +87,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
-    paddingTop: 18,
+    paddingTop: [isEAForum ? 12 : 18],
     paddingLeft: 16,
     paddingRight: 16,
     borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
-    marginBottom:4,
+    marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -111,7 +111,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
     fontSize: "1.75rem",
     ...(isEAForum ? {
-      fontSize: 22,
+      fontSize: 18,
+      fontWeight: 600,
       lineHeight: 1.25,
       fontFamily: theme.palette.fonts.sansSerifStack,
       marginBottom: 10,
