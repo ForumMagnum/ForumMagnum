@@ -98,10 +98,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    marginTop: isEAForum ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: "12px 24px 8px 12px",
+    padding: isEAForum ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
   },
   hidden: {
@@ -109,7 +110,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0"
+    padding: "1px 12px 0 0",
+    paddingRight: isEAForum ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",
@@ -229,7 +231,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             >
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
               <MetaInfo className={classes.checkboxLabel}>
-                Show Community
+                Show community
               </MetaInfo>
             </QueryLink>
           </Tooltip>}

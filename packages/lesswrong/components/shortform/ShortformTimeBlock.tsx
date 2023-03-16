@@ -3,9 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_: ThemeType): JssStyles => ({
   shortformGroup: {
-    marginTop: 12,
+    marginTop: isEAForum ? -10 : 12,
   },
   subtitle: {
     marginTop: 6,

@@ -55,7 +55,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
 const CommentsListCondensedComponent = registerComponent(
   'CommentsListCondensed',
   CommentsListCondensed,
-  {styles}
+  {styles, stylePriority: 1},
 );
 
 declare global {
