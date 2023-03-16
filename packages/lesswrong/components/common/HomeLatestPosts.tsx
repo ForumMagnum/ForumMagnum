@@ -250,9 +250,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               history.push({...location, search: `?${qs.stringify(newQuery)}`})
             }}
           />
-          <Button className={classes.karmaButton} onClick={() => updatePostKarma(now.toISOString())}>
-            Update Karma to current effective date
-          </Button>
           {createNumberWidget("hypStartingAgeHours", defaultTimeDecayExprProps.hypStartingAgeHours, 1)}
           {createNumberWidget("hypDecayFactorSlowest", defaultTimeDecayExprProps.hypDecayFactorSlowest, 0.05)}
           {createNumberWidget("hypDecayFactorFastest", defaultTimeDecayExprProps.hypDecayFactorFastest, 0.05)}

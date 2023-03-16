@@ -59,23 +59,4 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `);
     return result?.meanKarma ?? 0;
   }
-
-  async updateDebugScore(dateString) {
-    const query = `
-      UPDATE "Posts" p
-      SET "debugScore" = sub.debugScore
-      FROM (
-          SELECT p."_id", SUM(v."power") AS debugScore
-          FROM "Votes" v
-          INNER JOIN "Posts" p ON v."documentId" = p."_id"
-          WHERE v."cancelled" IS false AND v."collectionName" = 'Posts'
-              AND v."createdAt" < $1
-              AND p."postedAt" >= (DATE $1 - INTERVAL '28 days')
-          GROUP BY p."_id"
-      ) sub
-      WHERE p."_id" = sub."_id";
-    `;
-    const params = [dateString];
-    await this.getRawDb().none(query, params);
-  }
 }

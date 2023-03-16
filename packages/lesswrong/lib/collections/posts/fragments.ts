@@ -43,7 +43,6 @@ registerFragment(`
     commentCount
     voteCount
     baseScore
-    debugScore
     extendedScore
     unlisted
     score

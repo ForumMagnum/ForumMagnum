@@ -2,8 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
-import { useTimezone } from '../common/withTimezone';
-import { useLocation } from '../../lib/routeUtil';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -45,10 +43,6 @@ const PostsItemDate = ({post, classes}: {
 }) => {
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
 
-  const { query } = useLocation()
-  const { timezone } = useTimezone()
-  const now = query.now ? moment(query.now).tz(timezone) : moment().tz(timezone);
-
   if (post.isEvent && post.startTime) {
     return <LWTooltip
       placement="right"
@@ -86,9 +80,7 @@ const PostsItemDate = ({post, classes}: {
       </div>}
     >
       <PostsItem2MetaInfo className={classes.postedAt}>
-        {/* debug then real */}
-        {moment(new Date(post.curatedDate)).from(now)}
-        {/* {moment(new Date(post.curatedDate)).fromNow()} */}
+        {moment(new Date(post.curatedDate)).fromNow()}
       </PostsItem2MetaInfo>
     </LWTooltip>
   }
@@ -98,9 +90,7 @@ const PostsItemDate = ({post, classes}: {
     title={<ExpandedDate date={post.postedAt}/>}
   >
     <PostsItem2MetaInfo className={classes.postedAt}>
-      {/* debug then real */}
-      {moment(new Date(post.postedAt)).from(now)}
-      {/* {moment(new Date(post.postedAt)).fromNow()} */}
+      {moment(new Date(post.postedAt)).fromNow()}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }

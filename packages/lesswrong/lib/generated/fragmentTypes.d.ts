@@ -639,7 +639,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
-  readonly debugScore: number,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -816,7 +815,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly debugScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly unlisted: boolean,
   readonly score: number,
