@@ -93,12 +93,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     margin: "0 5px 0 15px",
   },
-  readTime: {
-    minWidth: 75,
-    textAlign: "right",
-    whiteSpace: "nowrap",
-    paddingRight: 10,
-  },
   comments: {
     minWidth: 58,
     marginLeft: 4,
@@ -182,9 +176,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
 
   const SecondaryInfo = () => (
     <>
-      <div className={classes.readTime}>
-        {post.readTimeMinutes || 1}m read
-      </div>
       <HashLink to={commentsLink} className={classes.comments}>
         <ForumIcon icon="Comment" />
         {commentCount}
@@ -239,7 +230,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
           <div className={classes.meta}>
             <TruncatedAuthorsList
               post={post}
-              after={<>, <PostsItemDate post={post} noStyles includeAgo /></>}
+              after={<>
+                {' · '}
+                <PostsItemDate post={post} noStyles includeAgo />
+                {' · '}
+                {post.readTimeMinutes || 1}m read
+              </>}
             />
             <div className={classNames(
               classes.secondaryContainer,
