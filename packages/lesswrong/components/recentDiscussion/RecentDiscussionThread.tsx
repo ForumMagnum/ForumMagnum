@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
-    paddingTop: [isEAForum ? 12 : 18],
+    paddingTop: isEAForum ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
     borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
