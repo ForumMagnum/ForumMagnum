@@ -19,6 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         textTransform: "none",
         fontWeight: 600,
         fontSize: 28,
+        letterSpacing: "0",
         lineHeight: "34px",
       }
       : {},
