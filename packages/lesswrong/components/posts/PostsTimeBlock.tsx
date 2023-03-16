@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontWeight: 600,
-        fontSize: 16,
+        fontSize: 18,
         color: theme.palette.grey[1000],
         marginBottom: -12,
         marginTop: 25,
