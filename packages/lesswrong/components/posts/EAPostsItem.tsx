@@ -21,7 +21,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: `8px 12px 8px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: 13,
     color: theme.palette.grey[600],
     cursor: "pointer",
     [theme.breakpoints.down("xs")]: {
@@ -61,7 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    marginBottom: 3,
+    marginBottom: 1,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
