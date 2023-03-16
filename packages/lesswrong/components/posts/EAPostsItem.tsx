@@ -22,7 +22,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: `8px 12px 8px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: 13,
     color: theme.palette.grey[600],
     cursor: "pointer",
     [theme.breakpoints.down("xs")]: {
@@ -62,7 +62,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    marginBottom: 3,
+    marginBottom: 2,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
@@ -93,12 +93,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tag: {
     margin: "0 5px 0 15px",
-  },
-  readTime: {
-    minWidth: 75,
-    textAlign: "right",
-    whiteSpace: "nowrap",
-    paddingRight: 10,
   },
   comments: {
     minWidth: 58,
@@ -172,9 +166,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
 
   const SecondaryInfo = () => (
     <>
-      <div className={classes.readTime}>
-        {post.readTimeMinutes || 1}m read
-      </div>
       <HashLink to={commentsLink} className={classes.comments}>
         <ForumIcon icon="Comment" />
         {commentCount}
@@ -229,7 +220,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
           <div className={classes.meta}>
             <TruncatedAuthorsList
               post={post}
-              after={<>, <PostsItemDate post={post} noStyles includeAgo /></>}
+              after={<>
+                {' · '}
+                <PostsItemDate post={post} noStyles includeAgo />
+                {' · '}
+                {post.readTimeMinutes || 1}m read
+              </>}
             />
             <div className={classNames(
               classes.secondaryContainer,

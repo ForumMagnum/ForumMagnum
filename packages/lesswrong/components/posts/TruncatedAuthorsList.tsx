@@ -8,6 +8,7 @@ const styles = (_: ThemeType): JssStyles => ({
     overflowX: "hidden",
     whiteSpace: "nowrap",
     maxWidth: "100%",
+    fontSize: 13,
   },
   item: {},
   overflowContainer: {
