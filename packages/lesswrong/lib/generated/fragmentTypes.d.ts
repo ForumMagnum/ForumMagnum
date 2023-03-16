@@ -442,6 +442,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly deleted: boolean,
   readonly userId: string,
   readonly autoApplied: boolean,
+  readonly backfilled: boolean,
 }
 
 interface BooksDefaultFragment { // fragment on Books
