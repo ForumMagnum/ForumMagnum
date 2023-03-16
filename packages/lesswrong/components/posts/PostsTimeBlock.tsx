@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6,
   },
   noPosts: {
-    marginLeft: [isEAForum ? 0 : "23px"],
+    marginLeft: isEAForum ? 0 : 23,
     color: theme.palette.text.dim,
     ...(isEAForum
       ? {
