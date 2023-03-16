@@ -104,6 +104,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     padding: isEAForum ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: "column",
+      flexWrap: "nowrap",
+    },
   },
   hidden: {
     display: "none", // Uses CSS to show/hide
