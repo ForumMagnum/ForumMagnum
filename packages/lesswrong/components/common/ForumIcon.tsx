@@ -5,11 +5,12 @@ import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
-import LinkIcon from "@heroicons/react/24/solid/LinkIcon";
+import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
+import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
@@ -19,6 +20,7 @@ import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
+import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
@@ -40,6 +42,7 @@ export type ForumIconName =
   "Pin" |
   "Close" |
   "Comment" |
+  "Shortform" |
   "ChevronLeft" |
   "ChevronRight";
 
@@ -55,6 +58,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
+    Shortform: NotesIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
   },
@@ -69,6 +73,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
+    Shortform: LightbulbIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
   },

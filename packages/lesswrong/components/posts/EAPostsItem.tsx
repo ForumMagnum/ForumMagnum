@@ -1,13 +1,14 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { HashLink } from "../common/HashLink";
-import { Link, useHistory } from "../../lib/reactRouterWrapper";
+import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
+import { useClickableCell } from "../common/useClickableCell";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -161,18 +162,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     tooltipPlacement,
     analyticsProps,
   } = usePostsItem(props);
-  const history = useHistory();
-
-  // In order to make the entire "cell" a link to the post we need some special
-  // handling to make sure that all of the other links and buttons inside the cell
-  // still work. We do this by checking if the click happened inside an <a> tag
-  // before navigating to the post.
-  const onClick = (e: MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (typeof target.closest === "function" && !target.closest("a")) {
-      history.push(postLink);
-    }
-  }
+  const {onClick} = useClickableCell(postLink);
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,

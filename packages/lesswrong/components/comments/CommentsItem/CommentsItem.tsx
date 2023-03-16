@@ -17,6 +17,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
+import { useCommentLink } from './useCommentLink';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -50,11 +51,26 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 12,
     },
   },
-  menu: {
-    opacity:.35,
-    marginRight:-5,
+  rightSection: {
     float: "right",
+    marginRight: isEAForum ? -3 : -5,
+    marginTop: isEAForum ? 2 : undefined,
   },
+  linkIcon: {
+    fontSize: "1.2rem",
+    verticalAlign: "top",
+    color: theme.palette.icon.dim,
+    margin: "0 4px",
+    position: "relative",
+    top: 1,
+  },
+  menu: isEAForum
+    ? {
+      color: theme.palette.icon.dim,
+    }
+    : {
+      opacity: .35,
+    },
   replyLink: {
     marginRight: 5,
     display: "inline",
@@ -237,10 +253,18 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showMoreClicked, setShowMoreClicked] = useState(false);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
-  
   const currentUser = useCurrentUser();
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+
+  const commentLinkProps = {
+    comment,
+    post,
+    tag,
+    scrollIntoView,
+    scrollOnClick: postPage && !isParentComment,
+  };
+  const CommentLinkWrapper = useCommentLink(commentLinkProps);
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
@@ -483,11 +507,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>}
             <CommentUserName comment={comment} className={classes.username}/>
-            <CommentsItemDate
-              comment={comment} post={post} tag={tag}
-              scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage && !isParentComment}
-            />
+            <CommentsItemDate {...commentLinkProps} />
             {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
               {moderatorCommentAnnotation}
             </span>}
@@ -497,9 +517,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               hideKarma={post?.hideCommentKarma}
             />
 
-            {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
-            
+
             {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
@@ -507,15 +526,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
-            
+
             {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
               {relevantTagsTruncated.map(tag =>
                 <FooterTag
                   tag={tag}
                   key={tag._id}
-                  smallText={!isEAForum}
                   className={classes.relevantTag}
                   neverCoreStyling
+                  smallText
                 />
               )}
               {shouldDisplayLoadMore && <LoadMore
@@ -524,6 +543,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
                 className={classes.showMoreTags}
               />}
             </span>}
+
+            <span className={classes.rightSection}>
+              {isEAForum &&
+                <CommentLinkWrapper>
+                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
+                </CommentLinkWrapper>
+              }
+              {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
+            </span>
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
