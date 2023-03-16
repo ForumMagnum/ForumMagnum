@@ -61,7 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    marginBottom: 1,
+    marginBottom: 2,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,

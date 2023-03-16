@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
-    lineHeight: "1.8rem",
+    lineHeight: "1.7rem",
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
