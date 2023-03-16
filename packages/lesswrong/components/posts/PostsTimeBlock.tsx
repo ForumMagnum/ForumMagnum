@@ -50,6 +50,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   noPosts: {
     marginLeft: "23px",
     color: theme.palette.text.dim,
+    ...(isEAForum
+      ? {
+        marginTop: 18,
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
