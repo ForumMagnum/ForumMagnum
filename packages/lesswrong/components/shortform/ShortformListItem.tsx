@@ -30,16 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   karma: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "end",
+    minWidth: 40,
+    paddingRight: 7,
     "& svg": {
-      marginLeft: 4,
-    },
-  },
-  shortformIcon: {
-    display: "flex",
-    marginLeft: 4,
-    color: theme.palette.grey[1000],
-    "& svg": {
-      height: 16,
+      marginLeft: 5,
     },
   },
   author: {
@@ -121,9 +116,6 @@ const ShortformListItem = ({comment, hideTag, classes}: {
           {karma}
         </LWTooltip>
         <SoftUpArrowIcon />
-      </div>
-      <div className={classes.shortformIcon}>
-        {comment.shortform && <ForumIcon icon="Shortform" />}
       </div>
       <div className={classes.author}>
         <UsersName user={comment.user} />
