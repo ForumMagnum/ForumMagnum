@@ -53,7 +53,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   rightSection: {
     float: "right",
-    marginRight: isEAForum ? 0 : -5,
+    marginRight: isEAForum ? -3 : -5,
+    marginTop: isEAForum ? 2 : undefined,
   },
   linkIcon: {
     fontSize: "1.2rem",
@@ -543,14 +544,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               />}
             </span>}
 
-            <div className={classes.rightSection}>
+            <span className={classes.rightSection}>
               {isEAForum &&
                 <CommentLinkWrapper>
                   <Components.ForumIcon icon="Link" className={classes.linkIcon} />
                 </CommentLinkWrapper>
               }
               {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
-            </div>
+            </span>
           </div>
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
