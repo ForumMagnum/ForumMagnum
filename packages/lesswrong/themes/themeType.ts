@@ -372,6 +372,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      transparent: ColorString,
     },
     header: {
       text: ColorString,
