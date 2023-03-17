@@ -924,6 +924,20 @@ interface DbTag extends DbObject {
   moderationGuidelines_latest: string
 }
 
+interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
+}
+
+interface DbUserActivity extends DbObject {
+  __collectionName?: "UserActivities"
+  visitorId: string
+  type: "userId" | "clientId"
+  startDate: Date
+  endDate: Date
+  activityArray: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
 }
 
@@ -1344,6 +1358,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
@@ -1392,6 +1407,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
