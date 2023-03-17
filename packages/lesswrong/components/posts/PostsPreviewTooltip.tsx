@@ -8,6 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
 import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const POST_PREVIEW_WIDTH = 400
 

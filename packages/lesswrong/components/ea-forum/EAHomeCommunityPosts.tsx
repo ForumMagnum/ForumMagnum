@@ -30,7 +30,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="communityPosts">
       <SingleColumnSection>
-        <SectionTitle title="Community posts"></SectionTitle>
+        <SectionTitle title="Posts about the community"></SectionTitle>
           <AnalyticsContext listContext={"communityPosts"}>
             <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
             <SectionFooter>

@@ -4,6 +4,7 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,8 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
   },
   title: {
-    position: "relative",
     top: 2,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontWeight: isEAForum ? 600 : undefined,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",

@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tab: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.grey[200],
     color: theme.palette.grey[900],
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 6,
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: theme.palette.grey[400],
+      backgroundColor: theme.palette.grey[300],
     },
     '@media (max-width: 840px)': {
       fontSize: 12,
