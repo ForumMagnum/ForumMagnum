@@ -15,13 +15,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    maxWidth: SECTION_WIDTH,
   },
   readCheckbox: {
     minWidth: 24,
   },
   container: {
     position: "relative",
-    maxWidth: SECTION_WIDTH,
     flexGrow: 1,
     display: "flex",
     alignItems: "center",
