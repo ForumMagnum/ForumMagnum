@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'solid',
     borderLeftWidth: '1.5px',
     '&:hover $menu': {
-      opacity: 0.2
+      opacity: 0.5
     },
     ...theme.typography.commentStyle,
   },
