@@ -44,8 +44,8 @@ const EAHome = () => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       
-      <EAHomeMainContent frontpageNode={
-        <>
+      <EAHomeMainContent FrontpageNode={
+        () => <>
           <HomeLatestPosts />
           <EAHomeCommunityPosts />
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
