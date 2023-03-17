@@ -26,7 +26,6 @@ const ForeignCrosspostEditForm = ({post, classes}: {
     sequence: null,
     prevPost: null,
     nextPost: null,
-    recentComments: []
   };
 
   return (

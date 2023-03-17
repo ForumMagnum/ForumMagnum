@@ -122,11 +122,11 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
     {comments.map(({ comment, replies }, idx) => {
       const isFirstCommentInBlock = idx === 0;
       const isLastCommentInBlock = idx === (comments.length - 1);
+      const participantIndex = orderedParticipantList.indexOf(comment.userId);
 
       const showHeader = isFirstCommentInBlock;
-      const showReplyLink = replies.length > 0 || isLastCommentInBlock;
+      const showReplyLink = replies.length > 0 || (isLastCommentInBlock && participantIndex === -1);
       const addBottomMargin = isLastCommentInBlock;
-      const participantIndex = orderedParticipantList.indexOf(comment.userId);
       const borderStyle = getParticipantBorderStyle(participantIndex);
       const showInlineReplyForm = isLastCommentInBlock && (!currentUser || !orderedParticipantList.includes(currentUser._id));
 

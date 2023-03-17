@@ -154,11 +154,6 @@ addGraphQLSchema(`
   }
 `);
 
-// const UnreadDebateCommentsSchema = new SimpleSchema({
-//   count: SimpleSchema.Integer,
-//   lastParticipant: 
-// })
-
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {

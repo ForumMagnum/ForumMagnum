@@ -26,7 +26,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   });
 
   const showDeleteCommentItem = !!(postDetails||tag);
-  // console.log({ showDeleteCommentItem, comment: comment.contents?.plaintextMainText, postId: post?._id });
   
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
@@ -63,7 +62,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
-    <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>
     {showDeleteCommentItem && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
     <RetractCommentMenuItem comment={comment}/>
     {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}

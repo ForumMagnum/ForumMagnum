@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
+import { userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -26,6 +26,7 @@ import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
+import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 
 
@@ -124,7 +125,7 @@ const UsersMenu = ({classes}: {
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>}
-              {userCanPost(currentUser) && userIsMemberOf(currentUser, 'debaters') && <Link to={`/newPost?debate=true`}>
+              {userCanPost(currentUser) && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
                 <MenuItem>New Debate</MenuItem>
               </Link>}
             </div>
