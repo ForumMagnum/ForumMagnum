@@ -24,14 +24,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
       : {},
   },
-  divider: isEAForum
-    ? {
-      border: "none",
-      borderTop: `1px solid ${theme.palette.grey[300]}`,
-    }
-    : {
-      display: "none",
-    },
+  divider: {
+    border: "none",
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
 });
 
 export const timeframes = {
@@ -99,7 +95,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               </SectionTitle>
             </div>
           </Tooltip>
-          {!showSettings && <hr className={classes.divider} />}
+          {isEAForum && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}
