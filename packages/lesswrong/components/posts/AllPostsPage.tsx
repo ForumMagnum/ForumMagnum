@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const timeframes = {
-  allTime: 'All Time',
+  allTime: 'All time',
   daily: 'Daily',
   weekly: 'Weekly',
   monthly: 'Monthly',
