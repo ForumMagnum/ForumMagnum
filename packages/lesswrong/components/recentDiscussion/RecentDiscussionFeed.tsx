@@ -6,10 +6,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
-const RecentDiscussionFeed = ({ commentsLimit, maxAgeHours, af, refetchRef }: {
+const RecentDiscussionFeed = ({ commentsLimit, maxAgeHours, af, magicMode=false, refetchRef }: {
   commentsLimit?: number,
   maxAgeHours?: number,
   af?: boolean,
+  magicMode?: boolean,
   refetchRef: React.RefObject<null|(()=>void)>
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
@@ -34,8 +35,8 @@ const RecentDiscussionFeed = ({ commentsLimit, maxAgeHours, af, refetchRef }: {
     firstPageSize={10}
     pageSize={20}
     refetchRef={refetchRef}
-    resolverName="RecentDiscussionFeed"
-    sortKeyType="Date"
+    resolverName={magicMode ? "RecommendationsFeed" : "RecentDiscussionFeed"}
+    sortKeyType={magicMode ? "Float" : "Date"}
     resolverArgs={{ af: 'Boolean' }}
     resolverArgsValues={{ af }}
     fragmentArgs={{

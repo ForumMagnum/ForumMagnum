@@ -79,3 +79,22 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+export const feedModeSelectorABTest = new ABTest({
+  name: "feedModeSelector",
+  description: "Front page feed-mode selector UI",
+  groups: {
+    recentDiscussionOnly: {
+      description: "Recent Discussion only",
+      weight: 1,
+    },
+    gearIcon: {
+      description: "Settings Icon",
+      weight: 0,
+    },
+    tabbed: {
+      description: "Two Tabs",
+      weight: 0,
+    },
+  },
+});

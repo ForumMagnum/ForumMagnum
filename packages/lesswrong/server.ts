@@ -142,6 +142,7 @@ import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/tagResolvers';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
+import './server/resolvers/recommendationsFeed';
 import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
