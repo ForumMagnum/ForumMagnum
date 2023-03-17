@@ -13,6 +13,7 @@ import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -171,7 +172,10 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && (!post?.draft || userIsDebateParticipant) &&
+      {newForm
+        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
+        && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
+        && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
           {post?.isEvent && (post?.rsvps?.length > 0) && (
@@ -190,7 +194,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             {...(userIsDebateParticipant ? { formProps: { post } } : {})}
           />
         </div>
-      }
+      )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
