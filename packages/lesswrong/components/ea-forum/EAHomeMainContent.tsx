@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ComponentType, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
@@ -134,8 +134,8 @@ type TopicsBarTab = {
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({frontpageNode, classes}:{
-  frontpageNode: ReactNode,
+const EAHomeMainContent = ({FrontpageNode, classes}:{
+  FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {
   // we use the widths of the tabs window and the underlying topics bar
@@ -270,7 +270,7 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
         </SingleColumnSection>
       </AnalyticsContext>
 
-      {activeTab.name === 'Frontpage' ? frontpageNode : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+      {activeTab.name === 'Frontpage' ? <FrontpageNode /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
           <SectionTitle title="New & upvoted" noTopMargin>
             <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
