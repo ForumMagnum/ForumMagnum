@@ -149,73 +149,64 @@ async function getStartEndDate(dataDb: SqlClient) {
 }
 
 /**
- * Concatenate the new activity array to the existing activity array for each user.
- * The table "UserActivities" has a columns "activityArray", startDate, and endDate. Where the activityArray
- * Represents whether they were active in each hour between startDate and endDate. Given a new array of ActivityFactors:
- * ```
- * interface ActivityFactor {
- *    user_or_client_id: string;
- *    activity_array: number[];
- *  }
- * ```
- * Concatenate (in SQL) the new activity array to the existing activity array for each user. The startDate for the new activity
- * array should be the endDate of the existing activity array, check this and give up if this is not the case. Also keep the total
- * length of the activity array to ACTIVITY_WINDOW_HOURS (which is 28 days, or 672 hours)
+ * Update UserActivities table with new activity data
+ *
+ * After this function is run:
+ *  - Every user user who was active in last ACTIVITY_WINDOW_HOURS (28 days)
+ *    will have an array of activity representing their activity in each hour
+ *  - We remove any rows from inactive users
  */
-async function concatNewActivity(dataDb: SqlClient, activityFactors: ActivityFactor[], startDate: Date, endDate: Date) {
-  // Sub-function to handle userId and clientId separately
-  async function processActivityFactors(type: 'userId' | 'clientId', activityFactors: ActivityFactor[]) {
-    const tempTableValues = activityFactors.map(factor => `('${factor.user_or_client_id}', ARRAY[${factor.activity_array.join(', ')}])`).join(', ');
-    const randomIds = activityFactors.map(() => randomId())
+async function concatNewActivity(dataDb: SqlClient, activityFactors: ActivityFactor[], newActivityStartDate: Date, newActivityEndDate: Date, visitorIdType: 'userId' | 'clientId') {
+  // Concatenate the new activity array to the existing activity array for each
+  // user. The table "UserActivities" has a columns "activityArray", startDate,
+  // and endDate. Where the activityArray Represents whether they were active in
+  // each hour between newActivityStartDate and newActivityEndDate. Given a new
+  // array of ActivityFactors:
+  // ```
+  // interface ActivityFactor {
+  //    user_or_client_id: string;
+  //    activity_array: number[];
+  //  }
+  // ```
+  // The startDate for the new activity array should be the endDate of the
+  // existing activity array, check this and give up if this is not the case.
+  // Also keep the total length of the activity array to ACTIVITY_WINDOW_HOURS
+  // (which is 28 days, or 672 hours)
+  
+  // First case: Add rows for users who are newly active (zero padding the end)
+  // Get all the existing users or clients in the UserActivities table
+  const existingUserIds = (await dataDb.any(`
+    SELECT visitorId FROM UserActivities where type = '${visitorIdType}';
+  `)).map(({ visitorId }) => visitorId);
 
-    await dataDb.none(`
-      -- Create a temporary table for new_activity
-      WITH new_activity AS (
-        SELECT * FROM (VALUES ${tempTableValues}) AS t(user_id, activity_array)
-      ),
-      -- Update existing rows in "UserActivities" and return the updated visitorIds
-      updated_user_activities AS (
-        UPDATE "UserActivities"
-        SET
-          -- Concatenate new activity array and truncate if longer than ACTIVITY_WINDOW_HOURS
-          "activityArray" = (array_cat(new_activity.activity_array, "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
-          -- Update endDate and adjust startDate based on the length of the new activityArray
-          "endDate" = $1,
-          "startDate" = $1::timestamp - make_interval(hours := (array_length("activityArray", 1) - 1))
-        FROM new_activity
-        WHERE
-          "UserActivities"."visitorId" = substring(new_activity.user_id, 3)
-          AND "UserActivities"."type" = '${type}'
-          AND "UserActivities"."endDate" = $2
-        RETURNING "UserActivities"."visitorId"
-      )
-      -- Insert new rows for users not yet in the "UserActivities" table
-      INSERT INTO "UserActivities" ("_id", "visitorId", "type", "activityArray", "startDate", "endDate")
-      SELECT
-        generated_id,
-        substring(user_id, 3),
-        '${type}',
-        activity_array,
-        $2,
-        $1
-      FROM (
-        SELECT
-          user_id,
-          activity_array,
-          unnest($3::text[]) as generated_id
-        FROM new_activity
-      ) new_activity_with_id
-      WHERE user_id NOT IN (SELECT "visitorId" FROM updated_user_activities);
-    `, [endDate.toISOString(), startDate.toISOString(), activityFactors.map(() => randomId())]);
+  // Prepare the new user data to be inserted in the UserActivities table
+  const newUsersData = activityFactors
+    .filter(({ user_or_client_id }) => !existingUserIds.includes(user_or_client_id))
+    .map(({ user_or_client_id, activity_array }) => {
+      const paddedArray = [...activity_array, ...Array(ACTIVITY_WINDOW_HOURS - activity_array.length).fill(0)];
+      return { user_or_client_id, paddedArray };
+    });
+
+  // Insert the new user data in a single query -- TODO; wrong
+  if (newUsersData.length > 0) {
+    const insertQuery = `
+      INSERT INTO UserActivities (${visitorIdType}, activityArray, startDate, endDate)
+      VALUES ${newUsersData.map(() => '($1, $2, $3, $4)').join(', ')}
+    `;
+    const queryParams = newUsersData.flatMap(({ user_or_client_id, paddedArray }) => [user_or_client_id, paddedArray, newActivityStartDate, newActivityEndDate]);
+    await dataDb.query(insertQuery, queryParams);
   }
 
-  // Split activityFactors into two arrays based on userId and clientId
-  const userIdActivityFactors = activityFactors.filter(factor => factor.user_or_client_id.startsWith('u:'));
-  const clientIdActivityFactors = activityFactors.filter(factor => factor.user_or_client_id.startsWith('c:'));
-
-  // Process userId and clientId activity factors separately
-  await processActivityFactors('userId', userIdActivityFactors);
-  await processActivityFactors('clientId', clientIdActivityFactors);
+  
+  // Second case: Append the new activity to users' rows who were previously
+  // active
+  
+  // Third case: Add zeros for the relevant number of hours to start of the rows
+  // for users who were previously active but have no new activity (ie: they
+  // have existing rows in the table)
+  
+  // Fourth case: Remove rows for users who are no longer active in the last
+  // ACTIVITY_WINDOW_HOURS
 }
 
 async function updateUserActivities() {
@@ -229,15 +220,22 @@ async function updateUserActivities() {
     throw new Error("updateUserActivities: couldn't get database connection");
   };
 
-  // keep all users in sync, and kill rows that have no activity in the past 28 days
+  // keep all users in sync
   await assertTableIntegrity(dataDb);
 
   const { startDate, endDate } = await getStartEndDate(dataDb);
   const activityFactors = await getUserActivityFactors(analyticsDb, startDate, endDate);
   
   console.log(`Updating user activity for ${activityFactors.length} users between ${startDate} and ${endDate}`);
-  // TODO split into the two cases here
-  await concatNewActivity(dataDb, activityFactors, startDate, endDate);
+  // TODO split into the two cases here, , and kill rows that have no activity in the past 28 days
+  const userActivityFactors = activityFactors
+    .filter(factor => factor.user_or_client_id.startsWith('u:'))
+    .map(factor => ({...factor, user_or_client_id: factor.user_or_client_id.slice(2)}));
+  const clientActivityFactors = activityFactors
+    .filter(factor => factor.user_or_client_id.startsWith('c:'))
+    .map(factor => ({...factor, user_or_client_id: factor.user_or_client_id.slice(2)}));
+  await concatNewActivity(dataDb, userActivityFactors, startDate, endDate, 'userId');
+  await concatNewActivity(dataDb, clientActivityFactors, startDate, endDate, 'clientId');
 }
 
 addCronJob({
