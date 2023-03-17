@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -23,6 +23,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   container: {
     position: "relative",
     flexGrow: 1,
+    maxWidth: "100%",
     display: "flex",
     alignItems: "center",
     background: theme.palette.grey[0],
@@ -86,8 +87,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   meta: {
     display: "flex",
     alignItems: "center",
+    whiteSpace: "nowrap",
+  },
+  metaLeft: {
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    overflow: "hidden",
     "& > :first-child": {
-      flexGrow: 1,
+      marginRight: 5,
     },
   },
   secondaryContainer: {
@@ -166,6 +174,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     analyticsProps,
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
+  const authorExpandContainer = useRef(null);
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
@@ -233,15 +242,18 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
               className={classes.title}
             />
             <div className={classes.meta}>
-              <TruncatedAuthorsList
-                post={post}
-                after={<>
+              <div className={classes.metaLeft} ref={authorExpandContainer}>
+                <TruncatedAuthorsList
+                  post={post}
+                  expandContainer={authorExpandContainer}
+                />
+                <div>
                   {' · '}
                   <PostsItemDate post={post} noStyles includeAgo />
                   {' · '}
                   {post.readTimeMinutes || 1}m read
-                </>}
-              />
+                </div>
+              </div>
               <div className={classNames(
                 classes.secondaryContainer,
                 classes.onlyMobile,
