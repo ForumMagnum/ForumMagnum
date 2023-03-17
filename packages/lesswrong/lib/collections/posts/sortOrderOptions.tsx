@@ -12,7 +12,7 @@ export const SORT_ORDER_OPTIONS: { [key: string]: SettingsOption; } = {
   },
   top: { label: 'Top' },
   topAdjusted: {
-    label: isEAForum ? 'Top (Inflation adjusted)' : 'Top (Inflation Adjusted)',
+    label: isEAForum ? 'Top (inflation adjusted)' : 'Top (Inflation Adjusted)',
     tooltip: 'Posts with the highest karma relative to those posted around the same time',
   },
   recentComments: { label: isEAForum ? 'Recent comments' : 'Recent Comments' },

@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
       fontStyle: isEAForum ? undefined : "italic",
-      fontWeight: 600,
+      fontWeight: isEAForum ? undefined : 600,
       marginBottom: theme.spacing.unit/2
     },
   },
