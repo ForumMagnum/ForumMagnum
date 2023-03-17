@@ -13,6 +13,7 @@ import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
+import ChevronDownIcon from "@heroicons/react/24/solid/ChevronDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -44,7 +45,8 @@ export type ForumIconName =
   "Comment" |
   "Shortform" |
   "ChevronLeft" |
-  "ChevronRight";
+  "ChevronRight" |
+  "ChevronDown";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -61,6 +63,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Shortform: NotesIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
+    ChevronDown: ChevronDownIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -76,6 +79,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Shortform: LightbulbIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
+    ChevronDown: ChevronDownIcon,
   },
 };
 

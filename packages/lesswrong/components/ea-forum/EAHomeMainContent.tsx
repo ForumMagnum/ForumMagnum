@@ -1,6 +1,6 @@
 import React, { ComponentType, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -175,6 +175,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
+  const { captureEvent } = useTracking()
   
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.

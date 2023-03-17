@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
+import { useCookies } from 'react-cookie';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 10
+  },
+  expandIcon: {
+    position: 'relative',
+    top: 2,
+    fontSize: 14,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    }
+  },
   readMoreLink: {
     fontSize: 14,
     color: theme.palette.grey[600],
@@ -14,9 +29,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = 'show_community_posts_section'
+
 const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
+  const [cookies, setCookie, removeCookie] = useCookies([SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
+  // default to collapsing the section
+  const [sectionExpanded, setSectionExpanded] = useState(cookies[SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
+  const { captureEvent } = useTracking()
   const { timezone } = useTimezone()
-  const { SingleColumnSection, PostsList2, SectionTitle, SectionFooter } = Components
+  
+  const toggleSectionVisibility = () => {
+    setSectionExpanded(!sectionExpanded)
+    
+    if (sectionExpanded) {
+      removeCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE)
+      captureEvent('communityPostsSectionCollapsed')
+    } else {
+      setCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE, "true", {expires: moment().add(10, 'years').toDate()})
+      captureEvent('communityPostsSectionExpanded')
+    }
+  }
+
+  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip, ForumIcon } = Components
+  
+  const titleNode = <div className={classes.title}>
+    Posts tagged community
+    <LWTooltip title={sectionExpanded ? 'Collapse' : 'Expand'}>
+      <ForumIcon
+        icon={sectionExpanded ? 'ChevronDown' : 'ChevronRight'}
+        onClick={toggleSectionVisibility}
+        className={classes.expandIcon}
+      />
+    </LWTooltip>
+  </div>
 
   const now = moment().tz(timezone)
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD")
@@ -34,12 +79,12 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="communityPosts">
       <SingleColumnSection>
-        <SectionTitle title="Posts tagged community">
-          <Link to="/topics/community" className={classes.readMoreLink}>View more</Link>
+        <SectionTitle title={titleNode}>
+          {sectionExpanded && <Link to="/topics/community" className={classes.readMoreLink}>View more</Link>}
         </SectionTitle>
-        <AnalyticsContext listContext={"communityPosts"}>
+        {sectionExpanded && <AnalyticsContext listContext={"communityPosts"}>
           <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-        </AnalyticsContext>
+        </AnalyticsContext>}
       </SingleColumnSection>
     </AnalyticsContext>
   )
