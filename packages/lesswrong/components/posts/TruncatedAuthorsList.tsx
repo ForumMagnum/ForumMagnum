@@ -11,15 +11,6 @@ const styles = (_: ThemeType): JssStyles => ({
     fontSize: 13,
   },
   item: {},
-  overflowContainer: {
-    display: "inline",
-  },
-  overflowCount: {
-    marginLeft: 4,
-    "@media screen and (max-width: 500px)": {
-      display: "none",
-    },
-  },
   tooltip: {
     display: "flex",
     flexDirection: "column",
@@ -30,6 +21,7 @@ const styles = (_: ThemeType): JssStyles => ({
   scratch: {
     position: "absolute",
     opacity: 0,
+    pointerEvents: "none",
   },
 });
 
@@ -54,25 +46,39 @@ const recalculate = (
     return;
   }
 
+  // Get the 'off-screen' scratch buffer (it's actually on-screen with opacity 0)
   const scratch = ref.current.querySelector("." + classes.scratch);
   if (!scratch) {
     return;
   }
 
-  const more = scratch.querySelector("." + classes.more);
+  // Find the '+ n more' node and make sure it's at the end of the scratch node
+  let more = scratch.querySelector("." + classes.more);
   if (!more) {
-    return;
+    more = ref.current.querySelector("." + classes.more);
+    if (!more) {
+      return;
+    }
+    scratch.appendChild(more);
   }
 
+  // Move all the authors into the scratch node
+  const displayedAuthors = ref.current.querySelectorAll("." + classes.item);
+  for (const author of Array.from(displayedAuthors).reverse()) {
+    scratch.insertBefore(author, scratch.firstChild);
+  }
+
+  // Find how much space we have and what needs to fit there
   const maxWidth = getMaxExpandableWidth(expandContainer.current);
   const authors = Array.from(scratch.querySelectorAll("." + classes.item));
   const bounds = authors.map((author) => author.getBoundingClientRect());
 
+  // Calculate how may authors we can fit
   let width = bounds[0].width;
   let moreCount = 0;
-  let i: number;
-  for (i = 1; i < bounds.length; ++i) {
-    const newWidth = width + bounds[i].width;
+  let i = 1;
+  for ( ; i < bounds.length; ++i) {
+    const newWidth = width + bounds[i].width + 2;
     if (newWidth > maxWidth) {
       const moreWidth = more?.getBoundingClientRect().width;
       if (width + moreWidth > maxWidth) {
@@ -84,17 +90,17 @@ const recalculate = (
     width = newWidth;
   }
 
+  // Move all the visible authors to the right place and set n in '+ n more' if shown
   ref.current.innerHTML = "";
   for (let j = 0; j < i; ++j) {
-    ref.current.appendChild(authors[j].cloneNode(true));
+    ref.current.appendChild(authors[j]);
   }
   if (moreCount) {
-    const moreNode = more.cloneNode(true) as HTMLSpanElement;
-    moreNode.innerHTML = moreNode.innerHTML.replace(
+    more.innerHTML = more.innerHTML.replace(
       /\+ .* more/,
       `+ ${moreCount} more`,
     );
-    ref.current.appendChild(moreNode);
+    ref.current.appendChild(more);
   }
   ref.current.appendChild(scratch);
 }
@@ -114,23 +120,31 @@ const TruncatedAuthorsList = ({post, expandContainer, classes}: {
     return () => window.removeEventListener("resize", handler);
   }, [isAnon, authors, topCommentAuthor, ref, classes.item]);
 
-  const {UsersName, UserNameDeleted} = Components;
+  const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
 
   return isAnon || authors.length == 0
     ? <UserNameDeleted />
     : (
       <div className={classes.root} ref={ref}>
-        <span key={authors[0]._id} className={classes.item}>
-          <UsersName user={authors[0]} />
-        </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UsersName user={author} />
+              <UsersNameDisplay user={author} />
             </span>
           )}
-          <span className={classes.more}>+ 0 more</span>
+          <LWTooltip
+            title={
+              <div className={classes.tooltip}>
+                  {authors.map((author) =>
+                    <UsersNameDisplay key={author._id} user={author} />
+                  )}
+              </div>
+            }
+            className={classes.more}
+          >
+            + 0 more
+          </LWTooltip>
         </div>
       </div>
     );
