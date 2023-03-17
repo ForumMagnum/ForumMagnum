@@ -25,7 +25,7 @@ export const DebateBody = ({ debateComments, post, classes }: {
       {
         Object.entries(groupBy(debateComments, ({ comment }) => moment(comment.postedAt).format('MMM DD, YYYY')))
         .sort(([firstDate], [secondDate]) => moment(firstDate).diff(secondDate))
-        .flatMap(([daySeparator, perDayDebateComments]) => {
+        .flatMap(([daySeparator, perDayDebateComments], dayIdx) => {
           const debateCommentBlocks: DebateCommentWithReplies[][] = [];
           let lastAuthorId: string;
 
@@ -46,7 +46,7 @@ export const DebateBody = ({ debateComments, post, classes }: {
             const showDaySeparator = blockIdx === 0;
             const daySeparatorAttribute = showDaySeparator ? { daySeparator } : {};
             return <DebateCommentBlock
-              key={`debate-comment-block-${blockIdx}`}
+              key={`debate-comment-block-${dayIdx}-${blockIdx}`}
               comments={debateCommentBlock}
               post={post}
               orderedParticipantList={orderedParticipantList}
