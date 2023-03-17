@@ -29,9 +29,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
   },
   title: {
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+        fontWeight: 600,
+      }
+      : {
+        position: "relative",
+      }),
     top: 2,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
-    fontWeight: isEAForum ? 600 : undefined,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
