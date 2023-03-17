@@ -129,6 +129,8 @@ type TopicsBarTab = {
   slug?: string
 }
 
+const frontpageTab = {_id: '0', name: 'Frontpage'}
+
 // The order in which the topics are displayed is slightly different from their default ordering
 const topicTabsOrder = [
   'sWcuTyTB5dP3nas2t', // Global health
@@ -184,7 +186,6 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     fragmentName: 'TagBasicInfo',
     limit: 40
   })
-  const frontpageTab = {_id: '0', name: 'Frontpage'}
   let allTabs: TopicsBarTab[] = useMemo(() => {
     let tabs: TopicsBarTab[] = [frontpageTab]
     if (coreTopics) {
