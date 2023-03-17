@@ -44,13 +44,13 @@ const EAHome = () => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       
-      <EAHomeMainContent frontpageNode={
-        <>
+      <EAHomeMainContent FrontpageNode={
+        () => <>
           <HomeLatestPosts />
           <EAHomeCommunityPosts />
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
-            title="Recent discussion"
+            title="Recent comments"
             af={false}
             commentsLimit={recentDiscussionCommentsPerPost}
             maxAgeHours={18}

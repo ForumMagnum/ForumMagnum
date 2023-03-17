@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Material UI v0 happened to use.)
     fontWeight: isEAForum ? 600 : 500,
     fontSize: "16px",
-    fontFamily: isEAForum ? theme.typography.fontFamily : "Roboto, sans-serif",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
   },
 
   selected: {

@@ -13,6 +13,7 @@ import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -167,7 +168,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
 
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
+          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

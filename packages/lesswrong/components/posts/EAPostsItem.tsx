@@ -122,6 +122,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 1,
     },
   },
+  newComments: {
+    fontWeight: 700,
+    color: theme.palette.grey[1000],
+  },
   bookmark: {
     minWidth: 20,
     "&:hover": {
@@ -156,6 +160,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     tagRel,
     commentsLink,
     commentCount,
+    hasUnreadComments,
     primaryTag,
     hasAudio,
     sticky,
@@ -185,7 +190,10 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
 
   const SecondaryInfo = () => (
     <>
-      <HashLink to={commentsLink} className={classes.comments}>
+      <HashLink to={commentsLink} className={classNames(
+        classes.comments,
+        {[classes.newComments]: hasUnreadComments},
+      )}>
         <ForumIcon icon="Comment" />
         {commentCount}
       </HashLink>

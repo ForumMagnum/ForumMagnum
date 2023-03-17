@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ComponentType, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tab: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.grey[200],
     color: theme.palette.grey[900],
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 6,
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: theme.palette.grey[400],
+      backgroundColor: theme.palette.grey[300],
     },
     '@media (max-width: 840px)': {
       fontSize: 12,
@@ -134,8 +134,8 @@ type TopicsBarTab = {
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({frontpageNode, classes}:{
-  frontpageNode: ReactNode,
+const EAHomeMainContent = ({FrontpageNode, classes}:{
+  FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {
   // we use the widths of the tabs window and the underlying topics bar
@@ -270,7 +270,7 @@ const EAHomeMainContent = ({frontpageNode, classes}:{
         </SingleColumnSection>
       </AnalyticsContext>
 
-      {activeTab.name === 'Frontpage' ? frontpageNode : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+      {activeTab.name === 'Frontpage' ? <FrontpageNode /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
           <SectionTitle title="New & upvoted" noTopMargin>
             <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>

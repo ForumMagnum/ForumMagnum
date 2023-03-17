@@ -31,7 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionTitle: {
     fontSize: 14,
-    marginBottom: -4,
   },
 })
 
@@ -324,7 +323,7 @@ const ContentType = ({classes, className, type, label}: {
   }
 
   const innerComponent = isEAForum
-    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
     </span>;

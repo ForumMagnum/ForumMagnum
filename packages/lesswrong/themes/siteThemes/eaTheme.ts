@@ -173,7 +173,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display1: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 600,
+          fontWeight: 650,
           fontSize: '2rem',
           lineHeight: '1.25em',
         },
@@ -252,6 +252,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             paddingLeft:1,
             paddingRight:0,
             fontSize: '50%',
+            fontFamily: sansSerifStack,
           },
         },
         PostsTopSequencesNav: {
