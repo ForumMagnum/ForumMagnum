@@ -50,7 +50,7 @@ const EAHome = () => {
           <EAHomeCommunityPosts />
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
-            title="Recent discussion"
+            title="Recent comments"
             af={false}
             commentsLimit={recentDiscussionCommentsPerPost}
             maxAgeHours={18}

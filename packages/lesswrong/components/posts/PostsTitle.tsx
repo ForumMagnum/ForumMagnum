@@ -14,6 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
+    fontWeight: isEAForum? 600 : undefined,
+    fontFamily: isEAForum? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -27,7 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
-    fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
   },
   wrap: {
@@ -45,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: 16,
       height: 16,
       padding: 1.5,
+      color: theme.palette.primary.main,
     }
     : {
       fontSize: "1.2rem",
