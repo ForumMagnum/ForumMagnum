@@ -103,6 +103,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   audio: {
+    marginLeft: 6,
     "& svg": {
       width: 15,
       margin: "3px -8px 0 3px",
@@ -253,6 +254,9 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                   {' · '}
                   {post.readTimeMinutes || 1}m read
                 </div>
+                <div className={classes.audio}>
+                  {hasAudio && <ForumIcon icon="VolumeUp" />}
+                </div>
               </div>
               <div className={classNames(
                 classes.secondaryContainer,
@@ -263,9 +267,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
             </div>
           </div>
           <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
-            <div className={classes.audio}>
-              {hasAudio && <ForumIcon icon="VolumeUp" />}
-            </div>
             <div className={classes.tag}>
               {primaryTag && !showReadCheckbox &&
                 <FooterTag tag={primaryTag} smallText />
