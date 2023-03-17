@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { CommentsNewFormProps } from './CommentsNewForm';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -82,7 +83,10 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
     <div className={classNames(classes.root, classes.maxWidthRoot)}>
       <div id="comments"/>
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && (!post?.draft || userIsDebateParticipant) &&
+      {newForm
+        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
+        && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
+        && (
         <div id={`posts-debate-thread-new-comment`} className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
           <Components.CommentsNewForm
@@ -91,7 +95,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
             {...newFormProps}
           />
         </div>
-      }
+      )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }

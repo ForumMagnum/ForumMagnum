@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import type { ContentStyleType } from '../../common/ContentStyles';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -31,9 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   retracted: {
     textDecoration: "line-through",
   },
-  debateCommentStyling: {
-    fontSize: '1.3rem'
-  }
 })
 
 const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
@@ -50,8 +48,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   const bodyClasses = classNames(
     { [classes.commentStyling]: !comment.answer,
       [classes.answerStyling]: comment.answer,
-      [classes.retracted]: comment.retracted,
-      [classes.debateCommentStyling]: comment.debateComment }
+      [classes.retracted]: comment.retracted }
   );
 
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
@@ -59,8 +56,17 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
 
   const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
 
+  let contentType: ContentStyleType;
+  if (comment.answer) {
+    contentType = 'answer';
+  } else if (comment.debateComment) {
+    contentType = 'debateComment';
+  } else {
+    contentType = 'comment';
+  }
+
   return (
-    <ContentStyles contentType={comment.answer ? "answer" : "comment"} className={classes.root}>
+    <ContentStyles contentType={contentType} className={classes.root}>
       <ContentItemBody
         className={bodyClasses}
         dangerouslySetInnerHTML={{__html: innerHtml }}

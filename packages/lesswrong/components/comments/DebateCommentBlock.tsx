@@ -5,9 +5,9 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
-    padding: 8,
+    padding: '8px 8px 8px 16px',
     borderLeft: 'solid',
-    borderLeftWidth: '1.5px',
+    borderLeftWidth: '2px',
     '&:hover $menu': {
       opacity: 0.5
     },
@@ -122,13 +122,14 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
     {comments.map(({ comment, replies }, idx) => {
       const isFirstCommentInBlock = idx === 0;
       const isLastCommentInBlock = idx === (comments.length - 1);
-      const participantIndex = orderedParticipantList.indexOf(comment.userId);
+      const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
+      const readerIsParticipant = currentUser && orderedParticipantList.includes(currentUser._id);
 
       const showHeader = isFirstCommentInBlock;
-      const showReplyLink = replies.length > 0 || (isLastCommentInBlock && participantIndex === -1);
+      const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
+      const showReplyLink = replies.length > 0 || showInlineReplyForm;
       const addBottomMargin = isLastCommentInBlock;
-      const borderStyle = getParticipantBorderStyle(participantIndex);
-      const showInlineReplyForm = isLastCommentInBlock && (!currentUser || !orderedParticipantList.includes(currentUser._id));
+      const borderStyle = getParticipantBorderStyle(commentParticipantIndex);
 
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />
