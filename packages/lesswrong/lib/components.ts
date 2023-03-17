@@ -1,41 +1,54 @@
-import '../components/alignment-forum/withSetAlignmentPost';
+import { importComponent } from './vulcan-lib';
+
+/**
+ * This file registers each component-containing file with a call to
+ * `importComponent`, providing the names of any components in that file, and a
+ * function that require()s it. This doesn't immediately cause that component
+ * file to be imported; instead, it stores that metadata in a table, and calls
+ * the function the first time the component is used (more specifically: the
+ * first time it's extracted from `Components`, which is a proxy class).
+ *
+ * This setup dates back to a time when file-imports in this codebase were
+ * slow (pre-esbuild) and might not be neessary anymore.
+ *
+ * Calls to `importComponent` never need to be forum-gated, and forum-gating
+ * here has no benefit; instead, site-specific components should check the
+ * forum type at time of use.
+ *
+ * The order of components in this file doesn't matter, and it isn't
+ * particularly organized.
+ */
+
+
+// A few directories have `index.ts` files containing `importComponent` calls
+// for only the things in that directory. Those are imported here. This is not
+// required and we mostly haven't been doing it.
 import '../components/posts/PostActions';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
-
 import '../components/vulcan-core/vulcan-core-components';
-import { forumTypeSetting } from './instanceSettings';
-// vulcan:forms
 import './vulcan-forms/components';
-import { importComponent } from './vulcan-lib';
 
-if(forumTypeSetting.get() === 'AlignmentForum') {
-  // HACK: At the top of the file because DeepScan false-positively warns about
-  // imports not at top level, and it re-detects it every time the line number
-  // changes. Putting it at the top makes its line number stable.
-  importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
-}
+importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 
-if (forumTypeSetting.get() === 'EAForum') {
-  importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
-  importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
-  importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
-  importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
-  importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
-  importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
-  importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
-  importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
-  importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
-  importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
-  importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
-  importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
-  importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJobAd'))
-  importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
-  importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
-  importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
-  importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
-  importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
-}
+importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
+importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
+importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
+importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
+importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
+importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
+importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
+importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
+importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
+importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJobAd'))
+importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
+importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
+importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
+importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
