@@ -25,7 +25,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   readMoreLink: {
     fontSize: 14,
     color: theme.palette.grey[600],
-    fontWeight: 600
+    fontWeight: 600,
+    '@media (max-width: 350px)': {
+      display: 'none'
+    },
+  },
+  readMoreLinkMobile: {
+    display: 'none',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 600,
+    '@media (max-width: 350px)': {
+      display: 'block'
+    },
   }
 })
 
@@ -50,7 +62,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     }
   }
 
-  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip, ForumIcon } = Components
+  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip, ForumIcon, SectionFooter } = Components
   
   const titleNode = <div className={classes.title}>
     Posts tagged community
@@ -85,6 +97,9 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
         {sectionExpanded && <AnalyticsContext listContext={"communityPosts"}>
           <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
         </AnalyticsContext>}
+        {sectionExpanded && <SectionFooter>
+          <Link to="/topics/community" className={classes.readMoreLinkMobile}>View more</Link>
+        </SectionFooter>}
       </SingleColumnSection>
     </AnalyticsContext>
   )
