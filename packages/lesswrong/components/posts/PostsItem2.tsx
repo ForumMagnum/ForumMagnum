@@ -603,7 +603,6 @@ const PostsItem2 = ({
                     onClick={toggleComments}
                     unreadComments={hasUnreadComments()}
                     newPromotedComments={hasNewPromotedComments()}
-                    // debate={post.debate ?? undefined}
                   />
                 </div>}
 
