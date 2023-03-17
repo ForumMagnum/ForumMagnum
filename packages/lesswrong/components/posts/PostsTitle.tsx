@@ -45,6 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: 16,
       height: 16,
       padding: 1.5,
+      color: theme.palette.primary.main,
     }
     : {
       fontSize: "1.2rem",

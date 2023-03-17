@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // not sure if this is best way to do this
     '&&': {
       fontSize: "1.2rem",
-      color: theme.palette.icon.dim4,
+      color: isEAForum ? theme.palette.primary.main : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },

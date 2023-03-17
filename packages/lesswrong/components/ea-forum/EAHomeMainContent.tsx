@@ -109,10 +109,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeTab: {
-    backgroundColor: theme.palette.grey[1000],
+    backgroundColor: theme.palette.primary.main,
     color: theme.palette.grey[0],
     "&:hover": {
-      backgroundColor: theme.palette.grey[1000],
+      backgroundColor: theme.palette.primary.dark,
     },
   },
   learnMoreLink: {
