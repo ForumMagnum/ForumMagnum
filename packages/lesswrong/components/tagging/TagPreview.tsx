@@ -9,8 +9,9 @@ import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relatedTagWrapper: {
-    fontFamily: isEAForum ? theme.typography.display1 : theme.typography.postStyle,
     ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
