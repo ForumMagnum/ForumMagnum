@@ -212,12 +212,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
 
-    unreadDebateComments {
-      count
-      lastParticipant {
-        ...UsersMinimumInfo
-      }
-    }
+    unreadDebateCommentCount
   }
 `);
 

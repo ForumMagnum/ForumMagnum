@@ -25,7 +25,6 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
-import { addGraphQLSchema } from '../../vulcan-lib';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -146,13 +145,6 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
 const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
-
-addGraphQLSchema(`
-  type UnreadDebateComments {
-    count: Int!
-    lastParticipant: User!
-  }
-`);
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -2396,9 +2388,8 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
-  unreadDebateComments: resolverOnlyField({
-    type: Object,
-    graphQLtype: "UnreadDebateComments",
+  unreadDebateCommentCount: resolverOnlyField({
+    type: Number,
     nullable: true,
     canRead: ['guests'],
     resolver: async (post, _, context) => {
@@ -2420,14 +2411,8 @@ const schema: SchemaType<DbPost> = {
 
       const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
       const count = filteredComments.length;
-      const lastComment = filteredComments[0];
-      const lastParticipantId = lastComment?.userId;
 
-      if (!lastParticipantId) return null;
-
-      const lastParticipant = await context.loaders.Users.load(lastParticipantId);
-
-      return { count, lastParticipant };
+      return count;
     }
   })
 };

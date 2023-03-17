@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
+import ForumIcon from '@material-ui/icons/Forum';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
@@ -34,6 +35,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   new: {
     color: theme.palette.primary.main
+  },
+  unreadDebateComments: {
+    display: 'flex'
+  },
+  unreadDebateCommentCount: {
+    paddingLeft: 4
+  },
+  unreadDebateCommentsIcon: {
+    height: 14,
+    position: 'relative',
+    top: 2
   }
 });
 
@@ -51,24 +63,23 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
 
   if (post.debate) {
     const participants = [post.user, ...post.coauthors];
-    const lastUnreadParticipant = post.unreadDebateComments?.lastParticipant;
+    const { unreadDebateCommentCount } = post;
 
-    let otherParticipants = participants;
-    if (lastUnreadParticipant) {
-      otherParticipants = participants.filter(participant => participant._id !== lastUnreadParticipant._id);
-    }
-
-    return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-      {otherParticipants.map((participant, idx) =>
-        <React.Fragment key={participant._id}>
-          {idx !== 0 ? ", " : ""}<UsersName user={participant} simple={simple} tooltipPlacement={tooltipPlacement}/>
-        </React.Fragment>
-      )}
-      {lastUnreadParticipant && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
-        {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-        <UsersName user={lastUnreadParticipant} simple={simple} tooltipPlacement={tooltipPlacement} />
-      </span>}
-    </div>;
+    return (
+      <div className={classes.unreadDebateComments}>
+        <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
+          {participants.map((participant, idx) =>
+            <React.Fragment key={participant._id}>
+              {idx !== 0 ? ", " : ""}<UsersName user={participant} simple={simple} tooltipPlacement={tooltipPlacement}/>
+            </React.Fragment>
+          )}
+        </div>
+        {unreadDebateCommentCount && <div className={classNames(classes.unreadDebateCommentCount, classes.new)}>
+          <ForumIcon className={classes.unreadDebateCommentsIcon}/>
+          {unreadDebateCommentCount}
+        </div>}
+      </div>
+    );
   }
 
   const topCommentAuthor = post.question ? post.bestAnswer?.user : post.lastPromotedComment?.user
