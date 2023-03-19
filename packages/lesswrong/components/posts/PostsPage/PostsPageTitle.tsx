@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.display3,
@@ -11,11 +11,16 @@ export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.headerStyle,
   marginTop: 0,
   marginLeft: 0,
-  marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
+  marginBottom: isEAForum ? theme.spacing.unit : 0,
   color: theme.palette.text.primary,
   [theme.breakpoints.down('sm')]: {
-    fontSize: '2.5rem',
+    fontSize: isEAForum ? '2.1rem' : '2.5rem',
   },
+  ...(isEAForum
+    ? {
+      fontSize: '2.5rem',
+    }
+    : {}),
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
