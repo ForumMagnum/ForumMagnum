@@ -27,7 +27,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions 
     fetchPolicy: 'cache-first',
     limit: 5,
   });
-  const { Loading, CommentsList, NoContent } = Components
+  const { Loading, CommentThreads, NoContent } = Components
 
   if (!loading && results && !results.length) {
     return <NoContent>No comments found</NoContent>
@@ -39,7 +39,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions 
     return (
       <div>
         {title && <div className={classes.title}>{title}</div>}
-        {nestedComments && <CommentsList
+        {nestedComments && <CommentThreads
           treeOptions={{
             ...treeOptions,
             lastCommentId: lastCommentId,

@@ -29,7 +29,7 @@ const TagDiscussion = ({classes, tag}: {
   classes: ClassesType,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
-  const { CommentsList, Loading } = Components;
+  const { CommentThreads, Loading } = Components;
   
   const { results, loading, totalCount } = useMulti({
     skip: !tag?._id,
@@ -51,7 +51,7 @@ const TagDiscussion = ({classes, tag}: {
   const nestedComments = results && unflattenComments(results);
   
   return <div className={classes.root}>
-    {results && <CommentsList
+    {results && <CommentThreads
       treeOptions={{
         tag: tag,
         postPage: true,

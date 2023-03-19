@@ -84,7 +84,7 @@ const AnswerCommentsList = ({classes, post, parentAnswer}: {
     [totalCount, setLoadedMore, loadMore]
   );
 
-  const { CommentsList, Loading, CommentsNewForm, Typography } = Components
+  const { CommentThreads, Loading, CommentsNewForm, Typography } = Components
   const noComments = (!results || !results.length) && !commenting
 
   if (loading || !results)
@@ -119,7 +119,7 @@ const AnswerCommentsList = ({classes, post, parentAnswer}: {
           }
       )}>
         { loadingMore && <Loading /> }
-        <CommentsList
+        <CommentThreads
           treeOptions={{
             postPage: true,
             showCollapseButtons: true,
