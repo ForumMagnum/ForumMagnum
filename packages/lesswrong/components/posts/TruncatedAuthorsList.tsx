@@ -96,10 +96,10 @@ const recalculate = (
     ref.current.appendChild(authors[j]);
   }
   if (moreCount) {
-    more.innerHTML = more.innerHTML.replace(
-      /\+ .* more/,
-      `+ ${moreCount} more`,
-    );
+    const text = moreCount === authors.length
+      ? `${moreCount} authors`
+      : `+ ${moreCount} more`
+    more.innerHTML = more.innerHTML.replace(/(\+ \d+ more)|(\d+ authors)/, text);
     ref.current.appendChild(more);
   }
   ref.current.appendChild(scratch);
