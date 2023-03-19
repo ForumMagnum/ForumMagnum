@@ -98,6 +98,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 5,
     },
   },
+  readTime: {
+    "@media screen and (max-width: 350px)": {
+      display: "none",
+    },
+  },
   secondaryContainer: {
     display: "flex",
     alignItems: "center",
@@ -259,8 +264,9 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 <div>
                   {' · '}
                   <PostsItemDate post={post} noStyles includeAgo />
-                  {' · '}
-                  {post.readTimeMinutes || 1}m read
+                  <span className={classes.readTime}>
+                    {' · '}{post.readTimeMinutes || 1}m read
+                  </span>
                 </div>
                 <div className={classes.audio}>
                   {hasAudio && <ForumIcon icon="VolumeUp" />}

@@ -2,6 +2,8 @@ import React, { useRef, useEffect, RefObject } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 
+const TRUNCATION_PADDING = 10;
+
 const styles = (_: ThemeType): JssStyles => ({
   root: {
     position: "relative",
@@ -78,7 +80,7 @@ const recalculate = (
   let moreCount = 0;
   let i = 1;
   for ( ; i < bounds.length; ++i) {
-    const newWidth = width + bounds[i].width + 2;
+    const newWidth = width + bounds[i].width + TRUNCATION_PADDING;
     if (newWidth > maxWidth) {
       const moreWidth = more?.getBoundingClientRect().width;
       if (width + moreWidth > maxWidth) {
