@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
+      color: isEAForum ? theme.palette.grey[1000] : undefined,
     },
     '& $navText': {
       color: theme.palette.grey[isEAForum ? 1000 : 900],
@@ -30,21 +31,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "column",
+    ...(isEAForum
+      ? {
+        color: theme.palette.grey[600],
+        "&:hover": {
+          opacity: 1,
+          color: theme.palette.grey[800],
+        },
+      }
+      : {}),
   },
   icon: {
     display: "block",
-    opacity: .45,
+    opacity: isEAForum ? 1 : 0.45,
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
       fill: isEAForum ? undefined : "currentColor",
+      color: isEAForum ? "inherit" : undefined,
     }
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[700],
+    color: isEAForum ? "inherit" : theme.palette.grey[700],
     fontSize: '.8rem',
   },
   homeIcon: {
