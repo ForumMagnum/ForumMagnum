@@ -69,7 +69,7 @@ export type MenuTabRegular = {
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: React.ComponentType | React.FC<{className: string}>
+  iconComponent?: React.ComponentType | React.FC<{className?: string}>
   compressedIconComponent?: any
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
