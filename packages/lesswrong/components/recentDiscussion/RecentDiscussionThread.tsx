@@ -1,21 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import Button from '@material-ui/core/Button';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
-import CloseIcon from '@material-ui/icons/Close';
-
-import classNames from 'classnames';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { loadMulti } from '../../lib/crud/withMulti';
 import { useRecordPostView } from '../hooks/useRecordPostView';
-
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
+import CloseIcon from '@material-ui/icons/Close';
+import classNames from 'classnames';
+import { useApolloClient } from '@apollo/client/react/hooks';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -168,6 +164,8 @@ const RecentDiscussionThread = ({
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { recordPostView } = useRecordPostView(post);
   const currentUser = useCurrentUser();
+  const postId = post._id;
+  const client = useApolloClient();
 
   const markAsRead = useCallback(
     () => {
@@ -184,11 +182,22 @@ const RecentDiscussionThread = ({
     },
     [setHighlightVisible, highlightVisible, markAsRead]
   );
+  const loadMoreComments = useCallback(async (limit: number): Promise<CommentsList[]> => {
+    return await loadMulti({
+      client,
+      collectionName: "Comments",
+      terms: {
+        view: "postCommentsTop",
+        postId,
+      },
+      limit,
+      fragmentName: "CommentsList",
+    });
+  }, [client, postId]);
 
-  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostActionsButton } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentPool, PostsHighlight, PostActionsButton } = Components
 
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
@@ -255,20 +264,14 @@ const RecentDiscussionThread = ({
         </div>
         <div className={classes.content}>
           <div className={classes.commentsList}>
-            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-              <div key={comment.item._id}>
-                <CommentsNode
-                  treeOptions={treeOptions}
-                  startThreadTruncated={true}
-                  expandAllThreads={initialExpandAllThreads || expandAllThreads}
-                  expandNewComments={false}
-                  nestingLevel={1}
-                  comment={comment.item}
-                  childComments={comment.children}
-                  key={comment.item._id}
-                />
-              </div>
-            )}
+            <CommentPool
+              initialComments={comments ?? []}
+              treeOptions={treeOptions}
+              startThreadTruncated={true}
+              expandAllThreads={initialExpandAllThreads || expandAllThreads}
+              expandNewComments={false}
+              loadMoreTopLevel={loadMoreComments}
+            />
           </div>
         </div>
       </div>

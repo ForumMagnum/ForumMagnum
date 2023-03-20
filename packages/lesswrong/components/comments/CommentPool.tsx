@@ -1,0 +1,225 @@
+import React, { createContext, useRef, useState, useCallback, useMemo } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { unflattenComments } from '../../lib/utils/unflatten';
+import { loadMulti } from '../../lib/crud/withMulti';
+import type { CommentTreeOptions } from './commentTree';
+import { useForceRerender } from '../hooks/useForceRerender';
+import keyBy from 'lodash/keyBy';
+import filter from 'lodash/filter';
+import orderBy from 'lodash/orderBy';
+import take from 'lodash/take';
+import mapValues from 'lodash/mapValues';
+import includes from 'lodash/includes';
+
+export interface CommentPoolContextType {
+  showMoreChildrenOf: (commentId: string)=>Promise<void>
+}
+export const CommentPoolContext = createContext<CommentPoolContextType|null>(null);
+
+interface SingleCommentState {
+  comment: CommentsList
+  visibility: "hidden"|"visible"
+}
+interface CommentPoolState {
+  comments: Record<string,SingleCommentState>
+}
+
+/**
+ * CommentPool: Given a set of initial comments, threads them, and provides
+ * handling for Load More links that expand the set.
+ *
+ * Currently, there are tons of different entry points with their own handling
+ * of comment loading and threading, with bad architectural consequences for
+ * managing load-mores and truncation. The intention is that all of these
+ * eventually route through CommentPool.
+ */
+const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, expandNewComments=true, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
+  /**
+   * Initial set of comments to show. If this changes, will show at least the
+   * union of every set of comments that has been passed as initialComments. May
+   * be empty during loading states, but should not be empty when the dust has
+   * settled unless representing a context in which there are no comments.
+   */
+  initialComments: CommentsList[],
+  
+  /**
+   * The number of top-level comments in the associated context, eg the number
+   * of root comments on a post. This is used to determine whether there should
+   * be a top-level Load More link. If not provided, there wont be one.
+   */
+  topLevelCommentCount?: number,
+  
+  /**
+   * A function which takes a `limit`, does a query, and returns more comments.
+   * If this and topLevelCommentCount are provided, this function will be called
+   * when Load More is clicked, and the results it returns will be merged into
+   * the loaded comment set. If not provided, there will be no top-level Load
+   * More link.
+   *
+   * This function may return comments that are duplicates of ones that are
+   * already loaded, may return comments that are replies to other comments it
+   * returns, and may return comments that are disconnected replies. The only
+   * real requirements are:
+   *   (1) If `limit` is large enough, every top-level comment will be returned
+   *   eventually; and
+   *   (2) If a comment doesn't have a parentCommentId, it's a top-level
+   *   comment that should be shown.
+   */
+  loadMoreTopLevel?: (limit: number)=>Promise<CommentsList[]>,
+
+  treeOptions: CommentTreeOptions,
+  startThreadTruncated?: boolean,
+  expandAllThreads?: boolean,
+  expandNewComments?: boolean,
+  defaultNestingLevel?: number,
+  parentCommentId?: string,
+  parentAnswerId?: string,
+  classes: ClassesType,
+}) => {
+  const [initialState] = useState(() => initialStateFromComments(initialComments));
+  const forceRerender = useForceRerender();
+  const stateRef = useRef<CommentPoolState>(initialState);
+  const { CommentsNode, LoadMore } = Components;
+  const [haveLoadedAll,setHaveLoadedAll] = useState(false);
+
+  const loadAll = useCallback(async () => {
+    if (!loadMoreTopLevel) return;
+
+    // TODO
+    if (!haveLoadedAll) {
+      const loadedComments = await loadMoreTopLevel(5000);
+      setHaveLoadedAll(true);
+      stateRef.current = addLoadedComments(stateRef.current, loadedComments);
+    }
+  }, [loadMoreTopLevel, haveLoadedAll, forceRerender]);
+
+  const showMoreChildrenOf = useCallback(async (commentId: string) => {
+    await loadAll();
+    stateRef.current = revealChildren(stateRef.current, commentId, 10);
+    forceRerender();
+  }, [forceRerender, loadAll]);
+
+  const context: CommentPoolContextType = useMemo(() => ({
+    showMoreChildrenOf
+  }), [showMoreChildrenOf]);
+  
+  const wrappedLoadMoreTopLevel = useCallback(async () => {
+    await loadAll();
+    stateRef.current = revealTopLevel(stateRef.current, 10);
+    forceRerender();
+  }, [forceRerender, loadAll]);
+  
+  const loadedComments: SingleCommentState[] = Object.values(stateRef.current.comments)
+  const visibleComments = filter(loadedComments, c=>c.visibility!=="hidden");
+  const tree = unflattenComments(visibleComments.map(c=>c.comment));
+
+  return <CommentPoolContext.Provider value={context}>
+    {tree.map(comment =>
+      <CommentsNode
+        treeOptions={treeOptions}
+        startThreadTruncated={startThreadTruncated}
+        expandAllThreads={expandAllThreads}
+        expandNewComments={expandNewComments}
+        comment={comment.item}
+        childComments={comment.children}
+        key={comment.item._id}
+        parentCommentId={parentCommentId}
+        parentAnswerId={parentAnswerId}
+        shortform={(treeOptions.post as PostsBase)?.shortform}
+        isChild={defaultNestingLevel > 1}
+      />)
+    }
+    {/*topLevelCommentCount && loadMoreTopLevel && topLevelCommentCount>tree.length*/
+      (!haveLoadedAll || hasHiddenTopLevelComments(stateRef.current)) && <LoadMore
+        loadMore={wrappedLoadMoreTopLevel}
+        count={tree.length}
+        totalCount={topLevelCommentCount}
+      />
+    }
+  </CommentPoolContext.Provider>
+}
+
+function initialStateFromComments(initialComments: CommentsList[]): CommentPoolState {
+  return {
+    comments: keyBy(
+      initialComments.map(comment => ({comment, visibility: "visible"})),
+      c => c.comment._id
+    )
+  };
+}
+
+function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList[]): CommentPoolState {
+  const newCommentStates = {...state.comments};
+  for (let comment of loadedComments) {
+    if (!newCommentStates[comment._id]) {
+      newCommentStates[comment._id] = {
+        comment, visibility: "hidden"
+      };
+    }
+  }
+  return {
+    ...state,
+    comments: newCommentStates,
+  };
+}
+
+function hasHiddenTopLevelComments(state: CommentPoolState): boolean {
+  for (let commentState of Object.values(state.comments)) {
+    if (!commentState.comment.parentCommentId && commentState.visibility==="hidden") {
+      return true;
+    }
+  }
+  return false;
+}
+
+function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
+  const hiddenTopLevelCommentIds: string[] = filter(
+    Object.keys(state.comments),
+    commentId => !state.comments[commentId].comment.parentCommentId
+      && state.comments[commentId].visibility==="hidden"
+  );
+  const byDescendingKarma = orderBy(hiddenTopLevelCommentIds,
+    commentId => -state.comments[commentId].comment.baseScore);
+
+  const commentIdsToReveal = take(byDescendingKarma, n);
+  return revealCommentIds(state, commentIdsToReveal);
+}
+
+function revealChildren(state: CommentPoolState, parentCommentId: string, n: number): CommentPoolState {
+  const hiddenChildComments = filter(
+    Object.keys(state.comments),
+    commentId => state.comments[commentId].comment.parentCommentId === parentCommentId
+      && state.comments[commentId].visibility==="hidden"
+  );
+  const byDescendingKarma = orderBy(hiddenChildComments,
+    commentId => -state.comments[commentId].comment.baseScore);
+
+  const commentIdsToReveal = take(byDescendingKarma, n);
+  return revealCommentIds(state, commentIdsToReveal);
+}
+
+function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolState {
+  if (!ids.length)
+    return state;
+
+  return {
+    ...state,
+    comments: mapValues(state.comments,
+      (c: SingleCommentState): SingleCommentState => {
+        if (includes(ids, c.comment._id))
+          return {...c, visibility: "visible"}
+        else
+          return c;
+      }
+    )
+  };
+}
+
+const CommentPoolComponent = registerComponent('CommentPool', CommentPool);
+
+declare global {
+  interface ComponentTypes {
+    CommentPool: typeof CommentPoolComponent
+  }
+}
+

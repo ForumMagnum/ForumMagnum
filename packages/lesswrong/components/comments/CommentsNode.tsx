@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -7,6 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
+import { CommentPoolContext } from './CommentPool';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -108,6 +109,7 @@ const CommentsNode = ({
   classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
+  const commentPoolContext = useContext(CommentPoolContext);
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
@@ -203,7 +205,7 @@ const CommentsNode = ({
     return isTruncated && !(expandNewComments && isNewComment);
   })();
 
-  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
+  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
@@ -286,6 +288,13 @@ const CommentsNode = ({
             directReplies={loadDirectReplies}
           />
         </div>
+      }
+      
+      {!isSingleLine && !collapsed && commentPoolContext
+        && (!childComments || comment.directChildrenCount > childComments.length)
+        && <LoadMore loadMore={async () => {
+          await commentPoolContext.showMoreChildrenOf(comment._id);
+        }}/>
       }
     </CommentFrame>
   </div>

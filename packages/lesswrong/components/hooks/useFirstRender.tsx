@@ -7,7 +7,7 @@ export const useIsFirstRender = () => {
   return current;
 }
 
-export const useForceRerender = () => {
+export const useForceRerenderOnMount = () => {
   const [isFirstRender, setIsFirstRender] = useState(true);
   useEffect(() => {
     setIsFirstRender(false);
