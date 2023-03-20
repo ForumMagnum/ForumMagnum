@@ -15,8 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expandIcon: {
     position: 'relative',
-    top: 2,
-    fontSize: 14,
+    top: 3,
+    fontSize: 16,
     cursor: 'pointer',
     '&:hover': {
       color: theme.palette.grey[800],
@@ -68,7 +68,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     Posts tagged community
     <LWTooltip title={sectionExpanded ? 'Collapse' : 'Expand'}>
       <ForumIcon
-        icon={sectionExpanded ? 'ChevronDown' : 'ChevronRight'}
+        icon={sectionExpanded ? 'ThickChevronDown' : 'ThickChevronRight'}
         onClick={toggleSectionVisibility}
         className={classes.expandIcon}
       />

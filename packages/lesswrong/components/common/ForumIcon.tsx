@@ -13,7 +13,6 @@ import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
-import ChevronDownIcon from "@heroicons/react/24/solid/ChevronDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -24,6 +23,8 @@ import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
 import { StickyIcon } from "../icons/stickyIcon";
+import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
+import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 
 /**
@@ -46,7 +47,8 @@ export type ForumIconName =
   "Shortform" |
   "ChevronLeft" |
   "ChevronRight" |
-  "ChevronDown";
+  "ThickChevronRight" |
+  "ThickChevronDown";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -63,7 +65,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Shortform: NotesIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
-    ChevronDown: ChevronDownIcon,
+    ThickChevronRight: ThickChevronRightIcon,
+    ThickChevronDown: ThickChevronDownIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -79,7 +82,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Shortform: LightbulbIcon,
     ChevronLeft: ChevronLeftIcon,
     ChevronRight: ChevronRightIcon,
-    ChevronDown: ChevronDownIcon,
+    ThickChevronRight: ThickChevronRightIcon,
+    ThickChevronDown: ThickChevronDownIcon,
   },
 };
 
