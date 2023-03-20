@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: '100%',
       width: 50,
       content: "''",
-      background: `linear-gradient(to right, ${theme.palette.background.default}, transparent)`,
+      background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
       pointerEvents: 'none',
       zIndex: 1
     }
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: '100%',
       width: 50,
       content: "''",
-      background: `linear-gradient(to left, ${theme.palette.background.default}, transparent)`,
+      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
       pointerEvents: 'none'
     }
   },
