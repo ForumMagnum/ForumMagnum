@@ -73,16 +73,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 2,
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    [theme.breakpoints.down("xs")]: {
-      "-webkit-line-clamp": 3,
-    },
-  },
-  titleOverflow: {
+    whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    display: "block",
+    maxWidth: "100%",
   },
   meta: {
     display: "flex",
