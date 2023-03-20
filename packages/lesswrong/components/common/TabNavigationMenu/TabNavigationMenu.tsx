@@ -20,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => {
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
+      paddingLeft: isEAForum ? 6 : undefined,
     },
     navSidebarTransparent: {
       zIndex: 10,
