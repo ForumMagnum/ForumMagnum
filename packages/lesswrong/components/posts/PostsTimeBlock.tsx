@@ -94,14 +94,22 @@ const getTitle = (
   if (timeframe === 'monthly') {
     return startDate.format('MMMM YYYY');
   }
+
+  if (isEAForum) {
+    const result = size === 'smUp'
+      ? startDate.format('ddd, Do MMM YYYY')
+      : startDate.format('dddd, Do MMMM YYYY');
+    if (timeframe === 'weekly') {
+      return `Week of ${result}`;
+    }
+    return isToday(startDate) ? result.replace(/.*,/, "Today,") : result;
+  }
+
   const result = size === 'smUp'
     ? startDate.format('ddd, MMM Do YYYY')
     : startDate.format('dddd, MMMM Do YYYY');
   if (timeframe === 'weekly') {
     return `Week Of ${result}`;
-  }
-  if (isEAForum && isToday(startDate)) {
-    return result.replace(/.*,/, "Today,");
   }
   return result;
 }
