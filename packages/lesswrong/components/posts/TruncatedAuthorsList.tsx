@@ -37,7 +37,23 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
   return width;
 }
 
-// Here be dragons
+/**
+ * Here be dragons
+ *
+ * This function is called in a useEffect hook to format the authors' names how
+ * we want. This needs to be done _after_ the react render because we need to
+ * know the size of each name in pixels which requires the DOM nodes to already
+ * be mounted.
+ *
+ * The general idea is that react renders all the names into a separate "scratch"
+ * div which has display: none. This function then looks at how much space we
+ * have to play with and the size of each name, and moves as many names as
+ * possible from the "scratch" div into the actual visible div.
+ *
+ * When there's not enough space for all the names we add some text saying '+ n
+ * more' where n is the number of excluded names. When no names can be shown we
+ * display some text saying 'n authors'.
+ */
 const recalculate = (
   ref: RefObject<HTMLDivElement>,
   expandContainer: RefObject<HTMLDivElement>,
