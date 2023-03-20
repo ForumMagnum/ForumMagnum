@@ -84,6 +84,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       top: -1,
     }
   },
+  tooltip: {
+    maxWidth: isEAForum ? 190 : undefined,
+  },
 })
 
 type TabNavigationItemProps = {
@@ -114,7 +117,11 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
-  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip
+    placement='right-start'
+    title={tab.tooltip || ''}
+    className={classes.tooltip}
+  >
     <MenuItemLink
       onClick={handleClick}
       // We tried making this [the 'component' of the underlying material-UI
