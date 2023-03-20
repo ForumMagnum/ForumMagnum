@@ -14,7 +14,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
-    margin: '1em 0 1em 1em',
+    margin: '1.5em 0 1em 1em',
     padding: '2em',
     boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     display: 'flex',

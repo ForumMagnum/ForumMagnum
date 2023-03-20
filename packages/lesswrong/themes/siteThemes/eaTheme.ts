@@ -279,12 +279,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             backgroundColor: palette.grey[200],
           }
         },
-        TabNavigationMenu: {
-          divider: {
-            marginTop: 10,
-            marginBottom: 20,
-          }
-        },
         TabNavigationItem: {
           navButton: {
             paddingTop: 10,
