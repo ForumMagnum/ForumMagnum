@@ -26,10 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   navButton: {
     '&:hover': {
-      opacity:.6,
+      opacity: isEAForum ? 1 : 0.6,
+      color: isEAForum ? theme.palette.grey[800] : undefined,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    
+    color: theme.palette.grey[isEAForum ? 600 : 800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -62,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline",
     "& svg": {
       fill: isEAForum ? undefined : "currentColor",
-      color: theme.palette.icon.navigationSidebarIcon,
+      color: isEAForum ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
   },
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[isEAForum ? 600 : 800],
+    color: "inherit",
     textTransform: "none !important",
   },
   homeIcon: {
