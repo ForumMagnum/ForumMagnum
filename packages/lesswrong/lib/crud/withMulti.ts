@@ -249,7 +249,14 @@ export interface UseMultiOptions<
   createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
 }
 
-export type LoadMoreCallback = (limitOverride?: number) => void
+/**
+ * Function passed to a LoadMore, when it's clicked. Can either return
+ * void/undefined, in which case nothing special is done with loading-state
+ * indicators, or can return a Promise<void>, in which case the LoadMore
+ * component displays a loading state (regardless of the `loading` prop) until
+ * the promise is resolved.
+ */
+export type LoadMoreCallback = (limitOverride?: number) => void|Promise<void>
 
 export type LoadMoreProps = {
   loadMore: LoadMoreCallback

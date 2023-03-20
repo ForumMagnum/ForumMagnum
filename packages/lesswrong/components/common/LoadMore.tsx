@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
@@ -83,6 +83,7 @@ const LoadMore = ({
   message?: string,
 }) => {
   const { captureEvent } = useTracking()
+  const [loadMorePromisePending,setLoadMorePromisePending] = useState(false);
 
   /**
    * To avoid hydration errors, set loading to false if this is the initial render and we have
@@ -94,11 +95,25 @@ const LoadMore = ({
   const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    void loadMore();
     captureEvent("loadMoreClicked")
+    const loadMoreResult = loadMore();
+
+    if(loadMorePromisePending)
+      return;
+
+    if (loadMoreResult) {
+      // If loadMore returned something that isn't falsy, it's a promise, and we
+      // (a) force the loading-state indicator to display, and (b) block
+      // additional clicks, until the promise resolves.
+      setLoadMorePromisePending(true);
+      void (async () => {
+        await loadMoreResult;
+        setLoadMorePromisePending(false);
+      })();
+    }
   }
 
-  if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
+  if (!hideLoading && (loading || loadMorePromisePending || (networkStatus && queryIsUpdating(networkStatus)))) {
     return <Loading className={classNames(classes.loading, loadingClassName, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
   }
 
