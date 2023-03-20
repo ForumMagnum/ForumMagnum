@@ -14,17 +14,26 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import HomeIcon from "@heroicons/react/20/solid/HomeIcon";
-import ArchiveBoxIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
-import TagIcon from "@heroicons/react/24/outline/TagIcon";
-import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
-import HeartIcon from "@heroicons/react/24/outline/HeartIcon";
-import CalendarIcon from "@heroicons/react/24/outline/CalendarIcon";
-import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
+
+// EA Forum menu icons
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import HomeSelectedIcon from "@heroicons/react/20/solid/HomeIcon";
+import AllPostsIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
+import AllPostsSelectedIcon from "@heroicons/react/24/solid/ArchiveBoxIcon";
+import TopicsIcon from "@heroicons/react/24/outline/TagIcon";
+import TopicsSelectedIcon from "@heroicons/react/24/solid/TagIcon";
+import LibraryIcon from "@heroicons/react/24/outline/BookOpenIcon";
+import LibrarySelectedIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
+import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
+import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
+import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -63,14 +72,17 @@ type MenuTabCustomComponent = {
   customComponentName: string
 }
 
+type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
+
 export type MenuTabRegular = {
   id: string
   title: string
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: React.ComponentType | React.FC<{className?: string}>
-  compressedIconComponent?: any
+  iconComponent?: MenuItemIcon
+  selectedIconComponent?: MenuItemIcon
+  compressedIconComponent?: MenuItemIcon
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
@@ -243,6 +255,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Home',
       link: '/',
       iconComponent: HomeIcon,
+      selectedIconComponent: HomeSelectedIcon,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -250,7 +263,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'allPosts',
       title: 'All posts',
       link: '/allPosts',
-      iconComponent: ArchiveBoxIcon,
+      iconComponent: AllPostsIcon,
+      selectedIconComponent: AllPostsSelectedIcon,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
@@ -259,7 +273,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
-      iconComponent: TagIcon,
+      iconComponent: TopicsIcon,
+      selectedIconComponent: TopicsSelectedIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
@@ -268,7 +283,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'library',
       title: 'Library',
       link: '/library',
-      iconComponent: BookOpenIcon,
+      iconComponent: LibraryIcon,
+      selectedIconComponent: LibrarySelectedIcon,
       tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -276,14 +292,16 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'takeAction',
       title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
-      iconComponent: HeartIcon,
+      iconComponent: TakeActionIcon,
+      selectedIconComponent: TakeActionSelectedIcon,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',
       link: '/events',
-      iconComponent: CalendarIcon,
+      iconComponent: EventsIcon,
+      selectedIconComponent: EventsSelectedIcon,
       tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true
@@ -291,7 +309,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'community',
       title: 'Groups & people',
       link: communityPath,
-      iconComponent: UsersIcon,
+      iconComponent: GroupsIcon,
+      selectedIconComponent: GroupsSelectedIcon,
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true

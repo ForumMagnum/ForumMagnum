@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[900],
+      color: theme.palette.grey[isEAForum ? 1000 : 900],
       fontWeight: 600,
     },
   },
@@ -66,6 +66,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       transform: iconTransform,
     },
   },
+  selectedIcon: {
+    "& svg": {
+      color: isEAForum ? theme.palette.grey[1000] : undefined,
+    },
+  },
   navText: {
     ...theme.typography.body2,
     color: theme.palette.grey[800],
@@ -102,6 +107,12 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
     }
   }
 
+  const isSelected = pathname === tab.link;
+  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
+  const IconComponent = isSelected
+    ? tab.selectedIconComponent ?? tab.iconComponent
+    : tab.iconComponent;
+
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={handleClick}
@@ -113,14 +124,15 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       rootClass={classNames({
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
-        [classes.selected]: pathname === tab.link,
+        [classes.selected]: isSelected,
       })}
       disableTouchRipple
     >
-      {(tab.icon || tab.iconComponent) && <span
-        className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
-      >
-        {tab.iconComponent && <tab.iconComponent />}
+      {hasIcon && <span className={classNames(classes.icon, {
+        [classes.selectedIcon]: isSelected,
+        [classes.homeIcon]: tab.id === 'home',
+      })}>
+        {IconComponent && <IconComponent />}
         {tab.icon && tab.icon}
       </span>}
       {tab.subItem ?
