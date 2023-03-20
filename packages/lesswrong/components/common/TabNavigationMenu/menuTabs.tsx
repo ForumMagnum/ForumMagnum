@@ -13,10 +13,14 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
-import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
-import VoiceChatIcon from '@material-ui/icons/VoiceChat';
-import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import HomeIcon from "@heroicons/react/20/solid/HomeIcon";
+import ArchiveBoxIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
+import TagIcon from "@heroicons/react/24/outline/TagIcon";
+import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
+import HeartIcon from "@heroicons/react/24/outline/HeartIcon";
+import CalendarIcon from "@heroicons/react/24/outline/CalendarIcon";
+import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
@@ -65,7 +69,7 @@ export type MenuTabRegular = {
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: any // I tried
+  iconComponent?: React.ComponentType | React.FC<{className: string}>
   compressedIconComponent?: any
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
@@ -238,7 +242,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'home',
       title: 'Home',
       link: '/',
-      iconComponent: Home,
+      iconComponent: HomeIcon,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -246,7 +250,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'allPosts',
       title: 'All posts',
       link: '/allPosts',
-      iconComponent: Sort,
+      iconComponent: ArchiveBoxIcon,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
@@ -255,7 +259,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
-      iconComponent: LocalOffer,
+      iconComponent: TagIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
@@ -267,7 +271,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'library',
       title: 'Library',
       link: '/library',
-      iconComponent: LocalLibrary,
+      iconComponent: BookOpenIcon,
       tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -293,14 +297,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'takeAction',
       title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
-      iconComponent: PlaylistAddCheck,
+      iconComponent: HeartIcon,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',
       link: '/events',
-      iconComponent: EventIcon,
+      iconComponent: CalendarIcon,
       tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true
@@ -309,9 +313,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentName: "EventsList",
     }, {
       id: 'community',
-      title: 'Connect',
+      title: 'Groups & people',
       link: communityPath,
-      iconComponent: SupervisedUserCircleIcon,
+      iconComponent: UsersIcon,
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true

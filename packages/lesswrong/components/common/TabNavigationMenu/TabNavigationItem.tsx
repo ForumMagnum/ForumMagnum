@@ -1,11 +1,18 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 export const iconWidth = 30
+
+const iconTransform = forumSelect({
+  LessWrong: "scale(0.8)",
+  EAForum: "scale(0.7)",
+  default: undefined,
+});
 
 const styles = (theme: ThemeType): JssStyles => ({
   selected: {
@@ -53,14 +60,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 28,
     marginRight: 16,
     display: "inline",
-    
     "& svg": {
-      fill: "currentColor",
+      fill: isEAForum ? undefined : "currentColor",
       color: theme.palette.icon.navigationSidebarIcon,
-      ...(theme.forumType === "LessWrong"
-        ? { transform: "scale(0.8)" }
-        : {}
-      ),
+      transform: iconTransform,
     },
   },
   navText: {
