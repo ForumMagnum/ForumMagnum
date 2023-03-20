@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -184,10 +184,10 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   //  2) Hide the username on mobile so users with long usernames can still
   //     enter search queries
   // Called by SearchBar.
-  const setSearchOpen = (isOpen: boolean) => {
+  const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
-  }
+  }, [captureEvent]);
 
   const renderNavigationMenuButton = () => {
     // The navigation menu button either toggles a free floating sidebar, opens
