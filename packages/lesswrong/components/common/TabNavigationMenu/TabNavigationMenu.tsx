@@ -34,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => {
         ? {
           marginLeft: theme.spacing.unit * 2.5,
           marginTop: theme.spacing.unit * 2.5,
-
         }
         : {
           marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
