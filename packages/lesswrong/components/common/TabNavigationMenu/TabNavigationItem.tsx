@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[isEAForum ? 600 : 800],
     textTransform: "none !important",
   },
   homeIcon: {

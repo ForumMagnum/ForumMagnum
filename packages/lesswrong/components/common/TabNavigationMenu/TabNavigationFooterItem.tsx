@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const smallIconSize = 23
 
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[900],
+      color: theme.palette.grey[isEAForum ? 1000 : 900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]

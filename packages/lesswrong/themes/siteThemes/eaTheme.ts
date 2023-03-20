@@ -287,9 +287,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           icon: {
             opacity: 1,
           },
-          navText: {
-            color: palette.grey[800]
-          }
         },
         TabNavigationFooterItem: {
           selected: {
@@ -299,11 +296,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         TabNavigationCompressedItem: {
           icon: {
             opacity: 1
-          }
-        },
-        TabNavigationMenuSubItem: {
-          root: {
-            color: palette.grey[800]
           }
         },
         PostsPageTitle: {
