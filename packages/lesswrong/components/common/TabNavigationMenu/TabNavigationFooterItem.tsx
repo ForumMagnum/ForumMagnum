@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
-      fill: "currentColor",
+      fill: isEAForum ? undefined : "currentColor",
     }
   },
   navText: {
@@ -70,15 +70,23 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
     ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
 
+  const isSelected = pathname === tab.link;
+  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
+  const IconComponent = isSelected
+    ? tab.selectedIconComponent ?? tab.iconComponent
+    : tab.iconComponent;
+
   return <Tooltip placement='top' title={tab.tooltip || ''}>
     <Element
       to={tab.link}
-      className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}
+      className={classNames(classes.navButton, {
+        [classes.selected]: isSelected,
+      })}
     >
-      {(tab.icon || tab.iconComponent) && <span
+      {hasIcon && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
-        {tab.iconComponent && <tab.iconComponent />}
+        {IconComponent && <IconComponent />}
         {tab.icon && tab.icon}
       </span>}
       {tab.subItem ?
