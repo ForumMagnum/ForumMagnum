@@ -6,7 +6,7 @@ import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { isEAForum } from '../../../lib/instanceSettings';
 
 const iconPadding = (theme: ThemeType) =>
-  isEAForum ? theme.spacing.unit / 2 : iconWidth + theme.spacing.unit * 2;
+  isEAForum ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
