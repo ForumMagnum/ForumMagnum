@@ -299,7 +299,7 @@ importComponent("SetSideCommentVisibility", () => require('../components/posts/P
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
-importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageTitle'));
+importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageHeaderTitle'));
 importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/PostsCoauthor'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
 
