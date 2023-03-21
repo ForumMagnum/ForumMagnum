@@ -16,7 +16,7 @@ const customStyles = (theme: ThemeType) => isEAForum
 
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
-    display: "flex",
+    ...(isEAForum && {display: "flex"}),
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
