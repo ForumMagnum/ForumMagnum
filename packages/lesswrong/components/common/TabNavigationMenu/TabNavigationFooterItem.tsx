@@ -13,10 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
-      color: isEAForum ? theme.palette.grey[1000] : undefined,
+      color: isEAForum ? 'white' : undefined,
     },
     '& $navText': {
-      color: theme.palette.grey[isEAForum ? 1000 : 900],
+      color: isEAForum ? 'white' : theme.palette.grey [900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]
