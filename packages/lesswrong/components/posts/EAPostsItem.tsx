@@ -117,7 +117,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   audio: {
     marginLeft: 6,
     "& svg": {
-      width: 15,
+      height: 13,
       margin: "3px -8px 0 3px",
     },
   },
