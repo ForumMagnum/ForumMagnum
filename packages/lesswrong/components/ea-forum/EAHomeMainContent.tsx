@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect, useRef, useState } from 'react';
+import React, { ComponentType, useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, captureEvent } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
@@ -129,6 +129,25 @@ type TopicsBarTab = {
   slug?: string
 }
 
+const frontpageTab = {_id: '0', name: 'Frontpage'}
+
+// The order in which the topics are displayed is slightly different from their default ordering
+const topicTabsOrder = [
+  'sWcuTyTB5dP3nas2t', // Global health
+  'QdH9f8TC6G8oGYdgt', // Animal welfare
+  'ee66CtAMYurQreWBH', // Existential risk
+  'ZCihBFp5P64JCvQY6', // Community
+  'oNiQsBHA3i837sySD', // AI safety
+  'H43gvLzBCacxxamPe', // Biosecurity & pandemics
+  '4eyeLKC64Yvznzt6Z', // Philosophy
+  'EHLmbEmJ2Qd5WfwTb', // Building effective altruism
+  'of9xBvR3wpbp6qsZC', // Policy
+  'psBzwdY8ipfCeExJ7', // Cause prioritization
+  'L6NqHZkLc4xZ7YtDr', // Effective giving
+  '4CH9vsvzyk4mSKwyZ', // Career choice
+  'aJnrnnobcBNWRsfAw', // Forecasting & estimation
+]
+
 /**
  * This handles displaying the main content on the EA Forum home page,
  * which includes the topics bar and the topic-specific tabs.
@@ -167,11 +186,20 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     fragmentName: 'TagBasicInfo',
     limit: 40
   })
-  const frontpageTab = {_id: '0', name: 'Frontpage'}
-  let allTabs: TopicsBarTab[] = [frontpageTab]
-  if (coreTopics) {
-    allTabs = allTabs.concat(coreTopics)
-  }
+  let allTabs: TopicsBarTab[] = useMemo(() => {
+    let tabs: TopicsBarTab[] = [frontpageTab]
+    if (coreTopics) {
+      // list the core topics based on topicTabsOrder
+      topicTabsOrder.forEach(topicId => {
+        const topic = coreTopics.find(t => t._id === topicId)
+        if (topic) {
+          tabs.push(topic)
+        }
+      })
+    }
+    return tabs
+  }, [coreTopics])
+  
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
@@ -199,7 +227,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     // look for the offset that is to the left of us
     const nextOffset = Array.from(offsets.current).reverse().find(os => {
       if (!tabsWindowRef.current || !topicsBarRef.current) return false
-      return os < tabsWindowRef.current.scrollLeft
+      return os < (tabsWindowRef.current.scrollLeft - 2)
     }) || 0
     tabsWindowRef.current.scrollTo({
       left: nextOffset,
