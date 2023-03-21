@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   closeMenu: ()=>void,
   includeBookmark?: boolean,
   classes: ClassesType,

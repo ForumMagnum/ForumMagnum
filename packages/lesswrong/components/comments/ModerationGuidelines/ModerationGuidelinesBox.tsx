@@ -11,6 +11,7 @@ import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -58,7 +59,7 @@ const truncateGuidelines = (guidelines: string) => {
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
-    Suffix: "... <a>(Read More)</a>",
+    Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
     Strict: false
   }
   return truncatise(guidelines, truncatiseOptions)

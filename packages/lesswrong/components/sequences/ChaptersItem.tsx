@@ -39,7 +39,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   }, []);
 
   const { ChaptersEditForm, ChapterTitle, SectionFooter,
-    SectionButton, ContentItemBody, ContentStyles, PostsItem2 } = Components
+    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
   if (edit) return (
     <ChaptersEditForm
@@ -68,7 +68,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           {chapter.posts.map(post => { 
             return <div key={chapter._id + post._id}>
-              <PostsItem2 sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
             </div>
           })}
         </AnalyticsContext>

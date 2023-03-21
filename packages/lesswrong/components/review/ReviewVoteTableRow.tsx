@@ -222,7 +222,7 @@ const ReviewVoteTableRow = (
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
+            <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
