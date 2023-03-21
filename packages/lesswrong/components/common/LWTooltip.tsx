@@ -23,6 +23,7 @@ const LWTooltip = ({
   clickable=false,
   inlineBlock=true,
   disabled=false,
+  hideOnTouchScreens=false,
   classes,
   className,
 }: {
@@ -34,6 +35,7 @@ const LWTooltip = ({
   clickable?: boolean,
   inlineBlock?: boolean,
   disabled?: boolean,
+  hideOnTouchScreens?: boolean,
   classes: ClassesType,
   className?: string
 }) => {
@@ -56,6 +58,7 @@ const LWTooltip = ({
       tooltip={tooltip}
       allowOverflow={!flip}
       clickable={clickable}
+      hideOnTouchScreens={hideOnTouchScreens}
     >
       <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}

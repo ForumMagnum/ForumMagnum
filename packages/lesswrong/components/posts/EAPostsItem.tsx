@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -12,8 +12,18 @@ import { useClickableCell } from "../common/useClickableCell";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     maxWidth: SECTION_WIDTH,
+  },
+  readCheckbox: {
+    minWidth: 24,
+  },
+  container: {
+    position: "relative",
+    flexGrow: 1,
+    maxWidth: "100%",
     display: "flex",
     alignItems: "center",
     background: theme.palette.grey[0],
@@ -77,8 +87,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
   meta: {
     display: "flex",
     alignItems: "center",
+    whiteSpace: "nowrap",
+  },
+  metaLeft: {
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    overflow: "hidden",
     "& > :first-child": {
-      flexGrow: 1,
+      marginRight: 5,
+    },
+  },
+  readTime: {
+    "@media screen and (max-width: 350px)": {
+      display: "none",
     },
   },
   secondaryContainer: {
@@ -86,6 +108,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   audio: {
+    marginLeft: 6,
     "& svg": {
       width: 15,
       margin: "3px -8px 0 3px",
@@ -162,11 +185,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     analyticsProps,
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
+  const authorExpandContainer = useRef(null);
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
-    PostsItemTrailingButtons,
+    PostsItemTrailingButtons, PostReadCheckbox,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -194,78 +218,91 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root} onClick={onClick}>
-        <div className={classes.karma}>
-          {tagRel
-            ? <div className={classes.tagRelWrapper}>
-              <PostsItemTagRelevance tagRel={tagRel} post={post} />
-            </div>
-            : <>
-              <div className={classes.voteArrow}>
-                <SoftUpArrowIcon />
+      <div className={classes.root}>
+        {showReadCheckbox &&
+          <div className={classes.readCheckbox}>
+            <PostReadCheckbox post={post} width={14} />
+          </div>
+        }
+        <div className={classes.container} onClick={onClick}>
+          <div className={classes.karma}>
+            {tagRel
+              ? <div className={classes.tagRelWrapper}>
+                <PostsItemTagRelevance tagRel={tagRel} post={post} />
               </div>
-              <PostsItemKarma post={post} />
-            </>
-          }
-        </div>
-        <div className={classes.details}>
-          <PostsTitle
-            {...{
-              post,
-              sticky,
-              showDraftTag,
-              showPersonalIcon,
-              strikethroughTitle,
-            }}
-            Wrapper={TitleWrapper}
-            read={isRead && !showReadCheckbox}
-            isLink={false}
-            curatedIconLeft={false}
-            iconsOnLeft
-            wrap
-            className={classes.title}
-          />
-          <div className={classes.meta}>
-            <TruncatedAuthorsList
-              post={post}
-              after={<>
-                {' · '}
-                <PostsItemDate post={post} noStyles includeAgo />
-                {' · '}
-                {post.readTimeMinutes || 1}m read
-              </>}
+              : <>
+                <div className={classes.voteArrow}>
+                  <SoftUpArrowIcon />
+                </div>
+                <PostsItemKarma post={post} />
+              </>
+            }
+          </div>
+          <div className={classes.details}>
+            <PostsTitle
+              {...{
+                post,
+                sticky,
+                showDraftTag,
+                showPersonalIcon,
+                strikethroughTitle,
+              }}
+              Wrapper={TitleWrapper}
+              read={isRead && !showReadCheckbox}
+              isLink={false}
+              curatedIconLeft={false}
+              iconsOnLeft
+              wrap
+              className={classes.title}
             />
-            <div className={classNames(
-              classes.secondaryContainer,
-              classes.onlyMobile,
-            )}>
-              <SecondaryInfo />
+            <div className={classes.meta}>
+              <div className={classes.metaLeft} ref={authorExpandContainer}>
+                <TruncatedAuthorsList
+                  post={post}
+                  expandContainer={authorExpandContainer}
+                />
+                <div>
+                  {' · '}
+                  <PostsItemDate post={post} noStyles includeAgo />
+                  <span className={classes.readTime}>
+                    {' · '}{post.readTimeMinutes || 1}m read
+                  </span>
+                </div>
+                <div className={classes.audio}>
+                  {hasAudio && <ForumIcon icon="VolumeUp" />}
+                </div>
+              </div>
+              <div className={classNames(
+                classes.secondaryContainer,
+                classes.onlyMobile,
+              )}>
+                <SecondaryInfo />
+              </div>
             </div>
           </div>
-        </div>
-        <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
-          <div className={classes.audio}>
-            {hasAudio && <ForumIcon icon="VolumeUp" />}
+          <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+            <div className={classes.tag}>
+              {primaryTag && !showReadCheckbox &&
+                <FooterTag tag={primaryTag} smallText />
+              }
+            </div>
+            <SecondaryInfo />
           </div>
-          <div className={classes.tag}>
-            {primaryTag && <FooterTag tag={primaryTag} smallText />}
-          </div>
-          <SecondaryInfo />
+          <a> {/* The `a` tag prevents clicks from navigating to the post */}
+            <PostsItemTrailingButtons
+              {...{
+                post,
+                showTrailingButtons,
+                showMostValuableCheckbox,
+                showDismissButton,
+                showArchiveButton,
+                resumeReading,
+                onDismiss,
+                onArchive,
+              }}
+            />
+          </a>
         </div>
-        <a> {/* The `a` tag prevents clicks from navigating to the post */}
-          <PostsItemTrailingButtons
-            {...{
-              post,
-              showTrailingButtons,
-              showMostValuableCheckbox,
-              showDismissButton,
-              showArchiveButton,
-              resumeReading,
-              onDismiss,
-              onArchive,
-            }}
-          />
-        </a>
       </div>
     </AnalyticsContext>
   );
