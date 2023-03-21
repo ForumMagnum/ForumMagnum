@@ -60,19 +60,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0,
     height: 30,
     width: 28,
-    color: theme.palette.grey[600],
-    paddingTop: 8,
+    color: theme.palette.grey[500],
+    paddingTop: 7,
     paddingLeft: 6,
     cursor: 'pointer',
     '&:hover': {
-      color: theme.palette.grey[900],
+      color: theme.palette.grey[700],
     },
     '@media (max-width: 840px)': {
       display: 'none',
     },
   },
   arrowIcon: {
-    fontSize: 15
+    fontSize: 18
   },
   leftArrow: {
     left: -30,
@@ -246,7 +246,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
         <SingleColumnSection className={classes.tabsSection}>
           <div className={classes.tabsRow}>
             {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
-              <ForumIcon icon="ChevronLeft" className={classes.arrowIcon} />
+              <ForumIcon icon="ThickChevronLeft" className={classes.arrowIcon} />
             </div>}
             <div className={classNames(classes.tabsWindowContainer, {[classes.leftFade]: leftArrowVisible, [classes.rightFade]: rightArrowVisible})}>
               <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
@@ -265,7 +265,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
               </div>
             </div>
             {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
-              <ForumIcon icon="ChevronRight" className={classes.arrowIcon} />
+              <ForumIcon icon="ThickChevronRight" className={classes.arrowIcon} />
             </div>}
           </div>
         </SingleColumnSection>
