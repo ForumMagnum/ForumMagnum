@@ -192,10 +192,15 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     renderComments,
     commentTerms,
     condensedAndHiddenComments,
+    isRepeated,
     analyticsProps,
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
+
+  if (isRepeated) {
+    return null;
+  }
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
