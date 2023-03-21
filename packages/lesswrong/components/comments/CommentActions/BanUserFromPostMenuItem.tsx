@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import * as _ from 'underscore';
@@ -13,6 +12,7 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { MenuItem } = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsPage',

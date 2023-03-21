@@ -146,6 +146,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
   propertyName?: string,
   extraQueries?: any,
   documentId: string|undefined,
+  allowNull?: boolean,
   extraVariablesValues?: any,
   skip?: boolean,
   apolloClient?: ApolloClient<NormalizedCacheObject>,
@@ -160,6 +161,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   propertyName,
   extraQueries,
   documentId,
+  allowNull,
   extraVariablesValues,
   skip=false,
   apolloClient,
@@ -171,7 +173,8 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
-        selector: { documentId }
+        selector: { documentId },
+        ...(allowNull && {allowNull: true})
       },
       ...extraVariablesValues
     },

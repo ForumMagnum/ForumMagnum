@@ -1,3 +1,4 @@
+import { arrayOfForeignKeysField } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbClientId> = {
   clientId: {
@@ -14,7 +15,12 @@ const schema: SchemaType<DbClientId> = {
     canRead: ['sunshineRegiment','admins'],
   },
   userIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "userIds",
+      resolverName: "users",
+      collectionName: "Users",
+      type: "User",
+    }),
     nullable: true,
     canRead: ['sunshineRegiment','admins'],
   },

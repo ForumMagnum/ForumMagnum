@@ -1,9 +1,8 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const DeleteDraft = ({ post }: {
   post: PostsBase
@@ -13,6 +12,7 @@ const DeleteDraft = ({ post }: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
+  const { MenuItem } = Components;
   
   const handleDelete = useCallback(() => {
     if (confirm("Are you sure you want to delete this post?")) {
