@@ -4,6 +4,7 @@ import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './withVote';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 60,
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
-    borderRadius: 2,
+    borderRadius: isEAForum ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },
