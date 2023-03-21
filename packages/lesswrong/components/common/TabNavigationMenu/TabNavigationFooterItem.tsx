@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: isEAForum ? 'white' : undefined,
     },
     '& $navText': {
-      color: isEAForum ? 'white' : theme.palette.grey [900],
+      color: isEAForum ? 'white' : theme.palette.grey[900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]
