@@ -304,11 +304,15 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
               </div>
             </div>
             <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+              {/*
+                * This is commented out for now as we'll likely experiment with
+                * adding it back in the future
               <div className={classes.tag}>
                 {primaryTag && !showReadCheckbox &&
                   <FooterTag tag={primaryTag} smallText />
                 }
               </div>
+                */}
               <SecondaryInfo />
             </div>
             <a> {/* The `a` tag prevents clicks from navigating to the post */}
