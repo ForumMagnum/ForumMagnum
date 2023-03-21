@@ -30,9 +30,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   curatedIcon: {
     fontSize: "1.2rem",
-    color: isEAForum ? theme.palette.primary.main : theme.palette.icon.dim4,
+    color: isEAForum ? theme.palette.icon.dim55 : theme.palette.icon.dim4,
     position: "relative",
     top: isEAForum ? 2 : 3,
+  },
+  curatedIconColor: {
+    color: theme.palette.primary.main,
   },
   question: {
     fontSize: "1.2rem",
@@ -60,13 +63,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
+export const CuratedIcon = ({hasColor, classes}:{
+  hasColor?: boolean,
+  classes: ClassesType
+}) => {
   const { LWTooltip, ForumIcon } = Components;
 
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
-          <ForumIcon icon="Star" className={classes.curatedIcon}/>
+          <ForumIcon icon="Star" className={classNames(
+            classes.curatedIcon,
+            {[classes.curatedIconColor]: hasColor && isEAForum},
+          )}/>
         </Link>
       </LWTooltip>
     </span>

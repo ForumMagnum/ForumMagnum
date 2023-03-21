@@ -171,7 +171,7 @@ const PostsTitle = ({
       [classes.strikethroughTitle]: strikethroughTitle
     }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
-        <CuratedIcon/>
+        <CuratedIcon hasColor />
       </span>}
       {isLink ? <Link to={url}>{title}</Link> : title }
       {showIcons && <span className={classes.hideSmDown}>
