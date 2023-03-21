@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, RefObject } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
+import classNames from "classnames";
 
 const TRUNCATION_PADDING = 10;
 
@@ -13,6 +14,7 @@ const styles = (_: ThemeType): JssStyles => ({
     fontSize: 13,
   },
   item: {},
+  placeholder: {},
   tooltip: {
     display: "flex",
     flexDirection: "column",
@@ -80,6 +82,12 @@ const recalculate = (
     scratch.appendChild(more);
   }
 
+  // Remove the placeholder if it exists
+  const placeholder = ref.current.querySelector("." + classes.placeholder);
+  if (placeholder) {
+    ref.current.removeChild(placeholder);
+  }
+
   // Move all the authors into the scratch node
   const displayedAuthors = ref.current.querySelectorAll("." + classes.item);
   for (const author of Array.from(displayedAuthors).reverse()) {
@@ -144,6 +152,9 @@ const TruncatedAuthorsList = ({post, expandContainer, classes}: {
     ? <UserNameDeleted />
     : (
       <div className={classes.root} ref={ref}>
+        <span className={classNames(classes.item, classes.placeholder)}>
+          <UsersNameDisplay user={authors[0]} />
+        </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
