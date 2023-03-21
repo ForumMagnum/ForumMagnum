@@ -1,93 +1,18 @@
-import { IDatabase } from 'pg-promise';
+import { max, some } from 'lodash/fp';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
-import { getAnalyticsConnection } from '../analytics/postgresConnection';
 import { addCronJob } from '../cronUtil';
 import { Vulcan } from '../vulcan-lib';
+import { ActivityFactor, getUserActivityFactors } from './getUserActivityFactors';
 
 const ACTIVITY_WINDOW_HOURS = 28 * 24;
 
-interface ActivityFactor {
-  user_or_client_id: string;
-  activity_array: number[];
-}
-
-const activityAnalyticsSql = `
-WITH hourly_activity AS (
-  SELECT
-      CASE
-        WHEN event->>'userId' IS NOT NULL THEN 'u:' || (event->>'userId')
-        ELSE 'c:' || (event->>'clientId')
-      END AS user_or_client_id,
-      date_trunc('hour', timestamp) AS hour,
-      COUNT(*) AS events
-  FROM public.raw
-  WHERE environment = 'development' -- TODO match to active env
-    AND event_type = 'timerEvent'
-    AND (event->>'userId' IS NOT NULL OR event->>'clientId' IS NOT NULL)
-    AND timestamp >= $1
-    AND timestamp < $2
-  GROUP BY user_or_client_id, hour
-),
-user_hours AS (
-  SELECT DISTINCT
-      user_or_client_id,
-      generate_series(
-          date_trunc('hour', $1::timestamp),
-          date_trunc('hour', $2::timestamp),
-          interval '1 hour'
-      ) AS hour
-  FROM hourly_activity
-),
-user_hourly_activity AS (
-  SELECT
-      uh.user_or_client_id,
-      uh.hour,
-      CASE WHEN ha.events IS NULL THEN 0 ELSE 1 END AS activity
-  FROM user_hours uh
-  LEFT JOIN hourly_activity ha ON uh.user_or_client_id = ha.user_or_client_id AND uh.hour = ha.hour
-)
-SELECT
-  user_or_client_id,
-  array_agg(activity ORDER BY hour DESC) AS activity_array
-FROM user_hourly_activity
-GROUP BY user_or_client_id;
-`
-
-async function getUserActivityFactors(
-  analyticsDb: IDatabase<{}>,
-  startDate: Date,
-  endDate: Date
-): Promise<ActivityFactor[]> {
-  // startDate and endDate must be exact hours
-  if (startDate.getMinutes() !== 0 || startDate.getSeconds() !== 0) {
-    throw new Error('startDate must be an exact hour');
-  }
-  if (endDate.getMinutes() !== 0 || endDate.getSeconds() !== 0) {
-    throw new Error('endDate must be an exact hour');
-  }
-
-  // Get an array by the hour of whether a user was active between startDate and endDate
-  // e.g. with startDate = 2020-01-01T00:00:00Z and endDate = 2020-01-02T00:00:00Z, the result might be:
-  // user_id, activity_array
-  // u:cKttArH2Bok7B9zeT, {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,1,0,0,0}
-  // c:22g4uu6JdjYMBcvtm, {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0}
-  //                                                      ^ this indicates they were active around 2020-01-01T13:00:00Z
-  const result = await analyticsDb.any<ActivityFactor>(activityAnalyticsSql, [startDate.toISOString(), endDate.toISOString()]);
-  const testRes = await analyticsDb.any("SELECT * FROM raw limit 1;")
-
-  return result;
-}
-
-
 /**
- * The UserActivities table has a startDate, an endDate, and an array of activity. Where there
- * should be an array element for every hour between the start and end date. Additionally, the
- * startDate and endDate should actually be the same for every row (this is an "implementation detail").
+ * Assert that all the activityArrays in the UserActivities table are the correct (and identical) length,
+ * and have the correct start and end dates. Drop any rows that are inconsistent.
  *
- * Assert that all of these things are true, and if not, drop the smallest number of rows necessary to
- * make them true. Dropping a row only means a user/clientId will be treated as having no activity, which is
- * not a big deal.
+ * In practice this should never do anything, but it will stop the data getting badly out of sync if
+ * something goes wrong.
  */
 async function assertTableIntegrity(dataDb: SqlClient) {
   // Step 1: Check if all rows have the same startDate and endDate
@@ -117,6 +42,7 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   
   if (!correctActivityLengthInt) return
 
+  // Delete rows with an array of activity that is the wrong length
   await dataDb.none(`
     DELETE FROM "UserActivities"
     WHERE array_length("activityArray", 1) <> $1;
@@ -125,18 +51,19 @@ async function assertTableIntegrity(dataDb: SqlClient) {
 
 /**
  * Get the start and end date for the next user activity update. startDate will be the end date of the
- * most recent row in the UserActivities table, or 7 days ago if there are no rows. endDate will be the current time, minus an hour.
+ * current rows in the UserActivities table, or 7 days ago if there are no rows. endDate will be the current time, minus an hour.
  * Both of these dates will be rounded down to the nearest hour.
  */
 async function getStartEndDate(dataDb: SqlClient) {
-  const { result } = await dataDb.one(`
-    SELECT MAX("endDate") AS last_end_date
+  const { last_end_date, last_start_date } = await dataDb.one(`
+    SELECT MAX("endDate") AS last_end_date, MIN("startDate") AS last_start_date
     FROM "UserActivities";
   `);
 
   const now = new Date();
   const fallbackStartDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-  const lastEndDate = result?.[0] ? new Date(result[0]) : fallbackStartDate;
+  const lastEndDate = last_end_date ? new Date(last_end_date) : fallbackStartDate;
+  const oldStartDate = last_start_date ? new Date(last_start_date) : undefined;
   
   // Round down lastEndDate to the nearest hour
   lastEndDate.setMinutes(0, 0, 0);
@@ -146,6 +73,7 @@ async function getStartEndDate(dataDb: SqlClient) {
   endDate.setHours(endDate.getHours() - 1, 0, 0, 0);
 
   return {
+    oldStartDate: oldStartDate,
     startDate: lastEndDate,
     endDate: endDate,
   };
@@ -160,56 +88,52 @@ async function getStartEndDate(dataDb: SqlClient) {
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
  */
-async function concatNewActivity(dataDb: SqlClient, activityFactors: ActivityFactor[], newActivityStartDate: Date, newActivityEndDate: Date, visitorIdType: 'userId' | 'clientId') {
-  // Concatenate the new activity array to the existing activity array for each
-  // user. The table "UserActivities" has a columns "activityArray", startDate,
-  // and endDate. Where the activityArray Represents whether they were active in
-  // each hour between newActivityStartDate and newActivityEndDate. Given a new
-  // array of ActivityFactors:
-  // ```
-  // interface ActivityFactor {
-  //    user_or_client_id: string;
-  //    activity_array: number[];
-  //  }
-  // ```
-  // The startDate for the new activity array should be the endDate of the
-  // existing activity array, check this and give up if this is not the case.
-  // Also keep the total length of the activity array to ACTIVITY_WINDOW_HOURS
-  // (which is 28 days, or 672 hours)
+async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate, newActivityStartDate, newActivityEndDate, visitorIdType}: {dataDb: SqlClient, activityFactors: ActivityFactor[], oldActivityStartDate: Date, newActivityStartDate: Date, newActivityEndDate: Date, visitorIdType: 'userId' | 'clientId'}) {
+  // remove activityFactors with userOrClientId that is not 17 chars (userId and clientId stored verbatim from the event, which means people can insert fake values)
+  const cleanedActivityFactors = activityFactors.filter(({userOrClientId}) => userOrClientId.length === 17)
+
+  // Get the existing user IDs from the UserActivities table, required to distinguish between newly active users and existing users
   const existingUserIds = (await dataDb.any(`
     SELECT "visitorId" FROM "UserActivities" where "type" = '${visitorIdType}';
   `)).map(({ visitorId }) => visitorId);
-  const paddedStartDate = new Date(newActivityEndDate.getTime() - ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000);
+  // Go back to the start of the activity window, up to a maximum of ACTIVITY_WINDOW_HOURS in the past
+  const paddedStartDate = max([oldActivityStartDate, new Date(newActivityEndDate.getTime() - (ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000))]) ?? oldActivityStartDate;
   
-  // First case: Add rows for users who are newly active (zero padding the end)
-  // Get all the existing users or clients in the UserActivities table
+  // First case: Add rows for users who are newly active (zero padding the end as necessary)
 
   // Prepare the new user data to be inserted in the UserActivities table
-  const newUsersData = activityFactors
-    .filter(({ user_or_client_id }) => !existingUserIds.includes(user_or_client_id))
-    .map(({ user_or_client_id, activity_array }) => {
-      const paddedArray = [...activity_array, ...Array(ACTIVITY_WINDOW_HOURS - activity_array.length).fill(0)];
-      return { user_or_client_id, paddedArray };
+  const newUsersData = cleanedActivityFactors
+    .filter(({ userOrClientId }) => !existingUserIds.includes(userOrClientId))
+    .map(({ userOrClientId, activityArray: activity_array }) => {
+      // paddedArray should be [...activity_array], plus zero padding going back to paddedStartDate:
+      const zeroPaddingLength = Math.floor((newActivityEndDate.getTime() - paddedStartDate.getTime()) / (60 * 60 * 1000)) - activity_array.length
+      const zeroPadding = Array(zeroPaddingLength).fill(0);
+      const paddedArray = [...activity_array, ...zeroPadding];
+      return { userOrClientId, paddedArray };
     });
 
   // Insert the new user data in a single query
   if (newUsersData.length > 0) {
-    const placeholders = newUsersData.map((_, index) => `($${index * 5 + 1}, $${index * 5 + 2}, $${index * 5 + 3}, $${index * 5 + 4}, $${index * 5 + 5}, '${visitorIdType}')`).join(', ');
+    console.log(`Inserting ${newUsersData.length} new rows into UserActivities table`)
+    // if (newUsersData.some(({ userOrClientId, paddedArray }) => userOrClientId.length > 27)) {
+    //   console.error('User ID or client ID is too long. This will cause an error when inserting into the database. Skipping this step.')
+    // }
+    const placeholders = newUsersData.map((_, index) => `($${(index * 5) + 1}, $${(index * 5) + 2}, $${(index * 5) + 3}, $${(index * 5) + 4}, $${(index * 5) + 5}, '${visitorIdType}')`).join(', ');
     const insertQuery = `
       INSERT INTO "UserActivities" ("_id", "visitorId", "activityArray", "startDate", "endDate", "type")
       VALUES ${placeholders}
     `;
-    const queryParams = newUsersData.flatMap(({ user_or_client_id, paddedArray }) => {
-      return [randomId(), user_or_client_id, paddedArray, paddedStartDate.toISOString(), newActivityEndDate.toISOString()];
+    const queryParams = newUsersData.flatMap(({ userOrClientId, paddedArray }) => {
+      return [randomId(), userOrClientId, paddedArray, paddedStartDate.toISOString(), newActivityEndDate.toISOString()];
     });
     await dataDb.none(insertQuery, queryParams);
   }
 
-  
-  // Second case: Append the new activity to users' rows who were previously active
-  const existingUsersData = activityFactors.filter(({ user_or_client_id }) => existingUserIds.includes(user_or_client_id));
+  // Second case: Append the new activity to users' rows who were previously active.
+  // Note the truncation ([:${ACTIVITY_WINDOW_HOURS}]) to ensure that the array of activity is the correct length
+  const existingUsersData = cleanedActivityFactors.filter(({ userOrClientId }) => existingUserIds.includes(userOrClientId));
   if (existingUsersData.length > 0) {
-    const tempTableValues = existingUsersData.map(({ user_or_client_id, activity_array }) => `('${user_or_client_id}', ARRAY[${activity_array.join(', ')}])`).join(', ');
+    const tempTableValues = existingUsersData.map(({ userOrClientId, activityArray: activity_array }) => `('${userOrClientId}', ARRAY[${activity_array.join(', ')}])`).join(', ');
     const updateQuery = `
       WITH new_activity AS (
         SELECT * FROM (VALUES ${tempTableValues}) AS t(user_id, activity_array)
@@ -227,16 +151,15 @@ async function concatNewActivity(dataDb: SqlClient, activityFactors: ActivityFac
     await dataDb.none(updateQuery, [paddedStartDate.toISOString(), newActivityEndDate.toISOString()]);
   }
 
-  // Third case: Add zeros for the relevant number of hours to start of the rows
-  // for users who were previously active but have no new activity (i.e. they
-  // have existing rows in the table)
-  const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ user_or_client_id }) => user_or_client_id === id));
+  // Third case: Zero-pad the start of rows for users who were previously active but have no new activity
+  // (i.e. they have existing rows in the table but have not been active since we last updated the table)
+  const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ userOrClientId }) => userOrClientId === id));
   if (inactiveExistingUserIds.length > 0) {
     const newActivityHours = Math.ceil((newActivityEndDate.getTime() - newActivityStartDate.getTime()) / (1000 * 60 * 60));
     const updateQuery = `
       UPDATE "UserActivities"
       SET
-        "activityArray" = (array_cat(ARRAY[${Array(newActivityHours).fill(0).join(', ')}], "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
+        "activityArray" = (array_cat(ARRAY[${Array(newActivityHours).fill(0).join(', ')}]::double precision[], "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
         "startDate" = $1,
         "endDate" = $2
       WHERE
@@ -258,36 +181,75 @@ async function concatNewActivity(dataDb: SqlClient, activityFactors: ActivityFac
   await dataDb.none(deleteQuery);
 }
 
-async function updateUserActivities() {
-  // update the "unadjusted activity arrays of all users"
-  // unfortunately this will probably require pulling out every row
-  
-  // get prod db connection
+/**
+ * Update the UserActivities table with the latest activity data from the analytics database
+ */
+export async function updateUserActivities(props?: {startDate?: Date, endDate?: Date}) {
   const dataDb = await getSqlClientOrThrow();
-  const analyticsDb = await getAnalyticsConnection();
-  if (!dataDb || !analyticsDb) {
+  if (!dataDb) {
     throw new Error("updateUserActivities: couldn't get database connection");
   };
 
-  // keep all users in sync
   await assertTableIntegrity(dataDb);
+  // TODO rename startDate and endDate to be clearer
+  const { oldStartDate, startDate, endDate } = {...(await getStartEndDate(dataDb)), ...props};
 
-  const { startDate, endDate } = await getStartEndDate(dataDb);
-  const activityFactors = await getUserActivityFactors(analyticsDb, startDate, endDate);
+  // Get the most recent activity data from the analytics database
+  const activityFactors = await getUserActivityFactors(startDate, endDate);
   
   // eslint-disable-next-line no-console
   console.log(`Updating user activity for ${activityFactors.length} users between ${startDate} and ${endDate}`);
-  // TODO split into the two cases here, , and kill rows that have no activity in the past 28 days
+
   const userActivityFactors = activityFactors
     .filter(factor => {
-      return factor.user_or_client_id.startsWith('u:');
+      return factor.userOrClientId?.startsWith('u:');
     })
-    .map(factor => ({...factor, user_or_client_id: factor.user_or_client_id.slice(2)}));
+    .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
   const clientActivityFactors = activityFactors
-    .filter(factor => factor.user_or_client_id.startsWith('c:'))
-    .map(factor => ({...factor, user_or_client_id: factor.user_or_client_id.slice(2)}));
-  await concatNewActivity(dataDb, userActivityFactors, startDate, endDate, 'userId');
-  await concatNewActivity(dataDb, clientActivityFactors, startDate, endDate, 'clientId');
+    .filter(factor => factor.userOrClientId?.startsWith('c:'))
+    .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
+
+  // Update the UserActivities table with the new activity data
+  await concatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
+  await concatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
+}
+
+export async function backfillUserActivities() {
+  const dataDb = await getSqlClientOrThrow();
+  if (!dataDb) {
+    throw new Error("updateUserActivities: couldn't get database connection");
+  };
+
+  // Clear the current data in the UserActivities collection
+  // If we do this while this is live it means there will be a period of time where everyone
+  // is considered to be inactive. We're not planning to run this while the activity factor logic is
+  // live, and this wouldn't be that bad anyway.
+  await dataDb.none(`DELETE FROM "UserActivities";`);
+
+  // Get the current date and time (rounded down to the hour)
+  const now = new Date();
+  now.setMinutes(0);
+  now.setSeconds(0);
+  now.setMilliseconds(0);
+
+  // Calculate the starting date for the backfill (ACTIVITY_WINDOW_HOURS ago)
+  const startDate = new Date(now);
+  startDate.setHours(startDate.getHours() - ACTIVITY_WINDOW_HOURS);
+
+  // Loop over the range of dates in 1-day increments
+  let loopCounter = 0;
+  for (let currentDate = startDate; currentDate <= now; currentDate.setHours(currentDate.getHours() + 24)) {
+    const endDate = new Date(currentDate);
+    endDate.setHours(endDate.getHours() + 24);
+
+    // Update the UserActivities table with the activity data for the current date range
+    await updateUserActivities({ startDate: currentDate, endDate });
+
+    // loopCounter++;
+    // if (loopCounter % 10 === 0) { // Log progress every 10 loops
+    //   console.log(`Backfill progress: ${currentDate} to ${endDate}`);
+    // }
+  }
 }
 
 addCronJob({
@@ -299,3 +261,4 @@ addCronJob({
 });
 
 Vulcan.updateUserActivities = updateUserActivities;
+Vulcan.backfillUserActivities = backfillUserActivities;
