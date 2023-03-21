@@ -23,10 +23,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     // not sure if this is best way to do this
     '&&': {
       fontSize: "1.2rem",
-      color: isEAForum ? theme.palette.primary.main : theme.palette.icon.dim4,
+      color: theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
+  },
+  curatedIcon: {
+    fontSize: "1.2rem",
+    color: isEAForum ? theme.palette.primary.main : theme.palette.icon.dim4,
+    position: "relative",
+    top: isEAForum ? 2 : 3,
   },
   question: {
     fontSize: "1.2rem",
@@ -59,7 +65,7 @@ export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
-          <ForumIcon icon="Star" className={classes.icon}/>
+          <ForumIcon icon="Star" className={classes.curatedIcon}/>
         </Link>
       </LWTooltip>
     </span>
@@ -77,8 +83,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
 
   return <span className={classes.iconSet}>
-    {post.curatedDate && !hideCuratedIcon && 
-      <CuratedIcon/>}
+    {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}
     
     {post.question && <span className={classes.postIcon}>
       <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">

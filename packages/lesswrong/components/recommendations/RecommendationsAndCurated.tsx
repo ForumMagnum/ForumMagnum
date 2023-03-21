@@ -6,13 +6,13 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  section: {
+  section: isEAForum ? {} : {
     marginTop: -12,
   },
   continueReadingList: {

@@ -7,7 +7,11 @@ import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
-
+  readMoreLink: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 600
+  }
 })
 
 const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
@@ -30,13 +34,12 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="communityPosts">
       <SingleColumnSection>
-        <SectionTitle title="Posts tagged community"></SectionTitle>
-          <AnalyticsContext listContext={"communityPosts"}>
-            <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-            <SectionFooter>
-              <Link to={"/topics/community"}>Read more</Link>
-            </SectionFooter>
-          </AnalyticsContext>
+        <SectionTitle title="Posts tagged community">
+          <Link to="/topics/community" className={classes.readMoreLink}>View more</Link>
+        </SectionTitle>
+        <AnalyticsContext listContext={"communityPosts"}>
+          <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
+        </AnalyticsContext>
       </SingleColumnSection>
     </AnalyticsContext>
   )
