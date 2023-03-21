@@ -24,6 +24,7 @@ export interface CommentWithRepliesProps {
   initialMaxChildren?: number;
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
+  className?: string;
   classes: ClassesType;
 }
 
@@ -34,6 +35,7 @@ const CommentWithReplies = ({
   initialMaxChildren = 3,
   commentNodeProps,
   startExpanded,
+  className,
   classes,
 }: CommentWithRepliesProps) => {
   const { hash: focusCommentId } = useLocation();
@@ -53,7 +55,7 @@ const CommentWithReplies = ({
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,
-    post,
+    post: post ?? comment.post ?? undefined,
     noHash: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
@@ -89,6 +91,7 @@ const CommentWithReplies = ({
       expandByDefault={startExpanded}
       {...commentNodeProps}
       treeOptions={treeOptions}
+      className={className}
     />
   );
 };
@@ -105,4 +108,3 @@ declare global {
     CommentWithReplies: typeof CommentWithRepliesComponent;
   }
 }
-

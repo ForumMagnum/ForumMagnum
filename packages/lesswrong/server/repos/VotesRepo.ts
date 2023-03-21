@@ -98,4 +98,12 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         "authorIds" @> ARRAY["userId"]
     `, [tagRevisionIds]);
   }
+
+  transferVotesTargetingUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      UPDATE "Votes"
+      SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
+      WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
+    `, [oldUserId, newUserId]);
+  }
 }

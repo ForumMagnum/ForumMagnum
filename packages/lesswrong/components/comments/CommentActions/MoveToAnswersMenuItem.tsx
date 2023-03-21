@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
@@ -14,6 +13,8 @@ const MoveToAnswersMenuItem = ({comment, post}: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const client = useApolloClient();
+  const { MenuItem } = Components;
+
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
     fragmentName: "CommentsList",

@@ -15,6 +15,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -43,6 +44,10 @@ export const getAdminTeamAccount = async () => {
   return account;
 }
 
+/**
+ * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
+ */
+export const noDeletionPmReason = 'Requested account deletion';
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
   if (comment.shortform && !comment.postId) {
@@ -207,7 +212,13 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 });
 
 export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
-  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
+  const commentDeletedByAnotherUser =
+    (!comment.deletedByUserId || comment.deletedByUserId !== comment.userId)
+    && comment.deleted
+    && comment.contents?.html;
+
+  const noPmDeletionReason = comment.deletedReason === noDeletionPmReason;
+  if (commentDeletedByAnotherUser && !noPmDeletionReason) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
@@ -273,8 +284,10 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       validate: false
     })
 
-    // eslint-disable-next-line no-console
-    console.log("Sent moderation messages for comment", comment)
+    if (!isAnyTest) {
+      // eslint-disable-next-line no-console
+      console.log("Sent moderation messages for comment", comment._id)
+    }
   }
 }
 

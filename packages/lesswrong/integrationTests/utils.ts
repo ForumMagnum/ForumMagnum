@@ -1,4 +1,4 @@
-import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
+import { createMutator, runQuery, setOnGraphQLError, waitUntilCallbacksFinished } from '../server/vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -194,7 +194,8 @@ export const createDummyUser = async (data?: any) => {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
     reviewedByUserId: "fakeuserid", // TODO: make this user_id correspond to something real that would hold up if we had proper validation
-    previousDisplayName: randomId()
+    previousDisplayName: randomId(),
+    acceptedTos: true,
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await createMutator({
@@ -398,8 +399,10 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       }
     }
   `;
-  const response = runQuery(query,{},{currentUser:user})
-  await (response as any).should.be.rejected;
+  await withNoLogs(async () => {
+    const response = runQuery(query,{},{currentUser:user})
+    await (response as any).should.be.rejected;
+  });
 }
 
 export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue, fragment}: any) => {
@@ -427,4 +430,19 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const response = runQuery(query,{},{currentUser:user})
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
+}
+
+/**
+ * Please don't use this unless the test is actually expecting an error
+ */
+export const withNoLogs = async (fn: () => Promise<void>) => {
+  const {log, warn, error, info} = console;
+  //eslint-disable-next-line no-console
+  console.log = console.warn = console.error = console.info = () => {}
+  await fn();
+  await waitUntilCallbacksFinished();
+  console.log = log; //eslint-disable-line no-console
+  console.warn = warn; //eslint-disable-line no-console
+  console.error = error; //eslint-disable-line no-console
+  console.info = info; //eslint-disable-line no-console
 }

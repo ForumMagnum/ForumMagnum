@@ -343,8 +343,8 @@ const SearchPageTabbed = ({classes}:{
           defaultRefinement={true}
         />}
         {tab === 'Tags' && <ToggleRefinement
-          attribute="isSubforum"
-          label="Has subforum"
+          attribute="core"
+          label="Core topic"
           value={true}
         />}
         <ClearRefinements />

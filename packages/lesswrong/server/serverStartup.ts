@@ -2,7 +2,7 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
@@ -21,20 +21,11 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
+import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
+import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
-
-const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
-    // eslint-disable-next-line no-console
-    const originalFn = console[functionName];
-    // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
-    }
-  }
-}
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;
@@ -42,6 +33,7 @@ const initConsole = () => {
   const blue = isTTY ? `${CSI}34m` : "";
   const endBlue = isTTY ? `${CSI}39m` : "";
 
+  filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
     process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
@@ -109,8 +101,10 @@ const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-const initPostgres = () => {
+const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
+
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {
@@ -122,11 +116,13 @@ const initPostgres = () => {
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
+  const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      collection.startPolling();
+      polls.push(collection.startPolling());
     }
   }
+  await Promise.all(polls);
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
@@ -160,7 +156,7 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
-  initPostgres();
+  await initPostgres();
   return args;
 }
 

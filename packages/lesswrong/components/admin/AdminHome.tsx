@@ -5,7 +5,6 @@ import { LWEvents } from '../../lib/collections/lwevents';
 import { Users } from '../../lib/collections/users/collection';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 
@@ -173,6 +172,7 @@ const AdminHome = ({ classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const [allUsersValue, setAllUsersValue] = useState<any>(0);
+  const { MenuItem } = Components;
   
   if (!userIsAdmin(currentUser)) {
     return (

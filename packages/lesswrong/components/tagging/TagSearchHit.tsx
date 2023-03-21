@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
+import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,10 +31,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
+const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
   hit: any,
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
+  isVotingContext?: boolean,
   classes: ClassesType,
 }) => {
   const { PopperCard, TagPreview, Loading } = Components;
@@ -43,6 +46,14 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, classes}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
   const {eventHandlers, hover, anchorEl} = useHover();
+  const currentUser = useCurrentUser();
+
+  // Some tags are only allowed to be voted on by certain users, ex. mods & admins
+  // - in these cases, other users should not be able to find them via search.
+  // However, users should still be able to find them in standard search, ex. frontpage filters.
+  if (isVotingContext && shouldHideTagForVoting(currentUser, tag ?? hit)) {
+    return null;
+  }
 
   return (
     <span {...eventHandlers}>

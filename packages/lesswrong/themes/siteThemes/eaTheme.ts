@@ -300,7 +300,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             top: 77,
           },
         },
-        AllTagsPage: {
+        EAAllTagsPage: {
           portal: {
             background: palette.grey[0],
             marginTop: 'unset',

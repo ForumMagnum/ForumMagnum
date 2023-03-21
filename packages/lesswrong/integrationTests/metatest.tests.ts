@@ -13,7 +13,7 @@ describe('Utils', () => {
     });
     it("user is in no groups by default", async () => {
       const user = await createDummyUser();
-      (Object.keys(user) as any).should.not.include('groups')
+      expect(user.groups).toBe(null);
     });
     it("user can be added to a group", async () => {
       const testGroups = ['randomGroupName']

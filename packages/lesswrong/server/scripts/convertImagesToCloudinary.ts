@@ -9,11 +9,13 @@ import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -46,13 +48,23 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     }
   );
   logger(`Result of moving image: ${result.secure_url}`);
+
+  // Serve all images with automatic quality and format transformations to save on bandwidth
+  const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    quality: 'auto',
+    fetch_format: 'auto',
+    secure: true
+  });
   
   await Images.rawInsert({
     originalUrl: oldUrl,
-    cdnHostedUrl: result.secure_url,
+    cdnHostedUrl: autoQualityFormatUrl,
   });
   
-  return result.secure_url;
+  return autoQualityFormatUrl;
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.
@@ -84,8 +96,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(html, null, false);
+  const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
   
@@ -195,8 +206,10 @@ export async function convertImagesInObject(
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
-      // eslint-disable-next-line no-console
-      console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      if (!isAnyTest) {
+        // eslint-disable-next-line no-console
+        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      }
       return 0;
     }
     
@@ -204,7 +217,10 @@ export async function convertImagesInObject(
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
-    const oldHtml = obj[fieldName].html;
+    const oldHtml = obj?.[fieldName]?.html;
+    if (!oldHtml) {
+      return 0;
+    }
     const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
     if (!uploadCount) {
       logger("No images to convert.");

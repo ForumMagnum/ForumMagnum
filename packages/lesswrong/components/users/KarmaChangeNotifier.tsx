@@ -11,7 +11,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import MenuItem from '@material-ui/core/MenuItem';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
@@ -134,6 +133,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: React.MouseEvent)=>any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
+  const { MenuItemLink, Typography } = Components;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
@@ -141,13 +141,8 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
     || (tagRevisions && (tagRevisions.length > 0))
   )
   
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
-  
   return (
-    <Components.Typography variant="body2">
+    <Typography variant="body2">
       {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
         :
@@ -155,34 +150,38 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
             {karmaChanges.posts && karmaChanges.posts.map(postChange => (
-              <MenuItemUntyped
+              <MenuItemLink
                 className={classes.votedItemRow}
-                component={Link} to={postGetPageUrl(postChange)} key={postChange._id} >
+                to={postGetPageUrl(postChange)}
+                key={postChange._id}
+              >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
                 </div>
-                </MenuItemUntyped>
+              </MenuItemLink>
             ))}
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
-              <MenuItemUntyped className={classes.votedItemRow}
+              <MenuItemLink
+                className={classes.votedItemRow}
                 // tagCommentType is given a String type in packages/lesswrong/lib/collections/users/karmaChangesGraphQL.ts because we couldn't get an inline union of literal types to work,
                 // but actually we know it will always be a TagCommentType because the db schema constrains it
-                component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
-                >
+                to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
+              >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
-              </MenuItemUntyped>
+              </MenuItemLink>
             ))}
             {karmaChanges.tagRevisions.map(tagChange => (
-              <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} key={tagChange._id}
+              <MenuItemLink
+                className={classes.votedItemRow}
+                key={tagChange._id}
                 to={`${tagGetHistoryUrl({slug: tagChange.tagSlug})}?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
@@ -191,7 +190,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 <div className={classes.votedItemDescription}>
                   {tagChange.tagName}
                 </div>
-              </MenuItemUntyped>
+              </MenuItemLink>
             ))}
           </div>
         </div>
@@ -199,7 +198,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
       <Link to={`/account`} onClick={handleClose}>
         <span className={classes.settings}>Change Settings </span>
       </Link>
-    </Components.Typography>
+    </Typography>
   );
 }
 

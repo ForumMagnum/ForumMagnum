@@ -1,6 +1,5 @@
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Bookmark from '@material-ui/icons/Bookmark'
 import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
@@ -67,7 +66,7 @@ const BookmarkButton = ({classes, post, variant='icon', placement="right"}: {
     });
   };
 
-  const { LWTooltip } = Components
+  const { LWTooltip, MenuItem } = Components
 
   const toggleBookmark = (event: React.MouseEvent) => {
     if (!currentUser) {

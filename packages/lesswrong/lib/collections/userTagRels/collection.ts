@@ -59,7 +59,7 @@ const schema: SchemaType<DbUserTagRel> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    label: "Don't show the intro post at the top of the subforum feed",
+    label: "Don't show the intro post at the top of topic feeds",
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],

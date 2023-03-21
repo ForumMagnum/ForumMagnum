@@ -1,16 +1,30 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const SuggestCurated = ({post}: {
+const styles = (theme: ThemeType): JssStyles => ({
+  sideMessage: {
+    position: "absolute",
+    right: 12,
+    top: 12,
+    color: theme.palette.text.dim40,
+    
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    }
+  },
+});
+
+const SuggestCurated = ({post, classes}: {
   post: PostsBase,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { MenuItem } = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -41,12 +55,28 @@ const SuggestCurated = ({post}: {
     })
   }
 
-  if (post?.frontpageDate &&
-      !post.curatedDate &&
-      !post.reviewForCuratedUserId &&
-      forumTypeSetting.get() !== 'AlignmentForum' &&
-      (userCanDo(currentUser, "posts.moderate.all") || 
-      userIsMemberOf(currentUser, 'canSuggestCuration')))
+  if (!userCanDo(currentUser, "posts.moderate.all")
+    && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
+    return null;
+  }
+  if (forumTypeSetting.get() === 'AlignmentForum') {
+    return null;
+  }
+  
+  if (!(post?.frontpageDate)) {
+    return <div className="posts-page-suggest-curated">
+      <div>
+        <MenuItem disabled>
+          Suggest Curation
+          <div className={classes.sideMessage}>
+            Must be frontpage
+          </div>
+        </MenuItem>
+      </div>
+    </div>
+  }
+
+  if (!post.curatedDate && !post.reviewForCuratedUserId)
   {
     return <div className="posts-page-suggest-curated">
       { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
@@ -67,7 +97,7 @@ const SuggestCurated = ({post}: {
   }
 }
 
-const SuggestCuratedComponent = registerComponent('SuggestCurated', SuggestCurated);
+const SuggestCuratedComponent = registerComponent('SuggestCurated', SuggestCurated, {styles});
 
 declare global {
   interface ComponentTypes {

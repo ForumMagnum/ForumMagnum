@@ -4,7 +4,8 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
@@ -46,7 +47,8 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
-    canRead: ['guests'],
+    // Hide who applied the tag on the EA Forum
+    canRead: isEAForum ? [userOwns, 'sunshineRegiment', 'admins'] : ['guests'],
     canCreate: ['members'],
   },
 
@@ -59,13 +61,20 @@ const schema: SchemaType<DbTagRel> = {
       return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
-  
   autoApplied: {
     type: Boolean,
     viewableBy: ['guests'],
     optional: true, hidden: true,
     // Implementation in tagResolvers.ts
   },
+  // Indicates that a tagRel was applied via the script backfillParentTags.ts
+  backfilled: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export const TagRels: TagRelsCollection = createCollection({
