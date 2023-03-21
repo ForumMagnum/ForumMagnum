@@ -97,8 +97,8 @@ const getTitle = (
 
   if (isEAForum) {
     const result = size === 'smUp'
-      ? startDate.format('ddd, Do MMM YYYY')
-      : startDate.format('dddd, Do MMMM YYYY');
+      ? startDate.format('ddd, D MMM YYYY')
+      : startDate.format('dddd, D MMMM YYYY');
     if (timeframe === 'weekly') {
       return `Week of ${result}`;
     }
