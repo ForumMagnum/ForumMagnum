@@ -160,9 +160,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: isEAForum
-    ? {fontSize: 12}
-    : {},
+  pinnedIcon: {
+    fontSize: 12
+  },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
