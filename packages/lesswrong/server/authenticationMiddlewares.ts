@@ -378,7 +378,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
   if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
-    passport.use(new Auth0Strategy(
+    const auth0Strategy: any = new Auth0Strategy(
       {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
@@ -386,7 +386,26 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
       createOAuthUserHandlerAuth0('services.auth0', profile => profile.id, userFromAuth0Profile)
-    ));
+    )
+    passport.use(auth0Strategy)
+
+    const userHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+
+    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
+      // The user is already authenticated, via the access token. They just need to be given a cookie.
+      const accessToken = req.query['access_token']
+      const resumeToken = "" // not used
+      const info = null // not used
+      auth0Strategy.userProfile(accessToken, (err, profile) => {
+        if(profile) {
+          userHandler(accessToken, resumeToken, profile, (err, user) => {
+            handleAuthenticate(req, res, next, err, user, info)
+          })
+        } else {
+          return next("Invalid token")
+        }
+      })
+    })
   }
 
   addConnectHandler('/auth/google/callback', (req, res, next) => {
