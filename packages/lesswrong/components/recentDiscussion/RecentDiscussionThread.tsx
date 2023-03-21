@@ -111,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
     fontSize: "1.75rem",
     ...(isEAForum ? {
-      fontSize: 18,
+      fontSize: 22,
       fontWeight: 600,
       lineHeight: 1.25,
       fontFamily: theme.palette.fonts.sansSerifStack,
