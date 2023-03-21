@@ -279,12 +279,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             backgroundColor: palette.grey[200],
           }
         },
-        TabNavigationMenu: {
-          divider: {
-            marginTop: 10,
-            marginBottom: 20,
-          }
-        },
         TabNavigationItem: {
           navButton: {
             paddingTop: 10,
@@ -293,9 +287,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           icon: {
             opacity: 1,
           },
-          navText: {
-            color: palette.grey[800]
-          }
         },
         TabNavigationFooterItem: {
           selected: {
@@ -305,11 +296,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         TabNavigationCompressedItem: {
           icon: {
             opacity: 1
-          }
-        },
-        TabNavigationMenuSubItem: {
-          root: {
-            color: palette.grey[800]
           }
         },
         PostsPageTitle: {
