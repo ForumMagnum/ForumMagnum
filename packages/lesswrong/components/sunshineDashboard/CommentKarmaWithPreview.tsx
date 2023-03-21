@@ -14,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 600
   },
   deleted: {
-    color: theme.palette.grey[400]
+    opacity: .6,
+    '&&': {
+      fontWeight: 400
+    }
   },
   default: {
     color: theme.palette.grey[900],
