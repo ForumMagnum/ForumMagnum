@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: isEAForum ? 28 : "auto",
+    width: isEAForum ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
