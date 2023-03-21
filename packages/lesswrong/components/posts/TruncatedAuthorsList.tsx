@@ -46,7 +46,7 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
  * be mounted.
  *
  * The general idea is that react renders all the names into a separate "scratch"
- * div which has display: none. This function then looks at how much space we
+ * div which has opacity: 0. This function then looks at how much space we
  * have to play with and the size of each name, and moves as many names as
  * possible from the "scratch" div into the actual visible div.
  *
