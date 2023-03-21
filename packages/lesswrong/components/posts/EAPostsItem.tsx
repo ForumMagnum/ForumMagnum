@@ -192,6 +192,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     onArchive,
     resumeReading,
     strikethroughTitle,
+    curatedIconLeft,
     isRead,
     showReadCheckbox,
     tooltipPlacement,
@@ -269,12 +270,11 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                   showDraftTag,
                   showPersonalIcon,
                   strikethroughTitle,
+                  curatedIconLeft,
                 }}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                curatedIconLeft={false}
-                iconsOnLeft
                 wrap
                 className={classes.title}
               />
