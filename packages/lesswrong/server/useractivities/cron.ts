@@ -1,4 +1,4 @@
-import { max, some } from 'lodash/fp';
+import { chunk, max, some } from 'lodash/fp';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
@@ -6,6 +6,14 @@ import { Vulcan } from '../vulcan-lib';
 import { ActivityFactor, getUserActivityFactors } from './getUserActivityFactors';
 
 const ACTIVITY_WINDOW_HOURS = 28 * 24;
+
+function chunkArray<T>(array: T[], chunkSize: number): T[][] {
+  const results: T[][] = [];
+  while (array.length) {
+    results.push(array.splice(0, chunkSize));
+  }
+  return results;
+}
 
 /**
  * Assert that all the activityArrays in the UserActivities table are the correct (and identical) length,
@@ -79,6 +87,15 @@ async function getStartEndDate(dataDb: SqlClient) {
   };
 }
 
+interface ConcatNewActivityParams {
+  dataDb: SqlClient;
+  activityFactors: ActivityFactor[];
+  oldActivityStartDate: Date;
+  newActivityStartDate: Date;
+  newActivityEndDate: Date;
+  visitorIdType: 'userId' | 'clientId';
+}
+
 /**
  * Update UserActivities table with new activity data
  *
@@ -88,7 +105,7 @@ async function getStartEndDate(dataDb: SqlClient) {
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
  */
-async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate, newActivityStartDate, newActivityEndDate, visitorIdType}: {dataDb: SqlClient, activityFactors: ActivityFactor[], oldActivityStartDate: Date, newActivityStartDate: Date, newActivityEndDate: Date, visitorIdType: 'userId' | 'clientId'}) {
+async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate, newActivityStartDate, newActivityEndDate, visitorIdType}: ConcatNewActivityParams) {
   // remove activityFactors with userOrClientId that is not 17 chars (userId and clientId stored verbatim from the event, which means people can insert fake values)
   const cleanedActivityFactors = activityFactors.filter(({userOrClientId}) => userOrClientId.length === 17)
 
@@ -182,6 +199,19 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
 }
 
 /**
+ * Wrapper around concatNewActivity that batches the activityFactors array into smaller chunks,
+ * to avoid hitting the query parameter limit (~10000)
+ */
+async function batchedConcatNewActivity({activityFactors, ...otherProps}: ConcatNewActivityParams) {
+  const batchSize = 1000;
+  const batches = chunk(batchSize, activityFactors);
+  
+  for (const batch of batches) {
+    await concatNewActivity({activityFactors: batch, ...otherProps});
+  }
+}
+
+/**
  * Update the UserActivities table with the latest activity data from the analytics database
  */
 export async function updateUserActivities(props?: {startDate?: Date, endDate?: Date}) {
@@ -210,8 +240,8 @@ export async function updateUserActivities(props?: {startDate?: Date, endDate?: 
     .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
 
   // Update the UserActivities table with the new activity data
-  await concatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
-  await concatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
+  await batchedConcatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
+  await batchedConcatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
 }
 
 export async function backfillUserActivities() {
@@ -237,18 +267,12 @@ export async function backfillUserActivities() {
   startDate.setHours(startDate.getHours() - ACTIVITY_WINDOW_HOURS);
 
   // Loop over the range of dates in 1-day increments
-  let loopCounter = 0;
   for (let currentDate = startDate; currentDate <= now; currentDate.setHours(currentDate.getHours() + 24)) {
     const endDate = new Date(currentDate);
     endDate.setHours(endDate.getHours() + 24);
 
     // Update the UserActivities table with the activity data for the current date range
     await updateUserActivities({ startDate: currentDate, endDate });
-
-    // loopCounter++;
-    // if (loopCounter % 10 === 0) { // Log progress every 10 loops
-    //   console.log(`Backfill progress: ${currentDate} to ${endDate}`);
-    // }
   }
 }
 
