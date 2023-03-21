@@ -3,7 +3,6 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
-import { HashLink } from "../common/HashLink";
 import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
@@ -20,24 +19,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   readCheckbox: {
     minWidth: 24,
   },
-  container: {
-    position: "relative",
-    flexGrow: 1,
-    maxWidth: "100%",
+  expandedCommentsWrapper: {
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
+    minWidth: "100%",
+    maxWidth: "100%",
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
-    padding: `8px 12px 8px 0`,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 500,
-    fontSize: 13,
-    color: theme.palette.grey[600],
-    cursor: "pointer",
-    [theme.breakpoints.down("xs")]: {
-      paddingRight: 12,
-    },
     "&:hover": {
       background: theme.palette.grey[50],
       border: `1px solid ${theme.palette.grey[250]}`,
@@ -47,6 +36,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     "&:hover .PostsItemTrailingButtons-archiveButton": {
       opacity: 0.2,
+    },
+  },
+  container: {
+    position: "relative",
+    flexGrow: 1,
+    maxWidth: "100%",
+    display: "flex",
+    alignItems: "center",
+    padding: `8px 12px 8px 0`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    [theme.breakpoints.down("xs")]: {
+      paddingRight: 12,
     },
   },
   karma: {
@@ -73,16 +78,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 2,
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
+    [theme.breakpoints.up("sm")]: {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "block",
+      maxWidth: "100%",
+    },
     [theme.breakpoints.down("xs")]: {
+      display: "-webkit-box",
+      "-webkit-box-orient": "vertical",
       "-webkit-line-clamp": 3,
     },
-  },
-  titleOverflow: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
   },
   meta: {
     display: "flex",
@@ -126,6 +133,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: 18,
       marginRight: 1,
     },
+    "&:hover": {
+      color: theme.palette.grey[800],
+      opacity: 1,
+    },
   },
   newComments: {
     fontWeight: 700,
@@ -152,6 +163,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  expandedComments: {
+    padding: "0 12px 8px",
+  },
 });
 
 export type EAPostsListProps = PostsItemConfig & {
@@ -163,7 +177,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     post,
     postLink,
     tagRel,
-    commentsLink,
     commentCount,
     hasUnreadComments,
     primaryTag,
@@ -182,26 +195,35 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
     isRead,
     showReadCheckbox,
     tooltipPlacement,
+    toggleComments,
+    renderComments,
+    commentTerms,
+    condensedAndHiddenComments,
+    isRepeated,
     analyticsProps,
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
 
+  if (isRepeated) {
+    return null;
+  }
+
   const {
     PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
-    PostsItemTrailingButtons, PostReadCheckbox,
+    PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
 
   const SecondaryInfo = () => (
     <>
-      <HashLink to={commentsLink} className={classNames(
+      <a onClick={toggleComments} className={classNames(
         classes.comments,
         {[classes.newComments]: hasUnreadComments},
       )}>
         <ForumIcon icon="Comment" />
         {commentCount}
-      </HashLink>
+      </a>
       <div className={classes.bookmark}>
         <a> {/* The `a` tag prevents clicks from navigating to the post */}
           <BookmarkButton post={post} className={classes.bookmarkIcon} />
@@ -224,84 +246,98 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
             <PostReadCheckbox post={post} width={14} />
           </div>
         }
-        <div className={classes.container} onClick={onClick}>
-          <div className={classes.karma}>
-            {tagRel
-              ? <div className={classes.tagRelWrapper}>
-                <PostsItemTagRelevance tagRel={tagRel} post={post} />
-              </div>
-              : <>
-                <div className={classes.voteArrow}>
-                  <SoftUpArrowIcon />
+        <div className={classes.expandedCommentsWrapper}>
+          <div className={classes.container} onClick={onClick}>
+            <div className={classes.karma}>
+              {tagRel
+                ? <div className={classes.tagRelWrapper}>
+                  <PostsItemTagRelevance tagRel={tagRel} post={post} />
                 </div>
-                <PostsItemKarma post={post} />
-              </>
-            }
-          </div>
-          <div className={classes.details}>
-            <PostsTitle
-              {...{
-                post,
-                sticky,
-                showDraftTag,
-                showPersonalIcon,
-                strikethroughTitle,
-              }}
-              Wrapper={TitleWrapper}
-              read={isRead && !showReadCheckbox}
-              isLink={false}
-              curatedIconLeft={false}
-              iconsOnLeft
-              wrap
-              className={classes.title}
-            />
-            <div className={classes.meta}>
-              <div className={classes.metaLeft} ref={authorExpandContainer}>
-                <TruncatedAuthorsList
-                  post={post}
-                  expandContainer={authorExpandContainer}
-                />
-                <div>
-                  {' · '}
-                  <PostsItemDate post={post} noStyles includeAgo />
-                  <span className={classes.readTime}>
-                    {' · '}{post.readTimeMinutes || 1}m read
-                  </span>
-                </div>
-                <div className={classes.audio}>
-                  {hasAudio && <ForumIcon icon="VolumeUp" />}
-                </div>
-              </div>
-              <div className={classNames(
-                classes.secondaryContainer,
-                classes.onlyMobile,
-              )}>
-                <SecondaryInfo />
-              </div>
-            </div>
-          </div>
-          <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
-            <div className={classes.tag}>
-              {primaryTag && !showReadCheckbox &&
-                <FooterTag tag={primaryTag} smallText />
+                : <>
+                  <div className={classes.voteArrow}>
+                    <SoftUpArrowIcon />
+                  </div>
+                  <PostsItemKarma post={post} />
+                </>
               }
             </div>
-            <SecondaryInfo />
+            <div className={classes.details}>
+              <PostsTitle
+                {...{
+                  post,
+                  sticky,
+                  showDraftTag,
+                  showPersonalIcon,
+                  strikethroughTitle,
+                }}
+                Wrapper={TitleWrapper}
+                read={isRead && !showReadCheckbox}
+                isLink={false}
+                curatedIconLeft={false}
+                iconsOnLeft
+                wrap
+                className={classes.title}
+              />
+              <div className={classes.meta}>
+                <div className={classes.metaLeft} ref={authorExpandContainer}>
+                  <TruncatedAuthorsList
+                    post={post}
+                    expandContainer={authorExpandContainer}
+                  />
+                  <div>
+                    {' · '}
+                    <PostsItemDate post={post} noStyles includeAgo />
+                    <span className={classes.readTime}>
+                      {' · '}{post.readTimeMinutes || 1}m read
+                    </span>
+                  </div>
+                  <div className={classes.audio}>
+                    {hasAudio && <ForumIcon icon="VolumeUp" />}
+                  </div>
+                </div>
+                <div className={classNames(
+                  classes.secondaryContainer,
+                  classes.onlyMobile,
+                )}>
+                  <SecondaryInfo />
+                </div>
+              </div>
+            </div>
+            <div className={classNames(classes.secondaryContainer, classes.hideOnMobile)}>
+              <div className={classes.tag}>
+                {primaryTag && !showReadCheckbox &&
+                  <FooterTag tag={primaryTag} smallText />
+                }
+              </div>
+              <SecondaryInfo />
+            </div>
+            <a> {/* The `a` tag prevents clicks from navigating to the post */}
+              <PostsItemTrailingButtons
+                {...{
+                  post,
+                  showTrailingButtons,
+                  showMostValuableCheckbox,
+                  showDismissButton,
+                  showArchiveButton,
+                  resumeReading,
+                  onDismiss,
+                  onArchive,
+                }}
+              />
+            </a>
           </div>
-          <a> {/* The `a` tag prevents clicks from navigating to the post */}
-            <PostsItemTrailingButtons
-              {...{
-                post,
-                showTrailingButtons,
-                showMostValuableCheckbox,
-                showDismissButton,
-                showArchiveButton,
-                resumeReading,
-                onDismiss,
-                onArchive,
-              }}
-            />
-          </a>
+          {renderComments &&
+            <div className={classes.expandedComments}>
+              <PostsItemNewCommentsWrapper
+                terms={commentTerms}
+                post={post}
+                treeOptions={{
+                  highlightDate: post.lastVisitedAt,
+                  condensed: condensedAndHiddenComments,
+                }}
+              />
+            </div>
+          }
         </div>
       </div>
     </AnalyticsContext>
