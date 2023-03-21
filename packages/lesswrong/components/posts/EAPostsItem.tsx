@@ -78,11 +78,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 2,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "block",
-    maxWidth: "100%",
+    [theme.breakpoints.up("sm")]: {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "block",
+      maxWidth: "100%",
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "-webkit-box",
+      "-webkit-box-orient": "vertical",
+      "-webkit-line-clamp": 2,
+    },
   },
   meta: {
     display: "flex",
