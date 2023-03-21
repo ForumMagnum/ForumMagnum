@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
-import LinkIcon from '@material-ui/icons/Link'
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -48,7 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip, UserTooltip, ErrorAccessDenied } = Components
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip,
+    UserTooltip, ErrorAccessDenied, ForumIcon } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
@@ -105,7 +105,7 @@ export const AdminPaymentsPage = ({classes}: {
             <TableCell className={classes.smallCell}>
               <LWTooltip title={<UserTooltip user={user}/>}>
                 <Link to={userGetProfileUrl(user)}>
-                  <LinkIcon className={classes.icon}/>
+                  <ForumIcon icon="Link" className={classes.icon}/>
                 </Link>
               </LWTooltip>
             </TableCell>

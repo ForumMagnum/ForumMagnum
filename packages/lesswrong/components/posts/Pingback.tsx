@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
-import { KARMA_WIDTH } from './PostsItem2';
+import { KARMA_WIDTH } from './LWPostsItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

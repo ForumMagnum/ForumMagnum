@@ -1,11 +1,19 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import NotesIcon from '@material-ui/icons/Notes';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  icon: {
+  icon: isEAForum ? {
+    cursor: "pointer",
+    color: theme.palette.grey[1000],
+    height: 16,
+    marginLeft: -2,
+    marginRight: 3,
+    position: "relative",
+    top: 2
+  } : {
     cursor: "pointer",
     color: theme.palette.grey[600],
     width: 13,
@@ -24,16 +32,16 @@ const CommentShortformIcon = ({comment, post, classes, simple}: {
   simple?: boolean,
 }) => {
 
-  const { LWTooltip } = Components
+  const { LWTooltip, ForumIcon } = Components
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
-  if (!comment.shortform || comment.topLevelCommentId) return null
-
-  if (simple) return <NotesIcon className={classes.icon} />
+  if (!comment.shortform || comment.topLevelCommentId || isEAForum) return null
+  
+  if (simple) return <ForumIcon icon="Shortform" className={classes.icon} />
 
   return (
     <LWTooltip title="Shortform">
       <Link to={commentGetPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
-        <NotesIcon className={classes.icon} />
+        <ForumIcon icon="Shortform" className={classes.icon} />
       </Link>
     </LWTooltip>
   )

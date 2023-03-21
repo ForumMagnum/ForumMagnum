@@ -297,7 +297,6 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
       <CommentsListCondensed
         label={"Shortforms"}
-        contentType="shortform"
         terms={{
           view: "tagSubforumComments" as const,
           tagId: tag._id,
@@ -306,6 +305,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
         initialLimit={8}
         itemsPerPage={20}
         showTotal
+        hideTag
       />
     </div>
   );
