@@ -8,7 +8,7 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
-    marginLeft: isEAForum ? undefined : theme.spacing.unit,
+    marginLeft: isEAForum ? 6 : theme.spacing.unit,
     marginRight: isEAForum ? 2 : theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   question: {
     fontSize: "1.2rem",
-    color: theme.palette.icon.dim4,
+    color: isEAForum ? theme.palette.icon.dim55 : theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -45,16 +45,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   linkIcon: {
-    color: theme.palette.icon.dim4,
     position: "relative",
     ...(isEAForum
       ? {
-        fontSize: "1rem",
+        fontSize: "1.2rem",
         top: 1,
+        color: theme.palette.icon.dim55,
       }
       : {
         fontSize: "1.2rem",
         top: 3,
+        color: theme.palette.icon.dim4,
       }),
   },
 });

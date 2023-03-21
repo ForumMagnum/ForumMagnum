@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: isEAForum ? 28 : "auto",
+    width: isEAForum ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -113,7 +113,6 @@ const PostsTitle = ({
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
-  iconsOnLeft=false,
   isLink=true, 
   curatedIconLeft=true, 
   strikethroughTitle=false,
@@ -129,7 +128,6 @@ const PostsTitle = ({
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
-  iconsOnLeft?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
@@ -146,21 +144,14 @@ const PostsTitle = ({
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
-  
-  const PrimaryIcon = postIcon(post);
-  const secondaryIcons = showIcons && <span className={classes.hideSmDown}>
-    <PostsItemIcons
-      post={post}
-      hideCuratedIcon={curatedIconLeft}
-      hidePersonalIcon={!showPersonalIcon}
-    />
-  </span>
+
+  const Icon = postIcon(post);
 
   const title = <span>
     {sticky && <span className={classes.sticky}>
       <ForumIcon icon="Pin" className={classes.stickyIcon} />
     </span>}
-    {PrimaryIcon && <PrimaryIcon className={classes.primaryIcon}/>}
+    {Icon && <Icon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
@@ -182,9 +173,10 @@ const PostsTitle = ({
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
-      {iconsOnLeft && secondaryIcons}
       {isLink ? <Link to={url}>{title}</Link> : title }
-      {!iconsOnLeft && secondaryIcons}
+      {showIcons && <span className={classes.hideSmDown}>
+        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+      </span>}
     </span>
   )
 
