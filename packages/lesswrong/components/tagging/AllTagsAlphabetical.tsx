@@ -20,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 0,
     background: theme.palette.panelBackground.default,
     padding: 20,
-    marginBottom: 24
+    marginBottom: 24,
+    borderRadius: theme.borderRadius.default,
   }
 })
 

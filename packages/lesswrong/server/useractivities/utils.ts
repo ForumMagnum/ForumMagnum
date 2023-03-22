@@ -15,6 +15,7 @@ function expandActivityInfluence(input: number[], influenceHours: number): numbe
   return output;
 }
 
+// TODO add tests for this
 export const calculateActivityFactor = (activityArray: number[] | undefined, halfLifeHours: number): number => {
   if (!activityArray) return 0; // if user has not visited recently, activity factor is 0
 

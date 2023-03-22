@@ -1,11 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metaInfo: {
     color: theme.palette.text.dim3,
-    fontSize: "1.1rem",
+    fontSize: isEAForum ? "13px" : "1.1rem",
     textAlign: "center",
     flexShrink: 0,
     flexGrow: 0,

@@ -6,12 +6,13 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -34,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryInfo: {
     fontSize: '1.4rem',
+    fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   groupLinks: {
@@ -45,6 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
@@ -53,14 +56,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
-  togglePodcastIcon: {
+  togglePodcastContainer: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: '24px'
+    height: PODCAST_ICON_SIZE,
+  },
+  togglePodcastIcon: {
+    width: PODCAST_ICON_SIZE,
+    height: PODCAST_ICON_SIZE,
   },
   actions: {
     display: 'inline-block',
@@ -151,7 +159,8 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton,
+    NewFeaturePulse, ForumIcon} = Components;
   const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -185,8 +194,6 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
-    {!post.group && !post.sequence && !post.question && <PostsPageTopTag post={post} />}
-    
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -215,15 +222,15 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
-              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
                 <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <VolumeUpIcon />
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
                 </a>
               </LWTooltip> :
               <NewFeaturePulse dx={-10} dy={4}>
-                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
                 <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <VolumeUpIcon />
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
                 </a>
                 </LWTooltip>
               </NewFeaturePulse>

@@ -34,7 +34,7 @@ const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgo
 const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5)
 const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
 const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.5)
-const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
+export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -148,8 +148,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     activityHalfLifeHours: props?.activityHalfLifeHours ?? activityHalfLifeSetting.get(),
     overrideActivityFactor: props?.overrideActivityFactor,
   };
-  
-  // TODO calculate the activity factor here as well
+
   const activityFactor = overrideActivityFactor ?? calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
 
   const { hypDecayFactor } = calculateDecayFactor({
@@ -161,10 +160,6 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
   console.log("slowest possible hypDecayFactor", decayFactorSlowest)
   console.log("fastest possible hypDecayFactor", decayFactorFastest)
   console.log("hypDecayFactor", hypDecayFactor)
-  // Half life is directly related to decay factor exp(-lambda * t) <=> exp(-(ln(2)/halfLife) * t)
-  const expDecayFactor = Math.log(2) / 1;
-  const hypWeight = 1;
-  const expWeight = 0; // TODO remove, here for legacy reasons
 
   const ageInHours = {
     $divide: [
@@ -178,23 +173,8 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     ],
   };
 
-  const exponentialTerm = { $exp:
-    // $min to prevent overflow
-    { $min: [
-      { $multiply: [expDecayFactor, ageInHours] }, 20
-    ] } };
   const hyperbolicTerm = { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
-
-  // The karma based part of the score is divided by this in view.ts, we want to end up with something like:
-  // karma-part * (expWeight / exponentialTerm + hypWeight / hyperbolicTerm)
-  // This requires some algebra here because we are dividing instead of multiplying:
-  // == karma-part / ((exponentialTerm * hyperbolicTerm) / (expWeight * hyperbolicTerm + hypWeight * exponentialTerm))
-  const numerator = { $multiply: [exponentialTerm, hyperbolicTerm] };
-  const denominator = { $add: [
-    { $multiply: [expWeight, hyperbolicTerm] },
-    { $multiply: [hypWeight, exponentialTerm] },
-  ] };
-  return { $divide: [numerator, denominator] };
+  return hyperbolicTerm;
 }
 
 // TODO rename or something

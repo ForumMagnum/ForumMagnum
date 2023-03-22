@@ -9,10 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     fontSize: 22,
     verticalAlign: '-webkit-baseline-middle',
-    fontVariant: 'small-caps',
     lineHeight: '24px',
     color: theme.palette.text.dim,
     marginTop: -10,
+    ...theme.typography.smallCaps,
   },
   serif: {
     fontFamily: theme.typography.body1.fontFamily,

@@ -97,6 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = moment().tz(timezone);
+  // TODO make this a setting, and make it 21 days for EA Forum
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {

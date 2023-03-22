@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     display: 'inline-block',
     fontWeight: 600,
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   },
   date: {
     display: 'inline-block',
