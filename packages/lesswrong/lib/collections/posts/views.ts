@@ -4,7 +4,7 @@ import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionI
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
-import { postScoreModifiers, timeDecayExpr } from '../../scoring';
+import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
@@ -65,16 +65,14 @@ declare global {
     hideCommunity?: boolean,
     distance?: number,
     audioOnly?: boolean,
-    // experimental-ish settings
-    now?: Date|string|null,
-    hypStartingAgeHours?: number
-    hypDecayFactorSlowest?: number
-    hypDecayFactorFastest?: number
-    expHalfLifeHours?: number
-    expWeight?: number
-    activityHalfLifeHours?: number
-    activityWeight?: number
-    activity?: Array<number>
+    // BEGIN overrides for parameters in the frontpageTimeDecayExpr
+    algoStartingAgeHours?: number
+    algoDecayFactorSlowest?: number
+    algoDecayFactorFastest?: number
+    algoActivityFactor?: number // Will be used in favour of activityHalfLifeHours and activityWeight if provided
+    algoActivityHalfLifeHours?: number
+    algoActivityWeight?: number
+    // END
   }
 }
 
@@ -219,10 +217,6 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
         terms.view ? ` for view ${terms.view}` : ''
       )
     }
-  }
-  // TODO rename "now" to something clearer, or just delete on prod (I would like to keep it in though)
-  if (terms.now) {
-    params.selector.postedAt = {$lte: terms.now}
   }
   if (terms.filterSettings) {
     const filterParams = filterSettingsToParams(terms.filterSettings, terms, context);
@@ -377,17 +371,15 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
           }}
         )),
       ]},
-      timeDecayExpr({
-        now: terms.now,
-        hypStartingAgeHours: terms.hypStartingAgeHours,
-        hypDecayFactorSlowest: terms.hypDecayFactorSlowest,
-        hypDecayFactorFastest: terms.hypDecayFactorFastest,
-        expHalfLifeHours: terms.expHalfLifeHours,
-        expWeight: terms.expWeight,
-        // TODO make 60 here a setting
-        activityFactor: context.visitorActivity?.activityArray ? calculateActivityFactor(context.visitorActivity?.activityArray, 60) : 0,
-        activityWeight: terms.activityWeight,
-      })
+      // TODO handle other pages using the old version (may already be handled by the filter settings thing)
+      frontpageTimeDecayExpr({
+        startingAgeHours: terms.algoStartingAgeHours,
+        decayFactorSlowest: terms.algoDecayFactorSlowest,
+        decayFactorFastest: terms.algoDecayFactorFastest,
+        activityHalfLifeHours: terms.algoActivityHalfLifeHours,
+        activityWeight: terms.algoActivityWeight,
+        overrideActivityFactor: terms.algoActivityFactor,
+      }, context)
     ]}
   }
   

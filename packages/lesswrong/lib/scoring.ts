@@ -1,4 +1,5 @@
 import sum from 'lodash/sum';
+import { calculateActivityFactor } from '../server/useractivities/utils';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
@@ -19,6 +20,7 @@ const defaultSubforumCommentBonus = {
 
 type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
 
+// LW (and legacy) time decay algorithm settings
 const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
 const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
 const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10)
@@ -26,6 +28,13 @@ const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBon
   'subforumCommentBonus',
   defaultSubforumCommentBonus,
 );
+
+// EA Frontpage time decay algorithm settings
+const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6)
+const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5)
+const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
+const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.5)
+const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -82,29 +91,26 @@ export const recalculateScore = (item: VoteableType) => {
 
 // type for timeDecayExpr props
 type TimeDecayExprProps = {
-  now?: string | Date | null,
-  hypStartingAgeHours?: number
-  hypDecayFactorSlowest?: number
-  hypDecayFactorFastest?: number
-  expHalfLifeHours?: number
-  expWeight?: number
+  startingAgeHours?: number
+  decayFactorSlowest?: number
+  decayFactorFastest?: number
   activityWeight?: number
-  activityFactor?: number
+  activityHalfLifeHours?: number
+  overrideActivityFactor?: number
 }
 
-export const defaultTimeDecayExprProps = {
-  now: null,
-  hypStartingAgeHours: SCORE_BIAS,
-  hypDecayFactorSlowest: 0.5,
-  hypDecayFactorFastest: 1.08,
-  expHalfLifeHours: 48,
-  expWeight: 0,
-  activityWeight: 0.2,
-  activityFactor: 0,
-  activityHalfLifeHours: 72,
-}
+// export const defaultTimeDecayExprProps: TimeDecayExprProps = {
+//   hypStartingAgeHours: SCORE_BIAS,
+//   hypDecayFactorSlowest: 0.5,
+//   hypDecayFactorFastest: 1.08,
+//   expHalfLifeHours: 48,
+//   expWeight: 0,
+//   activityWeight: 0.2,
+//   activityFactor: 0,
+//   activityHalfLifeHours: 72,
+// }
 
-export const calculateDecayFactor = ({
+export const calculateDecayFactor = ({ // TODO note that this is mainly exported for debugging purposes
   activityFactor,
   hypDecayFactorSlowest,
   hypDecayFactorFastest,
@@ -126,69 +132,58 @@ export const calculateDecayFactor = ({
   return {hypDecayFactor, activityFactor};
 }
 
-export const timeDecayExpr = (props?: TimeDecayExprProps) => {
+export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: ResolverContext) => {
   const {
-    now,
-    hypStartingAgeHours,
-    hypDecayFactorSlowest,
-    hypDecayFactorFastest,
-    expHalfLifeHours,
-    expWeight,
+    startingAgeHours,
+    decayFactorSlowest,
+    decayFactorFastest,
     activityWeight,
-    activityFactor,
+    activityHalfLifeHours,
+    overrideActivityFactor,
   } = {
-    now: props?.now || defaultTimeDecayExprProps.now,
-    hypStartingAgeHours: props?.hypStartingAgeHours ?? defaultTimeDecayExprProps.hypStartingAgeHours,
-    hypDecayFactorSlowest: props?.hypDecayFactorSlowest ?? defaultTimeDecayExprProps.hypDecayFactorSlowest,
-    hypDecayFactorFastest: props?.hypDecayFactorFastest ?? defaultTimeDecayExprProps.hypDecayFactorFastest,
-    expHalfLifeHours: props?.expHalfLifeHours ?? defaultTimeDecayExprProps.expHalfLifeHours,
-    expWeight: props?.expWeight ?? defaultTimeDecayExprProps.expWeight,
-    activityWeight: props?.activityWeight ?? defaultTimeDecayExprProps.activityWeight,
-    activityFactor: props?.activityFactor ?? defaultTimeDecayExprProps.activityFactor,
+    startingAgeHours: props?.startingAgeHours ?? startingAgeHoursSetting.get(),
+    decayFactorSlowest: props?.decayFactorSlowest ?? decayFactorSlowestSetting.get(),
+    decayFactorFastest: props?.decayFactorFastest ?? decayFactorFastestSetting.get(),
+    activityWeight: props?.activityWeight ?? activityWeightSetting.get(),
+    activityHalfLifeHours: props?.activityHalfLifeHours ?? activityHalfLifeSetting.get(),
+    overrideActivityFactor: props?.overrideActivityFactor,
   };
+  
+  // TODO calculate the activity factor here as well
+  const activityFactor = overrideActivityFactor ?? calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
 
-  // console.log("activity in timeDecayExpr", activity)
-
-  // TODO this is where the activity factor is going to come in
   const { hypDecayFactor } = calculateDecayFactor({
     activityFactor,
-    hypDecayFactorSlowest,
-    hypDecayFactorFastest,
+    hypDecayFactorSlowest: decayFactorSlowest,
+    hypDecayFactorFastest: decayFactorFastest,
     activityWeight
   })
-  console.log("slowest possible hypDecayFactor", hypDecayFactorSlowest)
-  console.log("fastest possible hypDecayFactor", hypDecayFactorFastest)
+  console.log("slowest possible hypDecayFactor", decayFactorSlowest)
+  console.log("fastest possible hypDecayFactor", decayFactorFastest)
   console.log("hypDecayFactor", hypDecayFactor)
   // Half life is directly related to decay factor exp(-lambda * t) <=> exp(-(ln(2)/halfLife) * t)
-  const expDecayFactor = Math.log(2) / expHalfLifeHours;
-  const hypWeight = 1 - expWeight;
+  const expDecayFactor = Math.log(2) / 1;
+  const hypWeight = 1;
+  const expWeight = 0; // TODO remove, here for legacy reasons
 
   const ageInHours = {
     $divide: [
       {
         $subtract: [
-          now ? new Date(now) : new Date(),
+          new Date(),
           "$postedAt", // Age in miliseconds
         ],
       },
       60 * 60 * 1000,
     ],
   };
-  // Disallow negative ages by falling back to a very large number
-  const ageInHoursNonNegative = {
-    $cond: {
-      if: { $gte: [ageInHours, 0] },
-      then: ageInHours,
-      else: 1e15,
-    },
-  };
 
   const exponentialTerm = { $exp:
     // $min to prevent overflow
     { $min: [
-      { $multiply: [expDecayFactor, ageInHoursNonNegative] }, 20
+      { $multiply: [expDecayFactor, ageInHours] }, 20
     ] } };
-  const hyperbolicTerm = { $pow: [{ $add: [ageInHoursNonNegative, hypStartingAgeHours] }, hypDecayFactor] };
+  const hyperbolicTerm = { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
 
   // The karma based part of the score is divided by this in view.ts, we want to end up with something like:
   // karma-part * (expWeight / exponentialTerm + hypWeight / hyperbolicTerm)
@@ -203,7 +198,7 @@ export const timeDecayExpr = (props?: TimeDecayExprProps) => {
 }
 
 // TODO rename or something
-export const timeDecayExprLegacy = () => {
+export const timeDecayExpr = () => {
   return {$pow: [
     {$add: [
       {$divide: [

@@ -15,7 +15,9 @@ function expandActivityInfluence(input: number[], influenceHours: number): numbe
   return output;
 }
 
-export const calculateActivityFactor = (activityArray: number[], halfLifeHours: number): number => {
+export const calculateActivityFactor = (activityArray: number[] | undefined, halfLifeHours: number): number => {
+  if (!activityArray) return 0; // if user has not visited recently, activity factor is 0
+
   const expandedFactors: number[] = expandActivityInfluence(activityArray, 11);
   const decayFactor = Math.log(2) / halfLifeHours;
   const rawActivityFactor = expandedFactors.map((n, idx) => n * Math.exp(-decayFactor * idx)).reduce((a, b) => a + b, 0);
