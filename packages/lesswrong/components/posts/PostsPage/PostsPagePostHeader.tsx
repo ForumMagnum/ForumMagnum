@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
-import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
 import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
@@ -225,7 +224,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
             <a className={classes.secondaryInfoLink} href={"#comments"}>
               {isEAForum ?
                 <>
-                  <CommentIcon className={classes.commentIcon} /> {commentCount}
+                  <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
                 </> :
                 <>
                   {postGetCommentCountStr(post, commentCount)}
