@@ -79,10 +79,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 2,
     [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "block",
+      display: "flex",
       maxWidth: "100%",
     },
     [theme.breakpoints.down("xs")]: {
@@ -275,6 +272,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
+                {/* TODO: mobile and desktop disagree */}
                 wrap
                 className={classes.title}
               />
