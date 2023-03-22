@@ -14,6 +14,7 @@ import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
 import { calculateActivityFactor } from '../../../server/useractivities/utils';
+import { getABTestsMetadata, getUserABTestGroup } from '../../abTestImpl';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -347,6 +348,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
   const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
+
+  const useSlowerFrontpage = context.currentUser || context.clientId ?
+    getUserABTestGroup(context.currentUser, context.clientId || '', getABTestsMetadata()['slowerFrontpage']) === 'treatment'
+    : false
   
   const syntheticFields = {
     score: {$divide:[
@@ -372,14 +377,14 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         )),
       ]},
       // TODO handle other pages using the old version (may already be handled by the filter settings thing)
-      frontpageTimeDecayExpr({
+      useSlowerFrontpage === 'treatment' ? frontpageTimeDecayExpr({
         startingAgeHours: terms.algoStartingAgeHours,
         decayFactorSlowest: terms.algoDecayFactorSlowest,
         decayFactorFastest: terms.algoDecayFactorFastest,
         activityHalfLifeHours: terms.algoActivityHalfLifeHours,
         activityWeight: terms.algoActivityWeight,
         overrideActivityFactor: terms.algoActivityFactor,
-      }, context)
+      }, context) : timeDecayExpr()
     ]}
   }
   

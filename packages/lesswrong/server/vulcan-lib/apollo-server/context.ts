@@ -109,12 +109,12 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
 
 export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
+  const clientId = req ? getCookieFromReq(req, "clientId") : null;
   if (user) {
     visitorActivity = await UserActivities.findOne({visitorId: user._id, type: 'userId'});
   } else {
-    const visitorId = req ? getCookieFromReq(req, "clientId") : null;
-    if (visitorId) {
-      visitorActivity = await UserActivities.findOne({visitorId, type: 'clientId'});
+    if (clientId) {
+      visitorActivity = await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
     }
   }
   
@@ -127,6 +127,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isGreaterWrong: requestIsFromGreaterWrong(req),
     repos: getAllRepos(),
+    clientId,
     visitorActivity,
     ...await setupAuthToken(user),
   };

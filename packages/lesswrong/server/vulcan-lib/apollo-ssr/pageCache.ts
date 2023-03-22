@@ -22,7 +22,6 @@ import sumBy from 'lodash/sumBy';
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 // const maxCacheAgeMs = 90*1000;
-// FIXME: add the cache back
 const maxCacheAgeMs = 1000;
 
 const pageCache = new LRU<string,RenderResult>({
