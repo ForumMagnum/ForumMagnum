@@ -398,7 +398,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       const info = null // not used
       auth0Strategy.userProfile(accessToken, (err, profile) => {
         if(profile) {
-          userHandler(accessToken, resumeToken, profile, (err, user) => {
+          void userHandler(accessToken, resumeToken, profile, (err, user) => {
             handleAuthenticate(req, res, next, err, user, info)
           })
         } else {
