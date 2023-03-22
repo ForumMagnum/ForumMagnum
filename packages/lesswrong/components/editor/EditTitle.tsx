@@ -11,8 +11,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    fontWeight: isEAForum? 700 : undefined,
-    fontSize: isEAForum? 32 : undefined,
+    fontWeight: isEAForum ? 700 : undefined,
+    fontSize: isEAForum ? 32 : undefined,
     width: "100%",
     resize: "none",
     textAlign: "left",

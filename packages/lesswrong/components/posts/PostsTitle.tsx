@@ -14,8 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: isEAForum? 600 : undefined,
-    fontFamily: isEAForum? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontWeight: isEAForum ? 600 : undefined,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
