@@ -15,28 +15,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FormComponentRadioGroup = ({ path, value, form, options, name, label, onChange, classes }: {
+const FormComponentRadioGroup = ({ path, value, form, options, name, label, classes }: {
   path: string;
   value: string;
-  form?: any;
+  form: any;
   options: any[];
   name: string;
   label: string;
-  onChange?: (value: string | undefined) => void;
   classes: ClassesType;
 }, context: any) => {
-  const updateValue = (value: string | undefined) => {
-    if (onChange) onChange(value)
-    if (value) context.updateCurrentValues({[path]: value})
-  }
-  
   const selectOptions = options || (form && form.options)
   return <FormControl>
     <FormLabel>{label}</FormLabel>
     <RadioGroup aria-label={name} name={name} value={value}
       onChange={(event) => {
-        updateValue((event?.target as any)?.value)
-      }}>
+        context.updateCurrentValues({
+          [path]: (event?.target as any)?.value
+        })
+    }}>
       {selectOptions.map(option => {
         return (
           <FormControlLabel 

@@ -81,8 +81,6 @@ async function oneTimeSetup() {
   ]);
 
   await runStartupFunctions();
-  
-  console.log("Finished running startup functions")
 
   // define executableSchema
   createVoteableUnionType();

@@ -2510,7 +2510,7 @@ Object.assign(schema, {
     viewableBy: ['guests'],
     insertableBy: [userOwns, 'admins'],
     editableBy: [userOwns, 'admins'],
-  }
+  },
 });
 
 export default schema;
