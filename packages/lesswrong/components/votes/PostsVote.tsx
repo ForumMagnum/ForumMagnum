@@ -3,8 +3,7 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
