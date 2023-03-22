@@ -226,8 +226,7 @@ export async function updateUserActivities(props?: {startDate?: Date, endDate?: 
 
   // Get the most recent activity data from the analytics database
   const activityFactors = await getUserActivityFactors(startDate, endDate);
-  
-  // eslint-disable-next-line no-console
+
   console.log(`Updating user activity for ${activityFactors.length} users between ${startDate} and ${endDate}`);
 
   const userActivityFactors = activityFactors

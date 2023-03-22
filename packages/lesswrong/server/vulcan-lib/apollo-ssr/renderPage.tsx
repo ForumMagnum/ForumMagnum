@@ -28,6 +28,7 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -133,7 +134,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 };
 
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
-  if (abTestGroups["slowerFrontpage"] !== 'control') return true;
+  if (isEAForum && abTestGroups["slowerFrontpage"] !== 'control') return true;
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
 }

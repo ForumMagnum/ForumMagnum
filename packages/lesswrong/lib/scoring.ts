@@ -99,39 +99,6 @@ type TimeDecayExprProps = {
   overrideActivityFactor?: number
 }
 
-// export const defaultTimeDecayExprProps: TimeDecayExprProps = {
-//   hypStartingAgeHours: SCORE_BIAS,
-//   hypDecayFactorSlowest: 0.5,
-//   hypDecayFactorFastest: 1.08,
-//   expHalfLifeHours: 48,
-//   expWeight: 0,
-//   activityWeight: 0.2,
-//   activityFactor: 0,
-//   activityHalfLifeHours: 72,
-// }
-
-export const calculateDecayFactor = ({ // TODO note that this is mainly exported for debugging purposes
-  activityFactor,
-  hypDecayFactorSlowest,
-  hypDecayFactorFastest,
-  activityWeight
-}: {
-  activityFactor: number,
-  hypDecayFactorSlowest: number,
-  hypDecayFactorFastest: number,
-  activityWeight: number,
-}
-  ) => {
-  console.log("activityFactor", activityFactor)
-  console.log("activityWeight", activityWeight)
-  console.log("calculated hypDecayFactor", hypDecayFactorSlowest * (1 + (activityWeight * activityFactor)))
-  const hypDecayFactor = Math.min(
-    hypDecayFactorSlowest * (1 + (activityWeight * activityFactor)),
-    hypDecayFactorFastest
-  );
-  return {hypDecayFactor, activityFactor};
-}
-
 export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: ResolverContext) => {
   const {
     startingAgeHours,
@@ -151,15 +118,10 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 
   const activityFactor = overrideActivityFactor ?? calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
 
-  const { hypDecayFactor } = calculateDecayFactor({
-    activityFactor,
-    hypDecayFactorSlowest: decayFactorSlowest,
-    hypDecayFactorFastest: decayFactorFastest,
-    activityWeight
-  })
-  console.log("slowest possible hypDecayFactor", decayFactorSlowest)
-  console.log("fastest possible hypDecayFactor", decayFactorFastest)
-  console.log("hypDecayFactor", hypDecayFactor)
+  const hypDecayFactor = Math.min(
+    decayFactorSlowest * (1 + (activityWeight * activityFactor)),
+    decayFactorFastest
+  );
 
   const ageInHours = {
     $divide: [
