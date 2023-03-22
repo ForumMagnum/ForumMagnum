@@ -176,36 +176,36 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     </div>;
   }
 
-  const activityArray = query.activity ? Object.keys(query.activity).map(k => query.activity[k]) : defaultTimeDecayExprProps.activity;
-  const { hypDecayFactor, activityFactor } = calculateDecayFactor({
-    activity: activityArray,
-    activityHalfLifeHours: query.activityHalfLifeHours ? Number(query.activityHalfLifeHours) : defaultTimeDecayExprProps.activityHalfLifeHours,
-    hypDecayFactorSlowest: query.hypDecayFactorSlowest ? Number(query.hypDecayFactorSlowest) : defaultTimeDecayExprProps.hypDecayFactorSlowest,
-    hypDecayFactorFastest: query.hypDecayFactorFastest ? Number(query.hypDecayFactorFastest) : defaultTimeDecayExprProps.hypDecayFactorFastest,
-    activityWeight: query.activityWeight ? Number(query.activityWeight) : defaultTimeDecayExprProps.activityWeight,
-  })
+  // const activityArray = query.activity ? Object.keys(query.activity).map(k => query.activity[k]) : defaultTimeDecayExprProps.activity;
+  // const { hypDecayFactor, activityFactor } = calculateDecayFactor({
+  //   activity: activityArray,
+  //   activityHalfLifeHours: query.activityHalfLifeHours ? Number(query.activityHalfLifeHours) : defaultTimeDecayExprProps.activityHalfLifeHours,
+  //   hypDecayFactorSlowest: query.hypDecayFactorSlowest ? Number(query.hypDecayFactorSlowest) : defaultTimeDecayExprProps.hypDecayFactorSlowest,
+  //   hypDecayFactorFastest: query.hypDecayFactorFastest ? Number(query.hypDecayFactorFastest) : defaultTimeDecayExprProps.hypDecayFactorFastest,
+  //   activityWeight: query.activityWeight ? Number(query.activityWeight) : defaultTimeDecayExprProps.activityWeight,
+  // })
 
   // checkbox for previous 28 days with e.g "-5" for 5 days ago
-  const activityWidget = <div className={classes.activityWidget}>
-    {new Array(28).fill(0).map((_, i) => {
-      const day = -i;
-      const dayString = day.toString();
-      return <div key={dayString} className={classes.activityWidgetDay}>
-        {dayString}
-        <input
-          type="checkbox"
-          checked={Number(activityArray[i]) !== 0}
-          onChange={(e) => {
-            let newActivityArray = [...activityArray];
-            newActivityArray[i] = e.target.checked ? 1 : 0;
-            console.log(`Setting activity for day ${dayString}`, newActivityArray[i])
-            const newQuery = { ...query, activity: newActivityArray };
-            history.push({ ...location, search: `?${qs.stringify(newQuery)}` });
-          }}
-        />
-      </div>
-    })}
-  </div>
+  // const activityWidget = <div className={classes.activityWidget}>
+  //   {new Array(28).fill(0).map((_, i) => {
+  //     const day = -i;
+  //     const dayString = day.toString();
+  //     return <div key={dayString} className={classes.activityWidgetDay}>
+  //       {dayString}
+  //       <input
+  //         type="checkbox"
+  //         checked={Number(activityArray[i]) !== 0}
+  //         onChange={(e) => {
+  //           let newActivityArray = [...activityArray];
+  //           newActivityArray[i] = e.target.checked ? 1 : 0;
+  //           console.log(`Setting activity for day ${dayString}`, newActivityArray[i])
+  //           const newQuery = { ...query, activity: newActivityArray };
+  //           history.push({ ...location, search: `?${qs.stringify(newQuery)}` });
+  //         }}
+  //       />
+  //     </div>
+  //   })}
+  // </div>
   // end experimental settings sections
 
   return (
@@ -271,14 +271,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </div>
         </div>
         <br/>
-        {activityWidget}
-        <div>
+        {/* {activityWidget} */}
+        {/* <div>
           Calculated activityFactor: {activityFactor}
-        </div>
+        </div> */}
         <br/>
-        <div>
+        {/* <div>
           Calculated hypDecayFactor: {hypDecayFactor}
-        </div>
+        </div> */}
         <br/>
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({

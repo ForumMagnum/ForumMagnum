@@ -1,5 +1,4 @@
 import moment from 'moment';
-import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
@@ -13,6 +12,8 @@ import uniq from 'lodash/uniq';
 import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
+import { filter, isEmpty, pick } from 'underscore';
+import { calculateActivityFactor } from '../../../server/useractivities/utils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -165,8 +166,8 @@ export const sortings = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView((terms: PostsViewTerms) => {
-  const validFields: any = _.pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
+Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
+  const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
@@ -224,7 +225,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     params.selector.postedAt = {$lte: terms.now}
   }
   if (terms.filterSettings) {
-    const filterParams = filterSettingsToParams(terms.filterSettings, terms);
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -257,9 +258,9 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       postedAt.$lt = moment(terms.before).toDate();
     }
 
-    if (!_.isEmpty(postedAt) && !terms.timeField) {
+    if (!isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
-    } else if (!_.isEmpty(postedAt) && terms.timeField) {
+    } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
   }
@@ -321,7 +322,7 @@ function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -331,8 +332,8 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     } :
     t
   )
-  const tagsRequired = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
+  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
+  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -383,9 +384,9 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         hypDecayFactorFastest: terms.hypDecayFactorFastest,
         expHalfLifeHours: terms.expHalfLifeHours,
         expWeight: terms.expWeight,
-        activityHalfLifeHours: terms.activityHalfLifeHours,
+        // TODO make 60 here a setting
+        activityFactor: context.visitorActivity?.activityArray ? calculateActivityFactor(context.visitorActivity?.activityArray, 60) : 0,
         activityWeight: terms.activityWeight,
-        activity: terms.activity ?? Array(28).fill(0)
       })
     ]}
   }

@@ -214,6 +214,7 @@ interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
   currentUser: DbUser|null,
+  visitorActivity: DbUserActivity|null,
   locale: string,
   isGreaterWrong: boolean,
   /**

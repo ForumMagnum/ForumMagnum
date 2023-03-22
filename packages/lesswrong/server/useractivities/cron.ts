@@ -5,15 +5,7 @@ import { addCronJob } from '../cronUtil';
 import { Vulcan } from '../vulcan-lib';
 import { ActivityFactor, getUserActivityFactors } from './getUserActivityFactors';
 
-const ACTIVITY_WINDOW_HOURS = 28 * 24;
-
-function chunkArray<T>(array: T[], chunkSize: number): T[][] {
-  const results: T[][] = [];
-  while (array.length) {
-    results.push(array.splice(0, chunkSize));
-  }
-  return results;
-}
+const ACTIVITY_WINDOW_HOURS = 21 * 24;
 
 /**
  * Assert that all the activityArrays in the UserActivities table are the correct (and identical) length,
@@ -203,7 +195,8 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
  * to avoid hitting the query parameter limit (~10000)
  */
 async function batchedConcatNewActivity({activityFactors, ...otherProps}: ConcatNewActivityParams) {
-  const batchSize = 1000;
+  // FIXME I think batching here isn't quite appropriate, because inactive users get zero padded
+  const batchSize = 2000;
   const batches = chunk(batchSize, activityFactors);
   
   for (const batch of batches) {
@@ -266,10 +259,10 @@ export async function backfillUserActivities() {
   const startDate = new Date(now);
   startDate.setHours(startDate.getHours() - ACTIVITY_WINDOW_HOURS);
 
-  // Loop over the range of dates in 1-day increments
-  for (let currentDate = startDate; currentDate <= now; currentDate.setHours(currentDate.getHours() + 24)) {
+  // Loop over the range of dates in 6-hour increments
+  for (let currentDate = startDate; currentDate <= now; currentDate.setHours(currentDate.getHours() + 3)) {
     const endDate = new Date(currentDate);
-    endDate.setHours(endDate.getHours() + 24);
+    endDate.setHours(endDate.getHours() + 3);
 
     // Update the UserActivities table with the activity data for the current date range
     await updateUserActivities({ startDate: currentDate, endDate });
@@ -278,7 +271,7 @@ export async function backfillUserActivities() {
 
 addCronJob({
   name: 'updateUserActivitiesCron',
-  interval: 'every 2 hours',
+  interval: 'every 3 hours',
   async job() {
     await updateUserActivities();
   }
