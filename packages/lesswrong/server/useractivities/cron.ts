@@ -1,11 +1,12 @@
-import { chunk, max, some } from 'lodash/fp';
+/* eslint-disable no-console */
+import { chunk, max, min } from 'lodash/fp';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
 import { Vulcan } from '../vulcan-lib';
 import { ActivityFactor, getUserActivityFactors } from './getUserActivityFactors';
 
-const ACTIVITY_WINDOW_HOURS = 21 * 24;
+const ACTIVITY_WINDOW_HOURS = 21 * 24; // 3 weeks
 
 /**
  * Assert that all the activityArrays in the UserActivities table are the correct (and identical) length,
@@ -68,9 +69,9 @@ async function getStartEndDate(dataDb: SqlClient) {
   // Round down lastEndDate to the nearest hour
   lastEndDate.setMinutes(0, 0, 0);
 
-  // endDate is now, minus an hour, rounded down to the nearest hour
+  // endDate is now, rounded down to the nearest hour
   const endDate = new Date(now.getTime());
-  endDate.setHours(endDate.getHours() - 1, 0, 0, 0);
+  endDate.setHours(endDate.getHours(), 0, 0, 0);
 
   return {
     oldStartDate: oldStartDate,
@@ -99,7 +100,7 @@ interface ConcatNewActivityParams {
  */
 async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate, newActivityStartDate, newActivityEndDate, visitorIdType}: ConcatNewActivityParams) {
   // remove activityFactors with userOrClientId that is not 17 chars (userId and clientId stored verbatim from the event, which means people can insert fake values)
-  const cleanedActivityFactors = activityFactors.filter(({userOrClientId}) => userOrClientId.length === 17)
+  const cleanedActivityFactors = activityFactors.filter(({userOrClientId}) => userOrClientId.length <= 17)
 
   // Get the existing user IDs from the UserActivities table, required to distinguish between newly active users and existing users
   const existingUserIds = (await dataDb.any(`
@@ -123,41 +124,47 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
 
   // Insert the new user data in a single query
   if (newUsersData.length > 0) {
-    console.log(`Inserting ${newUsersData.length} new rows into UserActivities table`)
-    // if (newUsersData.some(({ userOrClientId, paddedArray }) => userOrClientId.length > 27)) {
-    //   console.error('User ID or client ID is too long. This will cause an error when inserting into the database. Skipping this step.')
-    // }
-    const placeholders = newUsersData.map((_, index) => `($${(index * 5) + 1}, $${(index * 5) + 2}, $${(index * 5) + 3}, $${(index * 5) + 4}, $${(index * 5) + 5}, '${visitorIdType}')`).join(', ');
-    const insertQuery = `
-      INSERT INTO "UserActivities" ("_id", "visitorId", "activityArray", "startDate", "endDate", "type")
-      VALUES ${placeholders}
-    `;
-    const queryParams = newUsersData.flatMap(({ userOrClientId, paddedArray }) => {
-      return [randomId(), userOrClientId, paddedArray, paddedStartDate.toISOString(), newActivityEndDate.toISOString()];
-    });
-    await dataDb.none(insertQuery, queryParams);
+    const newUsersDataChunked = chunk(1000, newUsersData)
+    console.log(`Inserting ${newUsersData.length} new rows into UserActivities table, in ${newUsersDataChunked.length} chunks`)
+    
+    for (const dataChunk of newUsersDataChunked) {
+      const placeholders = dataChunk.map((_, index) => `($${(index * 5) + 1}, $${(index * 5) + 2}, $${(index * 5) + 3}, $${(index * 5) + 4}, $${(index * 5) + 5}, '${visitorIdType}')`).join(', ');
+      const insertQuery = `
+        INSERT INTO "UserActivities" ("_id", "visitorId", "activityArray", "startDate", "endDate", "type")
+        VALUES ${placeholders}
+      `;
+      const queryParams = dataChunk.flatMap(({ userOrClientId, paddedArray }) => {
+        return [randomId(), userOrClientId, paddedArray, paddedStartDate.toISOString(), newActivityEndDate.toISOString()];
+      });
+      await dataDb.none(insertQuery, queryParams);
+    }
   }
 
   // Second case: Append the new activity to users' rows who were previously active.
   // Note the truncation ([:${ACTIVITY_WINDOW_HOURS}]) to ensure that the array of activity is the correct length
   const existingUsersData = cleanedActivityFactors.filter(({ userOrClientId }) => existingUserIds.includes(userOrClientId));
   if (existingUsersData.length > 0) {
-    const tempTableValues = existingUsersData.map(({ userOrClientId, activityArray: activity_array }) => `('${userOrClientId}', ARRAY[${activity_array.join(', ')}])`).join(', ');
-    const updateQuery = `
-      WITH new_activity AS (
-        SELECT * FROM (VALUES ${tempTableValues}) AS t(user_id, activity_array)
-      )
-      UPDATE "UserActivities"
-      SET
-        "activityArray" = (array_cat(new_activity.activity_array, "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
-        "startDate" = $1,
-        "endDate" = $2
-      FROM new_activity
-      WHERE
-        "UserActivities"."visitorId" = new_activity.user_id
-        AND "UserActivities"."type" = '${visitorIdType}';
-    `;
-    await dataDb.none(updateQuery, [paddedStartDate.toISOString(), newActivityEndDate.toISOString()]);
+    const existingUsersDataChunked = chunk(1000, existingUsersData)
+    console.log(`Updating ${existingUsersData.length} existing rows for which there is new activity, in ${existingUsersDataChunked.length} chunks`)
+    
+    for (const dataChunk of existingUsersDataChunked) {
+      const tempTableValues = dataChunk.map(({ userOrClientId, activityArray: activity_array }) => `('${userOrClientId}', ARRAY[${activity_array.join(', ')}])`).join(', ');
+      const updateQuery = `
+        WITH new_activity AS (
+          SELECT * FROM (VALUES ${tempTableValues}) AS t(user_id, activity_array)
+        )
+        UPDATE "UserActivities"
+        SET
+          "activityArray" = (array_cat(new_activity.activity_array, "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
+          "startDate" = $1,
+          "endDate" = $2
+        FROM new_activity
+        WHERE
+          "UserActivities"."visitorId" = new_activity.user_id
+          AND "UserActivities"."type" = '${visitorIdType}';
+      `;
+      await dataDb.none(updateQuery, [paddedStartDate.toISOString(), newActivityEndDate.toISOString()]);
+    }
   }
 
   // Third case: Zero-pad the start of rows for users who were previously active but have no new activity
@@ -165,43 +172,43 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
   const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ userOrClientId }) => userOrClientId === id));
   if (inactiveExistingUserIds.length > 0) {
     const newActivityHours = Math.ceil((newActivityEndDate.getTime() - newActivityStartDate.getTime()) / (1000 * 60 * 60));
-    const updateQuery = `
-      UPDATE "UserActivities"
-      SET
-        "activityArray" = (array_cat(ARRAY[${Array(newActivityHours).fill(0).join(', ')}]::double precision[], "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
-        "startDate" = $1,
-        "endDate" = $2
-      WHERE
-        "UserActivities"."visitorId" IN (${inactiveExistingUserIds.map((_, index) => `$${index + 3}`).join(', ')})
-        AND "UserActivities"."type" = '${visitorIdType}';
-    `;
-    const queryParams = [paddedStartDate.toISOString(), newActivityEndDate.toISOString(), ...inactiveExistingUserIds];
-    await dataDb.none(updateQuery, queryParams);
+    const inactiveExistingUserIdsChunked = chunk(1000, inactiveExistingUserIds)
+    console.log(`Adding zero-padding to ${inactiveExistingUserIds.length} existing rows for which there is no new activity, in ${inactiveExistingUserIdsChunked.length} chunks`)
+
+    for (const userIdsChunk of inactiveExistingUserIdsChunked) {
+      const updateQuery = `
+        UPDATE "UserActivities"
+        SET
+          "activityArray" = (array_cat(ARRAY[${Array(newActivityHours).fill(0).join(', ')}]::double precision[], "UserActivities"."activityArray"))[:${ACTIVITY_WINDOW_HOURS}],
+          "startDate" = $1,
+          "endDate" = $2
+        WHERE
+          "UserActivities"."visitorId" IN (${userIdsChunk.map((_, index) => `$${index + 3}`).join(', ')})
+          AND "UserActivities"."type" = '${visitorIdType}';
+      `;
+      const queryParams = [paddedStartDate.toISOString(), newActivityEndDate.toISOString(), ...userIdsChunk];
+      await dataDb.none(updateQuery, queryParams);
+    }
   }
 
   // Fourth case: Every user has had their activity updated now. Remove rows for users who are no longer active in the last
   // ACTIVITY_WINDOW_HOURS (i.e. the activity array is all zeros)
+  // SELECT to log how many will be deleted
+  const countQuery = `
+    SELECT COUNT(*) as delete_count FROM "UserActivities"
+    WHERE
+      "UserActivities"."type" = '${visitorIdType}'
+      AND array_position("UserActivities"."activityArray", 1) IS NULL; -- no "1" in the array
+  `;
   const deleteQuery = `
     DELETE FROM "UserActivities"
     WHERE
       "UserActivities"."type" = '${visitorIdType}'
       AND array_position("UserActivities"."activityArray", 1) IS NULL; -- no "1" in the array
   `;
+  const count = (await dataDb.one(countQuery)).delete_count;
+  console.log(`Deleting ${count} rows for users who have no activity in the last ${ACTIVITY_WINDOW_HOURS} hours`)
   await dataDb.none(deleteQuery);
-}
-
-/**
- * Wrapper around concatNewActivity that batches the activityFactors array into smaller chunks,
- * to avoid hitting the query parameter limit (~10000)
- */
-async function batchedConcatNewActivity({activityFactors, ...otherProps}: ConcatNewActivityParams) {
-  // FIXME I think batching here isn't quite appropriate, because inactive users get zero padded
-  const batchSize = 2000;
-  const batches = chunk(batchSize, activityFactors);
-  
-  for (const batch of batches) {
-    await concatNewActivity({activityFactors: batch, ...otherProps});
-  }
 }
 
 /**
@@ -233,8 +240,8 @@ export async function updateUserActivities(props?: {startDate?: Date, endDate?: 
     .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
 
   // Update the UserActivities table with the new activity data
-  await batchedConcatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
-  await batchedConcatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
+  await concatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
+  await concatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
 }
 
 export async function backfillUserActivities() {
@@ -244,9 +251,6 @@ export async function backfillUserActivities() {
   };
 
   // Clear the current data in the UserActivities collection
-  // If we do this while this is live it means there will be a period of time where everyone
-  // is considered to be inactive. We're not planning to run this while the activity factor logic is
-  // live, and this wouldn't be that bad anyway.
   await dataDb.none(`DELETE FROM "UserActivities";`);
 
   // Get the current date and time (rounded down to the hour)
@@ -259,15 +263,21 @@ export async function backfillUserActivities() {
   const startDate = new Date(now);
   startDate.setHours(startDate.getHours() - ACTIVITY_WINDOW_HOURS);
 
-  // Loop over the range of dates in 6-hour increments
-  for (let currentDate = startDate; currentDate <= now; currentDate.setHours(currentDate.getHours() + 3)) {
+  // Loop over the range of dates in 24-hour increments
+  for (let currentDate = startDate; currentDate < now; currentDate.setHours(currentDate.getHours() + 24)) {
     const endDate = new Date(currentDate);
-    endDate.setHours(endDate.getHours() + 3);
+    endDate.setHours(endDate.getHours() + 24);
+    
+    // Make sure we don't go past 'now'
+    if (endDate > now) {
+      endDate.setTime(now.getTime());
+    }
 
     // Update the UserActivities table with the activity data for the current date range
     await updateUserActivities({ startDate: currentDate, endDate });
   }
 }
+
 
 addCronJob({
   name: 'updateUserActivitiesCron',

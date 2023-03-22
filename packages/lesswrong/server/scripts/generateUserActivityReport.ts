@@ -1,9 +1,5 @@
-import TagRels from "../../lib/collections/tagRels/collection";
-import Tags from "../../lib/collections/tags/collection";
 import { Globals } from "../vulcan-lib";
-import { updatePostDenormalizedTags } from "../tagging/tagCallbacks";
-import { randomId } from "../../lib/random";
-import { getSqlClient, getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { calculateActivityFactor } from "../useractivities/utils";
 import { activityHalfLifeSetting } from "../../lib/scoring";
 import { fs } from "mz";
@@ -29,7 +25,7 @@ const generateUserActivityReport = async (activityHalfLifeHours: number = defaul
   const results = rows.map(row => {
     const activityFactor = calculateActivityFactor(row.activityArray, activityHalfLifeHours); // Replace 48 with your halfLifeHours value
     return { userId: row.userId, slug: row.slug, activityFactor };
-  });
+  }).sort((a, b) => b.activityFactor - a.activityFactor);
   
   const csvFileName = 'user_activity_factors.csv';
   const header = 'user_id,slug,activity_factor\n';
