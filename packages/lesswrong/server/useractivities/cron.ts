@@ -94,7 +94,7 @@ interface ConcatNewActivityParams {
  * Update UserActivities table with new activity data
  *
  * After this function is run:
- *  - Every user user who was active in last ACTIVITY_WINDOW_HOURS (28 days)
+ *  - Every user user who was active in last ACTIVITY_WINDOW_HOURS (21 days)
  *    will have an array of activity representing their activity in each hour.
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
