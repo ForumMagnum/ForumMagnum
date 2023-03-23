@@ -12,7 +12,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
@@ -24,6 +23,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -314,7 +314,7 @@ const EventsHome = ({classes}: {
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
   
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
@@ -378,7 +378,7 @@ const EventsHome = ({classes}: {
   }
   
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
-    Load More
+    {preferredHeadingCase("Load More")}
   </button>
   if (loading && results?.length) {
     loadMoreButton = <div className={classes.loading}><Loading /></div>

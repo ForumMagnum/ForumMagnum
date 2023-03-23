@@ -13,6 +13,7 @@ import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import { preferredHeadingCase } from '../../forumTypeUtils';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -28,7 +29,7 @@ addGraphQLSchema(`
 `);
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
-  relevance: { label: 'Most Relevant' },
+  relevance: { label: preferredHeadingCase('Most Relevant') },
   ...SORT_ORDER_OPTIONS,
 }
 

@@ -13,7 +13,7 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -47,7 +47,7 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    paddingTop: 50,
+    paddingTop: isEAForum ? 20 : 50,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",

@@ -23,6 +23,7 @@ import './server/scripts/sscImport';
 import './server/scripts/hpmorImport';
 import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
+import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
 import './server/scripts/convertImagesToCloudinary';
 import './server/scripts/fixBodyField';
@@ -145,6 +146,7 @@ import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
+import './server/resolvers/moderationResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

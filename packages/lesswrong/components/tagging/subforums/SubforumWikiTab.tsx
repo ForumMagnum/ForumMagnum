@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
   },
 })
 
@@ -94,8 +95,8 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
+      ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+      : htmlWithAnchors
   }
 
   return <>
@@ -135,7 +136,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
         {!tag.wikiOnly && (
           <AnalyticsContext pageSectionContext="tagsSection">
             {tag.sequence ? (
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
+              <SectionTitle title={`Posts tagged ${tag.name}`} noBottomPadding>
                 <PostsListSortDropdown value={query.sortedBy || "relevance"} />
               </SectionTitle>
             ) : (

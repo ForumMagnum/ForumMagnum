@@ -56,11 +56,13 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
     grey: ThemeGreyscale,
@@ -101,6 +103,9 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
+    warning: {
+      main: ColorString,
+    }
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -331,12 +336,18 @@ declare global {
       eventCardTag: ColorString,
     },
     tag: {
-      background: ColorString,
-      border: string,
-      coreTagBorder: string,
       text: ColorString,
-      boxShadow: string,
+      background: ColorString,
+      backgroundHover?: ColorString,
+      border: string,
+      coreTagText: ColorString,
+      coreTagBackground: ColorString,
+      coreTagBackgroundHover?: ColorString,
+      coreTagBorder: string,
       hollowTagBackground: ColorString,
+      hollowTagBackgroundHover?: ColorString,
+      hollowTagBorder: string,
+      boxShadow: string,
       addTagButtonBackground: ColorString,
     },
     geosuggest: {
@@ -361,6 +372,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      transparent: ColorString,
     },
     header: {
       text: ColorString,
@@ -414,6 +426,10 @@ declare global {
       unit: number,
       titleDividerSpacing: number,
     },
+    borderRadius: {
+      default: number,
+      small: number,
+    },
     palette: ThemePalette,
     typography: {
       fontFamily: string,
@@ -451,6 +467,8 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
+      smallCaps: JssStyles,
     },
     zIndexes: any,
     overrides: any,

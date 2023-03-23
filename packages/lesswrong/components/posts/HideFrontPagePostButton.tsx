@@ -1,6 +1,5 @@
-import { registerComponent, fragmentTextForQuery } from '../../lib/vulcan-lib';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -27,6 +26,7 @@ const HideFrontPagePostButton = ({post}: {
   const currentUser = useCurrentUser()
   const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id))
   const { captureEvent } = useTracking()
+  const { MenuItem } = Components;
 
   const [setIsHiddenMutation] = useMutation(gql`
     mutation setIsHidden($postId: String!, $isHidden: Boolean!) {

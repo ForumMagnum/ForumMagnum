@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   section: {
     marginBottom: 50,
     background: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: theme.borderRadius.default,
     padding: PADDING,
     maxWidth: COLLECTION_WIDTH,
     marginLeft: "auto",

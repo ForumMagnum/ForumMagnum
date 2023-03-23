@@ -1281,6 +1281,11 @@ addRoute(
     componentName: 'ModeratorComments',
   },
   {
+    name: 'moderatorViewAltAccounts',
+    path: '/moderation/altAccounts',
+    componentName: 'ModerationAltAccounts',
+  },
+  {
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'

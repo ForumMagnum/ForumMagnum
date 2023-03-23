@@ -7,7 +7,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import cheerio from 'cheerio'
+import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
@@ -229,7 +229,7 @@ async function extractSocialPreviewImage (post: DbPost) {
 
   let socialPreviewImageAutoUrl = ''
   if (post.contents?.html) {
-    const $ = cheerio.load(post.contents.html)
+    const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
     if (firstImg) {
       socialPreviewImageAutoUrl = firstImg.attr('src') || ''

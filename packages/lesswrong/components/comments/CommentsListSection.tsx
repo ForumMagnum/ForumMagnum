@@ -4,7 +4,6 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
@@ -14,13 +13,14 @@ import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontWeight: 400,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
     position: "relative"
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
@@ -60,8 +60,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    fontStyle: 'italic',
     marginTop: 4,
+    ...theme.typography.italic,
   }
 })
 
@@ -109,7 +109,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   }
 
   const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography } = Components
+    const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
@@ -168,7 +168,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
 
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
+          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

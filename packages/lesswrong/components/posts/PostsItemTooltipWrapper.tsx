@@ -3,10 +3,17 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 
-const PostsItemTooltipWrapper = ({children, post, placement="bottom-end", className}: {
+const PostsItemTooltipWrapper = ({
+  children,
+  post,
+  placement="bottom-end",
+  As="div",
+  className,
+}: {
   children?: React.ReactNode,
   post: PostsList,
-  placement?: PopperPlacementType
+  placement?: PopperPlacementType,
+  As?: keyof JSX.IntrinsicElements,
   className?: string,
 }) => {
   const { LWPopper, PostsPreviewTooltip } = Components
@@ -14,7 +21,8 @@ const PostsItemTooltipWrapper = ({children, post, placement="bottom-end", classN
     pageElementContext: "postItemTooltip",
     postId: post?._id
   });
-  return <div {...eventHandlers} className={className}>
+  return (
+    <As {...eventHandlers} className={className}>
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
@@ -24,7 +32,8 @@ const PostsItemTooltipWrapper = ({children, post, placement="bottom-end", classN
         <PostsPreviewTooltip post={post} postsList />
       </LWPopper>
       { children }
-  </div>
+    </As>
+  );
 }
 
 const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper

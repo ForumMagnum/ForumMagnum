@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -17,7 +17,6 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
 
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
@@ -457,7 +456,13 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
+  let selector = { isEvent: false };
+  if (isEAForum) {
+    selector = {
+      ...selector,
+      ...filters.nonSticky,
+    };
+  }
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},

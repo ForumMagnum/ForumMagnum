@@ -5,6 +5,8 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,6 +15,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     minHeight: 20,
+    ...(isEAForum
+      ? {
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: "24px",
+      }
+      : {}),
   },
   afterPostsListMarginTop: {
     marginTop: 6,
@@ -60,7 +69,7 @@ const LoadMore = ({
   classes,
   sectionFooterStyles,
   afterPostsListMarginTop,
-  message="Load More",
+  message=preferredHeadingCase("Load More"),
 }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,

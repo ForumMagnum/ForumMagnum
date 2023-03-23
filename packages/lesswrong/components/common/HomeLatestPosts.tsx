@@ -14,6 +14,7 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -53,7 +54,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'New & upvoted' : 'Latest Posts'
+
+const filterSettingsToggleLabels = forumSelect({
+  EAForum: {
+    desktopVisible: "Customize feed",
+    desktopHidden: "Customize feed",
+    mobileVisible: "Customize feed",
+    mobileHidden: "Customize feed",
+  },
+  default: {
+    desktopVisible: "Customize Feed (Hide)",
+    desktopHidden: "Customize Feed",
+    mobileVisible: "Customize Feed (Hide)",
+    mobileHidden: "Customize Feed (Show)",
+  }
+})
+
+const advancedSortingText = isEAForum
+  ? "Advanced sorting & filtering"
+  : "Advanced Sorting/Filtering";
+
+const defaultLimit = isEAForum ? 11 : 13;
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
@@ -62,17 +84,18 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(!currentUser?.hideFrontpageFilterSettingsDesktop);
+  // (except that on the EA Forum it always starts out hidden)
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isEAForum ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
   const { query } = location;
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, CommentsListCondensed, SectionTitle
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
+    CuratedPostsList, SectionTitle, StickiedPosts,
   } = Components
-  const limit = parseInt(query.limit) || 13
-  
+  const limit = parseInt(query.limit) || defaultLimit;
+
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 
@@ -105,21 +128,24 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noBottomPadding>
-          <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
+        <SectionTitle title={latestPostsName} noTopMargin={isEAForum} noBottomPadding>
+          <LWTooltip
+            title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+            hideOnTouchScreens
+          >
             <SettingsButton
               className={classes.hideOnMobile}
               label={filterSettingsVisibleDesktop ?
-                "Customize Feed (Hide)" :
-                "Customize Feed"}
+                filterSettingsToggleLabels.desktopVisible :
+                filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
             />
             <SettingsButton
               className={classes.hideOnDesktop}
               label={filterSettingsVisibleMobile ?
-                "Customize Feed (Hide)" :
-                "Customize Feed (Show)"}
+                filterSettingsToggleLabels.mobileVisible :
+                filterSettingsToggleLabels.mobileHidden}
               showIcon={false}
               onClick={() => {
                 setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
@@ -142,6 +168,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             />
           </div>
         </AnalyticsContext>
+        {isEAForum && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
@@ -152,7 +179,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
               >
-                <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
             {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
@@ -160,7 +187,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             {/* {isEAForum && (
               <CommentsListCondensed
                 label={"Shortform discussion"}
-                contentType="shortform"
                 terms={recentSubforumDiscussionTerms}
                 initialLimit={3}
               />

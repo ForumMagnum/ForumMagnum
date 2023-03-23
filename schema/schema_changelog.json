@@ -130,8 +130,18 @@
     "timestamp": "2023-02-23T11:56:02.000Z"
   },
   {
-    "acceptsSchemaHash": "4f068c9deffbe10d8828def55e70e965",
-    "acceptedByMigration": "20230301T125511.add_subtitle.ts",
-    "timestamp": "2023-03-01T12:55:11.000Z"
+    "acceptsSchemaHash": "dc774f8734d7cc069d913d351d4225b8",
+    "acceptedByMigration": "20230306T182540.userIdsDefault.ts",
+    "timestamp": "2023-03-06T18:25:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9cc5aad21f36f801d9ce6b9e9e3ce213",
+    "acceptedByMigration": "20230314T152203.add_backfilled.ts",
+    "timestamp": "2023-03-14T15:22:03.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b88b6584110db34b20eede33edf7c826",
+    "acceptedByMigration": "20230323T152817.add_subtitle.ts",
+    "timestamp": "2023-03-23T15:28:17.000Z"
   }
 ]

@@ -5,7 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const EditTagsDialog = ({post, onClose }: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   onClose?: ()=>void
 }) => {
   const { FooterTagList, LWDialog } = Components

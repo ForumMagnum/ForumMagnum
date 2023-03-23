@@ -1,12 +1,24 @@
 import React from 'react';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
+import { isEAForum } from '../../lib/instanceSettings';
 
-export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
-  margin:0,
-  ...theme.typography.postStyle,
-  fontSize: "2.2rem"
-})
+export const sectionTitleStyle = isEAForum
+  ? (theme: ThemeType): JssStyles => ({
+    margin: 0,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "14px",
+    lineHeight: "21px",
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    color: theme.palette.grey[600],
+    textTransform: "uppercase",
+  })
+  : (theme: ThemeType): JssStyles => ({
+    margin: 0,
+    ...theme.typography.postStyle,
+    fontSize: "2.2rem",
+  });
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,9 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   noBottomPadding: {
     paddingBottom: 0
   },
-  title: {
-    ...sectionTitleStyle(theme)
-  },
+  title: sectionTitleStyle(theme),
   children: {
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('sm')]: {
@@ -69,7 +79,7 @@ const SectionTitle = ({children, classes, className, title, noTopMargin, noBotto
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles});
+const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

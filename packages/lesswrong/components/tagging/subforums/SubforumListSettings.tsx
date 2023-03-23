@@ -7,6 +7,7 @@ import { isSubforumSorting, SubforumLayout } from '../../../lib/collections/tags
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,8 +38,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const sortings = Object.fromEntries(Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).filter(([key]) => isSubforumSorting(key)));
 const layouts: Record<SubforumLayout, SettingsOption> = {
-  feed: { label: "Posts Expanded" },
-  list: { label: "Posts Collapsed" },
+  feed: { label: preferredHeadingCase('Posts Expanded')},
+  list: { label: preferredHeadingCase('Posts Collapsed')},
 }
 
 const SubforumListSettings = ({currentSorting, currentLayout, classes}: {
