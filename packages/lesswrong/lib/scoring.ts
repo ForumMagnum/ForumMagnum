@@ -35,6 +35,7 @@ const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAl
 const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
 const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.5)
 export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
+export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -135,8 +136,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     ],
   };
 
-  const hyperbolicTerm = { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
-  return hyperbolicTerm;
+  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
 }
 
 // TODO rename or something

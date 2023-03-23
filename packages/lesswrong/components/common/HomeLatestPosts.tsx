@@ -17,6 +17,7 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useABTest } from '../../lib/abTestImpl';
 import { slowerFrontpageABTest } from '../../lib/abTests';
+import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -101,8 +102,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = moment().tz(timezone);
-  // TODO make this a setting, and make it 21 days for EA Forum
-  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
+  const dateCutoff = now.subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {
     ...query,

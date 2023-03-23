@@ -6,6 +6,17 @@ export interface ActivityFactor {
   activityArray: number[];
 }
 
+/*
+ * TODO explanation
+ */
+const liveEnvDescriptions: Record<string, string> = {
+  "production": 'production',
+  "staging": 'staging',
+  "dev": 'development',
+  "local-dev-prod-db": 'production',
+  "local-dev-staging-db": 'staging',
+}
+
 /**
  * Get an array of ActivityFactors, one for each user or client that was active between startDate and endDate
  */
@@ -30,8 +41,10 @@ export async function getUserActivityFactors( // exported for testing
   if (startDate > endDate) {
     throw new Error('startDate must be before endDate');
   }
-  // const environmentDescription = environmentDescriptionSetting.get()
-  const environmentDescription = 'production' // TODO get this from the settings somehow
+  const liveEnvDescription = liveEnvDescriptions[environmentDescriptionSetting.get()]
+  if (!liveEnvDescription) {
+    throw new Error(`Unknown environmentDescriptionSetting: ${environmentDescriptionSetting.get()}`);
+  }
   
   const activityAnalyticsSql = `
     WITH hourly_activity AS (
@@ -43,7 +56,7 @@ export async function getUserActivityFactors( // exported for testing
           date_trunc('hour', timestamp) AS hour,
           COUNT(*) AS events
       FROM public.raw
-      WHERE environment = '${environmentDescription}' -- TODO match to active env
+      WHERE environment = '${liveEnvDescription}'
         AND event_type = 'timerEvent'
         AND (event->>'userId' IS NOT NULL OR event->>'clientId' IS NOT NULL)
         AND timestamp >= $1

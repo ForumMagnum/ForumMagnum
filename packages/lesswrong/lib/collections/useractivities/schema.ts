@@ -16,7 +16,8 @@ const schema: SchemaType<DbAdvisorRequest> = {
     type: Array
   },
   'activityArray.$': {
-    type: Number, // in practice, this is currently a boolean
+    // In practice this is currently a boolean, but we could support weighting by how long exactly they were active for
+    type: Number,
     optional: false
   },
 };

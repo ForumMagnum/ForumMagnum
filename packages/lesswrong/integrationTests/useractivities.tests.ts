@@ -5,7 +5,6 @@ import { getUserActivityFactors } from "../server/useractivities/getUserActivity
 
 jest.mock("../server/useractivities/getUserActivityFactors");
 
-// TODO do some kind of freezeTime thing to make sure the dates are consistent
 const existingStartDate = new Date('2023-03-20T00:00:00.000Z');
 const existingEndDate = new Date('2023-03-21T00:00:00.000Z');
 

@@ -376,7 +376,6 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
           }}
         )),
       ]},
-      // TODO handle other pages using the old version (may already be handled by the filter settings thing)
       useSlowerFrontpage ? frontpageTimeDecayExpr({
         startingAgeHours: terms.algoStartingAgeHours,
         decayFactorSlowest: terms.algoDecayFactorSlowest,
