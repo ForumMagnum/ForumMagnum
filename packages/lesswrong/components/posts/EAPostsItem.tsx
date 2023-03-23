@@ -126,6 +126,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     display: "flex",
     alignItems: "center",
+    padding: '10px 0',
     "& svg": {
       height: 18,
       marginRight: 1,
