@@ -24,6 +24,7 @@ import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos, UsersRepo } from '../../repos';
 import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -110,12 +111,9 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
 export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if (user) {
-    visitorActivity = await UserActivities.findOne({visitorId: user._id, type: 'userId'});
-  } else {
-    if (clientId) {
-      visitorActivity = await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
-    }
+  if ((user || clientId) && isEAForum) {
+    visitorActivity = user ? await UserActivities.findOne({visitorId: user._id, type: 'userId'})
+     : await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
   }
   
   let context: ResolverContext = {
