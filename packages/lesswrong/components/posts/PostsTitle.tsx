@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.normal,
     }
   },
-  titleDesktopEllipsis: isEAForum ? {
+  eaTitleDesktopEllipsis: isEAForum ? {
     '&:hover': {
       opacity: 0.5
     },
