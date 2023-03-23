@@ -186,7 +186,7 @@ const PostsTitle = ({
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon hasColor />
       </span>}
-      <span className={!wrap && classes.titleDesktopEllipsis}>
+      <span className={!wrap && classes.eaTitleDesktopEllipsis}>
         {isLink ? <Link to={url}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
