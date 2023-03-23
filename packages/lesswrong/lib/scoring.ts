@@ -33,7 +33,7 @@ const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBon
 const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6)
 const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5)
 const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
-const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.5)
+const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4)
 export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
 export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
 
@@ -90,7 +90,7 @@ export const recalculateScore = (item: VoteableType) => {
   }
 };
 
-// type for timeDecayExpr props
+
 type TimeDecayExprProps = {
   startingAgeHours?: number
   decayFactorSlowest?: number
@@ -119,7 +119,8 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 
   const activityFactor = overrideActivityFactor ?? calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
 
-  const hypDecayFactor = Math.min(
+  // Higher timeDecayFactor => more recency bias
+  const timeDecayFactor = Math.min(
     decayFactorSlowest * (1 + (activityWeight * activityFactor)),
     decayFactorFastest
   );
@@ -136,7 +137,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     ],
   };
 
-  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
+  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
 }
 
 export const timeDecayExpr = () => {

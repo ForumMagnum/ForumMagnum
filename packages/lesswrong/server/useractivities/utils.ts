@@ -25,7 +25,7 @@ function expandActivityInfluence(input: number[], influenceHours: number): numbe
  * @param halfLifeHours The number of hours after which the influence of a visit is halved
  */
 export const calculateActivityFactor = (activityArray: number[] | undefined, halfLifeHours: number): number => {
-  /**
+  /*
    * The basic idea of this function is to add up the _days_ a user was active, with an exponential
    * decay factor as you go further into the past, and then normalise to make this between 0 and 1.
    *

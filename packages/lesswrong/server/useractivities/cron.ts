@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { chunk, max } from 'lodash/fp';
+import UserActivities from '../../lib/collections/useractivities/collection';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
@@ -218,6 +219,9 @@ export async function updateUserActivities(props?: {updateStartDate?: Date, upda
   if (!dataDb) {
     throw new Error("updateUserActivities: couldn't get database connection");
   };
+  if (!UserActivities.isPostgres()) {
+    console.log("backfillUserActivities: only supported on Postgres");
+  }
 
   await assertTableIntegrity(dataDb);
   const { prevStartDate, updateStartDate, updateEndDate } = {...(await getStartEndDate(dataDb)), ...props};
