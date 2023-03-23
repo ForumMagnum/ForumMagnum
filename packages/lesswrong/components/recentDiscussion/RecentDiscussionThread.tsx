@@ -187,7 +187,7 @@ const RecentDiscussionThread = ({
       client,
       collectionName: "Comments",
       terms: {
-        view: "postCommentsTop",
+        view: "postCommentsNew",
         postId,
       },
       limit,

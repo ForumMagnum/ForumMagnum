@@ -217,7 +217,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
  */
 export const loadSingle = async <N extends keyof FragmentTypes>({documentId, client, fragmentName, collectionName, fetchPolicy="network-only"}: {
   documentId: string,
-  client: ApolloClient<NormalizedCacheObject>,
+  client: ApolloClient<any>,
   fragmentName: N,
   collectionName: CollectionNamesByFragmentName[N],
   fetchPolicy?: FetchPolicy,

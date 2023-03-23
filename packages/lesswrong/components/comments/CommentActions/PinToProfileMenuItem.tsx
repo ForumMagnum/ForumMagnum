@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
-import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdateComment } from '../../hooks/useUpdateComment';
 import { StickyIcon } from '../../posts/PostsTitle';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
@@ -11,19 +11,12 @@ const PinToProfileMenuItem = ({ comment }: {
 }) => {
   const currentUser = useCurrentUser()
   const { MenuItem } = Components;
-
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  })
+  const updateComment = useUpdateComment();
 
   const togglePinned = async () => {
-    await updateComment({
-      selector: { _id: comment._id },
-      data: {
-        isPinnedOnProfile: !comment.isPinnedOnProfile
-      },
-    })
+    await updateComment(comment._id, {
+      isPinnedOnProfile: !comment.isPinnedOnProfile
+    });
   }
   
   const username = currentUser?._id === comment.userId ? 'my' : `${comment.user?.displayName}'s`

@@ -9,7 +9,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { afPostNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
@@ -220,7 +220,7 @@ const PostsNewForm = ({classes}: {
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {
-              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              if (!post.draft) afPostNonMemberSuccessHandling({currentUser, post, openDialog, updatePost});
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));
               } else {

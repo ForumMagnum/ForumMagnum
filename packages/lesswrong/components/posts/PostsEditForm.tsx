@@ -10,7 +10,7 @@ import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { afPostNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
@@ -103,7 +103,7 @@ const PostsEditForm = ({ documentId, classes }: {
           mutationFragment={getFragment('PostsEditMutationFragment')}
           successCallback={(post: any, options: any) => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
-            if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+            if (!post.draft && !alreadySubmittedToAF) afPostNonMemberSuccessHandling({currentUser, post, openDialog, updatePost})
             if (options?.submitOptions?.redirectToEditor) {
               history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
             } else {

@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateComment } from '../hooks/useUpdateComment';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
@@ -20,29 +20,22 @@ const SunshineNewCommentsItem = ({comment}: {
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
+  const updateComment = useUpdateComment('CommentsListWithParentMetadata');
   
   const handleReview = () => {
-    void updateComment({
-      selector: {_id: comment._id},
-      data: {reviewedByUserId : currentUser!._id}
+    void updateComment(comment._id, {
+      reviewedByUserId : currentUser!._id
     })
   }
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       window.open(userGetProfileUrl(comment.user), '_blank');
-      void updateComment({
-        selector: {_id: comment._id},
-        data: {
-          deleted: true,
-          deletedDate: new Date(),
-          deletedByUserId: currentUser!._id,
-          deletedReason: "spam"
-        }
+      void updateComment(comment._id, {
+        deleted: true,
+        deletedDate: new Date(),
+        deletedByUserId: currentUser!._id,
+        deletedReason: "spam"
       })
     }
   }

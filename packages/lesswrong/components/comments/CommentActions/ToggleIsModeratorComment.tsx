@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdateComment } from '../../hooks/useUpdateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 
@@ -8,10 +8,7 @@ const ToggleIsModeratorComment = ({comment}: {
   comment: CommentsList,
 }) => {
   const currentUser = useCurrentUser();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const updateComment = useUpdateComment();
   const { MenuItem } = Components;
   
   if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) {
@@ -19,15 +16,13 @@ const ToggleIsModeratorComment = ({comment}: {
   }
   
   const handleMarkAsModeratorComment = (modHatVisibility?: { hideModeratorHat: boolean }) => (event: React.MouseEvent) => {
-    void updateComment({
-      selector: { _id: comment._id },
-      data: { moderatorHat: true, ...modHatVisibility }
+    void updateComment(comment._id, {
+      moderatorHat: true, ...modHatVisibility
     });
   }
   const handleUnmarkAsModeratorComment = (event: React.MouseEvent) => {
-    void updateComment({
-      selector: { _id: comment._id },
-      data: { moderatorHat: false }
+    void updateComment(comment._id, {
+      moderatorHat: false
     });
   }
   

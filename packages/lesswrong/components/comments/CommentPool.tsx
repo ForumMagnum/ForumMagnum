@@ -1,7 +1,7 @@
 import React, { createContext, useRef, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { loadMulti } from '../../lib/crud/withMulti';
+import { loadSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import { useForceRerender } from '../hooks/useForceRerender';
 import keyBy from 'lodash/keyBy';
@@ -10,9 +10,12 @@ import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 import mapValues from 'lodash/mapValues';
 import includes from 'lodash/includes';
+import { useApolloClient } from '@apollo/client/react/hooks';
 
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
+  invalidateComment: (commentId: string)=>Promise<void>
+  addComment: (comment: CommentsList)=>Promise<void>
 }
 export const CommentPoolContext = createContext<CommentPoolContextType|null>(null);
 
@@ -76,6 +79,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   parentAnswerId?: string,
   classes: ClassesType,
 }) => {
+  const client = useApolloClient();
   const [initialState] = useState(() => initialStateFromComments(initialComments));
   const forceRerender = useForceRerender();
   const stateRef = useRef<CommentPoolState>(initialState);
@@ -85,13 +89,13 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   const loadAll = useCallback(async () => {
     if (!loadMoreTopLevel) return;
 
-    // TODO
+    // TODO: Replace this with narrower loaders
     if (!haveLoadedAll) {
       const loadedComments = await loadMoreTopLevel(5000);
       setHaveLoadedAll(true);
       stateRef.current = addLoadedComments(stateRef.current, loadedComments);
     }
-  }, [loadMoreTopLevel, haveLoadedAll, forceRerender]);
+  }, [loadMoreTopLevel, haveLoadedAll]);
 
   const showMoreChildrenOf = useCallback(async (commentId: string) => {
     await loadAll();
@@ -99,9 +103,30 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     forceRerender();
   }, [forceRerender, loadAll]);
 
+  const invalidateComment = useCallback(async (commentId: string): Promise<void> => {
+    const updatedComment = await loadSingle({
+      documentId: commentId,
+      collectionName: "Comments",
+      fragmentName: "CommentsList",
+      client,
+    });
+    if (updatedComment) {
+      stateRef.current.comments[commentId].comment = updatedComment;
+      forceRerender();
+    }
+  }, [client, forceRerender]);
+
+  const addComment = useCallback(async (comment: CommentsList): Promise<void> => {
+    stateRef.current.comments[comment._id] = {
+      comment,
+      visibility: "visible",
+    };
+    forceRerender();
+  }, [forceRerender]);
+
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf
-  }), [showMoreChildrenOf]);
+    showMoreChildrenOf, invalidateComment, addComment
+  }), [showMoreChildrenOf, invalidateComment, addComment]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();

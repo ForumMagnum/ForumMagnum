@@ -1,5 +1,5 @@
+import React, { ComponentProps, useState, useContext } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, { ComponentProps, useState } from 'react';
 import { Comments } from '../../lib/collections/comments/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
@@ -10,11 +10,12 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useUpdateComment } from '../hooks/useUpdateComment';
+import { afNonMemberDisplayInitialPopup, afCommentNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { CommentPoolContext } from './CommentPool';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -113,6 +114,7 @@ export type CommentsNewFormProps = {
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
+  const commentPoolContext = useContext(CommentPoolContext);
   prefilledProps = {
     ...prefilledProps,
     af: commentDefaultToAlignment(currentUser, post, parentComment),
@@ -124,10 +126,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
   
   const { openDialog } = useDialog();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
-  })
+  const updateComment = useUpdateComment('SuggestAlignmentComment')
   
   // On focus (this bubbles out from the text editor), show moderation guidelines.
   // Defer this through a setTimeout, because otherwise clicking the Cancel button
@@ -149,7 +148,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
-    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
+    afCommentNonMemberSuccessHandling({currentUser, comment, openDialog, updateComment })
     if (comment.deleted) {
       flash(comment.deletedReason);
     }
@@ -157,6 +156,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       successCallback(comment, { form })
     }
     setLoading(false)
+    
+    if (commentPoolContext) {
+      void commentPoolContext.addComment(comment);
+    }
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {
