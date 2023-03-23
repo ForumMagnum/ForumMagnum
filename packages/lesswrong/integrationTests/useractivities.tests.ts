@@ -74,7 +74,7 @@ describe('updateUserActivities', () => {
     (getUserActivityFactors as jest.MockedFunction<typeof getUserActivityFactors>).mockResolvedValue(mockedActivityFactors);
   
     // Run updateUserActivities
-    await updateUserActivities({ endDate: newEndDate });
+    await updateUserActivities({ updateEndDate: newEndDate });
   
     const allUserActivities = await UserActivities.find({}).fetch();
     expect(allUserActivities.length).toEqual(4); // 3 existing users, 2 new users, 1 user removed (userId2)

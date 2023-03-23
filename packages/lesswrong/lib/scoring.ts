@@ -139,7 +139,6 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
   return { $pow: [{ $add: [ageInHours, startingAgeHours] }, hypDecayFactor] };
 }
 
-// TODO rename or something
 export const timeDecayExpr = () => {
   return {$pow: [
     {$add: [

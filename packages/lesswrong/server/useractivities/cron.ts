@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { chunk, max, min } from 'lodash/fp';
+import { chunk, max } from 'lodash/fp';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
@@ -64,29 +64,28 @@ async function getStartEndDate(dataDb: SqlClient) {
   const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
   const fallbackStartDate = new Date(yesterday.getTime() - (7 * 24 * 60 * 60 * 1000));
   const lastEndDate = last_end_date ? new Date(last_end_date) : fallbackStartDate;
-  const oldStartDate = last_start_date ? new Date(last_start_date) : undefined;
+  const prevStartDate = last_start_date ? new Date(last_start_date) : undefined;
   
   // Round down lastEndDate to the nearest hour
   lastEndDate.setMinutes(0, 0, 0);
 
-  // endDate is now, rounded down to the nearest hour
-  // TODO go back to previous day
-  const endDate = new Date(yesterday.getTime());
-  endDate.setHours(endDate.getHours(), 0, 0, 0);
+  const newEndDate = new Date(yesterday.getTime());
+  // Round down endDate to the nearest hour
+  newEndDate.setHours(newEndDate.getHours(), 0, 0, 0);
 
   return {
-    oldStartDate: oldStartDate,
-    startDate: lastEndDate,
-    endDate: endDate,
+    prevStartDate,
+    updateStartDate: lastEndDate,
+    updateEndDate: newEndDate,
   };
 }
 
 interface ConcatNewActivityParams {
   dataDb: SqlClient;
   activityFactors: ActivityFactor[];
-  oldActivityStartDate: Date;
-  newActivityStartDate: Date;
-  newActivityEndDate: Date;
+  prevStartDate: Date;
+  updateStartDate: Date;
+  updateEndDate: Date;
   visitorIdType: 'userId' | 'clientId';
 }
 
@@ -99,7 +98,7 @@ interface ConcatNewActivityParams {
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
  */
-async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate, newActivityStartDate, newActivityEndDate, visitorIdType}: ConcatNewActivityParams) {
+async function concatNewActivity({dataDb, activityFactors, prevStartDate, updateStartDate, updateEndDate, visitorIdType}: ConcatNewActivityParams) {
   // remove activityFactors with userOrClientId that is not 17 chars (userId and clientId stored verbatim from the event, which means people can insert fake values)
   const cleanedActivityFactors = activityFactors.filter(({userOrClientId}) => userOrClientId.length <= 17)
 
@@ -108,7 +107,7 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
     SELECT "visitorId" FROM "UserActivities" where "type" = '${visitorIdType}';
   `)).map(({ visitorId }) => visitorId);
   // Go back to the start of the activity window, up to a maximum of ACTIVITY_WINDOW_HOURS in the past
-  const paddedStartDate = max([oldActivityStartDate, new Date(newActivityEndDate.getTime() - (ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000))]) ?? oldActivityStartDate;
+  const paddedStartDate = max([prevStartDate, new Date(updateEndDate.getTime() - (ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000))]) ?? prevStartDate;
   
   // First case: Add rows for users who are newly active (zero padding the end as necessary)
 
@@ -117,7 +116,7 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
     .filter(({ userOrClientId }) => !existingUserIds.includes(userOrClientId))
     .map(({ userOrClientId, activityArray: activity_array }) => {
       // paddedArray should be [...activity_array], plus zero padding going back to paddedStartDate:
-      const zeroPaddingLength = Math.floor((newActivityEndDate.getTime() - paddedStartDate.getTime()) / (60 * 60 * 1000)) - activity_array.length
+      const zeroPaddingLength = Math.floor((updateEndDate.getTime() - paddedStartDate.getTime()) / (60 * 60 * 1000)) - activity_array.length
       const zeroPadding = Array(zeroPaddingLength).fill(0);
       const paddedArray = [...activity_array, ...zeroPadding];
       return { userOrClientId, paddedArray };
@@ -135,7 +134,7 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
         VALUES ${placeholders}
       `;
       const queryParams = dataChunk.flatMap(({ userOrClientId, paddedArray }) => {
-        return [randomId(), userOrClientId, paddedArray, paddedStartDate.toISOString(), newActivityEndDate.toISOString()];
+        return [randomId(), userOrClientId, paddedArray, paddedStartDate.toISOString(), updateEndDate.toISOString()];
       });
       await dataDb.none(insertQuery, queryParams);
     }
@@ -164,7 +163,7 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
           "UserActivities"."visitorId" = new_activity.user_id
           AND "UserActivities"."type" = '${visitorIdType}';
       `;
-      await dataDb.none(updateQuery, [paddedStartDate.toISOString(), newActivityEndDate.toISOString()]);
+      await dataDb.none(updateQuery, [paddedStartDate.toISOString(), updateEndDate.toISOString()]);
     }
   }
 
@@ -172,7 +171,7 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
   // (i.e. they have existing rows in the table but have not been active since we last updated the table)
   const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ userOrClientId }) => userOrClientId === id));
   if (inactiveExistingUserIds.length > 0) {
-    const newActivityHours = Math.ceil((newActivityEndDate.getTime() - newActivityStartDate.getTime()) / (1000 * 60 * 60));
+    const newActivityHours = Math.ceil((updateEndDate.getTime() - updateStartDate.getTime()) / (1000 * 60 * 60));
     const inactiveExistingUserIdsChunked = chunk(1000, inactiveExistingUserIds)
     console.log(`Adding zero-padding to ${inactiveExistingUserIds.length} existing rows for which there is no new activity, in ${inactiveExistingUserIdsChunked.length} chunks`)
 
@@ -187,14 +186,13 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
           "UserActivities"."visitorId" IN (${userIdsChunk.map((_, index) => `$${index + 3}`).join(', ')})
           AND "UserActivities"."type" = '${visitorIdType}';
       `;
-      const queryParams = [paddedStartDate.toISOString(), newActivityEndDate.toISOString(), ...userIdsChunk];
+      const queryParams = [paddedStartDate.toISOString(), updateEndDate.toISOString(), ...userIdsChunk];
       await dataDb.none(updateQuery, queryParams);
     }
   }
 
   // Fourth case: Every user has had their activity updated now. Remove rows for users who are no longer active in the last
   // ACTIVITY_WINDOW_HOURS (i.e. the activity array is all zeros)
-  // SELECT to log how many will be deleted
   const countQuery = `
     SELECT COUNT(*) as delete_count FROM "UserActivities"
     WHERE
@@ -215,33 +213,30 @@ async function concatNewActivity({dataDb, activityFactors, oldActivityStartDate,
 /**
  * Update the UserActivities table with the latest activity data from the analytics database
  */
-export async function updateUserActivities(props?: {startDate?: Date, endDate?: Date}) {
+export async function updateUserActivities(props?: {updateStartDate?: Date, updateEndDate?: Date}) {
   const dataDb = await getSqlClientOrThrow();
   if (!dataDb) {
     throw new Error("updateUserActivities: couldn't get database connection");
   };
 
   await assertTableIntegrity(dataDb);
-  // TODO rename startDate and endDate to be clearer
-  const { oldStartDate, startDate, endDate } = {...(await getStartEndDate(dataDb)), ...props};
+  const { prevStartDate, updateStartDate, updateEndDate } = {...(await getStartEndDate(dataDb)), ...props};
 
   // Get the most recent activity data from the analytics database
-  const activityFactors = await getUserActivityFactors(startDate, endDate);
+  const activityFactors = await getUserActivityFactors(updateStartDate, updateEndDate);
 
-  console.log(`Updating user activity for ${activityFactors.length} users between ${startDate} and ${endDate}`);
+  console.log(`Updating user activity for ${activityFactors.length} users between ${updateStartDate} and ${updateEndDate}`);
 
   const userActivityFactors = activityFactors
-    .filter(factor => {
-      return factor.userOrClientId?.startsWith('u:');
-    })
+    .filter(factor => factor.userOrClientId?.startsWith('u:'))
     .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
   const clientActivityFactors = activityFactors
     .filter(factor => factor.userOrClientId?.startsWith('c:'))
     .map(factor => ({...factor, userOrClientId: factor.userOrClientId.slice(2)}));
 
   // Update the UserActivities table with the new activity data
-  await concatNewActivity({dataDb, activityFactors: userActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'userId'});
-  await concatNewActivity({dataDb, activityFactors: clientActivityFactors, oldActivityStartDate: oldStartDate ?? startDate, newActivityStartDate: startDate, newActivityEndDate: endDate, visitorIdType: 'clientId'});
+  await concatNewActivity({dataDb, activityFactors: userActivityFactors, prevStartDate: prevStartDate ?? updateStartDate, updateStartDate, updateEndDate, visitorIdType: 'userId'});
+  await concatNewActivity({dataDb, activityFactors: clientActivityFactors, prevStartDate: prevStartDate ?? updateStartDate, updateStartDate, updateEndDate, visitorIdType: 'clientId'});
 }
 
 export async function backfillUserActivities() {
@@ -274,7 +269,7 @@ export async function backfillUserActivities() {
     }
 
     // Update the UserActivities table with the activity data for the current date range
-    await updateUserActivities({ startDate: currentDate, endDate });
+    await updateUserActivities({ updateStartDate: currentDate, updateEndDate: endDate });
   }
 }
 

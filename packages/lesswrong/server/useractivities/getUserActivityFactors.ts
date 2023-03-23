@@ -7,20 +7,20 @@ export interface ActivityFactor {
 }
 
 /*
- * TODO explanation
+ * When running this script locally we want it to use the real analytics events
  */
 const liveEnvDescriptions: Record<string, string> = {
   "production": 'production',
   "staging": 'staging',
   "dev": 'development',
-  "local-dev-prod-db": 'production',
-  "local-dev-staging-db": 'staging',
+  "local-dev-prod-db": 'production', // prod running locally
+  "local-dev-staging-db": 'staging', // staging running locally
 }
 
 /**
  * Get an array of ActivityFactors, one for each user or client that was active between startDate and endDate
  */
-export async function getUserActivityFactors( // exported for testing
+export async function getUserActivityFactors(
   startDate: Date,
   endDate: Date
 ): Promise<ActivityFactor[]> {
