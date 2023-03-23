@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
