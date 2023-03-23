@@ -126,7 +126,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     display: "flex",
     alignItems: "center",
-    padding: '10px 0',
     "& svg": {
       height: 18,
       marginRight: 1,
@@ -135,6 +134,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[800],
       opacity: 1,
     },
+    [theme.breakpoints.up("sm")]: {
+      padding: '10px 0',
+    }
   },
   newComments: {
     fontWeight: 700,
