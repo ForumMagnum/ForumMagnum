@@ -38,7 +38,7 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
 export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   // We make sure that the settingsCache is initialized before we access the connection strings
   const connectionString = connectionStringSetting.get();
-   return getAnalyticsConnectionFromString(connectionString);
+  return getAnalyticsConnectionFromString(connectionString);
 };
 
 export const getMirrorAnalyticsConnection = (): AnalyticsConnectionPool | null => {
