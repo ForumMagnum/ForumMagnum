@@ -1,4 +1,3 @@
-import sum from 'lodash/sum';
 import { calculateActivityFactor } from '../server/useractivities/utils';
 import { DatabasePublicSetting } from './publicSettings';
 

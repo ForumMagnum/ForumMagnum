@@ -243,6 +243,10 @@ export async function updateUserActivities(props?: {updateStartDate?: Date, upda
   await concatNewActivity({dataDb, newActivityData: clientActivityData, prevStartDate: prevStartDate ?? updateStartDate, updateStartDate, updateEndDate, visitorIdType: 'clientId'});
 }
 
+/**
+ * Clear all UserActivity data and backfill it all the way back to ACTIVITY_WINDOW_HOURS ago.
+ * This takes about 10 minutes on prod (EA Forum)
+ */
 export async function backfillUserActivities() {
   const dataDb = await getSqlClientOrThrow();
   if (!dataDb) {
