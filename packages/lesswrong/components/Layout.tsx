@@ -118,6 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .Layout-main': {
       width: '100%',
+      paddingTop: 0,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'

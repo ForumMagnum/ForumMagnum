@@ -2,11 +2,11 @@ import React from 'react';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { makeCloudinaryImageUrl } from '../../common/CloudinaryImage2';
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
 const MIN_GAP = 20
+const TITLE_HEIGHT = 245 // FIXME is this right
 
 // TODO rename entire file
 
@@ -22,8 +22,6 @@ const gridTemplateColumns = `
 
 export const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
-    marginTop: -50,
-    // TODO comment
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
       display: 'block !important',
@@ -39,6 +37,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   bannerImage: {
     position: 'absolute',
+  },
+  translucentOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: TITLE_HEIGHT,
+    backgroundColor: theme.palette.greyAlpha(0.4),
   },
   header: {
     background: theme.palette.panelBackground.default,
@@ -71,8 +75,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'header',
   },
   titleComponent: {
+    position: 'relative',
     gridArea: 'title',
     zIndex: 10, // display over image
+    maxHeight: TITLE_HEIGHT,
   },
   content: {
     gridArea: 'content',
@@ -112,9 +118,10 @@ export const RightSidebarColumn = ({titleComponent, bannerImageId, headerCompone
         <CloudinaryImage2
           className={classes.bannerImage}
           publicId={bannerImageId}
-          height={228} // FIXME explicitly set shared height
+          height={TITLE_HEIGHT}
           fullWidthHeader
         />
+        <div className={classes.translucentOverlay}></div>
         <div className={classes.titleComponent}>{titleComponent}</div>
       </div>
       <div className={classes.header}>
