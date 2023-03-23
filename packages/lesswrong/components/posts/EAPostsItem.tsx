@@ -272,8 +272,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                {/* TODO: mobile and desktop disagree */}
-                wrap
                 className={classes.title}
               />
               <div className={classes.meta}>
