@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: db23b20a9616d4e0c6d7b91ec599accb
 
--- Accepted on 2023-03-16T11:58:16.000Z by 20230316T115816.add_UserActivities.ts
+-- Accepted on 2023-03-23T10:15:04.000Z by 20230323T101504.add_UserActivities.ts
 
 -- Schema for "AdvisorRequests", hash: 7d8b2c2f86db29368d55481bc888c1d9
 CREATE TABLE "AdvisorRequests" (
