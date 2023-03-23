@@ -73,7 +73,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
           })}
         </AnalyticsContext>
       </div>
-      {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
+      {canEdit && <SectionFooter>{editButton}</SectionFooter>}
     </div>
   )
 }
