@@ -1,7 +1,7 @@
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { environmentDescriptionSetting } from "../analyticsWriter";
 
-export interface ActivityFactor {
+export interface ActivityWindowData {
   userOrClientId: string;
   activityArray: number[];
 }
@@ -18,12 +18,12 @@ const liveEnvDescriptions: Record<string, string> = {
 }
 
 /**
- * Get an array of ActivityFactors, one for each user or client that was active between startDate and endDate
+ * Get an array of ActivityWindowData, one for each user or client that was active between startDate and endDate.
  */
-export async function getUserActivityFactors(
+export async function getUserActivityData(
   startDate: Date,
   endDate: Date
-): Promise<ActivityFactor[]> {
+): Promise<ActivityWindowData[]> {
   const analyticsDb = await getAnalyticsConnection();
   if (!analyticsDb) {
     throw new Error('Analytics database not available');
@@ -94,7 +94,7 @@ export async function getUserActivityFactors(
   // u:cKttArH2Bok7B9zeT, {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,1,0,0,0}
   // c:22g4uu6JdjYMBcvtm, {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0}
   //                                                      ^ this indicates they were active around 2020-01-01T13:00:00Z
-  const result = await analyticsDb.any<ActivityFactor>(activityAnalyticsSql, [startDate.toISOString(), endDate.toISOString()]);
+  const result = await analyticsDb.any<ActivityWindowData>(activityAnalyticsSql, [startDate.toISOString(), endDate.toISOString()]);
 
   return result;
 }

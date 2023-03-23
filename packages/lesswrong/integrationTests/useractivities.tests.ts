@@ -1,9 +1,9 @@
 import "./integrationTestSetup";
 import UserActivities from "../lib/collections/useractivities/collection";
 import { updateUserActivities } from "../server/useractivities/cron";
-import { getUserActivityFactors } from "../server/useractivities/getUserActivityFactors";
+import { getUserActivityData } from "../server/useractivities/getUserActivityData";
 
-jest.mock("../server/useractivities/getUserActivityFactors");
+jest.mock("../server/useractivities/getUserActivityData");
 
 const existingStartDate = new Date('2023-03-20T00:00:00.000Z');
 const existingEndDate = new Date('2023-03-21T00:00:00.000Z');
@@ -71,7 +71,7 @@ describe('updateUserActivities', () => {
     ];
   
     // Set up the mock implementation to return the mocked response
-    (getUserActivityFactors as jest.MockedFunction<typeof getUserActivityFactors>).mockResolvedValue(mockedActivityFactors);
+    (getUserActivityData as jest.MockedFunction<typeof getUserActivityData>).mockResolvedValue(mockedActivityFactors);
   
     // Run updateUserActivities
     await updateUserActivities({ updateEndDate: newEndDate });
