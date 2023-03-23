@@ -79,10 +79,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 2,
     [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "block",
+      display: "flex",
       maxWidth: "100%",
     },
     [theme.breakpoints.down("xs")]: {
@@ -137,6 +134,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[800],
       opacity: 1,
     },
+    [theme.breakpoints.up("sm")]: {
+      padding: '10px 0',
+    }
   },
   newComments: {
     fontWeight: 700,
@@ -275,7 +275,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                wrap
                 className={classes.title}
               />
               <div className={classes.meta}>

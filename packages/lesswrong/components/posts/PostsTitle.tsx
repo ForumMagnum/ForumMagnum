@@ -65,7 +65,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.normal,
     }
   },
-  hideSmDown: { // TODO FIX NAME
+  eaTitleDesktopEllipsis: isEAForum ? {
+    '&:hover': {
+      opacity: 0.5
+    },
+    '& a': {
+      opacity: 1
+    },
+    [theme.breakpoints.up("sm")]: {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+  } : {},
+  hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",
     }
@@ -173,8 +186,10 @@ const PostsTitle = ({
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon hasColor />
       </span>}
-      {isLink ? <Link to={url}>{title}</Link> : title }
-      {showIcons && <span className={classes.hideSmDown}>
+      <span className={!wrap && classes.eaTitleDesktopEllipsis}>
+        {isLink ? <Link to={url}>{title}</Link> : title }
+      </span>
+      {showIcons && <span className={classes.hideXsDown}>
         <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
       </span>}
     </span>
