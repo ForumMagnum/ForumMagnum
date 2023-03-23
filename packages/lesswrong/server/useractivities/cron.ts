@@ -52,8 +52,8 @@ async function assertTableIntegrity(dataDb: SqlClient) {
 
 /**
  * Get the start and end date for the next user activity update. startDate will be the end date of the
- * current rows in the UserActivities table, or 7 days ago if there are no rows. endDate will be the current time, minus an hour.
- * Both of these dates will be rounded down to the nearest hour.
+ * current rows in the UserActivities table, or 7 days ago if there are no rows. endDate will be the current time,
+ * minus a day so as to ignore the current day's activity.
  */
 async function getStartEndDate(dataDb: SqlClient) {
   const { last_end_date, last_start_date } = await dataDb.one(`
@@ -61,8 +61,8 @@ async function getStartEndDate(dataDb: SqlClient) {
     FROM "UserActivities";
   `);
 
-  const now = new Date();
-  const fallbackStartDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+  const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+  const fallbackStartDate = new Date(yesterday.getTime() - (7 * 24 * 60 * 60 * 1000));
   const lastEndDate = last_end_date ? new Date(last_end_date) : fallbackStartDate;
   const oldStartDate = last_start_date ? new Date(last_start_date) : undefined;
   
@@ -70,7 +70,8 @@ async function getStartEndDate(dataDb: SqlClient) {
   lastEndDate.setMinutes(0, 0, 0);
 
   // endDate is now, rounded down to the nearest hour
-  const endDate = new Date(now.getTime());
+  // TODO go back to previous day
+  const endDate = new Date(yesterday.getTime());
   endDate.setHours(endDate.getHours(), 0, 0, 0);
 
   return {
@@ -253,23 +254,23 @@ export async function backfillUserActivities() {
   await dataDb.none(`DELETE FROM "UserActivities";`);
 
   // Get the current date and time (rounded down to the hour)
-  const now = new Date();
-  now.setMinutes(0);
-  now.setSeconds(0);
-  now.setMilliseconds(0);
+  const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+  yesterday.setMinutes(0);
+  yesterday.setSeconds(0);
+  yesterday.setMilliseconds(0);
 
   // Calculate the starting date for the backfill (ACTIVITY_WINDOW_HOURS ago)
-  const startDate = new Date(now);
+  const startDate = new Date(yesterday);
   startDate.setHours(startDate.getHours() - ACTIVITY_WINDOW_HOURS);
 
   // Loop over the range of dates in 24-hour increments
-  for (let currentDate = startDate; currentDate < now; currentDate.setHours(currentDate.getHours() + 24)) {
+  for (let currentDate = startDate; currentDate < yesterday; currentDate.setHours(currentDate.getHours() + 24)) {
     const endDate = new Date(currentDate);
     endDate.setHours(endDate.getHours() + 24);
     
     // Make sure we don't go past 'now'
-    if (endDate > now) {
-      endDate.setTime(now.getTime());
+    if (endDate > yesterday) {
+      endDate.setTime(yesterday.getTime());
     }
 
     // Update the UserActivities table with the activity data for the current date range

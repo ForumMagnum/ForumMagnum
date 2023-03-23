@@ -23,7 +23,7 @@ const generateUserActivityReport = async (activityHalfLifeHours: number = defaul
   const rows = await db.any(query);
   
   const results = rows.map(row => {
-    const activityFactor = calculateActivityFactor(row.activityArray, activityHalfLifeHours); // Replace 48 with your halfLifeHours value
+    const activityFactor = calculateActivityFactor(row.activityArray, activityHalfLifeHours);
     return { userId: row.userId, slug: row.slug, activityFactor };
   }).sort((a, b) => b.activityFactor - a.activityFactor);
   
