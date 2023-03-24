@@ -167,7 +167,7 @@ export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
 export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
+  ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
   draftJS: {name: 'Draft-JS'},
 }
