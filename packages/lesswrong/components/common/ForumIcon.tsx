@@ -7,6 +7,7 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
+import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
@@ -14,6 +15,7 @@ import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import MuiBellBorderIcon from '@material-ui/icons/NotificationsNone';
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
@@ -36,6 +38,7 @@ export type ForumIconName =
   "VolumeUp" |
   "Bookmark" |
   "BookmarkBorder" |
+  "BellBorder" |
   "Star" |
   "StarBorder" |
   "User" |
@@ -53,6 +56,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
+    BellBorder: MuiBellBorderIcon,
     Star: MuiStarIcon,
     StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
@@ -69,6 +73,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
+    BellBorder: BellOutlineIcon,
     Star: StarIcon,
     StarBorder: StarOutlineIcon,
     User: UserIcon,

@@ -121,6 +121,7 @@ const TagNotificationSettings = ({
     )
   }
   
+  // TODO maybe kill this file for now, not planning shortform notifications soon
   // NOTE: EVERTHING BELOW THIS POINT IS CURRENTLY DISABLED (by allowSubforumMenu)
 
   const getIsSubscribedToPosts = () => {
