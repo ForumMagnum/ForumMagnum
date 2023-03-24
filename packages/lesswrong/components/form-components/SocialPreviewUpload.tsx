@@ -108,7 +108,7 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
   const contentsType = originalContents.type
   if (!['html', 'ckEditorMarkup', 'markdown'].includes(contentsType)) {
     return {
-      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or EA Forum Docs [Beta] to see the description preview>`,
+      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or EA Forum Docs to see the description preview>`,
       fallbackImageUrl: null,
     };
   }
