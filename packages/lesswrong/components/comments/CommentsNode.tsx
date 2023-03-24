@@ -32,6 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   },
+  loadMoreReplies: {
+    paddingLeft: 12,
+    paddingBottom: 8,
+  },
 })
 
 export interface CommentsNodeProps {
@@ -292,9 +296,14 @@ const CommentsNode = ({
       
       {!isSingleLine && !collapsed && commentPoolContext
         && (!childComments || comment.directChildrenCount > childComments.length)
-        && <LoadMore loadMore={async () => {
-          await commentPoolContext.showMoreChildrenOf(comment._id);
-        }}/>
+        && <div className={classes.loadMoreReplies}>
+          <LoadMore message="Load More Replies"
+            count={childComments?.length ?? 0} totalCount={comment.directChildrenCount}
+            loadMore={async () => {
+              await commentPoolContext.showMoreChildrenOf(comment._id);
+            }}
+          />
+        </div>
       }
     </CommentFrame>
   </div>

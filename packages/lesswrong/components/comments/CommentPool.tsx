@@ -24,7 +24,8 @@ interface SingleCommentState {
   visibility: "hidden"|"visible"
 }
 interface CommentPoolState {
-  comments: Record<string,SingleCommentState>
+  commentsSortOrder: string[]
+  commentsById: Record<string,SingleCommentState>
 }
 
 /**
@@ -111,13 +112,13 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
       client,
     });
     if (updatedComment) {
-      stateRef.current.comments[commentId].comment = updatedComment;
+      stateRef.current.commentsById[commentId].comment = updatedComment;
       forceRerender();
     }
   }, [client, forceRerender]);
 
   const addComment = useCallback(async (comment: CommentsList): Promise<void> => {
-    stateRef.current.comments[comment._id] = {
+    stateRef.current.commentsById[comment._id] = {
       comment,
       visibility: "visible",
     };
@@ -134,7 +135,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     forceRerender();
   }, [forceRerender, loadAll]);
   
-  const loadedComments: SingleCommentState[] = Object.values(stateRef.current.comments)
+  const loadedComments: SingleCommentState[] = stateRef.current.commentsSortOrder.map(commentId => stateRef.current.commentsById[commentId]);
   const visibleComments = filter(loadedComments, c=>c.visibility!=="hidden");
   const tree = unflattenComments(visibleComments.map(c=>c.comment));
 
@@ -166,7 +167,8 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
 
 function initialStateFromComments(initialComments: CommentsList[]): CommentPoolState {
   return {
-    comments: keyBy(
+    commentsSortOrder: initialComments.map(c=>c._id),
+    commentsById: keyBy(
       initialComments.map(comment => ({comment, visibility: "visible"})),
       c => c.comment._id
     )
@@ -174,9 +176,11 @@ function initialStateFromComments(initialComments: CommentsList[]): CommentPoolS
 }
 
 function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList[]): CommentPoolState {
-  const newCommentStates = {...state.comments};
+  const newCommentStates = {...state.commentsById};
+  const addedCommentIds: string[] = [];
   for (let comment of loadedComments) {
     if (!newCommentStates[comment._id]) {
+      addedCommentIds.push(comment._id);
       newCommentStates[comment._id] = {
         comment, visibility: "hidden"
       };
@@ -184,12 +188,13 @@ function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList
   }
   return {
     ...state,
-    comments: newCommentStates,
+    commentsSortOrder: [...state.commentsSortOrder, ...addedCommentIds],
+    commentsById: newCommentStates,
   };
 }
 
 function hasHiddenTopLevelComments(state: CommentPoolState): boolean {
-  for (let commentState of Object.values(state.comments)) {
+  for (let commentState of Object.values(state.commentsById)) {
     if (!commentState.comment.parentCommentId && commentState.visibility==="hidden") {
       return true;
     }
@@ -199,12 +204,12 @@ function hasHiddenTopLevelComments(state: CommentPoolState): boolean {
 
 function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
   const hiddenTopLevelCommentIds: string[] = filter(
-    Object.keys(state.comments),
-    commentId => !state.comments[commentId].comment.parentCommentId
-      && state.comments[commentId].visibility==="hidden"
+    Object.keys(state.commentsById),
+    commentId => !state.commentsById[commentId].comment.parentCommentId
+      && state.commentsById[commentId].visibility==="hidden"
   );
   const byDescendingKarma = orderBy(hiddenTopLevelCommentIds,
-    commentId => -state.comments[commentId].comment.baseScore);
+    commentId => -state.commentsById[commentId].comment.baseScore);
 
   const commentIdsToReveal = take(byDescendingKarma, n);
   return revealCommentIds(state, commentIdsToReveal);
@@ -212,12 +217,12 @@ function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
 
 function revealChildren(state: CommentPoolState, parentCommentId: string, n: number): CommentPoolState {
   const hiddenChildComments = filter(
-    Object.keys(state.comments),
-    commentId => state.comments[commentId].comment.parentCommentId === parentCommentId
-      && state.comments[commentId].visibility==="hidden"
+    Object.keys(state.commentsById),
+    commentId => state.commentsById[commentId].comment.parentCommentId === parentCommentId
+      && state.commentsById[commentId].visibility==="hidden"
   );
   const byDescendingKarma = orderBy(hiddenChildComments,
-    commentId => -state.comments[commentId].comment.baseScore);
+    commentId => -state.commentsById[commentId].comment.baseScore);
 
   const commentIdsToReveal = take(byDescendingKarma, n);
   return revealCommentIds(state, commentIdsToReveal);
@@ -229,7 +234,7 @@ function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolSt
 
   return {
     ...state,
-    comments: mapValues(state.comments,
+    commentsById: mapValues(state.commentsById,
       (c: SingleCommentState): SingleCommentState => {
         if (includes(ids, c.comment._id))
           return {...c, visibility: "visible"}

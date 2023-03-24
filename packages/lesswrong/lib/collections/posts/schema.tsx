@@ -2343,6 +2343,22 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
   
+  topLevelCommentCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "commentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && !comment.parentCommentId
+    }),
+    canRead: ['guests'],
+  },
+  
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",
