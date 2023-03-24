@@ -61,3 +61,5 @@ export const QueryLink: any = (reactRouter.withRouter as any)(({query, location,
 })
 
 export const Redirect = reactRouter.Redirect;
+
+export const useHistory = reactRouter.useHistory;

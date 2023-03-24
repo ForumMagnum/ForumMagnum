@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import StarIcon from '@material-ui/icons/Star';
 import LocationIcon from '@material-ui/icons/LocationOn'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -67,7 +66,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const { FormatDate, ProfilePhoto } = Components
+  const { FormatDate, ProfilePhoto, ForumIcon } = Components
   const user = hit as AlgoliaUser
 
   return <div className={classes.root}>
@@ -82,7 +81,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
-            <StarIcon className={classes.metaInfoIcon} /> {user.karma ?? 0}
+            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
           </span>
           {user.mapLocationAddress && <span className={classes.metaInfo}>
             <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}

@@ -1,11 +1,18 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 export const iconWidth = 30
+
+const iconTransform = forumSelect({
+  LessWrong: "scale(0.8)",
+  EAForum: "scale(0.7)",
+  default: undefined,
+});
 
 const styles = (theme: ThemeType): JssStyles => ({
   selected: {
@@ -13,16 +20,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[900],
+      color: theme.palette.grey[isEAForum ? 1000 : 900],
       fontWeight: 600,
     },
   },
   navButton: {
     '&:hover': {
-      opacity:.6,
+      opacity: isEAForum ? 1 : 0.6,
+      color: isEAForum ? theme.palette.grey[800] : undefined,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    
+    color: theme.palette.grey[isEAForum ? 600 : 800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -53,19 +61,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 28,
     marginRight: 16,
     display: "inline",
-    
     "& svg": {
-      fill: "currentColor",
-      color: theme.palette.icon.navigationSidebarIcon,
-      ...(theme.forumType === "LessWrong"
-        ? { transform: "scale(0.8)" }
-        : {}
-      ),
+      fill: isEAForum ? undefined : "currentColor",
+      color: isEAForum ? undefined : theme.palette.icon.navigationSidebarIcon,
+      transform: iconTransform,
+    },
+  },
+  selectedIcon: {
+    "& svg": {
+      color: isEAForum ? theme.palette.grey[1000] : undefined,
     },
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[800],
+    color: "inherit",
     textTransform: "none !important",
   },
   homeIcon: {
@@ -74,6 +83,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "relative",
       top: -1,
     }
+  },
+  tooltip: {
+    maxWidth: isEAForum ? 190 : undefined,
   },
 })
 
@@ -99,7 +111,17 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
     }
   }
 
-  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
+  const isSelected = pathname === tab.link;
+  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
+  const IconComponent = isSelected
+    ? tab.selectedIconComponent ?? tab.iconComponent
+    : tab.iconComponent;
+
+  return <LWTooltip
+    placement='right-start'
+    title={tab.tooltip || ''}
+    className={classes.tooltip}
+  >
     <MenuItemLink
       onClick={handleClick}
       // We tried making this [the 'component' of the underlying material-UI
@@ -110,14 +132,15 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       rootClass={classNames({
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
-        [classes.selected]: pathname === tab.link,
+        [classes.selected]: isSelected,
       })}
       disableTouchRipple
     >
-      {(tab.icon || tab.iconComponent) && <span
-        className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
-      >
-        {tab.iconComponent && <tab.iconComponent />}
+      {hasIcon && <span className={classNames(classes.icon, {
+        [classes.selectedIcon]: isSelected,
+        [classes.homeIcon]: tab.id === 'home',
+      })}>
+        {IconComponent && <IconComponent />}
         {tab.icon && tab.icon}
       </span>}
       {tab.subItem ?

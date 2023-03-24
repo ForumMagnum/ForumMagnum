@@ -7,7 +7,7 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
-import { topTagIconMap } from '../tagging/TopTagIcon';
+import { coreTagIconMap } from '../tagging/CoreTagIcon';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -161,11 +161,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, TopTagIcon } = Components
+  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
-  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && topTagIconMap[comment.tag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -178,7 +178,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
-          <TopTagIcon tag={comment.tag} />
+          <CoreTagIcon tag={comment.tag} />
         </div>}
 
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>

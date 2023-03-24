@@ -14,13 +14,14 @@ import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontWeight: 400,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
     position: "relative"
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
@@ -60,15 +61,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    fontStyle: 'italic',
     marginTop: 4,
+    ...theme.typography.italic,
   }
 })
 
-interface CommentsListSectionState {
-  highlightDate: Date,
-  anchorEl: any,
-}
 
 const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
   post?: PostsDetails,
@@ -177,7 +174,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
+          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

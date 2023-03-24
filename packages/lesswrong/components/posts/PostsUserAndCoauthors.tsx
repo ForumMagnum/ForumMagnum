@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
+import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
 const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
@@ -57,18 +58,17 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean
 }) => {
+  const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
+
   const { UsersName, UserNameDeleted } = Components
-  if (!post.user || post.hideAuthor)
-    return <UserNameDeleted/>;
 
   if (post.debate) {
-    const participants = [post.user, ...post.coauthors];
     const { unreadDebateCommentCount } = post;
 
     return (
       <div className={classes.unreadDebateComments}>
         <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-          {participants.map((participant, idx) =>
+          {authors.map((participant, idx) =>
             <React.Fragment key={participant._id}>
               {idx !== 0 ? ", " : ""}<UsersName user={participant} simple={simple} tooltipPlacement={tooltipPlacement}/>
             </React.Fragment>
@@ -82,17 +82,18 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     );
   }
 
-  const topCommentAuthor = post.question ? post.bestAnswer?.user : post.lastPromotedComment?.user
-  const renderTopCommentAuthor = (forumTypeSetting.get() && topCommentAuthor && topCommentAuthor._id != post.user._id)
-  
+  if (isAnon)
+    return <UserNameDeleted/>;
+
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-    {<UsersName user={post.user} simple={simple} tooltipPlacement={tooltipPlacement} />}
-    {post.coauthors.filter(({ _id }) => !postCoauthorIsPending(post, _id)).map((coauthor) =>
-      <React.Fragment key={coauthor._id}>
-        {", "}<UsersName user={coauthor} simple={simple} tooltipPlacement={tooltipPlacement}/>
+    {authors.map((author, i) =>
+      <React.Fragment key={author._id}>
+        {i > 0 ? ", " : ""}
+        <UsersName user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
       </React.Fragment>
-    )}
-    {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
+    )
+    }
+    {topCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
       <UsersName user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
     </span>}

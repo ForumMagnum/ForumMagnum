@@ -965,6 +965,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
   readonly fmCrosspost: {
@@ -982,7 +983,10 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
+interface PostsListTagWithVotes extends PostsListWithVotes { // fragment on Posts
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -1059,7 +1063,7 @@ interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsList|null,
+  readonly sourcePost: PostsListWithVotes|null,
   readonly order: number,
 }
 
@@ -1067,7 +1071,7 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsList|null,
+  readonly targetPost: PostsListWithVotes|null,
   readonly order: number,
 }
 
@@ -1831,7 +1835,7 @@ interface ChaptersFragment { // fragment on Chapters
   readonly number: number,
   readonly sequenceId: string,
   readonly postIds: Array<string>,
-  readonly posts: Array<PostsList>,
+  readonly posts: Array<PostsListWithVotes>,
 }
 
 interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
@@ -1885,7 +1889,7 @@ interface BookPageFragment { // fragment on Books
   readonly sequenceIds: Array<string>,
   readonly sequences: Array<SequencesPageWithChaptersFragment>,
   readonly postIds: Array<string>,
-  readonly posts: Array<PostsList>,
+  readonly posts: Array<PostsListWithVotes>,
   readonly collectionId: string,
   readonly displaySequencesAsGrid: boolean,
   readonly hideProgressBar: boolean,
@@ -2976,6 +2980,7 @@ interface FragmentTypes {
   PostsListBase: PostsListBase
   PostsList: PostsList
   PostsListTag: PostsListTag
+  PostsListTagWithVotes: PostsListTagWithVotes
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
   PostsPlaintextDescription: PostsPlaintextDescription
@@ -3159,6 +3164,7 @@ interface CollectionNamesByFragmentName {
   PostsListBase: "Posts"
   PostsList: "Posts"
   PostsListTag: "Posts"
+  PostsListTagWithVotes: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
   PostsPlaintextDescription: "Posts"

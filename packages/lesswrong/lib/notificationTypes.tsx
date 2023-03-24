@@ -15,7 +15,6 @@ import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
-import StarIcon from '@material-ui/icons/Star';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
@@ -193,7 +192,7 @@ export const PostNominatedNotification = registerNotificationType({
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
   getIcon() {
-    return <StarIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Star" style={iconStyles} />
   }
 })
 
