@@ -455,19 +455,12 @@ async function recomputeKarma(userId: string) {
     cancelled: false,
     collectionName: {$in: collectionsThatAffectKarma}
   };
-  if (Votes.isPostgres()) {
-    selector["legacyData.legacy"] = {$ne: true};
-  } else {
-    selector.legacy = {$ne: true};
-  }
   const allTargetVotes = await Votes.find(selector).fetch()
-  const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
+  const karma = sumBy(allTargetVotes, vote => {
     // a doc author cannot give karma to themselves or any other authors for that doc
     return vote.authorIds.includes(vote.userId) ? 0 : vote.power
   })
-  // @ts-ignore FIXME: This legacyKarma field is correct for EAF, but unknown for other forums
-  const totalKarma = totalNonLegacyKarma + (user.legacyData?.legacyKarma || 0)
-  return totalKarma
+  return karma
 }
 
 Vulcan.getTotalKarmaForUser = recomputeKarma
