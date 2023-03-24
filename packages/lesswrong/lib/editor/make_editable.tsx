@@ -27,9 +27,9 @@ export interface MakeEditableOptions {
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
   formGroup?: any,
   permissions?: {
-    viewableBy?: any,
-    editableBy?: any,
-    insertableBy?: any,
+    canRead?: any,
+    canUpdate?: any,
+    canCreate?: any,
   },
   fieldName?: string,
   label?: string,
@@ -61,9 +61,9 @@ const defaultOptions: MakeEditableOptions = {
   // }
   getLocalStorageId: null,
   permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: ['members']
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members']
   },
   fieldName: "",
   order: 0,
@@ -196,13 +196,13 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
 
     [`${fieldName || "contents"}_latest`]: {
       type: String,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
     },
 
     [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
       resolveAs: {
         type: '[Revision]',
@@ -223,7 +223,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     
     [camelCaseify(`${fieldName}Version`)]: {
       type: String,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
       resolveAs: {
         type: 'String',
@@ -240,7 +240,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       // document IDs in that collection, in order of appearance
       pingbacks: {
         type: Object,
-        viewableBy: 'guests',
+        canRead: 'guests',
         optional: true,
         hidden: true,
         denormalized: true,
