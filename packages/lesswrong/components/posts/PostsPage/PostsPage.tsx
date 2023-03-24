@@ -274,9 +274,9 @@ const PostsPage = ({post, refetch, classes}: {
 
   const debateCommentIds = new Set((debateComments ?? []).map(comment => comment._id));
   const debateCommentReplies = nonDebateComments?.filter(comment => debateCommentIds.has(comment.topLevelCommentId));
-  const excludeCommentIds = debateComments && debateCommentReplies
-    ? new Set(debateCommentReplies.map(comment => comment._id))
-    : undefined;
+  // const excludeCommentIds = debateComments && debateCommentReplies
+  //   ? new Set(debateCommentReplies.map(comment => comment._id))
+  //   : undefined;
 
   const isDebateCommentLink = commentId && debateCommentIds.has(commentId);
   
@@ -392,7 +392,7 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} excludeCommentIds={excludeCommentIds}/>
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>

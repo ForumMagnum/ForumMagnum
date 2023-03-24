@@ -1,10 +1,8 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
-import ForumIcon from '@material-ui/icons/Forum';
+import DebateIcon from '@material-ui/icons/Forum';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
@@ -75,7 +73,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
           )}
         </div>
         {unreadDebateCommentCount && <div className={classNames(classes.unreadDebateCommentCount, classes.new)}>
-          <ForumIcon className={classes.unreadDebateCommentsIcon}/>
+          <DebateIcon className={classes.unreadDebateCommentsIcon}/>
           {unreadDebateCommentCount}
         </div>}
       </div>
