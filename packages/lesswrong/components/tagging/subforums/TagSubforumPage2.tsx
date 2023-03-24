@@ -66,7 +66,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
   },
-  notifyMeButton: {
+  subscribeButton: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 6,
+    },
+  },
+  writeNewButton: {
+    marginRight: 8,
     [theme.breakpoints.down('xs')]: {
       marginTop: 6,
     },
@@ -143,9 +149,8 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect,
     HeadTags,
     TagFlagItem,
-    Typography,
     RightSidebarColumn,
-    CloudinaryImage2,
+    WriteNewButton,
     SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
@@ -301,13 +306,21 @@ const TagSubforumPage2 = ({classes}: {
           <Tab label="Posts" value="posts" />
           <Tab label="Wiki" value="wiki" />
         </Tabs>
+        <WriteNewButton
+          tag={tag}
+          userTagRel={userTagRel}
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Unsubscribe"
+          subscriptionType={subscriptionTypes.newTagPosts}
+          className={classes.writeNewButton}
+        />
         <SubscribeButton
           tag={tag}
           userTagRel={userTagRel}
           subscribeMessage="Subscribe"
           unsubscribeMessage="Unsubscribe"
           subscriptionType={subscriptionTypes.newTagPosts}
-          className={classes.notifyMeButton}
+          className={classes.subscribeButton}
         />
       </div>
     </div>
