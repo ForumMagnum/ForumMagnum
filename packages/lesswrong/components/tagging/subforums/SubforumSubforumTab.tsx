@@ -201,7 +201,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <div className={classes.feedPostWrapper}>
         <RecentDiscussionThread
           key={tag.subforumIntroPost._id}
-          post={{ ...tag.subforumIntroPost, recentComments: [] }}
+          post={{ ...tag.subforumIntroPost, topLevelCommentCount: 0, recentComments: [] }}
           comments={[]}
           maxLengthWords={50}
           refetch={refetch}

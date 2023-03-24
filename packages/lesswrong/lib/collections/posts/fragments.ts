@@ -493,6 +493,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
     ...PostsList
+    topLevelCommentCount
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
