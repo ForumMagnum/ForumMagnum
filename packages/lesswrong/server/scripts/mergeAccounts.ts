@@ -451,7 +451,8 @@ async function recomputeKarma(userId: string) {
   const selector: Record<string, any> = {
     authorIds: user._id,
     userId: {$ne: user._id},
-    cancelled: false
+    cancelled: false,
+    collectionName: {$in: ["Posts", "Comments", "Revisions"]}
   };
   if (Votes.isPostgres()) {
     selector["legacyData.legacy"] = {$ne: true};
@@ -460,10 +461,11 @@ async function recomputeKarma(userId: string) {
   }
   const allTargetVotes = await Votes.find(selector).fetch()
   const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
-    return vote.power
+    // a doc author cannot give karma to themselves or any other authors for that doc
+    return vote.authorIds.includes(vote.userId) ? 0 : vote.power
   })
-  // @ts-ignore FIXME legacyKarma isn't in the schema, figure out whether it's real
-  const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
+  // @ts-ignore FIXME: This legacyKarma field is correct for EAF, but unknown for other forums
+  const totalKarma = totalNonLegacyKarma + (user.legacyData?.legacyKarma || 0)
   return totalKarma
 }
 
