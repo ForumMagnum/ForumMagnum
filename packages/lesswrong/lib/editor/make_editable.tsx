@@ -4,6 +4,7 @@ import { ContentType, getOriginalContents } from '../collections/revisions/schem
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
+import { isEAForum } from '../instanceSettings';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -41,7 +42,9 @@ export interface MakeEditableOptions {
   hidden?: boolean,
 }
 
-export const defaultEditorPlaceholder = `Write here. Select text for formatting options.
+export const defaultEditorPlaceholder = isEAForum ?
+`Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
+`Write here. Select text for formatting options.
 We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
 You can switch between rich text and markdown in your user settings.`
 

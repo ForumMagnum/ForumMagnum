@@ -63,14 +63,12 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 
-//
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import Button from './ckeditor5-button/button';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
-export class PostEditor extends BalloonBlockEditorBase {}
-export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must then run:
 // `yarn run rebuild-ckeditor`
@@ -141,10 +139,25 @@ const collaborativeEditorPlugins = [
 	PresenceList
 ];
 
-PostEditor.builtinPlugins = [ ...postEditorPlugins ];
-PostEditor.defaultConfig = { ...postEditorConfig };
-PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
-PostEditorCollaboration.defaultConfig = {...postEditorConfig};
+const siteSpecificPlugins = {
+  EAForum: [Button],
+};
+export function getPostEditor(forumType) {
+  class PostEditor extends BalloonBlockEditorBase {}
+  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditor.defaultConfig = { ...postEditorConfig };
+  return PostEditor;
+}
+
+// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
+// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
+export function getPostEditorCollaboration(forumType) {
+  class PostEditorCollaboration extends BalloonBlockEditorBase {}
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
+  return PostEditorCollaboration;
+}
+
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
 

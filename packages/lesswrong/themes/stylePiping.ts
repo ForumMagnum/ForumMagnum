@@ -176,6 +176,26 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const buttonStyles = (theme: ThemeType): JssStyles => ({
+  '& .customButton': {
+    display: "inline-block",
+    background: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    fontSize: 14,
+    lineHeight: '20px',
+    fontFamily: theme.typography.fontFamily,
+    padding: "12px 16px",
+    margin: "1em 0",
+    borderRadius: 6,
+    '&:hover': {
+      background: theme.palette.buttons.primaryHoverBackground,
+      color: theme.palette.grey[0],
+      opacity: 1
+    }
+  }
+  
+})
+
 const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -301,6 +321,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...buttonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,

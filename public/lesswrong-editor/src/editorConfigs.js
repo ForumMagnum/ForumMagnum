@@ -84,9 +84,10 @@ export const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'customButton',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote'
+		'footnote',
 	],
 	toolbar: {
 		items: [

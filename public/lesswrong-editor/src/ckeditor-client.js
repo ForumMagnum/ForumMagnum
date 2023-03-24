@@ -1,6 +1,6 @@
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
-import { CommentEditor, PostEditor, PostEditorCollaboration } from './ckeditor';
+import { CommentEditor, getPostEditor, getPostEditorCollaboration } from './ckeditor';
 
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };
+export const Editors = { CommentEditor, getPostEditor, getPostEditorCollaboration, EditorWatchdog };
 export default Editors;
 

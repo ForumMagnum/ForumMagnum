@@ -6,6 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getCkEditor } from '../../lib/wrapCkEditor';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 interface CKEditorProps {
   data?: any,
@@ -31,7 +32,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     // @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
     this.editor = null;
     this.domContainer = React.createRef();
-    const { EditorWatchdog } = getCkEditor();
+    const { EditorWatchdog } = getCkEditor(forumTypeSetting.get());
     this.watchdog = new EditorWatchdog()
   }
   
