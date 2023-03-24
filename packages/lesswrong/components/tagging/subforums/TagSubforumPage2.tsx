@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .MuiTab-labelContainer': {
       fontSize: '1rem',
-      padding: '24px 12px'
+      padding: '28px 12px'
     }
   },
   centralColumn: {
@@ -39,7 +39,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: MAX_COLUMN_WIDTH,
   },
   header: {
-    height: 64,
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
     width: "100%",
