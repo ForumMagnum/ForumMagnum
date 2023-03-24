@@ -13,7 +13,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.

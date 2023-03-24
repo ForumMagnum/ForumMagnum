@@ -9,6 +9,7 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
+import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -452,7 +453,7 @@ async function recomputeKarma(userId: string) {
     authorIds: user._id,
     userId: {$ne: user._id},
     cancelled: false,
-    collectionName: {$in: ["Posts", "Comments", "Revisions"]}
+    collectionName: {$in: collectionsThatAffectKarma}
   };
   if (Votes.isPostgres()) {
     selector["legacyData.legacy"] = {$ne: true};
