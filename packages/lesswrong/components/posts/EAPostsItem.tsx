@@ -314,7 +314,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 */}
               <SecondaryInfo />
             </div>
-            <a> {/* The `a` tag prevents clicks from navigating to the post */}
+            <a onClick={(e) => e.stopPropagation()}> {/* The `a` tag prevents clicks from navigating to the post */}
               <PostsItemTrailingButtons
                 {...{
                   post,

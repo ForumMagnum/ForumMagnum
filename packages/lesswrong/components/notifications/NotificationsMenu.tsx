@@ -1,11 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
@@ -83,7 +81,7 @@ const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, 
   const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
-      icon: () => (<AllIcon classes={{root: classes.icon}}/>),
+      icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
       terms: {view: "userNotifications"},
     },
     {

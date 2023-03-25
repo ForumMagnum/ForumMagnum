@@ -1,6 +1,4 @@
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import classNames from 'classnames';
 import React from 'react';
 import * as _ from 'underscore';
@@ -155,8 +153,8 @@ const NotifyMeButton = ({
     {loading
       ? <Components.Loading/>
       : (isSubscribed()
-        ? <NotificationsIcon />
-        : <NotificationsNoneIcon />
+        ? <Components.ForumIcon icon="Bell" />
+        : <Components.ForumIcon icon="BellBorder" />
       )
     }
   </ListItemIcon>
