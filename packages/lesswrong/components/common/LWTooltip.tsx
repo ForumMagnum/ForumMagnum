@@ -26,6 +26,7 @@ const LWTooltip = ({
   hideOnTouchScreens=false,
   classes,
   className,
+  titleClassName,
 }: {
   children?: ReactNode,
   title?: ReactNode,
@@ -37,7 +38,8 @@ const LWTooltip = ({
   disabled?: boolean,
   hideOnTouchScreens?: boolean,
   classes: ClassesType,
-  className?: string
+  className?: string,
+  titleClassName?: string
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -60,7 +62,7 @@ const LWTooltip = ({
       clickable={clickable}
       hideOnTouchScreens={hideOnTouchScreens}
     >
-      <div className={tooltip ? classes.tooltip : null}>{title}</div>
+      <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}
     
     {children}

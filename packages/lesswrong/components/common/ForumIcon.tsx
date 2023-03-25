@@ -20,6 +20,7 @@ import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
+import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -41,6 +42,7 @@ export type ForumIconName =
   "User" |
   "Link" |
   "Pin" |
+  "Sprout" |
   "Close" |
   "Comment" |
   "Shortform" |
@@ -58,6 +60,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: MuiPersonIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: NotesIcon,
@@ -74,6 +77,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: UserIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
