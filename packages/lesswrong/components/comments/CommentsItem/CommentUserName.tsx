@@ -5,7 +5,7 @@ import moment from 'moment';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../../lib/publicSettings';
 
-const newCommenterKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newCommenterKarmaThreshold', null)
+const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   author: {
@@ -59,7 +59,7 @@ const CommentUserName = ({comment, classes, simple = false, hideSprout, classNam
       </span>
     );
   } else {
-    const karmaThreshold = newCommenterKarmaThresholdSetting.get()
+    const karmaThreshold = newUserIconKarmaThresholdSetting.get()
     // show the "new user" sprout icon if the author has low karma or joined less than a week ago
     const showSproutIcon = (karmaThreshold && author.karma < karmaThreshold) ||
                             moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
@@ -72,7 +72,7 @@ const CommentUserName = ({comment, classes, simple = false, hideSprout, classNam
       />
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
-          title={`${author.displayName} is new on ${siteNameWithArticleSetting.get()}. Take care when replying.`}
+          title={`${author.displayName} is new on ${siteNameWithArticleSetting.get()}. Take care in replying.`}
           className={classes.sproutTooltip}
           titleClassName={classes.sproutTooltipTitle}
         >
