@@ -16,6 +16,8 @@ registerFragment(`
       quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
   }
 `);
 
@@ -37,8 +39,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount

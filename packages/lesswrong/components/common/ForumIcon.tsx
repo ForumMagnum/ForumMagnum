@@ -6,6 +6,7 @@ import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
+// import AuthorIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
@@ -20,6 +21,7 @@ import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
+import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
@@ -42,6 +44,7 @@ export type ForumIconName =
   "User" |
   "Link" |
   "Pin" |
+  "Author" |
   "Sprout" |
   "Close" |
   "Comment" |
@@ -60,6 +63,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: MuiPersonIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
@@ -77,6 +81,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     User: UserIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
