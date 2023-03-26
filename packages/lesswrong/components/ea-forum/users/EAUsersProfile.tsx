@@ -18,7 +18,6 @@ import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } fro
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
-import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
@@ -30,10 +29,17 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { useMessages } from '../../common/withMessages';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
+  },
+  mainSection: {
+    [theme.breakpoints.down('sm')]: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
   },
   sunshineSection: {
     marginBottom: 24
@@ -58,9 +64,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sectionHeadingCount: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '450',
     color: theme.palette.grey[600],
+    fontSize: 13,
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
     }
@@ -82,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-  
+
   profileImage: {
     'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
@@ -102,7 +108,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.grey[600],
-    fontSize: 12,
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
@@ -304,7 +309,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform,
+    ProfileShortform, ForumIcon,
   } = Components
 
   if (loading) {
@@ -366,7 +371,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
         {ownPage && <Link to="/newPost">
           <SectionButton>
-            <DescriptionIcon /> New Post
+            <DescriptionIcon /> New post
           </SectionButton>
         </Link>}
       </div>
@@ -379,7 +384,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
-            <LibraryAddIcon /> New Sequence
+            <LibraryAddIcon /> New sequence
           </SectionButton>
         </Link>}
       </div>
@@ -506,7 +511,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     />
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.mainSection)}>
           {user.profileImageId && <Components.CloudinaryImage2
             height={96}
             width={96}
@@ -528,7 +533,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentStyles contentType="comment" className={classes.iconsRow}>
             <Tooltip title={`${userKarma} karma`}>
               <span className={classes.userMetaInfo}>
-                <StarIcon className={classes.userMetaInfoIcon} />
+                <ForumIcon icon="Star" className={classes.userMetaInfoIcon} />
                 {userKarma}
               </span>
             </Tooltip>
@@ -595,13 +600,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
               Edit Profile
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage Subscriptions
+              Manage subscriptions
             </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-              Account Settings
+              Account settings
             </Link>}
             {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log Out
+              Log out
             </a>}
           </Typography>
         </div>
