@@ -6,7 +6,6 @@ import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
-// import AuthorIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";

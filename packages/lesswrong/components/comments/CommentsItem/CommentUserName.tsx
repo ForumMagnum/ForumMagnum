@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../../lib/publicSettings';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
@@ -21,18 +21,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: "none"
     }
   },
-  sproutTooltip: {
+  iconWrapper: {
     marginLeft: -4,
     marginRight: 10,
   },
   sproutTooltipTitle: {
     maxWidth: 200,
   },
-  authorIcon: {
+  postAuthorIcon: {
     verticalAlign: 'text-bottom',
     color: theme.palette.grey[500],
-    // color: '#76a0a7',
-    // color: '#a66ea3',
     fontSize: 16,
   },
   sproutIcon: {
@@ -78,18 +76,18 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
-      {isPostAuthor && <LWTooltip
+      {isEAForum && isPostAuthor && <LWTooltip
           placement="bottom-start"
           title="Post author"
-          className={classes.sproutTooltip}
+          className={classes.iconWrapper}
         >
-          <ForumIcon icon="Author" className={classes.authorIcon} />
+          <ForumIcon icon="Author" className={classes.postAuthorIcon} />
         </LWTooltip>
       }
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
           title={`${author.displayName} is new on ${siteNameWithArticleSetting.get()}. Take care in replying.`}
-          className={classes.sproutTooltip}
+          className={classes.iconWrapper}
           titleClassName={classes.sproutTooltipTitle}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
