@@ -51,6 +51,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleComponent: {
     paddingTop: 150,
     paddingBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 100,
+      paddingLeft: 24,
+      paddingRight: 24,
+    }
   },
   title: {
     ...theme.typography.headline,
@@ -60,6 +65,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
+    }
+  },
+  titleDesktop: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  },
+  titleMobile: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
     }
   },
   subtitle: {
@@ -75,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   writeNewButton: {
     marginRight: 8,
     [theme.breakpoints.down('xs')]: {
-      marginTop: 6,
+      display: 'none !important'
     },
   },
   wikiSection: {
@@ -327,7 +343,8 @@ const TagSubforumPage2 = ({classes}: {
   );
 
   const titleComponent = <div className={classNames(classes.titleComponent, classes.centralColumn)}>
-    <div className={classes.title}>{tag.name}</div>
+    <div className={classNames(classes.title, classes.titleDesktop)}>{tag.name}</div>
+    <div className={classNames(classes.title, classes.titleMobile)}>{tag.shortName || tag.name}</div>
     <div className={classes.subtitle}>{tag.subtitle}</div>
   </div>
 

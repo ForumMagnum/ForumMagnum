@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
@@ -6,7 +6,13 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
 const MIN_GAP = 20
-const TITLE_HEIGHT = 245 // FIXME is this right
+
+const TITLE_HEIGHT_DESKTOP = 245 // ~exactly right
+const TITLE_HEIGHT_MOBILE = 210 // slightly oversized to account for possible wrapping
+
+const Z_TOP = 3
+const Z_IMAGE = 1
+const Z_OVERLAY = 2
 
 // TODO rename entire file
 
@@ -35,17 +41,33 @@ export const styles = (theme: ThemeType): JssStyles => ({
       `,
     },
   },
-  bannerImage: {
+  bannerImageWrapper: {
     position: 'absolute',
+    width: '100%',
+    zIndex: Z_IMAGE,
+  },
+  bannerImage: {
+    width: '100%',
+    objectFit: 'cover',
+    height: TITLE_HEIGHT_DESKTOP,
+    [theme.breakpoints.down('sm')]: {
+      height: TITLE_HEIGHT_MOBILE,
+    }
   },
   translucentOverlay: {
     position: 'absolute',
+    zIndex: Z_OVERLAY,
     width: '100%',
-    height: TITLE_HEIGHT,
-    backgroundColor: theme.palette.greyAlpha(0.4),
+    height: TITLE_HEIGHT_DESKTOP,
+    backgroundColor: 'rgba(0,0,0,0.4))', // hardcode overlay to keep it the same in light and dark mode
+    [theme.breakpoints.down('sm')]: {
+      height: TITLE_HEIGHT_MOBILE,
+    }
   },
   header: {
+    position: 'relative',
     background: theme.palette.panelBackground.default,
+    zIndex: Z_TOP,
     [theme.breakpoints.down('md')]: {
       display: 'block !important',
     },
@@ -57,6 +79,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
         "... ... header   .... ....... .... ..."
       `,
     },
+  },
+  titleComponent: {
+    position: 'relative',
+    gridArea: 'title',
+    zIndex: Z_TOP, // display over image
+    maxHeight: TITLE_HEIGHT_DESKTOP,
   },
   body: {
     [theme.breakpoints.down('md')]: {
@@ -73,12 +101,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   headerInner: {
     gridArea: 'header',
-  },
-  titleComponent: {
-    position: 'relative',
-    gridArea: 'title',
-    zIndex: 10, // display over image
-    maxHeight: TITLE_HEIGHT,
   },
   content: {
     gridArea: 'content',
@@ -108,21 +130,66 @@ export const RightSidebarColumn = ({titleComponent, bannerImageId, headerCompone
 }) => {
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing
   const { CloudinaryImage2 } = Components
+  
+  /*
+   * The logic for rendering the banner image has turned out more complicated than I would
+   * have liked, but unfortunately it is neccesary to achieve the following things:
+   * 1. Cropping the image nicely
+   * 2. Not having any noticeable layout shift (on mobile)
+   *
+   * Explanation:
+   * 1. We want the title div to be the exact same height as the background image, the best
+   *    way to do this would be to set the image in CSS as the `background-image` of the title div.
+   *    Unfortunately there is a lot of magic in CloudinaryImage2 which makes the cropping look
+   *    nice, I couldn't reproduce this with the `background-image` method so I have ended up
+   *    setting the title div as `position: relative` and the background image (and translucent overlay)
+   *    as `position: absolute` to make them display on top of each other
+   * 2. The downside of doing the `position: relative`/`position: absolute` trick is that there is
+   *    no way for the two divs to know each others height from pure CSS. Additionally, the cropping
+   *    in CloudinaryImage2 relies on knowing the height in code, so it's ~necessary to set the height
+   *    in code.
+   *    This can't be done until after the page has rendered once, which would cause a layout
+   *    shift. To fix this I have made it so the banner image starts off slightly oversized but is hidden
+   *    behind the next element by using z-indices. Once the page has rendered once, the height gets
+   *    updated to exactly the right value which fixes the cropping (this is fairly discreet)
+   */
+  const titleComponentRef = useRef<HTMLDivElement>(null);
+  const translucentOverlayRef = useRef<HTMLDivElement>(null);
+  const [bannerHeight, setBannerHeight] = useState<number | undefined>(undefined);
+  
+  const updateElementsHeight = () => {
+    if (
+      titleComponentRef.current &&
+      translucentOverlayRef.current
+    ) {
+      const titleHeight = titleComponentRef.current.offsetHeight;
+      translucentOverlayRef.current.style.height = `${titleHeight}px`;
+      setBannerHeight(titleHeight);
+    }
+  };
 
-  // TODO: support having no image (even if just for admins to set up the page)
-  // const bannerImageUrl = makeCloudinaryImageUrl(bannerImageId, {c: 'fill', dpr: 'auto', q: 'auto', f: 'auto', g: 'auto:faces', h: '600', w: 'iw'})
+  useEffect(() => {
+    updateElementsHeight();
+    window.addEventListener('resize', updateElementsHeight);
+  
+    return () => {
+      window.removeEventListener('resize', updateElementsHeight);
+    };
+  }, []);
   
   return (
     <>
       <div className={classes.titleWrapper}>
-        <CloudinaryImage2
-          className={classes.bannerImage}
-          publicId={bannerImageId}
-          height={TITLE_HEIGHT}
-          fullWidthHeader
-        />
-        <div className={classes.translucentOverlay}></div>
-        <div className={classes.titleComponent}>{titleComponent}</div>
+        <div className={classes.bannerImageWrapper}>
+          <CloudinaryImage2
+            className={classes.bannerImage}
+            publicId={bannerImageId}
+            height={bannerHeight}
+            fullWidthHeader
+          />
+        </div>
+        <div className={classes.translucentOverlay} ref={translucentOverlayRef}></div>
+        <div className={classes.titleComponent} ref={titleComponentRef}>{titleComponent}</div>
       </div>
       <div className={classes.header}>
         <div className={classes.headerInner}>{headerComponent}</div>

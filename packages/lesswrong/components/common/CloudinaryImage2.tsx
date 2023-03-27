@@ -28,8 +28,6 @@ export function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: Cloud
   return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`
 }
 
-// TODO refactor to get whole srcset
-
 // Cloudinary image without using cloudinary-react. Allows SSR.
 const CloudinaryImage2 = ({
   width,
