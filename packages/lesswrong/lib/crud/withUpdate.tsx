@@ -83,8 +83,8 @@ export const withUpdate = (options: {
  * fields to change. A typical usage would look like:
  *
  *   const { mutate: updatePost } = useUpdate({
- *     collectionName: 
- *     fragmentName: "PostsList", "Posts",
+ *     collectionName: "Posts",
+ *     fragmentName: "PostsList",
  *   });
  *   const onClickSomeButton = () => {
  *     updatePost({

@@ -37,6 +37,8 @@ function getQueryName(query: any) {
  */
 export const findWatchesByTypeName = (store: ApolloCache<any>, typeName: string) => {
   // Use a private variable on ApolloCache to cover an API hole (no good way to
+  // do this directly, though upgrading apollo-client maybe adds functions that
+  // offer a more elegant solution.)
   //FIXME likely to be trouble if/when we upgrade apollo-client
   const watches = Array.from((store as any).watches);
   
