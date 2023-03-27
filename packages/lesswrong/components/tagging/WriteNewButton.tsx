@@ -132,7 +132,7 @@ const WriteNewButton = ({
       </Button>
       {/* TODO check this works correctly for logged out users */}
       {/* TODO add analytics back in */}
-      <LWPopper open={!!anchorEl.current && isSubscribed && open} anchorEl={anchorEl.current} placement="bottom-start">
+      <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>
             TODO options

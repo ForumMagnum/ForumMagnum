@@ -15,6 +15,8 @@ import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/sche
 import startCase from 'lodash/startCase';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
+import omit from 'lodash/omit';
+import { difference } from 'lodash/fp';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -33,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   feedHeader: {
     display: "flex",
+    justifyContent: "space-between",
     marginLeft: 10,
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
@@ -103,6 +106,8 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
     SortButton,
     ShortformSubmitForm,
     WrappedLoginForm,
+    PostsListSortDropdown,
+    LayoutDropdown,
   } = Components;
 
   const { query } = useLocation();
@@ -313,6 +318,9 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
     list: listLayoutComponent
   }
 
+  const excludeSorting = layout === "feed" ? ["relevance", "topAdjusted"] : []
+  const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
+
   return (
     <div className={classes.centralColumn}>
       {query.commentId && (
@@ -321,7 +329,9 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
         </div>
       )}
       <div className={classes.feedHeader}>
-        <div className={classes.feedHeaderButtons}>
+        <PostsListSortDropdown value={query.sortedBy || "relevance"} options={sortByOptions}/>
+        <LayoutDropdown value={layout} />
+        {/* <div className={classes.feedHeaderButtons}>
           {shortformButton}
           {newPostButton}
         </div>
@@ -334,7 +344,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
           >
             <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? preferredHeadingCase('Posts Expanded') : preferredHeadingCase('Posts Collapsed')}</span></span>} />
           </div>
-        </LWTooltip>
+        </LWTooltip> */}
       </div>
       {showSettings && (
         <div className={classes.listSettingsContainer}>

@@ -259,6 +259,7 @@ importComponent("LWPostsItem", () => require('../components/posts/LWPostsItem.ts
 importComponent("EAPostsItem", () => require('../components/posts/EAPostsItem.tsx'));
 importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));
 importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
+importComponent("LayoutDropdown", () => require('../components/posts/LayoutDropdown'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsItemTrailingButtons", () => require('../components/posts/PostsItemTrailingButtons'));
