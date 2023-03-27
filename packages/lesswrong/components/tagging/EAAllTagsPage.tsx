@@ -26,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   portal: {
     marginBottom: 18,
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       '& td': {
         display: 'block',

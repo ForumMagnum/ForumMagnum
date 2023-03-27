@@ -21,6 +21,7 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
+    fontWeight: isEAForum ? 600 : undefined,
   },
 });
 

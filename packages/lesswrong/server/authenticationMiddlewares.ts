@@ -13,7 +13,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
@@ -265,7 +265,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
-        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+        const returnUrl = encodeURIComponent(siteUrlSetting.get());
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}&returnTo=${returnUrl}`);
       } else {
         res.setHeader('Location', '/');
       }

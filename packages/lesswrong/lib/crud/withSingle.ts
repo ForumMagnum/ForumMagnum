@@ -168,6 +168,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
   extraVariablesValues?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
+  allowNull?: boolean,
   skip?: boolean,
   
   /**
@@ -192,9 +193,10 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   collectionName,
   fragmentName, fragment,
   extraVariables,
+  extraVariablesValues,
   fetchPolicy,
   notifyOnNetworkStatusChange,
-  extraVariablesValues,
+  allowNull,
   skip=false,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
@@ -205,7 +207,8 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
-        selector: { documentId }
+        selector: { documentId },
+        ...(allowNull && {allowNull: true})
       },
       ...extraVariablesValues
     },

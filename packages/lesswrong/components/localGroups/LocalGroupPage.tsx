@@ -13,9 +13,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@material-ui/icons/Email';
-import LinkIcon from '@material-ui/icons/Link';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -155,8 +155,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 14,
   },
   linkIcon: {
-    transform: "rotate(-45deg)",
-    fontSize: 17
+    fontSize: 17,
   },
   emailIcon: {
     fontSize: 17,
@@ -215,7 +214,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -276,6 +275,10 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
+  const groupNameHeading = <span>
+    {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}
+  </span>
+  
   // by default, we try to show the map at the top if the group has a location
   let topSection = (group.googleLocation && !group.isOnline) ? <CommunityMapWrapper
     className={classes.topSectionMap}
@@ -315,7 +318,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         />
         <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
       </div>
-    ) : <Components.Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
+    ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
         <NotifyMeButton
           showIcon={false}
           document={group}
@@ -323,15 +326,15 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
           className={classes.notifyMeButton}
         />
-      </Components.Typography>
+      </Typography>
   }
   
   let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
   if (isEAForum) {
     tbdEventsList = tbdEvents?.length ? <>
-      <Components.Typography variant="headline" className={classes.eventsHeadline}>
-        Events Yet To Be Scheduled
-      </Components.Typography>
+      <Typography variant="headline" className={classes.eventsHeadline}>
+        Events yet to be scheduled
+      </Typography>
       <div className={classes.eventCards}>
         <EventCards
           events={tbdEvents}
@@ -345,16 +348,16 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   }
   
   let pastEventsList: JSX.Element|null = <>
-    <Components.Typography variant="headline" className={classes.eventsHeadline}>
+    <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
-    </Components.Typography>
+    </Typography>
     <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
   </>
   if (isEAForum) {
     pastEventsList = pastEvents?.length ? <>
-      <Components.Typography variant="headline" className={classes.eventsHeadline}>
-        Past Events
-      </Components.Typography>
+      <Typography variant="headline" className={classes.eventsHeadline}>
+        Past events
+      </Typography>
       <div className={classes.eventCards}>
         <EventCards
           events={pastEvents}
@@ -379,9 +382,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            <SectionTitle title={
-              <span>{group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}</span>
-              } noTopMargin />
+            {isEAForum ? <Typography variant="display1" className={classes.groupName}>
+              {groupNameHeading}
+            </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
@@ -428,9 +431,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
-            <Components.Typography variant="headline" className={classes.contactUsHeadline}>
-              Contact Us
-            </Components.Typography>
+            <Typography variant="headline" className={classes.contactUsHeadline}>
+              {preferredHeadingCase("Contact Us")}
+            </Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>
                 <Button
@@ -483,7 +486,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <LinkIcon className={classes.linkIcon} />
+                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}
@@ -498,9 +501,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           {smallMap}
         </div>}
 
-        <Components.Typography variant="headline" className={classes.eventsHeadline}>
-          Upcoming Events
-        </Components.Typography>
+        <Typography variant="headline" className={classes.eventsHeadline}>
+          {preferredHeadingCase("Upcoming Events")}
+        </Typography>
         {upcomingEventsList}
 
         {tbdEventsList}

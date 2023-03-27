@@ -27,6 +27,7 @@ import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -54,11 +55,7 @@ export type RenderResult = {
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
   
-  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
-  if (ip.indexOf(",")>=0)
-    ip = ip.split(",")[0];
-  
+  const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts

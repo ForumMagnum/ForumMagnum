@@ -119,7 +119,7 @@ const schema: SchemaType<DbVote> = {
     ...schemaDefaultValue(false),
   },
   
-  // Whether this is an unvote.
+  // Whether this is an unvote. This data is unreliable on the EA Forum for old votes (around 2019).
   isUnvote: {
     type: Boolean,
     canRead: ['guests'],

@@ -217,7 +217,10 @@ export async function convertImagesInObject(
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
-    const oldHtml = obj[fieldName].html;
+    const oldHtml = obj?.[fieldName]?.html;
+    if (!oldHtml) {
+      return 0;
+    }
     const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
     if (!uploadCount) {
       logger("No images to convert.");

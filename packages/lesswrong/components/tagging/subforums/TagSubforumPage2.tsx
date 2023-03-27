@@ -63,6 +63,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 34,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 32,
@@ -77,8 +78,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps",
+    fontWeight: 700,
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
     }
