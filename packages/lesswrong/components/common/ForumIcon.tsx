@@ -7,6 +7,10 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
+// import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
+// import PlusIcon from "@heroicons/react/24/solid/PlusSmallIcon";
+import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
+// import PlusIcon from "@heroicons/react/24/solid/PlusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
@@ -49,7 +53,8 @@ export type ForumIconName =
   "Shortform" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
-  "ThickChevronDown";
+  "ThickChevronDown" |
+  "Plus";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -68,6 +73,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    Plus: PlusIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -85,6 +91,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    Plus: PlusIcon,
   },
 };
 

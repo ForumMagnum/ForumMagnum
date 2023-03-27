@@ -14,6 +14,7 @@ import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabRow: {
@@ -256,6 +257,8 @@ const TagSubforumPage2 = ({classes}: {
     setHoveredContributorId(userId);
   }, []);
   
+  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag ?? undefined)
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -265,7 +268,6 @@ const TagSubforumPage2 = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
-  const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -308,18 +310,16 @@ const TagSubforumPage2 = ({classes}: {
         </Tabs>
         <WriteNewButton
           tag={tag}
-          userTagRel={userTagRel}
-          subscribeMessage="Subscribe"
-          unsubscribeMessage="Unsubscribe"
-          subscriptionType={subscriptionTypes.newTagPosts}
+          isSubscribed={isSubscribed}
           className={classes.writeNewButton}
         />
         <SubscribeButton
           tag={tag}
-          userTagRel={userTagRel}
           subscribeMessage="Subscribe"
           unsubscribeMessage="Unsubscribe"
           subscriptionType={subscriptionTypes.newTagPosts}
+          isSubscribedOverride={isSubscribed}
+          subscribeUserToTagOverride={subscribeUserToTag}
           className={classes.subscribeButton}
         />
       </div>
@@ -348,7 +348,7 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    posts: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
+    posts: <SubforumSubforumTab tag={tag} userTagRel={userTagRel} layout={layout} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 

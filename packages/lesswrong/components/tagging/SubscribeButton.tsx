@@ -6,7 +6,7 @@ import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useSubscribeUserToTag } from '../../lib/filterSettings';
+import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Paper from '@material-ui/core/Paper';
@@ -97,25 +97,35 @@ export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${tag
 
 const SubscribeButton = ({
   tag,
-  userTagRel,
   subscribeMessage,
   unsubscribeMessage,
-  showNotificationBell = true,
+  isSubscribedOverride,
+  subscribeUserToTagOverride,
   className,
   classes,
 }: {
   tag: TagBasicInfo,
-  userTagRel?: UserTagRelDetails,
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
-  showNotificationBell?: boolean,
+  isSubscribedOverride?: boolean,
+  subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
   classes: ClassesType,
 }) => {
+  // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
+  // this means that updates here do not affect the isSubscribed of other places this hook is used.
+  // This is currently only a problem in TagSubforumPage2, so I have added a way to override the
+  // isSubscribed and subscribeUserToTag functions here as a workaround. If this causes problems
+  // elsewhere we should probably fix the useSubscribeUserToTag hook to use a ref instead of a state.
+  const subscribeHook = useSubscribeUserToTag(tag)
+  const { isSubscribed, subscribeUserToTag } = {
+    isSubscribed: isSubscribedOverride ?? subscribeHook.isSubscribed,
+    subscribeUserToTag: subscribeUserToTagOverride ?? subscribeHook.subscribeUserToTag,
+  }
+
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false);

@@ -52,10 +52,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[200],
     color: 'default'
   },
-  notificationBell: {
-    width: 17,
-    height: 17,
-    marginRight: 5,
+  icon: {
+    width: 16,
+    height: 16,
+    marginRight: 3,
   },
   dropdownArrow: {
     width: 16,
@@ -97,26 +97,15 @@ export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${tag
 
 const WriteNewButton = ({
   tag,
-  userTagRel,
-  subscribeMessage,
-  unsubscribeMessage,
-  showNotificationBell = true,
+  isSubscribed,
   className,
   classes,
 }: {
   tag: TagBasicInfo,
-  userTagRel?: UserTagRelDetails,
-  subscriptionType?: string,
-  subscribeMessage?: string,
-  unsubscribeMessage?: string,
-  showNotificationBell?: boolean,
+  isSubscribed: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
-  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
-  const { flash } = useMessages();
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
@@ -137,7 +126,7 @@ const WriteNewButton = ({
         })}
       >
         <div className={classNames(classes.buttonSection, classes.buttonLabelContainer)} ref={anchorEl}>
-          <ForumIcon icon="BellBorder" className={classes.notificationBell} />
+          <ForumIcon icon="Plus" className={classes.icon} />
           <span className={classes.subscribeText}>Write new</span>
         </div>
       </Button>

@@ -14,6 +14,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import startCase from 'lodash/startCase';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -83,11 +84,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
+const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
   layout: SubforumLayout,
-  isSubscribed: boolean,
   classes: ClassesType,
 }) => {
   const {
