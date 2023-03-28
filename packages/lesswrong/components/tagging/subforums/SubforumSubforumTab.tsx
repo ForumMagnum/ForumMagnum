@@ -86,10 +86,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
+const SubforumSubforumTab = ({
+  tag,
+  userTagRel,
+  layout,
+  newShortformOpen,
+  setNewShortformOpen,
+  classes
+}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
   layout: SubforumLayout,
+  newShortformOpen: boolean,
+  setNewShortformOpen: (open: boolean) => void,
   classes: ClassesType,
 }) => {
   const {
@@ -119,14 +128,13 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
       refetchRef.current();
   }, [refetchRef]);
 
-  const [newShortformOpen, setNewShortformOpen] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  // const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
   const clickNewShortform = useCallback(() => {
     setNewShortformOpen(true)
     captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
-  }, [captureEvent, tag._id, tag.name])
+  }, [captureEvent, setNewShortformOpen, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
     collectionName: 'UserTagRels',
@@ -329,7 +337,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
       )}
       <div className={classes.feedHeader}>
         <PostsListSortDropdown value={query.sortedBy || "relevance"} options={sortByOptions}/>
-        <LayoutDropdown value={layout} />
+        <LayoutDropdown layout={layout} />
         {/* <div className={classes.feedHeaderButtons}>
           {shortformButton}
           {newPostButton}
@@ -345,11 +353,11 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, classes}: {
           </div>
         </LWTooltip> */}
       </div>
-      {showSettings && (
+      {/* {showSettings && (
         <div className={classes.listSettingsContainer}>
           <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
         </div>
-      )}
+      )} */}
       {newShortformOpen && (
         <div className={classes.newShortformContainer}>
           {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time

@@ -13,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginRight: 8,
     textAlign: "center",
   },
   button: {
@@ -55,6 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     marginTop: 28,
+    '& a:hover': {
+      opacity: 'inherit',
+    },
     [theme.breakpoints.down('xs')]: {
       // It tries to stop itself hitting the side of the screen on mobile,
       // add some negative margin to line it back up with the dropdown
@@ -93,7 +95,7 @@ const PostsListSortDropdown = ({classes, value, options=defaultOptions, sortingP
   return <div className={classes.root}>
     <Button
         variant="contained"
-        onClick={e=>setAnchorEl(e.currentTarget)} // FIXME terrible way to open a menu
+        onClick={e=>setAnchorEl(e.currentTarget)}
         className={classNames(classes.button, {[classes.openButton]: Boolean(anchorEl)})}
       >
       {label} <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} />

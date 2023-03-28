@@ -216,6 +216,7 @@ const TagSubforumPage2 = ({classes}: {
   
   const [truncated, setTruncated] = useState(true) // Used in SubforumWikiTab, defined here because it can be controlled from the sidebar
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
+  const [newShortformOpen, setNewShortformOpen] = useState(false)
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -327,6 +328,7 @@ const TagSubforumPage2 = ({classes}: {
         <WriteNewButton
           tag={tag}
           isSubscribed={isSubscribed}
+          setNewShortformOpen={setNewShortformOpen}
           className={classes.writeNewButton}
         />
         <SubscribeButton
@@ -365,9 +367,17 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    posts: <SubforumSubforumTab tag={tag} userTagRel={userTagRel} layout={layout} />,
-    wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
-  }
+    posts: (
+      <SubforumSubforumTab
+        tag={tag}
+        userTagRel={userTagRel}
+        layout={layout}
+        newShortformOpen={newShortformOpen}
+        setNewShortformOpen={setNewShortformOpen}
+      />
+    ),
+    wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />,
+  };
 
   return (
     <AnalyticsContext

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
@@ -64,12 +64,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   popout: {
     padding: "4px 0px 4px 0px",
     marginTop: 8,
+    minWidth: 145,
     maxWidth: 220,
-    '& .form-input': {
-      marginTop: 0,
-    },
-    '& .form-input:last-child': {
-      marginBottom: 4,
+    '& a:hover': {
+      opacity: 'inherit',
     }
   },
   checkbox: {
@@ -90,7 +88,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "4px 4px 0px 4px",
     fontSize: 13,
     color: theme.palette.primary.main
-  }
+  },
+  menuItem: {
+    color: theme.palette.grey[1000],
+    borderRadius: theme.borderRadius.small,
+    justifyContent: 'space-between',
+    padding: '6px 8px',
+    margin: '0px 3px',
+    fontSize: '14px',
+    '&:focus': {
+      outline: "none",
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.grey[250], // TODO extract out this hover behaviour
+      color: theme.palette.grey[1000],
+    }
+  },
 })
 
 export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
@@ -98,19 +111,23 @@ export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${tag
 const WriteNewButton = ({
   tag,
   isSubscribed,
+  setNewShortformOpen,
   className,
   classes,
 }: {
   tag: TagBasicInfo,
   isSubscribed: boolean,
+  setNewShortformOpen: (open: boolean) => void,
   className?: string,
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking()
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
 
-  const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
+  const { LWClickAwayListener, LWPopper, ForumIcon, MenuItem } = Components;
 
   return (
     <div className={classNames(className, classes.root)}>
@@ -118,6 +135,13 @@ const WriteNewButton = ({
         variant="contained"
         onClick={(e) => {
           e.stopPropagation();
+          if (!currentUser) {
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {},
+            });
+            return
+          }
           setOpen((prev) => !prev);
         }}
         className={classNames(classes.button, {
@@ -130,12 +154,26 @@ const WriteNewButton = ({
           <span className={classes.subscribeText}>Write new</span>
         </div>
       </Button>
-      {/* TODO check this works correctly for logged out users */}
       {/* TODO add analytics back in */}
       <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>
-            TODO options
+            {/* TODO combine styling with PostsListSortDropdown */}
+            <Link to={`/newPost?subforumTagId=${tag._id}`}>
+              <MenuItem className={classes.menuItem}>New post</MenuItem>
+            </Link>
+            <MenuItem
+              className={classes.menuItem}
+              onClick={(e) => {
+                setNewShortformOpen(true);
+                setOpen(false);
+              }}
+            >
+              New shortform
+            </MenuItem>
+            <Link to={`/newPost?question=true&subforumTagId=${tag._id}`}>
+              <MenuItem className={classes.menuItem}>New question</MenuItem>
+            </Link>
           </Paper>
         </LWClickAwayListener>
       </LWPopper>
