@@ -11,6 +11,7 @@ import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import ListIcon from "@heroicons/react/24/solid/Bars4Icon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
@@ -29,6 +30,7 @@ import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
+import { CardIcon } from "../icons/cardIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -53,7 +55,9 @@ export type ForumIconName =
   "ThickChevronRight" |
   "ThickChevronDown" |
   "Plus" |
-  "Check";
+  "Check" |
+  "Card" |
+  "List";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -74,6 +78,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
     Check: CheckIcon,
+    Card: CardIcon,
+    List: ListIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -93,6 +99,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
     Check: CheckIcon,
+    Card: CardIcon,
+    List: ListIcon,
   },
 };
 

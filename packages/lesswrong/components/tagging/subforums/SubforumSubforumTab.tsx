@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
@@ -8,15 +8,13 @@ import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
+import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import startCase from 'lodash/startCase';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
-import { useSubscribeUserToTag } from '../../../lib/filterSettings';
-import omit from 'lodash/omit';
 import { difference } from 'lodash/fp';
+import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -96,7 +94,7 @@ const SubforumSubforumTab = ({
 }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
-  layout: SubforumLayout,
+  layout: PostsLayout,
   newShortformOpen: boolean,
   setNewShortformOpen: (open: boolean) => void,
   classes: ClassesType,
@@ -146,9 +144,10 @@ const SubforumSubforumTab = ({
     void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
   }, [updateUserTagRel, userTagRel])
 
+  const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
+  const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
-  query.sortedBy = sortBy // make sure to set the default sorting if necessary
+  const sortBy = (sortByOptions.includes(query.sortedBy) && query.sortedBy) || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
   
   const commentNodeProps = {
     treeOptions: {
@@ -206,7 +205,7 @@ const SubforumSubforumTab = ({
     </LWTooltip>
   );
   
-  const feedLayoutComponent = <>
+  const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
       <div className={classes.feedPostWrapper}>
         <RecentDiscussionThread
@@ -225,7 +224,8 @@ const SubforumSubforumTab = ({
       firstPageSize={15}
       pageSize={20}
       refetchRef={refetchRef}
-      resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+      // type is guaranteed to be SubforumSorting by the `sortByOptions` logic above
+      resolverName={`Subforum${subforumSortingToResolverName(sortBy as SubforumSorting)}Feed`}
       sortKeyType={subforumSortingTypes[sortBy]}
       resolverArgs={{
         tagId: "String!",
@@ -302,6 +302,7 @@ const SubforumSubforumTab = ({
     ...tagPostTerms(tag, query),
     limit: 10
   }
+  console.log("terms", terms)
   const listLayoutComponent = (
     <div className={classes.listLayout}>
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
@@ -320,13 +321,10 @@ const SubforumSubforumTab = ({
     </div>
   );
 
-  const layoutComponents: Record<SubforumLayout, JSX.Element> = {
-    feed: feedLayoutComponent,
+  const layoutComponents: Record<PostsLayout, JSX.Element> = {
+    card: cardLayoutComponent,
     list: listLayoutComponent
   }
-
-  const excludeSorting = layout === "feed" ? ["relevance", "topAdjusted"] : []
-  const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
 
   return (
     <div className={classes.centralColumn}>
@@ -336,8 +334,8 @@ const SubforumSubforumTab = ({
         </div>
       )}
       <div className={classes.feedHeader}>
-        <PostsListSortDropdown value={query.sortedBy || "relevance"} options={sortByOptions}/>
-        <LayoutDropdown layout={layout} />
+        <PostsListSortDropdown value={sortBy} options={sortByOptions}/>
+        <LayoutDropdown value={layout} />
         {/* <div className={classes.feedHeaderButtons}>
           {shortformButton}
           {newPostButton}

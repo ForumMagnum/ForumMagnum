@@ -1,9 +1,8 @@
-import classNames from 'classnames';
 import React from 'react';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { SettingsOption } from '../../../lib/collections/posts/sortOrderOptions';
+import { PostsLayout, SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
-import { isSubforumSorting, SubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
+import { isSubforumSorting } from '../../../lib/collections/tags/subforumHelpers';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
@@ -37,11 +36,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const sortings = Object.fromEntries(Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).filter(([key]) => isSubforumSorting(key)));
-const layouts: Record<SubforumLayout, SettingsOption> = {
-  feed: { label: preferredHeadingCase('Posts Expanded')},
+const layouts: Record<PostsLayout, SettingsOption> = {
+  card: { label: preferredHeadingCase('Posts Expanded')},
   list: { label: preferredHeadingCase('Posts Collapsed')},
 }
 
+// TODO delete component
 const SubforumListSettings = ({currentSorting, currentLayout, classes}: {
   currentSorting: any,
   currentLayout: any,

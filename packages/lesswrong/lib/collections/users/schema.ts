@@ -13,7 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
-import { subforumLayouts } from '../tags/subforumHelpers';
+import { postsLayouts } from '../posts/dropdownOptions';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -2458,7 +2458,7 @@ const schema: SchemaType<DbUser> = {
   },
   subforumPreferredLayout: {
     type: String,
-    allowedValues: Array.from(subforumLayouts),
+    allowedValues: Array.from(postsLayouts),
     hidden: true, // only editable by changing the setting from the subforum page
     optional: true,
     canRead: [userOwns, 'admins'],

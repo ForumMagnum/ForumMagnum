@@ -12,9 +12,9 @@ import { useTagBySlug } from '../useTag';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
-import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
+import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabRow: {
@@ -239,7 +239,11 @@ const TagSubforumPage2 = ({classes}: {
   });
   const userTagRel = userTagRelResults?.[0];
 
-  const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
+  // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
+  if (query.layout === "feed") {
+    query.layout = "card"
+  }
+  const layout = isPostsLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultPostsLayout
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
