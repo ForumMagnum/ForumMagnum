@@ -16,6 +16,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { subscriptionTypes } from "../../lib/collections/subscriptions/schema";
 import { taggedPostWording } from "./SubscribeButton";
 
+// TODO probably remove this whole file
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
     padding: 4,

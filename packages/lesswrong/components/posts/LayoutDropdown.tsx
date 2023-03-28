@@ -10,9 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: 8,
     marginBottom: 8,
-    marginRight: 8,
     textAlign: "center",
   },
   selectMenu: {

@@ -7,12 +7,10 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
-// import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
-// import PlusIcon from "@heroicons/react/24/solid/PlusSmallIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
-// import PlusIcon from "@heroicons/react/24/solid/PlusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
+import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
@@ -54,7 +52,8 @@ export type ForumIconName =
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
-  "Plus";
+  "Plus" |
+  "Check";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -74,6 +73,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    Check: CheckIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -92,6 +92,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    Check: CheckIcon,
   },
 };
 

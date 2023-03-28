@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';

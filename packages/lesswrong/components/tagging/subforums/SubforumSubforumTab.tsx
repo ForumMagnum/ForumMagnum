@@ -36,7 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     justifyContent: "space-between",
-    marginLeft: 10,
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
         marginRight: "0px !important",
