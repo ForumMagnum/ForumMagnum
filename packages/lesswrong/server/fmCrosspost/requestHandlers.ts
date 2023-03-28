@@ -109,7 +109,6 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
     collection,
     fragmentName,
     fragment: undefined,
-    extraQueries: undefined,
   });
   const resolverName = getResolverNameFromOptions(collection);
 

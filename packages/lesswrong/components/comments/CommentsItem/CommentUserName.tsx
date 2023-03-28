@@ -25,9 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -4,
     marginRight: 10,
   },
-  sproutTooltipTitle: {
-    maxWidth: 200,
-  },
   postAuthorIcon: {
     verticalAlign: 'text-bottom',
     color: theme.palette.grey[500],
@@ -86,9 +83,8 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
       }
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
-          title={`${author.displayName} is new on ${siteNameWithArticleSetting.get()}. Take care in replying.`}
+          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet. Take care in replying.`}
           className={classes.iconWrapper}
-          titleClassName={classes.sproutTooltipTitle}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
         </LWTooltip>
