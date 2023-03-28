@@ -72,7 +72,7 @@ const CommentUserName = ({comment, classes, simple = false, hideSprout, classNam
       />
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
-          title={`${author.displayName} is new on ${siteNameWithArticleSetting.get()}. Take care in replying.`}
+          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or don't have much karma yet. Take care in replying.`}
           className={classes.sproutTooltip}
           titleClassName={classes.sproutTooltipTitle}
         >
