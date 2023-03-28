@@ -25,9 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -4,
     marginRight: 10,
   },
-  sproutTooltipTitle: {
-    maxWidth: 200,
-  },
   sproutIcon: {
     position: 'relative',
     bottom: -2,
@@ -72,9 +69,8 @@ const CommentUserName = ({comment, classes, simple = false, hideSprout, classNam
       />
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
-          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or don't have much karma yet. Take care in replying.`}
+          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet. Take care in replying.`}
           className={classes.sproutTooltip}
-          titleClassName={classes.sproutTooltipTitle}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
         </LWTooltip>
