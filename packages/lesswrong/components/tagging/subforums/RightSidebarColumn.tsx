@@ -59,7 +59,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     zIndex: Z_OVERLAY,
     width: '100%',
     height: TITLE_HEIGHT_DESKTOP,
-    backgroundColor: 'rgba(0,0,0,0.4))', // hardcode overlay to keep it the same in light and dark mode
+    backgroundColor: 'rgba(0,0,0,0.4)', // hardcode overlay to keep it the same in light and dark mode
     [theme.breakpoints.down('sm')]: {
       height: TITLE_HEIGHT_MOBILE,
     }
