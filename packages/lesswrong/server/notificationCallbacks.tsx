@@ -477,13 +477,13 @@ getCollectionHooks("Comments").newAsync.add(async function commentsNewNotificati
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsHidden(comment)) return
   
-  sendNewCommentNotifications(comment)
+  void sendNewCommentNotifications(comment)
 });
 
 getCollectionHooks("Comments").editAsync.add(async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment) {
   // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
   if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
-    sendNewCommentNotifications(comment)
+    void sendNewCommentNotifications(comment)
   }
 });
 
