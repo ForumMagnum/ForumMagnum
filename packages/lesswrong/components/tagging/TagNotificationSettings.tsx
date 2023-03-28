@@ -1,7 +1,5 @@
 import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import Checkbox from '@material-ui/core/Checkbox';
 import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
@@ -74,7 +72,7 @@ const TagNotificationSettings = ({
   const [open, setOpen] = useState(false);
   const { flash } = useMessages();
 
-  const { LWClickAwayListener, LWPopper, Typography, Loading, NotifyMeButton } = Components;
+  const { LWClickAwayListener, LWPopper, Typography, Loading, NotifyMeButton, ForumIcon } = Components;
 
   const isSubforum = !!(tag.isSubforum && userTagRel)
   const allowSubforumMenu = false // TODO - enable this when we have proper notifications for shortform
@@ -177,9 +175,9 @@ const TagNotificationSettings = ({
           <div style={!isFrontpageSubscribed ? {display: 'none'} : {}}>
             <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
               {(!userTagRel.subforumEmailNotifications && !isSubscribedToPosts) ? (
-                <NotificationsNoneIcon />
+                <ForumIcon icon="BellBorder" />
               ) : (
-                <NotificationsIcon />
+                <ForumIcon icon="Bell" />
               )}
             </IconButton>
           </div>

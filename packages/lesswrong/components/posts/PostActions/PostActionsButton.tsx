@@ -40,8 +40,6 @@ const PostActionsButton = ({post, vertical, includeBookmark=true, classes}: {
   const { PopperCard, PostActions, LWClickAwayListener } = Components
   if (!currentUser) return null;
 
-  const placement = isEAForum ? "left-start" : "right-start";
-
   return <div className={classes.root}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
@@ -49,7 +47,7 @@ const PostActionsButton = ({post, vertical, includeBookmark=true, classes}: {
     <PopperCard
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement={placement}
+      placement="right-start"
       allowOverflow
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}

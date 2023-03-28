@@ -48,6 +48,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
+    ...(isEAForum && {
+      lineHeight: '18px',
+      display: '-webkit-box',
+      "-webkit-box-orient": "vertical",
+      "-webkit-line-clamp": 2,
+      overflow: 'hidden'
+    })
   },
   notAMember: {
     marginLeft: 5,
