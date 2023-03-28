@@ -21,14 +21,6 @@ interface UtilsType {
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
-  // In client/vulcan-lib/apollo-client/updates.ts
-  mingoBelongsToSet: any
-  mingoIsInSet: any
-  mingoAddToSet: any
-  mingoUpdateInSet: any
-  mingoReorderSet: any
-  mingoRemoveFromSet: any
-  
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
