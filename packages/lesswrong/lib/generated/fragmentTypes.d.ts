@@ -785,6 +785,12 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string,
+  readonly coauthorStatuses: Array<{
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
+  }>,
+  readonly hasCoauthorPermission: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -806,12 +812,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }>,
-  readonly hasCoauthorPermission: boolean,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
