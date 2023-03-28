@@ -32,6 +32,7 @@ import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
+import { commentIsHidden } from '../lib/collections/comments/helpers';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -360,8 +361,7 @@ getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVote
   }
 })
 
-// add new comment notification callback on comment submit
-getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
+const sendNewCommentNotifications = async (comment: DbComment) => {
   const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
   if (post?.isEvent) {
@@ -469,6 +469,21 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
       documentType: "comment",
       documentId: comment._id,
     });
+  }
+}
+
+// add new comment notification callback on comment submit
+getCollectionHooks("Comments").newAsync.add(async function commentsNewNotifications(comment: DbComment) {
+  // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
+  if (commentIsHidden(comment)) return
+  
+  sendNewCommentNotifications(comment)
+});
+
+getCollectionHooks("Comments").editAsync.add(async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment) {
+  // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
+  if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
+    sendNewCommentNotifications(comment)
   }
 });
 
