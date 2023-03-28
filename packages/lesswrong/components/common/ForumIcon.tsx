@@ -24,6 +24,7 @@ import MuiNotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
+import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
@@ -48,6 +49,7 @@ export type ForumIconName =
   "BellBorder" |
   "Link" |
   "Pin" |
+  "Author" |
   "Sprout" |
   "Close" |
   "Comment" |
@@ -68,6 +70,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: MuiNotificationsNoneIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
@@ -87,6 +90,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: BellOutlineIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,

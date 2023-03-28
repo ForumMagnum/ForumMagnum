@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../../lib/publicSettings';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
@@ -21,9 +21,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: "none"
     }
   },
-  sproutTooltip: {
+  iconWrapper: {
     marginLeft: -4,
     marginRight: 10,
+  },
+  postAuthorIcon: {
+    verticalAlign: 'text-bottom',
+    color: theme.palette.grey[500],
+    fontSize: 16,
   },
   sproutIcon: {
     position: 'relative',
@@ -33,10 +38,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const CommentUserName = ({comment, classes, simple = false, hideSprout, className}: {
+const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSprout, className}: {
   comment: CommentsList,
   classes: ClassesType,
   simple?: boolean,
+  isPostAuthor?: boolean,
   hideSprout?: boolean,
   className?: string
 }) => {
@@ -67,10 +73,18 @@ const CommentUserName = ({comment, classes, simple = false, hideSprout, classNam
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
+      {isEAForum && isPostAuthor && <LWTooltip
+          placement="bottom-start"
+          title="Post author"
+          className={classes.iconWrapper}
+        >
+          <ForumIcon icon="Author" className={classes.postAuthorIcon} />
+        </LWTooltip>
+      }
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
           title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet. Take care in replying.`}
-          className={classes.sproutTooltip}
+          className={classes.iconWrapper}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
         </LWTooltip>
