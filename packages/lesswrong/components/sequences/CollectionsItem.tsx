@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
-    fontVariant: "small-caps"
+    ...theme.typography.smallCaps,
   },
   subtitle: {
     ...theme.typography.body2,

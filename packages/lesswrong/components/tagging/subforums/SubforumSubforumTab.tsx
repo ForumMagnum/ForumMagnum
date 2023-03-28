@@ -13,6 +13,7 @@ import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import startCase from 'lodash/startCase';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -297,7 +298,6 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
       <CommentsListCondensed
         label={"Shortforms"}
-        contentType="shortform"
         terms={{
           view: "tagSubforumComments" as const,
           tagId: tag._id,
@@ -306,6 +306,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
         initialLimit={8}
         itemsPerPage={20}
         showTotal
+        hideTag
       />
     </div>
   );
@@ -334,7 +335,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               setShowSettings(!showSettings);
             }}
           >
-            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? "Posts Expanded" : "Posts Collapsed"}</span></span>} />
+            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? preferredHeadingCase('Posts Expanded') : preferredHeadingCase('Posts Collapsed')}</span></span>} />
           </div>
         </LWTooltip>
       </div>

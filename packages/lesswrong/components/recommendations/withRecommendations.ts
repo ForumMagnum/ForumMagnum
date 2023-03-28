@@ -5,15 +5,15 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 
 export const useRecommendations = (algorithm: RecommendationsAlgorithm): {
   recommendationsLoading: boolean,
-  recommendations: PostsList[]|undefined,
+  recommendations: PostsListWithVotes[]|undefined,
 }=> {
   const {data, loading} = useQuery(gql`
     query RecommendationsQuery($count: Int, $algorithm: JSON) {
       Recommendations(count: $count, algorithm: $algorithm) {
-        ...PostsList
+        ...PostsListWithVotes
       }
     }
-    ${fragmentTextForQuery("PostsList")}
+    ${fragmentTextForQuery("PostsListWithVotes")}
   `, {
     variables: {
       count: algorithm?.count || 10,

@@ -13,7 +13,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -63,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
+    fontWeight: isEAForum ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,

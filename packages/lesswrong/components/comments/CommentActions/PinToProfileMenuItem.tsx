@@ -2,12 +2,18 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateComment } from '../../hooks/useUpdateComment';
-import { StickyIcon } from '../../posts/PostsTitle';
+import { isEAForum } from '../../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
+const styles = (_: ThemeType) => ({
+  icon: isEAForum
+    ? {fontSize: "18px"}
+    : {},
+});
 
-const PinToProfileMenuItem = ({ comment }: {
+const PinToProfileMenuItem = ({ comment, classes }: {
   comment: CommentsList,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
   const { MenuItem } = Components;
@@ -23,13 +29,13 @@ const PinToProfileMenuItem = ({ comment }: {
 
   return <MenuItem onClick={togglePinned}>
     <ListItemIcon>
-      <StickyIcon className="MuiSvgIcon-root" />
+      <Components.ForumIcon icon="Pin" className={classes.icon} />
     </ListItemIcon>
     {comment.isPinnedOnProfile ? `Unpin from ${username} profile` : `Pin to ${username} profile`}
   </MenuItem>
 }
 
-const PinToProfileMenuItemComponent = registerComponent('PinToProfileMenuItem', PinToProfileMenuItem);
+const PinToProfileMenuItemComponent = registerComponent('PinToProfileMenuItem', PinToProfileMenuItem, {styles});
 
 declare global {
   interface ComponentTypes {

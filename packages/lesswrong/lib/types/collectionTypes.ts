@@ -114,7 +114,7 @@ interface MergedViewQueryAndOptions<
   }
 }
 
-type MongoSelector<T extends DbObject> = any; //TODO
+export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
@@ -131,7 +131,7 @@ type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
-type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 type MongoIndexSpec = Record<string, 1 | -1> | string;
 type MongoEnsureIndexOptions = Record<string, any>;
 type MongoDropIndexOptions = {};

@@ -39,15 +39,11 @@ const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
 );
 
 /**
- * Generic mutation wrapper to insert a new document in a collection and update
- * a related query on the client with the new item and a new total item count.
- *
- * Arguments:
- *  - data: the document to insert
- * Child Props:
- *  - createMovie({ data })
+ * Higher-order-component wrapper that adds a prop createFoo to the wrapped
+ * component, which can be called to create a new entry in the chosen
+ * collection. DEPRECATED; use the hook version, useCreate, if possible.
  */
-export const withCreate = options => {
+export const withCreate = (options: any) => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
@@ -57,9 +53,9 @@ export const withCreate = options => {
     ${fragment}
   `;
 
-  const mutationWrapper = (Component) => (props) => (
+  const mutationWrapper = (Component: any) => (props: any) => (
     <Mutation mutation={query}>
-      {(mutate, result: MutationResult<any>) => (
+      {(mutate: any, result: MutationResult<any>) => (
         <Component
           {...props}
           mutate={mutate}
@@ -74,7 +70,7 @@ export const withCreate = options => {
     mutationWrapper,
     withApollo,
     withHandlers({
-      [`create${typeName}`]: ({ mutate, ownProps }) => ({ data }) => {
+      [`create${typeName}`]: ({ mutate, ownProps }) => ({data}: {data: any}) => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
           variables: { data, ...extraVariables },
@@ -85,8 +81,11 @@ export const withCreate = options => {
   )
 };
 
-export default withCreate;
-
+/**
+ * Hook that returns a function for creating a new object in a collection, along
+ * with some metadata about the status of that create operation if it's been
+ * started.
+ */
 export const useCreate = <CollectionName extends CollectionNameString>({
   collectionName,
   fragmentName: fragmentNameArg, fragment: fragmentArg,
@@ -119,7 +118,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   const [mutate, {loading, error, called, data}] = useMutation(query, {
     ignoreResults: ignoreResults
   });
-  const wrappedCreate = ({ data }) => {
+  const wrappedCreate = ({data}: {data: NullablePartial<ObjectsByCollectionName[CollectionName]>}) => {
     logger('useCreate, wrappedCreate()')
     return mutate({
       variables: { data },

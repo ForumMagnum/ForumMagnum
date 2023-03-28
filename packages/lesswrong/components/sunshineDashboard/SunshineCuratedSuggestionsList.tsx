@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp'
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -64,8 +63,9 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
     return null
   }
 
-  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore, LWTooltip } = Components
-  
+  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate,
+    LoadMore, LWTooltip, ForumIcon } = Components
+
   return (
     <div className={classes.root}>
       <SunshineListTitle>
@@ -74,7 +74,11 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
           <FormatDate date={curatedDate}/>
         </MetaInfo>
         <LWTooltip title="Filter to only show audio">
-          <VolumeUpIcon className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})} onClick={() => setAudioOnly(!audioOnly)}/>
+          <ForumIcon
+            icon="VolumeUp"
+            className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})}
+            onClick={() => setAudioOnly(!audioOnly)}
+          />
         </LWTooltip>
       </SunshineListTitle>
       {results?.map(post =>
