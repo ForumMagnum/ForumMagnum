@@ -83,11 +83,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
   },
-  subscribeButton: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 6,
-    },
-  },
   writeNewButton: {
     marginRight: 8,
     [theme.breakpoints.down('xs')]: {
@@ -338,7 +333,6 @@ const TagSubforumPage2 = ({classes}: {
           subscriptionType={subscriptionTypes.newTagPosts}
           isSubscribedOverride={isSubscribed}
           subscribeUserToTagOverride={subscribeUserToTag}
-          className={classes.subscribeButton}
         />
       </div>
     </div>
