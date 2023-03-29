@@ -33,7 +33,6 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { gql } from '@apollo/client';
-import { withApollo } from '@apollo/client/react/hoc';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -42,7 +41,7 @@ import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { callbackProps, WrappedSmartFormProps } from './propTypes';
 import * as _ from 'underscore';
@@ -156,6 +155,7 @@ const FormWrapper = (props: WrappedSmartFormProps) => {
 }
 
 const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
+  const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { mutationFragment } = getFragments("new", props);
 
@@ -165,6 +165,7 @@ const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
   });
   return <Components.Form
     {...props}
+    currentUser={currentUser}
     collection={collection}
     typeName={collection.typeName}
     schema={props.schema}
@@ -173,6 +174,7 @@ const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
 }
 
 const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
+  const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
   const { extraVariables = {}, extraVariablesValues } = props
@@ -198,6 +200,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   }
   return <Components.Form
     {...props}
+    currentUser={currentUser}
     collection={collection}
     typeName={collection.typeName}
     schema={props.schema}
@@ -250,8 +253,8 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
 };
 
 const FormWrapperComponent = registerComponent('FormWrapper', FormWrapper, {
-  hocs: [withUser, withApollo, withRouter],
-  areEqual: "auto",
+  hocs: [withRouter],
+  areEqual: "auto"
 });
 
 declare global {

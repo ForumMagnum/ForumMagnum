@@ -64,7 +64,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: (formProps: SmartFormProps)=>any,
+  options?: MaybeFunction<any,SmartFormProps>,
   allowedValues?: string[],
   
   input?: any,
@@ -89,7 +89,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *
    * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  form?: {}|((props: SmartFormProps)=>{}),
+  form?: MaybeFunction<any,SmartFormProps>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -111,7 +111,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     'date' |
     keyof ComponentTypes,
   placeholder?: string,
-  hidden?: boolean|((formProps: SmartFormProps)=>boolean),
+  hidden?: MaybeFunction<boolean,SmartFormProps>,
   group?: FormGroup<T>,
   inputType?: any,
   
