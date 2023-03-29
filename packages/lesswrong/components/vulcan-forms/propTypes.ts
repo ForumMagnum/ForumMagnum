@@ -106,8 +106,8 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
 }
 
 export interface SmartFormProps extends WrappedSmartFormProps {
-  collection?: any
-  typeName?: string
+  collection: any
+  typeName: string
   document?: any
   schema?: any
   createMutation?: any

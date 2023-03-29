@@ -49,10 +49,6 @@ import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
-import withCollectionProps from './withCollectionProps';
-
-
-
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
@@ -1181,9 +1177,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   currentValues: PropTypes.object
 };
 
-const FormComponent = registerComponent("Form", Form, {
-  hocs: [withCollectionProps]
-});
+const FormComponent = registerComponent("Form", Form);
 
 declare global {
   interface ComponentTypes {

@@ -44,8 +44,6 @@ import { getSchema } from '../../lib/utils/getSchema';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import withUser from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
-
-import withCollectionProps from './withCollectionProps';
 import { callbackProps, WrappedSmartFormProps } from './propTypes';
 import * as _ from 'underscore';
 
@@ -167,6 +165,8 @@ const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
   });
   return <Components.Form
     {...props}
+    collection={collection}
+    typeName={collection.typeName}
     schema={props.schema}
     createMutation={create}
   />
@@ -198,6 +198,8 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   }
   return <Components.Form
     {...props}
+    collection={collection}
+    typeName={collection.typeName}
     schema={props.schema}
     document={document}
     updateMutation={updateMutation}
@@ -248,7 +250,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
 };
 
 const FormWrapperComponent = registerComponent('FormWrapper', FormWrapper, {
-  hocs: [withUser, withApollo, withRouter, withCollectionProps],
+  hocs: [withUser, withApollo, withRouter],
   areEqual: "auto",
 });
 
