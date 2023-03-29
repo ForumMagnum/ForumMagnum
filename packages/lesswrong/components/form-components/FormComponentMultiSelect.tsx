@@ -29,14 +29,9 @@ type MultiselectOption = {
   label: string
 }
 
-const FormComponentMultiSelect = ({ value, label, placeholder, separator, options, path, updateCurrentValues, classes }: {
-  value: Array<string>,
-  label?: string,
-  placeholder?: string,
+const FormComponentMultiSelect = ({ value, label, placeholder, separator, options, path, updateCurrentValues, classes }: FormComponentProps<string[]> & {
   separator?: string,
   options: Array<MultiselectOption>,
-  path: string,
-  updateCurrentValues<T extends {}>(values: T): void,
   classes: ClassesType
 }) => {
   const { MenuItem } = Components;

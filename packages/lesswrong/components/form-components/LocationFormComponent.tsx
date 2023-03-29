@@ -131,12 +131,7 @@ export const useGoogleMaps = (): [boolean, any] => {
 }
 
 
-const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
-  document: any,
-  path: string,
-  label?: string,
-  value: any,
-  updateCurrentValues: any,
+const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: FormComponentProps<any> & {
   stringVersionFieldName?: string|null,
   classes: ClassesType,
 }) => {

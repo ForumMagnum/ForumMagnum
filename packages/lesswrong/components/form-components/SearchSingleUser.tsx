@@ -15,14 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: {
-  value?: string,
-  path: string,
-  label: string,
+const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: FormComponentProps<string> & {
   classes: ClassesType,
-  updateCurrentValues<T extends {}>(values: T): void
 }) => {
-  
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>

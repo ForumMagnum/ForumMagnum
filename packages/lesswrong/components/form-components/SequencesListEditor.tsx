@@ -21,13 +21,9 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const SequencesListEditor = ({value, path, label, classes}: {
-  value: string[],
-  path: string,
-  label: string,
+const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
   classes: ClassesType,
-}, context: any) => {
-  const { updateCurrentValues } = context;
+}) => {
   return <div className={classes.root}>
     <SortableList
       value={value}

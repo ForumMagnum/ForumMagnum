@@ -15,15 +15,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FormComponentRadioGroup = ({ path, value, form, options, name, label, classes }: {
-  path: string;
-  value: string;
+const FormComponentRadioGroup = ({ path, value, form, options, name, label, classes }: FormComponentProps<string> & {
   form: any;
   options: any[];
-  name: string;
-  label: string;
   classes: ClassesType;
-}, context: any) => {
+}, context: FormComponentContext<string>) => {
   const selectOptions = options || (form && form.options)
   return <FormControl>
     <FormLabel>{label}</FormLabel>

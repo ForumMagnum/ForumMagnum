@@ -50,18 +50,22 @@ import {
 } from '../../lib/vulcan-forms/schema_utils';
 
 import withCollectionProps from './withCollectionProps';
-import { callbackProps } from './propTypes';
+import { callbackProps, SmartFormProps } from './propTypes';
 import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
 
 /**
- * Note: Only use this through WrappedSmartForm
+ * Wrapper around Form (vulcan-forms/Form.tsx) which applies HoCs for loading
+ * and saving data. Note that this wrapper is itself wrapped by WrappedSmartForm
+ * (in form-components/WrappedSmartForm.tsx), which adds a submitCallback that
+ * may be needed for text-editor fields; so you should use that wrapper, not
+ * this one.
  */
-class FormWrapper extends PureComponent<any> {
+class FormWrapper extends PureComponent<SmartFormProps> {
   FormComponent: any
   
-  constructor(props) {
+  constructor(props: SmartFormProps) {
     super(props);
     // instantiate the wrapped component in constructor, not in render
     // see https://reactjs.org/docs/higher-order-components.html#dont-use-hocs-inside-the-render-method

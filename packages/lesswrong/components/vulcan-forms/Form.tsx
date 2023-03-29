@@ -48,7 +48,7 @@ import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
-import { callbackProps } from './propTypes';
+import { callbackProps, SmartFormProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
 
@@ -128,6 +128,17 @@ const getInitialStateFromProps = nextProps => {
   };
 };
 
+interface FormState {
+  disabled: boolean,
+  errors: any[],
+  deletedValues: any[],
+  currentValues: any,
+  schema: any,
+  flatSchema: any
+  initialDocument: any,
+  currentDocument: any
+}
+
 /*
 
 1. Constructor
@@ -142,8 +153,8 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class Form<T extends DbObject> extends Component<any,any> {
-  constructor(props) {
+class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
+  constructor(props: SmartFormProps) {
     super(props);
 
     this.state = {
@@ -177,7 +188,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   getInsertableFields = schema => {
     return getInsertableFields(
       schema || this.state.schema,
-      this.props.currentUser
+      this.props.currentUser??null
     );
   };
 
@@ -187,7 +198,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   getEditableFields = schema => {
     return getEditableFields(
       schema || this.state.schema,
-      this.props.currentUser,
+      this.props.currentUser??null,
       this.state.initialDocument
     );
   };

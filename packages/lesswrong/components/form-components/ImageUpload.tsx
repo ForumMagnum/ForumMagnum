@@ -140,12 +140,8 @@ const formPreviewSizeByImageType = {
   },
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
-  name: string,
-  document: Record<string, any>,
-  updateCurrentValues: Function,
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: FormComponentProps<string> & {
   clearField: Function,
-  label: string,
   croppingAspectRatio?: number,
   classes: ClassesType
 }) => {

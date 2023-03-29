@@ -17,13 +17,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: {
-  value: string,
-  path: string,
+const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<string> & {
   document: PostsBase,
   classes: ClassesType,
-  label?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
 }) => {
   const { Loading, MenuItem } = Components;
 

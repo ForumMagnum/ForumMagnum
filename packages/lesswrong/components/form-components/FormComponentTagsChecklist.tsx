@@ -10,19 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const FormComponentTagsChecklist = ({
-  document,
-  path,
-  label,
-  value,
-  updateCurrentValues,
-  classes,
-}: {
-  document: any;
-  path: string;
-  label?: string;
-  value: any;
-  updateCurrentValues: any;
+const FormComponentTagsChecklist = ({ document, path, label, value, updateCurrentValues, classes }: FormComponentProps<any> & {
   classes: ClassesType;
 }) => {
   const { results, loading } = useMulti({

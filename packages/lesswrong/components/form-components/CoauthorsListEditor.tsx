@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
-import withUser from '../common/withUser';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 
@@ -42,14 +41,10 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
+const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
   value: CoauthorListItem[],
-  path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
-  label?: string,
-  currentUser: DbUser|null,
-  updateCurrentValues<T extends {}>(values: T) : void,
 }) => {
   const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;
@@ -113,7 +108,6 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
 
 const CoauthorsListEditorComponent = registerComponent('CoauthorsListEditor', CoauthorsListEditor, {
   styles: coauthorsListEditorStyles,
-  hocs: [withUser],
 });
 
 declare global {

@@ -1,7 +1,10 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const FormComponentSelect = (props: any) => {
+const FormComponentSelect = (props: FormComponentProps<string> & {
+  form: any
+  options: any
+}) => {
   const { form, options } = props
   const { MenuItem, MuiTextField } = Components;
 

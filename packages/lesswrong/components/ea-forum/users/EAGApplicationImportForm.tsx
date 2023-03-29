@@ -549,12 +549,15 @@ const EAGApplicationImportForm = ({classes}: {
       <div className={classes.formRow}>
         <label className={classes.label}>Career stage</label>
         <FormComponentMultiSelect
+          document={currentUser}
           options={CAREER_STAGES}
           value={formValues.careerStage || []}
           placeholder="Select all that apply"
           separator={'\r\n'}
+          name="careerStage"
           path="careerStage"
           updateCurrentValues={handleUpdateValue}
+          formType="new"
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'careerStage')}>
@@ -667,8 +670,10 @@ const EAGApplicationImportForm = ({classes}: {
         <LocationFormComponent
           document={currentUser}
           value={formValues.mapLocation}
+          name="mapLocation"
           path="mapLocation"
           updateCurrentValues={handleUpdateValue}
+          formType="new"
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'mapLocation')}>

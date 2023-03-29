@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import mapValues from 'lodash/mapValues';
 
 class FormComponentNumber extends PureComponent<any> {
   render() {
