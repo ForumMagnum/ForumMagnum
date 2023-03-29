@@ -248,9 +248,15 @@ const curationEmailDelay = new EventDebouncer({
     // Still curated? If it was un-curated during the 20 minute delay, don't
     // send emails.
     if (post?.curatedDate) {
+      //eslint-disable-next-line no-console
+      console.log(`Sending curation emails`);
+
       // Email only non-admins (admins get emailed immediately, without the
       // delay).
       let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
+
+      //eslint-disable-next-line no-console
+      console.log(`Found ${usersToEmail.length} users to email`);
       await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
     } else {
       //eslint-disable-next-line no-console
