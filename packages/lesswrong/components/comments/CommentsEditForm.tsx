@@ -11,7 +11,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
     <div className="comments-edit-form">
       <Components.WrappedSmartForm
         layout="elementOnly"
-        collection={Comments}
+        collectionName="Comments"
         documentId={comment._id}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

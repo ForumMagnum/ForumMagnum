@@ -1,5 +1,4 @@
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useNavigation } from '../../lib/routeUtil';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
@@ -34,7 +33,7 @@ export const EditPaymentInfoPage = ({classes}: {
       </div>
       <Components.WrappedSmartForm
         layout="elementOnly"
-        collection={Users}
+        collectionName="Users"
         documentId={currentUser._id}
         fields={['paymentEmail', 'paymentInfo']}
         successCallback={async (user: UsersMinimumInfo | DbUser | null) => {

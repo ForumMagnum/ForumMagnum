@@ -76,7 +76,7 @@ const NewAnswerForm = ({post, classes}: {
   return (
     <div className={classes.answersForm}>
       <FormWrapper
-        collection={Comments}
+        collectionName="Comments"
         formComponents={{
           FormSubmit: SubmitComponent,
           FormGroupLayout: Components.DefaultStyleFormGroup

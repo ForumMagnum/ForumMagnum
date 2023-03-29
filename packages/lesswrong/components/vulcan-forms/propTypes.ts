@@ -55,16 +55,8 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
-export interface SmartFormProps extends SmartFormCallbacks {
-  collection?: any
-  collectionName?: any
-  typeName?: string
-  document?: any
-  schema?: any
-
-  createMutation?: any
-  updateMutation?: any
-  removeMutation?: any
+export interface WrappedSmartFormProps extends SmartFormCallbacks {
+  collectionName: CollectionNameString
 
   prefilledProps?: any
   layout?: string
@@ -111,6 +103,16 @@ export interface SmartFormProps extends SmartFormCallbacks {
   // Provided by HoCs in wrappers
   history?: any
   currentUser?: UsersCurrent|null
+}
+
+export interface SmartFormProps extends WrappedSmartFormProps {
+  collection?: any
+  typeName?: string
+  document?: any
+  schema?: any
+  createMutation?: any
+  updateMutation?: any
+  removeMutation?: any
 }
 
 declare global {

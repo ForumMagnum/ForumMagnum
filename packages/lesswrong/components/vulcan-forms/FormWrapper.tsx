@@ -41,19 +41,21 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import withUser from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 
 import withCollectionProps from './withCollectionProps';
-import { callbackProps, SmartFormProps } from './propTypes';
+import { callbackProps, WrappedSmartFormProps } from './propTypes';
 import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
 
 // get fragment used to decide what data to load from the server to populate the form,
 // as well as what data to ask for as return value for the mutation
-const getFragments = (formType: "edit"|"new", props: SmartFormProps) => {
-  const schema = props.schema || getSchema(props.collection);
+const getFragments = (formType: "edit"|"new", props: WrappedSmartFormProps) => {
+  const collection = getCollection(props.collectionName);
+  const schema = getSchema(collection);
   const fragmentName = `${props.collectionName}${capitalize(formType)}FormFragment`;
   const queryFragmentName = `${fragmentName}Query`;
   const mutationFragmentName = `${fragmentName}Mutation`;
@@ -92,7 +94,7 @@ const getFragments = (formType: "edit"|"new", props: SmartFormProps) => {
 
   // generate query fragment based on the fields that can be edited. Note: always add _id.
   const generatedQueryFragment = gql`
-    fragment ${queryFragmentName} on ${props.typeName} {
+    fragment ${queryFragmentName} on ${collection.typeName} {
       _id
       ${queryFields.map(convertFields).join('\n')}
     }
@@ -100,7 +102,7 @@ const getFragments = (formType: "edit"|"new", props: SmartFormProps) => {
 
   // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
   const generatedMutationFragment = gql`
-    fragment ${mutationFragmentName} on ${props.typeName} {
+    fragment ${mutationFragmentName} on ${collection.typeName} {
       _id
       ${mutationFields.map(convertFields).join('\n')}
     }
@@ -141,8 +143,9 @@ const getFragments = (formType: "edit"|"new", props: SmartFormProps) => {
  * may be needed for text-editor fields; so you should use that wrapper, not
  * this one.
  */
-const FormWrapper = (props: SmartFormProps) => {
-  const schema = props.schema || getSchema(props.collection);
+const FormWrapper = (props: WrappedSmartFormProps) => {
+  const collection = getCollection(props.collectionName);
+  const schema = getSchema(collection);
 
   // if a document is being passed, this is an edit form
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
@@ -154,11 +157,12 @@ const FormWrapper = (props: SmartFormProps) => {
   }
 }
 
-const FormWrapperNew = (props: SmartFormProps&{schema: any}) => {
+const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
+  const collection = getCollection(props.collectionName);
   const { mutationFragment } = getFragments("new", props);
 
   const {create} = useCreate({
-    collectionName: props.collection.collectionName,
+    collectionName: collection.collectionName,
     fragment: mutationFragment,
   });
   return <Components.Form
@@ -168,7 +172,8 @@ const FormWrapperNew = (props: SmartFormProps&{schema: any}) => {
   />
 }
 
-const FormWrapperEdit = (props: SmartFormProps&{schema: any}) => {
+const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
+  const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
   const { extraVariables = {}, extraVariablesValues } = props
   
@@ -180,11 +185,11 @@ const FormWrapperEdit = (props: SmartFormProps&{schema: any}) => {
     fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
   });
   const {mutate: updateMutation} = useUpdate({
-    collectionName: props.collection.collectionName,
+    collectionName: collection.collectionName,
     fragment: mutationFragment,
   });
   const {deleteDocument} = useDelete({
-    collectionName: props.collection.collectionName,
+    collectionName: collection.collectionName,
     fragment: mutationFragment,
   });
 

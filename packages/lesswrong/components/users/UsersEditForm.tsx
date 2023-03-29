@@ -104,7 +104,7 @@ const UsersEditForm = ({terms, classes}: {
       </Button>}
 
       <Components.WrappedSmartForm
-        collection={Users}
+        collectionName="Users"
         {...terms}
         hideFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
