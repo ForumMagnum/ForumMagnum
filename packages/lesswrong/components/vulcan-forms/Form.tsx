@@ -987,7 +987,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
     if (this.getFormType() === 'new') {
       // create document form
       try {
-        const result = await this.props[`create${this.props.typeName}`]({ data });
+        const result = await this.props.createMutation({ data });
         this.newMutationSuccessCallback(result, submitOptions);
       } catch(error) {
         this.mutationErrorCallback(document, error);
@@ -996,7 +996,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
       // update document form
       const documentId = this.getDocument()._id;
       try {
-        const result = await this.props[`update${this.props.typeName}`]({
+        const result = await this.props.updateMutation({
           selector: { documentId },
           data
         });

@@ -62,7 +62,8 @@ export interface SmartFormProps extends SmartFormCallbacks {
   document?: any
   schema?: any
 
-  newMutation?: any
+  createMutation?: any
+  updateMutation?: any
   removeMutation?: any
 
   prefilledProps?: any
