@@ -117,8 +117,11 @@ interface FormState {
  * WrappedSmartForm. Depending whether this is a new form or an edit form,
  * FormWrapper will have provided a create mutator, document and/or update
  * mutator.
+ *
+ * This is not in the Components table and is not registered with
+ * registerComponent because you aren't supposed to use it without FormWrapper.
  */
-class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
+export class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   constructor(props: SmartFormProps) {
     super(props);
 
@@ -1134,11 +1137,3 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   errors: PropTypes.array,
   currentValues: PropTypes.object
 };
-
-const FormComponent = registerComponent("Form", Form);
-
-declare global {
-  interface ComponentTypes {
-    Form: typeof FormComponent
-  }
-}

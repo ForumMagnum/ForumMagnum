@@ -18,6 +18,7 @@ import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { callbackProps, WrappedSmartFormProps } from './propTypes';
+import { Form } from './Form';
 import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
@@ -149,7 +150,7 @@ const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
     collectionName: collection.collectionName,
     fragment: mutationFragment,
   });
-  return <Components.Form
+  return <Form
     {...props}
     currentUser={currentUser}
     collection={collection}
@@ -188,7 +189,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   if (loading) {
     return <Components.Loading/>
   }
-  return <Components.Form
+  return <Form
     {...props}
     currentUser={currentUser}
     collection={collection}
