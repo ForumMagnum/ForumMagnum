@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
-import { useMulti } from "../../lib/crud/withMulti";
+import { useMulti, UseMultiOptions } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
+
+type PostsListFragmentType = "PostsListTagWithVotes" | "PostsListWithVotes";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -55,6 +57,7 @@ export type PostsListConfig = {
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
+  useMultiOptions?: Partial<UseMultiOptions<PostsListFragmentType, "Posts">>,
 }
 
 export const usePostsList = ({
@@ -86,6 +89,7 @@ export const usePostsList = ({
   showFinalBottomBorder = false,
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
+  useMultiOptions,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -107,7 +111,8 @@ export const usePostsList = ({
     nextFetchPolicy: "cache-first",
     itemsPerPage,
     alwaysShowLoadMore,
-    ...tagVariables
+    ...tagVariables,
+    ...useMultiOptions,
   });
 
   // Map from post._id to whether to hide it. Used for client side post filtering

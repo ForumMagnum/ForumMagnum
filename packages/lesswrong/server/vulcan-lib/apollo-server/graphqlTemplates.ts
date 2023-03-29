@@ -198,6 +198,9 @@ export const multiInputTemplate = ({ typeName }: {typeName: string}) => (
   enableTotal: Boolean
   # The document to create if none are found
   createIfMissing: JSON
+  # Server cache settings
+  serverCacheKey: String
+  serverCacheTTLSeconds: Int
   # OpenCRUD fields
   where: ${typeName}SelectorInput
   orderBy: ${typeName}OrderByInput

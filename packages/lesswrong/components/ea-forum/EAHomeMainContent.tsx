@@ -267,6 +267,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     sortedBy: 'magic',
     limit: 30
   }
+  const topicCacheKey = `topicFeed-${activeTab._id}`;
 
   return (
     <>
@@ -308,6 +309,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
             terms={topicPostTerms}
             itemsPerPage={30}
             hideTag
+            useMultiOptions={{
+              serverCacheKey: topicCacheKey,
+              serverCacheTTLSeconds: 600,
+            }}
           />
         </SingleColumnSection>
       </AnalyticsContext>}
