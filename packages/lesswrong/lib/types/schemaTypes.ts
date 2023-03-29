@@ -112,7 +112,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     keyof ComponentTypes,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps>,
-  group?: FormGroup<T>,
+  group?: FormGroupType<T>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -156,7 +156,7 @@ type FormField<T extends DbObject> = Pick<
   nestedFields: any
 }
 
-type FormGroup<T extends DbObject = DbObject> = {
+type FormGroupType<T extends DbObject = DbObject> = {
   name?: string,
   order: number,
   label?: string,

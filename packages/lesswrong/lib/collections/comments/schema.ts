@@ -12,7 +12,7 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import { userHasShortformTags } from '../../betas';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 
-export const moderationOptionsGroup: FormGroup = {
+export const moderationOptionsGroup: FormGroupType = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
