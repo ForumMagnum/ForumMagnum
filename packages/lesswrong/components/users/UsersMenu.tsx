@@ -132,7 +132,7 @@ const UsersMenu = ({classes}: {
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>}
-              {userCanPost(currentUser) && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
+              {userCanPost(currentUser) && !isEAForum && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
                 <MenuItem>New Debate</MenuItem>
               </Link>}
             </div>
