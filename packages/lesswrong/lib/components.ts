@@ -616,7 +616,6 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
-importComponent("TagNotificationSettings", () => require('../components/tagging/TagNotificationSettings'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));

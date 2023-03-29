@@ -4,44 +4,51 @@ import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import Button from '@material-ui/core/Button';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { defaultPostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
-// TODO forum gate
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     textAlign: "center",
+    ...(!isEAForum && {
+      "& button:hover": {
+        backgroundColor: "transparent",
+      },
+    }),
   },
   button: {
-    textTransform: 'none',
-    boxShadow: 'none',
+    textTransform: "none",
+    boxShadow: "none",
     padding: 0,
-    fontSize: '14px',
+    fontSize: "14px",
     minHeight: 32,
     cursor: "pointer",
-    color: isEAForum ? 'inherit' : theme.palette.primary.main,
+    color: theme.palette.primary.main,
     paddingLeft: 8,
     paddingRight: 4,
-    backgroundColor: 'transparent',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[250],
-      color: theme.palette.grey[1000],
-    }
+    backgroundColor: "transparent",
+    ...(isEAForum && {
+      color: "inherit",
+      "&:hover": {
+        backgroundColor: theme.palette.grey[250],
+        color: theme.palette.grey[1000],
+      },
+    }),
   },
   openButton: {
-    backgroundColor: theme.palette.grey[250],
-    color: theme.palette.grey[1000],
+    ...(isEAForum && {
+      backgroundColor: theme.palette.grey[250],
+      color: theme.palette.grey[1000],
+    }),
   },
   dropdownIcon: {
-    // TODO check how this affects LW
     verticalAlign: "middle",
     position: "relative",
-    width: 16,
-    height: 16,
-    marginLeft: 4,
+    ...(isEAForum && { width: 16, height: 16, marginLeft: 4 }),
   },
   padding: {
     width: 10,
@@ -57,30 +64,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     marginTop: 28,
-    '& a:hover': {
-      opacity: 'inherit',
-    },
-    [theme.breakpoints.down('xs')]: {
-      // It tries to stop itself hitting the side of the screen on mobile,
-      // add some negative margin to line it back up with the dropdown
-      marginLeft: -7,
-    }
+    ...(isEAForum && {
+      "& a:hover": {
+        opacity: "inherit",
+      },
+    }),
   },
   menuItem: {
-    color: theme.palette.grey[1000],
-    borderRadius: theme.borderRadius.small,
-    padding: '6px 8px',
-    margin: '0px 3px',
-    fontSize: '14px',
-    '&:focus': {
+    ...(isEAForum && {
+      color: theme.palette.grey[1000],
+      borderRadius: theme.borderRadius.small,
+      padding: "6px 8px",
+      margin: "0px 3px",
+      fontSize: "14px",
+      "&:hover": {
+        backgroundColor: theme.palette.grey[250],
+        color: theme.palette.grey[1000],
+      },
+    }),
+    "&:focus": {
       outline: "none",
     },
-    '&:hover': {
-      backgroundColor: theme.palette.grey[250], // TODO extract out this hover behaviour
-      color: theme.palette.grey[1000],
-    }
   },
-})
+});
 
 const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", onSelect, classes, className}:{
   value: string,
@@ -94,6 +100,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
   const label = options[value].shortLabel || options[value].label
   const { MenuItem, ForumIcon } = Components;
 
+  const dropdownIcon = isEAForum ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
       <Button
@@ -101,7 +108,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
         onClick={(e) => setAnchorEl(e.currentTarget)}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
-        {label} <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} />
+        {label} {dropdownIcon}
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classes.menu}>
         {Object.keys(options).map((option) => (
@@ -115,7 +122,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
               className={classes.menuItem}
             >
               {options[option].label}
-              {option === value && (
+              {option === value && isEAForum && (
                 <>
                   <div className={classes.padding}></div>
                   <ForumIcon icon="Check" className={classes.selectedIcon} />
