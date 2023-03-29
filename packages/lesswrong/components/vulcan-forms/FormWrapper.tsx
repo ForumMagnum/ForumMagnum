@@ -43,11 +43,7 @@ import { withDelete } from '../../lib/crud/withDelete';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
 import withUser from '../common/withUser';
-import {
-  getReadableFields,
-  getCreateableFields,
-  getUpdateableFields
-} from '../../lib/vulcan-forms/schema_utils';
+import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 
 import withCollectionProps from './withCollectionProps';
 import { callbackProps, SmartFormProps } from './propTypes';
@@ -69,16 +65,12 @@ const FormWrapper = (props: SmartFormProps) => {
     : getSchema(props.collection);
 
   // if a document is being passed, this is an edit form
-  const getFormType = () => {
-    return props.documentId || props.slug ? 'edit' : 'new';
-  }
+  const formType = (props.documentId || props.slug) ? 'edit' : 'new';
 
   // get fragment used to decide what data to load from the server to populate the form,
   // as well as what data to ask for as return value for the mutation
   const getFragments = () => {
-    const prefix = `${props.collectionName}${capitalize(
-      getFormType()
-    )}`;
+    const prefix = `${props.collectionName}${capitalize(formType)}`;
     const fragmentName = `${prefix}FormFragment`;
 
     const fields = props.fields;
@@ -87,10 +79,10 @@ const FormWrapper = (props: SmartFormProps) => {
     const updatetableFields = getUpdateableFields(schema);
 
     // get all editable/insertable fields (depending on current form type)
-    let queryFields = getFormType() === 'new' ? createableFields : updatetableFields;
+    let queryFields = formType === 'new' ? createableFields : updatetableFields;
     // for the mutations's return value, also get non-editable but viewable fields (such as createdAt, userId, etc.)
     let mutationFields =
-      getFormType() === 'new'
+      formType === 'new'
         ? _.unique(createableFields.concat(readableFields))
         : _.unique(createableFields.concat(updatetableFields));
 
@@ -135,20 +127,14 @@ const FormWrapper = (props: SmartFormProps) => {
 
     // if queryFragment or mutationFragment props are specified, accept either fragment object or fragment string
     if (props.queryFragment) {
-      queryFragment =
-        typeof props.queryFragment === 'string'
-          ? gql`
-              ${props.queryFragment}
-            `
-          : props.queryFragment;
+      queryFragment = typeof props.queryFragment === 'string'
+        ? gql`${props.queryFragment}`
+        : props.queryFragment;
     }
     if (props.mutationFragment) {
-      mutationFragment =
-        typeof props.mutationFragment === 'string'
-          ? gql`
-              ${props.mutationFragment}
-            `
-          : props.mutationFragment;
+      mutationFragment = typeof props.mutationFragment === 'string'
+        ? gql`${props.mutationFragment}`
+        : props.mutationFragment;
     }
 
     // same with queryFragmentName and mutationFragmentName
@@ -160,32 +146,16 @@ const FormWrapper = (props: SmartFormProps) => {
     }
 
     // get query & mutation fragments from props or else default to same as generatedFragment
-    return {
-      queryFragment,
-      mutationFragment,
-    };
+    return { queryFragment, mutationFragment };
   }
 
   const getComponent = () => {
-    let WrappedComponent;
+    const prefix = `${props.collectionName}${capitalize(formType)}`;
 
-    const prefix = `${props.collectionName}${capitalize(
-      getFormType()
-    )}`;
-
-    const {
-      queryFragment,
-      mutationFragment,
-    } = getFragments();
+    const { queryFragment, mutationFragment } = getFragments();
 
     // LESSWRONG: ADDED extraVariables option
     const { extraVariables = {}, extraVariablesValues } = props
-
-    // props to pass on to child component (i.e. <Form />)
-    const childProps = {
-      formType: getFormType(),
-      schema,
-    };
 
     // options for withSingle HoC
     const queryOptions: any = {
@@ -208,22 +178,23 @@ const FormWrapper = (props: SmartFormProps) => {
     // displays the loading state if needed, and passes on loading and document/data
     const Loader = props => {
       const { document, loading } = props;
-      return loading ? (
-        <Components.Loading />
-      ) : (
-        <Components.Form
-          document={document}
-          loading={loading}
-          {...childProps}
-          {...props}
-        />
-      );
+      
+      if (loading) {
+        return <Components.Loading/>
+      }
+      return <Components.Form
+        document={document}
+        loading={loading}
+        formType={formType}
+        schema={schema}
+        {...props}
+      />
     };
     Loader.displayName = 'withLoader(Form)';
 
     // if this is an edit from, load the necessary data using the withSingle HoC
-    if (getFormType() === 'edit') {
-      WrappedComponent = compose(
+    if (formType === 'edit') {
+      const WrappedComponent = compose(
         withSingle(queryOptions),
         withUpdate(mutationOptions),
         withDelete(mutationOptions)
@@ -239,8 +210,8 @@ const FormWrapper = (props: SmartFormProps) => {
         />
       );
     } else {
-      WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
-      return <WrappedComponent {...childProps} />;
+      const WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
+      return <WrappedComponent />;
     }
   }
 
