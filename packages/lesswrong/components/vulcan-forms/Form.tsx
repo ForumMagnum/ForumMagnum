@@ -1,26 +1,3 @@
-/*
-
-Main form component.
-
-This component expects:
-
-### All Forms:
-
-- collection
-- currentUser
-
-### New Form:
-
-- newMutation
-
-### Edit Form:
-
-- editMutation
-- removeMutation
-- document
-
-*/
-
 import cloneDeep from 'lodash/cloneDeep';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
@@ -135,19 +112,11 @@ interface FormState {
   currentDocument: any
 }
 
-/*
-
-1. Constructor
-2. Helpers
-3. Errors
-4. Context
-4. Method & Callback
-5. Render
-
-*/
-
 /**
- * Note: Only use this through WrappedSmartForm
+ * Main form component. Should not be used directly; use only through
+ * WrappedSmartForm. Depending whether this is a new form or an edit form,
+ * FormWrapper will have provided a create mutator, document and/or update
+ * mutator.
  */
 class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   constructor(props: SmartFormProps) {

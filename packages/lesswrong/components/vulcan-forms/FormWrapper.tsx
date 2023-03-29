@@ -1,29 +1,3 @@
-/*
-
-Generate the appropriate fragment for the current form, then
-wrap the main Form component with the necessary HoCs while passing
-them the fragment.
-
-This component is itself wrapped with:
-
-- withUser
-- withApollo (used to access the Apollo client for form pre-population)
-
-And wraps the Form component with:
-
-- withCreate
-
-Or:
-
-- withSingle
-- withUpdate
-- withDelete
-
-(When wrapping with withSingle, withUpdate, and withDelete, a special Loader
-component is also added to wait for withSingle's loading prop to be false)
-
-*/
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from '../../lib/vulcan-i18n';
@@ -48,8 +22,10 @@ import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
 
-// get fragment used to decide what data to load from the server to populate the form,
-// as well as what data to ask for as return value for the mutation
+/**
+ * Get fragment used to decide what data to load from the server to populate the form,
+ * as well as what data to ask for as return value for the mutation
+ */
 const getFragments = (formType: "edit"|"new", props: WrappedSmartFormProps) => {
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
@@ -139,6 +115,12 @@ const getFragments = (formType: "edit"|"new", props: WrappedSmartFormProps) => {
  * (in form-components/WrappedSmartForm.tsx), which adds a submitCallback that
  * may be needed for text-editor fields; so you should use that wrapper, not
  * this one.
+ *
+ * This looks at whether it was given a documentId/slug to determine whether
+ * it's an edit form, in which case it loads the specified document and adds
+ * update/delete mutators, or a new form, in which case it adds a create
+ * mutator. In both cases, unpacks fragment/fragmentName with `getFragments`,
+ * generating a default fragment if none is given.
  */
 const FormWrapper = (props: WrappedSmartFormProps) => {
   const collection = getCollection(props.collectionName);
@@ -154,6 +136,10 @@ const FormWrapper = (props: WrappedSmartFormProps) => {
   }
 }
 
+/**
+ * Wrapper around a 'new' form, which adds createMutation. Should be used only
+ * via FormWrapper.
+ */
 const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
@@ -173,6 +159,10 @@ const FormWrapperNew = (props: WrappedSmartFormProps&{schema: any}) => {
   />
 }
 
+/**
+ * Wrapper around an 'edit' form, which adds updateMutation. Should be used only
+ * via FormWrapper.
+ */
 const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
