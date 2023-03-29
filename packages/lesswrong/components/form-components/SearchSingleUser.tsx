@@ -28,7 +28,7 @@ const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: Fo
           label={label}
         />
       </Components.ErrorBoundary>
-      {value && <Components.SingleUsersItemWrapper documentId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
+      {value && <Components.SingleUsersItem userId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
     </div>
   )
 };

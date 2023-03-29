@@ -698,7 +698,6 @@ importComponent("SubmitButton", () => require('../components/form-components/Sub
 importComponent("FormSubmit", () => require('../components/form-components/FormSubmit'));
 importComponent("BasicFormStyles", () => require('../components/form-components/BasicFormStyles'));
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
-importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("SingleTagItem", () => require('../components/form-components/SingleTagItem'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
 importComponent("SearchSingleUser", () => require('../components/form-components/SearchSingleUser'));
