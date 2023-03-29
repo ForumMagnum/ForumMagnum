@@ -14,8 +14,6 @@ const Z_TOP = 3
 const Z_IMAGE = 1
 const Z_OVERLAY = 2
 
-// TODO rename entire file
-
 const gridTemplateColumns = `
   minmax(${TAB_NAVIGATION_MENU_WIDTH + MIN_GAP}px, ${TAB_NAVIGATION_MENU_WIDTH + 250}px)
   0.7fr
@@ -119,7 +117,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap2: { gridArea: 'gap2' }
 });
 
-// TODO rename this component to CoreTopicLayout or something
 export const RightSidebarColumn = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
   titleComponent: React.ReactNode,
   bannerImageId: string,

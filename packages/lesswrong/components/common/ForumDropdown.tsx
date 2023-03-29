@@ -117,7 +117,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
               value={option}
               onClick={() => {
                 setAnchorEl(null);
-                onSelect?.(option)
+                onSelect?.(option);
               }}
               className={classes.menuItem}
             >

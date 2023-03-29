@@ -89,14 +89,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: 'none !important'
     },
   },
-  wikiSection: {
-    paddingTop: 12,
-    paddingLeft: 42,
-    paddingRight: 42,
-    paddingBottom: 12,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
-  },
   nextLink: {
     ...theme.typography.commentStyle
   },
@@ -104,47 +96,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: 24,
-    marginTop: 24, // FIXME temporary hack to make it not look weird, actually line up with feed/list
+    marginTop: 24,
   },
   tableOfContentsWrapper: {
     padding: 24,
-  },
-  membersListLink: {
-    background: 'none',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    color: theme.palette.primary.main,
-    padding: 0,
-    '&:hover': {
-      opacity: 0.5
-    },
-    [theme.breakpoints.up('lg')]: {
-      display: 'none' // only show on mobile (when the sidebar is not showing)
-    }
-  },
-  joinBtn: {
-    // FIXME: refactor to remove these !importants once the old subforum page is deprecated (this is the only other place SubforumSubscribeSection is used)
-    alignItems: 'center !important',
-    padding: '4px 0 0 0 !important',
-    '& button': {
-      minHeight: 0,
-      fontSize: 14,
-      padding: 8
-    },
-    [theme.breakpoints.down('sm')]: {
-      padding: '2px 0 0 0 !important',
-      '& button': {
-        minHeight: 0,
-        fontSize: 12,
-        padding: 6
-      },
-    }
-  },
-  notificationSettings: {
-    marginTop: 6,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 4,
-    }
   },
 });
 

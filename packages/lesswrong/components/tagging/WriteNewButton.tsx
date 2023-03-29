@@ -1,20 +1,13 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useSubscribeUserToTag } from '../../lib/filterSettings';
+import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useCreate } from '../../lib/crud/withCreate';
-import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,11 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonSection: {
     display: 'flex',
     alignItems: 'center'
-  },
-  dropdownArrowContainer: {
-    borderLeft: "solid 1px",
-    borderColor: theme.palette.grey[300],
-    padding: "0px 8px 0px 8px",
   },
   buttonLabelContainer: {
     padding: '0px 9px 0px 8px',
@@ -57,10 +45,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 16,
     marginRight: 3,
   },
-  dropdownArrow: {
-    width: 16,
-    height: 16,
-  },
   popout: {
     padding: "4px 0px 4px 0px",
     marginTop: 8,
@@ -69,25 +53,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& a:hover': {
       opacity: 'inherit',
     }
-  },
-  checkbox: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 24,
-    "& .MuiButtonBase-root": {
-      padding: 6,
-    },
-    "& .Typography-root": {
-      cursor: "default",
-    },
-  },
-  accountLink: {
-    borderTop: "solid 1px",
-    borderColor: theme.palette.grey[300],
-    margin: "4px 4px 0px 4px",
-    padding: "4px 4px 0px 4px",
-    fontSize: 13,
-    color: theme.palette.primary.main
   },
   menuItem: {
     color: theme.palette.grey[1000],
@@ -100,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       outline: "none",
     },
     '&:hover': {
-      backgroundColor: theme.palette.grey[250], // TODO extract out this hover behaviour
+      backgroundColor: theme.palette.grey[250],
       color: theme.palette.grey[1000],
     }
   },
@@ -158,7 +123,6 @@ const WriteNewButton = ({
       <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>
-            {/* TODO combine styling with PostsListSortDropdown */}
             <Link to={`/newPost?subforumTagId=${tag._id}`}>
               <MenuItem className={classes.menuItem}>New post</MenuItem>
             </Link>

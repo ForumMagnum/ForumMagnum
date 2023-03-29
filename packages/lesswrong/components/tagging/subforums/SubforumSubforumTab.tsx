@@ -1,18 +1,14 @@
-import classNames from 'classnames';
 import React, { useCallback, useRef } from 'react';
-import AddBoxIcon from "@material-ui/icons/AddBox";
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
+import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
-import startCase from 'lodash/startCase';
 import { difference } from 'lodash/fp';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
@@ -108,8 +104,6 @@ const SubforumSubforumTab = ({
     CommentWithReplies,
     PostsList2,
     CommentsListCondensed,
-    SubforumListSettings,
-    SortButton,
     ShortformSubmitForm,
     WrappedLoginForm,
     PostsListSortDropdown,
@@ -126,7 +120,6 @@ const SubforumSubforumTab = ({
       refetchRef.current();
   }, [refetchRef]);
 
-  // const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
   const clickNewShortform = useCallback(() => {
@@ -162,48 +155,6 @@ const SubforumSubforumTab = ({
   };
   const maxAgeHours = 18;
   const commentsLimit = 3;
-
-  const shortformButton = (
-    <LWTooltip
-      title={"You must be logged in to create a shortform"}
-      disabled={!!currentUser}
-      className={classNames(classes.newPostLink, classes.newPostLinkHover)}
-    >
-      <SectionButton onClick={currentUser ? clickNewShortform : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
-      </SectionButton>
-    </LWTooltip>
-  );
-
-  const newPostButton = (
-    <LWTooltip
-      title={
-        currentUser
-          ? `Create a post tagged with the ${startCase(
-              tag.name
-            )} topic — by default this will appear here and on the frontpage`
-          : "You must be logged in to create a post"
-      }
-      className={classes.newPostLink}
-    >
-      <Link
-        to={`/newPost?subforumTagId=${tag._id}`}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
-            });
-            ev.preventDefault();
-          }
-        }}
-      >
-        <SectionButton>
-          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
-        </SectionButton>
-      </Link>
-    </LWTooltip>
-  );
   
   const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
@@ -302,7 +253,6 @@ const SubforumSubforumTab = ({
     ...tagPostTerms(tag, query),
     limit: 10
   }
-  console.log("terms", terms)
   const listLayoutComponent = (
     <div className={classes.listLayout}>
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
@@ -336,26 +286,7 @@ const SubforumSubforumTab = ({
       <div className={classes.feedHeader}>
         <PostsListSortDropdown value={sortBy} options={sortByOptions}/>
         <PostsLayoutDropdown value={layout} />
-        {/* <div className={classes.feedHeaderButtons}>
-          {shortformButton}
-          {newPostButton}
-        </div>
-        <LWTooltip title={`${showSettings ? "Hide" : "Show"} options for sorting and layout`} placement="top-end">
-          <div
-            className={classes.listSettingsToggle}
-            onClick={() => {
-              setShowSettings(!showSettings);
-            }}
-          >
-            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? preferredHeadingCase('Posts Expanded') : preferredHeadingCase('Posts Collapsed')}</span></span>} />
-          </div>
-        </LWTooltip> */}
       </div>
-      {/* {showSettings && (
-        <div className={classes.listSettingsContainer}>
-          <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
-        </div>
-      )} */}
       {newShortformOpen && (
         <div className={classes.newShortformContainer}>
           {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time

@@ -132,9 +132,9 @@ const SubscribeButton = ({
 
   const { LWClickAwayListener, LWPopper, Typography, LWTooltip, ForumIcon } = Components;
   
-  // Get existing subscription, if there is one
+  // Get existing NOTIFICATIONS subscription, if there is one
   const subscriptionType = "newTagPosts"
-  const { results: notifSubscriptions, loading: loadingNotifSettings } = useMulti({
+  const { results: notifSubscriptions } = useMulti({
     terms: {
       view: "subscriptionState",
       documentId: tag._id,
@@ -152,7 +152,7 @@ const SubscribeButton = ({
     fragmentName: 'SubscriptionState',
   });
 
-  const isSubscribedToPosts = useMemo(() => {
+  const isSubscribedToPostNotifs = useMemo(() => {
     const relevantSubscriptions = notifSubscriptions?.filter(s => ["subscribed", "suppressed"].includes(s.state));
 
     if (relevantSubscriptions?.length !== 1) { // due to `limit: 1` above, this should only happen if there is no subscription
@@ -168,8 +168,8 @@ const SubscribeButton = ({
   const togglePostNotifsSubscribed = async (e) => {
     try {
       e.preventDefault();
-      const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
-      captureEvent("subscribeClicked", {state: subscriptionState}) // TODO capture better events
+      const subscriptionState = isSubscribedToPostNotifs ? 'suppressed' : 'subscribed'
+      captureEvent("subscribeClicked", {state: subscriptionState})
 
       const newSubscription = {
         state: subscriptionState,
@@ -239,13 +239,12 @@ const SubscribeButton = ({
           </div>
         )}
       </Button>
-      {/* TODO check this works correctly for logged out users */}
       {/* TODO add analytics back in */}
       <LWPopper open={!!anchorEl.current && isSubscribed && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>
             <span className={classes.checkbox}>
-              <Checkbox checked={isSubscribedToPosts} onChange={togglePostNotifsSubscribed} disableRipple />
+              <Checkbox checked={isSubscribedToPostNotifs} onChange={togglePostNotifsSubscribed} disableRipple />
               <Typography variant="body2">Notify me of new posts</Typography>
             </span>
             <Typography variant="body2" className={classes.accountLink}>

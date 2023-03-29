@@ -628,7 +628,6 @@ importComponent("WriteNewButton", () => require('../components/tagging/WriteNewB
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
 importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
-importComponent("SubforumListSettings", () => require('../components/tagging/subforums/SubforumListSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("SubforumWikiTab", () => require('../components/tagging/subforums/SubforumWikiTab'));
 importComponent("SubforumSubforumTab", () => require('../components/tagging/subforums/SubforumSubforumTab'));
