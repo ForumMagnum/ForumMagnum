@@ -83,7 +83,7 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
       }
       {showSproutIcon && !hideSprout && <LWTooltip
           placement="bottom-start"
-          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet. Take care in replying.`}
+          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
           className={classes.iconWrapper}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
