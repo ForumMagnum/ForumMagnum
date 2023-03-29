@@ -54,7 +54,7 @@ const getDefaultValues = convertedSchema => {
   );
 };
 
-const getInitialStateFromProps = nextProps => {
+const getInitialStateFromProps = (nextProps: SmartFormProps): FormState => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
@@ -143,27 +143,21 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   // ------------------------------- Helpers ----------------------------- //
   // --------------------------------------------------------------------- //
 
-  /*
-  If a document is being passed, this is an edit form
-  */
+  /** If a document is being passed, this is an edit form */
   getFormType = () => {
     return this.props.document ? 'edit' : 'new';
   };
 
-  /*
-  Get a list of all insertable fields
-  */
-  getInsertableFields = schema => {
+  /** Get a list of all insertable fields */
+  getInsertableFields = (schema: SchemaType<T>) => {
     return getInsertableFields(
       schema || this.state.schema,
       this.props.currentUser??null
     );
   };
 
-  /*
-  Get a list of all editable fields
-  */
-  getEditableFields = schema => {
+  /** Get a list of all editable fields */
+  getEditableFields = (schema: SchemaType<T>) => {
     return getEditableFields(
       schema || this.state.schema,
       this.props.currentUser??null,
@@ -171,12 +165,8 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     );
   };
 
-  /*
-
-  Get a list of all mutable (insertable/editable depending on current form type) fields
-
-  */
-  getMutableFields = schema => {
+  /** Get a list of all mutable (insertable/editable depending on current form type) fields */
+  getMutableFields = (schema: SchemaType<T>) => {
     return this.getFormType() === 'edit'
       ? this.getEditableFields(schema)
       : this.getInsertableFields(schema);
@@ -526,7 +516,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   Clear errors for a field
 
   */
-  clearFieldErrors = path => {
+  clearFieldErrors = (path: string) => {
     const errors = this.state.errors.filter(error => error.path !== path);
     this.setState({ errors });
   };
@@ -536,7 +526,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   // --------------------------------------------------------------------- //
 
   // add something to deleted values
-  addToDeletedValues = name => {
+  addToDeletedValues = (name: string) => {
     this.setState(prevState => ({
       deletedValues: [...prevState.deletedValues, name]
     }));
