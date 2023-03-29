@@ -993,62 +993,6 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
 
   // --------------------------------------------------------------------- //
-  // ------------------------- Props to Pass ----------------------------- //
-  // --------------------------------------------------------------------- //
-
-  getFormProps = () => ({
-    className: 'vulcan-form document-' + this.getFormType(),
-    id: this.props.id,
-    onSubmit: this.submitForm,
-    onKeyDown: this.formKeyDown,
-    ref: e => {
-      this.form = e;
-    },
-  });
-
-  getFormErrorsProps = () => ({
-    errors: this.state.errors
-  });
-
-  getFormGroupProps = (group: FormGroup<T>) => ({
-    key: group.name,
-    ...group,
-    errors: this.state.errors,
-    throwError: this.throwError,
-    currentValues: this.state.currentValues,
-    updateCurrentValues: this.updateCurrentValues,
-    deletedValues: this.state.deletedValues,
-    addToDeletedValues: this.addToDeletedValues,
-    clearFieldErrors: this.clearFieldErrors,
-    formType: this.getFormType(),
-    currentUser: this.props.currentUser,
-    disabled: this.state.disabled,
-    formComponents: mergeWithComponents(this.props.formComponents),
-    formProps: this.props.formProps
-  });
-
-  getFormSubmitProps = () => ({
-    submitLabel: this.props.submitLabel,
-    cancelLabel: this.props.cancelLabel,
-    revertLabel: this.props.revertLabel,
-    cancelCallback: this.props.cancelCallback,
-    revertCallback: this.props.revertCallback,
-    submitForm: this.submitForm,
-    updateCurrentValues: this.updateCurrentValues,
-    formType: this.getFormType(),
-    document: this.getDocument(),
-    deleteDocument:
-      (this.getFormType() === 'edit' &&
-        this.props.showRemove &&
-        this.deleteDocument) ||
-      null,
-    collectionName: this.props.collectionName,
-    currentValues: this.state.currentValues,
-    deletedValues: this.state.deletedValues,
-    errors: this.state.errors,
-  });
-
-  // --------------------------------------------------------------------- //
   // ----------------------------- Render -------------------------------- //
   // --------------------------------------------------------------------- //
 
@@ -1056,16 +1000,61 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     const FormComponents = mergeWithComponents(this.props.formComponents);
 
     return (
-      <FormComponents.FormElement {...this.getFormProps()}>
-        <FormComponents.FormErrors {...this.getFormErrorsProps()} />
+      <FormComponents.FormElement
+        className={'vulcan-form document-' + this.getFormType()}
+        id={this.props.id}
+        onSubmit={this.submitForm}
+        onKeyDown={this.formKeyDown}
+        ref={e => { this.form = e; }}
+      >
+        <FormComponents.FormErrors
+          errors={this.state.errors}
+        />
 
         {this.getFieldGroups().map((group, i) => (
-          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={`${i}-${group.name}`} />
+          <FormComponents.FormGroup
+            {...group}
+            errors={this.state.errors}
+            throwError={this.throwError}
+            currentValues={this.state.currentValues}
+            updateCurrentValues={this.updateCurrentValues}
+            deletedValues={this.state.deletedValues}
+            addToDeletedValues={this.addToDeletedValues}
+            clearFieldErrors={this.clearFieldErrors}
+            formType={this.getFormType()}
+            currentUser={this.props.currentUser}
+            disabled={this.state.disabled}
+            formComponents={mergeWithComponents(this.props.formComponents)}
+            formProps={this.props.formProps}
+            key={`${i}-${group.name}`}
+          />
         ))}
 
-        {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}
+        {this.props.repeatErrors && <FormComponents.FormErrors
+          errors={this.state.errors}
+        />}
 
-        {!this.props.autoSubmit && <FormComponents.FormSubmit {...this.getFormSubmitProps()} />}
+        {!this.props.autoSubmit && <FormComponents.FormSubmit
+          submitLabel={this.props.submitLabel}
+          cancelLabel={this.props.cancelLabel}
+          revertLabel={this.props.revertLabel}
+          cancelCallback={this.props.cancelCallback}
+          revertCallback={this.props.revertCallback}
+          submitForm={this.submitForm}
+          updateCurrentValues={this.updateCurrentValues}
+          formType={this.getFormType()}
+          document={this.getDocument()}
+          deleteDocument={
+            (this.getFormType() === 'edit' &&
+              this.props.showRemove &&
+              this.deleteDocument) ||
+            null
+          }
+          collectionName={this.props.collectionName}
+          currentValues={this.state.currentValues}
+          deletedValues={this.state.deletedValues}
+          errors={this.state.errors}
+        />}
       </FormComponents.FormElement>
     );
   }
