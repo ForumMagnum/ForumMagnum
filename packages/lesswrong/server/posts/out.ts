@@ -29,7 +29,6 @@ addStaticRoute('/out', async ({ query }, _req, res, _next) => {
             fragmentName: "PostsBase",
             fragment: undefined,
             extraVariables: undefined,
-            extraQueries: undefined,
           }),
           variables: {
             input: {

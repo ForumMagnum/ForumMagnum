@@ -76,9 +76,9 @@ makeEditable({
     },
     revisionsHaveCommitMessages: true,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     order: 10
   }
@@ -90,9 +90,9 @@ makeEditable({
     formGroup: formGroups.subforumWelcomeMessage,
     fieldName: "subforumWelcomeText",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 });
@@ -109,9 +109,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 })

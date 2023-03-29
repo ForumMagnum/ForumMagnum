@@ -66,7 +66,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   
   const titleNode = <div className={classes.title}>
     Posts tagged community
-    <LWTooltip title={sectionExpanded ? 'Collapse' : 'Expand'}>
+    <LWTooltip title={sectionExpanded ? 'Collapse' : 'Expand'} hideOnTouchScreens>
       <ForumIcon
         icon={sectionExpanded ? 'ThickChevronDown' : 'ThickChevronRight'}
         onClick={toggleSectionVisibility}

@@ -4,8 +4,6 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import FilterIcon from '@material-ui/icons/FilterList';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -314,7 +312,7 @@ const EventsHome = ({classes}: {
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
   
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem } = Components
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem, ForumIcon } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
@@ -475,7 +473,9 @@ const EventsHome = ({classes}: {
             
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
-                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+                {currentUser?.nearbyEventsNotifications ?
+                  <ForumIcon icon="Bell" className={classes.notificationsIcon} /> :
+                  <ForumIcon icon="BellBorder" className={classes.notificationsIcon} />} Notify me
               </Button>
             </div>
           </div>

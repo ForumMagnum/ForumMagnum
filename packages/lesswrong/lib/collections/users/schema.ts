@@ -1818,18 +1818,18 @@ const schema: SchemaType<DbUser> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
 
   viewUnreviewedComments: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     order: 0,
   },
@@ -1965,7 +1965,7 @@ const schema: SchemaType<DbUser> = {
       foreignFieldName: "userId",
       filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   maxPostCount: {
     ...denormalizedCountOfReferences({
@@ -1975,14 +1975,14 @@ const schema: SchemaType<DbUser> = {
       foreignTypeName: "post",
       foreignFieldName: "userId"
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
   // The user's associated posts (GraphQL only)
   posts: {
     type: Object,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
@@ -2119,8 +2119,8 @@ const schema: SchemaType<DbUser> = {
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    canRead: ['guests'],
+    canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
     control: "ImageUpload"
   },
@@ -2187,13 +2187,13 @@ const schema: SchemaType<DbUser> = {
 
   bio: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     hidden: true,
   },
   htmlBio: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     hidden: true,
   },
@@ -2269,9 +2269,9 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     group: formGroups.activity,
     order: 1,
     control: "TagMultiselect",
@@ -2296,9 +2296,9 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     group: formGroups.activity,
     order: 2,
     control: "SelectLocalgroup",

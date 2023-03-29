@@ -193,13 +193,8 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
     // note: insertable/editable fields must be included in main schema in case they're returned by a mutation
     // OpenCRUD backwards compatibility
     if (
-      (field.canRead ||
-        field.canCreate ||
-        field.canUpdate ||
-        field.viewableBy ||
-        field.insertableBy ||
-        field.editableBy) &&
-      fieldName.indexOf('$') === -1
+      (field.canRead || field.canCreate || field.canUpdate)
+      && fieldName.indexOf('$') === -1
     ) {
       const fieldDescription = field.description;
       const fieldDirective = '';
@@ -262,7 +257,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
       }
 
       // OpenCRUD backwards compatibility
-      if (field.canCreate || field.insertableBy) {
+      if (field.canCreate) {
         fields.create.push({
           name: fieldName,
           type: inputFieldType,
@@ -270,7 +265,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
         });
       }
       // OpenCRUD backwards compatibility
-      if (field.canUpdate || field.editableBy) {
+      if (field.canUpdate) {
         fields.update.push({
           name: fieldName,
           type: inputFieldType,

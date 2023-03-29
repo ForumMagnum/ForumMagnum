@@ -49,10 +49,39 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 16,
     height: 16,
   },
+  // popout: {
+  //   padding: "4px 0px 4px 0px",
+  //   marginTop: 8,
+  //   maxWidth: 220,
+  //   '& .form-input': {
+  //     marginTop: 0,
+  //   },
+  //   '& .form-input:last-child': {
+  //     marginBottom: 4,
+  //   }
+  // },
+  // checkbox: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   marginRight: 24,
+  //   "& .MuiButtonBase-root": {
+  //     padding: 6,
+  //   },
+  //   "& .Typography-root": {
+  //     cursor: "default",
+  //   },
+  // },
+  // accountLink: {
+  //   borderTop: "solid 1px",
+  //   borderColor: theme.palette.grey[300],
+  //   margin: "4px 4px 0px 4px",
+  //   padding: "4px 4px 0px 4px",
+  //   fontSize: 13,
+  //   color: theme.palette.primary.main
+  // },
   popout: {
     padding: "4px 0px 4px 0px",
-    marginTop: 8,
-    maxWidth: 220,
+    maxWidth: 260,
     '& .form-input': {
       marginTop: 0,
     },
@@ -78,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "4px 4px 0px 4px",
     fontSize: 13,
     color: theme.palette.primary.main
-  }
+  },
 })
 
 export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
