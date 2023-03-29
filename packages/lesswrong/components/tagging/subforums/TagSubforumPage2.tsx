@@ -288,7 +288,7 @@ const TagSubforumPage2 = ({classes}: {
         <SubscribeButton
           tag={tag}
           subscribeMessage="Subscribe"
-          unsubscribeMessage="Unsubscribe"
+          unsubscribeMessage="Subscribed"
           subscriptionType={subscriptionTypes.newTagPosts}
           isSubscribedOverride={isSubscribed}
           subscribeUserToTagOverride={subscribeUserToTag}

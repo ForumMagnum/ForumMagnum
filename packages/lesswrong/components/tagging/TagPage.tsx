@@ -339,7 +339,7 @@ const TagPage = ({classes}: {
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
+                unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             }

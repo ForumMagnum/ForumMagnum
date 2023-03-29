@@ -98,6 +98,7 @@ const WriteNewButton = ({
     <div className={classNames(className, classes.root)}>
       <Button
         variant="contained"
+        color={isSubscribed ? "primary" : undefined}
         onClick={(e) => {
           e.stopPropagation();
           if (!currentUser) {
@@ -109,10 +110,7 @@ const WriteNewButton = ({
           }
           setOpen((prev) => !prev);
         }}
-        className={classNames(classes.button, {
-          [classes.subscribedButton]: isSubscribed,
-          [classes.notSubscribedButton]: !isSubscribed,
-        })}
+        className={classes.button}
       >
         <div className={classNames(classes.buttonSection, classes.buttonLabelContainer)} ref={anchorEl}>
           <ForumIcon icon="Plus" className={classes.icon} />

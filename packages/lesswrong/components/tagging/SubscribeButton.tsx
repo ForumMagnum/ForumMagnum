@@ -34,22 +34,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dropdownArrowContainer: {
     borderLeft: "solid 1px",
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.grey[400],
     padding: "0px 8px 0px 8px",
   },
   buttonLabelContainer: {
     padding: '0px 9px 0px 8px',
-  },
-  subscribedButton: {
-    backgroundColor: theme.palette.grey[200],
-    color: 'default'
-  },
-  notSubscribedButton: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
   },
   notificationBell: {
     width: 17,
@@ -209,11 +198,9 @@ const SubscribeButton = ({
     <div className={classNames(className, classes.root)}>
       <Button
         variant="contained"
+        color={isSubscribed ? undefined : "primary"}
         onClick={onSubscribe}
-        className={classNames(classes.button, {
-          [classes.subscribedButton]: isSubscribed,
-          [classes.notSubscribedButton]: !isSubscribed,
-        })}
+        className={classes.button}
       >
         <LWTooltip
           title={
@@ -224,7 +211,7 @@ const SubscribeButton = ({
           className={classNames(classes.buttonSection, classes.buttonLabelContainer)}
         >
           <ForumIcon icon="BellBorder" className={classes.notificationBell} />
-          <span className={classes.subscribeText}>{isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
+          <span>{isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
         </LWTooltip>
         {isSubscribed && (
           <div
