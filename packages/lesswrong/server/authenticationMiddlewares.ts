@@ -38,6 +38,11 @@ declare global {
   }
 }
 
+// Extend Auth0Strategy to include the missing userProfile method
+class Auth0StrategyFixed extends Auth0Strategy {
+  userProfile!: any;
+}
+
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
 
@@ -378,7 +383,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
   if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
-    const auth0Strategy: any = new Auth0Strategy(
+    const auth0Strategy = new Auth0StrategyFixed(
       {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
@@ -389,7 +394,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     )
     passport.use(auth0Strategy)
 
-    const userHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+    const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
 
     addConnectHandler('/auth/useAccessToken', (req, res, next) => {
       // The user is already authenticated, via the access token. They just need to be given a cookie.
@@ -397,8 +402,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       const resumeToken = "" // not used
       const info = null // not used
       auth0Strategy.userProfile(accessToken, (err, profile) => {
-        if(profile) {
-          void userHandler(accessToken, resumeToken, profile, (err, user) => {
+        if (profile) {
+          void accessTokenUserHandler(accessToken, resumeToken, profile, (err, user) => {
             handleAuthenticate(req, res, next, err, user, info)
           })
         } else {
