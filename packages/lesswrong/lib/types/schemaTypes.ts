@@ -1,6 +1,7 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
+import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -63,11 +64,11 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: any,
-  allowedValues?: any,
+  options?: (formProps: SmartFormProps)=>any,
+  allowedValues?: string[],
   
-  form?: any,
   input?: any,
+
   /**
    * Custom props that will be passed to the input component. Can pass in
    * values or functions. All functions will be called before being passed into
@@ -86,9 +87,9 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *   decorativeComponent: () => MyDecorativeComponent
    * }
    *
-   * NOTE: this is unused and untested as of 2022-05
+   * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  inputProperties?: any,
+  form?: {}|((props: SmartFormProps)=>{}),
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -110,7 +111,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     'date' |
     keyof ComponentTypes,
   placeholder?: string,
-  hidden?: boolean|((formProps: any)=>boolean),
+  hidden?: boolean|((formProps: SmartFormProps)=>boolean),
   group?: FormGroup<T>,
   inputType?: any,
   

@@ -177,7 +177,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
-    inputProperties: {
+    form: {
       labels: {
         inactive: 'Link-post?',
         active: 'Add a linkpost URL',

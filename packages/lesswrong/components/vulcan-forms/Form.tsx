@@ -401,8 +401,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
 
     // add any properties specified in fieldSchema.form as extra props passed on
     // to the form component, calling them if they are functions
-    const inputProperties =
-      fieldSchema.form || fieldSchema.inputProperties || {};
+    const inputProperties = fieldSchema.form || {};
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
       field[prop] =

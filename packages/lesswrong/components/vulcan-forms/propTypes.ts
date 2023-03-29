@@ -71,7 +71,7 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   repeatErrors?: boolean
   noSubmitOnCmdEnter?: boolean
   warnUnsavedChanges?: boolean
-  formComponents?: any
+  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
   
   // Wasn't in propTypes but used
   id?: string
@@ -82,11 +82,11 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   
   queryFragment?: any
   mutationFragment?: any
-  queryFragmentName?: any
-  mutationFragmentName?: any
+  queryFragmentName?: FragmentName
+  mutationFragmentName?: FragmentName
 
-  documentId?: any
-  slug?: any
+  documentId?: string
+  slug?: string
   
   // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
   fragment?: any
@@ -94,7 +94,7 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   // version: Passed from PostsEditForm, but may be erroneous; does not seem to be used inside the forms code
   version?: "draft"
   
-  alignmentForumPost?: any
+  alignmentForumPost?: boolean
   eventForm?: any,
   extraVariables?: any
   extraVariablesValues?: any
@@ -102,7 +102,6 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
 
   // Provided by HoCs in wrappers
   history?: any
-  currentUser?: UsersCurrent|null
 }
 
 export interface SmartFormProps extends WrappedSmartFormProps {
@@ -113,6 +112,7 @@ export interface SmartFormProps extends WrappedSmartFormProps {
   createMutation?: any
   updateMutation?: any
   removeMutation?: any
+  currentUser: UsersCurrent|null
 }
 
 declare global {
