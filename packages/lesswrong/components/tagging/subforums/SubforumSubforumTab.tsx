@@ -18,15 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
   },
-  newPostLink: {
-    display: "flex",
-    alignItems: "center",
-  },
-  newPostLinkHover: {
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
   feedHeader: {
     display: "flex",
     justifyContent: "space-between",
@@ -35,17 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         marginRight: "0px !important",
       }
     }
-  },
-  feedHeaderButtons: {
-    display: "flex",
-    flexGrow: 1,
-    columnGap: 16,
-  },
-  listSettingsToggle: {
-    marginLeft: 16,
-  },
-  listSettingsContainer: {
-    marginTop: 16,
   },
   newShortformContainer: {
     background: theme.palette.grey[0],
@@ -66,11 +46,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   feedPostWrapper: {
     marginTop: 16,
     marginBottom: 16,
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
-      display: "none"
-    }
   },
   commentPermalink: {
     marginBottom: 8,
