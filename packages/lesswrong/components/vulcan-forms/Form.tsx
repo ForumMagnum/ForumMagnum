@@ -313,10 +313,9 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
       relevantFields = _.intersection(relevantFields, fields);
     }
 
-    // if "hideFields" prop is specified, remove its fields
+    // if "removeFields" prop is specified, remove its fields
     if (excludeRemovedFields) {
-      // OpenCRUD backwards compatibility
-      const removeFields = this.props.removeFields || this.props.hideFields;
+      const removeFields = this.props.removeFields;
       if (typeof removeFields !== 'undefined' && removeFields.length > 0) {
         relevantFields = _.difference(relevantFields, removeFields);
       }
@@ -1097,7 +1096,6 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   fields: PropTypes.arrayOf(PropTypes.string),
   addFields: PropTypes.arrayOf(PropTypes.string),
   removeFields: PropTypes.arrayOf(PropTypes.string),
-  hideFields: PropTypes.arrayOf(PropTypes.string), // OpenCRUD backwards compatibility
   showRemove: PropTypes.bool,
   submitLabel: PropTypes.node,
   cancelLabel: PropTypes.node,

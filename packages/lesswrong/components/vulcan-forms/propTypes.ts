@@ -63,7 +63,6 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   fields?: string[]
   addFields?: string[]
   removeFields?: string[]
-  hideFields?: string[]
   showRemove?: boolean
   submitLabel?: React.ReactNode,
   cancelLabel?: React.ReactNode,

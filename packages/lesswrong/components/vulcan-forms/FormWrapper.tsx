@@ -217,7 +217,6 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   prefilledProps: PropTypes.object,
   layout: PropTypes.string,
   fields: PropTypes.arrayOf(PropTypes.string),
-  hideFields: PropTypes.arrayOf(PropTypes.string),
   addFields: PropTypes.arrayOf(PropTypes.string),
   showRemove: PropTypes.bool,
   submitLabel: PropTypes.node,
