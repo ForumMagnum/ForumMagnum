@@ -122,7 +122,7 @@ const getFragments = (formType: "edit"|"new", props: WrappedSmartFormProps) => {
  * mutator. In both cases, unpacks fragment/fragmentName with `getFragments`,
  * generating a default fragment if none is given.
  */
-const FormWrapper = (props: WrappedSmartFormProps) => {
+const FormWrapper = ({showRemove=true, ...props}: WrappedSmartFormProps) => {
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
 
@@ -130,9 +130,9 @@ const FormWrapper = (props: WrappedSmartFormProps) => {
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
   
   if (formType === "edit") {
-    return <FormWrapperEdit {...props} schema={schema}/>
+    return <FormWrapperEdit {...props} showRemove={showRemove} schema={schema}/>
   } else {
-    return <FormWrapperNew {...props} schema={schema}/>
+    return <FormWrapperNew {...props} showRemove={showRemove} schema={schema}/>
   }
 }
 
@@ -231,10 +231,6 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
 
   currentUser: PropTypes.object,
   client: PropTypes.object
-};
-
-(FormWrapper as any).defaultProps = {
-  layout: 'horizontal'
 };
 
 (FormWrapper as any).contextTypes = {

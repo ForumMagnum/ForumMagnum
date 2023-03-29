@@ -67,7 +67,7 @@ const getInitialStateFromProps = nextProps => {
   const initialDocument = merge(
     {},
     defaultValues,
-    nextProps.prefilledProps,
+    nextProps.prefilledProps||{},
     nextProps.document
   );
 
@@ -358,7 +358,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
-      layout: this.props.layout,
+      layout: this.props.layout || "horizontal",
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
@@ -817,7 +817,7 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
    *  the existing one. Note that prefilled props will be merged
    */
   clearForm = ({ document=null }) => {
-    document = document ? merge({}, this.props.prefilledProps, document) : null;
+    document = document ? merge({}, this.props.prefilledProps||{}, document) : null;
     this.setState(prevState => ({
       errors: [],
       currentValues: {},
@@ -1111,14 +1111,6 @@ class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).defaultProps = {
-  layout: 'horizontal',
-  prefilledProps: {},
-  repeatErrors: false,
-  noSubmitOnCmdEnter: false,
-  showRemove: true
 };
 
 (Form as any).contextTypes = {
