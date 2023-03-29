@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: b88b6584110db34b20eede33edf7c826
 
--- Accepted on 2023-03-23T15:28:17.000Z by 20230323T152817.add_subtitle.ts
+-- Accepted on 2023-03-28T14:44:45.000Z by 20230328T144445.add_subtitle.ts
 
 -- Schema for "AdvisorRequests", hash: 7d8b2c2f86db29368d55481bc888c1d9
 CREATE TABLE "AdvisorRequests" (
