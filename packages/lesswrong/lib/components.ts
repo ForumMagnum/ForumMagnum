@@ -134,6 +134,7 @@ importComponent("CloudinaryImage2", () => require('../components/common/Cloudina
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
+importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -259,7 +260,7 @@ importComponent("LWPostsItem", () => require('../components/posts/LWPostsItem.ts
 importComponent("EAPostsItem", () => require('../components/posts/EAPostsItem.tsx'));
 importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));
 importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
-importComponent("LayoutDropdown", () => require('../components/posts/LayoutDropdown'));
+importComponent("PostsLayoutDropdown", () => require('../components/posts/PostsLayoutDropdown'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsItemTrailingButtons", () => require('../components/posts/PostsItemTrailingButtons'));

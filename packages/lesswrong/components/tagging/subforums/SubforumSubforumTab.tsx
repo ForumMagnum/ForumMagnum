@@ -113,7 +113,7 @@ const SubforumSubforumTab = ({
     ShortformSubmitForm,
     WrappedLoginForm,
     PostsListSortDropdown,
-    LayoutDropdown,
+    PostsLayoutDropdown,
   } = Components;
 
   const { query } = useLocation();
@@ -335,7 +335,7 @@ const SubforumSubforumTab = ({
       )}
       <div className={classes.feedHeader}>
         <PostsListSortDropdown value={sortBy} options={sortByOptions}/>
-        <LayoutDropdown value={layout} />
+        <PostsLayoutDropdown value={layout} />
         {/* <div className={classes.feedHeaderButtons}>
           {shortformButton}
           {newPostButton}
