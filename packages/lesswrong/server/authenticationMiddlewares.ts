@@ -396,20 +396,26 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
     const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
 
-    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
-      // The user is already authenticated, via the access token. They just need to be given a cookie.
+    passport.use('access_token', new CustomStrategy((req, done) => {
       const accessToken = req.query['access_token']
       const resumeToken = "" // not used
-      const info = null // not used
-      auth0Strategy.userProfile(accessToken, (err, profile) => {
-        if (profile) {
-          void accessTokenUserHandler(accessToken, resumeToken, profile, (err, user) => {
-            handleAuthenticate(req, res, next, err, user, info)
-          })
-        } else {
-          return next("Invalid token")
-        }
-      })
+      if(typeof(accessToken) !== 'string') {
+        return done("Invalid token")
+      } else {
+        auth0Strategy.userProfile(accessToken, (err, profile) => {
+          if(profile) {
+            void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+          } else {
+            return done("Invalid token")
+          }
+        })
+      }
+    }))
+
+    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
+      passport.authenticate('access_token', {}, (err, user, info) => {
+        handleAuthenticate(req, res, next, err, user, info)
+      })(req, res, next)
     })
   }
 
