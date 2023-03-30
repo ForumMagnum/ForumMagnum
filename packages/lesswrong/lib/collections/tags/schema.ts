@@ -471,6 +471,7 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
   },
   'canVoteOnRels.$': {
+    // TODO: Enum, allowed values: 'userOwns', or a user group name, also: 'userOwnsOnlyUpvote'
     type: String,
   },
   isSubforum: {
