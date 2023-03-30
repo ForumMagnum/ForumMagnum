@@ -108,7 +108,7 @@ const CollectionsPage = ({ documentId, classes }: {
     // (more info in BooksProgressBar for users)
     const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
     const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
-    console.log(`${wordCount} words`)
+    console.log(`${wordCount.toLocaleString()} words`)
 
     return (<ErrorBoundary><div className={classes.root}>
       <ToCColumn 
