@@ -221,6 +221,29 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
   done(null, user)
 })
 
+/**
+ * Creates a custom strategy which allows third-party API clients to log in via Auth0
+ */
+function createAccessTokenStrategy(auth0Strategy) {
+  const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+
+  return new CustomStrategy((req, done) => {
+    const accessToken = req.query['access_token']
+    const resumeToken = "" // not used
+    if(typeof(accessToken) !== 'string') {
+      return done("Invalid token")
+    } else {
+      auth0Strategy.userProfile(accessToken, (err, profile) => {
+        if(profile) {
+          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+        } else {
+          return done("Invalid token")
+        }
+      })
+    }
+  })
+}
+
 async function deserializeUserPassport(id, done) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
@@ -394,23 +417,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     )
     passport.use(auth0Strategy)
 
-    const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
-
-    passport.use('access_token', new CustomStrategy((req, done) => {
-      const accessToken = req.query['access_token']
-      const resumeToken = "" // not used
-      if(typeof(accessToken) !== 'string') {
-        return done("Invalid token")
-      } else {
-        auth0Strategy.userProfile(accessToken, (err, profile) => {
-          if(profile) {
-            void accessTokenUserHandler(accessToken, resumeToken, profile, done)
-          } else {
-            return done("Invalid token")
-          }
-        })
-      }
-    }))
+    passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
 
     addConnectHandler('/auth/useAccessToken', (req, res, next) => {
       passport.authenticate('access_token', {}, (err, user, info) => {
