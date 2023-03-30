@@ -1,4 +1,4 @@
-import type { AbstractThemeOptions } from '../../themes/themeNames';
+import type { AbstractThemeOptions, ThemeOptions } from '../../themes/themeNames';
 import { getMergedStylesheet } from '../styleGeneration';
 
 const stylesId = "main-styles";
@@ -6,6 +6,15 @@ const stylesId = "main-styles";
 const stylesheetUrls = new class {
   private lightUrl: string | undefined;
   private darkUrl: string | undefined;
+  private cache: Record<string, string> = {};
+
+  getStylesheetUrl(themeOptions: ThemeOptions) {
+    const cacheKey = JSON.stringify(themeOptions);
+    if (!this.cache[cacheKey]) {
+      this.cache[cacheKey] = getMergedStylesheet(themeOptions).url;
+    }
+    return this.cache[cacheKey];
+  }
 
   get light() {
     if (!this.lightUrl) {
@@ -34,32 +43,31 @@ const renderImportForColorScheme = (url: string, colorScheme: string): string =>
 const renderImportForPrint = (url: string): string =>
   `@import url("${url}") print;\n`;
 
-export const renderAutoStyleImport = () => {
-  const light = renderImportForColorScheme(stylesheetUrls.light, "light");
-  const dark = renderImportForColorScheme(stylesheetUrls.dark, "dark");
-  const print = renderImportForPrint(stylesheetUrls.light);
+export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => {
+  const lightSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "default"})
+  const darkSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "dark"})
+
+  const light = renderImportForColorScheme(lightSheet, "light");
+  const dark = renderImportForColorScheme(darkSheet, "dark");
+  const print = renderImportForPrint(lightSheet);
   return `<style id="${stylesId}">${light}${dark}${print}</style>`;
 }
 
 export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): string => {
   const prefix = '<style id="jss-insertion-point"></style>';
-  switch (themeOptions.name) {
-  case "auto":
-    return `${prefix}${renderAutoStyleImport()}`;
-  case "dark":
-    return `${prefix}${renderLinkMainSheet(stylesheetUrls.dark)}`;
-  default:
-    return `${prefix}${renderLinkMainSheet(stylesheetUrls.light)}`;
+  if (themeOptions.name === "auto") {
+    return `${prefix}${renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
   }
+  // for some reason typescript doesn't pick up that themeOptions.name can't be "auto" here
+  return `${prefix}${renderLinkMainSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions))}`;
 }
 
 export const renderJssSheetPreloads = (themeOptions: AbstractThemeOptions) => {
-  switch (themeOptions.name) {
-  case "auto":
-    return renderPreloadSheet(stylesheetUrls.light) + renderPreloadSheet(stylesheetUrls.dark);
-  case "dark":
-    return renderPreloadSheet(stylesheetUrls.dark);
-  default:
-    return renderPreloadSheet(stylesheetUrls.light);
+  if (themeOptions.name === "auto") {
+    const lightSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
+    const darkSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
+    return lightSheet + darkSheet;
   }
+  // for some reason typescript doesn't pick up that themeOptions.name can't be "auto" here
+  return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions));
 }
