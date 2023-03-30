@@ -27,9 +27,6 @@ type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|nul
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
-  viewableBy?: FieldPermissions,
-  insertableBy?: FieldCreatePermissions,
-  editableBy?: FieldPermissions,
   canRead?: FieldPermissions,
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,

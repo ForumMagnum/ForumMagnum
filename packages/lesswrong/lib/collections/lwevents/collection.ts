@@ -34,7 +34,7 @@ export const LWEvents: LWEventsCollection = createCollection({
 
 addUniversalFields({
   collection: LWEvents,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 });
 
 export default LWEvents;

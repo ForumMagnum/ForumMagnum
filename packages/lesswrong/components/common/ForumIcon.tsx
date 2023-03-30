@@ -5,6 +5,8 @@ import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
+import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
@@ -17,9 +19,13 @@ import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
+import MuiNotificationsIcon from '@material-ui/icons/Notifications';
+import MuiNotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
+import { AuthorIcon } from "../icons/authorIcon";
+import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -39,8 +45,12 @@ export type ForumIconName =
   "Star" |
   "StarBorder" |
   "User" |
+  "Bell" |
+  "BellBorder" |
   "Link" |
   "Pin" |
+  "Author" |
+  "Sprout" |
   "Close" |
   "Comment" |
   "Shortform" |
@@ -56,8 +66,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: MuiStarIcon,
     StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
+    Bell: MuiNotificationsIcon,
+    BellBorder: MuiNotificationsNoneIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Author: AuthorIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: NotesIcon,
@@ -72,8 +86,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: StarIcon,
     StarBorder: StarOutlineIcon,
     User: UserIcon,
+    Bell: BellIcon,
+    BellBorder: BellOutlineIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Author: AuthorIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,

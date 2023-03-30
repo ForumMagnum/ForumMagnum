@@ -258,8 +258,8 @@ describe("SwitchingCollection", () => {
     const schema: SchemaType<DbRSSFeed> = {
       status: {
         type: String,
-        viewableBy: ['guests'],
-        editableBy: ['admins'],
+        canRead: ['guests'],
+        canUpdate: ['admins'],
         optional: true,
       },
     };

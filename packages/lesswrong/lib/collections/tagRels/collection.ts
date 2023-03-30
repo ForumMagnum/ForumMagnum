@@ -32,8 +32,8 @@ const schema: SchemaType<DbTagRel> = {
   },
   deleted: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -55,7 +55,7 @@ const schema: SchemaType<DbTagRel> = {
   currentUserCanVote: resolverOnlyField({
     type: Boolean,
     graphQLtype: 'Boolean',
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
       return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
@@ -63,14 +63,14 @@ const schema: SchemaType<DbTagRel> = {
   }),
   autoApplied: {
     type: Boolean,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true, hidden: true,
     // Implementation in tagResolvers.ts
   },
   // Indicates that a tagRel was applied via the script backfillParentTags.ts
   backfilled: {
     type: Boolean,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(false),

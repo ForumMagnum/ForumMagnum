@@ -18,6 +18,7 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCommentLink } from './useCommentLink';
+import { userIsPostCoauthor } from '../../../lib/collections/posts/helpers';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -397,6 +398,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   if (!comment) {
     return null;
   }
+  
+  const authorIsPostAuthor = post && (post.userId === comment.userId || userIsPostCoauthor(comment.user, post))
 
   const displayReviewVoting = 
     !hideReviewVoteButtons &&
@@ -506,7 +509,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             }>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>}
-            <CommentUserName comment={comment} className={classes.username}/>
+            <CommentUserName comment={comment} className={classes.username} isPostAuthor={authorIsPostAuthor} />
             <CommentsItemDate {...commentLinkProps} />
             {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
               {moderatorCommentAnnotation}

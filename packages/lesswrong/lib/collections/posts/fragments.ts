@@ -16,6 +16,8 @@ registerFragment(`
       quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
   }
 `);
 
@@ -37,8 +39,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount
@@ -583,6 +583,7 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
   }
