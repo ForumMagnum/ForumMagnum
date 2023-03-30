@@ -63,10 +63,16 @@ const BooksProgressBar = ({ book, classes }: {
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
   // Check whether the post is marked as read either on the server or in the client-side context
-  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]).length;
+  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]);
   const totalPosts = bookPosts.length;
 
-  const postsReadText = `${readPosts} / ${totalPosts} posts read`;
+  const postsReadText = `${readPosts.length} / ${totalPosts} posts read`;
+  const totalWordCount = bookPosts.reduce((i, post) => i + (post.contents?.wordCount || 0), 0)
+  const readTime = totalWordCount > 18000 ? `${(totalWordCount/18000).toFixed(1)} hour` : `${Math.round(totalWordCount/300)} min`
+  const postsReadTooltip = <div>
+    <div>{totalWordCount.toLocaleString()} words, {Math.round(totalWordCount / 500)} pages</div>
+    <div>Approximately {readTime} read</div>
+  </div>
 
   if (book.hideProgressBar) return null
 
@@ -83,7 +89,7 @@ const BooksProgressBar = ({ book, classes }: {
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>
-      {postsReadText}
+      <LWTooltip title={postsReadTooltip}>{postsReadText}</LWTooltip>
       <LoginToTrack className={classes.loginText}>
         login to track progress
       </LoginToTrack>
