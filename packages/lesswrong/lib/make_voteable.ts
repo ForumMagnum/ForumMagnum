@@ -54,7 +54,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserVote: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: 'String',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
@@ -68,7 +68,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserExtendedVote: {
       type: GraphQLJSON,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: GraphQLJSON,
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
@@ -84,7 +84,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserVotes: {
       type: Array,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
@@ -100,7 +100,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     allVotes: {
       type: Array,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
@@ -126,7 +126,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         foreignFieldName: "documentId",
         filterFn: (vote: DbVote) => !vote.cancelled
       }),
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     // The document's base score (not factoring in the document's age)
     baseScore: {
@@ -166,12 +166,12 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       type: Number,
       optional: true,
       label: "Alignment Base Score",
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     afExtendedScore: {
       type: GraphQLJSON,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     afVoteCount: {
       type: Number,

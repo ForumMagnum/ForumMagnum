@@ -122,7 +122,7 @@ class FormWrapper extends PureComponent<any> {
 
     // generate query fragment based on the fields that can be edited. Note: always add _id.
     const generatedQueryFragment = gql`
-      fragment ${fragmentName} on ${this.props.typeName} {
+      fragment ${fragmentName}Query on ${this.props.typeName} {
         _id
         ${queryFields.map(convertFields).join('\n')}
       }
@@ -130,7 +130,7 @@ class FormWrapper extends PureComponent<any> {
 
     // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
     const generatedMutationFragment = gql`
-      fragment ${fragmentName} on ${this.props.typeName} {
+      fragment ${fragmentName}Mutation on ${this.props.typeName} {
         _id
         ${mutationFields.map(convertFields).join('\n')}
       }

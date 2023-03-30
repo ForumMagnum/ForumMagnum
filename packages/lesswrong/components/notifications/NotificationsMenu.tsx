@@ -1,11 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
@@ -14,6 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: 500,
+    fontWeight: isEAForum ? 450 : 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",
@@ -82,7 +81,7 @@ const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, 
   const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
-      icon: () => (<AllIcon classes={{root: classes.icon}}/>),
+      icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
       terms: {view: "userNotifications"},
     },
     {

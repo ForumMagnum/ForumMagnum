@@ -17,7 +17,7 @@ registerFragment(`
     }
     postIds
     posts {
-      ...PostsList
+      ...PostsListWithVotes
     }
     collectionId
     displaySequencesAsGrid

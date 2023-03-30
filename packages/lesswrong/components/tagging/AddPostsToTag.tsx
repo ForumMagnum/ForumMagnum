@@ -11,6 +11,7 @@ import { getAlgoliaIndexName, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -126,7 +127,7 @@ const AddPostsToTag = ({classes, tag}: {
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
-      <AddBoxIcon className={classes.icon}/> Add Posts
+      <AddBoxIcon className={classes.icon}/> {preferredHeadingCase("Add Posts")}
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch

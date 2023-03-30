@@ -19,7 +19,7 @@ ClientIds.checkAccess = async (currentUser: DbUser|null, clientId: DbClientId, c
 
 addUniversalFields({
   collection: ClientIds,
-  createdAtOptions: {viewableBy: ['admins']},
+  createdAtOptions: {canRead: ['admins']},
 });
 
 ensureIndex(ClientIds, {clientId: 1});

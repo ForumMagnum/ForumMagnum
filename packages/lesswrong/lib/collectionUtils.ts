@@ -91,7 +91,7 @@ export function addUniversalFields<T extends DbObject>({
     _id: {
       optional: true,
       type: String,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     schemaVersion: {
       type: Number,
@@ -104,7 +104,7 @@ export function addUniversalFields<T extends DbObject>({
       type: Date,
       optional: true,
       hidden: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: () => new Date(),
       ...createdAtOptions,
     },
@@ -114,9 +114,9 @@ export function addUniversalFields<T extends DbObject>({
       nullable: true,
       blackbox: true,
       hidden: true,
-      viewableBy: ['admins'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['admins'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
     },
   })
   ensureIndex(collection, {schemaVersion: 1});

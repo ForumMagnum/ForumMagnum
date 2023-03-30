@@ -442,6 +442,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly deleted: boolean,
   readonly userId: string,
   readonly autoApplied: boolean,
+  readonly backfilled: boolean,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -721,16 +722,6 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly users: Array<UsersMinimumInfo>,
 }
 
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
 interface MessagesDefaultFragment { // fragment on Messages
   readonly userId: string,
   readonly conversationId: string,
@@ -794,6 +785,12 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string,
+  readonly coauthorStatuses: Array<{
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
+  }>,
+  readonly hasCoauthorPermission: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -815,12 +812,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }>,
-  readonly hasCoauthorPermission: boolean,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
@@ -958,6 +949,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
   readonly fmCrosspost: {
@@ -975,7 +967,10 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
+interface PostsListTagWithVotes extends PostsListWithVotes { // fragment on Posts
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -1052,7 +1047,7 @@ interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsList|null,
+  readonly sourcePost: PostsListWithVotes|null,
   readonly order: number,
 }
 
@@ -1060,7 +1055,7 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsList|null,
+  readonly targetPost: PostsListWithVotes|null,
   readonly order: number,
 }
 
@@ -1823,7 +1818,7 @@ interface ChaptersFragment { // fragment on Chapters
   readonly number: number,
   readonly sequenceId: string,
   readonly postIds: Array<string>,
-  readonly posts: Array<PostsList>,
+  readonly posts: Array<PostsListWithVotes>,
 }
 
 interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
@@ -1877,7 +1872,7 @@ interface BookPageFragment { // fragment on Books
   readonly sequenceIds: Array<string>,
   readonly sequences: Array<SequencesPageWithChaptersFragment>,
   readonly postIds: Array<string>,
-  readonly posts: Array<PostsList>,
+  readonly posts: Array<PostsListWithVotes>,
   readonly collectionId: string,
   readonly displaySequencesAsGrid: boolean,
   readonly hideProgressBar: boolean,
@@ -2958,7 +2953,6 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ModeratorClientIDInfo: ModeratorClientIDInfo
-  ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
@@ -2973,6 +2967,7 @@ interface FragmentTypes {
   PostsListBase: PostsListBase
   PostsList: PostsList
   PostsListTag: PostsListTag
+  PostsListTagWithVotes: PostsListTagWithVotes
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
   PostsPlaintextDescription: PostsPlaintextDescription
@@ -3142,7 +3137,6 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   ClientIdsDefaultFragment: "ClientIds"
   ModeratorClientIDInfo: "ClientIds"
-  ConversationsDefaultFragment: "Conversations"
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
   RSSFeedsDefaultFragment: "RSSFeeds"
@@ -3157,6 +3151,7 @@ interface CollectionNamesByFragmentName {
   PostsListBase: "Posts"
   PostsList: "Posts"
   PostsListTag: "Posts"
+  PostsListTagWithVotes: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
   PostsPlaintextDescription: "Posts"
