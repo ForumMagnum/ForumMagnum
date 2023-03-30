@@ -4,7 +4,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 
 // Replaceable layout
-const FormNestedArrayLayout = ({ hasErrors, label, content }) => (
+const FormNestedArrayLayout = ({ hasErrors, label, content }: {
+  hasErrors: boolean
+  label: React.ReactNode
+  content: React.ReactNode
+}) => (
   <div
     className={`form-group row form-nested ${hasErrors ? 'input-error' : ''}`}
   >
@@ -12,14 +16,22 @@ const FormNestedArrayLayout = ({ hasErrors, label, content }) => (
     <div className="col-sm-9">{content}</div>
   </div>
 );
-FormNestedArrayLayout.propTypes = {
-  hasErrors: PropTypes.bool,
-  label: PropTypes.node,
-  content: PropTypes.node
-};
 const FormNestedArrayLayoutComponent = registerComponent('FormNestedArrayLayout', FormNestedArrayLayout);
 
-class FormNestedArray extends PureComponent<any,any> {
+interface FormNestedArrayProps {
+  currentValues: any
+  path: string
+  label: string
+  value: any
+  updateCurrentValues: any
+  errors: any[]
+  deletedValues: any[]
+  formComponents: ComponentTypes
+  minCount?: number
+  maxCount?: number
+}
+
+class FormNestedArray extends PureComponent<FormNestedArrayProps> {
   getCurrentValue() {
     return this.props.value || [];
   }
@@ -32,7 +44,7 @@ class FormNestedArray extends PureComponent<any,any> {
     );
   };
 
-  removeItem = index => {
+  removeItem = (index: number) => {
     this.props.updateCurrentValues({ [`${this.props.path}.${index}`]: null });
   };
 
@@ -42,7 +54,7 @@ class FormNestedArray extends PureComponent<any,any> {
   and the given index (ex: if we want to know if the second address is deleted, we
   look for the presence of 'addresses.1')
   */
-  isDeleted = index => {
+  isDeleted = (index: number) => {
     return this.props.deletedValues.includes(`${this.props.path}.${index}`);
   };
 
@@ -68,11 +80,12 @@ class FormNestedArray extends PureComponent<any,any> {
     const nestedArrayErrors = errors.filter(
       error => error.path && error.path === path
     );
-    const hasErrors = nestedArrayErrors && nestedArrayErrors.length;
+    const hasErrors = !!(nestedArrayErrors && nestedArrayErrors.length);
     
     return (
       <FormComponents.FormNestedArrayLayout
         label={label}
+        hasErrors={hasErrors}
         content={[
           value.map(
             (subDocument, i) =>
@@ -99,7 +112,6 @@ class FormNestedArray extends PureComponent<any,any> {
               key="add-button"
               addItem={this.addItem}
               label={this.props.label}
-              className="form-nested-foot"
             />
           ),
           hasErrors ? (

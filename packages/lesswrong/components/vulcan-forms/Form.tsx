@@ -172,23 +172,17 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
       : this.getInsertableFields(schema);
   };
 
-  /*
-
-  Get the current document
-
-  */
+  /** Get the current document */
   getDocument = () => {
     return this.state.currentDocument;
   };
 
-  /*
-
-  Like getDocument, but cross-reference with getFieldNames()
-  to only return fields that actually need to be submitted
-
-  Also remove any deleted values.
-
-  */
+  /**
+   * Like getDocument, but cross-reference with getFieldNames()
+   * to only return fields that actually need to be submitted
+   *
+   * Also remove any deleted values.
+   */
   getData = async customArgs => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
@@ -228,20 +222,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     return data;
   };
 
-  /*
-
-  Get form components, in case any has been overwritten for this specific form
-
-  */
   // --------------------------------------------------------------------- //
   // -------------------------------- Fields ----------------------------- //
   // --------------------------------------------------------------------- //
 
-  /*
-
-  Get all field groups
-
-  */
+  /**
+   * Get all field groups
+   */
   getFieldGroups = () => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
@@ -257,8 +244,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // for each group, add relevant fields
     groups = groups.map(group => {
-      group.label =
-        group.label || this.context.intl.formatMessage({ id: group.name });
+      group.label = group.label || this.context.intl.formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
       })
@@ -820,12 +806,8 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     }));
   };
 
-  /*
-
-  Key down handler
-
-  */
-  formKeyDown = event => {
+  /** Key down handler */
+  formKeyDown = (event: KeyboardEvent) => {
     //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       if (!this.props.noSubmitOnCmdEnter) {
@@ -1014,6 +996,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         {this.getFieldGroups().map((group, i) => (
           <FormComponents.FormGroup
             {...group}
+            fields={group.fields as FormField<any>[]}
             errors={this.state.errors}
             throwError={this.throwError}
             currentValues={this.state.currentValues}

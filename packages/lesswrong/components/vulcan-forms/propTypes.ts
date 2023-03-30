@@ -118,15 +118,34 @@ declare global {
   interface FormComponentProps<T> {
     name: string
     label?: string
+    tooltip?: string
     placeholder?: string
     disabled?: boolean
     path: string
     value: T
     document: any
+    currentValues?: any
     updateCurrentValues: (newValues: any)=>void
+    formType: "edit"|"new"
+  }
+  interface FormButtonProps {
+    submitLabel: React.ReactNode;
+    cancelLabel: React.ReactNode;
+    revertLabel: React.ReactNode;
+    cancelCallback: any;
+    revertCallback: any;
+    submitForm: any
+    updateCurrentValues: (newValues: any)=>void
+    document: any;
+    deleteDocument: any;
+    collectionName: CollectionNameString;
+    currentValues?: any
+    deletedValues?: any
+    errors?: any[]
     formType: "edit"|"new"
   }
   interface FormComponentContext<T> {
     updateCurrentValues: (newValues: any)=>void
+    addToDeletedValues: any
   }
 }

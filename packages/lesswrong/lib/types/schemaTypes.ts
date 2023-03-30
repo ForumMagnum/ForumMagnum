@@ -31,6 +31,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
+type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -67,8 +69,6 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   options?: MaybeFunction<any,SmartFormProps>,
   allowedValues?: string[],
   
-  input?: any,
-
   /**
    * Custom props that will be passed to the input component. Can pass in
    * values or functions. All functions will be called before being passed into
@@ -98,18 +98,8 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   label?: string,
   tooltip?: string,
   // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  control?: 'text' |
-    'number' |
-    'url' |
-    'email' |
-    'textarea' |
-    'checkbox' |
-    'checkboxgroup' |
-    'radiogroup' |
-    'select' |
-    'datetime' |
-    'date' |
-    keyof ComponentTypes,
+  input?: FormInputType,
+  control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps>,
   group?: FormGroupType<T>,
