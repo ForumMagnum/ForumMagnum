@@ -230,11 +230,11 @@ function createAccessTokenStrategy(auth0Strategy) {
   return new CustomStrategy((req, done) => {
     const accessToken = req.query['access_token']
     const resumeToken = "" // not used
-    if(typeof(accessToken) !== 'string') {
+    if (typeof(accessToken) !== 'string') {
       return done("Invalid token")
     } else {
       auth0Strategy.userProfile(accessToken, (err, profile) => {
-        if(profile) {
+        if (profile) {
           void accessTokenUserHandler(accessToken, resumeToken, profile, done)
         } else {
           return done("Invalid token")
