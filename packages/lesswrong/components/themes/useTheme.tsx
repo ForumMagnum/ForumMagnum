@@ -72,8 +72,8 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
  * be switched.
  */
 const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", ...siteThemeOverride});
-  const dark = makeStylesheetUrl({name: "dark", ...siteThemeOverride});
+  const light = makeStylesheetUrl({name: "default", ...(siteThemeOverride ? {siteThemeOverride} : {})});
+  const dark = makeStylesheetUrl({name: "dark", ...(siteThemeOverride ? {siteThemeOverride} : {})});
   const styleNode = document.createElement("style");
   styleNode.setAttribute("id", id);
   styleNode.innerHTML = `
@@ -99,9 +99,14 @@ export const ThemeContextProvider = ({options, children}: {
 
   useEffect(() => {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
+      console.log('themeOptions changed', themeOptions)
       window.themeOptions = themeOptions;
       if (forumTypeSetting.get() === "EAForum") {
-        removeCookie(THEME_COOKIE_NAME, {path: "/"});
+        // removeCookie(THEME_COOKIE_NAME, {path: "/"});
+        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+          path: "/",
+          expires: moment('2023-04-02').toDate(),
+        });
       } else {
         setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
           path: "/",

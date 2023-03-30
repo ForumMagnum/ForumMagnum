@@ -4,8 +4,6 @@ import { getMergedStylesheet } from '../styleGeneration';
 const stylesId = "main-styles";
 
 const stylesheetUrls = new class {
-  private lightUrl: string | undefined;
-  private darkUrl: string | undefined;
   private cache: Record<string, string> = {};
 
   getStylesheetUrl(themeOptions: ThemeOptions) {
@@ -14,20 +12,6 @@ const stylesheetUrls = new class {
       this.cache[cacheKey] = getMergedStylesheet(themeOptions).url;
     }
     return this.cache[cacheKey];
-  }
-
-  get light() {
-    if (!this.lightUrl) {
-      this.lightUrl = getMergedStylesheet({name: "default", siteThemeOverride: {}}).url;
-    }
-    return this.lightUrl;
-  }
-
-  get dark() {
-    if (!this.darkUrl) {
-      this.darkUrl = getMergedStylesheet({name: "dark", siteThemeOverride: {}}).url;
-    }
-    return this.darkUrl;
   }
 }
 

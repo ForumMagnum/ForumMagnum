@@ -95,7 +95,7 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
           }
           const user = matchingUsers[0]
           if (user) {
-            const { data: userUpdated } = await mergeAccount(profilePath, user, profile) // hits this line
+            const { data: userUpdated } = await mergeAccount(profilePath, user, profile)
             if (user.banned && new Date(user.banned) > new Date()) {
               return done(new Error("banned"))
             }

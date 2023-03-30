@@ -763,7 +763,7 @@ const schema: SchemaType<DbUser> = {
     label: "Show Community posts in Recent Discussion"
   },
   
-  // Used for EAF April Fools 2023
+  // Used for EAF 4/2023
   noComicSans: {
     order: 95,
     type: Boolean,

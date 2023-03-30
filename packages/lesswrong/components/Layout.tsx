@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { useTheme } from './themes/useTheme';
+import { useSetTheme, useTheme, useThemeOptions } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -13,13 +13,15 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { forumTypeSetting, ForumTypeString, isEAForum } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
+import moment from 'moment';
+import { useOnNavigate } from './hooks/useOnNavigate';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -161,6 +163,8 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
+  const currentThemeOptions = useThemeOptions()
+  const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   
@@ -203,6 +207,26 @@ const Layout = ({currentUser, children, classes}: {
       }
     }
   }, [useWhiteBackground, classes.whiteBackground]);
+  
+  const checkThemeChange = () => {
+    if (isEAForum) {
+      const now = moment()
+      if (now.isAfter(moment('2023-03-30')) && now.isBefore(moment('2023-03-31'))) {
+        console.log('March 30')
+        const newThemeOptions = {
+          ...currentThemeOptions,
+          siteThemeOverride: {
+            ...currentThemeOptions.siteThemeOverride,
+            EAForum: "EAForumCS" as ForumTypeString
+          },
+        };
+        setTheme(newThemeOptions)
+      }
+    }
+  }
+
+  useEffect(checkThemeChange, [])
+  useOnNavigate(checkThemeChange)
 
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
