@@ -763,8 +763,23 @@ const schema: SchemaType<DbUser> = {
     label: "Show Community posts in Recent Discussion"
   },
   
-  petrovOptOut: {
+  // Used for EAF April Fools 2023
+  noComicSans: {
     order: 95,
+    type: Boolean,
+    optional: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Delay my transition to Comic Sans by a day"
+  },
+  
+  petrovOptOut: {
+    order: 96,
     type: Boolean,
     optional: true,
     nullable: true,

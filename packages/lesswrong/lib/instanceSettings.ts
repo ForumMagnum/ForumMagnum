@@ -110,7 +110,7 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum"|"EAForumCS";
 export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
