@@ -55,7 +55,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   rightSection: {
     float: "right",
     marginRight: isEAForum ? -3 : -5,
-    marginTop: isEAForum ? 2 : undefined,
+    marginTop: isEAForum ? 4 : undefined,
   },
   linkIcon: {
     fontSize: "1.2rem",
