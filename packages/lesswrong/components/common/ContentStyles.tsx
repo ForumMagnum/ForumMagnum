@@ -23,6 +23,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)
   },
+  debateResponseBody: {
+    ...commentBodyStyles(theme),
+    fontSize: '1.3rem',
+    '& blockquote, & li': {
+      fontSize: '1.3rem'
+    }
+  },
   answerBody: {
     ...smallPostStyles(theme)
   },
@@ -53,6 +60,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse";
+
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
 // post/comment/tag, like headings, editor plugins, spoiler blocks, etc.
@@ -76,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
 const ContentStyles = ({contentType, className, children, classes}: {
-  contentType: "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag",
+  contentType: ContentStyleType,
   className?: string,
   children: React.ReactNode,
   classes: ClassesType,
@@ -89,6 +98,7 @@ const ContentStyles = ({contentType, className, children, classes}: {
       [classes.commentBodyExceptPointerEvents]: contentType==="commentExceptPointerEvents",
       [classes.answerBody]: contentType==="answer",
       [classes.tagBody]: contentType==="tag",
+      [classes.debateResponseBody]: contentType==="debateResponse"
     }
   )}>
     {children}

@@ -143,5 +143,10 @@
     "acceptsSchemaHash": "222d42945763fb6dcaff3b497911d7b7",
     "acceptedByMigration": "20230331T002047.add_noComicSans_to_Users.ts",
     "timestamp": "2023-03-31T00:20:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "33b4ea4a4234276f8784ddff0eb3a974",
+    "acceptedByMigration": "20230331T212918.add_debate_fields.ts",
+    "timestamp": "2023-03-31T21:29:18.000Z"
   }
 ]
