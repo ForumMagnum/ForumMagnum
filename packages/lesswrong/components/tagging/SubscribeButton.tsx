@@ -110,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
+export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
 
 const SubscribeButton = ({
   tag,
@@ -234,8 +234,8 @@ const SubscribeButton = ({
         <LWTooltip
           title={
             isSubscribed
-              ? `Remove homepage boost for ${taggedPostWording}`
-              : `See more ${taggedPostWording} on the homepage`
+              ? `Unsubscribe to remove Frontpage boost for ${taggedPostWording}`
+              : `See more ${taggedPostWording} on the Frontpage`
           }
           className={classNames(classes.buttonSection, classes.buttonLabelContainer)}
         >

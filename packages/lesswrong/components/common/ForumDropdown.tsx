@@ -29,8 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 'unset',
     cursor: "pointer",
     color: theme.palette.primary.main,
-    paddingLeft: 8,
-    paddingRight: 4,
+    paddingLeft: 12,
+    paddingRight: 6,
     backgroundColor: "transparent",
     ...(isEAForum && {
       color: "inherit",
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isEAForum && { width: 16, height: 16, marginLeft: 4 }),
+    ...(isEAForum && { width: 16, height: 16, marginLeft: 4, padding: 1}),
   },
   padding: {
     width: 10,
@@ -79,8 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[1000],
       borderRadius: theme.borderRadius.small,
       padding: "6px 8px",
-      margin: "0px 3px",
+      margin: "0px 4px",
       fontSize: "14px",
+      lineHeight: "14px",
       "&:hover": {
         backgroundColor: theme.palette.grey[250],
         color: theme.palette.grey[1000],

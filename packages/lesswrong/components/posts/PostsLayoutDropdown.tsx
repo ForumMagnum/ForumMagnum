@@ -9,9 +9,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   optionIcon: {
     verticalAlign: "middle",
     position: "relative",
-    color: theme.palette.grey[600],
-    width: 19,
-    height: 19,
+    width: 16,
+    height: 16,
   },
   optionIconInline: {
     marginLeft: 2,

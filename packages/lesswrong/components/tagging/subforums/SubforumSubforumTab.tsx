@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   shortformComment: {
     '&&': {
       marginTop: 0,
-      marginBottom: 32,
+      marginBottom: 16,
     }
   },
   centerChild: {
@@ -44,14 +44,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   feedPostWrapper: {
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 8,
   },
   commentPermalink: {
     marginBottom: 8,
   },
   listLayout: {
-    paddingTop: 16,
+    paddingTop: 8,
   }
 })
 
