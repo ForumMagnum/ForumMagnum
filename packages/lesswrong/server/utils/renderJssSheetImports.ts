@@ -1,4 +1,4 @@
-import type { AbstractThemeOptions, ThemeOptions } from '../../themes/themeNames';
+import type { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
 import { getMergedStylesheet } from '../styleGeneration';
 
 const stylesId = "main-styles";
@@ -39,19 +39,17 @@ export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => 
 
 export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): string => {
   const prefix = '<style id="jss-insertion-point"></style>';
-  if (themeOptions.name === "auto") {
-    return `${prefix}${renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
+  if (themeOptionsAreConcrete(themeOptions)) {
+    return `${prefix}${renderLinkMainSheet(stylesheetUrls.getStylesheetUrl(themeOptions))}`;
   }
-  // for some reason typescript doesn't pick up that themeOptions.name can't be "auto" here
-  return `${prefix}${renderLinkMainSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions))}`;
+  return `${prefix}${renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
 }
 
 export const renderJssSheetPreloads = (themeOptions: AbstractThemeOptions) => {
-  if (themeOptions.name === "auto") {
-    const lightSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
-    const darkSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
-    return lightSheet + darkSheet;
+  if (themeOptionsAreConcrete(themeOptions)) {
+    return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions));
   }
-  // for some reason typescript doesn't pick up that themeOptions.name can't be "auto" here
-  return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions));
+  const lightSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
+  const darkSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
+  return lightSheet + darkSheet;
 }
