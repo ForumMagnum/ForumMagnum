@@ -13,6 +13,7 @@ describe('Schema check', () => {
       generateMigrations: false,
       rootPath,
       forumType: "EAForum",
+      silent: true,
     });
   });
   it('accpeted_schema.sql overall hash matches most recent changelog item', async () => {
