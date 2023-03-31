@@ -32,8 +32,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   title: {
     fontSize: 16,
-    lineHeight: 1.0,
-    maxHeight: 32,
+    ...(isEAForum
+      ? {
+        lineHeight: 1.25,
+        maxHeight: 42,
+        minHeight: 42,
+      }
+      : {
+        lineHeight: 1.0,
+        maxHeight: 32,
+      }),
     paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
