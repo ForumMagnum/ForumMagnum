@@ -17,22 +17,27 @@ const ACTIVITY_WINDOW_HOURS = 21 * 24; // 3 weeks
  * something goes wrong.
  */
 async function assertTableIntegrity(dataDb: SqlClient) {
-  // Step 1: Check if all rows have the same startDate and endDate
-  const dateCheckResult = await dataDb.one(`
-    SELECT COUNT(DISTINCT "startDate") AS start_count, COUNT(DISTINCT "endDate") AS end_count
-    FROM "UserActivities";
+  // Step 1: Find all combinations of startDate and endDate
+  const dateCombinations = await dataDb.any(`
+    SELECT "startDate", "endDate", COUNT(*) AS count
+    FROM "UserActivities"
+    GROUP BY "startDate", "endDate"
+    ORDER BY count DESC;
   `);
 
-  if (dateCheckResult.start_count > 1 || dateCheckResult.end_count > 1) {
+  // Check if there is more than one combination
+  if (dateCombinations.length > 1) {
     // eslint-disable-next-line no-console
     console.error('UserActivities table has rows with different start and end dates. Dropping rows to fix this.');
 
-    // Delete rows with different startDate and endDate
+    // Get the most common combination
+    const { startDate: mostCommonStartDate, endDate: mostCommonEndDate } = dateCombinations[0];
+
+    // Step 1.1: Delete rows with different startDate and endDate, keeping the most common combination
     await dataDb.none(`
       DELETE FROM "UserActivities"
-      WHERE "startDate" <> (SELECT MIN("startDate") FROM "UserActivities")
-         OR "endDate" <> (SELECT MIN("endDate") FROM "UserActivities");
-    `);
+      WHERE "startDate" <> $1 OR "endDate" <> $2;
+    `, [mostCommonStartDate, mostCommonEndDate]);
   }
 
   // Step 2: Check if the array of activity has the correct length for each row
@@ -41,7 +46,8 @@ async function assertTableIntegrity(dataDb: SqlClient) {
     FROM "UserActivities";
   `);
   const correctActivityLengthInt = parseInt(correctActivityLength.correct_length);
-  
+
+  // Exit early if the table is empty
   if (!correctActivityLengthInt) return
 
   // Delete rows with an array of activity that is the wrong length
@@ -50,6 +56,7 @@ async function assertTableIntegrity(dataDb: SqlClient) {
     WHERE array_length("activityArray", 1) <> $1;
   `, [correctActivityLengthInt]);
 }
+
 
 /**
  * Get the start and end date for the next user activity update. startDate will be the end date of the
@@ -100,8 +107,8 @@ interface ConcatNewActivityParams {
  *  - Rows from inactive users will be deleted
  */
 async function concatNewActivity({dataDb, newActivityData, prevStartDate, updateStartDate, updateEndDate, visitorIdType}: ConcatNewActivityParams) {
-  // remove activity data with userOrClientId that is not 17 chars (userId and clientId stored verbatim from the event, which means people can insert fake values)
-  const cleanedActivityData = newActivityData.filter(({userOrClientId}) => userOrClientId.length <= 17)
+  // validate against SQL injection attacks (userId and clientId are inserted verbatim from the analytics event)
+  const cleanedActivityData = newActivityData.filter(({userOrClientId}) => userOrClientId.length <= 17 || !userOrClientId.match(/^[A-Za-z0-9]+$/))
 
   // Get the existing user IDs from the UserActivities table, required to distinguish between newly active users and existing users
   const existingUserIds = (await dataDb.any(`
@@ -213,6 +220,16 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
 
 /**
  * Update the UserActivities table with the latest activity data from the analytics database
+ *
+ * The UserActivities contains an array going back ACTIVITY_WINDOW_HOURS (22 days, starting from 24 hours ago) hours, with each element
+ * indicating whether a user was active in that hour. The operation to fetch this from the analytics database is expensive, so this
+ * runs every 3 hours to update the table with the latest data.
+ *
+ * After this function is run:
+ *  - Every user user who was active in last ACTIVITY_WINDOW_HOURS (21 days)
+ *    will have a complete array representing their activity in each hour.
+ *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
+ *  - Rows from inactive users will be deleted
  */
 export async function updateUserActivities(props?: {updateStartDate?: Date, updateEndDate?: Date}) {
   const dataDb = await getSqlClientOrThrow();

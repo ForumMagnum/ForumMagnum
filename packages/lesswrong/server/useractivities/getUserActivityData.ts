@@ -19,6 +19,8 @@ const liveEnvDescriptions: Record<string, string> = {
 
 /**
  * Get an array of ActivityWindowData, one for each user or client that was active between startDate and endDate.
+ *
+ * In the typical case, this will be called with start date of 22 days ago (to the hour) and an end date of 24 hours ago.
  */
 export async function getUserActivityData(
   startDate: Date,
@@ -65,12 +67,12 @@ export async function getUserActivityData(
     ),
     user_hours AS (
       SELECT DISTINCT
-          "userOrClientId",
-          generate_series(
-              date_trunc('hour', $1::timestamp),
-              date_trunc('hour', $2::timestamp) - interval '1 hour', -- subtract 1 hour to avoid including the end hour
-              interval '1 hour'
-          ) AS hour
+        "userOrClientId",
+        generate_series(
+            date_trunc('hour', $1::timestamp),
+            date_trunc('hour', $2::timestamp) - interval '1 hour', -- subtract 1 hour to avoid including the end hour
+            interval '1 hour'
+        ) AS hour
       FROM hourly_activity
     ),
     user_hourly_activity AS (
@@ -86,7 +88,7 @@ export async function getUserActivityData(
       array_agg(activity ORDER BY hour DESC) AS "activityArray"
     FROM user_hourly_activity
     GROUP BY "userOrClientId";
-    `
+  `
 
   // Get an array by the hour of whether a user was active between startDate and endDate
   // e.g. with startDate = 2020-01-01T00:00:00Z and endDate = 2020-01-02T00:00:00Z, the result might be:

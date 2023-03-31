@@ -35,6 +35,7 @@ const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAl
 const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4)
 export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityFactor', 60)
 export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
+export const frontpageAlgoCacheDisabled = new DatabasePublicSetting<boolean>('frontpageAlgorithm.cacheEnabled', true)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
