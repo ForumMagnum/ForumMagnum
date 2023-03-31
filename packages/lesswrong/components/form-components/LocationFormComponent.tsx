@@ -131,7 +131,16 @@ export const useGoogleMaps = (): [boolean, any] => {
 }
 
 
-const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: FormComponentProps<any> & {
+/**
+ * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
+ * so that it can be used outside of vulcan-forms.
+ */
+const LocationPicker = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
+  document: any,
+  path: string,
+  label?: string,
+  value: any,
+  updateCurrentValues: any,
   stringVersionFieldName?: string|null,
   classes: ClassesType,
 }) => {
@@ -190,10 +199,25 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
   }
 }
 
+const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName}: FormComponentProps<any> & {
+  stringVersionFieldName?: string|null,
+}) => {
+  return <Components.LocationPicker
+    document={document}
+    path={path}
+    label={label}
+    value={value}
+    updateCurrentValues={updateCurrentValues}
+    stringVersionFieldName={stringVersionFieldName}
+  />
+}
+
+const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker);
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
 declare global {
   interface ComponentTypes {
+    LocationPicker: typeof LocationPickerComponent
     LocationFormComponent: typeof LocationFormComponentComponent
   }
 }
