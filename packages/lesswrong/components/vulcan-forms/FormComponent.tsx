@@ -6,41 +6,13 @@ import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
 
-export interface FormComponentProps {
-  document: any
-  name: string
-  label: string
-  placeholder?: string
-  input?: FormInputType
-  datatype: any
-  path: string
-  disabled: boolean
-  nestedSchema: any
-  currentValues: any
-  deletedValues: any[]
-  throwError: ()=>void
-  updateCurrentValues: (newValues: any)=>void
-  errors: any[]
-  addToDeletedValues: any
-  clearFieldErrors: any
-  currentUser: UsersCurrent|null
-  tooltip?: string
-  formComponents: ComponentTypes
-  locale?: string
-  max?: number
-  nestedInput: any
-  formProps: any
-  formType: "new"|"edit"
-  setFooterContent?: any
-}
-
 interface FormComponentState {
   charsRemaining?: number
   charsCount?: number
 }
 
-class FormComponent extends Component<FormComponentProps,FormComponentState> {
-  constructor(props: FormComponentProps) {
+class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>,FormComponentState> {
+  constructor(props: FormComponentWrapperProps<T>) {
     super(props);
 
     this.state = {};
@@ -53,7 +25,7 @@ class FormComponent extends Component<FormComponentProps,FormComponentState> {
     }
   }
 
-  shouldComponentUpdate(nextProps: FormComponentProps, nextState: FormComponentState) {
+  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>, nextState: FormComponentState) {
     // allow custom controls to determine if they should update
     if (this.isCustomInput(this.getInputType(nextProps))) {
       return true;
@@ -90,7 +62,7 @@ class FormComponent extends Component<FormComponentProps,FormComponentState> {
   If this is an intl input, get _intl field instead
 
   */
-  getPath = (props?: FormComponentProps) => {
+  getPath = (props?: FormComponentWrapperProps<T>) => {
     const p = props || this.props;
     return p.path;
   };

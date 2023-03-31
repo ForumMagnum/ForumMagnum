@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import type { FormComponentProps } from './FormComponent';
 import * as _ from 'underscore';
 
 // Replaceable layout
@@ -19,8 +18,7 @@ const FormNestedObjectLayout = ({ hasErrors, label, content }: {
 );
 const FormNestedObjectLayoutComponent = registerComponent('FormNestedObjectLayout', FormNestedObjectLayout);
 
-interface FormNestedObjectProps extends FormComponentProps {
-  value: any
+interface FormNestedObjectProps extends FormComponentProps<any> {
 }
 
 class FormNestedObject extends PureComponent<FormNestedObjectProps> {

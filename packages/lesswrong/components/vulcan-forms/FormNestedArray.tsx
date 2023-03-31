@@ -18,20 +18,12 @@ const FormNestedArrayLayout = ({ hasErrors, label, content }: {
 );
 const FormNestedArrayLayoutComponent = registerComponent('FormNestedArrayLayout', FormNestedArrayLayout);
 
-interface FormNestedArrayProps {
-  currentValues: any
-  path: string
-  label: string
-  value: any
-  updateCurrentValues: any
-  errors: any[]
-  deletedValues: any[]
-  formComponents: ComponentTypes
+interface FormNestedArrayProps<T>  extends FormComponentProps<T>{
   minCount?: number
   maxCount?: number
 }
 
-class FormNestedArray extends PureComponent<FormNestedArrayProps> {
+class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
   getCurrentValue() {
     return this.props.value || [];
   }

@@ -9,11 +9,11 @@ const FormComponentNumber = (props: FormComponentProps<number>) => {
     value={""+props.value}
     updateCurrentValues={
       // MuiTextField returns a string - convert it into a number to avoid database errors
-      (values: any[]) => {
+      (values: any, options?: any) => {
         for (const key in values) {
           values[key] = parseInt(values[key]);
         }
-        props.updateCurrentValues(values);
+        return props.updateCurrentValues(values, options);
       }
     }
   />

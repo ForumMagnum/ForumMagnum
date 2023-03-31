@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const FormNestedDivider = ({ label, addItem }: {
-  label: string
+  label?: string
   addItem: ()=>void
 }) => <div/>;
 

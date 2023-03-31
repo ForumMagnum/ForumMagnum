@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import type { FormComponentProps } from './FormComponent';
 
 const FormNestedItemLayout = ({ content, removeButton }: {
   content: React.ReactNode
@@ -22,7 +21,7 @@ const FormNestedItemLayout = ({ content, removeButton }: {
 );
 const FormNestedItemLayoutComponent = registerComponent('FormNestedItemLayout', FormNestedItemLayout);
 
-const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentProps & {
+const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentProps<any> & {
   nestedFields: any
   name: string
   path: string

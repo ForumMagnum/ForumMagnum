@@ -34,7 +34,7 @@ type MultiselectOption = {
  * so that it can be used outside of vulcan-forms.
  */
 const MultiSelect = ({ value, setValue, label, placeholder, separator, options, classes }: {
-  value?: any,
+  value: string[],
   setValue: (newValue: any)=>void,
   
   label?: string,

@@ -115,19 +115,39 @@ export interface SmartFormProps extends WrappedSmartFormProps {
 }
 
 declare global {
-  interface FormComponentProps<T> {
+  type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>
+
+  interface FormComponentWrapperProps<T> {
+    document: any
     name: string
     label?: string
-    tooltip?: string
     placeholder?: string
-    disabled?: boolean
+    input?: FormInputType
+    datatype: any
     path: string
-    value: T
-    document: any
-    currentValues?: any
-    updateCurrentValues: (newValues: any)=>void
-    formType: "edit"|"new"
+    disabled?: boolean
+    nestedSchema: any
+    currentValues: any
+    deletedValues: any[]
+    throwError: ()=>void
+    updateCurrentValues: UpdateCurrentValues
+    errors: any[]
+    addToDeletedValues: any
+    clearFieldErrors: any
+    currentUser?: UsersCurrent|null
+    tooltip?: string
+    formComponents: ComponentTypes
+    locale?: string
+    max?: number
+    nestedInput: any
+    formProps: any
+    formType: "new"|"edit"
+    setFooterContent?: any
   }
+  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
+    value: T
+  }
+
   interface FormButtonProps {
     submitLabel: React.ReactNode;
     cancelLabel: React.ReactNode;
@@ -135,7 +155,7 @@ declare global {
     cancelCallback: any;
     revertCallback: any;
     submitForm: any
-    updateCurrentValues: (newValues: any)=>void
+    updateCurrentValues: UpdateCurrentValues
     document: any;
     deleteDocument: any;
     collectionName: CollectionNameString;
@@ -145,7 +165,7 @@ declare global {
     formType: "edit"|"new"
   }
   interface FormComponentContext<T> {
-    updateCurrentValues: (newValues: any)=>void
+    updateCurrentValues: UpdateCurrentValues
     addToDeletedValues: any
   }
 }

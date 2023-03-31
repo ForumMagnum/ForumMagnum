@@ -592,7 +592,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
 
   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
     const needReset = !!RESET_PROPS.find(prop => !isEqual(this.props[prop], nextProps[prop]));
     if (needReset) {
       this.setState(getInitialStateFromProps(nextProps));
