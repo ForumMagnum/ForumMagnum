@@ -7,6 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     "& a": {
       position: "relative",
     },
@@ -18,7 +19,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: 0,
     top: 0,
     zIndex: theme.zIndexes.linkCard,
-    
     "& a": {
       position: "absolute",
       width: "100%",

@@ -6,6 +6,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -89,10 +91,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       whiteSpace: 'normal'
     }
   },
-  onlineGroupName: {
-    ...theme.typography.headline,
-    fontSize: 20,
-  },
+  onlineGroupName: isEAForum ? {
+      ...theme.typography.headerStyle,
+      fontWeight: 700,
+      fontSize: 18,
+    }
+    : {
+      ...theme.typography.headline,
+      fontSize: 20,
+    },
   inactiveGroupTag: {
     color: theme.palette.grey[500],
     marginRight: 10
@@ -126,6 +133,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
+    fontSize: isEAForum ? 14 : theme.typography.commentStyle.fontSize,
   },
   postGroupsCTA: {
     textAlign: 'center',
@@ -203,7 +211,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
               </div>
               <div className={classes.onlineGroupJoin}>
                 <Link to={`/groups/${group._id}`} className={classes.onlineGroupBtn}>
-                  Learn More
+                  {preferredHeadingCase("Learn More")}
                 </Link>
               </div>
             </div>

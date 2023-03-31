@@ -50,7 +50,7 @@ addGraphQLResolvers({
 
 addFieldsDict(Users, {
   "karmaChanges": {
-    viewableBy: userOwns,
+    canRead: userOwns,
     type: "KarmaChanges",
     optional: true,
   }

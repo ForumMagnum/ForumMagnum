@@ -185,6 +185,7 @@ export const darkModeTheme: UserThemeSpecification = {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      transparent: 'transparent'
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),

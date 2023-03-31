@@ -27,9 +27,9 @@ makeEditable({
       return {id: `spotlight:create`, verify:true}
     },
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['admins', 'sunshineRegiment'],
-      insertableBy: ['admins', 'sunshineRegiment']
+      canRead: ['guests'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment']
     },
     order: 100
   }

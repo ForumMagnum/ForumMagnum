@@ -13,7 +13,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
@@ -36,6 +36,11 @@ declare global {
     interface User extends DbUser {
     }
   }
+}
+
+// Extend Auth0Strategy to include the missing userProfile method
+class Auth0StrategyFixed extends Auth0Strategy {
+  userProfile!: any;
 }
 
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
@@ -216,6 +221,29 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
   done(null, user)
 })
 
+/**
+ * Creates a custom strategy which allows third-party API clients to log in via Auth0
+ */
+function createAccessTokenStrategy(auth0Strategy) {
+  const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+
+  return new CustomStrategy((req, done) => {
+    const accessToken = req.query['access_token']
+    const resumeToken = "" // not used
+    if (typeof(accessToken) !== 'string') {
+      return done("Invalid token")
+    } else {
+      auth0Strategy.userProfile(accessToken, (err, profile) => {
+        if (profile) {
+          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+        } else {
+          return done("Invalid token")
+        }
+      })
+    }
+  })
+}
+
 async function deserializeUserPassport(id, done) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
@@ -265,7 +293,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
-        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+        const returnUrl = encodeURIComponent(siteUrlSetting.get());
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}&returnTo=${returnUrl}`);
       } else {
         res.setHeader('Location', '/');
       }
@@ -378,7 +407,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
   if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
-    passport.use(new Auth0Strategy(
+    const auth0Strategy = new Auth0StrategyFixed(
       {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
@@ -386,7 +415,16 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
       createOAuthUserHandlerAuth0('services.auth0', profile => profile.id, userFromAuth0Profile)
-    ));
+    )
+    passport.use(auth0Strategy)
+
+    passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
+
+    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
+      passport.authenticate('access_token', {}, (err, user, info) => {
+        handleAuthenticate(req, res, next, err, user, info)
+      })(req, res, next)
+    })
   }
 
   addConnectHandler('/auth/google/callback', (req, res, next) => {

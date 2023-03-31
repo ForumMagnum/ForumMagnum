@@ -12,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 40,
     marginBottom: 40,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
     width: "100%",
     overflow: "hidden",
     position: "relative"
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginTop: 0,
     marginBottom: 2,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     color: theme.palette.grey[900],
     display: "block",
     textShadow: `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`,
@@ -47,6 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   eaTitle: {
     fontFamily: theme.typography.fontFamily,
     lineHeight: '1.4em',
+    fontWeight: 600
   },
   description: {
     ...theme.typography.body2,
@@ -90,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: "1.25rem !important",
+    fontSize: `${isEAForum ? "1.2rem" : "1.25rem"} !important`,
     margin: "8px 0 -8px 0 !important",
   },
   postIcon: {

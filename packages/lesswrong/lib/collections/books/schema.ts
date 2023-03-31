@@ -7,7 +7,7 @@ const schema: SchemaType<DbBook> = {
   postedAt: {
     type: Date,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: () => new Date(),
   },
 
@@ -16,17 +16,17 @@ const schema: SchemaType<DbBook> = {
   title: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
   },
 
   subtitle: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
   },
 
   // this overrides the book title in the CollectionsPage table of contents,
@@ -44,17 +44,17 @@ const schema: SchemaType<DbBook> = {
     type: String,
     foreignKey: "Collections",
     optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['members'],
   },
 
   number: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   postIds: {
@@ -65,9 +65,9 @@ const schema: SchemaType<DbBook> = {
       type: "Post"
     }),
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: 'PostsListEditor',
   },
   'postIds.$': {
@@ -84,9 +84,9 @@ const schema: SchemaType<DbBook> = {
       type: "Sequence"
     }),
     optional: true,
-    viewableBy: ["guests"],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ["guests"],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: 'SequencesListEditor',
   },
   'sequenceIds.$': {
@@ -97,23 +97,23 @@ const schema: SchemaType<DbBook> = {
   displaySequencesAsGrid: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
   hideProgressBar: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
   showChapters: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
 }

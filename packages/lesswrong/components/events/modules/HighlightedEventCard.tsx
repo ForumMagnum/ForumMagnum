@@ -26,8 +26,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     color: theme.palette.text.alwaysWhite,
     overflow: 'visible',
-    borderRadius: 0,
     boxShadow: theme.palette.boxShadow.moreFocused,
+    borderRadius: theme.borderRadius.default,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -8,
@@ -39,7 +39,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     top: 20,
     left: 25,
     ...theme.typography.commentStyle,
-    fontStyle: 'italic',
+    ...theme.typography.italic,
     fontSize: 14,
     opacity: 0.7
   },

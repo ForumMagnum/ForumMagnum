@@ -7,7 +7,7 @@ const PostsByVote = ({postIds, year, showMostValuableCheckbox=false}: {
   year: number | '≤2020',
   showMostValuableCheckbox?: boolean,
 }) => {
-  const { PostsItem2, ErrorBoundary, Loading, Typography } = Components
+  const { PostsItem, ErrorBoundary, Loading, Typography } = Components
 
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
@@ -20,7 +20,7 @@ const PostsByVote = ({postIds, year, showMostValuableCheckbox=false}: {
       ...(year === '≤2020' ? {} : {after}),
     },
     collectionName: "Posts",
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
     limit: 1000,
   })
 
@@ -31,7 +31,7 @@ const PostsByVote = ({postIds, year, showMostValuableCheckbox=false}: {
   return <ErrorBoundary>
     <div>
       {posts.map(post => {
-        return <PostsItem2 key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} />
+        return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} />
       })}
     </div>
   </ErrorBoundary>
