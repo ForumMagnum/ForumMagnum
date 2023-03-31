@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* See lib/collections/useractivities/collection.ts for a high-level overview */
 import { chunk, max } from 'lodash/fp';
 import UserActivities from '../../lib/collections/useractivities/collection';
 import { randomId } from '../../lib/random';

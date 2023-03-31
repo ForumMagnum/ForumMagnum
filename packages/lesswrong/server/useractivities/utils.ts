@@ -1,3 +1,6 @@
+/* See lib/collections/useractivities/collection.ts for a high-level overview */
+import sum from 'lodash/sum';
+
 function expandActivityInfluence(input: number[], influenceHours: number): number[] {
   const output: number[] = new Array(input.length).fill(0);
   
@@ -25,24 +28,11 @@ function expandActivityInfluence(input: number[], influenceHours: number): numbe
  * @param halfLifeHours The number of hours after which the influence of a visit is halved
  */
 export const calculateActivityFactor = (activityArray: number[] | undefined, halfLifeHours: number): number => {
-  /*
-   * The basic idea of this function is to add up the _days_ a user was active, with an exponential
-   * decay factor as you go further into the past, and then normalise to make this between 0 and 1.
-   *
-   * Bucketing activity by day has the problem of creating big jumps based on the current time and where activity
-   * happens to fall. E.g. if a user was active 23, 24, and 25 hours ago, this would count as being active for the
-   * 2 previous days.
-   *
-   * The solution to this here is to use activity by hour but "expand the influence" of a single
-   * hour of activity to a number of hours around it. For example by expaning the influence of a single hour by 1 each
-   * side an activity array of [0, 0, 1, 1, 0, 0, 0, 1] becomes [0, 1, 1, 1, 1, 0, 1, 1]. This makes it so we are
-   * effectively measuring activity by day but without any big jumps.
-   */
   if (!activityArray) return 0; // if user has not visited recently, activity factor is 0
 
-  const expandedFactors: number[] = expandActivityInfluence(activityArray, 11);
-  const decayFactor = Math.log(2) / halfLifeHours;
-  const rawActivityFactor = expandedFactors.map((n, idx) => n * Math.exp(-decayFactor * idx)).reduce((a, b) => a + b, 0);
-  const normalisationFactor = 1 / (1 - Math.exp(-decayFactor));
-  return rawActivityFactor / normalisationFactor;
+  const expandedActivityArray: number[] = expandActivityInfluence(activityArray, 11);
+  const decayConstant = Math.log(2) / halfLifeHours;
+  const rawActivityFactor = sum(expandedActivityArray.map((n, idx) => n * Math.exp(-decayConstant * idx)))
+  const normalisationConstant = 1 / (1 - Math.exp(-decayConstant));
+  return rawActivityFactor / normalisationConstant;
 }

@@ -13,7 +13,6 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
-import { calculateActivityFactor } from '../../../server/useractivities/utils';
 import { getABTestsMetadata, getUserABTestGroup } from '../../abTestImpl';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10

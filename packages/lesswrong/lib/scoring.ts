@@ -117,7 +117,9 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     overrideActivityFactor: props?.overrideActivityFactor,
   };
 
-  const activityFactor = overrideActivityFactor ?? calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
+  // See lib/collections/useractivities/collection.ts for a high-level overview
+  const activityFactor = overrideActivityFactor ??
+    calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
 
   // Higher timeDecayFactor => more recency bias
   const timeDecayFactor = Math.min(
