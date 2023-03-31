@@ -75,9 +75,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
-    borderRadius: isEAForum
-      ? `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`
-      : undefined,
+    ...(isEAForum
+      ? {
+        borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {
+      }),
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -125,11 +129,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   classes: ClassesType,
   bookItemStyle?: boolean
 }) => {
-  const getSequenceUrl = () => {
-    return '/s/' + sequence._id
-  }
   const { LinkCard, SequencesHoverOver } = Components;
-  const url = getSequenceUrl()
 
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
