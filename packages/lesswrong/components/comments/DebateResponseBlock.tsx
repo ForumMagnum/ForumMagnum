@@ -111,6 +111,8 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   const [showReplyState, setShowReplyState] = useState([...responseStates]);
   const [showEdit, setShowEdit] = useState([...responseStates]);
 
+  const fullParticipantSet = new Set([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)]);
+
   const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
     e.preventDefault();
     const newReplyState = [...showReplyState];
@@ -132,7 +134,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
       const isFirstCommentInBlock = idx === 0;
       const isLastCommentInBlock = idx === (responses.length - 1);
       const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
-      const readerIsParticipant = currentUser && orderedParticipantList.includes(currentUser._id);
+      const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
       const showHeader = isFirstCommentInBlock;
       const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
