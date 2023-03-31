@@ -6,6 +6,7 @@ import { usePrefersDarkMode } from './usePrefersDarkMode';
 import { useCookies } from 'react-cookie'
 import moment from 'moment';
 import {forumTypeSetting} from '../../lib/instanceSettings';
+import { CS_END } from '../../lib/collections/users/schema';
 
 const THEME_COOKIE_NAME = "theme";
 
@@ -105,7 +106,7 @@ export const ThemeContextProvider = ({options, children}: {
         // removeCookie(THEME_COOKIE_NAME, {path: "/"});
         setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
           path: "/",
-          expires: moment('2023-04-02').toDate(),
+          expires: moment(new Date(CS_END)).toDate(),
         });
       } else {
         setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {

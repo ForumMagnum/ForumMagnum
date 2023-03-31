@@ -22,6 +22,8 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 import moment from 'moment';
 import { useOnNavigate } from './hooks/useOnNavigate';
+import { AbstractThemeOptions, getDefaultThemeOptions, isValidSerializedThemeOptions } from '../themes/themeNames';
+import { CS_END, CS_START } from '../lib/collections/users/schema';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -211,8 +213,19 @@ const Layout = ({currentUser, children, classes}: {
   const checkThemeChange = () => {
     if (isEAForum) {
       const now = moment()
-      if (now.isAfter(moment('2023-03-30')) && now.isBefore(moment('2023-03-31'))) {
-        console.log('March 30')
+      if (now.isSameOrAfter(moment(new Date(CS_END))) || currentUser?.noComicSans) {
+        let newTheme: AbstractThemeOptions = getDefaultThemeOptions()
+        // if the user record has a theme, add that to the theme cookie
+        if (currentUser?.theme?.name && isValidSerializedThemeOptions(currentUser.theme)) {
+          // @ts-ignore Why doesn't this work?
+          newTheme = currentUser.theme
+        }
+        setTheme(newTheme)
+      } else if (
+        now.isAfter(moment(new Date(CS_START))) &&
+        now.isBefore(moment(new Date(CS_END))) &&
+        currentThemeOptions.siteThemeOverride?.EAForum !== 'EAForumCS'
+      ) {
         const newThemeOptions = {
           ...currentThemeOptions,
           siteThemeOverride: {
