@@ -26,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     fontSize: "14px",
     minHeight: 32,
+    minWidth: 'unset',
     cursor: "pointer",
     color: theme.palette.primary.main,
     paddingLeft: 8,
@@ -69,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         opacity: "inherit",
       },
     }),
+    '& .MuiList-padding': {
+      padding: '3px 0px',
+    }
   },
   menuItem: {
     ...(isEAForum && {

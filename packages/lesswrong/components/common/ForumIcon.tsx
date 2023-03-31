@@ -12,7 +12,6 @@ import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
-import ListIcon from "@heroicons/react/24/solid/Bars4Icon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
@@ -35,6 +34,7 @@ import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
+import { ListIcon } from "../icons/listIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different

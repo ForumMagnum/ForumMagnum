@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   optionIcon: {
@@ -13,13 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 19,
   },
   optionIconInline: {
-    verticalAlign: "middle",
-    position: "relative",
-    color: theme.palette.grey[600],
-    width: 17,
-    height: 17,
     marginLeft: 2,
-    marginRight: 8,
+    marginRight: 6,
   },
 })
 
@@ -36,7 +32,7 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
     card: {
       label: (
         <>
-          <ForumIcon className={classes.optionIconInline} icon="Card" />
+          <ForumIcon className={classNames(classes.optionIcon, classes.optionIconInline)} icon="Card" />
           <span>Card view</span>
         </>
       ),
@@ -45,7 +41,7 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
     list: {
       label: (
         <>
-          <ForumIcon className={classes.optionIconInline} icon="List" />
+          <ForumIcon className={classNames(classes.optionIcon, classes.optionIconInline)} icon="List" />
           <span>List view</span>
         </>
       ),
