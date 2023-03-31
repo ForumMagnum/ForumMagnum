@@ -158,7 +158,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
@@ -181,7 +181,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <CoreTagIcon tag={comment.tag} />
         </div>}
 
-        {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
+        {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
         {!hideKarma && <span className={classes.karma}>

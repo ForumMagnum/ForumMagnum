@@ -1,21 +1,28 @@
-import { getCollectionHooks } from '../mutationCallbacks'
-import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
-import { extractVersionsFromSemver } from '../../lib/editor/utils'
-import { ensureIndex } from '../../lib/collectionIndexUtils'
-import { htmlToPingbacks } from '../pingbacks';
-import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
-import { createMutator } from '../vulcan-lib/mutators';
-import * as _ from 'underscore';
-import cheerio from 'cheerio';
-import { cheerioParse } from '../utils/htmlUtil';
-import { onStartup } from '../../lib/executionEnvironment';
-import { dataToHTML, dataToWordCount } from './conversionUtils';
-import { Globals } from '../../lib/vulcan-lib/config';
-import { notifyUsersAboutMentions, PingbackDocumentPartial } from './mentions-notify'
+import {getCollectionHooks} from '../mutationCallbacks'
+import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {extractVersionsFromSemver} from '../../lib/editor/utils'
+import {ensureIndex} from '../../lib/collectionIndexUtils'
+import {htmlToPingbacks} from '../pingbacks'
+import {diff} from '../vendor/node-htmldiff/htmldiff'
+import {
+  editableCollections,
+  editableCollectionsFieldOptions,
+  editableCollectionsFields,
+  MakeEditableOptions,
+  sealEditableFields,
+} from '../../lib/editor/make_editable'
+import {getCollection} from '../../lib/vulcan-lib/getCollection'
+import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
+import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
+import * as _ from 'underscore'
+import cheerio from 'cheerio'
+import {onStartup} from '../../lib/executionEnvironment'
+import {dataToHTML, dataToWordCount} from './conversionUtils'
+import {Globals} from '../../lib/vulcan-lib/config'
+import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import { Comments } from '../../lib/collections/comments'
+import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -121,7 +128,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc, { currentUser })
+    async function editorSerializationBeforeCreate (doc, { currentUser, context })
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -133,9 +140,32 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
+      const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
+        ? (!!doc.debate && fieldName === 'contents')
+        : false;
+
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
+
+      if (isFirstDebatePostComment) {
+        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+          collection: Comments,
+          document: {
+            userId,
+            contents: doc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        };
+
+        // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
+        // If we can't, we'll be stuck with a malformed debate post with no comments
+        await validateCreateMutation(createFirstCommentParams);
+      }
+
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
-          originalContents: doc[fieldName].originalContents,
+          originalContents,
           currentUser,
         })),
         fieldName,
@@ -269,6 +299,30 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
     return newDocument
   })
+
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).createAfter.add(
+      async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
+    {
+      const isFirstDebatePostComment = 'debate' in newDoc
+          ? (!!newDoc.debate && fieldName === 'contents')
+          : false;
+      if (currentUser && isFirstDebatePostComment) {
+        await createMutator({
+          collection: Comments,
+          document: {
+            userId: currentUser._id,
+            postId: newDoc._id,
+            contents: newDoc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        });
+      }
+      return newDoc;
+    });
+  }
 
   getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {

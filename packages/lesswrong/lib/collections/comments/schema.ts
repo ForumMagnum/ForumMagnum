@@ -677,6 +677,21 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     foreignKey: "Tags",
   },
+
+  debateResponse: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: ({ currentUser, formProps: { post } }: { currentUser: UsersCurrent | null, formProps: { post?: PostsDetails } }) => {
+      if (!currentUser || !post?.debate) return true;
+      
+      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      return !debateParticipantsIds.includes(currentUser._id);
+    }
+  }
 };
 
 /* Alignment Forum fields */
