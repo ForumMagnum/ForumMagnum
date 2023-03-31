@@ -678,7 +678,7 @@ const schema: SchemaType<DbComment> = {
     foreignKey: "Tags",
   },
 
-  debateComment: {
+  debateResponse: {
     type: Boolean,
     optional: true,
     nullable: true,

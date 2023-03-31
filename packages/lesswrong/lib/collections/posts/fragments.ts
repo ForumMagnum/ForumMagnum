@@ -212,7 +212,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
 
-    unreadDebateCommentCount
+    unreadDebateResponseCount
   }
 `);
 

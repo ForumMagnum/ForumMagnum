@@ -2388,7 +2388,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
-  unreadDebateCommentCount: resolverOnlyField({
+  unreadDebateResponseCount: resolverOnlyField({
     type: Number,
     nullable: true,
     canRead: ['guests'],
@@ -2403,7 +2403,7 @@ const schema: SchemaType<DbPost> = {
         postId: post._id,
         // This actually forces `deleted: false` by combining with the default view selector
         deletedPublic: false,
-        debateComment: true,
+        debateResponse: true,
         postedAt: { $gt: lastReadStatus.lastUpdated },
       }, {
         sort: { postedAt: 1 }

@@ -73,9 +73,8 @@ export type PostsItemConfig = {
   /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  /** hideAuthor: hide the post author (unless there are multiple authors). Used
-   * on user-profile pages where there's a list of posts all by the same author,
-   * to avoid the redundancy. */
+  /** hideAuthor: hide the post author. Used on user-profile pages
+   * where there's a list of posts all by the same author, to avoid the redundancy. */
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,

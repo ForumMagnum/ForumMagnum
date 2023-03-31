@@ -72,7 +72,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
 
   const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
 
-  const postAuthor = post?.user || null;
+  const postAuthor = post.user;
 
   const userIsDebateParticipant =
     currentUser

@@ -143,10 +143,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const getDebateCommentBlocks = (comments: CommentsList[], replies: CommentsList[]) =>
-comments.map(debateComment => ({
-  comment: debateComment,
-  replies: replies.filter(reply => reply.topLevelCommentId === debateComment._id)
+const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+  comment: debateResponse,
+  replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
@@ -206,9 +205,9 @@ const PostsPage = ({post, refetch, classes}: {
     skip: !post.question,
   });
 
-  const { results: debateComments } = useMulti({
+  const { results: debateResponses } = useMulti({
     terms: {
-      view: 'debateComments',
+      view: 'debateResponses',
       postId: post._id,
     },
     collectionName: 'Comments',
@@ -272,21 +271,18 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
-  const debateCommentIds = new Set((debateComments ?? []).map(comment => comment._id));
-  const debateCommentReplies = nonDebateComments?.filter(comment => debateCommentIds.has(comment.topLevelCommentId));
-  // const excludeCommentIds = debateComments && debateCommentReplies
-  //   ? new Set(debateCommentReplies.map(comment => comment._id))
-  //   : undefined;
+  const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
+  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
-  const isDebateCommentLink = commentId && debateCommentIds.has(commentId);
+  const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
   useEffect(() => {
-    if (isDebateCommentLink) {
+    if (isDebateResponseLink) {
       history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDebateCommentLink, commentId]);
+  }, [isDebateResponseLink, commentId]);
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
@@ -321,7 +317,7 @@ const PostsPage = ({post, refetch, classes}: {
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
         <div className={classes.centralColumn}>
-          {commentId && !isDebateCommentLink && <CommentPermalink documentId={commentId} post={post} />}
+          {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
@@ -372,9 +368,9 @@ const PostsPage = ({post, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.debate && debateComments && debateCommentReplies &&
+        {post.debate && debateResponses && debateResponseReplies &&
           <DebateBody
-            debateComments={getDebateCommentBlocks(debateComments, debateCommentReplies)}
+            debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
             post={post}
           />}
 

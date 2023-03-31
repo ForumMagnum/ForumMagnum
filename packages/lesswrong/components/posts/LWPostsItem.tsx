@@ -11,6 +11,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
+import DebateIcon from '@material-ui/icons/Forum';
 
 export const KARMA_WIDTH = 32
 
@@ -311,6 +312,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewPostButton: {
     marginLeft: 10
+  },
+  unreadDebateResponsesIcon: {
+    height: 14,
+    position: 'relative',
+    top: 2,
+    color: theme.palette.primary.main
+  },
+  unreadDebateResponseCount: {
+    paddingLeft: 4,
+    color: theme.palette.primary.main
   }
 })
 
@@ -450,6 +461,13 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
             {showAuthor && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+            </PostsItem2MetaInfo>}
+
+            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo>
+              <div className={classes.unreadDebateResponseCount}>
+                <DebateIcon className={classes.unreadDebateResponsesIcon}/>
+                {post.unreadDebateResponseCount}
+              </div>
             </PostsItem2MetaInfo>}
 
             {showDate && <PostsItemDate post={post} />}

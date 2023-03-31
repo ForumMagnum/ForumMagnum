@@ -456,7 +456,7 @@ importComponent("CommentsViews", () => require('../components/comments/CommentsV
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
-importComponent("DebateCommentBlock", () => require('../components/comments/DebateCommentBlock'));
+importComponent("DebateResponseBlock", () => require('../components/comments/DebateResponseBlock'));
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 

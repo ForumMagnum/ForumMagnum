@@ -389,7 +389,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
   readonly relevantTagIds: Array<string>,
-  readonly debateComment: boolean | null,
+  readonly debateResponse: boolean | null,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -947,7 +947,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
-  readonly unreadDebateCommentCount: number,
+  readonly unreadDebateResponseCount: number,
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
@@ -1326,7 +1326,7 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
-  readonly debateComment: boolean | null,
+  readonly debateResponse: boolean | null,
 }
 
 interface CommentsList_tag { // fragment on Tags

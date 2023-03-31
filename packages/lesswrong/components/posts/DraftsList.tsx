@@ -112,7 +112,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
           key={post._id}
           post={post}
           toggleDeleteDraft={toggleDelete}
-          hideAuthor={!post.debate}
+          hideAuthor
           showDraftTag={false}
           showPersonalIcon={false}
           showBottomBorder={i < results.length-1}

@@ -69,7 +69,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
       ...validFields,
-      debateComment: { $ne: true }
+      debateResponse: { $ne: true }
     },
     options: {
       sort: {postedAt: -1},
@@ -602,10 +602,10 @@ ensureIndex(Comments,
   { name: "comments.moderatorHat" }
 );
 
-Comments.addView('debateComments', (terms: CommentsViewTerms) => ({
+Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
   selector: {
     postId: terms.postId,
-    debateComment: true
+    debateResponse: true
   },
   options: {
     sort: { 

@@ -184,7 +184,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             post={post} tag={tag}
             prefilledProps={{
               parentAnswerId: parentAnswerId,
-              ...(userIsDebateParticipant ? { debateComment: true } : {})
+              ...(userIsDebateParticipant ? { debateResponse: true } : {})
             }}
             type="comment"
             {...newFormProps}

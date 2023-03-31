@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)
   },
-  debateCommentBody: {
+  debateResponseBody: {
     ...commentBodyStyles(theme),
     fontSize: '1.3rem',
     '& blockquote, & li': {
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateComment";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -98,7 +98,7 @@ const ContentStyles = ({contentType, className, children, classes}: {
       [classes.commentBodyExceptPointerEvents]: contentType==="commentExceptPointerEvents",
       [classes.answerBody]: contentType==="answer",
       [classes.tagBody]: contentType==="tag",
-      [classes.debateCommentBody]: contentType==="debateComment"
+      [classes.debateResponseBody]: contentType==="debateResponse"
     }
   )}>
     {children}

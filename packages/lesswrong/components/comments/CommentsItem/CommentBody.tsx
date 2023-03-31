@@ -59,8 +59,8 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   let contentType: ContentStyleType;
   if (comment.answer) {
     contentType = 'answer';
-  } else if (comment.debateComment) {
-    contentType = 'debateComment';
+  } else if (comment.debateResponse) {
+    contentType = 'debateResponse';
   } else {
     contentType = 'comment';
   }

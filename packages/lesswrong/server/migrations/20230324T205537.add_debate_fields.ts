@@ -23,7 +23,7 @@ export const up = async ({db}: MigrationContext) => {
   }
 
   if (Comments.isPostgres()) {
-    await addField(db, Comments, 'debateComment');
+    await addField(db, Comments, 'debateResponse');
   }
 }
 
@@ -33,6 +33,6 @@ export const down = async ({db}: MigrationContext) => {
   }
 
   if (Comments.isPostgres()) {
-    await dropField(db, Comments, 'debateComment');
+    await dropField(db, Comments, 'debateResponse');
   }
 }

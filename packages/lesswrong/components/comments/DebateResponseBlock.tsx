@@ -71,12 +71,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   purpleBorder: {
     borderColor: theme.palette.border.debateComment4
   },
-  blackBorder: {
+  yellowBorder: {
     borderColor: theme.palette.border.debateComment5
   },
 });
 
-export interface DebateCommentWithReplies {
+export interface DebateResponseWithReplies {
   comment: CommentsList;
   replies: CommentsList[];
 }
@@ -92,12 +92,12 @@ const getParticipantBorderStyle = (participantIndex: number) => {
     case 3:
       return 'purpleBorder';
     default:
-      return 'blackBorder';
+      return 'yellowBorder';
   }
 };
 
-export const DebateCommentBlock = ({ comments, post, orderedParticipantList, daySeparator, classes }: {
-  comments: DebateCommentWithReplies[],
+export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
+  responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
@@ -107,21 +107,28 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
 
   const currentUser = useCurrentUser();
 
-  const [showReplyState, setShowReplyState] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
+  const responseStates = responses.map(_ => false);
+  const [showReplyState, setShowReplyState] = useState([...responseStates]);
+  const [showEdit, setShowEdit] = useState([...responseStates]);
 
-  const showRepliesForComment = (e: React.MouseEvent) => {
+  const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
     e.preventDefault();
-    setShowReplyState(!showReplyState);
+    showReplyState[responseIdx] = !showReplyState[responseIdx];
+    setShowReplyState(showReplyState);
   };
+
+  const showEditForResponse = (newShowEditState: boolean, responseIdx: number) => {
+    showEdit[responseIdx] = newShowEditState;
+    setShowEdit(showEdit);
+  }
 
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
     </div>}
-    {comments.map(({ comment, replies }, idx) => {
+    {responses.map(({ comment, replies }, idx) => {
       const isFirstCommentInBlock = idx === 0;
-      const isLastCommentInBlock = idx === (comments.length - 1);
+      const isLastCommentInBlock = idx === (responses.length - 1);
       const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
       const readerIsParticipant = currentUser && orderedParticipantList.includes(currentUser._id);
 
@@ -139,21 +146,21 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
       const menu = <CommentsMenu
         comment={comment}
         post={post}
-        showEdit={() => setShowEdit(true)}
+        showEdit={() => showEditForResponse(true, idx)}
         className={classes.menu}
       />;
 
-      const commentBodyOrEditor = showEdit
+      const commentBodyOrEditor = showEdit[idx]
       ? <CommentsEditForm
           comment={comment}
-          successCallback={() => setShowEdit(false)}
-          cancelCallback={() => setShowEdit(false)}
+          successCallback={() => showEditForResponse(false, idx)}
+          cancelCallback={() => showEditForResponse(false, idx)}
           className={classes.editForm}
           formProps={{ post }}
         />
       : <CommentBody comment={comment} />;
 
-      const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => showRepliesForComment(e)}>
+      const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => showRepliesForComment(e, idx)}>
         Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
       </a>;
 
@@ -190,11 +197,11 @@ export const DebateCommentBlock = ({ comments, post, orderedParticipantList, day
   </div>;
 }
 
-const DebateCommentBlockComponent = registerComponent('DebateCommentBlock', DebateCommentBlock, {styles, stylePriority: 200});
+const DebateResponseBlockComponent = registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
 
 declare global {
   interface ComponentTypes {
-    DebateCommentBlock: typeof DebateCommentBlockComponent
+    DebateResponseBlock: typeof DebateResponseBlockComponent
   }
 }
 

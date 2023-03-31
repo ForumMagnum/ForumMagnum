@@ -165,7 +165,7 @@ interface DbComment extends DbObject {
   isPinnedOnProfile: boolean
   title: string
   relevantTagIds: Array<string>
-  debateComment: boolean | null
+  debateResponse: boolean | null
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string

@@ -35,17 +35,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   new: {
     color: theme.palette.primary.main
   },
-  unreadDebateComments: {
-    display: 'flex'
-  },
-  unreadDebateCommentCount: {
-    paddingLeft: 4
-  },
-  unreadDebateCommentsIcon: {
-    height: 14,
-    position: 'relative',
-    top: 2
-  }
 });
 
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {
@@ -59,26 +48,6 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
 
   const { UsersName, UserNameDeleted } = Components
-
-  if (post.debate) {
-    const { unreadDebateCommentCount } = post;
-
-    return (
-      <div className={classes.unreadDebateComments}>
-        <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-          {authors.map((participant, idx) =>
-            <React.Fragment key={participant._id}>
-              {idx !== 0 ? ", " : ""}<UsersName user={participant} simple={simple} tooltipPlacement={tooltipPlacement}/>
-            </React.Fragment>
-          )}
-        </div>
-        {unreadDebateCommentCount && <div className={classNames(classes.unreadDebateCommentCount, classes.new)}>
-          <DebateIcon className={classes.unreadDebateCommentsIcon}/>
-          {unreadDebateCommentCount}
-        </div>}
-      </div>
-    );
-  }
 
   if (isAnon)
     return <UserNameDeleted/>;

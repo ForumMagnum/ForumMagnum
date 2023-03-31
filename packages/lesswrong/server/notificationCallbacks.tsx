@@ -408,7 +408,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
   }
 
   // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
-  if (post && comment.debateComment) {
+  if (post && comment.debateResponse) {
     // Get all the debate participants, but exclude the comment author if they're a debate participant
     const debateParticipantIds = _.difference([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)], [comment.userId]);
 

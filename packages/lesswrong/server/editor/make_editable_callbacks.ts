@@ -140,32 +140,32 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      const isFirstDebatePostComment = 'debate' in doc
+      const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
         ? (!!doc.debate && fieldName === 'contents')
         : false;
-      // Debate posts don't actually have any post contents, since the contents are managed as comments
+
       const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
 
-      // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
-      // If we can't, we'll be stuck with a malformed debate post with no comments
       if (isFirstDebatePostComment) {
         const createFirstCommentParams: CreateMutatorParams<DbComment> = {
           collection: Comments,
           document: {
             userId,
             contents: doc[fieldName],
-            debateComment: true,
+            debateResponse: true,
           },
           context,
           currentUser,
         };
 
+        // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
+        // If we can't, we'll be stuck with a malformed debate post with no comments
         await validateCreateMutation(createFirstCommentParams);
       }
 
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
-          originalContents: originalContents,
+          originalContents,
           currentUser,
         })),
         fieldName,
@@ -300,27 +300,29 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     return newDocument
   })
 
-  getCollectionHooks(collectionName).createAfter.add(
-    async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
-  {
-    const isFirstDebatePostComment = 'debate' in newDoc
-        ? (!!newDoc.debate && fieldName === 'contents')
-        : false;
-    if (currentUser && isFirstDebatePostComment) {
-      await createMutator({
-        collection: Comments,
-        document: {
-          userId: currentUser._id,
-          postId: newDoc._id,
-          contents: newDoc[fieldName],
-          debateComment: true,
-        },
-        context,
-        currentUser,
-      });
-    }
-    return newDoc;
-  });
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).createAfter.add(
+      async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
+    {
+      const isFirstDebatePostComment = 'debate' in newDoc
+          ? (!!newDoc.debate && fieldName === 'contents')
+          : false;
+      if (currentUser && isFirstDebatePostComment) {
+        await createMutator({
+          collection: Comments,
+          document: {
+            userId: currentUser._id,
+            postId: newDoc._id,
+            contents: newDoc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        });
+      }
+      return newDoc;
+    });
+  }
 
   getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {

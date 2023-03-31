@@ -43,9 +43,6 @@ import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
 
-/**
- * Note: keep newDocument for backwards compatibility
- */
 const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>): CreateCallbackProperties<T> => {
   const {
     currentUser = null,
@@ -75,11 +72,8 @@ export const validateCreateMutation = async <T extends DbObject>(mutatorParams: 
   const callbackProperties = mutatorParamsToCallbackProps(mutatorParams);
   const { collection, context, currentUser } = callbackProperties;
 
-  const logger = loggerConstructor(`validation-${collection.collectionName.toLowerCase()}`);
-
   const hooks = getCollectionHooks(collection.collectionName) as unknown as CollectionMutationCallbacks<T>;
   
-  logger('validating')
   let validationErrors: Array<any> = [];
   validationErrors = validationErrors.concat(validateDocument(document, collection, context));
   // run validation callbacks
