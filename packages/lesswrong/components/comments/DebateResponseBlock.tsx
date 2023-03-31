@@ -113,13 +113,15 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
 
   const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
     e.preventDefault();
-    showReplyState[responseIdx] = !showReplyState[responseIdx];
-    setShowReplyState(showReplyState);
+    const newReplyState = [...showReplyState];
+    newReplyState[responseIdx] = !newReplyState[responseIdx];
+    setShowReplyState(newReplyState);
   };
 
   const showEditForResponse = (newShowEditState: boolean, responseIdx: number) => {
-    showEdit[responseIdx] = newShowEditState;
-    setShowEdit(showEdit);
+    const newShowEdit = [...showEdit];
+    newShowEdit[responseIdx] = newShowEditState;
+    setShowEdit(newShowEdit);
   }
 
   return <div>
@@ -176,7 +178,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
           }}
         />;
 
-      const replyState = showReplyState && showReplyLink && replyCommentList;
+      const replyState = showReplyState[idx] && showReplyLink && replyCommentList;
 
       return (
         <div
