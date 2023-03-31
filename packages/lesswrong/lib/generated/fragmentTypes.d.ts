@@ -78,6 +78,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
+  readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -2474,6 +2475,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly noComicSans: boolean,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2580,6 +2582,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
+  readonly noComicSans: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,

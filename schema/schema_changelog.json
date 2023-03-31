@@ -140,8 +140,8 @@
     "timestamp": "2023-03-14T15:22:03.000Z"
   },
   {
-    "acceptsSchemaHash": "9f5bfc2c660a51d8fa28ef4f7cf66955",
-    "acceptedByMigration": "20230324T205537.add_debate_fields.ts",
-    "timestamp": "2023-03-24T20:55:37.000Z"
+    "acceptsSchemaHash": "222d42945763fb6dcaff3b497911d7b7",
+    "acceptedByMigration": "20230331T002047.add_noComicSans_to_Users.ts",
+    "timestamp": "2023-03-31T00:20:47.000Z"
   }
 ]
