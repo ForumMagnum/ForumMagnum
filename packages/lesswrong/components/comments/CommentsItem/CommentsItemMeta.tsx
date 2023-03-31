@@ -20,12 +20,14 @@ export const metaNoticeStyles = (theme: ThemeType) => ({
 });
 
 const styles = (theme: ThemeType): JssStyles => ({
-  meta: {
+  root: {
     "& > div": {
-      display: "inline-block",
       marginRight: 5,
     },
 
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
@@ -89,9 +91,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
   },
   rightSection: {
-    float: "right",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexGrow: 1,
     marginRight: isEAForum ? -3 : -5,
-    marginTop: isEAForum ? 4 : undefined,
   },
   linkIcon: {
     fontSize: "1.2rem",
@@ -203,7 +207,7 @@ export const CommentsItemMeta = ({
   } = Components;
 
   return (
-    <div className={classNames(classes.meta, {
+    <div className={classNames(classes.root, {
       [classes.sideCommentMeta]: isSideComment,
     })}>
       {!parentCommentId && !comment.parentCommentId && isParentComment &&
