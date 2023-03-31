@@ -406,6 +406,7 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 // comments
 
 importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("RetractCommentMenuItem", () => require('../components/comments/CommentActions/RetractCommentMenuItem'));
 importComponent("MoveToAnswersMenuItem", () => require('../components/comments/CommentActions/MoveToAnswersMenuItem'));
