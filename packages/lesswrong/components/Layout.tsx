@@ -217,7 +217,7 @@ const Layout = ({currentUser, children, classes}: {
         let newTheme: AbstractThemeOptions = getDefaultThemeOptions()
         // if the user record has a theme, add that to the theme cookie
         if (currentUser?.theme?.name && isValidSerializedThemeOptions(currentUser.theme)) {
-          // @ts-ignore Why doesn't this work?
+          // @ts-ignore Why does it still think currentUser.theme.name might be null?
           newTheme = currentUser.theme
         }
         setTheme(newTheme)
@@ -238,6 +238,8 @@ const Layout = ({currentUser, children, classes}: {
     }
   }
 
+  // We just need to check this on page load and navigation.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(checkThemeChange, [])
   useOnNavigate(checkThemeChange)
 
