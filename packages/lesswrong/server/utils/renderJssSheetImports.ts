@@ -1,4 +1,4 @@
-import type { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
+import { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
 import { getMergedStylesheet } from '../styleGeneration';
 
 const stylesId = "main-styles";
@@ -47,7 +47,7 @@ export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): strin
 
 export const renderJssSheetPreloads = (themeOptions: AbstractThemeOptions) => {
   if (themeOptionsAreConcrete(themeOptions)) {
-    return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions as ThemeOptions));
+    return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions));
   }
   const lightSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
   const darkSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
