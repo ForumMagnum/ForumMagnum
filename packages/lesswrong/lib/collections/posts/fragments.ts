@@ -55,6 +55,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -210,6 +211,8 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
   }
 `);
 

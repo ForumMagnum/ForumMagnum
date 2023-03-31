@@ -163,8 +163,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
-
+  const {
+    postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
+    moderatedCommentId,
+  } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 

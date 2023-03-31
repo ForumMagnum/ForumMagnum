@@ -262,6 +262,18 @@ const PostActions = ({post, closeMenu, classes}: {
           />
         }
 
+        {currentUser && post.debate &&
+          <NotifyMeButton
+            asMenuItem
+            showIcon
+            document={post}
+            subscriptionType={subscriptionTypes.newDebateComments}
+            subscribeMessage="Subscribe to debate"
+            unsubscribeMessage="Unsubscribe from debate"
+            tooltip="Notifies you when there is new activity in the debate"
+          />
+        }
+
         {currentUser && <NotifyMeButton asMenuItem
           document={post} showIcon
           subscribeMessage="Subscribe to comments"

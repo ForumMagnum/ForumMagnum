@@ -13,6 +13,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   post: PostsList,
   initialHtml: string,
+  parentComment?: CommentsList,
   onClose: ()=>void,
 }) => {
   const { PopupCommentEditor } = Components;
