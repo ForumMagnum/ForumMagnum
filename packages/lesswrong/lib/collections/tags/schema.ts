@@ -14,6 +14,7 @@ import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { preferredHeadingCase } from '../../forumTypeUtils';
+import { permissionGroups } from '../../permissions';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -471,8 +472,8 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
   },
   'canVoteOnRels.$': {
-    // TODO: Enum, allowed values: 'userOwns', or a user group name, also: 'userOwnsOnlyUpvote'
     type: String,
+    allowedValues: ["userOwns", "userOwnsOnlyUpvote", ...permissionGroups],
   },
   isSubforum: {
     type: Boolean,

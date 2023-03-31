@@ -906,7 +906,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<string>
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
