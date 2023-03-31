@@ -25,12 +25,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 5,
     },
 
+    position: "relative",
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
+    rowGap: "6px",
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
+    marginRight: isEAForum ? 40 : 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
@@ -91,11 +94,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
   },
   rightSection: {
+    position: "absolute",
+    right: isEAForum ? -46 : -26,
+    top: 12,
     display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    flexGrow: 1,
-    marginRight: isEAForum ? -3 : -5,
   },
   linkIcon: {
     fontSize: "1.2rem",
