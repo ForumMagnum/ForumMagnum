@@ -64,6 +64,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isEAForum ? 400 : undefined,
+    ...(isEAForum ? {
+      [theme.breakpoints.down('xs')]: {
+        fontSize: 16,
+      },
+    } : {}),
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -288,7 +293,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
                     {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
-                    {forumShortTitleSetting.get()}
+                    <span dangerouslySetInnerHTML={{ __html: forumShortTitleSetting.get() }} />
                   </Link>
                 </div>
               </Typography>
