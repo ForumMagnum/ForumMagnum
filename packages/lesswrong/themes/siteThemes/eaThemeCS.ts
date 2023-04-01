@@ -1,10 +1,8 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
-  'cursive',
   'sans-serif'
 ].join(',')
 
@@ -18,10 +16,8 @@ const serifStack = [
 
 // TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
-  'cursive',
   'sans-serif'
 ].join(',')
 
