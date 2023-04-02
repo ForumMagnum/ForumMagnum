@@ -139,7 +139,7 @@ const TagNotificationSettings = ({
   }
   const isSubscribedToPosts = getIsSubscribedToPosts();
 
-  const togglePostsSubscribed = async (e) => {
+  const togglePostsSubscribed = async (e: React.ChangeEvent) => {
     try {
       e.preventDefault();
       const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
@@ -158,7 +158,7 @@ const TagNotificationSettings = ({
     }
   }
   
-  const toggleDiscussionsSubscribed = async (e) => {
+  const toggleDiscussionsSubscribed = async (e: React.ChangeEvent) => {
     try {
       e.preventDefault();
       await updateUserTagRel({selector: {_id: userTagRel._id}, data: {subforumEmailNotifications: !userTagRel.subforumEmailNotifications}})

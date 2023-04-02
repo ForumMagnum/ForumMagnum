@@ -88,8 +88,8 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   const { LWTooltip } = Components;
 
   const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
+    ? ({children}: {children: React.ReactNode}) => <>{children}</>
+    : ({children}: {children: React.ReactNode}) => (
       <LWTooltip title={"You do not have permission to vote on this"} placement="top">
         {children}
       </LWTooltip>
