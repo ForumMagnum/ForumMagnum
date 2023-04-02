@@ -2520,10 +2520,8 @@ Object.assign(schema, {
     type: String,
     optional: true
   },
-})
 
-/* Privacy settings */
-Object.assign(schema, {
+  /* Privacy settings */
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
@@ -2537,10 +2535,8 @@ Object.assign(schema, {
     group: formGroups.privacy,
     ...schemaDefaultValue(false),
   },
-})
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
   afPostCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afPostCount",

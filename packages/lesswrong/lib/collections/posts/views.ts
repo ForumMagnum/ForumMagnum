@@ -395,7 +395,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   }
 }
 
-export function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,

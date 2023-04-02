@@ -91,7 +91,7 @@ const sortings = {
   "new" :  { postedAt: -1}
 }
 
-export function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,

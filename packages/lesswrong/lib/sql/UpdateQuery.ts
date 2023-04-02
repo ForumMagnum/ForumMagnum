@@ -14,7 +14,7 @@ export type UpdateOptions = Partial<{
  */
 class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
+    table: Table<T>,
     selector: string | MongoSelector<T>,
     modifier: MongoModifier<T>,
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
