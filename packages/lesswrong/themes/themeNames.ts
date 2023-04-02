@@ -122,8 +122,7 @@ const getSerializedThemeOptions = (
   user: DbUser|UsersCurrent | null,
 ): string|AbstractThemeOptions => {
   // Try to read from the cookie
-  // TODO: check user setting first?
-  if (themeCookie && isValidSerializedThemeOptions(themeCookie)) {
+  if (themeCookie && isValidSerializedThemeOptions(themeCookie) && !user?.noComicSans) {
     return themeCookie;
   }
 
