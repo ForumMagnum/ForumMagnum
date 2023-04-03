@@ -169,43 +169,43 @@ const schema: SchemaType<DbRevision> = {
   markdown: {
     type: String,
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   draftJS: {
     type: Object,
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   ckEditorMarkup: {
     type: String,
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   wordCount: {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    // resolveAs defined in resolvers.js
+    denormalized: true,
   },
   htmlHighlight: {
     type: String, 
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   htmlHighlightStartingAtHash: {
     type: String, 
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   plaintextDescription: {
     type: String, 
     canRead: ['guests'],
-    // resolveAs defined in resolvers.js
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   plaintextMainText: {
     type: String,
-    canRead: ['guests']
-    // resolveAs defined in resolvers.js
+    canRead: ['guests'],
+    hasServerSide: true, // resolveAs defined in revisionResolvers.ts
   },
   changeMetrics: {
     type: Object,

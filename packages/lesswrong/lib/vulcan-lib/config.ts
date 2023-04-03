@@ -40,6 +40,7 @@ SimpleSchema.extendOptions([
   'canUpdate', // who can edit the field
 
   'resolveAs', // field-level resolver
+  'hasServerSide', // see unitTests/resolversExist.tests.ts
   'description', // description/help
   'beforeComponent', // before form component
   'afterComponent', // after form component

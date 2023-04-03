@@ -2,7 +2,7 @@ import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENG
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict } from '../utils/serverSchemaUtils'
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { htmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
