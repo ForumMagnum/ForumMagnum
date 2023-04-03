@@ -71,8 +71,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const taggedPostWording = taggingNameIsSet.get() ? `posts with this ${taggingNameSetting.get()}` : "posts with this tag"
-
 const WriteNewButton = ({
   tag,
   isSubscribed,

@@ -116,7 +116,7 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect,
     HeadTags,
     TagFlagItem,
-    RightSidebarColumn,
+    SubforumLayout,
     WriteNewButton,
     SubscribeButton,
     TagTableOfContents,
@@ -341,14 +341,14 @@ const TagSubforumPage2 = ({classes}: {
     >
       <HeadTags description={headTagDescription} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
-      <RightSidebarColumn
+      <SubforumLayout
         titleComponent={titleComponent}
         bannerImageId={tag.bannerImageId}
         headerComponent={headerComponent}
         sidebarComponents={rightSidebarComponents[tab]}
       >
         {tabComponents[tab]}
-      </RightSidebarColumn>
+      </SubforumLayout>
     </AnalyticsContext>
   );
 }

@@ -620,7 +620,7 @@ importComponent("SingleLineTagUpdates", () => require('../components/tagging/Sin
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
 importComponent("TagSubforumPage2", () => require('../components/tagging/subforums/TagSubforumPage2'));
-importComponent("RightSidebarColumn", () => require('../components/tagging/subforums/RightSidebarColumn'));
+importComponent("SubforumLayout", () => require('../components/tagging/subforums/SubforumLayout'));
 importComponent("SidebarSubtagsBox", () => require('../components/tagging/subforums/SidebarSubtagsBox'));
 importComponent("SidebarMembersBox", () => require('../components/tagging/subforums/SidebarMembersBox'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));

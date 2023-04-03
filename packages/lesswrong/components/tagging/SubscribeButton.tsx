@@ -49,36 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 16,
     height: 16,
   },
-  // popout: {
-  //   padding: "4px 0px 4px 0px",
-  //   marginTop: 8,
-  //   maxWidth: 220,
-  //   '& .form-input': {
-  //     marginTop: 0,
-  //   },
-  //   '& .form-input:last-child': {
-  //     marginBottom: 4,
-  //   }
-  // },
-  // checkbox: {
-  //   display: "flex",
-  //   alignItems: "center",
-  //   marginRight: 24,
-  //   "& .MuiButtonBase-root": {
-  //     padding: 6,
-  //   },
-  //   "& .Typography-root": {
-  //     cursor: "default",
-  //   },
-  // },
-  // accountLink: {
-  //   borderTop: "solid 1px",
-  //   borderColor: theme.palette.grey[300],
-  //   margin: "4px 4px 0px 4px",
-  //   padding: "4px 4px 0px 4px",
-  //   fontSize: 13,
-  //   color: theme.palette.primary.main
-  // },
   popout: {
     padding: "4px 0px 4px 0px",
     maxWidth: 260,
@@ -171,16 +141,14 @@ const SubscribeButton = ({
   });
 
   const isSubscribedToPostNotifs = useMemo(() => {
-    const relevantSubscriptions = notifSubscriptions?.filter(s => ["subscribed", "suppressed"].includes(s.state));
-
-    if (relevantSubscriptions?.length !== 1) { // due to `limit: 1` above, this should only happen if there is no subscription
+    if (notifSubscriptions?.length !== 1) { // due to `limit: 1` above, this should only happen if there is no subscription
       return userIsDefaultSubscribed({
         user: currentUser,
         subscriptionType, collectionName: "Tags", document: tag
       });
     }
 
-    return relevantSubscriptions[0].state === "subscribed";
+    return notifSubscriptions[0].state === "subscribed";
   }, [notifSubscriptions, currentUser, tag]);
 
   const togglePostNotifsSubscribed = async (e) => {

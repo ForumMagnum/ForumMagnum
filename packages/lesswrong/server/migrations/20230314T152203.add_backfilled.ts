@@ -9,7 +9,6 @@ export const up = async ({db}: MigrationContext) => {
   }
   
   await addField(db, TagRels, "backfilled")
-  await db.any(`UPDATE "Users" SET "subforumPreferredLayout" = 'card' WHERE "subforumPreferredLayout" = 'feed';`)
 }
 
 export const down = async ({db}: MigrationContext) => {
@@ -18,5 +17,4 @@ export const down = async ({db}: MigrationContext) => {
   }
   
   await dropField(db, TagRels, "backfilled")
-  await db.any(`UPDATE "Users" SET "subforumPreferredLayout" = 'feed' WHERE "subforumPreferredLayout" = 'card';`)
 }

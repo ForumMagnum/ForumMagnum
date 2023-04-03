@@ -57,7 +57,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     zIndex: Z_OVERLAY,
     width: '100%',
     height: TITLE_HEIGHT_DESKTOP,
-    backgroundColor: 'rgba(0,0,0,0.4)', // hardcode overlay to keep it the same in light and dark mode
+    backgroundColor: theme.palette.background.imageOverlay, // hardcode overlay to keep it the same in light and dark mode
     [theme.breakpoints.down('sm')]: {
       height: TITLE_HEIGHT_MOBILE,
     }
@@ -117,7 +117,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap2: { gridArea: 'gap2' }
 });
 
-export const RightSidebarColumn = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
+export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
   titleComponent: React.ReactNode,
   bannerImageId: string,
   headerComponent: React.ReactNode,
@@ -203,10 +203,10 @@ export const RightSidebarColumn = ({titleComponent, bannerImageId, headerCompone
   );
 }
 
-const RightSidebarColumnComponent = registerComponent("RightSidebarColumn", RightSidebarColumn, {styles});
+const SubforumLayoutComponent = registerComponent("SubforumLayout", SubforumLayout, {styles});
 
 declare global {
   interface ComponentTypes {
-    RightSidebarColumn: typeof RightSidebarColumnComponent
+    SubforumLayout: typeof SubforumLayoutComponent
   }
 }
