@@ -25,7 +25,7 @@ const FormComponentRadioGroup = ({ path, value, form, options, name, label, clas
     <FormLabel>{label}</FormLabel>
     <RadioGroup aria-label={name} name={name} value={value}
       onChange={(event) => {
-        context.updateCurrentValues({
+        void context.updateCurrentValues({
           [path]: (event?.target as any)?.value
         })
     }}>

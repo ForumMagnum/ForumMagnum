@@ -32,7 +32,7 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
   classes: ClassesType;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: event.target.value
     })
   }

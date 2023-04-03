@@ -23,7 +23,7 @@ const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: Fo
       <Components.ErrorBoundary>
         <Components.UsersSearchAutoComplete
           clickAction={(userId: string) => {
-            updateCurrentValues({ [path]: userId });
+            void updateCurrentValues({ [path]: userId });
           }}
           label={label}
         />

@@ -32,7 +32,7 @@ const FormComponentTagsChecklist = ({ document, path, label, value, updateCurren
     existingTagIds: Array<string>
   ) => {
     const newValue = Array.from(new Set([...existingTagIds, tag.tagId, tag.parentTagId])).filter((id) => !!id);
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: newValue,
     });
   };
@@ -42,7 +42,7 @@ const FormComponentTagsChecklist = ({ document, path, label, value, updateCurren
     existingTagIds: Array<string>
   ): void => {
     const newValue = existingTagIds.filter((id) => id !== tag.tagId);
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: newValue,
     });
   };

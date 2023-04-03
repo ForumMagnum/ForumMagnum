@@ -28,13 +28,13 @@ const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormCo
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        updateCurrentValues({[path]: newValue});
+        void updateCurrentValues({[path]: newValue});
       }}
       classes={classes}
     />
     <Components.SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
-        updateCurrentValues({ [path]: [...value, sequenceId] });
+        void updateCurrentValues({ [path]: [...value, sequenceId] });
       }}
     />
   </div>

@@ -58,7 +58,7 @@ const FormSubmit = ({
             type="submit"
             className={classNames(classes.formButton, classes.secondaryButton)}
             onClick={() => {
-              updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+              void updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
               if (document.frontpageDate) {
                 addToDeletedValues('frontpageDate')
               }
@@ -82,7 +82,7 @@ const FormSubmit = ({
           type="submit"
           className={classNames(classes.formButton, classes.secondaryButton)}
           onClick={() => {
-            updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
+            void updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
             if (document.curatedDate) {
               addToDeletedValues('curatedDate')
             }

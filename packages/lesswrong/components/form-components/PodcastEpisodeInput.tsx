@@ -56,7 +56,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: id
     });
   }, [path, updateCurrentValues]);

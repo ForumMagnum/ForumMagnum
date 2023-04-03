@@ -108,7 +108,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const updateValue = this.props.locale
       ? { locale: this.props.locale, value }
       : value;
-    this.props.updateCurrentValues({ [this.getPath()]: updateValue });
+    void this.props.updateCurrentValues({ [this.getPath()]: updateValue });
 
     // for text fields, update character count on change
     if (this.showCharsRemaining()) {
@@ -210,7 +210,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
       event.preventDefault();
       event.stopPropagation();
     }
-    this.props.updateCurrentValues({ [this.props.path]: null });
+    void this.props.updateCurrentValues({ [this.props.path]: null });
     if (this.showCharsRemaining()) {
       this.updateCharacterCount(null);
     }

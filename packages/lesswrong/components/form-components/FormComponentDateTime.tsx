@@ -231,7 +231,9 @@ const FormComponentDateTime = ({ path, value, name, label, classes }: FormCompon
   classes: ClassesType;
 }, context: FormComponentContext<string|Date>) => {
   const updateDate = (date: Date | undefined) => {
-    if (date) context.updateCurrentValues({[path]: date})
+    if (date) {
+      void context.updateCurrentValues({[path]: date})
+    }
   }
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;

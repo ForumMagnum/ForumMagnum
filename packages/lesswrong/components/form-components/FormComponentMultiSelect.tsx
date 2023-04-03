@@ -94,7 +94,7 @@ const FormComponentMultiSelect = ({ value, label, placeholder, separator, option
 
     value={value}
     setValue={(value) => {
-      updateCurrentValues({
+      void updateCurrentValues({
         [path]: value
       });
     }}

@@ -32,13 +32,13 @@ const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormCompon
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        updateCurrentValues({[path]: newValue});
+        void updateCurrentValues({[path]: newValue});
       }}
       classes={classes}
     />
     <Components.PostsSearchAutoComplete
       clickAction={(postId: string) => {
-        updateCurrentValues({ [path]: [...value, postId] });
+        void updateCurrentValues({ [path]: [...value, postId] });
       }}
     />
   </div>

@@ -54,7 +54,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
    * post tagRelevance field needs to look like {string: number}
    */
   const updateValuesWithArray = (arrayOfTagIds: string[]) => {
-    updateCurrentValues(
+    void updateCurrentValues(
       mapValues(
         { tagRelevance: arrayOfTagIds },
         (arrayOfTagIds: string[]) => toDictionary(
