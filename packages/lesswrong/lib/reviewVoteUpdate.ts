@@ -10,18 +10,18 @@ export interface Dictionary<T> {
   [index: string]: T;
 }
 
-const getCost = (vote: reviewVoteFragment) => {
+const getCost = (vote: reviewVoteFragment): number => {
   return getCostData({})[vote.qualitativeScore].cost
 } 
-const getValue = (vote: reviewVoteFragment, total: number) => {
+const getValue = (vote: reviewVoteFragment, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 
-function updatePost(postList, vote, total: number) {
-  if (postList[vote.postId] === undefined) { 
-    postList[vote.postId] = [getValue(vote, total)]
+function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number) {
+  if (postList[vote.postId] === undefined) {
+    postList[vote.postId] = [getValue(vote, total)!]
   } else {
-    postList[vote.postId].push(getValue(vote, total))
+    postList[vote.postId].push(getValue(vote, total)!)
   }
 }
 
@@ -30,9 +30,9 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 // takes a user's reviewVotes and updates the list of posts to include the vote totals,
 // weighting 
 async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
-  let postsAllUsers = {}
-  let postsHighKarmaUsers = {}
-  let postsAFUsers = {}
+  let postsAllUsers: Record<string,Array<number>> = {}
+  let postsHighKarmaUsers: Record<string,Array<number>> = {}
+  let postsAFUsers: Record<string,Array<number>> = {}
 
   for (let userId of Object.keys(votesByUserId)) {
     // eslint-disable-next-line no-console
@@ -245,7 +245,7 @@ export async function createVotingPostHtml () {
   // eslint=disable-next-line no-console
   const users = await Users.find({_id: {$in:userIds}}).fetch()
 
-  const getDot = (vote) => {
+  const getDot = (vote: number) => {
     const size = Math.max(Math.abs(vote)*1.5, 3)
     const color = vote > 0 ? '#5f9b65' : '#bf360c'
     return `<span title='${vote}' class="dot" style="width:${size}px; height:${size}px; background:${color}"></span>`
