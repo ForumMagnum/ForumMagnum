@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../common/withUser';
 
 /**
  * Username for a deleted user. Ordinarily, looks like "[anonymous]" and
@@ -13,7 +14,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 const UserNameDeleted = ({userShownToAdmins}: {
   userShownToAdmins?: UsersMinimumInfo|null
 }) => {
-  if (userShownToAdmins) {
+  const currentUser = useCurrentUser();
+
+  if (currentUser?.isAdmin && userShownToAdmins) {
+    // Note that the currentUser?.isAdmin here should be redundant, since if the
+    // user isn't an admin, userShownToAdmins should be null anyways (because
+    // Users.checkAccess will have filtered out server side.)
     return <UserNameDeletedWithAdminHover user={userShownToAdmins}/>
   }
   return <Components.LWTooltip title={<div>
