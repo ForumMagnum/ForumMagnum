@@ -115,10 +115,11 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
   const existingUserIds = (await dataDb.any(`
     SELECT "visitorId" FROM "UserActivities" where "type" = '${visitorIdType}';
   `)).map(({ visitorId }) => visitorId);
-  // Go back to the start of the activity window, up to a maximum of ACTIVITY_WINDOW_HOURS in the past
-  const paddedStartDate = max([prevStartDate, new Date(updateEndDate.getTime() - (ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000))]) ?? prevStartDate;
+  // Go back to the start of the activity window, up to a maximum of ACTIVITY_WINDOW_HOURS prior to the end time
+  // Cast is ok, max function is being cautious about an empty array
+  const paddedStartDate = max([prevStartDate, new Date(updateEndDate.getTime() - (ACTIVITY_WINDOW_HOURS * 60 * 60 * 1000))]) as Date;
   
-  // First case: Add rows for users who are newly active (zero padding the end as necessary)
+  // -- First case: Add rows for users who are newly active (zero padding the end as necessary)
 
   // Prepare the new user data to be inserted in the UserActivities table
   const newUsersData = cleanedActivityData
@@ -131,7 +132,7 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
       return { userOrClientId, paddedArray };
     });
 
-  // Insert the new user data in a single query
+  // Insert data for users we haven't seen before
   if (newUsersData.length > 0) {
     const newUsersDataChunked = chunk(1000, newUsersData)
     console.log(`Inserting ${newUsersData.length} new rows into UserActivities table, in ${newUsersDataChunked.length} chunks`)
@@ -149,7 +150,7 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
     }
   }
 
-  // Second case: Append the new activity to users' rows who were previously active.
+  // -- Second case: Append the new activity to users' rows who were previously active.
   // Note the truncation ([:${ACTIVITY_WINDOW_HOURS}]) to ensure that the array of activity is the correct length
   const existingUsersData = cleanedActivityData.filter(({ userOrClientId }) => existingUserIds.includes(userOrClientId));
   if (existingUsersData.length > 0) {
@@ -176,11 +177,11 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
     }
   }
 
-  // Third case: Zero-pad the start of rows for users who were previously active but have no new activity
+  // -- Third case: Zero-pad the start of rows for users who were previously active but have no new activity
   // (i.e. they have existing rows in the table but have not been active since we last updated the table)
   const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ userOrClientId }) => userOrClientId === id));
   if (inactiveExistingUserIds.length > 0) {
-    const newActivityHours = Math.ceil((updateEndDate.getTime() - updateStartDate.getTime()) / (1000 * 60 * 60));
+    const newActivityHours = Math.round((updateEndDate.getTime() - updateStartDate.getTime()) / (1000 * 60 * 60));
     const inactiveExistingUserIdsChunked = chunk(1000, inactiveExistingUserIds)
     console.log(`Adding zero-padding to ${inactiveExistingUserIds.length} existing rows for which there is no new activity, in ${inactiveExistingUserIdsChunked.length} chunks`)
 
@@ -200,7 +201,7 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
     }
   }
 
-  // Fourth case: Every user has had their activity updated now. Remove rows for users who are no longer active in the last
+  // -- Fourth case: Every user has had their activity updated now. Remove rows for users who are no longer active in the last
   // ACTIVITY_WINDOW_HOURS (i.e. the activity array is all zeros)
   const countQuery = `
     SELECT COUNT(*) as delete_count FROM "UserActivities"
@@ -238,7 +239,7 @@ export async function updateUserActivities(props?: {updateStartDate?: Date, upda
     throw new Error("updateUserActivities: couldn't get database connection");
   };
   if (!UserActivities.isPostgres()) {
-    console.log("backfillUserActivities: only supported on Postgres");
+    console.log("updateUserActivities: only supported on Postgres");
   }
 
   await assertTableIntegrity(dataDb);

@@ -69,7 +69,8 @@ declare global {
     algoStartingAgeHours?: number
     algoDecayFactorSlowest?: number
     algoDecayFactorFastest?: number
-    algoActivityFactor?: number // Will be used in favour of activityHalfLifeHours and activityWeight if provided
+    /** Will be used in favour of activityHalfLifeHours and activityWeight if provided */
+    algoActivityFactor?: number
     algoActivityHalfLifeHours?: number
     algoActivityWeight?: number
     // END

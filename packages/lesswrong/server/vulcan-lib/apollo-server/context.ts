@@ -112,8 +112,9 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
   let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
   if ((user || clientId) && isEAForum) {
-    visitorActivity = user ? await UserActivities.findOne({visitorId: user._id, type: 'userId'})
-     : await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
+    visitorActivity = user ?
+      await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
+      await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
   }
   
   let context: ResolverContext = {
