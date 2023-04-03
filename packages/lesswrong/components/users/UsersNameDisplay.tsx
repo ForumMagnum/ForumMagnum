@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useContext, createContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -45,7 +45,7 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, clas
   );
 
   if (!user || user.deleted) {
-    return <Components.UserNameDeleted/>
+    return <Components.UserNameDeleted userShownToAdmins={user}/>
   }
   const { UserTooltip, LWTooltip } = Components
   

@@ -4,7 +4,6 @@ const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
-  'cursive',
   'sans-serif'
 ].join(',')
 
@@ -21,7 +20,6 @@ const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
-  'cursive',
   'sans-serif'
 ].join(',')
 
