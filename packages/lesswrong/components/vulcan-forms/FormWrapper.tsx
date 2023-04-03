@@ -201,43 +201,6 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   />
 }
 
-(FormWrapper as any).propTypes = {
-  // main options
-  collection: PropTypes.object.isRequired,
-  collectionName: PropTypes.string.isRequired,
-  typeName: PropTypes.string.isRequired,
-
-  documentId: PropTypes.string, // if a document is passed, this will be an edit form
-  schema: PropTypes.object, // usually not needed
-  queryFragment: PropTypes.object,
-  queryFragmentName: PropTypes.string,
-  mutationFragment: PropTypes.object,
-  mutationFragmentName: PropTypes.string,
-
-  // form
-  prefilledProps: PropTypes.object,
-  layout: PropTypes.string,
-  fields: PropTypes.arrayOf(PropTypes.string),
-  addFields: PropTypes.arrayOf(PropTypes.string),
-  showRemove: PropTypes.bool,
-  submitLabel: PropTypes.node,
-  cancelLabel: PropTypes.node,
-  revertLabel: PropTypes.node,
-  repeatErrors: PropTypes.bool,
-  warnUnsavedChanges: PropTypes.bool,
-
-  // callbacks
-  ...callbackProps,
-
-  currentUser: PropTypes.object,
-  client: PropTypes.object
-};
-
-(FormWrapper as any).contextTypes = {
-  closeCallback: PropTypes.func,
-  intl: intlShape
-};
-
 const FormWrapperComponent = registerComponent('FormWrapper', FormWrapper, {
   hocs: [withRouter],
   areEqual: "auto"
