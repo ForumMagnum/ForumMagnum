@@ -1,12 +1,13 @@
 import algoliasearch from "algoliasearch/lite";
 import { algoliaAppIdSetting, algoliaSearchKeySetting, algoliaPrefixSetting } from './publicSettings';
+import { TupleSet, UnionOf } from "./utils/typeGuardUtils";
 
 export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
 
 export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName): string => {
   const ALGOLIA_PREFIX = algoliaPrefixSetting.get()
-  
+
   switch (collectionName) {
     case "Comments": return ALGOLIA_PREFIX+'comments';
     case "Posts": return ALGOLIA_PREFIX+'posts';
@@ -14,6 +15,28 @@ export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName):
     case "Sequences": return ALGOLIA_PREFIX+'sequences';
     case "Tags": return ALGOLIA_PREFIX+'tags';
   }
+}
+
+export const algoliaSortings = new TupleSet(["relevance", "date"]);
+
+export type AlgoliaSorting = UnionOf<typeof algoliaSortings>;
+
+export const defaultAlgoliaSorting: AlgoliaSorting = "relevance";
+
+export const isValidAlgoliaSorting = (sorting: string): sorting is AlgoliaSorting =>
+  algoliaSortings.has(sorting);
+
+export const algoliaReplicaSuffixes: Record<AlgoliaSorting, string> = {
+  relevance: "",
+  date: "_date",
+};
+
+export const getAlgoliaIndexNameWithSorting = (
+  collectionName: AlgoliaIndexCollectionName,
+  sorting: AlgoliaSorting,
+): string => {
+  const baseIndex = getAlgoliaIndexName(collectionName);
+  return baseIndex + algoliaReplicaSuffixes[sorting];
 }
 
 export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString): collectionName is AlgoliaIndexCollectionName => {

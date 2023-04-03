@@ -2,16 +2,46 @@ import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
+import {
+  Hits,
+  Configure,
+  InstantSearch,
+  SearchBox,
+  Pagination,
+  connectRefinementList,
+  ToggleRefinement,
+  NumericMenu,
+  connectStats,
+  ClearRefinements,
+  connectScrollTo,
+} from 'react-instantsearch-dom';
+import {
+  getAlgoliaIndexNameWithSorting,
+  AlgoliaSorting,
+  algoliaSortings,
+  isAlgoliaEnabled,
+  getSearchClient,
+  AlgoliaIndexCollectionName,
+  collectionIsAlgoliaIndexed,
+  isValidAlgoliaSorting,
+  defaultAlgoliaSorting,
+} from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import {
+  isEAForum,
+  forumTypeSetting,
+  taggingNameIsSet,
+  taggingNamePluralCapitalSetting,
+  taggingNamePluralSetting,
+} from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
+import Select from '@material-ui/core/Select';
+import startCase from 'lodash/startCase';
 
 const hitsPerPage = 10
 
@@ -63,8 +93,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   filtersHeadline: {
     marginBottom: 18,
-    fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    "&:not(:first-child)": {
+      marginTop: 35,
+    },
   },
   filterLabel: {
     fontSize: 14,
@@ -158,7 +190,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-  
+
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -242,13 +274,16 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
+const sortingToUrlParam = (sorting: AlgoliaSorting): string|undefined =>
+  sorting === defaultAlgoliaSorting ? undefined : sorting;
+
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
-  
+
   // store these values for the search filter
   const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
   const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
@@ -264,12 +299,13 @@ const SearchPageTabbed = ({classes}:{
     [query.tags ?? []].flatMap(tags => tags)
   )
   const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
+  const [sorting, setSorting] = useState<AlgoliaSorting>(searchState.sort ?? defaultAlgoliaSorting);
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem
   } = Components
-    
+
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     history.replace({
@@ -279,11 +315,12 @@ const SearchPageTabbed = ({classes}:{
         query: search.query,
         tags,
         toggle: search.toggle,
-        page: search.page
+        page: search.page,
+        sort: sortingToUrlParam(sorting),
       })
     })
   }
-    
+
   const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     setSearchState({...searchState, contentType: value, page: 1})
@@ -294,15 +331,29 @@ const SearchPageTabbed = ({classes}:{
     setTagsFilter(tags)
     updateUrl(searchState, tags)
   }
-  
+
   const onSearchStateChange = (updatedSearchState: ExpandedSearchState) => {
     // clear tags filter if the tag refinements list is empty
     const clearTagFilters = updatedSearchState.refinementList?.tags === ''
     if (clearTagFilters)
       setTagsFilter([])
-      
+
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
+  }
+
+  const onSortingChange = (newSorting: string) => {
+    if (!isValidAlgoliaSorting(newSorting)) {
+      throw new Error("Invalid algolia sorting: " + newSorting);
+    }
+    setSorting(newSorting);
+    history.replace({
+      ...location,
+      search: {
+        ...searchState,
+        sort: sortingToUrlParam(sorting),
+      },
+    });
   }
 
   if (!isAlgoliaEnabled()) {
@@ -310,7 +361,7 @@ const SearchPageTabbed = ({classes}:{
       Search is disabled (Algolia App ID not configured on server)
     </div>
   }
-  
+
   // component for search results depends on which content type tab we're on
   const hitComponents = {
     'Posts': ExpandedPostsSearchHit,
@@ -321,9 +372,10 @@ const SearchPageTabbed = ({classes}:{
   }
   const HitComponent = hitComponents[tab]
 
+  console.log("index", getAlgoliaIndexNameWithSorting(tab, sorting));
   return <div className={classes.root}>
     <InstantSearch
-      indexName={getAlgoliaIndexName(tab)}
+      indexName={getAlgoliaIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient()}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
@@ -369,10 +421,22 @@ const SearchPageTabbed = ({classes}:{
           value={true}
         />}
         <ClearRefinements />
-        
+
         {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
           <Link to="/community#individuals">View community map</Link>
         </div>}
+
+        {isEAForum && <>
+          <Typography variant="headline" className={classes.filtersHeadline}>Sort by</Typography>
+          <Select
+            value={sorting}
+            onChange={(e) => onSortingChange(e.target.value)}
+          >
+            {Array.from(algoliaSortings).map((name, i) =>
+              <MenuItem key={i} value={name}>{startCase(name)}</MenuItem>
+            )}
+          </Select>
+        </>}
       </div>
 
       <div className={classes.resultsColumn}>
@@ -409,7 +473,7 @@ const SearchPageTabbed = ({classes}:{
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>
-        
+
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
