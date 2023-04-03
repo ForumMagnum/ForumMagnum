@@ -5,7 +5,7 @@ export interface SettingsOption {
   tooltip?: string;
 }
 
-export const SORT_ORDER_OPTIONS: { [key: string]: SettingsOption; } = {
+export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
   magic: {
     label: isEAForum ? 'New & upvoted' : 'Magic (New & Upvoted)',
     tooltip: 'Posts with the highest karma from the past few days',

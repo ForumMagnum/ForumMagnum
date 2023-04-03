@@ -15,7 +15,7 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 };
 
 // Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute): Promise<string> {
+export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
   if (comment.postId) {
     const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)

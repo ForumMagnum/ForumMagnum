@@ -2494,10 +2494,9 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
   },
-};
 
-/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-Object.assign(schema, {
+  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+
   experiencedIn: {
     type: Array,
     optional: true,
@@ -2552,7 +2551,7 @@ Object.assign(schema, {
   afCommentCount: {
     type: Number,
     optional: true,
-    onInsert: (document, currentUser: DbUser) => 0,
+    onCreate: () => 0,
     ...denormalizedCountOfReferences({
       fieldName: "afCommentCount",
       collectionName: "Users",
@@ -2614,6 +2613,6 @@ Object.assign(schema, {
     canCreate: ['admins'],
     hidden: true,
   },
-});
+};
 
 export default schema;

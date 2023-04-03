@@ -222,7 +222,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = query.sortedBy || query.view ||  "new"
+    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)

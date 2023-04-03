@@ -33,7 +33,7 @@ declare global {
     filterSettings?: any,
     sortBy?: ReviewSortings,
     sortByMost?: boolean,
-    sortedBy?: string,
+    sortedBy?: PostSortingModeWithRelevanceOption,
     af?: boolean,
     excludeEvents?: boolean,
     onlineEvent?: boolean,
@@ -65,6 +65,8 @@ declare global {
     distance?: number,
     audioOnly?: boolean,
   }
+  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
 /**
@@ -139,7 +141,7 @@ export const filters: Record<string,any> = {
  * NB: Vulcan views overwrite sortings. If you are using a named view with a
  * sorting, do not try to supply your own.
  */
-export const sortings = {
+export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   magic: { score: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
@@ -439,7 +441,7 @@ ensureIndex(Posts,
   }
 );
 
-const setStickies = (sortOptions, terms: PostsViewTerms) => {
+const setStickies = (sortOptions: MongoSort<DbPost>, terms: PostsViewTerms): MongoSort<DbPost> => {
   if (terms.af && terms.forum) {
     return { afSticky: -1, stickyPriority: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {

@@ -18,12 +18,29 @@ declare global {
     topLevelCommentId?: string,
     legacyId?: string,
     authorIsUnreviewed?: boolean|null,
-    sortBy?: string,
+    sortBy?: CommentSortingMode,
     before?: Date|string|null,
     after?: Date|string|null,
     reviewYear?: ReviewYear
     profileTagIds?: string[],
   }
+  
+  /**
+   * Comment sorting mode, a string which gets translated into a mongodb sort
+   * order. Not every mode is shown in the UI in every context. Corresponds to
+   * `sortings` (below).
+   *
+   * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
+   * In past versions, different subsets of these depending on whether you were
+   * using an answers view, a subforum view, or something else.
+   */
+  type CommentSortingMode =
+     "top"
+    |"groupByPost"
+    |"new"|"newest"
+    |"old"|"oldest"
+    |"magic"
+    |"recentComments"|"recentDiscussion"
 }
 
 Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
@@ -85,10 +102,16 @@ const dontHideDeletedAndUnreviewed = {
 };
 
 
-const sortings = {
+const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   "top" : { baseScore: -1},
+  "magic": { score: -1 },
   "groupByPost" : {postId: 1},
-  "new" :  { postedAt: -1}
+  "new" :  { postedAt: -1},
+  "newest": {postedAt: -1},
+  "old": {postedAt: 1},
+  "oldest": {postedAt: 1},
+  recentComments: { lastSubthreadActivity: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 }, // DEPRECATED
 }
 
 export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
@@ -318,10 +341,9 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSortings = {
+export const questionAnswersSortings : Record<CommentSortingMode,MongoSelector<DbComment>> = {
+  ...sortings,
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
-  "newest": {postedAt: -1},
-  "oldest": {postedAt: 1},
 } as const;
 
 Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
@@ -541,13 +563,8 @@ ensureIndex(Comments,
 );
 
 // TODO merge with subforumFeedSortings
-export const subforumSorting = {
-  magic: { score: -1 },
-  new: { postedAt: -1 },
-  old: { postedAt: 1 },
-  top: { baseScore: -1 },
-  recentComments: { lastSubthreadActivity: -1 },
-  recentDiscussion: { lastSubthreadActivity: -1 }, // DEPRECATED
+export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>> = {
+  ...sortings,
 }
 export const subforumDiscussionDefaultSorting = "recentComments"
 
