@@ -47,6 +47,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginTop: 0,
   },
+  deletedUserName: {
+    textDecoration: "line-through",
+  },
   userInfo: {
     display: "flex",
     flexWrap: "wrap",
@@ -191,13 +194,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    if (!user || !user._id || user.deleted) {
+    if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug)) {
+    if (user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
@@ -247,9 +250,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
+            <div className={classNames(classes.usernameTitle, {
+              [classes.deletedUserName]: user.deleted
+            })}>
               {username}
             </div>
+            {user.deleted && "(account deleted)"}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&

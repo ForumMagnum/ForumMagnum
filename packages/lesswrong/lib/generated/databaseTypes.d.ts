@@ -165,6 +165,7 @@ interface DbComment extends DbObject {
   isPinnedOnProfile: boolean
   title: string
   relevantTagIds: Array<string>
+  debateResponse: boolean | null
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -633,6 +634,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  debate: boolean | null
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -828,7 +830,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -988,6 +990,7 @@ interface DbUser extends DbObject {
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
   showCommunityInRecentDiscussion: boolean
+  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
@@ -1120,6 +1123,18 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDebateCommentsOnSubscribedPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDebateReplies: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

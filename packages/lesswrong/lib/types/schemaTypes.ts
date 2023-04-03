@@ -19,7 +19,9 @@ type PermissionGroups = 'guests' |
   'canBypassPostRateLimit' |
   'trustLevel1' |
   'canModeratePersonal' |
-  'canSuggestCuration';
+  'canSuggestCuration' |
+  'debaters';
+
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)

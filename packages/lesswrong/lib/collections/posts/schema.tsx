@@ -93,6 +93,19 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
+async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+  const { currentUser, ReadStatuses } = context;
+  if (!currentUser) return null;
+
+  const readStatus = await getWithLoader(context, ReadStatuses,
+    `readStatuses`,
+    { userId: currentUser._id },
+    'postId', post._id
+  );
+  if (!readStatus.length) return null;
+  return readStatus[0];
+}
+
 function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>) {
   if (document.isEvent || !document.submitToFrontpage) {
     return undefined
@@ -185,7 +198,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm,
+    hidden: (props) => props.eventForm || props.debateForm,
   },
   // Title
   title: {
@@ -1147,16 +1160,8 @@ const schema: SchemaType<DbPost> = {
     type: Date,
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { ReadStatuses, currentUser } = context;
-      if (!currentUser) return null;
-
-      const readStatus = await getWithLoader(context, ReadStatuses,
-        `readStatuses`,
-        { userId: currentUser._id },
-        'postId', post._id
-      );
-      if (!readStatus.length) return null;
-      return readStatus[0].lastUpdated;
+      const lastReadStatus = await getLastReadStatus(post, context);
+      return lastReadStatus?.lastUpdated;
     }
   }),
   
@@ -1164,16 +1169,8 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { ReadStatuses, currentUser } = context;
-      if (!currentUser) return false;
-      
-      const readStatus = await getWithLoader(context, ReadStatuses,
-        `readStatuses`,
-        { userId: currentUser._id },
-        'postId', post._id
-      );
-      if (!readStatus.length) return false;
-      return readStatus[0].isRead;
+      const lastReadStatus = await getLastReadStatus(post, context);
+      return lastReadStatus?.isRead;
     }
   }),
 
@@ -2136,6 +2133,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
+    hidden: (props) => props.debateForm
   },
   
   shareWithUsers: {
@@ -2378,6 +2376,45 @@ const schema: SchemaType<DbPost> = {
     canRead: ['admins'],
     // Implementation in postSummaryResolver.ts
   },
+
+  debate: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['debaters', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false)
+  },
+
+  unreadDebateResponseCount: resolverOnlyField({
+    type: Number,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      const { Comments, currentUser } = context;
+
+      const lastReadStatus = await getLastReadStatus(post, context);
+      if (!lastReadStatus) return null;
+
+      const comments = await Comments.find({
+        ...getDefaultViewSelector("Comments"),
+        postId: post._id,
+        // This actually forces `deleted: false` by combining with the default view selector
+        deletedPublic: false,
+        debateResponse: true,
+        postedAt: { $gt: lastReadStatus.lastUpdated },
+      }, {
+        sort: { postedAt: 1 }
+      }).fetch();
+
+      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
+      const count = filteredComments.length;
+
+      return count;
+    }
+  })
 };
 
 /* subforum-related fields */

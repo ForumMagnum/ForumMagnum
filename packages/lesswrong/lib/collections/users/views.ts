@@ -115,6 +115,9 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
+ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
+ensureIndex(Users, {bannedUserIds:1, createdAt:1});
+
 Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {

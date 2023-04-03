@@ -6,6 +6,7 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -90,3 +91,11 @@ export const commentGetKarma = (comment: CommentsList|DbComment): number => {
 }
 
 export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+
+/**
+ * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.
+ */
+export const commentIsHidden = (comment: CommentsList|DbComment) => {
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  return hideSince && new Date(hideSince) < new Date(comment.postedAt) && comment.authorIsUnreviewed
+}
