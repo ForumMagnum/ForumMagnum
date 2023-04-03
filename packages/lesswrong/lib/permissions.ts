@@ -8,3 +8,4 @@ export const canModeratePersonalGroup = createGroup("canModeratePersonal");
 export const canCommentLockGroup = createGroup("canCommentLock");
 export const tagManagerGroup = createGroup("tagManager");
 export const canSuggestCurationGroup = createGroup("canSuggestCuration");
+export const debaterGroup = createGroup("debaters");

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
 import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -143,6 +143,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+  comment: debateResponse,
+  replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
+}));
+
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
 const PostsPage = ({post, refetch, classes}: {
@@ -151,8 +156,9 @@ const PostsPage = ({post, refetch, classes}: {
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
+  const { openDialog, closeDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -199,11 +205,36 @@ const PostsPage = ({post, refetch, classes}: {
     skip: !post.question,
   });
 
+  const { results: debateResponses } = useMulti({
+    terms: {
+      view: 'debateResponses',
+      postId: post._id,
+    },
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    skip: !post.debate,
+    limit: 1000
+  });
+
+  const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+    ? {...(query as CommentsViewTerms), limit:1000}
+    : {view: defaultView, limit: 1000}
+
+  const { results: nonDebateComments } = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    skip: !post.debate
+  });
+
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
+    PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
   } = Components
 
   useEffect(() => {
@@ -225,11 +256,6 @@ const PostsPage = ({post, refetch, classes}: {
     [sideCommentMode, setSideCommentMode]
   );
   
-  const defaultView = commentGetDefaultView(post, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
@@ -244,7 +270,20 @@ const PostsPage = ({post, refetch, classes}: {
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
+
+  const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
+  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+
+  const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
+  useEffect(() => {
+    if (isDebateResponseLink) {
+      history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
+    }
+    // No exhaustive deps to avoid any infinite loops with links to comments
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDebateResponseLink, commentId]);
+
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
       componentName:"ReplyCommentDialog",
@@ -278,7 +317,7 @@ const PostsPage = ({post, refetch, classes}: {
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
         <div className={classes.centralColumn}>
-          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
@@ -303,7 +342,7 @@ const PostsPage = ({post, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
-  
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -317,7 +356,7 @@ const PostsPage = ({post, refetch, classes}: {
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+        {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
@@ -327,7 +366,13 @@ const PostsPage = ({post, refetch, classes}: {
               />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
-        </ContentStyles>
+        </ContentStyles>}
+
+        {post.debate && debateResponses && debateResponseReplies &&
+          <DebateBody
+            debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
+            post={post}
+          />}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
@@ -343,7 +388,7 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>

@@ -165,6 +165,7 @@ interface DbComment extends DbObject {
   isPinnedOnProfile: boolean
   title: string
   relevantTagIds: Array<string>
+  debateResponse: boolean | null
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -633,6 +634,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  debate: boolean | null
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -828,7 +830,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -922,6 +924,20 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
+}
+
+interface DbUserActivity extends DbObject {
+  __collectionName?: "UserActivities"
+  visitorId: string
+  type: "userId" | "clientId"
+  startDate: Date
+  endDate: Date
+  activityArray: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
@@ -1121,6 +1137,18 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDebateCommentsOnSubscribedPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDebateReplies: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1345,6 +1373,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
@@ -1393,6 +1422,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
