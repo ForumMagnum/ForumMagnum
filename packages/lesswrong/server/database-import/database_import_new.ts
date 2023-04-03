@@ -368,7 +368,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
       html: post.article
     },
     userIP: post.ip,
-    status: post.deleted || post.spam ? 3 : 2,
+    status: (post.deleted || post.spam) ? postStatuses.STATUS_REJECTED : postStatuses.STATUS_APPROVED,
     legacySpam: post.spam,
     baseScore: post.ups - post.downs,
     url: absoluteURLRegex.test(post.url) ? post.url : null,
