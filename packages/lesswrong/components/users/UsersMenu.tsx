@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -26,6 +26,7 @@ import { useHover } from '../common/withHover'
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
+import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
@@ -48,6 +49,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
+    ...(isEAForum && {
+      lineHeight: '18px',
+      display: '-webkit-box',
+      "-webkit-box-orient": "vertical",
+      "-webkit-line-clamp": 2,
+      overflow: 'hidden'
+    })
   },
   notAMember: {
     marginLeft: 5,
@@ -123,6 +131,9 @@ const UsersMenu = ({classes}: {
               </Link>}
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
+              </Link>}
+              {userCanPost(currentUser) && !isEAForum && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
+                <MenuItem>New Debate</MenuItem>
               </Link>}
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>

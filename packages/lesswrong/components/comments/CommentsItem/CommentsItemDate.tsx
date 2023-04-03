@@ -46,19 +46,33 @@ const styles = (theme: ThemeType): JssStyles => ({
 type CommentsItemDateProps = UseCommentLinkProps & {classes: ClassesType};
 
 const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
+  const { FormatDate, ForumIcon } = Components
+  
   const LinkWrapper = useCommentLink({comment, ...rest});
+  
+  let dateFormat: string | undefined;
+  if (comment.answer) {
+    dateFormat = "MMM DD, YYYY";
+  } else if (comment.debateResponse) {
+    dateFormat = "h:mm a";
+  } else {
+    dateFormat = undefined;
+  }
+
+  const dateNode = <FormatDate
+    date={comment.postedAt}
+    format={dateFormat}
+  />
+  
   return (
     <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      <LinkWrapper>
-        <Components.FormatDate
-          date={comment.postedAt}
-          format={comment.answer ? "MMM DD, YYYY" : undefined}
-        />
-        {!isEAForum && <Components.ForumIcon icon="Link" className={classes.icon} />}
-      </LinkWrapper>
+      {isEAForum ? dateNode : <LinkWrapper>
+        {dateNode}
+        <ForumIcon icon="Link" className={classes.icon} />
+      </LinkWrapper>}
     </span>
   );
 }

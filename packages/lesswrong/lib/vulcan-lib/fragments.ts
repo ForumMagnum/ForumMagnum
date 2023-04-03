@@ -74,7 +74,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     // OpenCRUD backwards compatibility
 
     const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
-    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
+    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead);
   });
 
   if (fieldNames.length) {

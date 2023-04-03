@@ -115,7 +115,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    if (!isEAForum) {
+      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    }
     
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,

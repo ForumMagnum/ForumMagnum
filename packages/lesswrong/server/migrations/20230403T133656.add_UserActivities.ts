@@ -20,7 +20,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "db23b20a9616d4e0c6d7b91ec599accb";
+export const acceptsSchemaHash = "15f268cf3b83c45ac5fd4486bf050b18";
 
 export const up = async ({db}: MigrationContext) => {
   // noop because this migration is done in packages/lesswrong/server/manualMigrations/2023-03-16-createUserActivities.ts

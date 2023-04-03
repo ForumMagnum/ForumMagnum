@@ -18,6 +18,7 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCommentLink } from './useCommentLink';
+import { userIsPostCoauthor } from '../../../lib/collections/posts/helpers';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -255,7 +256,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
-  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId, hideParentCommentToggle } = treeOptions;
 
   const commentLinkProps = {
     comment,
@@ -397,6 +398,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   if (!comment) {
     return null;
   }
+  
+  const authorIsPostAuthor = post && (post.userId === comment.userId || userIsPostCoauthor(comment.user, post))
 
   const displayReviewVoting = 
     !hideReviewVoteButtons &&
@@ -492,7 +495,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
             {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
-            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+            {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
                 active={showParentState}
@@ -506,7 +509,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             }>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>}
-            <CommentUserName comment={comment} className={classes.username}/>
+            <CommentUserName comment={comment} className={classes.username} isPostAuthor={authorIsPostAuthor} />
             <CommentsItemDate {...commentLinkProps} />
             {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
               {moderatorCommentAnnotation}
