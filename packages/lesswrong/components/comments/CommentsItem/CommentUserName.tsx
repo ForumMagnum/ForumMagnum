@@ -51,9 +51,9 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
   
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>
-  } else if (comment.hideAuthor || !author) {
+  } else if (comment.hideAuthor || !author || author.deleted) {
     return <span className={className}>
-      <UserNameDeleted/>
+      <UserNameDeleted userShownToAdmins={author} />
     </span>
   } else if (comment.answer) {
     return (
