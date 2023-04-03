@@ -7,7 +7,7 @@ import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, post
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
-import { getWithLoader } from '../../loaders';
+import { loadByIds, getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
@@ -877,7 +877,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await context.loaders.Tags.loadMany(tagIds)
+      const tags = await loadByIds(context, "Tags", tagIds);
       return await accessFilterMultiple(currentUser, context.Tags, tags, context)
     }
   }),
@@ -1265,8 +1265,7 @@ const schema: SchemaType<DbPost> = {
       fieldName: 'coauthors',
       type: '[User!]!',
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
-        const loader = context.loaders['Users'];
-        const resolvedDocs = await loader.loadMany(
+        const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
         return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
