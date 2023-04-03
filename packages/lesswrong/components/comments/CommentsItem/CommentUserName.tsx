@@ -14,7 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorAnswer: {
     ...theme.typography.body2,
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: isEAForum
+      ? theme.palette.fonts.sansSerifStack
+      : theme.typography.postStyle.fontFamily,
     fontWeight: 600,
     '& a, & a:hover': {
       textShadow:"none",
