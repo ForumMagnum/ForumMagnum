@@ -418,6 +418,7 @@ const schema: SchemaType<DbTag> = {
     canRead: ['guests'],
     type: "TagContributorsList",
     optional: true,
+    hasServerSide: true,
   },
   
   // Denormalized copy of contribution-stats, for the latest revision.

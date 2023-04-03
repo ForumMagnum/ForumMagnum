@@ -10,6 +10,8 @@ const fieldsWithServerExtensions: Partial<Record<CollectionNameString,string[]>>
 // making parts of the schema (in particular, resolvers, onCreate callbacks,
 // etc) specific to server-side code.
 export function augmentFieldsDict<T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void {
+  const collectionName = collection.collectionName;
+
   // _simpleSchema is a cache that's regenerated on request; set it to null to invalidate
   collection._simpleSchema = null;
   
@@ -19,12 +21,15 @@ export function augmentFieldsDict<T extends DbObject>(collection: CollectionBase
   
   // Shallow-merge each field
   for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      fieldsWithServerExtensions[collection.collectionName]!.push(key);
-      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
-    } else {
-      throw new Error("Field does not exist: "+key);
+    if (!(key in collection._schemaFields)) {
+      throw new Error(`Field does not exist: ${collectionName}.${key}`);
     }
+    if (!collection._schemaFields[key].hasServerSide) {
+      throw new Error(`Field is not marked as having a server-side component: ${collectionName}.${key}`);
+    }
+
+    fieldsWithServerExtensions[collection.collectionName]!.push(key);
+    collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
   }
 }
 

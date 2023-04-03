@@ -1900,6 +1900,7 @@ const schema: SchemaType<DbPost> = {
   localStartTime: {
     type: Date,
     canRead: ['guests'],
+    hasServerSide: true,
   },
 
   endTime: {
@@ -1918,6 +1919,7 @@ const schema: SchemaType<DbPost> = {
   localEndTime: {
     type: Date,
     canRead: ['guests'],
+    hasServerSide: true,
   },
   
   eventRegistrationLink: {
@@ -2205,7 +2207,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
 
   tableOfContentsRevision: {
@@ -2213,7 +2215,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
   
   sideComments: {
@@ -2221,7 +2223,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
   
   // sideCommentsCache: Stores the matching between comments on a post,
@@ -2374,7 +2376,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['admins'],
-    // Implementation in postSummaryResolver.ts
+    hasServerSide: true, // Implementation in postSummaryResolver.ts
   },
 
   debate: {

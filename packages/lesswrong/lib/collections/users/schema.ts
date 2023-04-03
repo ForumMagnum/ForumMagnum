@@ -1540,7 +1540,8 @@ const schema: SchemaType<DbUser> = {
     type: String,
     canRead: ['guests'],
     optional: true,
-    denormalized: true
+    denormalized: true,
+    hasServerSide: true,
   },
 
   nearbyEventsNotifications: {
@@ -2219,12 +2220,14 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     optional: true,
     hidden: true,
+    hasServerSide: true,
   },
   htmlBio: {
     type: String,
     canRead: ['guests'],
     optional: true,
     hidden: true,
+    hasServerSide: true,
   },
 
   fmCrosspostUserId: {

@@ -53,5 +53,6 @@ addFieldsDict(Users, {
     canRead: userOwns,
     type: "KarmaChanges",
     optional: true,
+    hasServerSide: true,
   }
 });
