@@ -12,8 +12,8 @@ export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList) => {
 
   const coauthors = post.coauthors.filter(({_id}) => !postCoauthorIsPending(post, _id));
   const authors = [post.user, ...coauthors].filter(
-    (user) => !!user,
-  ) as UsersMinimumInfo[]; // ts isn't smart enough to realise we're filtering nulls
+    (user): user is UsersMinimumInfo => !!user,
+  );
 
   return {
     isAnon,

@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import DebateIcon from '@material-ui/icons/Forum';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
@@ -105,6 +106,10 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
         <a href={post.url}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
       </LWTooltip>
+    </span>}
+
+    {post.debate && <span className={classes.postIcon}>
+      <DebateIcon className={classes.icon} />
     </span>}
 
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
