@@ -175,7 +175,7 @@ export class WeightedList
       items.push([key, this.weights[key]]);
     }
     //console.log('items',items);
-    return new _WeightedHeap(items);
+    return new (<any>_WeightedHeap)(items);
   }
 }
 
@@ -200,7 +200,7 @@ function _WeightedHeap(this: any, items: any) {
   for (var i = 0; i < items.length; i++) {
     var weight = items[i][1];
     var value = items[i][0];
-    this.heap.push(new _HeapNode(weight, value, weight));
+    this.heap.push(new (<any>_HeapNode)(weight, value, weight));
   }
   // Now go through the heap and add each node's weight to its parent
   for (i = this.heap.length - 1; i > 1; i--) {
