@@ -11,7 +11,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap"
   },
   draft: {
-    color: theme.palette.grey[400]
+    opacity: .6,
+    '&&': {
+      fontWeight: 400
+    }
   },
   default: {
     color: theme.palette.grey[900],

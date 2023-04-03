@@ -101,6 +101,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '42px',
     marginBottom: 16
   },
+  deletedUsername: {
+    textDecoration: 'line-through'
+  },
+  accountDeletedText: {
+    display: 'inline-block',
+    fontSize: 16,
+    lineHeight: '22px',
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: '500',
+    marginLeft: 10
+  },
   roleAndOrg: {
     fontSize: 16,
   },
@@ -316,13 +327,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
     return <Loading/>
   }
 
-  if (!user || !user._id || user.deleted) {
+  if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
     //eslint-disable-next-line no-console
     console.error(`// missing user (_id/slug: ${slug})`);
     return <Error404/>
   }
 
-  if (user.oldSlugs?.includes(slug)) {
+  if (user.oldSlugs?.includes(slug) && !user.deleted) {
     return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
   }
 
@@ -519,7 +530,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             publicId={user.profileImageId}
             className={classes.profileImage}
           />}
-          <Typography variant="headline" className={classes.username}>{username}</Typography>
+          <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
+            {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+          </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}

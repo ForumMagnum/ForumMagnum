@@ -69,6 +69,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
       ...validFields,
+      debateResponse: { $ne: true }
     },
     options: {
       sort: {postedAt: -1},
@@ -95,7 +96,7 @@ export function augmentForDefaultView(indexFields)
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1},
   });
 }
 
@@ -231,7 +232,7 @@ Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
+ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
@@ -600,3 +601,15 @@ ensureIndex(Comments,
   augmentForDefaultView({moderatorHat: 1}),
   { name: "comments.moderatorHat" }
 );
+
+Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
+  selector: {
+    postId: terms.postId,
+    debateResponse: true
+  },
+  options: {
+    sort: { 
+      postedAt: 1
+     }
+  }
+}));

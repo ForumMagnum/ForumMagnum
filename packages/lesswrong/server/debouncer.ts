@@ -189,17 +189,12 @@ export class EventDebouncer<KeyType = string>
     }
   }
   
-  _dispatchEvent = async (key: KeyType, events: string[]) => {
-    try {
-      if (!isAnyTest) {
-        //eslint-disable-next-line no-console
-        console.log(`Handling ${events.length} grouped ${this.name} events`);
-      }
-      await this.callback(key, events);
-    } catch(e) {
+  _dispatchEvent = async (key: KeyType, events: string[]|null) => {
+    if (!isAnyTest) {
       //eslint-disable-next-line no-console
-      console.error(e);
+      console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
+    await this.callback(key, events||[]);
   };
 }
 

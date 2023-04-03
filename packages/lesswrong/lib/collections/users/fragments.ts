@@ -200,6 +200,7 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
+    noComicSans
   }
 `);
 
@@ -289,6 +290,10 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }
@@ -361,6 +366,7 @@ registerFragment(`
     showCommunityInRecentDiscussion
     beta
     theme
+    noComicSans
 
     # Emails
     email

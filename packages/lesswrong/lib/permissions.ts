@@ -8,9 +8,10 @@ export const canModeratePersonalGroup = createGroup("canModeratePersonal");
 export const canCommentLockGroup = createGroup("canCommentLock");
 export const tagManagerGroup = createGroup("tagManager");
 export const canSuggestCurationGroup = createGroup("canSuggestCuration");
+export const debaterGroup = createGroup("debaters");
 
 // This is referenced by the schema so you must run `yarn generate` after
-// updating this
+// updating it
 export const permissionGroups = [
   'guests',
   'members',
@@ -24,4 +25,5 @@ export const permissionGroups = [
   'trustLevel1',
   'canModeratePersonal',
   'canSuggestCuration',
+  'debaters',
 ] as const;
