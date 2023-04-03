@@ -51,7 +51,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
   
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: newValue,
       hasCoauthorPermission: !hasPermission,
     });
@@ -60,11 +60,11 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
   // Note: currently broken. This component needs to somehow deal with lists of objects instead of strings
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
-    updateCurrentValues({ [path]: newValue });
+    void updateCurrentValues({ [path]: newValue });
   }
 
   const setValue = useCallback((newValue: any[]) => {
-    updateCurrentValues({[path]: newValue});
+    void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
   return (

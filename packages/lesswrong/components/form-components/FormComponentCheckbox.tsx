@@ -27,7 +27,7 @@ const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: 
       className={classes.size}
       checked={value}
       onChange={(event, checked) => {
-        context.updateCurrentValues({
+        void context.updateCurrentValues({
           [path]: checked
         })
       }}
