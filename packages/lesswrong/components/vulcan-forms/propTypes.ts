@@ -95,6 +95,7 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   
   alignmentForumPost?: boolean
   eventForm?: any,
+  debateForm?: boolean
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean

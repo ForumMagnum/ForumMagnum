@@ -2133,7 +2133,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
-    hidden: (props) => props.debateForm
+    hidden: (props) => !!props.debateForm
   },
   
   shareWithUsers: {
