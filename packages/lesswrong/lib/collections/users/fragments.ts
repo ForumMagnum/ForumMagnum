@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    profileImageId
     previousDisplayName
     fullName
     karma
@@ -63,7 +64,6 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
-    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -280,8 +280,6 @@ registerFragment(`
     reviewedAt
     signUpReCaptchaRating
     mapLocation
-    profileImageId
-    
     needsReview
     sunshineNotes
     sunshineFlagged

@@ -4,6 +4,10 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../../lib/publicSettings';
+import { Link } from 'react-router-dom';
+import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+
+const PROFILE_IMAGE_SIZE = 20;
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -37,7 +41,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: -2,
     color: theme.palette.icon.sprout,
     fontSize: 16,
-  }
+  },
+  profileImage: {
+    borderRadius: "50%",
+    marginLeft: 4,
+    marginRight: 8,
+  },
 });
 
 const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSprout, className}: {
@@ -48,7 +57,7 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
   hideSprout?: boolean,
   className?: string
 }) => {
-  const { UserNameDeleted, UsersName, ForumIcon, LWTooltip } = Components
+  const { UserNameDeleted, UsersName, ForumIcon, LWTooltip, CloudinaryImage2 } = Components
   const author = comment.user
   
   if (comment.deleted) {
@@ -69,6 +78,17 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
     const showSproutIcon = (karmaThreshold && author.karma < karmaThreshold) ||
                             moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
     return <>
+      {isEAForum && author.profileImageId &&
+        <Link to={userGetProfileUrl(author)}>
+          <CloudinaryImage2
+            height={PROFILE_IMAGE_SIZE}
+            width={PROFILE_IMAGE_SIZE}
+            imgProps={{q: "100"}}
+            publicId={author.profileImageId}
+            className={classes.profileImage}
+          />
+        </Link>
+      }
       <UsersName
         user={author}
         simple={simple}
