@@ -1,6 +1,7 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
+import { postStatuses } from '../../lib/collections/posts/constants'
 import { Vulcan, createMutator } from '../vulcan-lib';
 import { sanitize, slugify } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
