@@ -3,7 +3,6 @@ import Users from '../../lib/collections/users/collection';
 import { createMutator, Utils } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
-import fetch from 'node-fetch';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
