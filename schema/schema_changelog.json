@@ -153,5 +153,10 @@
     "acceptsSchemaHash": "15f268cf3b83c45ac5fd4486bf050b18",
     "acceptedByMigration": "20230403T133656.add_UserActivities.ts",
     "timestamp": "2023-04-03T13:36:56.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a22731092d3f9f7c414a9695bbc8c6a9",
+    "acceptedByMigration": "20230404T180541.make_posts_searchable.ts",
+    "timestamp": "2023-04-04T18:05:41.000Z"
   }
 ]

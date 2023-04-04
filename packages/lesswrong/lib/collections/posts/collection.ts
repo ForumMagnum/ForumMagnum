@@ -7,6 +7,7 @@ import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { forumTypeSetting } from '../../instanceSettings';
+import { makeSearchable } from '../../make_searchable';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -110,5 +111,12 @@ makeEditable({
   }
 })
 
+makeSearchable({
+  collection: Posts,
+  indexableColumns: [
+    {selector: `"title"`, priority: "A"},
+    {selector: `"contents"->>'html'`, priority: "B", isHtml: true},
+  ],
+});
 
 export default Posts;

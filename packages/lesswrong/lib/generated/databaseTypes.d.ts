@@ -653,6 +653,7 @@ interface DbPost extends DbObject {
   moderationGuidelines_latest: string
   customHighlight: EditableFieldContents
   customHighlight_latest: string
+  searchVector: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
