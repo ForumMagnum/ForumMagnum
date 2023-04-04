@@ -46,6 +46,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     marginRight: 8,
     transform: "translateY(1px)",
+    ["@media screen and (max-width: 290px)"]: {
+      display: "none",
+    },
   },
 });
 
