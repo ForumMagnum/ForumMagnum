@@ -1,10 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
-import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
-import { DatabasePublicSetting } from '../../../lib/publicSettings';
-import { isNewUser } from '../../../lib/collections/users/helpers';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   author: {
@@ -45,7 +42,7 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
   hideSprout?: boolean,
   className?: string
 }) => {
-  const { UserNameDeleted, UsersName, ForumIcon, LWTooltip } = Components
+  const { UserNameDeleted, UsersName } = Components
   const author = comment.user
   
   if (comment.deleted) {
@@ -61,13 +58,12 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
       </span>
     );
   } else {
-    const showSproutIcon = isNewUser(author)
     return <>
       <UsersName
         user={author}
         simple={simple}
-        allowNewUserIcon
-        showAuthorIcon={isPostAuthor}
+        allowNewUserIcon={!hideSprout}
+        showAuthorIcon={isEAForum && isPostAuthor}
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
