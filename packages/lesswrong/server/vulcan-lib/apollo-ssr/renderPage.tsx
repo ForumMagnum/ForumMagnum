@@ -28,8 +28,11 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
+const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
 type RenderTimings = {
   totalTime: number
@@ -77,8 +80,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     clientId, tabId,
     userAgent: userAgent,
   };
-  
-  if (user || isExcludedFromPageCache(url)) {
+
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
+  const abTestGroups = getAllUserABTestGroups(user, clientId);
+  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
@@ -101,7 +106,6 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
@@ -132,8 +136,12 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-function isExcludedFromPageCache(path: string): boolean {
-  return path.startsWith("/collaborateOnPost") || path.startsWith("/editPost");
+function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+  if (isEAForum && abTestGroups["slowerFrontpage"] !== "control" && path === "/" && frontpageAlgoCacheDisabled.get()) {
+    return true;
+  }
+  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
+  return false
 }
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {

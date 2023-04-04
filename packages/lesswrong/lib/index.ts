@@ -138,6 +138,9 @@ import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';
 import './collections/userMostValuablePosts/views';
 
+import './collections/useractivities/collection';
+import './collections/useractivities/schema';
+
 
 // Subscriptions
 import './collections/subscriptions';

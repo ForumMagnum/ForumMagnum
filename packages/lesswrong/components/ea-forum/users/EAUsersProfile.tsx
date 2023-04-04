@@ -54,9 +54,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
     fontSize: 20,
     lineHeight: '30px',
-    fontWeight: '700',
+    fontWeight: '600',
     paddingBottom: 3,
     borderBottom: `3px solid ${theme.palette.primary.main}`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       columnGap: 8,
       fontSize: 18,
@@ -79,7 +80,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionSubHeading: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   inactiveGroup: {
     color: theme.palette.grey[500],
@@ -99,7 +101,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   username: {
     fontSize: 32,
     lineHeight: '42px',
-    marginBottom: 16
+    marginBottom: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
   },
   deletedUsername: {
     textDecoration: 'line-through'
