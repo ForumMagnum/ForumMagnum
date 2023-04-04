@@ -32,6 +32,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
+const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
 type RenderTimings = {
   totalTime: number
@@ -79,9 +80,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     clientId, tabId,
     userAgent: userAgent,
   };
-  
+
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
   const abTestGroups = getAllUserABTestGroups(user, clientId);
-  if (user || isExcludedFromPageCache(url, abTestGroups)) {
+  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
