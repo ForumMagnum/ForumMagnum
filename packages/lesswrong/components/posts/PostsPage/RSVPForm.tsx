@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 export const responseToText = {
   yes: "Going",
@@ -16,10 +17,21 @@ export const responseToText = {
   no: "Can't Go"
 }
 
-const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
+const styles = (theme: ThemeType): JssStyles => ({
+  emailMessage: isEAForum
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      fontStyle: "italic",
+    },
+});
+
+const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: ()=>void,
+  classes: ClassesType,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
@@ -72,8 +84,8 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
         {error && <div>
           {error}
         </div>}
-        <p>
-          <i>The provided email is only visible to the organizer.</i>
+        <p className={classes.emailMessage}>
+          The provided email is only visible to the organizer.
         </p>
       </DialogContent>
       <DialogActions>
@@ -101,7 +113,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   )
 }
 
-const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm);
+const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm, {styles});
 
 declare global {
   interface ComponentTypes {
