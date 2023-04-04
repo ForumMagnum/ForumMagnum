@@ -45,6 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   profileImage: {
     marginLeft: 4,
     marginRight: 8,
+    transform: "translateY(1px)",
   },
 });
 
