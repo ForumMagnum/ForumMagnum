@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, memo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
@@ -30,12 +30,12 @@ const userBackground = (displayName: string): string => {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
-const InitialFallback = ({displayName, size, className, classes}: {
+const InitialFallback: FC<{
   displayName: string,
   size: number,
   className?: string,
   classes: ClassesType,
-}) => {
+}> = memo(({displayName, size, className, classes}) => {
   const initials = displayName.split(/[\s-_.]/).map(
     (s) => encodeURIComponent(s[0]).toUpperCase(),
   );
@@ -73,7 +73,7 @@ const InitialFallback = ({displayName, size, className, classes}: {
       </text>
     </svg>
   );
-}
+});
 
 const UsersProfileImage = ({user, size, fallback, className, classes}: {
   user: UsersMinimumInfo,
