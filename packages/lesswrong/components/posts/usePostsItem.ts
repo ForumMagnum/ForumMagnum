@@ -73,6 +73,8 @@ export type PostsItemConfig = {
   /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  /** hideAuthor: hide the post author. Used on user-profile pages
+   * where there's a list of posts all by the same author, to avoid the redundancy. */
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
@@ -83,7 +85,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
-  showMostValuableCheckbox?: boolean
+  showMostValuableCheckbox?: boolean,
 }
 
 export type UsePostsItem = ReturnType<typeof usePostsItem>;
@@ -150,7 +152,7 @@ export const usePostsItem = ({
   const hadUnreadComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt);
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentPromotedAt);
 
-  const postLink = post.draft
+  const postLink = post.draft && !post.debate
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 

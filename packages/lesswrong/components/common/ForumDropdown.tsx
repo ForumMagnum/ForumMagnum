@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { defaultPostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       },
     }),
     '& .MuiList-padding': {
-      padding: '3px 0px',
+      padding: '4px 0px',
     }
   },
   menuItem: {
@@ -93,15 +94,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", onSelect, classes, className}:{
+const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", onSelect, eventProps, classes, className}:{
   value: string,
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
+  eventProps?: Record<string, string>
   classes: ClassesType,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const { captureEvent } = useTracking()
   const label = options[value].shortLabel || options[value].label
   const { MenuItem, ForumIcon } = Components;
 
@@ -110,7 +113,10 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
     <div className={classNames(classes.root, className)}>
       <Button
         variant="contained"
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={(e) => {
+          captureEvent("forumDropdownOpened", {value, ...eventProps})
+          setAnchorEl(e.currentTarget)
+        }}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
         {label} {dropdownIcon}
@@ -121,6 +127,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
             <MenuItem
               value={option}
               onClick={() => {
+                captureEvent("forumDropdownItemSelected", {oldValue: value, newValue: option, ...eventProps})
                 setAnchorEl(null);
                 onSelect?.(option);
               }}

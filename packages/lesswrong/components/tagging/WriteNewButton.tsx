@@ -99,6 +99,7 @@ const WriteNewButton = ({
         color={isSubscribed ? "primary" : undefined}
         onClick={(e) => {
           e.stopPropagation();
+          captureEvent('writeNewClicked', {tagId: tag._id, newState: open ? "closed" : "open"});
           if (!currentUser) {
             openDialog({
               componentName: "LoginPopup",
@@ -115,23 +116,23 @@ const WriteNewButton = ({
           <span className={classes.subscribeText}>Write new</span>
         </div>
       </Button>
-      {/* TODO add analytics back in */}
       <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>
-            <Link to={`/newPost?subforumTagId=${tag._id}`}>
+            <Link to={`/newPost?subforumTagId=${tag._id}`} eventProps={{writeNewMenuItem: "newPost"}}>
               <MenuItem className={classes.menuItem}>New post</MenuItem>
             </Link>
             <MenuItem
               className={classes.menuItem}
               onClick={(e) => {
+                captureEvent('writeNewShortformClicked', {writeNewMenuItem: "newShortform"})
                 setNewShortformOpen(true);
                 setOpen(false);
               }}
             >
               New shortform
             </MenuItem>
-            <Link to={`/newPost?question=true&subforumTagId=${tag._id}`}>
+            <Link to={`/newPost?question=true&subforumTagId=${tag._id}`} eventProps={{writeNewMenuItem: "newQuestion"}}>
               <MenuItem className={classes.menuItem}>New question</MenuItem>
             </Link>
           </Paper>

@@ -49,9 +49,19 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
   const { FormatDate, ForumIcon } = Components
   
   const LinkWrapper = useCommentLink({comment, ...rest});
+  
+  let dateFormat: string | undefined;
+  if (comment.answer) {
+    dateFormat = "MMM DD, YYYY";
+  } else if (comment.debateResponse) {
+    dateFormat = "h:mm a";
+  } else {
+    dateFormat = undefined;
+  }
+
   const dateNode = <FormatDate
     date={comment.postedAt}
-    format={comment.answer ? "MMM DD, YYYY" : undefined}
+    format={dateFormat}
   />
   
   return (

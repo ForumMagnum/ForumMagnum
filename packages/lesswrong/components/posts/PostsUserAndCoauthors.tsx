@@ -1,9 +1,8 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
+import DebateIcon from '@material-ui/icons/Forum';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
@@ -35,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   new: {
     color: theme.palette.primary.main
-  }
+  },
 });
 
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {

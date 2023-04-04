@@ -256,7 +256,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
-  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId, hideParentCommentToggle } = treeOptions;
 
   const commentLinkProps = {
     comment,
@@ -495,7 +495,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
             {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
-            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+            {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
                 active={showParentState}

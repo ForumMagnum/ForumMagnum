@@ -209,6 +209,52 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
   },
 });
 
+export const NewDebateCommentNotification = serverRegisterNotificationType({
+  name: "newDebateComment",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    if (notifications.length > 1) {
+      return `${notifications.length} debate replies on debates you subscribed to`;
+    } else {
+      const comment = await Comments.findOne(notifications[0].documentId);
+      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
+      const author = await Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for new debate comment notification: ${notifications[0]}`)
+      return `${author.displayName} replied in a debate you subscribed to`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewDebateReplyNotification = serverRegisterNotificationType({
+  name: "newDebateReply",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    if (notifications.length > 1) {
+      return `${notifications.length} replies on debates you're participanting in'`;
+    } else {
+      const comment = await Comments.findOne(notifications[0].documentId);
+      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
+      const author = await Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for new debate comment notification: ${notifications[0]}`)
+      return `${author.displayName} replied in a debate you're participanting in`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
 export const NewReplyNotification = serverRegisterNotificationType({
   name: "newReply",
   canCombineEmails: true,

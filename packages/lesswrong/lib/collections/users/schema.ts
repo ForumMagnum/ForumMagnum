@@ -13,6 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import moment from 'moment';
 import { postsLayouts } from '../posts/dropdownOptions';
 
 ///////////////////////////////////////
@@ -236,6 +237,9 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
+
+export const CS_START = '2023/04/01'
+export const CS_END = '2023/04/02'
 
 /**
  * @summary Users schema
@@ -763,8 +767,25 @@ const schema: SchemaType<DbUser> = {
     label: "Show Community posts in Recent Discussion"
   },
   
-  petrovOptOut: {
+  // Used for EAF 4/1/2023
+  noComicSans: {
     order: 95,
+    type: Boolean,
+    optional: true,
+    hidden: () => forumTypeSetting.get() !== 'EAForum' ||
+      moment().isBefore(moment(new Date(CS_START))) ||
+      moment().isAfter(moment(new Date(CS_END))),
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Opt out of Comic Sans on April 1"
+  },
+  
+  petrovOptOut: {
+    order: 96,
     type: Boolean,
     optional: true,
     nullable: true,
@@ -1285,6 +1306,14 @@ const schema: SchemaType<DbUser> = {
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
+  },
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "New debate content in a debate I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+  },
+  notificationDebateReplies: {
+    label: "New debate content in a debate I'm participating in",
+    ...notificationTypeSettingsField()
   },
 
   // Karma-change notifier settings

@@ -9,12 +9,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   optionIcon: {
     verticalAlign: "middle",
     position: "relative",
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
   },
   optionIconInline: {
     marginLeft: 2,
     marginRight: 6,
+    top: -1,
+    width: 16,
+    height: 16,
   },
 })
 
@@ -57,7 +60,7 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
     });
   }, [currentUser, updateCurrentUser]);
 
-  return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
+  return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} eventProps={{parent: "LayoutDropdown"}} />;
 }
 
 const PostsLayoutDropdownComponent = registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});

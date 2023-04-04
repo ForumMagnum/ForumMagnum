@@ -216,6 +216,7 @@ const SubscribeButton = ({
             className={classNames(classes.buttonSection, classes.dropdownArrowContainer)}
             onClick={(e) => {
               e.stopPropagation();
+              captureEvent('notificationsMenuOpened', {tagId: tag._id, newState: open ? "closed" : "open"});
               setOpen((prev) => !prev);
             }}
           >
@@ -223,7 +224,6 @@ const SubscribeButton = ({
           </div>
         )}
       </Button>
-      {/* TODO add analytics back in */}
       <LWPopper open={!!anchorEl.current && isSubscribed && open} anchorEl={anchorEl.current} placement="bottom-start">
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <Paper className={classes.popout}>

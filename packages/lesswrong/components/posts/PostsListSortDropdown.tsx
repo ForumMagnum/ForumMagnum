@@ -25,7 +25,7 @@ const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sor
         }, {})
     : TAG_POSTS_SORT_ORDER_OPTIONS;
 
-  return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
+  return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} eventProps={{parent: "PostsListSortDropdown"}} />;
 }
 
 const PostsListSortDropdownComponent = registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});
