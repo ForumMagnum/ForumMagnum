@@ -42,7 +42,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
+  profileImageWrapper: {
+    display: "flex",
+    alignItems: "center",
+  },
   profileImage: {
+    minWidth: PROFILE_IMAGE_SIZE,
     marginLeft: 4,
     marginRight: 8,
     transform: "translateY(1px)",
@@ -52,13 +57,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSprout, className}: {
+const CommentUserName = ({
+  comment,
+  classes,
+  simple = false,
+  isPostAuthor,
+  hideSprout,
+  className,
+  imageClassName,
+}: {
   comment: CommentsList,
   classes: ClassesType,
   simple?: boolean,
   isPostAuthor?: boolean,
   hideSprout?: boolean,
   className?: string
+  imageClassName?: string,
 }) => {
   const {
     UserNameDeleted, UsersName, ForumIcon, LWTooltip, UsersProfileImage,
@@ -84,12 +98,12 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
                             moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
     return <>
       {isEAForum &&
-        <Link to={userGetProfileUrl(author)}>
+        <Link to={userGetProfileUrl(author)} className={classes.profileImageWrapper}>
           <UsersProfileImage
             user={author}
             size={PROFILE_IMAGE_SIZE}
             fallback="initials"
-            className={classes.profileImage}
+            className={classNames(classes.profileImage, imageClassName)}
           />
         </Link>
       }

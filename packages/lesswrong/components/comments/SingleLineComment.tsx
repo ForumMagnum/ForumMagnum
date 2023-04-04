@@ -34,6 +34,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentInfo: {
     ...singleLineStyles(theme)
   },
+  profileImage: {
+    // !imporant because we're fighting with CommentsUserName which has a (much)
+    // higher style priority - changing it seems... risky
+    transform: "translateY(3px) !important",
+  },
   username: {
     display:"inline-block",
     padding: SINGLE_LINE_PADDING_TOP,
@@ -187,7 +192,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
-        <CommentUserName comment={comment} simple={true} hideSprout className={classes.username} />
+        <CommentUserName
+          comment={comment}
+          simple
+          hideSprout
+          className={classes.username}
+          imageClassName={classes.profileImage}
+        />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
