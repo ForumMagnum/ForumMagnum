@@ -5,9 +5,9 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
-import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
+import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 2px ${theme.palette.lwTertiary.main}`,
   },
   metaNotice: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     ...theme.typography.commentStyle,
     marginTop: -12,
     marginBottom: 10
