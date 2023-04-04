@@ -1,4 +1,5 @@
-import { Utils, slugify } from '../../lib/vulcan-lib/utils';
+import { slugify } from '../../lib/vulcan-lib/utils';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtils';
 import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
@@ -20,7 +21,7 @@ registerMigration({
           filter: { _id: user._id },
           update: {
             $set: {
-              slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug))
+              slug: await getUnusedSlugByCollectionName('Users', slugify(user.slug))
             }
           }
         }

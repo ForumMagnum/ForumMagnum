@@ -1,5 +1,6 @@
 import Users from '../../lib/collections/users/collection';
-import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
+import { Vulcan, updateMutator, getCollection } from '../vulcan-lib';
+import { getUnusedSlug } from '../utils/slugUtils';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -350,7 +351,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       await Users.rawUpdateOne(
         {_id: sourceUserId},
         {$set: {
-          slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
+          slug: await getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
         }}
       );
     

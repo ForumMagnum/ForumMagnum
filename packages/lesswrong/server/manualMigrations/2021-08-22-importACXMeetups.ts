@@ -1,6 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { createMutator, Utils } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtils';
 import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
@@ -48,7 +49,7 @@ registerMigration({
         const { data: newUser } = await createMutator({
           collection: Users,
           document: {
-            username: await Utils.getUnusedSlugByCollectionName("Users", row["Name/initials/handle"].toLowerCase()),
+            username: await getUnusedSlugByCollectionName("Users", row["Name/initials/handle"].toLowerCase()),
             displayName: row["Name/initials/handle"],
             email: row["Email address"],
             reviewedByUserId: "XtphY3uYHwruKqDyG",

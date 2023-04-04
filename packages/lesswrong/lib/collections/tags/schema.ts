@@ -1,7 +1,7 @@
 import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify } from '../../vulcan-lib/utils';
+import { Utils } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
@@ -57,20 +57,7 @@ const schema: SchemaType<DbTag> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
-    onInsert: async (tag) => {
-      const basicSlug = slugify(tag.name);
-      return await Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Tags", data.slug)
-        if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
-        }
-      } else if (data.name && data.name !== oldDocument.name) {
-        return await Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
-      }
-    }
+    hasServerSide: true,
   },
   oldSlugs: {
     type: Array,

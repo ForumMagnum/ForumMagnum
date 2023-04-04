@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import { getNestedProperty } from '../../vulcan-lib';
+import {userGetProfileUrl, getAuth0Id, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -31,20 +31,6 @@ import moment from 'moment';
 // 100.
 // Anything else..
 ///////////////////////////////////////
-
-const createDisplayName = (user: DbInsertion<DbUser>): string => {
-  const profileName = getNestedProperty(user, 'profile.name');
-  const twitterName = getNestedProperty(user, 'services.twitter.screenName');
-  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
-  const email = getUserEmail(user)
-  if (profileName) return profileName;
-  if (twitterName) return twitterName;
-  if (linkedinFirstName)
-    return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
-  if (user.username) return user.username;
-  if (email) return email.slice(0, email.indexOf('@'));
-  return "[missing username]";
-};
 
 const adminGroup = {
   name: 'admin',
@@ -349,10 +335,8 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
-    onCreate: ({ document: user }) => {
-      return user.displayName || createDisplayName(user);
-    },
     group: formGroups.default,
+    hasServerSide: true,
   },
   /**
    Used for tracking changes of displayName
@@ -414,29 +398,7 @@ const schema: SchemaType<DbUser> = {
     canUpdate: ['admins'],
     order: 40,
     group: formGroups.adminOptions,
-    
-    onCreate: async ({ document: user }) => {
-      // create a basic slug from display name and then modify it if this slugs already exists;
-      const displayName = createDisplayName(user);
-      const basicSlug = slugify(displayName);
-      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugLower = data.slug.toLowerCase();
-        const slugIsUsed = !oldDocument.oldSlugs?.includes(slugLower) && await Utils.slugIsUsed("Users", slugLower)
-        if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${slugLower}`)
-        }
-        return slugLower;
-      }
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
-          return slugForNewName;
-        }
-      }
-    }
+    hasServerSide: true,
   },
   
   noindex: {
@@ -1957,20 +1919,7 @@ const schema: SchemaType<DbUser> = {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug)  {
-        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
-      }
-      // The next three lines are copy-pasted from slug.onUpdate
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
-          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
-        }
-      }
-    }
+    hasServerSide: true,
   },
   'oldSlugs.$': {
     type: String,

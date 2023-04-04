@@ -2,7 +2,7 @@ import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { denormalizedField } from '../../lib/utils/schemaUtils'
 import { augmentFieldsDict } from '../utils/serverSchemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, getNestedProperty } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
@@ -19,8 +19,68 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
+import { getUnusedSlugByCollectionName, slugIsUsed } from '../utils/slugUtils';
+
+const createDisplayName = (user: DbInsertion<DbUser>): string => {
+  const profileName = getNestedProperty(user, 'profile.name');
+  const twitterName = getNestedProperty(user, 'services.twitter.screenName');
+  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
+  const email = getUserEmail(user)
+  if (profileName) return profileName;
+  if (twitterName) return twitterName;
+  if (linkedinFirstName)
+    return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
+  if (user.username) return user.username;
+  if (email) return email.slice(0, email.indexOf('@'));
+  return "[missing username]";
+};
 
 augmentFieldsDict(Users, {
+  displayName: {
+    onCreate: ({ document: user }) => {
+      return user.displayName || createDisplayName(user);
+    },
+  },
+  slug: {
+    onCreate: async ({ document: user }) => {
+      // create a basic slug from display name and then modify it if this slugs already exists;
+      const displayName = createDisplayName(user);
+      const basicSlug = slugify(displayName);
+      return await getUnusedSlugByCollectionName('Users', basicSlug);
+    },
+    onUpdate: async ({data, oldDocument}) => {
+      if (data.slug && data.slug !== oldDocument.slug) {
+        const slugLower = data.slug.toLowerCase();
+        const isUsed = !oldDocument.oldSlugs?.includes(slugLower) && await slugIsUsed("Users", slugLower)
+        if (isUsed) {
+          throw Error(`Specified slug is already used: ${slugLower}`)
+        }
+        return slugLower;
+      }
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
+          return slugForNewName;
+        }
+      }
+    }
+  },
+  oldSlugs: {
+    onUpdate: async ({data, oldDocument}) => {
+      if (data.slug && data.slug !== oldDocument.slug)  {
+        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
+      }
+      // The next three lines are copy-pasted from slug.onUpdate
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
+          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
+        }
+      }
+    }
+  },
   htmlMapMarkerText: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),
@@ -136,7 +196,7 @@ addGraphQLResolvers({
           usernameUnset: false,
           username,
           displayName: username,
-          slug: await Utils.getUnusedSlugByCollectionName("Users", slugify(username)),
+          slug: await getUnusedSlugByCollectionName("Users", slugify(username)),
           ...(email ? {email} : {}),
           subscribedToDigest: subscribeToDigest,
           acceptedTos,

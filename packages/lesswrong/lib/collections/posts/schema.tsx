@@ -1,4 +1,4 @@
-import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -218,14 +218,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: async (post) => {
-      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onEdit: async (modifier, post) => {
-      if (modifier.$set.title) {
-        return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
+    hasServerSide: true,
   },
   // Count of how many times the post's page was viewed
   viewCount: {
