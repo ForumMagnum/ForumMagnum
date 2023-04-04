@@ -64,6 +64,7 @@ registerFragment(`
       plaintextDescription
       version
     }
+    canVoteOnRels
   }
 `);
 
@@ -125,6 +126,7 @@ registerFragment(`
       _id
       htmlHighlight
     }
+    canVoteOnRels
   }
 `);
 
@@ -210,6 +212,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 
@@ -243,6 +246,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 
