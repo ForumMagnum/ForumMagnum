@@ -879,6 +879,7 @@ interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
   shortName: string | null
+  subtitle: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -1255,7 +1256,7 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
-  subforumPreferredLayout: "feed" | "list"
+  subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string>
   interestedIn: Array<string>
   allowDatadogSessionReplay: boolean | null

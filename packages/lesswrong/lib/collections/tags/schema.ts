@@ -8,7 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
@@ -28,7 +28,7 @@ addGraphQLSchema(`
   }
 `);
 
-export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
+export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },
   ...SORT_ORDER_OPTIONS,
 }
@@ -42,6 +42,15 @@ const schema: SchemaType<DbTag> = {
     order: 1,
   },
   shortName: {
+    type: String,
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    group: formGroups.advancedOptions,
+  },
+  subtitle: {
     type: String,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],

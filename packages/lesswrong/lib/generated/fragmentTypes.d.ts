@@ -330,7 +330,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
-  readonly subforumPreferredLayout: "feed" | "list",
+  readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
@@ -410,6 +410,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly shortName: string | null,
+  readonly subtitle: string | null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -2025,6 +2026,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
+  readonly subtitle: string | null,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean,
   readonly defaultOrder: number,
@@ -2471,7 +2473,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
-  readonly subforumPreferredLayout: "feed" | "list",
+  readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
