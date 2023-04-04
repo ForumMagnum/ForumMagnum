@@ -17,17 +17,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const COLOR_CUTOFF = 80;
+const MIN_SATURATION = 30;
+const MAX_SATURATION = 98;
+const MIN_LIGHTNESS = 75;
+const MAX_LIGHTNESS = 92;
 
-const colorComponent = (rand: ReturnType<typeof rng>): number =>
-  (Math.abs(rand.int32()) % (255 - COLOR_CUTOFF)) + COLOR_CUTOFF;
+const randPercent = (rand: ReturnType<typeof rng>, min = 0, max = 100) =>
+  (Math.abs(rand.int32()) % (max - min)) + min;
 
 const userBackground = (displayName: string): string => {
   const rand = rng(displayName);
-  const r = colorComponent(rand);
-  const g = colorComponent(rand);
-  const b = colorComponent(rand);
-  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  const h = Math.abs(rand.int32()) % 360;
+  const s = randPercent(rand, MIN_SATURATION, MAX_SATURATION);
+  const l = randPercent(rand, MIN_LIGHTNESS, MAX_LIGHTNESS);
+  return `hsl(${h}deg ${s}% ${l}%)`;
 }
 
 const InitialFallback: FC<{
