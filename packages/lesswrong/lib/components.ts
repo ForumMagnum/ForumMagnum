@@ -204,6 +204,7 @@ importComponent("UsersNameWrapper", () => require('../components/users/UsersName
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
 importComponent("UserTooltip", () => require('../components/users/UserTooltip'));
 importComponent("UsersNamePending", () => require('../components/users/UsersNamePending'));
+importComponent("UsersProfileImage", () => require('../components/users/UsersProfileImage'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification'));
 importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));

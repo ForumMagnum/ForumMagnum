@@ -43,7 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
   },
   profileImage: {
-    borderRadius: "50%",
     marginLeft: 4,
     marginRight: 8,
   },
@@ -57,9 +56,11 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
   hideSprout?: boolean,
   className?: string
 }) => {
-  const { UserNameDeleted, UsersName, ForumIcon, LWTooltip, CloudinaryImage2 } = Components
+  const {
+    UserNameDeleted, UsersName, ForumIcon, LWTooltip, UsersProfileImage,
+  } = Components
   const author = comment.user
-  
+
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>
   } else if (comment.hideAuthor || !author || author.deleted) {
@@ -80,11 +81,10 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
     return <>
       {isEAForum && author.profileImageId &&
         <Link to={userGetProfileUrl(author)}>
-          <CloudinaryImage2
-            height={PROFILE_IMAGE_SIZE}
-            width={PROFILE_IMAGE_SIZE}
-            imgProps={{q: "100"}}
-            publicId={author.profileImageId}
+          <UsersProfileImage
+            user={author}
+            size={PROFILE_IMAGE_SIZE}
+            fallback="initials"
             className={classes.profileImage}
           />
         </Link>
