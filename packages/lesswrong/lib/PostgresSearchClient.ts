@@ -26,10 +26,15 @@ class PostgresSearchClient {
     const promise = new Promise<MultiResponse<T>>((resolve, reject) => {
       fetch("/api/search", {
         method: "POST",
-        headers: this.headers,
+        headers: {
+          ...this.headers,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(queries),
       }).then((response) => {
-        response.json().then(resolve).catch(reject);
+        response.json().then((results) => {
+          resolve({results});
+        }).catch(reject);
       }).catch(reject);
     });
     if (cb) {

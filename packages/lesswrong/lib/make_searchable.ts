@@ -4,6 +4,13 @@ import { addFieldsDict } from "./utils/schemaUtils";
 
 export const SearchableCollections: CollectionBase<DbSearchableType>[] = [];
 
+export const collectionIsSearchable = (collectionName: CollectionNameString) => {
+  const name = collectionName.toLowerCase();
+  return SearchableCollections.some(
+    ({collectionName}) => collectionName.toLowerCase() === name,
+  );
+}
+
 export const makeSearchable = <T extends DbSearchableType>({
   collection,
   indexableColumns,
