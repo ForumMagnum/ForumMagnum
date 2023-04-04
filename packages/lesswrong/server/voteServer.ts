@@ -17,6 +17,7 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import { userCanVote } from '../lib/collections/users/helpers';
 
 
 // Test if a user has voted on the server
@@ -222,6 +223,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+
+  // Check whether the user is allowed to vote at all, in full generality
+  if (!userCanVote(user)) {
+    throw new Error('User does not meet the requirements to vote.');
+  }
+
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }

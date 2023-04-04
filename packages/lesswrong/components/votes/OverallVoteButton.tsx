@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
+import { userCanVote } from '../../lib/collections/users/helpers';
 
 const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
@@ -26,6 +27,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
+
+  const voteButtonEnabled = !!currentUser && userCanVote(currentUser);
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     const voteType = strength+upOrDown;
@@ -60,7 +63,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     color={color}
     orientation={orientation}
     solidArrow={solidArrow}
-    enabled={enabled}
+    enabled={voteButtonEnabled}
   />
 }
 

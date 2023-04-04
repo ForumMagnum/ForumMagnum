@@ -171,3 +171,6 @@ export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<str
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 
 export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");
+
+export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 10, "optional");

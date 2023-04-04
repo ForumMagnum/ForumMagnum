@@ -69,6 +69,7 @@ export interface VoteArrowIconProps {
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   enabled?: boolean,
+  disabledReason?: string,
   color: VoteColor,
   voted: boolean,
   eventHandlers: {
@@ -83,7 +84,7 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, disabledReason, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
@@ -92,7 +93,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   const Tooltip = enabled
     ? ({ children }) => children
     : ({ children }) => (
-      <LWTooltip title={"You do not have permission to vote on this"} placement="top">
+      <LWTooltip title={disabledReason ?? "You do not have permission to vote on this"} placement="top" inlineBlock={false}>
         {children}
       </LWTooltip>
     );

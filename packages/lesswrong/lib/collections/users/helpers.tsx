@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting } from "../../instanceSettings";
+import { forumTypeSetting, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -509,4 +509,14 @@ export const getSignature = (name: string) => {
 
 export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
+};
+
+export const userCanVote = (user: UsersMinimumInfo|DbUser) => {
+  if (!isLW) return true;
+
+  // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
+  const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
+  const userKarmaAboveThreshold = user.karma > lowKarmaUserVotingCutoffKarmaSetting.get();
+
+  return !userCreatedAfterCutoff || userKarmaAboveThreshold;
 };
