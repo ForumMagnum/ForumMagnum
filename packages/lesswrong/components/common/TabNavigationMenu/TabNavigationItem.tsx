@@ -52,7 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 0,
     paddingRight: 0,
     '&:hover': {
-      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
+      opacity: isEAForum ? 1 : undefined,
     }
   },
   icon: {

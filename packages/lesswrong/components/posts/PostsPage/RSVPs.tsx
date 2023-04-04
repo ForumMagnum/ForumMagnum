@@ -10,7 +10,7 @@ import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
@@ -94,7 +94,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "block"
     },
-  }
+  },
+  rsvpMessage: isEAForum
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      fontStyle: "italic",
+    },
 });
 
 const RSVPs = ({post, classes}: {
@@ -128,7 +135,9 @@ const RSVPs = ({post, classes}: {
 
   return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
-      <i>The host has requested RSVPs for this event</i>
+      <span className={classes.rsvpMessage}>
+        The host has requested RSVPs for this event
+      </span>
       <span className={classes.buttons}>
         <Button color="primary" variant="outlined" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
           <CheckCircleOutlineIcon className={classes.goingIcon} /> Going

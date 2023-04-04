@@ -4,11 +4,13 @@ import classnames from 'classnames';
 import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .MuiSnackbarContent-message': {
       color: theme.palette.text.maxIntensity,
+      fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     },
   },
 });
