@@ -1,0 +1,30 @@
+import { ensureIndex } from "./collectionIndexUtils";
+import { TSVectorElement, TSVectorType } from "./sql/Type";
+import { addFieldsDict } from "./utils/schemaUtils";
+
+export const SearchableCollections: CollectionBase<DbSearchableType>[] = [];
+
+export const makeSearchable = <T extends DbSearchableType>({
+  collection,
+  indexableColumns,
+}: {
+  collection: CollectionBase<T>,
+  indexableColumns: TSVectorElement[],
+}): void => {
+  SearchableCollections.push(collection);
+
+  addFieldsDict(collection, {
+    searchVector: {
+      type: Object,
+      blackbox: true,
+      getPostgresType: () => new TSVectorType(indexableColumns),
+      optional: true,
+      hidden: true,
+      canRead: [],
+      canUpdate: [],
+      canCreate: [],
+    },
+  });
+
+  ensureIndex(collection, {searchVector: 1}, {postgresType: "gin"});
+}

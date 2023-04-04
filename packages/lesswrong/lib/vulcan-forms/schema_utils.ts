@@ -166,6 +166,7 @@ export const schemaProperties = [
   'allowedValues',
   'regEx',
   'blackbox',
+  'getPostgresType',
   'defaultValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder

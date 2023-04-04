@@ -191,6 +191,13 @@ interface VoteableTypeClient extends VoteableType {
 interface DbVoteableType extends VoteableType, DbObject, HasUserIdType {
 }
 
+interface SearchableType extends HasIdType {
+  searchVector: any,
+}
+
+interface DbSearchableType extends SearchableType, DbObject {
+}
+
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
   __collectionName?: CollectionNameString

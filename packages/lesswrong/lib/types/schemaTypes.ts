@@ -1,5 +1,6 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
+import { Type } from '../sql/Type';
 import { formProperties } from '../vulcan-forms/schema_utils';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
@@ -58,6 +59,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   foreignKey?: any,
   logChanges?: boolean,
   nullable?: boolean,
+  getPostgresType?: () => Type,
   
   min?: number,
   max?: number,

@@ -52,7 +52,11 @@ export abstract class Type {
     schema: CollectionFieldSpecification<T>,
     indexSchema: CollectionFieldSpecification<T> | undefined,
     forumType: ForumTypeString,
-  ) {
+  ): Type {
+    if (schema.getPostgresType) {
+      return schema.getPostgresType();
+    }
+
     if (isResolverOnly(fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
@@ -265,6 +269,41 @@ export class DefaultValueType extends Type {
 
   isArray(): this is ArrayType {
     return this.type.isArray();
+  }
+}
+
+export type TSVectorPriority = "A" | "B" | "C" | "D";
+
+export type TSVectorElement = {
+  selector: string,
+  priority: TSVectorPriority,
+  isHtml?: boolean,
+}
+
+/**
+ * TODO docs
+ */
+export class TSVectorType extends Type {
+  constructor(private elements: TSVectorElement[]) {
+    super();
+  }
+
+  toString() {
+    let result = "TSVECTOR GENERATED ALWAYS AS (";
+    for (let i = 0; i < this.elements.length; i++) {
+      if (i > 0) {
+        result += " || ";
+      }
+      const element = this.elements[i];
+      let selector = `COALESCE(${element.selector}, '')`;
+      if (element.isHtml) {
+        selector = `REGEXP_REPLACE(${selector}, E'<[^>]+>', '', 'gi')`;
+      }
+      selector = `LEFT(${selector}, 1024*1024)`;
+      result += `SETWEIGHT(TO_TSVECTOR('english', ${selector}), '${element.priority}')`;
+    }
+    result += ") STORED";
+    return result;
   }
 }
 

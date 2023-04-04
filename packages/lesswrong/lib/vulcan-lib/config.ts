@@ -47,6 +47,7 @@ SimpleSchema.extendOptions([
   'options', // form options
   'query', // field-specific data loading query
   'unique', // field can be used as part of a selectorUnique when querying for data
+  'getPostgresType', // For defining a custom type for use in Postgres only
 
   'tooltip', // if not empty, the field will provide a tooltip when hovered over
 ]);

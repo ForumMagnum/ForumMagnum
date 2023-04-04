@@ -49,6 +49,10 @@ class TableIndex {
     };
   }
 
+  getForcedPostgresType() {
+    return this.options?.postgresType;
+  }
+
   getPartialFilterExpression() {
     return this.options?.partialFilterExpression;
   }

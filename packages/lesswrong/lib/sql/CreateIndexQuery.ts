@@ -25,13 +25,13 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     this.calculateIsUnique(index);
 
     const {useGin, fields} = this.getFieldList(index);
+    const type = index.getForcedPostgresType() ?? (useGin ? "gin" : "btree");
     this.atoms = [
       `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,
-      "USING",
-      useGin ? "gin (" : "btree (",
+      `USING ${type} (`,
       ...fields,
       ")",
     ];
