@@ -13,7 +13,7 @@ const styles = (_: ThemeType): JssStyles => ({
 
 const colorCutoff = 80;
 const colorComponent = (rand: ReturnType<typeof rng>): number =>
-  Math.abs(rand.int32()) % (255 - colorCutoff) + colorCutoff;
+  (Math.abs(rand.int32()) % (255 - colorCutoff)) + colorCutoff;
 
 const userBackground = (displayName: string): string => {
   const rand = rng(displayName);
@@ -27,7 +27,7 @@ const nameTransform = (s: string) => encodeURIComponent(s[0]);
 
 const buildInitialFallbackSrc = (user: UsersMinimumInfo, size: number): string => {
   const api = "https://ui-avatars.com/api/";
-  const name = user.displayName.split(/[\s-_\.]/).map(nameTransform).join("+");
+  const name = user.displayName.split(/[\s-_.]/).map(nameTransform).join("+");
   const actualSize = size * 2; // Allow for high-DPI screens
   const background = userBackground(user.displayName);
   return `${api}?name=${name}&size=${actualSize}&background=${background}&bold=true`;

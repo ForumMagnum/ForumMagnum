@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../../lib/publicSettings';
-import { Link } from 'react-router-dom';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const PROFILE_IMAGE_SIZE = 20;
 
