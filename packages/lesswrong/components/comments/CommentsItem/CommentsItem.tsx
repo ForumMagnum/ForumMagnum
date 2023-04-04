@@ -514,11 +514,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
               {moderatorCommentAnnotation}
             </span>}
-            <SmallSideVote
+            {!comment.debateResponse && <SmallSideVote
               document={comment}
               collection={Comments}
               hideKarma={post?.hideCommentKarma}
-            />
+            />}
 
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
 

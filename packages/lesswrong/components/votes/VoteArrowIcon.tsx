@@ -93,7 +93,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   const Tooltip = enabled
     ? ({ children }) => children
     : ({ children }) => (
-      <LWTooltip title={disabledReason ?? "You do not have permission to vote on this"} placement="top" inlineBlock={false}>
+      <LWTooltip title={disabledReason ?? "You do not have permission to vote on this"} placement="top" >
         {children}
       </LWTooltip>
     );

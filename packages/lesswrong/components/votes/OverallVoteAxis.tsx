@@ -120,6 +120,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
+          {/* <LWTooltip title="foobar" placement="top"> */}
           <LWTooltip
             title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
@@ -131,6 +132,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               {...voteProps}
             />
           </LWTooltip>
+          {/* </LWTooltip> */}
           {hideKarma ?
             <LWTooltip title={'This post has disabled karma visibility'}>
               <span>{' '}</span>

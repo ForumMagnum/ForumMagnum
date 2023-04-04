@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
+import { userCanVote } from '../../lib/collections/users/helpers';
 
 const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
@@ -15,6 +16,8 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
+
+  const voteButtonEnabled = !!currentUser && userCanVote(currentUser);
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if(!currentUser){
@@ -46,6 +49,7 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
     upOrDown={upOrDown}
     color={color}
     orientation={orientation}
+    enabled={voteButtonEnabled}
   />
 }
 
