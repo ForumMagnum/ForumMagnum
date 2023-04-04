@@ -79,7 +79,7 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
     const showSproutIcon = (karmaThreshold && author.karma < karmaThreshold) ||
                             moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
     return <>
-      {isEAForum && author.profileImageId &&
+      {isEAForum &&
         <Link to={userGetProfileUrl(author)}>
           <UsersProfileImage
             user={author}

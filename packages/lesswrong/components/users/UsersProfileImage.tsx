@@ -10,6 +10,12 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
+const buildInitialFallback = (user: UsersMinimumInfo, size: number) => {
+  const name = user.displayName.split(/\s/).map(encodeURIComponent).join("+")
+  const actualSize = size * 2; // Allow for high-DPI screens
+  return `https://ui-avatars.com/api/?name=${name}&size=${actualSize}`;
+}
+
 const UsersProfileImage = ({user, size, fallback, className, classes}: {
   user: UsersMinimumInfo,
   size: number,
@@ -20,8 +26,8 @@ const UsersProfileImage = ({user, size, fallback, className, classes}: {
   if (user.profileImageId) {
     return (
       <Components.CloudinaryImage2
-        height={size}
         width={size}
+        height={size}
         imgProps={{q: "100"}}
         publicId={user.profileImageId}
         className={classNames(classes.root, className)}
@@ -30,7 +36,16 @@ const UsersProfileImage = ({user, size, fallback, className, classes}: {
   }
 
   if (fallback === "initials") {
-    // TODO
+    return (
+      <picture>
+        <img
+          src={buildInitialFallback(user, size)}
+          width={`${size}px`}
+          height={`${size}px`}
+          className={classNames(classes.root, className)}
+        />
+      </picture>
+    );
   }
 
   return null;
