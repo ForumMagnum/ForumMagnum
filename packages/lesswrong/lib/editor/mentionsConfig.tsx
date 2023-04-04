@@ -34,8 +34,7 @@ const linkPrefix = getSiteUrl()
 const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
   const searchClient = getSearchClient()
   const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  const search = (...args) => index.search(...args)
-  return promisify(search)
+  return promisify(index.search.bind(index));
 }
 
 async function fetchPostSuggestions(searchString: string) {
