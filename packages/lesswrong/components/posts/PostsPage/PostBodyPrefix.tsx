@@ -77,7 +77,7 @@ const PostBodyPrefix = ({post, query, classes}: {
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
-        Most posts will be approved within 24 hours; posts that are spam or that don't meet site
+        Most posts will be approved within 72 hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.
       </p>}>
