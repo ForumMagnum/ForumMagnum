@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   profileImage: {
     minWidth: PROFILE_IMAGE_SIZE,
     marginLeft: 4,
-    marginRight: 8,
+    marginRight: 6,
     transform: "translateY(1px)",
     ["@media screen and (max-width: 290px)"]: {
       display: "none",
