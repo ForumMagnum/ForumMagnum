@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import type { PermissionResult } from '../../make_voteable';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
@@ -511,25 +512,19 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export const userCanVote = (user: UsersMinimumInfo|DbUser|null): {
-  canVote: true
-  whyYouCantVote?: never
-} | {
-  canVote: false
-  whyYouCantVote: string
-}=> {
+export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   // If the user is null, then returning true from this function is still valid;
   // it just means that the vote buttons are enabled (but their behavior is that
   // they open a login form).
   
   if (!isLW) {
-    return { canVote: true };
+    return { fail: false };
   }
 
   if (!user) {
     return {
-      canVote: false,
-      whyYouCantVote: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+      fail: true,
+      reason: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
     };
   }
 
@@ -538,11 +533,11 @@ export const userCanVote = (user: UsersMinimumInfo|DbUser|null): {
   const userKarmaAboveThreshold = user.karma > lowKarmaUserVotingCutoffKarmaSetting.get();
 
   if(!userCreatedAfterCutoff || userKarmaAboveThreshold) {
-    return { canVote: true }
+    return { fail: false }
   }
   
   return {
-    canVote: false,
-    whyYouCantVote: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+    fail: true,
+    reason: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
   }
 };

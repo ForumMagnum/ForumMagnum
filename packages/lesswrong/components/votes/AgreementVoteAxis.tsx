@@ -47,7 +47,8 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
   const currentUser = useCurrentUser();
-  const { canVote, whyYouCantVote } = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   let documentTypeName = "comment";
   if (collection == Posts) {

@@ -59,7 +59,8 @@ const TagVoteActivityRow = ({vote, classes}: {
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
   
-  const { canVote, whyYouCantVote:_ } = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
   
   return (
     <tr key={vote._id} className={classes.voteRow}>

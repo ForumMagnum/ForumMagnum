@@ -55,7 +55,8 @@ const PostsVote = ({ post, classes }: {
   const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
   
-  const {canVote, whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   return (
       <div className={classes.voteBlock}>

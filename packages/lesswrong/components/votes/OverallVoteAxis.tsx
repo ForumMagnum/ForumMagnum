@@ -72,7 +72,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     ? extendedScore.approvalVoteCount
     : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
-  const { canVote, whyYouCantVote } = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   let moveToAlignnmentUserId = ""
   let documentTypeName = "comment";

@@ -225,7 +225,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
 
   // Check whether the user is allowed to vote at all, in full generality
-  if (!userCanVote(user)) {
+  const { fail: cannotVote } = userCanVote(user);
+  if (cannotVote) {
     throw new Error('User does not meet the requirements to vote.');
   }
 

@@ -42,7 +42,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
   const currentUser = useCurrentUser();
-  const {canVote, whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
