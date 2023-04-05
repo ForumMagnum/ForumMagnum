@@ -3,14 +3,14 @@ import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    addField(db, Users, "notificationDebateCommentsOnSubscribedPost");
-    addField(db, Users, "notificationDebateReplies");
+    await addField(db, Users, "notificationDebateCommentsOnSubscribedPost");
+    await addField(db, Users, "notificationDebateReplies");
   }
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    dropField(db, Users, "notificationDebateCommentsOnSubscribedPost");
-    dropField(db, Users, "notificationDebateReplies");
+    await dropField(db, Users, "notificationDebateCommentsOnSubscribedPost");
+    await dropField(db, Users, "notificationDebateReplies");
   }
 }
