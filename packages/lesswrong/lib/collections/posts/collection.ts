@@ -7,7 +7,7 @@ import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { forumTypeSetting } from '../../instanceSettings';
-import { makeSearchable } from '../../make_searchable';
+import { makeSearchable, SearchJoin } from '../../make_searchable';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -111,11 +111,64 @@ makeEditable({
   }
 })
 
-makeSearchable({
+makeSearchable<DbPost>({
   collection: Posts,
   indexableColumns: [
     {selector: `"title"`, priority: "A"},
     {selector: `"contents"->>'html'`, priority: "B", isHtml: true},
+  ],
+  headlineTitleSelector: `"title"`,
+  headlineBodySelector: `"contents"->'html'`,
+  filter: (docName: string) => `
+    ${docName}."status" = 2 AND
+    ${docName}."baseScore" >= 0 AND
+    ${docName}."deletedDraft" IS NOT TRUE AND
+    ${docName}."draft" IS NOT TRUE`,
+  fields: [
+    "_id",
+    "userId",
+    "url",
+    "title",
+    "slug",
+    "baseScore",
+    "status",
+    "legacy",
+    "commentCount",
+    "userIP",
+    "createdAt",
+    "postedAt",
+    "isFuture",
+    "isEvent",
+    "viewCount",
+    "lastCommentedAt",
+    "draft",
+    "af",
+    "feedLink",
+  ] as const,
+  syntheticFields: {
+    curated: (docName: string) => `${docName}."curatedDate" IS NOT NULL`,
+    publicDateMs: (docName: string) => `${docName}."postedAt"`,
+    tags: (docName: string) =>
+      `ARRAY(SELECT JSONB_OBJECT_KEYS(${docName}."tagRelevance"))`,
+    objectID: (docName: string) => `${docName}."_id"`,
+  },
+  joins: [
+    {
+      docName: "u",
+      join: (docName: string) => `"Users" u ON u."_id" = ${docName}."userId"`,
+      fields: {
+        slug: "authorSlug",
+        displayName: "authorDisplayName",
+        fullName: "authorFullName",
+      } as const,
+    } as SearchJoin<DbUser>,
+    {
+      docName: "r",
+      join: (docName: string) => `"RSSFeeds" r ON r."_id" = ${docName}."feedId"`,
+      fields: {
+        nickname: "feedName",
+      } as const,
+    } as SearchJoin<DbRSSFeed>,
   ],
 });
 

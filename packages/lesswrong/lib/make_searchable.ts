@@ -1,24 +1,50 @@
 import { ensureIndex } from "./collectionIndexUtils";
-import { TSVectorElement, TSVectorType } from "./sql/Type";
 import { addFieldsDict } from "./utils/schemaUtils";
+import { TSVectorElement, TSVectorType } from "./sql/Type";
+import PgCollection from "./sql/PgCollection";
 
 export const SearchableCollections: CollectionBase<DbSearchableType>[] = [];
 
-export const collectionIsSearchable = (collectionName: CollectionNameString) => {
-  const name = collectionName.toLowerCase();
-  return SearchableCollections.some(
-    ({collectionName}) => collectionName.toLowerCase() === name,
-  );
+export type Formatter = (docName: string) => string;
+
+export type SearchJoin<T extends DbObject> = {
+  docName: string,
+  join: Formatter,
+  fields: Record<keyof T, string>,
 }
 
-export const makeSearchable = <T extends DbSearchableType>({
-  collection,
-  indexableColumns,
-}: {
+export type SearchableOptions<T extends DbSearchableType> = {
   collection: CollectionBase<T>,
   indexableColumns: TSVectorElement[],
-}): void => {
+  headlineTitleSelector?: string,
+  headlineBodySelector?: string,
+  filter?: Formatter,
+  fields: readonly (keyof T)[],
+  syntheticFields?: Record<string, Formatter>,
+  joins?: SearchJoin<DbObject>[],
+}
+
+type OptionsRecord = Record<CollectionNameString, SearchableOptions<DbSearchableType>>;
+
+const searchableCollectionOptions: OptionsRecord = {} as OptionsRecord;
+
+export const collectionIsSearchable = (
+  collection: unknown,
+): collection is PgCollection<DbSearchableType> =>
+  collection instanceof PgCollection &&
+    !!searchableCollectionOptions[collection.collectionName];
+
+export const getSearchableCollectionOptions = <T extends DbSearchableType>(
+  {collectionName}: PgCollection<T>,
+): SearchableOptions<T> => searchableCollectionOptions[collectionName];
+
+export const makeSearchable = <T extends DbSearchableType>(
+  options: SearchableOptions<T>,
+): void => {
+  const {collection, indexableColumns} = options;
   SearchableCollections.push(collection);
+  searchableCollectionOptions[collection.collectionName] =
+    options as SearchableOptions<DbSearchableType>;
 
   addFieldsDict(collection, {
     searchVector: {

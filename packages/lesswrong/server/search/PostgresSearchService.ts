@@ -1,4 +1,7 @@
-import { collectionIsSearchable } from "../../lib/make_searchable";
+import {
+  collectionIsSearchable,
+  getSearchableCollectionOptions,
+} from "../../lib/make_searchable";
 import PgCollection from "../../lib/sql/PgCollection";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { getCollection, isValidCollectionName } from "../vulcan-lib";
@@ -40,6 +43,9 @@ type Result = {
 
 class PostgresSearchService {
   async runQuery({indexName, params}: PostgresSearchQuery): Promise<Result|null> {
+    // TODO TMP
+    if (indexName.toLowerCase().indexOf("posts") < 0) return null;
+
     const start = Date.now();
     const {
       query,
@@ -50,11 +56,9 @@ class PostgresSearchService {
     } = params;
     const offset = page * hitsPerPage;
     const index = this.parseIndexName(indexName);
-    // TODO TMP
-    if (index.collectionName.toLowerCase() !== "posts") return null;
     const collection = getCollection(index.collectionName);
-    if (!collection.isPostgres()) {
-      throw new Error("Collection is not a PgCollection");
+    if (!collectionIsSearchable(collection)) {
+      throw new Error("Collection is not searchable");
     }
     const hits = await this.search(
       collection,
@@ -110,11 +114,6 @@ class PostgresSearchService {
       throw new Error("Invalid collection name: " + collectionName);
     }
 
-    // TMP: Renenable this later
-    // if (!collectionIsSearchable(collectionName)) {
-      // throw new Error("Collection is not searchable: " + collectionName);
-    // }
-
     const index = {
       prefix: tokens[0],
       collectionName,
@@ -134,7 +133,7 @@ class PostgresSearchService {
     }
   }
 
-  private async search<T extends DbObject = DbObject>(
+  private async search<T extends DbSearchableType = DbSearchableType>(
     collection: PgCollection<T>,
     query: string,
     highlightPreTag: string,
@@ -143,70 +142,63 @@ class PostgresSearchService {
     limit: number,
     _sorting: Sorting, // TODO Sorting
   ) {
-    const db = getSqlClientOrThrow();
-    return db.any(`
-      SELECT
-        d."_id",
-        d."userId",
-        d."url",
-        d."title",
-        d."slug",
-        d."baseScore",
-        d."status",
-        d."curatedDate" IS NOT NULL AS "curated",
-        d."legacy",
-        d."commentCount",
-        d."userIP",
-        d."createdAt",
-        d."postedAt",
-        d."postedAt" AS "publicDateMs",
-        d."isFuture",
-        d."isEvent",
-        d."viewCount",
-        d."lastCommentedAt",
-        d."draft",
-        d."af",
-        ARRAY(SELECT JSONB_OBJECT_KEYS(d."tagRelevance")) AS "tags",
-        u."slug" AS "authorSlug",
-        u."displayName" AS "authorDisplayName",
-        u."fullName" AS "authorFullName",
-        r."nickname" AS "feedName",
-        d."feedLink",
-        d."_id" AS "objectID",
+    const {
+      headlineTitleSelector: title,
+      headlineBodySelector: body,
+      filter,
+      fields,
+      syntheticFields = {},
+      joins = [],
+    } = getSearchableCollectionOptions(collection);
+    const docName = "doc";
+    const syntheticString = Object.keys(syntheticFields).map((field) =>
+      `${syntheticFields[field](docName)} AS "${field}"`,
+    ).join(", ");
+    const joinSelects = joins.map(({docName: name, fields}) =>
+      Object.keys(fields).map((field) =>
+        `${name}."${field}" AS "${fields[field]}"`,
+      ).join(", "),
+    ).join(", ");
+    const headlineBody = body
+      ? `TS_HEADLINE(
+          'english',
+          ${docName}.${body},
+          WEBSEARCH_TO_TSQUERY('english', $1),
+          'MinWords=20, MaxWords=30, StartSel=' || $2 || ', StopSel=' || $3
+        )`
+      : "''";
+    const sql = `SELECT
+        ${fields.map((f) => `${docName}."${String(f)}"`).join(", ")}
+        ${syntheticString ? ", " : ""} ${syntheticString}
+        ${joinSelects ? ", " : ""} ${joinSelects} ,
         TS_RANK_CD(
-          d."searchVector",
+          ${docName}."searchVector",
           WEBSEARCH_TO_TSQUERY('english', $1), 1|32
         ) AS _rank,
-        JSON_BUILD_OBJECT(
-          'body', JSON_BUILD_OBJECT(
-            'matchLevel', 'full',
-            'value', TS_HEADLINE(
-              'english',
-              d."contents"->'html',
-              WEBSEARCH_TO_TSQUERY('english', $1),
-              'MinWords=20, MaxWords=30, StartSel=' || $2 || ', StopSel=' || $3
-            )
-          )
-        ) AS "_snippetResult",
         JSON_BUILD_OBJECT(
           'title', JSON_BUILD_OBJECT(
             'matchLevel', 'full',
             'matchedWords', '{}'::TEXT[],
-            'value', d."title"
+            'value', ${title ? `${docName}.${title}` : "''"}
           )
-        ) AS "_highlightResult"
-      FROM "${collection.table.getName()}" d
-      JOIN "Users" u ON u."_id" = d."userId"
-      JOIN "RSSFeeds" r ON r."_id" = d."feedId"
-      WHERE
-        WEBSEARCH_TO_TSQUERY('english', $1) @@ d."searchVector"
-        AND d."status" = 2
-        AND d."baseScore" >= 0
-        AND d."deletedDraft" IS NOT TRUE
-        AND d."draft" IS NOT TRUE
+        ) AS "_highlightResult",
+        JSON_BUILD_OBJECT(
+          'body', JSON_BUILD_OBJECT(
+            'matchLevel', 'full',
+            'value', ${headlineBody}
+          )
+        ) AS "_snippetResult"
+      FROM "${collection.table.getName()}" ${docName}
+      ${joins.map(({join}) => "JOIN " + join(docName)).join("\n") ?? ""}
+      WHERE WEBSEARCH_TO_TSQUERY('english', $1) @@ ${docName}."searchVector"
+      ${filter ? `AND (${filter(docName)})` : ""}
       ORDER BY _rank DESC
       OFFSET $4 LIMIT $5
-    `, [query, highlightPreTag, highlightPostTag, offset, limit])
+    `;
+    return getSqlClientOrThrow().any(
+      sql,
+      [query, highlightPreTag, highlightPostTag, offset, limit],
+    );
   }
 }
 
