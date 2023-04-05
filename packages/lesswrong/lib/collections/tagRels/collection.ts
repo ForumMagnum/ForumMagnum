@@ -3,7 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
-import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
+import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
 
@@ -56,9 +56,11 @@ const schema: SchemaType<DbTagRel> = {
     type: Boolean,
     graphQLtype: 'Boolean',
     canRead: ['guests'],
-    resolver: async (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+    resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
-      return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
+      return context.currentUser
+        ? !(await canVoteOnTagAsync(context.currentUser, document.tagId, document.postId, context, 'smallUpvote')).fail
+        : true;
     },
   }),
   autoApplied: {
@@ -108,7 +110,13 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
-  userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
+  userCanVoteOn: (
+    user: DbUser,
+    document: DbTagRel,
+    voteType: string|null,
+    _extendedVote: any,
+    context: ResolverContext,
+  ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
 });
 
 export default TagRels;

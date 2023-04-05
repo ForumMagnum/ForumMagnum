@@ -18,7 +18,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';

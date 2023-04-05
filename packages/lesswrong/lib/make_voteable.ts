@@ -13,7 +13,13 @@ export type PermissionResult = {
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType, voteType: string|null, extendedVote?: any) => PermissionResult|Promise<PermissionResult>,
+  userCanVoteOn?: (
+    user: DbUser,
+    document: DbVoteableType,
+    voteType: string|null,
+    extendedVote: any,
+    context: ResolverContext,
+  ) => PermissionResult|Promise<PermissionResult>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
