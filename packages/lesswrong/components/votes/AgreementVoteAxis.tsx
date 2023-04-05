@@ -57,10 +57,18 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     documentTypeName = "revision";
   }
   
+  const karmaTooltipTitle = hideKarma
+    ? 'This post has disabled karma visibility'
+    : <div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
+
   const TooltipIfDisabled = (canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
-      placement="top" title={whyYouCantVote}
+      placement="top"
+      title={<>
+        {whyYouCantVote}
+        {karmaTooltipTitle}
+      </>}
     >
       {children}
     </LWTooltip>
@@ -88,16 +96,14 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
       </TooltipIfEnabled>
       
       <span className={classes.agreementScore}>
-        {hideKarma
-          ? <LWTooltip title={'This post has disabled karma visibility'} placement="bottom">
-              <span>{' '}</span>
-            </LWTooltip>
-          : <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-              <span className={classes.voteScore}>
+        <TooltipIfEnabled title={karmaTooltipTitle} placement="bottom">
+          {hideKarma
+            ? <span>{' '}</span>
+            : <span className={classes.voteScore}>
                 {karma}
               </span>
-            </LWTooltip>
-        }
+          }
+        </TooltipIfEnabled>
       </span>
       
       <TooltipIfEnabled

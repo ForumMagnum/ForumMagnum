@@ -97,10 +97,18 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     </div>
   )
 
+  const karmaTooltipTitle = hideKarma
+    ? 'This post has disabled karma visibility'
+    : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
+
   const TooltipIfDisabled = (canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
-      placement="top" title={whyYouCantVote}
+      placement="top"
+      title={<>
+        {whyYouCantVote}
+        {karmaTooltipTitle}
+      </>}
     >
       {children}
     </LWTooltip>
@@ -149,16 +157,14 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               {...voteProps}
             />
           </TooltipIfEnabled>
-          {hideKarma
-            ? <LWTooltip title={'This post has disabled karma visibility'} placement="bottom">
-                <span>{' '}</span>
-              </LWTooltip>
-            : <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-                <span className={classes.voteScore}>
+          <TooltipIfEnabled title={karmaTooltipTitle} placement="bottom">
+            {hideKarma
+              ? <span>{' '}</span>
+              : <span className={classes.voteScore}>
                   {karma}
                 </span>
-              </LWTooltip>
-          }
+            }
+          </TooltipIfEnabled>
           <TooltipIfEnabled
             title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
