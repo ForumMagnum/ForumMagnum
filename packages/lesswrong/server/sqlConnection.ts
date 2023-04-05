@@ -43,7 +43,7 @@ declare global {
  * ensure the environment is setup correctly. The order in which they
  * are run is undefined.
  */
-const onConnectQueries: string[] = [
+export const onConnectQueries: string[] = [
   // The default TOAST compression in PG uses pglz - here we switch to lz4 which
   // uses slightly more disk space in exchange for _much_ faster compression and
   // decompression times

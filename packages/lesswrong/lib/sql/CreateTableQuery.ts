@@ -15,7 +15,7 @@ class CreateTableQuery<T extends DbObject> extends Query<T> {
     super(table, [
       `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,
       table,
-      `(\n  _id ${fields["_id"].toString()} PRIMARY KEY`,
+      `(\n  "_id" ${fields["_id"].toString()} PRIMARY KEY`,
     ]);
     const fieldNames = Object.keys(fields).filter((fieldName) => fieldName !== "_id");
     for (const field of fieldNames) {

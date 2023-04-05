@@ -44,6 +44,11 @@ class Table {
   }
 
   addIndex(key: Record<string, 1 | -1>, options?: MongoEnsureIndexOptions) {
+    const fields = Object.keys(key);
+    const existing = this.getIndex(fields, options);
+    if (existing) {
+      return existing;
+    }
     const index = new TableIndex(this.name, key, options);
     this.indexes.push(index);
     return index;
