@@ -544,9 +544,9 @@ export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResul
 
   // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
   const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
-  const userKarmaAboveThreshold = user.karma > lowKarmaUserVotingCutoffKarmaSetting.get();
+  const userKarmaAtOrAboveThreshold = user.karma >= lowKarmaUserVotingCutoffKarmaSetting.get();
 
-  if(!userCreatedAfterCutoff || userKarmaAboveThreshold) {
+  if(!userCreatedAfterCutoff || userKarmaAtOrAboveThreshold) {
     return { fail: false }
   }
   

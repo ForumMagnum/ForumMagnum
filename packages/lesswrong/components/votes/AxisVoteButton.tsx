@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
-import { userCanVote } from '../../lib/collections/users/helpers';
 
 const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,

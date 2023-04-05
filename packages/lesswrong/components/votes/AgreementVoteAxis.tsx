@@ -67,8 +67,8 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
       title={<>
-        {whyYouCantVote}
-        {karmaTooltipTitle}
+        <div>{whyYouCantVote}</div>
+        <div>{karmaTooltipTitle}</div>
       </>}
     >
       {children}

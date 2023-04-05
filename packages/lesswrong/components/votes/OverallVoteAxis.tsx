@@ -107,8 +107,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
       title={<>
-        {whyYouCantVote}
-        {karmaTooltipTitle}
+        <div>{whyYouCantVote}</div>
+        <div>{karmaTooltipTitle}</div>
       </>}
     >
       {children}

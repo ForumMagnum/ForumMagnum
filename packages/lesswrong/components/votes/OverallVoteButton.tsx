@@ -3,7 +3,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
-import { userCanVote } from '../../lib/collections/users/helpers';
 
 const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
