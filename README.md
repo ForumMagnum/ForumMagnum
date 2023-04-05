@@ -175,12 +175,13 @@ used.
 ## Database Migrations
 
 All migrations should be designed to be idempotent and should represent a
-one-off operation (such as updating a table schema). Operations that need to be
-run multiple times should instead be implemented as a server script.
+one-off operation. Operations that need to be run multiple times should instead
+be implemented as a server script. NOTE: Migrations are not required for
+schema changes - see [below](#schema-changing-migrations).
 
 * Run pending migrations with `yarn migrate up [dev|staging|prod]`
 * Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
-* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
+* Create a new migration with `yarn migrate create --name=my-new-migration`
 * View pending migrations with `yarn migrate pending [dev|staging|prod]`
 * View executed migrations with `yarn migrate executed [dev|staging|prod]`
 
@@ -188,30 +189,19 @@ Instead of using \[dev|staging|prod\] above, you can also manually pass in a pos
 
 ### Schema changing migrations
 
-Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
-scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
-For these the development process will be like this:
+Simple schema changes do not require writing a migration. The fields are created
+for Mongo when they are used, and they are created for Postgres using
+[Atlas](https://atlasgo.io/).
 
-* Make some changes which add or alter fields in one of the `schema.ts` files
-* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
-* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
-* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
+After making a schema change simply run `yarn schema generate` to update the
+file `./schema/atlas_schema.sql` which is the ultimate source-of-truth for
+Postgres and should be committed to git along with your code changes.
 
-#### Migrations and git conflicts
-* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
-* To resolve it you basically need to re-run migration process:
-  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
-  * run `yarn makemigrations` again, to generate new hashes for the schema
-  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
-  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
-  * run `yarn acceptmigrations`
-  * finish merge/rebase
+This file can be synchronised to the database using
+`yarn schema apply [dev|staging|prod]`.
 
-### Migrating both Mongo and Postgres
-* Currently, you need to create a migration for both Mongo and Postgres separately. 
-* You do the Postgres migration via the `yarn makemigrations` process described above.
-* You make Mongo migration by imitating the previous examples in `packages/lesswrong/server/manualMigrations`
-* See https://github.com/ForumMagnum/ForumMagnum/pull/6458 for an example of a migration that does both.
+You can preview the changes beforehand with
+`yarn schema diff [dev|staging|prod]`.
 
 ## Testing
 
