@@ -1,3 +1,20 @@
+# This script is used for generating the site database schema and synching it
+# with a Postgres database.
+#
+# Generally, you should use the yarn wrapper in package.json instead of calling
+# it directly.
+#
+# Usage:
+#   Generate a new database schema from the code
+#     yarn schema generate
+#   Perform a diff of the current generated schema against the database
+#     yarn schema diff [dev|staging|prod]
+#   Apply the current schema to the database
+#     yarn schema apply [dev|staging|prod]
+#
+# You should always run `yarn schema diff ...` and sanity check the output
+# before running `yarn schema apply ...`.
+
 OP=$1
 ENV=$2
 SCHEMA=./schema/atlas_schema.sql
