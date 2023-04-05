@@ -1,4 +1,5 @@
 import { CollationType, DEFAULT_COLLATION, getCollationType } from "./collation";
+import { createHash } from "crypto";
 
 /**
  * TableIndex represents a named Postgres index on a particular group
@@ -17,7 +18,7 @@ class TableIndex {
     this.fields = Object.keys(key);
     this.name = options?.name
       ? "idx_" + options.name.replace(/\./g, "_")
-      : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
+      : `idx_${this.tableName}_${this.getSerializedFieldNames()}`;
     if (options?.partialFilterExpression && !options.name) {
       this.name += "_filtered";
     }
@@ -33,8 +34,10 @@ class TableIndex {
     return this.fields;
   }
 
-  private getSanitizedFieldNames() {
-    return this.fields.map((field) => field.replace(/\./g, "__"));
+  private getSerializedFieldNames() {
+    return this.fields.length <= 3
+      ? this.fields.map((field) => field.replace(/\./g, "__")).join("_")
+      : createHash("md5").update(this.fields.join("_")).digest("hex");
   }
 
   getName() {

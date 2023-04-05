@@ -294,23 +294,23 @@ CREATE INDEX "idx_comments_af_top_comments" ON "Comments" USING btree ( "postId"
 
 CREATE INDEX "idx_comments_new_comments" ON "Comments" USING btree ( "postId" , "parentAnswerId" , "answer" , "deleted" , "postedAt" , "authorIsUnreviewed" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "debateResponse" );
 
-CREATE INDEX "idx_Comments_userId_isPinnedOnProfile_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree ( "userId" , "isPinnedOnProfile" , "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "af" , "debateResponse" );
+CREATE INDEX "idx_Comments_43364356a2b2b4d3b995523d91e99f00" ON "Comments" USING btree ( "userId" , "isPinnedOnProfile" , "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "af" , "debateResponse" );
 
-CREATE INDEX "idx_Comments_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments" USING btree ( "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "debateResponse" );
+CREATE INDEX "idx_Comments_bf954661348f2ac514f56cfe851f0f1f" ON "Comments" USING btree ( "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "debateResponse" );
 
 CREATE INDEX "idx_Comments_legacyId" ON "Comments" USING btree ( "legacyId" );
 
 CREATE INDEX "idx_Comments_inactive_postedAt" ON "Comments" USING btree ( "inactive" , "postedAt" );
 
-CREATE INDEX "idx_Comments_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree ( "userId" , "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "af" , "debateResponse" );
+CREATE INDEX "idx_Comments_fe3c16779c85248046cf6e9c5b1178cd" ON "Comments" USING btree ( "userId" , "postedAt" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "af" , "debateResponse" );
 
-CREATE INDEX "idx_Comments_parentAnswerId_baseScore_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree ( "parentAnswerId" , "baseScore" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
+CREATE INDEX "idx_Comments_452488cdccfe04989329faef5952bca9" ON "Comments" USING btree ( "parentAnswerId" , "baseScore" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
 
 CREATE INDEX "idx_Comments_topLevelCommentId" ON "Comments" USING btree ( "topLevelCommentId" );
 
 CREATE INDEX "idx_Comments_agentFoundationsId" ON "Comments" USING btree ( "agentFoundationsId" );
 
-CREATE INDEX "idx_Comments_shortform_topLevelCommentId_lastSubthreadActivity_postedAt_baseScore" ON "Comments" USING btree ( "shortform" , "topLevelCommentId" , "lastSubthreadActivity" , "postedAt" , "baseScore" );
+CREATE INDEX "idx_Comments_b874047b2ee4f2d55a0a99966e4891e1" ON "Comments" USING btree ( "shortform" , "topLevelCommentId" , "lastSubthreadActivity" , "postedAt" , "baseScore" );
 
 CREATE INDEX "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments" USING btree ( "topLevelCommentId" , "postedAt" , "baseScore" );
 
@@ -320,7 +320,7 @@ CREATE INDEX "idx_comments_reviews2018" ON "Comments" USING btree ( "reviewingFo
 
 CREATE INDEX "idx_comments_tagId" ON "Comments" USING btree ( "tagId" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
 
-CREATE INDEX "idx_Comments_topLevelCommentId_tagCommentType_tagId_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree ( "topLevelCommentId" , "tagCommentType" , "tagId" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
+CREATE INDEX "idx_Comments_27e8e212b35bf24bd243901181985262" ON "Comments" USING btree ( "topLevelCommentId" , "tagCommentType" , "tagId" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
 
 CREATE INDEX "idx_comments_moderatorHat" ON "Comments" USING btree ( "moderatorHat" , "authorIsUnreviewed" , "deleted" , "deletedPublic" , "hideAuthor" , "userId" , "af" , "postedAt" , "debateResponse" );
 
@@ -344,7 +344,7 @@ CREATE TABLE "Conversations" (
 
 CREATE INDEX "idx_Conversations_schemaVersion" ON "Conversations" USING btree ( "schemaVersion" );
 
-CREATE INDEX "idx_Conversations_moderator_messageCount_latestActivity_participantIds" ON "Conversations" USING gin ( "moderator" , "messageCount" , "latestActivity" , "participantIds" );
+CREATE INDEX "idx_Conversations_aabe34b6874182f6604fac8d132ba013" ON "Conversations" USING gin ( "moderator" , "messageCount" , "latestActivity" , "participantIds" );
 
 CREATE INDEX "idx_Conversations_participantIds_messageCount_latestActivity" ON "Conversations" USING gin ( "participantIds" , "messageCount" , "latestActivity" );
 
@@ -397,7 +397,7 @@ CREATE INDEX "idx_DebouncerEvents_dispatched_af_delayTime" ON "DebouncerEvents" 
 
 CREATE INDEX "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON "DebouncerEvents" USING btree ( "dispatched" , "af" , "upperBoundTime" );
 
-CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON "DebouncerEvents" USING btree ( "dispatched" , "af" , COALESCE("key", '') , COALESCE("name", '') ) WHERE "dispatched" IS FALSE;
+CREATE UNIQUE INDEX "idx_DebouncerEvents_4178fe945db00bc1f4899c671b0edced_filtered" ON "DebouncerEvents" USING btree ( "dispatched" , "af" , COALESCE("key", '') , COALESCE("name", '') ) WHERE "dispatched" IS FALSE;
 
 CREATE TABLE "EmailTokens" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -490,11 +490,11 @@ CREATE INDEX "idx_LWEvents_schemaVersion" ON "LWEvents" USING btree ( "schemaVer
 
 CREATE INDEX "idx_LWEvents_name_createdAt" ON "LWEvents" USING btree ( "name" , "createdAt" );
 
-CREATE INDEX "idx_LWEvents_name_userId_documentId_createdAt" ON "LWEvents" USING btree ( "name" , "userId" , "documentId" , "createdAt" );
+CREATE INDEX "idx_LWEvents_dc70cb1dc070ef78ff2c3eafe9a75f61" ON "LWEvents" USING btree ( "name" , "userId" , "documentId" , "createdAt" );
 
 CREATE INDEX "idx_LWEvents_name_userId_createdAt" ON "LWEvents" USING btree ( "name" , "userId" , "createdAt" );
 
-CREATE INDEX "idx_LWEvents_name_properties__ip_createdAt_userId" ON "LWEvents" USING gin ( "name" , ("properties"->'ip') , "createdAt" , "userId" );
+CREATE INDEX "idx_LWEvents_dc0d5453ccfdd18d7a7a8b25283de3c7" ON "LWEvents" USING gin ( "name" , ("properties"->'ip') , "createdAt" , "userId" );
 
 CREATE TABLE "LegacyData" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -542,15 +542,15 @@ CREATE INDEX "idx_Localgroups_schemaVersion" ON "Localgroups" USING btree ( "sch
 
 CREATE INDEX "idx_Localgroups_organizerIds_deleted_name" ON "Localgroups" USING gin ( "organizerIds" , "deleted" , "name" );
 
-CREATE INDEX "idx_Localgroups_organizerIds_inactive_deleted_name" ON "Localgroups" USING gin ( "organizerIds" , "inactive" , "deleted" , "name" );
+CREATE INDEX "idx_Localgroups_8246ea2adc6e8b333dae6fa620b7a19f" ON "Localgroups" USING gin ( "organizerIds" , "inactive" , "deleted" , "name" );
 
 CREATE INDEX "idx_Localgroups_organizerIds_inactive_deleted" ON "Localgroups" USING gin ( "organizerIds" , "inactive" , "deleted" );
 
 CREATE INDEX "idx_Localgroups_inactive_deleted_name" ON "Localgroups" USING btree ( "inactive" , "deleted" , "name" );
 
-CREATE INDEX "idx_Localgroups_mongoLocation_isOnline_inactive_deleted" ON "Localgroups" USING btree ( "mongoLocation" , "isOnline" , "inactive" , "deleted" );
+CREATE INDEX "idx_Localgroups_835af2d8e1787af6b94a14f693c93b1c" ON "Localgroups" USING btree ( "mongoLocation" , "isOnline" , "inactive" , "deleted" );
 
-CREATE INDEX "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups" USING btree ( "isOnline" , "inactive" , "deleted" , "name" );
+CREATE INDEX "idx_Localgroups_bab1194a36ca9ea87df8ca053bb0ddae" ON "Localgroups" USING btree ( "isOnline" , "inactive" , "deleted" , "name" );
 
 CREATE TABLE "Messages" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -633,7 +633,7 @@ CREATE TABLE "Notifications" (
 
 CREATE INDEX "idx_Notifications_schemaVersion" ON "Notifications" USING btree ( "schemaVersion" );
 
-CREATE INDEX "idx_Notifications_userId_emailed_waitingForBatch_createdAt_type" ON "Notifications" USING btree ( "userId" , "emailed" , "waitingForBatch" , "createdAt" , "type" );
+CREATE INDEX "idx_Notifications_22f609631723ddf0ffa0e35ce3fca002" ON "Notifications" USING btree ( "userId" , "emailed" , "waitingForBatch" , "createdAt" , "type" );
 
 CREATE INDEX "idx_Notifications_userId_type_createdAt" ON "Notifications" USING btree ( "userId" , "type" , "createdAt" );
 
@@ -880,7 +880,7 @@ CREATE INDEX "idx_Posts_slug" ON "Posts" USING btree ( "slug" );
 
 CREATE INDEX "idx_Posts_legacyId" ON "Posts" USING btree ( "legacyId" );
 
-CREATE INDEX "idx_Posts_status_isFuture_draft_unlisted_authorIsUnreviewed_hideFrontpageComments_lastCommentedAt__id_baseScore_af_isEvent_globalEvent_commentCount" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "authorIsUnreviewed" , "hideFrontpageComments" , "lastCommentedAt" , "_id" , "baseScore" , "af" , "isEvent" , "globalEvent" , "commentCount" );
+CREATE INDEX "idx_Posts_f35d8670598605b6c1ad57c650b23d8b" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "authorIsUnreviewed" , "hideFrontpageComments" , "lastCommentedAt" , "_id" , "baseScore" , "af" , "isEvent" , "globalEvent" , "commentCount" );
 
 CREATE INDEX "idx_posts_recentDiscussionThreadsList" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "lastCommentedAt" , "baseScore" , "hideFrontpageComments" , "_id" , "meta" , "isEvent" , "af" , "frontpageDate" , "curatedDate" , "postedAt" );
 
@@ -960,9 +960,9 @@ CREATE INDEX "idx_ReadStatuses_schemaVersion" ON "ReadStatuses" USING btree ( "s
 
 CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId" ON "ReadStatuses" USING btree ( COALESCE("userId", '') , COALESCE("postId", '') , COALESCE("tagId", '') );
 
-CREATE INDEX "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses" USING btree ( "userId" , "postId" , "isRead" , "lastUpdated" );
+CREATE INDEX "idx_ReadStatuses_80367ecb1c7ba80d5fbdd58541d3d72d" ON "ReadStatuses" USING btree ( "userId" , "postId" , "isRead" , "lastUpdated" );
 
-CREATE INDEX "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses" USING btree ( "userId" , "tagId" , "isRead" , "lastUpdated" );
+CREATE INDEX "idx_ReadStatuses_ca3c078daae67027905fc99ad96f0bbf" ON "ReadStatuses" USING btree ( "userId" , "tagId" , "isRead" , "lastUpdated" );
 
 CREATE TABLE "Reports" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -1047,9 +1047,9 @@ CREATE INDEX "idx_Revisions_schemaVersion" ON "Revisions" USING btree ( "schemaV
 
 CREATE INDEX "idx_Revisions_userId_collectionName_editedAt" ON "Revisions" USING btree ( "userId" , "collectionName" , "editedAt" );
 
-CREATE INDEX "idx_Revisions_collectionName_fieldName_editedAt__id_changeMetrics" ON "Revisions" USING btree ( "collectionName" , "fieldName" , "editedAt" , "_id" , "changeMetrics" );
+CREATE INDEX "idx_Revisions_2ed2cd3c4555777d79bdca38c2e9b947" ON "Revisions" USING btree ( "collectionName" , "fieldName" , "editedAt" , "_id" , "changeMetrics" );
 
-CREATE INDEX "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ( "documentId" , "version" , "fieldName" , "editedAt" );
+CREATE INDEX "idx_Revisions_4fa0f7c6f8d61253a19565ac4cb47e9e" ON "Revisions" USING btree ( "documentId" , "version" , "fieldName" , "editedAt" );
 
 CREATE TABLE "Sequences" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -1074,11 +1074,11 @@ CREATE TABLE "Sequences" (
 
 CREATE INDEX "idx_Sequences_schemaVersion" ON "Sequences" USING btree ( "schemaVersion" );
 
-CREATE INDEX "idx_Sequences_hidden_af_isDeleted_userId_userProfileOrder" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "userId" , "userProfileOrder" );
+CREATE INDEX "idx_Sequences_8e73962bcc676afada42ff5a330c9507" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "userId" , "userProfileOrder" );
 
-CREATE INDEX "idx_Sequences_hidden_af_isDeleted_userId_draft_hideFromAuthorPage_userProfileOrder" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "userId" , "draft" , "hideFromAuthorPage" , "userProfileOrder" );
+CREATE INDEX "idx_Sequences_66c25cfb9fab93293976fa72bf39cb07" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "userId" , "draft" , "hideFromAuthorPage" , "userProfileOrder" );
 
-CREATE INDEX "idx_Sequences_hidden_af_isDeleted_curatedOrder" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "curatedOrder" );
+CREATE INDEX "idx_Sequences_17043c73ec8aab92cea2f6cc42f559e8" ON "Sequences" USING btree ( "hidden" , "af" , "isDeleted" , "curatedOrder" );
 
 CREATE TABLE "Sessions" (
   "_id" TEXT NOT NULL PRIMARY KEY ,
@@ -1130,7 +1130,7 @@ CREATE TABLE "Subscriptions" (
 
 CREATE INDEX "idx_Subscriptions_schemaVersion" ON "Subscriptions" USING btree ( "schemaVersion" );
 
-CREATE INDEX "idx_Subscriptions_userId_documentId_collectionName_type_createdAt" ON "Subscriptions" USING btree ( "userId" , "documentId" , "collectionName" , "type" , "createdAt" );
+CREATE INDEX "idx_Subscriptions_7ade2791fa631cda7aced48a48f6b72c" ON "Subscriptions" USING btree ( "userId" , "documentId" , "collectionName" , "type" , "createdAt" );
 
 CREATE TABLE "TagFlags" (
   "_id" VARCHAR(27) PRIMARY KEY ,
@@ -1236,9 +1236,9 @@ CREATE INDEX "idx_Tags_deleted_adminOnly_name" ON "Tags" USING btree ( "deleted"
 
 CREATE INDEX "idx_Tags_deleted_userId_createdAt" ON "Tags" USING btree ( "deleted" , "userId" , "createdAt" );
 
-CREATE INDEX "idx_Tags_deleted_adminOnly_wikiOnly_createdAt" ON "Tags" USING btree ( "deleted" , "adminOnly" , "wikiOnly" , "createdAt" );
+CREATE INDEX "idx_Tags_a30e55083388c1a66f49b30ae3bd768d" ON "Tags" USING btree ( "deleted" , "adminOnly" , "wikiOnly" , "createdAt" );
 
-CREATE INDEX "idx_Tags_deleted_adminOnly_wikiGrade_defaultOrder_postCount_name" ON "Tags" USING btree ( "deleted" , "adminOnly" , "wikiGrade" , "defaultOrder" , "postCount" , "name" );
+CREATE INDEX "idx_Tags_33373d04742f60522ef96f49fc6d8ebb" ON "Tags" USING btree ( "deleted" , "adminOnly" , "wikiGrade" , "defaultOrder" , "postCount" , "name" );
 
 CREATE INDEX "idx_Tags_deleted_slug_oldSlugs" ON "Tags" USING gin ( "deleted" , "slug" , "oldSlugs" );
 
@@ -1248,7 +1248,7 @@ CREATE INDEX "idx_Tags_deleted_createdAt" ON "Tags" USING btree ( "deleted" , "c
 
 CREATE INDEX "idx_Tags_deleted_needsReview_createdAt" ON "Tags" USING btree ( "deleted" , "needsReview" , "createdAt" );
 
-CREATE INDEX "idx_Tags_deleted_adminOnly_suggestedAsFilter_defaultOrder_name" ON "Tags" USING btree ( "deleted" , "adminOnly" , "suggestedAsFilter" , "defaultOrder" , "name" );
+CREATE INDEX "idx_Tags_dca1b4e1ba068af03e5d13b1e83f0b9f" ON "Tags" USING btree ( "deleted" , "adminOnly" , "suggestedAsFilter" , "defaultOrder" , "name" );
 
 CREATE INDEX "idx_Tags_deleted_adminOnly_lesswrongWikiImportSlug" ON "Tags" USING btree ( "deleted" , "adminOnly" , "lesswrongWikiImportSlug" );
 
@@ -1562,13 +1562,13 @@ CREATE INDEX "idx_Users_reviewedAt_createdAt" ON "Users" USING btree ( "reviewed
 
 CREATE INDEX "idx_Users_mapLocationSet" ON "Users" USING btree ( "mapLocationSet" );
 
-CREATE INDEX "idx_Users_profileTagIds_deleted_deleteContent_karma" ON "Users" USING gin ( "profileTagIds" , "deleted" , "deleteContent" , "karma" );
+CREATE INDEX "idx_Users_0d8342134fb2c056e88cdcf29148ef2c" ON "Users" USING gin ( "profileTagIds" , "deleted" , "deleteContent" , "karma" );
 
 CREATE INDEX "idx_Users_walledGardenInvite" ON "Users" USING btree ( "walledGardenInvite" );
 
-CREATE INDEX "idx_Users_afKarma_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin ( "afKarma" , "reviewForAlignmentForumUserId" , "groups" , "createdAt" );
+CREATE INDEX "idx_Users_a6ecf2708877b1f4154ac8e6ed7c8d92" ON "Users" USING gin ( "afKarma" , "reviewForAlignmentForumUserId" , "groups" , "createdAt" );
 
-CREATE INDEX "idx_Users_afSubmittedApplication_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin ( "afSubmittedApplication" , "reviewForAlignmentForumUserId" , "groups" , "createdAt" );
+CREATE INDEX "idx_Users_cd616423d7d794840f3a1f6bf1e76afe" ON "Users" USING gin ( "afSubmittedApplication" , "reviewForAlignmentForumUserId" , "groups" , "createdAt" );
 
 CREATE INDEX "idx_users_nearbyEventsNotifications" ON "Users" USING btree ( "nearbyEventsNotificationsMongoLocation" );
 
@@ -1599,11 +1599,11 @@ CREATE INDEX "idx_Votes_cancelled_documentId" ON "Votes" USING btree ( "cancelle
 
 CREATE INDEX "idx_Votes_cancelled_userId_votedAt" ON "Votes" USING btree ( "cancelled" , "userId" , "votedAt" );
 
-CREATE INDEX "idx_Votes_authorIds_votedAt_userId_afPower" ON "Votes" USING gin ( "authorIds" , "votedAt" , "userId" , "afPower" );
+CREATE INDEX "idx_Votes_e24a118607de7492f872614cc0ff08a4" ON "Votes" USING gin ( "authorIds" , "votedAt" , "userId" , "afPower" );
 
 CREATE INDEX "idx_Votes_collectionName_votedAt" ON "Votes" USING btree ( "collectionName" , "votedAt" );
 
-CREATE INDEX "idx_Votes_collectionName_userId_voteType_cancelled_isUnvote_votedAt" ON "Votes" USING btree ( "collectionName" , "userId" , "voteType" , "cancelled" , "isUnvote" , "votedAt" );
+CREATE INDEX "idx_Votes_4088a3acc8550da9d933995b502d9f17" ON "Votes" USING btree ( "collectionName" , "userId" , "voteType" , "cancelled" , "isUnvote" , "votedAt" );
 
 CREATE INDEX "idx_Votes_documentId" ON "Votes" USING btree ( "documentId" );
 
