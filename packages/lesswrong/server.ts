@@ -44,6 +44,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/generateAtlasSchema';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
 

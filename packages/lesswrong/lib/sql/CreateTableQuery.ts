@@ -5,6 +5,9 @@ import Table from "./Table";
  * Builds a Postgres query to create a new database table with the schema
  * defined by `table`. If the table already exists, setting `ifNotExists`
  * to true will prevent an error from being thrown.
+ *
+ * Most queries don't care at all about whitespace, but this attempts to
+ * make some attempts at being readable for the sake of generating schemas.
  */
 class CreateTableQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, ifNotExists = false) {
@@ -12,12 +15,13 @@ class CreateTableQuery<T extends DbObject> extends Query<T> {
     super(table, [
       `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,
       table,
-      `(_id ${fields["_id"].toString()} PRIMARY KEY`,
+      `(\n  _id ${fields["_id"].toString()} PRIMARY KEY`,
     ]);
-    for (const field of Object.keys(fields).filter((fieldName) => fieldName !== "_id")) {
-      this.atoms.push(`, "${field}" ${fields[field].toString()}`);
+    const fieldNames = Object.keys(fields).filter((fieldName) => fieldName !== "_id");
+    for (const field of fieldNames) {
+      this.atoms.push(`,\n  "${field}" ${fields[field].toString()}`);
     }
-    this.atoms.push(")");
+    this.atoms.push("\n)");
   }
 }
 

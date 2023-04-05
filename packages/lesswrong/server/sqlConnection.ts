@@ -11,6 +11,8 @@ const pgPromiseLib = pgp({
   // },
 });
 
+export const pgFormat = pgPromiseLib.as.format;
+
 /**
  * The postgres default for max_connections is 100 - you can view the current setting
  * with `show max_connections`. When increasing max_connections, you also need to increase

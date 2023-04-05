@@ -13,7 +13,7 @@
     "migrate": "node migrate",
     "atlas-install-curl": "curl -sSf https://atlasgo.sh | sh",
     "atlas-install-brew": "brew install ariga/tap/atlas",
-    "atlas": "./scripts/atlas.sh",
+    "schema": "./scripts/schema.sh",
     "branchdb": "ts-node scripts/branchDb.ts",
     "start-dev-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",

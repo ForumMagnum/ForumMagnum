@@ -1,5 +1,11 @@
 OP=$1
 ENV=$2
+SCHEMA=./schema/atlas_schema.sql
+
+if [ "$OP" = "generate" ]; then
+	./scripts/serverShellCommand.sh --wait "Globals.generateAtlasSchema('${SCHEMA}')"
+	exit 0
+fi
 
 if ! [[ "$OP" =~ ^(apply|diff)$ ]]; then
 	echo "Invalid operation:" $OP
@@ -15,6 +21,5 @@ fi
 
 CONN=`cat ../ForumCredentials/$ENV-pg-conn.txt`?search_path=public
 DEVURL=`cat ../ForumCredentials/atlas-schema-diff-conn.txt`?search_path=public
-SCHEMA=file://$PWD/schema/accepted_schema.sql
 
-atlas schema $OP --from $CONN --to $SCHEMA --dev-url $DEVURL
+atlas schema $OP --from $CONN --to file://$PWD/$SCHEMA --dev-url $DEVURL
