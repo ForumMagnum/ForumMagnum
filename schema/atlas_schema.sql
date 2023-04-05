@@ -864,9 +864,9 @@ CREATE INDEX "idx_posts_sort_by_topAdjusted" ON "Posts" USING btree ( "status" ,
 
 CREATE INDEX "idx_posts_postedAt_baseScore" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "postedAt" , "baseScore" , "_id" , "meta" , "isEvent" , "af" , "frontpageDate" , "curatedDate" );
 
-CREATE INDEX "idx_posts_frontpage" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "sticky" , "stickyPriority" , "score" , "frontpageDate" , "_id" , "meta" , "isEvent" , "af" , "curatedDate" , "postedAt" , "baseScore" ) WHERE "frontpageDate" >  '1970-01-01T01:00:00.000+01:00';
+CREATE INDEX "idx_posts_frontpage" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "sticky" , "stickyPriority" , "score" , "frontpageDate" , "_id" , "meta" , "isEvent" , "af" , "curatedDate" , "postedAt" , "baseScore" ) WHERE "frontpageDate" >  '1970-01-01T00:00:00.000+00:00';
 
-CREATE INDEX "idx_posts_curated" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "sticky" , "curatedDate" , "postedAt" , "_id" , "meta" , "isEvent" , "af" , "frontpageDate" , "baseScore" ) WHERE "curatedDate" >  '1970-01-01T01:00:00.000+01:00';
+CREATE INDEX "idx_posts_curated" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "sticky" , "curatedDate" , "postedAt" , "_id" , "meta" , "isEvent" , "af" , "frontpageDate" , "baseScore" ) WHERE "curatedDate" >  '1970-01-01T00:00:00.000+00:00';
 
 CREATE INDEX "idx_posts_community" ON "Posts" USING btree ( "status" , "isFuture" , "draft" , "unlisted" , "shortform" , "hiddenRelatedQuestion" , "authorIsUnreviewed" , "groupId" , "sticky" , "score" , "_id" , "meta" , "isEvent" , "af" , "frontpageDate" , "curatedDate" , "postedAt" , "baseScore" );
 
