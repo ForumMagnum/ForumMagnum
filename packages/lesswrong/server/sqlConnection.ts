@@ -11,6 +11,8 @@ const pgPromiseLib = pgp({
   // },
 });
 
+pgPromiseLib.pg.defaults.parseInputDatesAsUTC = true;
+
 export const pgFormat = pgPromiseLib.as.format;
 
 /**
