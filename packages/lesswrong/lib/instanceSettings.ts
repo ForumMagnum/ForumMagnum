@@ -175,4 +175,4 @@ export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("dis
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
 /** Currently LW-only; forum-gated in `userCanVote` */
-export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 10, "optional");
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
