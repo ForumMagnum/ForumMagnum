@@ -69,7 +69,6 @@ export interface VoteArrowIconProps {
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   enabled?: boolean,
-  disabledReason?: string,
   color: VoteColor,
   voted: boolean,
   eventHandlers: {
@@ -84,19 +83,10 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, disabledReason, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
-  const { LWTooltip } = Components;
-
-  const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
-      <LWTooltip title={disabledReason ?? "You do not have permission to vote on this"} placement="top" >
-        {children}
-      </LWTooltip>
-    );
 
   if (!enabled) {
     eventHandlers = {};
@@ -111,13 +101,11 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       onClick={eventHandlers.handleClick}
       disableRipple
     >
-      <Tooltip>
-        <Icon
-          className={classes.smallArrow}
-          color={(voted || alwaysColored) ? color : 'inherit'}
-          viewBox='6 6 12 12'
-        />
-      </Tooltip>
+      <Icon
+        className={classes.smallArrow}
+        color={(voted || alwaysColored) ? color : 'inherit'}
+        viewBox='6 6 12 12'
+      />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon

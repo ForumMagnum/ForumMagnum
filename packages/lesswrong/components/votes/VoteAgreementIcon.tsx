@@ -132,7 +132,6 @@ export interface VoteArrowIconProps {
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   enabled?: boolean,
-  disabledReason?: string,
   color: VoteColor,
   voted: boolean,
   eventHandlers: {
@@ -147,7 +146,7 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, disabledReason, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const { LWTooltip } = Components;
@@ -163,14 +162,6 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled =
   const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
   const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
 
-  const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
-      <LWTooltip title={disabledReason ?? "You do not have permission to vote on this"} placement="top" >
-        {children}
-      </LWTooltip>
-    );
-
   if (!enabled) {
     eventHandlers = {};
   }
@@ -185,13 +176,11 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled =
       disableRipple
     >
       <span className={classes.iconsContainer}>
-        <Tooltip>
         <PrimaryIcon
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           color={voted ? color : 'inherit'}
           viewBox='6 6 12 12'
         />
-        </Tooltip>
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
             <>

@@ -4,6 +4,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
+import { userCanVote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
@@ -51,11 +53,14 @@ const PostsVote = ({ post, classes }: {
 }) => {
   const voteProps = useVote(post, "Posts");
   const {OverallVoteButton, Typography} = Components;
+  const currentUser = useCurrentUser();
+  
+  const {canVote, whyYouCantVote} = userCanVote(currentUser);
 
   return (
       <div className={classes.voteBlock}>
         <Tooltip
-          title="Click-and-hold for strong vote"
+          title={whyYouCantVote ?? "Click-and-hold for strong vote"}
           placement="right"
           classes={{tooltip: classes.tooltip}}
         >
@@ -64,6 +69,7 @@ const PostsVote = ({ post, classes }: {
               orientation="up"
               color="secondary"
               upOrDown="Upvote"
+              enabled={canVote}
               {...voteProps}
             />
           </div>
@@ -95,7 +101,7 @@ const PostsVote = ({ post, classes }: {
           }
         </div>
         <Tooltip
-          title="Click-and-hold for strong vote"
+          title={whyYouCantVote ?? "Click-and-hold for strong vote"}
           placement="right"
           classes={{tooltip: classes.tooltip}}
         >
@@ -104,6 +110,7 @@ const PostsVote = ({ post, classes }: {
               orientation="down"
               color="error"
               upOrDown="Downvote"
+              enabled={canVote}
               {...voteProps}
             />
           </div>

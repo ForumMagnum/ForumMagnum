@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 import { userCanVote } from '../../lib/collections/users/helpers';
 
-const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation}: {
+const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent})=>void,
   document: T,
@@ -13,12 +13,11 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
+  enabled: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const voteButtonEnabled = !!currentUser && userCanVote(currentUser);
-  
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if(!currentUser){
       openDialog({
@@ -49,7 +48,7 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
     upOrDown={upOrDown}
     color={color}
     orientation={orientation}
-    enabled={voteButtonEnabled}
+    enabled={enabled}
   />
 }
 

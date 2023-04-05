@@ -511,12 +511,38 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export const userCanVote = (user: UsersMinimumInfo|DbUser) => {
-  if (!isLW) return true;
+export const userCanVote = (user: UsersMinimumInfo|DbUser|null): {
+  canVote: true
+  whyYouCantVote?: never
+} | {
+  canVote: false
+  whyYouCantVote: string
+}=> {
+  // If the user is null, then returning true from this function is still valid;
+  // it just means that the vote buttons are enabled (but their behavior is that
+  // they open a login form).
+  
+  if (!isLW) {
+    return { canVote: true };
+  }
+
+  if (!user) {
+    return {
+      canVote: false,
+      whyYouCantVote: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+    };
+  }
 
   // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
   const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
   const userKarmaAboveThreshold = user.karma > lowKarmaUserVotingCutoffKarmaSetting.get();
 
-  return !userCreatedAfterCutoff || userKarmaAboveThreshold;
+  if(!userCreatedAfterCutoff || userKarmaAboveThreshold) {
+    return { canVote: true }
+  }
+  
+  return {
+    canVote: false,
+    whyYouCantVote: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+  }
 };
