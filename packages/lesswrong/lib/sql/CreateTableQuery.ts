@@ -6,8 +6,8 @@ import Table from "./Table";
  * defined by `table`. If the table already exists, setting `ifNotExists`
  * to true will prevent an error from being thrown.
  *
- * Most queries don't care at all about whitespace, but this attempts to
- * make some attempts at being readable for the sake of generating schemas.
+ * Most queries don't care at all about whitespace, but this makes some
+ * attempt at being readable for the sake of generating schemas.
  */
 class CreateTableQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, ifNotExists = false) {
