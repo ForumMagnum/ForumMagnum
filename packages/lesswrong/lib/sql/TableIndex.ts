@@ -1,5 +1,5 @@
 import { CollationType, DEFAULT_COLLATION, getCollationType } from "./collation";
-import { MD5 } from "crypto-js";
+import { MD5 as md5 } from "crypto-js";
 
 /**
  * TableIndex represents a named Postgres index on a particular group
@@ -37,7 +37,7 @@ class TableIndex {
   private getSerializedFieldNames() {
     return this.fields.length <= 3
       ? this.fields.map((field) => field.replace(/\./g, "__")).join("_")
-      : MD5(this.fields.join("_")).toString();
+      : md5(this.fields.join("_")).toString();
   }
 
   getName() {
