@@ -7,6 +7,10 @@ import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import { DatabasePublicSetting } from '../../publicSettings';
+import moment from 'moment';
+
+const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
@@ -33,6 +37,16 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
+}
+
+/**
+ * Count a user as "new" if they have low karma or joined less than a week ago
+ */
+export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  return (
+    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
+  );
 }
 
 export interface SharableDocument {

@@ -156,6 +156,22 @@ ensureIndex(Comments,
   { name: "comments.top_comments" }
 );
 
+Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, score:-1, postedAt:-1 }),
+  { name: "comments.magic_comments" }
+);
+
 Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
   return {
     selector: {
@@ -320,6 +336,7 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
 
 export const questionAnswersSortings = {
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
+  "magic": {promoted: -1, score: -1, postedAt: -1},
   "newest": {postedAt: -1},
   "oldest": {postedAt: 1},
 } as const;
