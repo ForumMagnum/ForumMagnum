@@ -23,7 +23,7 @@ const PostsCoauthor = ({ post, coauthor }: {
     : UsersName;
   return (
     <>
-      , <Component user={coauthor} />
+      , <Component user={coauthor} {...(!isPending && {allowNewUserIcon: true})} />
     </>
   );
 }

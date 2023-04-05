@@ -1,11 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
-import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
-import { DatabasePublicSetting } from '../../../lib/publicSettings';
-
-const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   author: {
@@ -48,7 +44,7 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
   hideSprout?: boolean,
   className?: string
 }) => {
-  const { UserNameDeleted, UsersName, ForumIcon, LWTooltip } = Components
+  const { UserNameDeleted, UsersName } = Components
   const author = comment.user
   
   if (comment.deleted) {
@@ -64,33 +60,15 @@ const CommentUserName = ({comment, classes, simple = false, isPostAuthor, hideSp
       </span>
     );
   } else {
-    const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-    // show the "new user" sprout icon if the author has low karma or joined less than a week ago
-    const showSproutIcon = (karmaThreshold && author.karma < karmaThreshold) ||
-                            moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
     return <>
       <UsersName
         user={author}
         simple={simple}
+        allowNewUserIcon={!hideSprout}
+        showAuthorIcon={isEAForum && isPostAuthor}
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
-      {isEAForum && isPostAuthor && <LWTooltip
-          placement="bottom-start"
-          title="Post author"
-          className={classes.iconWrapper}
-        >
-          <ForumIcon icon="Author" className={classes.postAuthorIcon} />
-        </LWTooltip>
-      }
-      {showSproutIcon && !hideSprout && <LWTooltip
-          placement="bottom-start"
-          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
-          className={classes.iconWrapper}
-        >
-          <ForumIcon icon="Sprout" className={classes.sproutIcon} />
-        </LWTooltip>
-      }
     </>
   }
 }
