@@ -134,6 +134,7 @@ importComponent("CloudinaryImage2", () => require('../components/common/Cloudina
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
+importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -259,6 +260,7 @@ importComponent("LWPostsItem", () => require('../components/posts/LWPostsItem.ts
 importComponent("EAPostsItem", () => require('../components/posts/EAPostsItem.tsx'));
 importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));
 importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
+importComponent("PostsLayoutDropdown", () => require('../components/posts/PostsLayoutDropdown'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsItemTrailingButtons", () => require('../components/posts/PostsItemTrailingButtons'));
@@ -406,6 +408,7 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 // comments
 
 importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("RetractCommentMenuItem", () => require('../components/comments/CommentActions/RetractCommentMenuItem'));
 importComponent("MoveToAnswersMenuItem", () => require('../components/comments/CommentActions/MoveToAnswersMenuItem'));
@@ -617,21 +620,19 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
-importComponent("TagNotificationSettings", () => require('../components/tagging/TagNotificationSettings'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
 importComponent("TagSubforumPage2", () => require('../components/tagging/subforums/TagSubforumPage2'));
-importComponent("RightSidebarColumn", () => require('../components/tagging/subforums/RightSidebarColumn'));
+importComponent("SubforumLayout", () => require('../components/tagging/subforums/SubforumLayout'));
 importComponent("SidebarSubtagsBox", () => require('../components/tagging/subforums/SidebarSubtagsBox'));
 importComponent("SidebarMembersBox", () => require('../components/tagging/subforums/SidebarMembersBox'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
+importComponent("WriteNewButton", () => require('../components/tagging/WriteNewButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
 importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
-importComponent("SubforumListSettings", () => require('../components/tagging/subforums/SubforumListSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
-importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
 importComponent("SubforumWikiTab", () => require('../components/tagging/subforums/SubforumWikiTab'));
 importComponent("SubforumSubforumTab", () => require('../components/tagging/subforums/SubforumSubforumTab'));
 

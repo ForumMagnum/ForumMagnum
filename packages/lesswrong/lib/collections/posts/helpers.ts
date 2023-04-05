@@ -305,13 +305,13 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export type CoauthoredPost = Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">
+export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
 
 export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
     return false;
   }
-  const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
+  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
 

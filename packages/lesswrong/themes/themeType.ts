@@ -379,6 +379,7 @@ declare global {
       usersListItem: ColorString,
       primaryDim: ColorString,
       transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
