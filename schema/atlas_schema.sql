@@ -56,6 +56,34 @@ CREATE OR REPLACE FUNCTION fm_add_to_set(
     END;'
   ;
 
+
+CREATE TABLE IF NOT EXISTS migration_log(
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ NOT NULL,
+  unlog_time TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_migration_log_name ON migration_log (name);
+
+CREATE TABLE IF NOT EXISTS mongo2pg_lock (
+        collection_name TEXT PRIMARY KEY,
+        read_target TEXT DEFAULT 'mongo',
+        write_target TEXT DEFAULT 'mongo'
+      );
+
+ALTER TABLE mongo2pg_lock DROP CONSTRAINT IF EXISTS read_constraint;
+
+ALTER TABLE mongo2pg_lock DROP CONSTRAINT IF EXISTS write_constraint;
+
+ALTER TABLE mongo2pg_lock ADD CONSTRAINT read_constraint
+        CHECK (read_target IN ('mongo', 'pg'));
+
+ALTER TABLE mongo2pg_lock ADD CONSTRAINT write_constraint
+        CHECK (write_target IN ('mongo', 'pg', 'both'));
+
 CREATE TABLE "AdvisorRequests" (
   "_id" VARCHAR(27) PRIMARY KEY ,
   "userId" VARCHAR(27) ,

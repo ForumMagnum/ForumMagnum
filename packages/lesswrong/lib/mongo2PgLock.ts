@@ -15,6 +15,23 @@ const mongo2PgLock = new class {
   private readonly writeConstraint = "write_constraint";
   private isEnsured = false;
 
+  getSchemaQueries(): string[] {
+    const result: string[] = [
+      `CREATE TABLE IF NOT EXISTS ${this.tableName} (
+        collection_name TEXT PRIMARY KEY,
+        read_target TEXT DEFAULT 'mongo',
+        write_target TEXT DEFAULT 'mongo'
+      )`,
+      `ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint}`,
+      `ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint}`,
+      `ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
+        CHECK (read_target IN ('mongo', 'pg'))`,
+      `ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
+        CHECK (write_target IN ('mongo', 'pg', 'both'))`,
+    ];
+    return result;
+  }
+
   async ensureTableExists(db: SqlClient, force = false): Promise<void> {
     if (this.isEnsured && !force) {
       return;
@@ -22,28 +39,10 @@ const mongo2PgLock = new class {
     this.isEnsured = true;
 
     await db.tx(async (transaction) => {
-      await transaction.none(`
-      CREATE TABLE IF NOT EXISTS ${this.tableName} (
-        collection_name TEXT PRIMARY KEY,
-        read_target TEXT DEFAULT 'mongo',
-        write_target TEXT DEFAULT 'mongo'
-      );
-      `);
-      await transaction.none(`
-        ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint};
-      `);
-      await transaction.none(`
-        ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint};
-      `);
-      await transaction.none(`
-        ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
-        CHECK (read_target IN ('mongo', 'pg'));
-      `);
-      await transaction.none(`
-        ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
-        CHECK (write_target IN ('mongo', 'pg', 'both'));
-      `);
-
+      const schema = this.getSchemaQueries();
+      for (const query of schema) {
+        await transaction.none(query);
+      }
       const collectionNames = Collections.map(({options: {collectionName}}) => `('${collectionName}')`);
       await transaction.none(`
         INSERT INTO ${this.tableName} (collection_name) VALUES
@@ -93,3 +92,5 @@ export const setCollectionLockType = async (
   write: WriteTarget,
 ): Promise<void> =>
   mongo2PgLock.setCollectionType(getSqlClientOrThrow(), collectionName, read, write);
+
+export const getMongo2PgLockSchema = () => mongo2PgLock.getSchemaQueries();

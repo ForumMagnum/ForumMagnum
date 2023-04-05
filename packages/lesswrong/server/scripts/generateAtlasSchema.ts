@@ -5,6 +5,8 @@ import { getAllCollections, getCollection } from "../../lib/vulcan-lib/getCollec
 import { onConnectQueries, pgFormat } from "../sqlConnection";
 import { createWriteStream } from "fs";
 import { Globals } from "../vulcan-lib";
+import { MIGRATION_LOG_INDEXES, MIGRATION_LOG_SCHEMA } from "../migrations/meta/PgStorage";
+import { getMongo2PgLockSchema } from "../../lib/mongo2PgLock";
 
 const getCreateTableQueryForCollection = <T extends DbObject = DbObject>(
   collection: PgCollection<T>,
@@ -37,6 +39,18 @@ export const generateAtlasSchema = (filePath: string) => {
   output.write("-- DO NOT EDIT IT DIRECTLY\n\n");
 
   for (const query of onConnectQueries) {
+    output.write(query);
+    output.write(";\n\n");
+  }
+
+  output.write(MIGRATION_LOG_SCHEMA);
+  output.write(";\n\n");
+  for (const index of MIGRATION_LOG_INDEXES) {
+    output.write(index);
+    output.write(";\n\n");
+  }
+
+  for (const query of getMongo2PgLockSchema()) {
     output.write(query);
     output.write(";\n\n");
   }
