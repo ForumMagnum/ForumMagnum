@@ -39,11 +39,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       flexDirection: 'column',
       marginTop: 30,
     },
+    [theme.breakpoints.up('sm')]: {
+      marginTop: isEAForum ? 20 : undefined,
+    },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0
+    margin: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   sectionDescription: {
     ...theme.typography.commentStyle,

@@ -12,6 +12,7 @@ export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   padding: '24px 32px',
   marginBottom: 24,
   borderRadius: theme.borderRadius.default,
+  fontFamily: theme.palette.fonts.sansSerifStack,
   [theme.breakpoints.down('xs')]: {
     padding: 16,
   }
@@ -37,9 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
     fontSize: 20,
     lineHeight: '30px',
-    fontWeight: '700',
+    fontWeight: '600',
     paddingBottom: 3,
     borderBottom: `3px solid transparent`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       columnGap: 8,
       fontSize: 18,

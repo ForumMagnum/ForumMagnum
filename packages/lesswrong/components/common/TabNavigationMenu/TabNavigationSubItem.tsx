@@ -24,7 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     '&:hover': {
-      opacity: .6
+      opacity: isEAForum ? 1 : 0.6,
+      color: isEAForum ? theme.palette.grey[800] : undefined,
     },
     boxSizing: "content-box"
   }

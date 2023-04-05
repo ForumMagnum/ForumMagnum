@@ -5,8 +5,6 @@
  * MONGO_URL and SETTINGS_FILE
  */
 require("ts-node/register");
-const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
-const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
 const { readFile } = require("fs").promises;
 
 const initGlobals = (args, isProd) => {
@@ -20,6 +18,14 @@ const initGlobals = (args, isProd) => {
 
   const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
   getInstanceSettings(args); // These args will be cached for later
+}
+
+const fetchImports = (args, isProd) => {
+  initGlobals(args, isProd);
+
+  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
+  const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
+  return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
 const credentialsFile = (fileName) => {
@@ -67,7 +73,7 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
     throw new Error('Unable to run migration without a mode or environment (PG_URL, MONGO_URL and SETTINGS_FILE)');
   }
 
-  initGlobals(args, mode === "prod");
+  const { getSqlClientOrThrow, setSqlClient, createSqlConnection } = fetchImports(args, mode === "prod");
 
   if (isRunCommand) {
     const {initServer} = require("./packages/lesswrong/server/serverStartup");
