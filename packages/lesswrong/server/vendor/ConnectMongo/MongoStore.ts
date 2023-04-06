@@ -31,7 +31,7 @@ type ConcreteConnectMongoOptions = RequiredConnectMongoOptions & OptionalConnect
 export type ConnectMongoOptions = RequiredConnectMongoOptions & Partial<OptionalConnectMongoOptions>;
 
 const noop = () => {}
-const identity = (x: any) => x;
+const identity = <T>(x: T) => t;
 
 export default class MongoStore extends session.Store {
   private collection: ConnectMongoCollection;
