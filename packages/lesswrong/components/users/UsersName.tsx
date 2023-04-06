@@ -27,6 +27,7 @@ const UsersName = ({
   allowNewUserIcon?: boolean,
   tooltipPlacement?: PopperPlacementType,
   noTooltip?: boolean,
+  color?: boolean,
   /** Add an extra class/styling to the link */
   className?: string,
 }) => {

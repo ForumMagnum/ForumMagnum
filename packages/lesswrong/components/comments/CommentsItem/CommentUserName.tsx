@@ -41,24 +41,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-  profileImageWrapper: {
+  mainWrapper: {
     display: "flex",
     alignItems: "center",
-    borderRadius: theme.borderRadius.default,
-    padding: 4,
     "&:hover": {
       opacity: 1,
-      background: theme.palette.grey[300],
     },
     "& a:hover": {
       opacity: 1,
+    },
+  },
+  fullWrapper: {
+    borderRadius: theme.borderRadius.default,
+    padding: "1px 4px",
+    "&:hover": {
+      background: theme.palette.grey[300],
     },
   },
   profileImage: {
     minWidth: PROFILE_IMAGE_SIZE,
     marginLeft: 4,
     marginRight: 6,
-    transform: "translateY(1px)",
+    transform: "translateY(2px)",
     ["@media screen and (max-width: 290px)"]: {
       display: "none",
     },
@@ -98,28 +102,40 @@ const CommentUserName = ({
       </span>
     );
   } else if (isEAForum) {
+    const Wrapper = ({children}) => simple
+      ? (
+        <div className={classes.mainWrapper}>
+          {children}
+        </div>
+      )
+      : (
+        <UserTooltip user={author}>
+          <Link
+            to={userGetProfileUrl(author)}
+            className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
+          >
+            {children}
+          </Link>
+        </UserTooltip>
+      );
     return (
-      <UserTooltip user={author}>
-        <Link
-          to={userGetProfileUrl(author)}
-          className={classNames(classes.profileImageWrapper, className)}
-        >
-          <UsersProfileImage
-            user={author}
-            size={PROFILE_IMAGE_SIZE}
-            fallback="initials"
-            className={classNames(classes.profileImage, imageClassName)}
-          />
-          <UsersName
-            user={author}
-            simple={simple}
-            allowNewUserIcon={!hideSprout}
-            showAuthorIcon={isEAForum && isPostAuthor}
-            className={classes.author}
-            noTooltip
-          />
-        </Link>
-      </UserTooltip>
+      <Wrapper>
+        <UsersProfileImage
+          user={author}
+          size={PROFILE_IMAGE_SIZE}
+          fallback="initials"
+          className={classNames(classes.profileImage, imageClassName)}
+        />
+        <UsersName
+          user={author}
+          allowNewUserIcon={!hideSprout}
+          showAuthorIcon={isEAForum && isPostAuthor}
+          className={classes.author}
+          simple
+          color
+          noTooltip
+        />
+      </Wrapper>
     );
   }
 

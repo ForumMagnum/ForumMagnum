@@ -87,9 +87,9 @@ const UsersNameDisplay = ({
     </span>
   }
 
-  const Tooltip = noTooltip
-    ? ({children}) => children
-    : ({children}) => (
+  const Tooltip = ({children}) => noTooltip
+    ? children
+    : (
       <UserTooltip
         user={user}
         placement={tooltipPlacement}
