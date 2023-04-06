@@ -2586,6 +2586,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly beta: boolean,
   readonly theme: {

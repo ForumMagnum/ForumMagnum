@@ -363,6 +363,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
     showCommunityInRecentDiscussion
     beta
     theme
