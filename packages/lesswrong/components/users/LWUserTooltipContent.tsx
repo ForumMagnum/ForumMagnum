@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const LWUserTooltip = ({classes, user}: {
+export const LWUserTooltipContent = ({classes, user}: {
   classes: ClassesType,
   user: UsersMinimumInfo,
 }) => {
@@ -60,10 +60,14 @@ export const LWUserTooltip = ({classes, user}: {
   </span>
 }
 
-const LWUserTooltipComponent = registerComponent('LWUserTooltip', LWUserTooltip, {styles});
+const LWUserTooltipContentComponent = registerComponent(
+  'LWUserTooltipContent',
+  LWUserTooltipContent,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {
-    LWUserTooltip: typeof LWUserTooltipComponent
+    LWUserTooltipContent: typeof LWUserTooltipContentComponent
   }
 }

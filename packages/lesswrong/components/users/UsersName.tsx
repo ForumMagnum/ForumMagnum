@@ -8,7 +8,15 @@ import React from 'react';
  * with deleted accounts, where the user object that comes back in a query is
  * null for non-admins).
  */
-const UsersName = ({user, documentId, nofollow=false, simple=false, tooltipPlacement = "left", className, ...otherProps}: {
+const UsersName = ({
+  user,
+  documentId,
+  nofollow=false,
+  simple=false,
+  tooltipPlacement="left",
+  className,
+  ...otherProps
+}: {
   user?: UsersMinimumInfo|null|undefined,
   documentId?: string,
   /** Marks the link nofollow, so if it's spammy search engines won't crawl the user page. */
@@ -18,6 +26,7 @@ const UsersName = ({user, documentId, nofollow=false, simple=false, tooltipPlace
   showAuthorIcon?: boolean,
   allowNewUserIcon?: boolean,
   tooltipPlacement?: PopperPlacementType,
+  noTooltip?: boolean,
   /** Add an extra class/styling to the link */
   className?: string,
 }) => {

@@ -82,7 +82,7 @@ const CommentUserName = ({
   className?: string
   imageClassName?: string,
 }) => {
-  const { UserNameDeleted, UsersName, UsersProfileImage } = Components
+  const {UserNameDeleted, UsersName, UsersProfileImage, UserTooltip} = Components
   const author = comment.user;
 
   if (comment.deleted) {
@@ -99,38 +99,40 @@ const CommentUserName = ({
     );
   } else if (isEAForum) {
     return (
-      <Link
-        to={userGetProfileUrl(author)}
-        className={classNames(classes.profileImageWrapper, className)}
-      >
-        <UsersProfileImage
-          user={author}
-          size={PROFILE_IMAGE_SIZE}
-          fallback="initials"
-          className={classNames(classes.profileImage, imageClassName)}
-        />
-        <UsersName
-          user={author}
-          simple={simple}
-          allowNewUserIcon={!hideSprout}
-          showAuthorIcon={isEAForum && isPostAuthor}
-          className={classes.author}
-          tooltipPlacement="bottom-start"
-        />
-      </Link>
-    );
-  } else {
-    return (
-      <UsersName
-        user={author}
-        simple={simple}
-        allowNewUserIcon={!hideSprout}
-        showAuthorIcon={isEAForum && isPostAuthor}
-        className={classNames(className, classes.author)}
-        tooltipPlacement="bottom-start"
-      />
+      <UserTooltip user={author}>
+        <Link
+          to={userGetProfileUrl(author)}
+          className={classNames(classes.profileImageWrapper, className)}
+        >
+          <UsersProfileImage
+            user={author}
+            size={PROFILE_IMAGE_SIZE}
+            fallback="initials"
+            className={classNames(classes.profileImage, imageClassName)}
+          />
+          <UsersName
+            user={author}
+            simple={simple}
+            allowNewUserIcon={!hideSprout}
+            showAuthorIcon={isEAForum && isPostAuthor}
+            className={classes.author}
+            noTooltip
+          />
+        </Link>
+      </UserTooltip>
     );
   }
+
+  return (
+    <UsersName
+      user={author}
+      simple={simple}
+      allowNewUserIcon={!hideSprout}
+      showAuthorIcon={isEAForum && isPostAuthor}
+      className={classNames(className, classes.author)}
+      tooltipPlacement="bottom-start"
+    />
+  );
 }
 
 const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {

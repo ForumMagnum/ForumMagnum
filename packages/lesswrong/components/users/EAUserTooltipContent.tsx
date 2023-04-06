@@ -4,7 +4,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 const styles = (_: ThemeType): JssStyles => ({
 });
 
-const EAUserTooltip = ({user, classes}: {
+const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType,
 }) => {
@@ -15,14 +15,14 @@ const EAUserTooltip = ({user, classes}: {
   );
 }
 
-const EAUserTooltipComponent = registerComponent(
-  "EAUserTooltip",
-  EAUserTooltip,
+const EAUserTooltipContentComponent = registerComponent(
+  "EAUserTooltipContent",
+  EAUserTooltipContent,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAUserTooltip: typeof EAUserTooltipComponent
+    EAUserTooltipContent: typeof EAUserTooltipContentComponent
   }
 }

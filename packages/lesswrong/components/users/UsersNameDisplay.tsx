@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
-import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   color: {
@@ -30,13 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-  tooltip: isEAForum
-    ? {
-      background: theme.palette.grey[0],
-      borderRadius: theme.borderRadius.default,
-      padding: 12,
-    }
-    : {},
 });
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean)=>void};
@@ -46,7 +39,18 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, showAuthorIcon=false, allowNewUserIcon=false, classes, tooltipPlacement = "left", className}: {
+const UsersNameDisplay = ({
+  user,
+  color=false,
+  nofollow=false,
+  simple=false,
+  showAuthorIcon=false,
+  allowNewUserIcon=false,
+  classes,
+  tooltipPlacement="left",
+  noTooltip,
+  className,
+}: {
   user: UsersMinimumInfo|null|undefined,
   color?: boolean,
   nofollow?: boolean,
@@ -55,6 +59,7 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, show
   allowNewUserIcon?: boolean,
   classes: ClassesType,
   tooltipPlacement?: PopperPlacementType,
+  noTooltip?: boolean,
   className?: string,
 }) => {
   const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
@@ -72,7 +77,7 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, show
     return <Components.UserNameDeleted userShownToAdmins={user}/>
   }
   const { UserTooltip, LWTooltip, ForumIcon } = Components
-  
+
   const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
@@ -82,22 +87,29 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, show
     </span>
   }
 
+  const Tooltip = noTooltip
+    ? ({children}) => children
+    : ({children}) => (
+      <UserTooltip
+        user={user}
+        placement={tooltipPlacement}
+        inlineBlock={false}
+      >
+        {children}
+      </UserTooltip>
+    );
+
   const showNewUserIcon = allowNewUserIcon && isNewUser(user);
   return <span className={className}>
     <span {...eventHandlers}>
       <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-      <LWTooltip
-        title={<UserTooltip user={user}/>}
-        placement={tooltipPlacement}
-        inlineBlock={false}
-        popperClassName={classes.tooltip}
-      >
+      <Tooltip>
         <Link to={userGetProfileUrl(user)} className={colorClass}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >
           {displayName}
         </Link>
-      </LWTooltip>
+      </Tooltip>
       </AnalyticsContext>
     </span>
     {showAuthorIcon && <LWTooltip
