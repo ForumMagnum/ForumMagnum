@@ -1,5 +1,6 @@
 import type { Index } from "algoliasearch/lite";
 import type { MultiResponse, QueryParameters, SearchForFacetValues } from "algoliasearch";
+import LRU from "lru-cache";
 
 export type SearchQuery = {
   indexName: string;
@@ -9,6 +10,7 @@ export type SearchQuery = {
 
 class PostgresSearchClient {
   private headers: Record<string, string> = {};
+  private cache = new LRU<string, Promise<MultiResponse<any>>>();
 
   initIndex(_indexName: string): Index {
     throw new Error("initIndex not supported by PostgresSearchClient");
@@ -23,6 +25,11 @@ class PostgresSearchClient {
     queries: SearchQuery[],
     cb?: (err: Error|null, res: MultiResponse<T>|null) => void,
   ): Promise<MultiResponse<T>>|void {
+    const body = JSON.stringify(queries);
+    const cached = this.cache.get(body);
+    if (cached) {
+      return cached;
+    }
     const promise = new Promise<MultiResponse<T>>((resolve, reject) => {
       fetch("/api/search", {
         method: "POST",
@@ -30,13 +37,14 @@ class PostgresSearchClient {
           ...this.headers,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(queries),
+        body,
       }).then((response) => {
         response.json().then((results) => {
           resolve({results});
         }).catch(reject);
       }).catch(reject);
     });
+    this.cache.set(body, promise);
     if (cb) {
       promise.then((result) => cb(null, result)).catch((err) => cb(err, null));
     } else {
@@ -51,7 +59,7 @@ class PostgresSearchClient {
   }
 
   clearCache(): void {
-    // TODO
+    this.cache.reset();
   }
 
   setExtraHeader(name: string, value: string): void {
