@@ -1,16 +1,127 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
+import moment from "moment";
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    width: 270,
+    maxWidth: "100%",
+    gap: "12px",
+    fontSize: 13,
+  },
+  header: {
+    display: "flex",
+    maxWidth: "100%",
+  },
+  headerInfo: {
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    color: theme.palette.grey[650],
+    "& *": {
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      "&:first-child": {
+        fontSize: 16,
+        fontWeight: 600,
+        color: theme.palette.grey["A400"],
+      },
+    },
+  },
+  profileImage: {
+    marginRight: 12,
+  },
+  role: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 3,
+    color: theme.palette.grey[1000],
+  },
+  bio: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 5,
+    color: theme.palette.grey[600],
+  },
+  stats: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "2em",
+    margin: 4,
+  },
+  stat: {
+    textAlign: "center",
+    color: theme.palette.grey[650],
+    "& *:first-child": {
+      fontSize: 14,
+      fontWeight: 600,
+      color: theme.palette.grey["A400"],
+    },
+  },
 });
+
+const formatRole = (jobTitle?: string, organization?: string) =>
+  jobTitle && organization
+    ? `${jobTitle} @ ${organization}`
+    : (jobTitle || organization) ?? "";
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType,
 }) => {
+  const {
+    displayName,
+    createdAt,
+    jobTitle,
+    organization,
+    htmlBio,
+    karma,
+    postCount,
+    commentCount,
+  } = user;
+  const role = formatRole(jobTitle, organization);
+  const {UsersProfileImage} = Components;
   return (
-    <div>
-      {user.displayName}
+    <div className={classes.root}>
+      <div className={classes.header}>
+        <UsersProfileImage user={user} size={40} className={classes.profileImage} />
+        <div className={classes.headerInfo}>
+          <div>{displayName}</div>
+          <div>Joined {moment(createdAt).fromNow()} ago</div>
+        </div>
+      </div>
+      {role &&
+        <div className={classes.role}>
+          {role}
+        </div>
+      }
+      {htmlBio &&
+        <div
+          className={classes.bio}
+          dangerouslySetInnerHTML={{__html: htmlBio}}
+        />
+      }
+      <div className={classes.stats}>
+        <div className={classes.stat}>
+          <div>{karma}</div>
+          <div>Karma</div>
+        </div>
+        <div className={classes.stat}>
+          <div>{postCount}</div>
+          <div>Posts</div>
+        </div>
+        <div className={classes.stat}>
+          <div>{commentCount}</div>
+          <div>Comments</div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -78,7 +78,7 @@ const InitialFallback: FC<{
   );
 });
 
-const UsersProfileImage = ({user, size, fallback, className, classes}: {
+const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
   user: UsersMinimumInfo,
   size: number,
   fallback?: ProfileImageFallback,
