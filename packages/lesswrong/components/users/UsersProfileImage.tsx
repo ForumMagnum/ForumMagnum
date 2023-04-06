@@ -8,6 +8,7 @@ export type ProfileImageFallback = "initials";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderRadius: "50%",
+    background: theme.palette.grey[200],
   },
   initalText: {
     color: "#222", // For both light and dark mode
