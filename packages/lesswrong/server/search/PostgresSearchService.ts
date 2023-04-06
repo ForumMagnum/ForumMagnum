@@ -5,6 +5,7 @@ import {
 import PgCollection from "../../lib/sql/PgCollection";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { getCollection, isValidCollectionName } from "../vulcan-lib";
+import PostgresSearchCache from "./PostgresSearchCache";
 import type { PostgresSearchQuery } from "./PostgresSearchQuery";
 
 type Sorting = "relevance" | "date" | "karma";
@@ -42,6 +43,8 @@ type Result = {
 }
 
 class PostgresSearchService {
+  private cache = new PostgresSearchCache();
+
   async runQuery({indexName, params}: PostgresSearchQuery): Promise<Result|null> {
     // TODO TMP
     if (indexName.toLowerCase().indexOf("posts") < 0) return null;
@@ -60,7 +63,7 @@ class PostgresSearchService {
     if (!collectionIsSearchable(collection)) {
       throw new Error("Collection is not searchable");
     }
-    const hits = await this.search(
+    const hits = await this.searchWithCache(
       collection,
       query,
       highlightPreTag,
@@ -133,6 +136,34 @@ class PostgresSearchService {
     }
   }
 
+  private async searchWithCache<T extends DbSearchableType = DbSearchableType>(
+    collection: PgCollection<T>,
+    query: string,
+    highlightPreTag: string,
+    highlightPostTag: string,
+    offset: number,
+    limit: number,
+    sorting: Sorting,
+  ): Promise<ResultHit[]> {
+    const keyElements = [
+      collection,
+      query,
+      highlightPreTag,
+      highlightPostTag,
+      offset,
+      limit,
+      sorting,
+    ] as const;
+    const key = keyElements.map(String).join("_");
+    const cached = this.cache.get(key);
+    if (cached) {
+      return cached;
+    }
+    const result = await this.search(...keyElements);
+    this.cache.set(key, result);
+    return result;
+  }
+
   private async search<T extends DbSearchableType = DbSearchableType>(
     collection: PgCollection<T>,
     query: string,
@@ -141,7 +172,7 @@ class PostgresSearchService {
     offset: number,
     limit: number,
     _sorting: Sorting, // TODO Sorting
-  ) {
+  ): Promise<ResultHit[]> {
     const {
       headlineTitleSelector: title,
       headlineBodySelector: body,
