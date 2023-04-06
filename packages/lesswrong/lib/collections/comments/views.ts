@@ -111,7 +111,8 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   "old": {postedAt: 1},
   "oldest": {postedAt: 1},
   recentComments: { lastSubthreadActivity: -1 },
-  recentDiscussion: { lastSubthreadActivity: -1 }, // DEPRECATED
+  /** DEPRECATED */
+  recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
 export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
