@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 270,
     maxWidth: "100%",
     gap: "12px",
-    fontSize: 13,
+    fontSize: 14,
   },
   header: {
     display: "flex",
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       whiteSpace: "nowrap",
       textOverflow: "ellipsis",
       "&:first-child": {
-        fontSize: 16,
+        fontSize: "1.3rem",
         fontWeight: 600,
         color: theme.palette.grey["A400"],
       },
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     color: theme.palette.grey[650],
     "& *:first-child": {
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: 600,
       color: theme.palette.grey["A400"],
     },
