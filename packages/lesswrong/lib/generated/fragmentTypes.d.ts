@@ -2359,6 +2359,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly nullifyVotes: boolean,
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
+  readonly hideCommunitySection: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
