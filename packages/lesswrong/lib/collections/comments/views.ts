@@ -119,7 +119,7 @@ export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1},
   });
 }
 
@@ -177,6 +177,22 @@ Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
 ensureIndex(Comments,
   augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
   { name: "comments.top_comments" }
+);
+
+Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, score:-1, postedAt:-1 }),
+  { name: "comments.magic_comments" }
 );
 
 Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
@@ -255,7 +271,7 @@ Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
+ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
@@ -344,6 +360,7 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
 export const questionAnswersSortings : Record<CommentSortingMode,MongoSelector<DbComment>> = {
   ...sortings,
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
+  "magic": {promoted: -1, score: -1, postedAt: -1},
 } as const;
 
 Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {

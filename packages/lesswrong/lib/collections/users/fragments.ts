@@ -290,6 +290,10 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }

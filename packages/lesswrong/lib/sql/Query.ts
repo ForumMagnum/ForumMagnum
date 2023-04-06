@@ -573,6 +573,10 @@ abstract class Query<T extends DbObject> {
     if (op === "$abs") {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
+    
+    if (op === "$exp") {
+      return ["EXP(", ...this.compileExpression(expr[op]), ")"];
+    }
 
     if (op === "$sum") {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];

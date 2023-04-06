@@ -1,7 +1,11 @@
+import React from 'react';
 import { isEAForum } from "../../instanceSettings";
+import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
+import { Components } from '../../../lib/vulcan-lib';
 
 export interface SettingsOption {
-  label: string;
+  label: string | JSX.Element;
+  shortLabel?: string | React.ReactNode;
   tooltip?: string;
 }
 
@@ -19,3 +23,8 @@ export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
   new: { label: 'New' },
   old: { label: 'Old' },
 }
+
+export const postsLayouts = new TupleSet(["card", "list"] as const)
+export type PostsLayout = UnionOf<typeof postsLayouts>
+export const isPostsLayout = (tab: string): tab is PostsLayout => postsLayouts.has(tab)
+export const defaultPostsLayout: PostsLayout = "list"

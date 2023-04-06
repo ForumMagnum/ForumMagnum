@@ -3,6 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -14,10 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: -10,
     ...theme.typography.smallCaps,
   },
-  serif: {
-    fontFamily: theme.typography.body1.fontFamily,
+  notRecentDiscussionTitle: {
+    fontFamily: isEAForum
+      ? theme.palette.fonts.sansSerifStack
+      : theme.typography.body1.fontFamily,
   },
-  sansSerif: {
+  recentDiscussionTitle: {
     fontSize: 16,
     fontFamily: theme.typography.fontFamily
   },
@@ -42,14 +45,17 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   if (!document) {
     return null
   }
-  
-  let groupName
+
+  let groupName: React.ReactNode;
   if (post.group) {
     groupName = document.deleted ? document.name : <Link to={'/groups/' + post.group._id }>{ document.name }</Link>
   }
 
   return <div className={inRecentDiscussion ? '' : classes.root}>
-    <div className={classNames(classes.title, {[classes.sansSerif]: inRecentDiscussion, [classes.serif]: !inRecentDiscussion})}>
+    <div className={classNames(classes.title, {
+      [classes.recentDiscussionTitle]: inRecentDiscussion,
+      [classes.notRecentDiscussionTitle]: !inRecentDiscussion,
+    })}>
       {groupName}
     </div>
   </div>

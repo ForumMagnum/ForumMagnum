@@ -7,7 +7,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
@@ -73,7 +73,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
     marginTop: 8,
-    marginBottom: 0
+    marginBottom: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,

@@ -70,6 +70,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "100%",
     padding: 0,
   },
+  mainUnspacedGrid: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 0,
+      paddingLeft: 0,
+      paddingRight: 0,
+    }
+  },
   fullscreen: {
     // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
     // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
@@ -115,6 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .Layout-main': {
       width: '100%',
+      paddingTop: 0,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -332,6 +340,7 @@ const Layout = ({currentUser, children, classes}: {
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

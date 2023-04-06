@@ -7,6 +7,7 @@ import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -81,7 +82,11 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
 }
 
 export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
-  const fallback = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+  const fallback = forumSelect({
+    AlignmentForum: "afPostCommentsTop",
+    EAForum: "postCommentsMagic",
+    default: "postCommentsTop",
+  });
   return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
 }
 

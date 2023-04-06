@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import Tooltip from '@material-ui/core/Tooltip';
 
