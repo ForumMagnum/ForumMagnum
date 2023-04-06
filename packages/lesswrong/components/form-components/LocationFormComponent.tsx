@@ -212,7 +212,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
   />
 }
 
-const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker);
+const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
 declare global {
