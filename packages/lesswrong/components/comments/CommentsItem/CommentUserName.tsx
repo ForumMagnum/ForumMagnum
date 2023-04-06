@@ -131,7 +131,6 @@ const CommentUserName = ({
           allowNewUserIcon={!hideSprout}
           showAuthorIcon={isEAForum && isPostAuthor}
           className={classes.author}
-          simple
           color
           noTooltip
         />

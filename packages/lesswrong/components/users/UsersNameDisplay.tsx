@@ -95,7 +95,11 @@ const UsersNameDisplay = ({
         placement={tooltipPlacement}
         inlineBlock={false}
       >
-        {children}
+        <Link to={userGetProfileUrl(user)} className={colorClass}
+          {...(nofollow ? {rel:"nofollow"} : {})}
+        >
+          {children}
+        </Link>
       </UserTooltip>
     );
 
@@ -103,13 +107,9 @@ const UsersNameDisplay = ({
   return <span className={className}>
     <span {...eventHandlers}>
       <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-      <Tooltip>
-        <Link to={userGetProfileUrl(user)} className={colorClass}
-          {...(nofollow ? {rel:"nofollow"} : {})}
-        >
+        <Tooltip>
           {displayName}
-        </Link>
-      </Tooltip>
+        </Tooltip>
       </AnalyticsContext>
     </span>
     {showAuthorIcon && <LWTooltip
