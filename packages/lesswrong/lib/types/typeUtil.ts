@@ -40,4 +40,28 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
     : never;
 
 type FromPartial<T> = T extends Partial<infer U> ? U : never;
+
+/**
+ * Has Typescript type "any" because it's a JSON blob coming from a user input,
+ * wire protocol field, config file, or similar. This should probably be
+ * validated and converted to a more specific type before use.
+ */
+type AnyBecauseIsInput = any
+
+/**
+ * Has Typescript type "any" because no one has gotten around to annotating
+ * this with a more specific type yet. This is intended for code written prior
+ * to when we switched from Javascript to Typescript and should mostly not be
+ * used in new code.
+ */
+type AnyBecauseTodo = any
+
+/**
+ * Has Typescript type "any" because this is legacy code that someone has
+ * judged to not be worth ever adding type annotations to, eg old migration and
+ * import scripts that are kept around for recordkeeping purposes but aren't
+ * expected to actually be used again.
+ */
+type AnyBecauseObsolete = any
+
 }
