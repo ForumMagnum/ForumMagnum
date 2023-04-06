@@ -52,8 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   stats: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    gap: "2em",
+    justifyContent: "space-between",
+    padding: "0 1em",
     margin: 4,
   },
   stat: {
@@ -96,7 +96,11 @@ const EAUserTooltipContent = ({user, classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        <UsersProfileImage user={user} size={40} className={classes.profileImage} />
+        <UsersProfileImage
+          user={user}
+          size={40}
+          className={classes.profileImage}
+        />
         <div className={classes.headerInfo}>
           <div>{displayName}</div>
           <div>Joined {moment(createdAt).fromNow()} ago</div>
