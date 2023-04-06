@@ -96,11 +96,6 @@ const SubforumSubforumTab = ({
   }, [refetchRef]);
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
-  
-  const clickNewShortform = useCallback(() => {
-    setNewShortformOpen(true)
-    captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
-  }, [captureEvent, setNewShortformOpen, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
     collectionName: 'UserTagRels',
@@ -225,7 +220,7 @@ const SubforumSubforumTab = ({
   </>;
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag, {...query, sortedBy: sortBy}),
     limit: 10
   }
   const listLayoutComponent = (
