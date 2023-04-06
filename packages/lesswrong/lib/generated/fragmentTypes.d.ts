@@ -77,6 +77,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
