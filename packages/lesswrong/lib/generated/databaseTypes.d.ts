@@ -925,6 +925,7 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+  searchVector: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {

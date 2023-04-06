@@ -7,11 +7,8 @@ import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
 import { forumTypeSetting } from '../../instanceSettings';
+import { makeSearchable } from '../../make_searchable';
 
-type getUrlOptions = {
-  edit?: boolean, 
-  flagId?: string
-}
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
@@ -115,5 +112,35 @@ makeEditable({
     },
   }
 })
+
+makeSearchable<DbTag>({
+  collection: Tags,
+  indexableColumns: [
+    {selector: `"name"`, priority: "A"},
+    {selector: `"description"->'html'`, priority: "B", isHtml: true},
+  ],
+  headlineTitleSelector: `"name"`,
+  headlineBodySelector: `"description"->'html'`,
+  filter: (docName: string) => `
+    ${docName}."adminOnly" IS NOT TRUE AND
+    ${docName}."deleted" IS NOT TRUE`,
+  fields: [
+    "_id",
+    "name",
+    "slug",
+    "core",
+    "defaultOrder",
+    "suggestedAsFilter",
+    "postCount",
+    "wikiOnly",
+    "isSubforum",
+    "description",
+    "bannerImageId",
+    "parentTagId",
+  ] as const,
+  syntheticFields: {
+    objectID: (docName: string) => `${docName}."_id"`,
+  },
+});
 
 export default Tags;

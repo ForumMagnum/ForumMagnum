@@ -114,7 +114,9 @@ makeEditable({
 makeSearchable<DbPost>({
   collection: Posts,
   indexableColumns: [
+    {selector: `"_id"`, priority: "A"},
     {selector: `"title"`, priority: "A"},
+    {selector: `"author"`, priority: "A"},
     {selector: `"contents"->>'html'`, priority: "B", isHtml: true},
   ],
   headlineTitleSelector: `"title"`,

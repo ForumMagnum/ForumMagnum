@@ -162,4 +162,50 @@ makeEditable({
   return user;
 }
 
+makeSearchable<DbUser>({
+  collection: Users,
+  indexableColumns: [
+    {selector: `"displayName"`, priority: "A"},
+    {selector: `"username"`, priority: "A"},
+    {selector: `"fullName"`, priority: "A"},
+    {selector: `"biography"->'html'`, priority: "B", isHtml: true},
+    {selector: `"jobTitle"`, priority: "B"},
+    {selector: `"organization"`, priority: "B"},
+    {selector: `"howICanHelpOthers"`, priority: "B"},
+    {selector: `"howOthersCanHelpMe"`, priority: "B"},
+  ],
+  headlineTitleSelector: `"displayName"`,
+  headlineBodySelector: `"biography"->'html'`,
+  filter: (docName: string) => `
+    ${docName}."noindex" IS NOT TRUE AND
+    ${docName}."banned" IS NOT TRUE AND
+    ${docName}."deleted" IS NOT TRUE`,
+  fields: [
+    "_id",
+    "username",
+    "displayName",
+    "createdAt",
+    "isAdmin",
+    "profileImageId",
+    "karma",
+    "slug",
+    "jobTitle",
+    "organization",
+    "website",
+    "groups",
+    "af",
+  ] as const,
+  syntheticFields: {
+    objectID: (docName: string) => `${docName}."_id"`,
+    publicDateMs: (docName: string) => `${docName}."createdAt"`,
+    tags: (docName: string) => `${docName}."profileTagIds"`,
+    htmlBio: (docName: string) => `${docName}."biography"->'html'`,
+    bio: (_: string) => `'TODO: User text bio'`, // TODO
+    mapLocationAddress: (docName: string) =>
+      `${docName}."mapLocation"->'formatted_address'`,
+    _geoLoc: (docName: string) =>
+      `${docName}."mapLocation"->'geometry'->'location'`,
+  },
+});
+
 export default Users;
