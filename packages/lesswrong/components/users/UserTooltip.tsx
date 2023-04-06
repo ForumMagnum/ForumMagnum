@@ -8,6 +8,8 @@ const styles = (theme: ThemeType) => ({
     ? {
       background: theme.palette.grey[0],
       borderRadius: theme.borderRadius.default,
+      border: `1px solid ${theme.palette.grey[120]}`,
+      boxShadow: theme.palette.boxShadow.default,
       padding: 12,
       marginTop: 2,
     }
