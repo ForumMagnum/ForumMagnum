@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   color: {
@@ -29,8 +29,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: -2,
     color: theme.palette.icon.sprout,
     fontSize: 16,
-  }
-})
+  },
+  tooltip: isEAForum
+    ? {
+      background: theme.palette.grey[0],
+      borderRadius: theme.borderRadius.default,
+      padding: 12,
+    }
+    : {},
+});
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean)=>void};
 export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >({disableNoKibitz: false, setDisableNoKibitz: ()=>{}});
@@ -79,7 +86,12 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, show
   return <span className={className}>
     <span {...eventHandlers}>
       <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-      <LWTooltip title={<UserTooltip user={user}/>} placement={tooltipPlacement} inlineBlock={false}>
+      <LWTooltip
+        title={<UserTooltip user={user}/>}
+        placement={tooltipPlacement}
+        inlineBlock={false}
+        popperClassName={classes.tooltip}
+      >
         <Link to={userGetProfileUrl(user)} className={colorClass}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >
