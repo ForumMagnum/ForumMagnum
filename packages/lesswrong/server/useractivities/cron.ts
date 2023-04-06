@@ -82,6 +82,7 @@ async function assertTableIntegrity(dataDb: SqlClient) {
 
   // Log the incorrect array lengths and their counts
   if (arrayLengths.length > 0) {
+    console.error(`UserActivities table has rows with arrays of the incorrect length. Dropping rows to fix this.`);
     console.error('Incorrect array lengths and their counts:');
     for (const arrayLength of arrayLengths) {
       console.error(`length: ${arrayLength.length}, count: ${arrayLength.count}`);
