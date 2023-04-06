@@ -55,10 +55,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     display: "inline-block",
     verticalAlign: "middle",
+    transform: isEAForum ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
     },
+  },
+  collapseChevron: {
+    width: 15,
+    transition: "transform 0.2s",
+  },
+  collapseChevronOpen: {
+    transform: "rotate(90deg)",
   },
   username: {
     marginRight: 10,
@@ -228,7 +236,13 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          [<span>{collapsed ? "+" : "-"}</span>]
+          {isEAForum
+            ? <ForumIcon icon="ThickChevronRight" className={classNames(
+                classes.collapseChevron,
+                {[classes.collapseChevronOpen]: !collapsed},
+              )} />
+            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+          }
         </a>
       }
       {singleLineCollapse && <a className={classes.collapse} onClick={() =>
