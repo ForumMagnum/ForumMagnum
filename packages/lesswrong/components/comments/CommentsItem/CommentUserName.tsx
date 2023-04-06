@@ -1,15 +1,11 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
-import { isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
-import { DatabasePublicSetting } from '../../../lib/publicSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 
 const PROFILE_IMAGE_SIZE = 20;
-
-const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   author: {
@@ -74,10 +70,8 @@ const CommentUserName = ({
   className?: string
   imageClassName?: string,
 }) => {
-  const {
-    UserNameDeleted, UsersName, ForumIcon, LWTooltip, UsersProfileImage,
-  } = Components
-  const author = comment.user
+  const { UserNameDeleted, UsersName, UsersProfileImage } = Components
+  const author = comment.user;
 
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>
@@ -92,10 +86,6 @@ const CommentUserName = ({
       </span>
     );
   } else {
-    const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-    // show the "new user" sprout icon if the author has low karma or joined less than a week ago
-    const showSproutIcon = (karmaThreshold && author.karma < karmaThreshold) ||
-                            moment(author.createdAt).isAfter(moment().subtract(1, 'week'))
     return <>
       {isEAForum &&
         <Link to={userGetProfileUrl(author)} className={classes.profileImageWrapper}>
@@ -110,25 +100,11 @@ const CommentUserName = ({
       <UsersName
         user={author}
         simple={simple}
+        allowNewUserIcon={!hideSprout}
+        showAuthorIcon={isEAForum && isPostAuthor}
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
-      {isEAForum && isPostAuthor && <LWTooltip
-          placement="bottom-start"
-          title="Post author"
-          className={classes.iconWrapper}
-        >
-          <ForumIcon icon="Author" className={classes.postAuthorIcon} />
-        </LWTooltip>
-      }
-      {showSproutIcon && !hideSprout && <LWTooltip
-          placement="bottom-start"
-          title={`${author.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
-          className={classes.iconWrapper}
-        >
-          <ForumIcon icon="Sprout" className={classes.sproutIcon} />
-        </LWTooltip>
-      }
     </>
   }
 }
