@@ -2286,6 +2286,8 @@ interface UsersMinimumInfo { // fragment on Users
   readonly deleted: boolean,
   readonly isAdmin: boolean,
   readonly htmlBio: string,
+  readonly jobTitle: string,
+  readonly organization: string,
   readonly postCount: number,
   readonly commentCount: number,
   readonly sequenceCount: number,

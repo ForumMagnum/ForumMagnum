@@ -15,6 +15,8 @@ registerFragment(`
     deleted
     isAdmin
     htmlBio
+    jobTitle
+    organization
     postCount
     commentCount
     sequenceCount
