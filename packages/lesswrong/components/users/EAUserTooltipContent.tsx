@@ -67,10 +67,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const formatRole = (jobTitle?: string, organization?: string) =>
+const formatRole = (jobTitle?: string, organization?: string): string =>
   jobTitle && organization
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
+
+const formatStat = (value = 0): string =>
+  value > 10000
+    ? `${Math.floor(value / 1000)} ${value % 1000}`
+    : String(value);
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
@@ -110,15 +115,15 @@ const EAUserTooltipContent = ({user, classes}: {
       }
       <div className={classes.stats}>
         <div className={classes.stat}>
-          <div>{karma}</div>
+          <div>{formatStat(karma)}</div>
           <div>Karma</div>
         </div>
         <div className={classes.stat}>
-          <div>{postCount}</div>
+          <div>{formatStat(postCount)}</div>
           <div>Posts</div>
         </div>
         <div className={classes.stat}>
-          <div>{commentCount}</div>
+          <div>{formatStat(commentCount)}</div>
           <div>Comments</div>
         </div>
       </div>
