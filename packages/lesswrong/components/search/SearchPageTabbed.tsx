@@ -5,7 +5,7 @@ import { RefinementListExposed, RefinementListProvided, SearchState } from 'reac
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -62,7 +62,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   filtersHeadline: {
-    marginBottom: 18
+    marginBottom: 18,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   filterLabel: {
     fontSize: 14,
