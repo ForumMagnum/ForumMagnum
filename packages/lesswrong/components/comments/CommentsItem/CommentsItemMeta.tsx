@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
+      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {

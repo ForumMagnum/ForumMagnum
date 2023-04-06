@@ -11,6 +11,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
+    ...(isEAForum && {
+      marginRight: 2,
+    }),
   },
   authorAnswer: {
     ...theme.typography.body2,
@@ -41,6 +44,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   profileImageWrapper: {
     display: "flex",
     alignItems: "center",
+    borderRadius: theme.borderRadius.default,
+    padding: 4,
+    "&:hover": {
+      opacity: 1,
+      background: theme.palette.grey[300],
+    },
+    "& a:hover": {
+      opacity: 1,
+    },
   },
   profileImage: {
     minWidth: PROFILE_IMAGE_SIZE,
@@ -85,18 +97,30 @@ const CommentUserName = ({
         Answer by <UsersName user={author} simple={simple}/>
       </span>
     );
+  } else if (isEAForum) {
+    return (
+      <Link
+        to={userGetProfileUrl(author)}
+        className={classNames(classes.profileImageWrapper, className)}
+      >
+        <UsersProfileImage
+          user={author}
+          size={PROFILE_IMAGE_SIZE}
+          fallback="initials"
+          className={classNames(classes.profileImage, imageClassName)}
+        />
+        <UsersName
+          user={author}
+          simple={simple}
+          allowNewUserIcon={!hideSprout}
+          showAuthorIcon={isEAForum && isPostAuthor}
+          className={classes.author}
+          tooltipPlacement="bottom-start"
+        />
+      </Link>
+    );
   } else {
-    return <>
-      {isEAForum &&
-        <Link to={userGetProfileUrl(author)} className={classes.profileImageWrapper}>
-          <UsersProfileImage
-            user={author}
-            size={PROFILE_IMAGE_SIZE}
-            fallback="initials"
-            className={classNames(classes.profileImage, imageClassName)}
-          />
-        </Link>
-      }
+    return (
       <UsersName
         user={author}
         simple={simple}
@@ -105,7 +129,7 @@ const CommentUserName = ({
         className={classNames(className, classes.author)}
         tooltipPlacement="bottom-start"
       />
-    </>
+    );
   }
 }
 
