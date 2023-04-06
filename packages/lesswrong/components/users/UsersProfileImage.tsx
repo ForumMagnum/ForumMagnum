@@ -39,10 +39,8 @@ const InitialFallback: FC<{
   className?: string,
   classes: ClassesType,
 }> = memo(({displayName, size, className, classes}) => {
-  const initials = displayName.split(/[\s-_.]/).map(
-    (s) => encodeURIComponent(s[0]).toUpperCase(),
-  );
-  const text = initials.join("").slice(0, 3);
+  const initials = displayName.split(/[\s-_.]/).map((s) => s[0]?.toUpperCase());
+  const text = initials.filter((s) => s.length).join("").slice(0, 3);
   const background = userBackground(displayName);
   return (
     <svg
