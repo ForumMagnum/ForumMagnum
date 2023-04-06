@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag';
-import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -152,7 +151,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const {
     MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary
+    UsersName, NewUserDMSummary, FirstContentIcons
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -183,7 +182,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     <div>
       <div className={classes.displayName}>
         <UsersName user={user}/>
-        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
+        <FirstContentIcons user={user}/>
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
