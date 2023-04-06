@@ -1,9 +1,9 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
+  'Comic Neue',
   'sans-serif'
 ].join(',')
 
@@ -17,9 +17,9 @@ const serifStack = [
 
 // TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'Comic Sans MS',
   'Comic Sans',
+  'Comic Neue',
   'sans-serif'
 ].join(',')
 
@@ -107,6 +107,7 @@ export const eaForumThemeCS: SiteThemeSpecification = {
         fontDownloads: [
           "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
           "https://fonts.googleapis.com/css?family=Inter:300,400,450,500,600,700",
+          "https://fonts.googleapis.com/css?family=Comic+Neue:300,400,450,500,600,700",
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],

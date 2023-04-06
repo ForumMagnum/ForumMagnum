@@ -134,6 +134,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 8,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
@@ -338,7 +339,7 @@ const TagPage = ({classes}: {
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
+                unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             }

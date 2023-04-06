@@ -307,7 +307,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
-                  currentUser={currentUser}
                 />}
               </div>
             </Toolbar>
