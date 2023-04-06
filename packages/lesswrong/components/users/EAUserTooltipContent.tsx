@@ -72,10 +72,12 @@ const formatRole = (jobTitle?: string, organization?: string): string =>
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
 
-const formatStat = (value = 0): string =>
-  value > 10000
+const formatStat = (value?: number): string => {
+  value ??= 0;
+  return value > 10000
     ? `${Math.floor(value / 1000)} ${value % 1000}`
     : String(value);
+}
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
