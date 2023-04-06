@@ -92,6 +92,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
         imgProps={{q: "100"}}
         publicId={user.profileImageId}
         className={classNames(classes.root, className)}
+        highDPI
       />
     );
   }

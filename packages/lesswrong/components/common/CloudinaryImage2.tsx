@@ -37,6 +37,7 @@ const CloudinaryImage2 = ({
   publicId,
   imgProps,
   fullWidthHeader,
+  highDPI,
   className
 }: {
   /** Overridden if fullWidthHeader is true */
@@ -48,6 +49,7 @@ const CloudinaryImage2 = ({
   imgProps?: CloudinaryPropsType,
   /** Overrides width */
   fullWidthHeader?: boolean,
+  highDPI?: boolean,
   className?: string,
 }) => {
   const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
@@ -61,12 +63,13 @@ const CloudinaryImage2 = ({
   };
   let imageStyle: CSSProperties = {};
 
+  const multiplier = highDPI ? 2 : 1;
   if (width) {
-    cloudinaryProps.w = width.toString()
+    cloudinaryProps.w = (Number(width) * multiplier).toString()
     imageStyle.width = width
   }
   if (height) {
-    cloudinaryProps.h = height.toString()
+    cloudinaryProps.h = (Number(height) * multiplier).toString()
     imageStyle.height = height+"px";
   }
   // ignore input width if we're told we have a fullWidthHeader
