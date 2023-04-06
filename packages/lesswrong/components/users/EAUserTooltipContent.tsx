@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import moment from "moment";
 
@@ -72,6 +72,20 @@ const formatRole = (jobTitle?: string, organization?: string): string =>
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
 
+const formatBio = (bio?: string): string => {
+  if (!bio) {
+    return "";
+  }
+  const span = document.createElement("span");
+  span.innerHTML = bio;
+  if (span.children.length > 1) {
+    return Array.from(span.children).map((node: HTMLSpanElement) =>
+      node.textContent ?? node.innerText ?? "",
+    ).join(" ");
+  }
+  return span.textContent ?? span.innerText ?? "";
+}
+
 const formatStat = (value?: number): string => {
   value ??= 0;
   return value > 10000
@@ -94,6 +108,7 @@ const EAUserTooltipContent = ({user, classes}: {
     commentCount,
   } = user;
   const role = formatRole(jobTitle, organization);
+  const textBio = useMemo(() => formatBio(htmlBio), [htmlBio]);
   const {UsersProfileImage} = Components;
   return (
     <div className={classes.root}>
@@ -113,11 +128,10 @@ const EAUserTooltipContent = ({user, classes}: {
           {role}
         </div>
       }
-      {htmlBio &&
-        <div
-          className={classes.bio}
-          dangerouslySetInnerHTML={{__html: htmlBio}}
-        />
+      {textBio &&
+        <div className={classes.bio}>
+          {textBio}
+        </div>
       }
       <div className={classes.stats}>
         <div className={classes.stat}>
