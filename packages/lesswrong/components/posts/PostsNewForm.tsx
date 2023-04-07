@@ -102,11 +102,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color:  theme.palette.secondary.main
   },
   modNote: {
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: 20,
-      paddingRight: 20,
-      paddingBottom: 20
-    }
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 20,
+    },
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20
   }
 })
 
