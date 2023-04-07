@@ -677,10 +677,25 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     foreignKey: "Tags",
   },
-};
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  debateResponse: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
+      if (!currentUser || !formProps?.post?.debate) return true;
+
+      const { post } = formProps;
+      
+      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      return !debateParticipantsIds.includes(currentUser._id);
+    }
+  },
+
+  /* Alignment Forum fields */
   af: {
     type: Boolean,
     optional: true,
@@ -754,9 +769,9 @@ Object.assign(schema, {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

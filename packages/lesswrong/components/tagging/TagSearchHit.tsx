@@ -4,6 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,11 +48,12 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   });
   const {eventHandlers, hover, anchorEl} = useHover();
   const currentUser = useCurrentUser();
+  const post = usePostsPageContext();
 
   // Some tags are only allowed to be voted on by certain users, ex. mods & admins
   // - in these cases, other users should not be able to find them via search.
   // However, users should still be able to find them in standard search, ex. frontpage filters.
-  if (isVotingContext && shouldHideTagForVoting(currentUser, tag ?? hit)) {
+  if (isVotingContext && shouldHideTagForVoting(currentUser, tag ?? hit, post)) {
     return null;
   }
 

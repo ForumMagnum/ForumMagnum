@@ -98,6 +98,7 @@ const PostsEditForm = ({ documentId, classes }: {
       <NoSSR>
         <WrappedSmartForm
           collection={Posts}
+          removeFields={document.debate ? ['debate'] : []}
           documentId={documentId}
           queryFragment={getFragment('PostsEditQueryFragment')}
           mutationFragment={getFragment('PostsEditMutationFragment')}

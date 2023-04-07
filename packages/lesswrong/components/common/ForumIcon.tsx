@@ -5,26 +5,36 @@ import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
+import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
+import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
+import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import MuiBellBorderIcon from '@material-ui/icons/NotificationsNone';
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
+import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import NotesIcon from '@material-ui/icons/Notes';
 import { PinIcon } from "../icons/pinIcon";
+import { AuthorIcon } from "../icons/authorIcon";
+import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
+import { CardIcon } from "../icons/cardIcon";
+import { ListIcon } from "../icons/listIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -36,50 +46,75 @@ export type ForumIconName =
   "VolumeUp" |
   "Bookmark" |
   "BookmarkBorder" |
+  "BellBorder" |
   "Star" |
   "StarBorder" |
   "User" |
+  "Bell" |
+  "BellBorder" |
   "Link" |
   "Pin" |
+  "Author" |
+  "Sprout" |
   "Close" |
   "Comment" |
   "Shortform" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
-  "ThickChevronDown";
+  "ThickChevronDown" |
+  "Plus" |
+  "Check" |
+  "Card" |
+  "List";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
+    BellBorder: MuiBellBorderIcon,
     Star: MuiStarIcon,
     StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
+    Bell: MuiNotificationsIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
+    Author: AuthorIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: NotesIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    Plus: PlusIcon,
+    Check: CheckIcon,
+    Card: CardIcon,
+    List: ListIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
+    BellBorder: BellOutlineIcon,
     Star: StarIcon,
     StarBorder: StarOutlineIcon,
     User: UserIcon,
+    Bell: BellIcon,
     Link: LinkIcon,
     Pin: PinIcon,
+    Author: AuthorIcon,
+    Sprout: SproutIcon,
     Close: CloseIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    Plus: PlusIcon,
+    Check: CheckIcon,
+    Card: CardIcon,
+    List: ListIcon,
   },
 };
 

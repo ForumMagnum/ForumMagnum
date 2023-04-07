@@ -165,6 +165,8 @@ const PostsNewForm = ({classes}: {
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  const debateForm = !!(query && query.debate);
+
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     question: query && !!query.question,
@@ -176,12 +178,14 @@ const PostsNewForm = ({classes}: {
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
+    debate: debateForm
   }
   const eventForm = query && query.eventForm
   
   if (query.subforumTagId) {
     prefilledProps = {
+      ...prefilledProps,
       subforumTagId: query.subforumTagId,
       tagRelevance: {[query.subforumTagId]: 1},
     }
@@ -229,6 +233,7 @@ const PostsNewForm = ({classes}: {
               }
             }}
             eventForm={eventForm}
+            debateForm={debateForm}
             repeatErrors
             noSubmitOnCmdEnter
             formComponents={{

@@ -7,7 +7,7 @@ import Table from "./Table";
  * to true will prevent an error from being thrown.
  */
 class CreateTableQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, ifNotExists = false) {
+  constructor(table: Table<T>, ifNotExists = false) {
     const fields = table.getFields();
     super(table, [
       `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,

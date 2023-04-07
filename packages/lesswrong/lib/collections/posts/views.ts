@@ -1,11 +1,10 @@
 import moment from 'moment';
-import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
-import { postScoreModifiers, timeDecayExpr } from '../../scoring';
+import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
@@ -13,6 +12,8 @@ import uniq from 'lodash/uniq';
 import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
+import { filter, isEmpty, pick } from 'underscore';
+import { getABTestsMetadata, getUserABTestGroup } from '../../abTestImpl';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -33,7 +34,7 @@ declare global {
     filterSettings?: any,
     sortBy?: ReviewSortings,
     sortByMost?: boolean,
-    sortedBy?: string,
+    sortedBy?: PostSortingModeWithRelevanceOption,
     af?: boolean,
     excludeEvents?: boolean,
     onlineEvent?: boolean,
@@ -64,7 +65,18 @@ declare global {
     hideCommunity?: boolean,
     distance?: number,
     audioOnly?: boolean,
+    // BEGIN overrides for parameters in the frontpageTimeDecayExpr
+    algoStartingAgeHours?: number
+    algoDecayFactorSlowest?: number
+    algoDecayFactorFastest?: number
+    /** Will be used in favour of activityHalfLifeHours and activityWeight if provided */
+    algoActivityFactor?: number
+    algoActivityHalfLifeHours?: number
+    algoActivityWeight?: number
+    // END
   }
+  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
 /**
@@ -139,7 +151,7 @@ export const filters: Record<string,any> = {
  * NB: Vulcan views overwrite sortings. If you are using a named view with a
  * sorting, do not try to supply your own.
  */
-export const sortings = {
+export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   magic: { score: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
@@ -155,8 +167,8 @@ export const sortings = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView((terms: PostsViewTerms) => {
-  const validFields: any = _.pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
+Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
+  const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
@@ -210,7 +222,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     }
   }
   if (terms.filterSettings) {
-    const filterParams = filterSettingsToParams(terms.filterSettings);
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -243,9 +255,9 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       postedAt.$lt = moment(terms.before).toDate();
     }
 
-    if (!_.isEmpty(postedAt) && !terms.timeField) {
+    if (!isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
-    } else if (!_.isEmpty(postedAt) && terms.timeField) {
+    } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
   }
@@ -307,7 +319,7 @@ function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -317,8 +329,8 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     } :
     t
   )
-  const tagsRequired = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
+  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
+  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -338,6 +350,10 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
+
+  const useSlowerFrontpage = (context.currentUser || context.clientId) && isEAForum ?
+    getUserABTestGroup(context.currentUser, context.clientId || '', getABTestsMetadata()['slowerFrontpage']) === 'treatment'
+    : false
   
   const syntheticFields = {
     score: {$divide:[
@@ -362,7 +378,14 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
           }}
         )),
       ]},
-      timeDecayExpr()
+      useSlowerFrontpage ? frontpageTimeDecayExpr({
+        startingAgeHours: terms.algoStartingAgeHours,
+        decayFactorSlowest: terms.algoDecayFactorSlowest,
+        decayFactorFastest: terms.algoDecayFactorFastest,
+        activityHalfLifeHours: terms.algoActivityHalfLifeHours,
+        activityWeight: terms.algoActivityWeight,
+        overrideActivityFactor: terms.algoActivityFactor,
+      }, context) : timeDecayExpr()
     ]}
   }
   
@@ -395,7 +418,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   }
 }
 
-export function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
@@ -439,7 +462,7 @@ ensureIndex(Posts,
   }
 );
 
-const setStickies = (sortOptions, terms: PostsViewTerms) => {
+const setStickies = (sortOptions: MongoSort<DbPost>, terms: PostsViewTerms): MongoSort<DbPost> => {
   if (terms.af && terms.forum) {
     return { afSticky: -1, stickyPriority: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {

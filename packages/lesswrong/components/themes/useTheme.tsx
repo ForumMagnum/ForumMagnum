@@ -6,6 +6,7 @@ import { usePrefersDarkMode } from './usePrefersDarkMode';
 import { useCookies } from 'react-cookie'
 import moment from 'moment';
 import {forumTypeSetting} from '../../lib/instanceSettings';
+import { CS_END } from '../../lib/collections/users/schema';
 
 const THEME_COOKIE_NAME = "theme";
 
@@ -72,8 +73,8 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
  * be switched.
  */
 const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", ...siteThemeOverride});
-  const dark = makeStylesheetUrl({name: "dark", ...siteThemeOverride});
+  const light = makeStylesheetUrl({name: "default", ...(siteThemeOverride ? {siteThemeOverride} : {})});
+  const dark = makeStylesheetUrl({name: "dark", ...(siteThemeOverride ? {siteThemeOverride} : {})});
   const styleNode = document.createElement("style");
   styleNode.setAttribute("id", id);
   styleNode.innerHTML = `
@@ -101,7 +102,12 @@ export const ThemeContextProvider = ({options, children}: {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (forumTypeSetting.get() === "EAForum") {
-        removeCookie(THEME_COOKIE_NAME, {path: "/"});
+        // TODO: revert later
+        // removeCookie(THEME_COOKIE_NAME, {path: "/"});
+        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+          path: "/",
+          expires: moment(new Date(CS_END)).toDate(),
+        });
       } else {
         setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
           path: "/",

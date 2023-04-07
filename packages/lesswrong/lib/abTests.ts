@@ -79,3 +79,22 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+export const slowerFrontpageABTest = new ABTest({
+  name: "slowerFrontpage",
+  description: "Frontpage is less recency-weighted for most users, and this weighting changes based on how active they are",
+  groups: {
+    control: {
+      description: "Original frontpage algorithm",
+      weight: 1,
+    },
+    controlNoCache: {
+      description: "Original frontpage algorithm, bypassing cache as a way to check for performance as a confounder",
+      weight: 1,
+    },
+    treatment: {
+      description: "New 'slower' frontpage algorithm",
+      weight: 1,
+    },
+  },
+});

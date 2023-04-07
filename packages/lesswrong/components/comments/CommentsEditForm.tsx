@@ -2,11 +2,14 @@ import React, { useCallback, useContext } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { Comments } from "../../lib/collections/comments";
 import { CommentPoolContext } from './CommentPool';
+import classNames from 'classnames';
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {
   comment: CommentsList,
   successCallback?: ()=>void,
   cancelCallback?: ()=>void,
+  className?: string,
+  formProps?: Record<string, any>
 }) => {
   const commentPoolContext = useContext(CommentPoolContext);
   const wrappedSuccessCallback = useCallback(() => {
@@ -19,7 +22,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
   }, [commentPoolContext, successCallback, comment._id]);
 
   return (
-    <div className="comments-edit-form">
+    <div className={classNames("comments-edit-form", className)}>
       <Components.WrappedSmartForm
         layout="elementOnly"
         collection={Comments}
@@ -30,6 +33,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
         queryFragment={getFragment('CommentEdit')}
         mutationFragment={getFragment('CommentsList')}
         submitLabel="Save"
+        formProps={formProps}
       />
     </div>
   )

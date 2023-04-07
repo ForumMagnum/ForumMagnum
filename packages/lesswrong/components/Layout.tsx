@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { useTheme } from './themes/useTheme';
+import { useSetTheme, useTheme, useThemeOptions } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -13,13 +13,17 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { forumTypeSetting, ForumTypeString, isEAForum } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
+import moment from 'moment';
+import { useOnNavigate } from './hooks/useOnNavigate';
+import { AbstractThemeOptions, getDefaultThemeOptions, isValidSerializedThemeOptions } from '../themes/themeNames';
+import { CS_END, CS_START } from '../lib/collections/users/schema';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -66,6 +70,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "100%",
     padding: 0,
   },
+  mainUnspacedGrid: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 0,
+      paddingLeft: 0,
+      paddingRight: 0,
+    }
+  },
   fullscreen: {
     // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
     // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
@@ -111,6 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .Layout-main': {
       width: '100%',
+      paddingTop: 0,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -161,6 +173,8 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
+  const currentThemeOptions = useThemeOptions()
+  const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   
@@ -203,6 +217,39 @@ const Layout = ({currentUser, children, classes}: {
       }
     }
   }, [useWhiteBackground, classes.whiteBackground]);
+  
+  const checkThemeChange = () => {
+    if (isEAForum) {
+      const now = moment()
+      if (now.isSameOrAfter(moment(new Date(CS_END))) || currentUser?.noComicSans) {
+        let newTheme: AbstractThemeOptions = getDefaultThemeOptions()
+        // if the user record has a theme, add that to the theme cookie
+        if (currentUser?.theme?.name && isValidSerializedThemeOptions(currentUser.theme)) {
+          // @ts-ignore Why does it still think currentUser.theme.name might be null?
+          newTheme = currentUser.theme
+        }
+        setTheme(newTheme)
+      } else if (
+        now.isAfter(moment(new Date(CS_START))) &&
+        now.isBefore(moment(new Date(CS_END))) &&
+        currentThemeOptions.siteThemeOverride?.EAForum !== 'EAForumCS'
+      ) {
+        const newThemeOptions = {
+          ...currentThemeOptions,
+          siteThemeOverride: {
+            ...currentThemeOptions.siteThemeOverride,
+            EAForum: "EAForumCS" as ForumTypeString
+          },
+        };
+        setTheme(newThemeOptions)
+      }
+    }
+  }
+
+  // We just need to check this on page load and navigation.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(checkThemeChange, [])
+  useOnNavigate(checkThemeChange)
 
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
@@ -293,6 +340,7 @@ const Layout = ({currentUser, children, classes}: {
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

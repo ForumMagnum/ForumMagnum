@@ -249,6 +249,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
+    sprout: '#69886e',
     
     commentsBubble: {
       commentCount: "#fff",
@@ -283,7 +284,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
-    primaryTranslucent: 'rgba(12,134,155,.7)'
+    primaryTranslucent: 'rgba(12,134,155,.7)',
+    debateComment: '#1c912766',
+    debateComment2: '#df1d4566',
+    debateComment3: '#2671ff66',
+    debateComment4: '#eb26ff66',
+    debateComment5: '#efdc0066',
   },
   background: {
     default: shades.grey[60],
@@ -297,6 +303,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
+    imageOverlay: 'rgba(0,0,0,0.4)',
   },
   panelBackground: {
     default: shades.grey[0],

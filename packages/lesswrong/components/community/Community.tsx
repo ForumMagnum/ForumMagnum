@@ -15,8 +15,6 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
@@ -41,11 +39,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       flexDirection: 'column',
       marginTop: 30,
     },
+    [theme.breakpoints.up('sm')]: {
+      marginTop: isEAForum ? 20 : undefined,
+    },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0
+    margin: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -339,7 +343,8 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
+          DistanceUnitToggle, ForumIcon } = Components
   
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
@@ -427,8 +432,8 @@ const Community = ({classes}: {
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ?
-                  <NotificationsIcon className={classes.notificationsIcon} /> :
-                  <NotificationsNoneIcon className={classes.notificationsIcon} />
+                  <ForumIcon icon="Bell" className={classes.notificationsIcon} /> :
+                  <ForumIcon icon="BellBorder" className={classes.notificationsIcon} />
                 } Notify me
               </Button>
             </div>

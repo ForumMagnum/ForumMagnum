@@ -8,7 +8,7 @@ import Table from "./Table";
  * meant for use in migrations.
  */
 class AddFieldQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string) {
     const fields = table.getFields();
     const fieldType = fields[fieldName];
     if (!fieldType) {

@@ -286,9 +286,9 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                   <div>
                     {' · '}
                     <PostsItemDate post={post} noStyles includeAgo />
-                    <span className={classes.readTime}>
+                    {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) && <span className={classes.readTime}>
                       {' · '}{post.readTimeMinutes || 1}m read
-                    </span>
+                    </span>}
                   </div>
                   <div className={classes.audio}>
                     {hasAudio && <ForumIcon icon="VolumeUp" />}
@@ -314,7 +314,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsListProps) => {
                 */}
               <SecondaryInfo />
             </div>
-            <a> {/* The `a` tag prevents clicks from navigating to the post */}
+            <a onClick={(e) => e.stopPropagation()}> {/* The `a` tag prevents clicks from navigating to the post */}
               <PostsItemTrailingButtons
                 {...{
                   post,

@@ -138,5 +138,25 @@
     "acceptsSchemaHash": "9cc5aad21f36f801d9ce6b9e9e3ce213",
     "acceptedByMigration": "20230314T152203.add_backfilled.ts",
     "timestamp": "2023-03-14T15:22:03.000Z"
+  },
+  {
+    "acceptsSchemaHash": "222d42945763fb6dcaff3b497911d7b7",
+    "acceptedByMigration": "20230331T002047.add_noComicSans_to_Users.ts",
+    "timestamp": "2023-03-31T00:20:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "33b4ea4a4234276f8784ddff0eb3a974",
+    "acceptedByMigration": "20230331T212918.add_debate_fields.ts",
+    "timestamp": "2023-03-31T21:29:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "15f268cf3b83c45ac5fd4486bf050b18",
+    "acceptedByMigration": "20230403T133656.add_UserActivities.ts",
+    "timestamp": "2023-04-03T13:36:56.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cc99890ebfba1e45ded25456d68f852b",
+    "acceptedByMigration": "20230404T170523.add_subtitle.ts",
+    "timestamp": "2023-04-04T17:05:23.000Z"
   }
 ]

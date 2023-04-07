@@ -39,6 +39,14 @@ if (forumTypeSetting.get() === "EAForum") {
   );
 }
 
+getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+  if (document.debate && !document.coauthorStatuses?.length) {
+    throw new Error('Debate must have at least one co-author!');
+  }
+
+  return validationErrors;
+});
+
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
     data = postsSetPostedAt(data);

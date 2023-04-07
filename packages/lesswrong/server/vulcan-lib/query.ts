@@ -45,6 +45,8 @@ export const runQuery = async (query: string, variables: any = {}, context?: Par
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
   const queryContext = {
     userId: null,
+    clientId: null,
+    visitorActivity: null,
     currentUser: null,
     headers: null,
     locale: localeSetting.get(),

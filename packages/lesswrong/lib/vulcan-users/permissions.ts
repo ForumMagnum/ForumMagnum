@@ -30,7 +30,7 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
-type PermissionableUser = UsersMinimumInfo & {
+export type PermissionableUser = UsersMinimumInfo & {
   readonly groups: Array<string>
   readonly banned: Date
 }
