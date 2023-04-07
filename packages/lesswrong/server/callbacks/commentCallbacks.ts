@@ -294,7 +294,7 @@ async function commentsRejectSendPMAsync (comment: DbComment) {
 
   let firstMessageContents =
       // TODO: messaging/link to guidelines/etc
-      `Your comments on "${onWhat}" has been rejected. We've sent you another PM with the content. If this rejection seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+      `Your comments on "${onWhat}" has been rejected by the moderator team. We've sent you another PM with the content.`
 
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
