@@ -215,6 +215,10 @@ const CommentsNode = ({
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
+  const numShownReplies = childComments?.length ?? 0
+  const numHiddenReplies = comment.directChildrenCount - numShownReplies;
+  const loadMoreMessage = `View ${numHiddenReplies} ${numHiddenReplies === 1 ? "reply" : "replies"}`;
+
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}
@@ -243,7 +247,7 @@ const CommentsNode = ({
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
-                  showDescendentCount={loadChildrenSeparately}
+                  showDescendentCount={loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount}
                   displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
@@ -297,8 +301,8 @@ const CommentsNode = ({
       {!isSingleLine && !collapsed && commentPoolContext
         && (!childComments || comment.directChildrenCount > childComments.length)
         && <div className={classes.loadMoreReplies}>
-          <LoadMore message="Load More Replies"
-            count={childComments?.length ?? 0} totalCount={comment.directChildrenCount}
+          <LoadMore
+            message={loadMoreMessage}
             loadMore={async () => {
               await commentPoolContext.showMoreChildrenOf(comment._id);
             }}

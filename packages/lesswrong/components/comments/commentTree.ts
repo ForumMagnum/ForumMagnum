@@ -158,4 +158,9 @@ export interface CommentTreeOptions {
    * Used for displaying inline replies to debate comments
    */
   hideParentCommentToggle?: boolean,
+
+  /**
+   *
+   */
+  singleLineCommentsShowDescendentCount?: boolean,
 }
