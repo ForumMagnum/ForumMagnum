@@ -16,6 +16,7 @@ import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -521,4 +522,19 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
     validate: false,
   })
   await triggerReviewIfNeeded(currentUser._id)
+});
+
+getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbComment>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_COMMENT,
+        endedAt: new Date()
+      }
+    });
+  }
 });
