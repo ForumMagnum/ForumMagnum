@@ -10,6 +10,9 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
+import Button from '@material-ui/core/Button';
+import RejectedIcon from "@material-ui/icons/NotInterested";
+import { useUpdate } from "../../../lib/crud/withUpdate";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -114,6 +117,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     : {
       opacity: 0.35,
     },
+  rejectedIcon: {
+    position: "absolute",
+    right: -10,
+    top: 8,
+    color: theme.palette.grey[500]
+  },
+  rejectedLabel: {
+    position: "absolute",
+    right: -10,
+    top: 12,
+    color: theme.palette.grey[500]
+  }
 });
 
 export const CommentsItemMeta = ({
@@ -148,6 +163,11 @@ export const CommentsItemMeta = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  
+  const { mutate: updateComment } = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsListWithParentMetadata',
+  });
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
@@ -201,6 +221,13 @@ export const CommentsItemMeta = ({
     shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
+
+  const setCommentRejectedStatus = (rejected: boolean) => () => {
+    void updateComment({
+      selector: { _id: comment._id },
+      data: { rejected }
+    });
+  };
 
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
@@ -289,6 +316,17 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+
+      {comment.rejected && <button onClick={setCommentRejectedStatus(false)}>
+        <span className={classes.rejectedLabel}>
+          [Rejected]
+        </span>
+      </button>}
+      {!comment.rejected && comment.authorIsUnreviewed && <button onClick={setCommentRejectedStatus(true)}>
+        <span className={classes.rejectedIcon}>
+          <RejectedIcon />
+        </span>
+      </button>}
 
       <span className={classes.rightSection}>
         {isEAForum &&

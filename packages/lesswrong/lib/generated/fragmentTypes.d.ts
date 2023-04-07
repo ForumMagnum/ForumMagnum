@@ -391,6 +391,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly title: string,
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
+  readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1329,6 +1331,7 @@ interface CommentsList { // fragment on Comments
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
 }
 
 interface CommentsList_tag { // fragment on Tags
