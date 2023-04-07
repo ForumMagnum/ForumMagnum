@@ -19,7 +19,7 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
   return <ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     <WrappedSmartForm
       layout="elementOnly"
-      collection={GardenCodes}
+      collectionName="GardenCodes"
       documentId={gardenCodeId}
       successCallback={successCallback}
       cancelCallback={cancelCallback}

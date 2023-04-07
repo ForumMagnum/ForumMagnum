@@ -169,7 +169,6 @@ export const schemaProperties = [
   'defaultValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
-  'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
   'input', // SmartForm control (String or React component)
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
@@ -192,6 +191,8 @@ export const schemaProperties = [
   'tooltip'
 ] as const;
 
+/** Fields that, if they appear on a field schema, will be passed through to the
+ * form component for that field. */
 export const formProperties = [
   'optional',
   'min',
@@ -203,7 +204,6 @@ export const formProperties = [
   'blackbox',
   'defaultValue',
   'form', // form placeholder
-  'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
   'input', // SmartForm control (String or React component)
   'order', // position in the form

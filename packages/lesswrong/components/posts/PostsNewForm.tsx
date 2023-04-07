@@ -220,7 +220,7 @@ const PostsNewForm = ({classes}: {
         <Components.PostsAcceptTos currentUser={currentUser} />
         <NoSSR>
           <WrappedSmartForm
-            collection={Posts}
+            collectionName="Posts"
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {

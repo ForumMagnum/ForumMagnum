@@ -239,7 +239,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           }}>
             <WrappedSmartForm
               id="new-comment-form"
-              collection={Comments}
+              collectionName="Comments"
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
