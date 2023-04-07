@@ -208,7 +208,7 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   if (action === 'deleted') {
     void commentsDeleteSendPMAsync(comment, currentUser);
   } else {
-    void commentsRejectSendPMAsync(comment);
+    void commentsRejectSendPMAsync(comment, currentUser);
   }
 }
 
@@ -230,9 +230,10 @@ interface SendModerationPMParams {
 }
 
 async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action }: SendModerationPMParams) {
-  const conversationData = {
+  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
     participantIds: [comment.userId, lwAccount._id],
-    title: `Comment ${action} on ${onWhat}`
+    title: `Comment ${action} on ${onWhat}`,
+    ...(action === 'rejected' ? { moderator: true } : {})
   };
 
   const conversation = await createMutator({
@@ -281,7 +282,7 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
   }
 }
 
-async function commentsRejectSendPMAsync (comment: DbComment) {
+async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUser) {
   const onWhat = comment.tagId
     ? (await Tags.findOne(comment.tagId))?.name
     : (comment.postId
@@ -289,12 +290,11 @@ async function commentsRejectSendPMAsync (comment: DbComment) {
       : null
     );
 
-  const lwAccount = await getAdminTeamAccount();
   const commentUser = await Users.findOne({_id: comment.userId})
 
   let firstMessageContents =
-      // TODO: messaging/link to guidelines/etc
-      `Your comments on "${onWhat}" has been rejected by the moderator team. We've sent you another PM with the content.`
+      // TODO: make link conditional on forum, or something
+      `Your comments on "${onWhat}" has been rejected by the moderator team (LessWrong is generally raising their moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details). We've sent you another PM with the content.`
 
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
@@ -305,7 +305,7 @@ async function commentsRejectSendPMAsync (comment: DbComment) {
     action: 'rejected',
     comment,
     firstMessageContents,
-    lwAccount,
+    lwAccount: currentUser,
     noEmail,
     onWhat
   });
