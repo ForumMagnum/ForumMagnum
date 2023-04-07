@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -108,7 +108,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerImageContainer: {
     paddingBottom: 15,
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: isEAForum ? -20 : -50,
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,
