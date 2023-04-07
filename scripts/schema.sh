@@ -14,9 +14,12 @@
 #
 # You should always run `yarn schema diff ...` and sanity check the output
 # before running `yarn schema apply ...`.
+#
+# For more info see the docs at https://atlasgo.io/declarative/apply
 
 OP=$1
 ENV=$2
+CI=$3
 SCHEMA=./schema/atlas_schema.sql
 
 if [ "$OP" = "generate" ]; then
@@ -36,7 +39,13 @@ if ! [[ "$ENV" =~ ^(dev|staging|prod)$ ]]; then
 	exit 1
 fi
 
+if [ "$CI" = "ci" ]; then
+	CI=--auto-approve
+else
+	CI=
+fi
+
 CONN=`cat ../ForumCredentials/$ENV-pg-conn.txt`?search_path=public
 DEVURL=`cat ../ForumCredentials/atlas-schema-diff-conn.txt`?search_path=public
 
-atlas schema $OP --from $CONN --to file://$PWD/$SCHEMA --dev-url $DEVURL
+atlas schema $OP --from $CONN --to file://$PWD/$SCHEMA --dev-url $DEVURL $CI
