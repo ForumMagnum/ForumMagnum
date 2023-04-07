@@ -604,7 +604,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
     const {className, contentType} = this.getBodyStyles();
 
-    return <div clas>
+    return <div>
       { this.renderPlaceholder(showPlaceholder, false) }
       {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
