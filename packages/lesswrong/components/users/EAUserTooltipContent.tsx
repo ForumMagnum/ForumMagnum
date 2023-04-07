@@ -23,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& *": {
       whiteSpace: "nowrap",
       textOverflow: "ellipsis",
+      overflow: "hidden",
       "&:first-child": {
         fontSize: "1.3rem",
         fontWeight: 600,
