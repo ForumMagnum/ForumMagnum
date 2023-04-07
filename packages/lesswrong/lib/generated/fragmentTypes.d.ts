@@ -2484,6 +2484,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noComicSans: boolean,
 }
 
+interface UsersCurrentRateLimit { // fragment on Users
+  readonly rateLimitNextAbleToComment: Date,
+}
+
 interface UserBookmarkedPosts { // fragment on Users
   readonly _id: string,
   readonly bookmarkedPosts: Array<PostsList>,
@@ -3110,6 +3114,7 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
+  UsersCurrentRateLimit: UsersCurrentRateLimit
   UserBookmarkedPosts: UserBookmarkedPosts
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
@@ -3294,6 +3299,7 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
+  UsersCurrentRateLimit: "Users"
   UserBookmarkedPosts: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"

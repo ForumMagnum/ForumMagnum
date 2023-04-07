@@ -1,11 +1,12 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, { ComponentProps, useState } from 'react';
+import React, { ComponentProps, useState, useEffect } from 'react';
 import { Comments } from '../../lib/collections/comments/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
+import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
@@ -15,6 +16,7 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { isInFuture } from '../../lib/utils/timeUtil';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -40,6 +42,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
+  },
+  rateLimitNote: {
+    paddingTop: '4px',
+    color: theme.palette.text.dim2,
   },
   modNote: {
     paddingTop: '4px',
@@ -112,6 +118,14 @@ export type CommentsNewFormProps = {
 
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
+  
+  const userWithRateLimit = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentRateLimit",
+    skip: !currentUser,
+  });
+  
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
@@ -157,6 +171,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       successCallback(comment, { form })
     }
     setLoading(false)
+    userWithRateLimit.refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {
@@ -226,10 +241,28 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
+  
+  const nextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const formDisabledDueToRateLimit = !!(nextAbleToComment && isInFuture(new Date(nextAbleToComment)));
+  const [_,setForceRefreshState] = useState(0);
+
+  useEffect(() => {
+    // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
+    if (nextAbleToComment && formDisabledDueToRateLimit) {
+      const timeLeftMS = new Date(nextAbleToComment).getTime() - new Date().getTime();
+      setTimeout(() => {
+        setForceRefreshState((n) => (n+1));
+      }, timeLeftMS);
+    }
+  }, [nextAbleToComment, formDisabledDueToRateLimit]);
+  
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
+          {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
+            Please wait awhile before commenting again.
+          </div>}
           {commentWillBeHidden && <div className={classes.modNote}><em>
             A moderator will need to review your account before your comments will show up.
           </em></div>}
@@ -237,31 +270,33 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
           }}>
-            <WrappedSmartForm
-              id="new-comment-form"
-              collection={Comments}
-              mutationFragment={getFragment(fragment)}
-              successCallback={wrappedSuccessCallback}
-              cancelCallback={wrappedCancelCallback}
-              submitCallback={(data: unknown) => { 
-                setLoading(true);
-                return data
-              }}
-              errorCallback={() => setLoading(false)}
-              prefilledProps={prefilledProps}
-              layout="elementOnly"
-              formComponents={{
-                FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.DefaultStyleFormGroup
-              }}
-              alignmentForumPost={post?.af}
-              addFields={currentUser ? [] : ["title", "contents"]}
-              removeFields={removeFields}
-              formProps={{
-                ...extraFormProps,
-                ...formProps,
-              }}
-            />
+            {!formDisabledDueToRateLimit &&
+              <WrappedSmartForm
+                id="new-comment-form"
+                collection={Comments}
+                mutationFragment={getFragment(fragment)}
+                successCallback={wrappedSuccessCallback}
+                cancelCallback={wrappedCancelCallback}
+                submitCallback={(data: unknown) => {
+                  setLoading(true);
+                  return data
+                }}
+                errorCallback={() => setLoading(false)}
+                prefilledProps={prefilledProps}
+                layout="elementOnly"
+                formComponents={{
+                  FormSubmit: SubmitComponent,
+                  FormGroupLayout: Components.DefaultStyleFormGroup
+                }}
+                alignmentForumPost={post?.af}
+                addFields={currentUser ? [] : ["title", "contents"]}
+                removeFields={removeFields}
+                formProps={{
+                  ...extraFormProps,
+                  ...formProps,
+                }}
+              />
+            }
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>

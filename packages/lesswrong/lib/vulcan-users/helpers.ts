@@ -60,7 +60,7 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
   return await items.count();
 };
 
-export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, hours: number, filter?: Record<string,any>): Promise<number> {
+export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, hours: number, filter?: MongoSelector<T>): Promise<number> {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
@@ -72,3 +72,33 @@ export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(use
   return items.count();
 };
 
+export const getNthMostRecentItemDate = async function<
+  T extends DbObject & {createdAt:Date}
+>({user, collection, cutoffHours, n, filter}: {
+  user: DbUser,
+  collection: CollectionBase<T>,
+  n: number,
+  cutoffHours?: number,
+  filter?: MongoSelector<T>
+}): Promise<Date|null> {
+  var mNow = moment();
+  const items = await collection.find({
+    userId: user._id,
+    ...filter,
+    ...(cutoffHours && {
+      createdAt: {
+        $gte: mNow.subtract(cutoffHours, 'hours').toDate(),
+      },
+    })
+  }, {
+    sort: ({createdAt: -1} as Partial<Record<keyof T,number>>),
+    limit: n,
+    projection: {createdAt:1},
+  }).fetch();
+
+  if (items.length < n)
+    return null;
+  else
+    return items[n-1].createdAt;
+
+};
