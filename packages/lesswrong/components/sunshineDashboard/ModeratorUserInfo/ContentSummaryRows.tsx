@@ -86,7 +86,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
         </span>
       </LWTooltip>
       {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt} displayTitle={contentDisplay === "titles"}/>)}
-      { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
+      { hiddenPostCount ? <span> ({hiddenPostCount} drafted or rejected)</span> : null}
     </div>
 
     <div className={classNames(classes.contentSummaryRow, {[classes.displayTitles]:contentDisplay === "titles"})}>
@@ -95,7 +95,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
       </LWTooltip>
       <MessageIcon className={classes.icon}/>
       {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
-      { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+      { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
       </div>
   </div>;
 }

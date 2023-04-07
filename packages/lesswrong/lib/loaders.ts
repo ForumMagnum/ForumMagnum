@@ -17,7 +17,7 @@ import * as _ from 'underscore';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: string, id: string, projection:any=undefined): Promise<Array<T>>
+export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: keyof T, id: string, projection:any=undefined): Promise<Array<T>>
 {
   if (!context.extraLoaders) {
     context.extraLoaders = {};

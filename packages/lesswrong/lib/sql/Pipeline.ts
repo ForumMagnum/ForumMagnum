@@ -22,7 +22,7 @@ class Unit<T extends DbObject> {
   private project?: MongoProjection<T>;
   private sampleSize?: number;
 
-  constructor(private table: Table | Unit<T>) {}
+  constructor(private table: Table<T> | Unit<T>) {}
 
   isEmpty() {
     return this.empty;
@@ -125,7 +125,7 @@ class Unit<T extends DbObject> {
  */
 class Pipeline<T extends DbObject> {
   constructor(
-    private table: Table,
+    private table: Table<T>,
     private stages: MongoAggregationPipeline<T> = [],
     private options?: MongoAggregationOptions, // TODO: What can options be?
   ) {}

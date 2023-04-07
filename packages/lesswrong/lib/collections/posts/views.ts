@@ -34,7 +34,7 @@ declare global {
     filterSettings?: any,
     sortBy?: ReviewSortings,
     sortByMost?: boolean,
-    sortedBy?: string,
+    sortedBy?: PostSortingModeWithRelevanceOption,
     af?: boolean,
     excludeEvents?: boolean,
     onlineEvent?: boolean,
@@ -75,6 +75,8 @@ declare global {
     algoActivityWeight?: number
     // END
   }
+  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
 /**
@@ -149,7 +151,7 @@ export const filters: Record<string,any> = {
  * NB: Vulcan views overwrite sortings. If you are using a named view with a
  * sorting, do not try to supply your own.
  */
-export const sortings = {
+export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   magic: { score: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
@@ -184,6 +186,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       unlisted: false,
       shortform: false,
       authorIsUnreviewed: false,
+      rejected: { $ne: true },
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
@@ -416,12 +419,12 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   }
 }
 
-export function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
-    suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1},
+    suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1, rejected:1 },
   });
 }
 
@@ -439,6 +442,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
+      rejected: null
     },
     options: {
       limit: 5,
@@ -460,7 +464,7 @@ ensureIndex(Posts,
   }
 );
 
-const setStickies = (sortOptions, terms: PostsViewTerms) => {
+const setStickies = (sortOptions: MongoSort<DbPost>, terms: PostsViewTerms): MongoSort<DbPost> => {
   if (terms.af && terms.forum) {
     return { afSticky: -1, stickyPriority: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {
@@ -1214,7 +1218,8 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny
+      draft: viewFieldAllowAny,
+      rejected: null
     },
     options: {
       sort: {

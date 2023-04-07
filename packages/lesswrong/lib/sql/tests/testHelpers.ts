@@ -36,7 +36,7 @@ export const TestCollection = {
   },
 } as unknown as CollectionBase<DbTestObject>;
 
-export const testTable = Table.fromCollection(TestCollection);
+export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
 
 testTable.addIndex({a: 1, b: 1});
 testTable.addIndex({a: 1, "c.d": 1});
