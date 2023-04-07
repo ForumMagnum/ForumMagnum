@@ -4,7 +4,6 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import * as _ from 'underscore'
 import MessageIcon from '@material-ui/icons/Message'
 import DescriptionIcon from '@material-ui/icons/Description'
-import { post } from 'request';
 
 const styles = (theme: ThemeType): JssStyles => ({
   contentSummaryRow: {

@@ -7,9 +7,8 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { Link } from '../../lib/reactRouterWrapper'
 
-export const CONTENT_LIMIT = 15
+export const CONTENT_LIMIT = 20
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
