@@ -123,7 +123,6 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
         </span>
       </LWTooltip>
       {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
-      { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
       { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
       {averageCommentKarma}
       </div>
