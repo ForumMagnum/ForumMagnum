@@ -68,7 +68,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   
-  const { CommentsList, PostsPageCrosspostComments } = Components
+  const { CommentThreads, PostsPageCrosspostComments } = Components
 
   const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
 
@@ -100,7 +100,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
         <Components.CantCommentExplanation post={post}/>
       }
       <div className={classes.debateCommentsList}>
-        <CommentsList
+        <CommentThreads
           treeOptions={{
             highlightDate: highlightDate,
             post: post,

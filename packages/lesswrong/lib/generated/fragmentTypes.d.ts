@@ -644,6 +644,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly topLevelCommentCount: number,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly subforumTagId: string,
@@ -1196,6 +1197,7 @@ interface PostsRevisionsList { // fragment on Posts
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
+  readonly topLevelCommentCount: number,
   readonly recentComments: Array<CommentsList>,
 }
 

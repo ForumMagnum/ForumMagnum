@@ -457,7 +457,7 @@ CREATE TABLE "PostRelations" (
     "legacyData" jsonb
 );
 
--- Schema for "Posts", hash: 7e15ffdf0cce8f17f7a7e1b5e09a7574
+-- Schema for "Posts", hash: b060fd003f683bb48069b532a7778703
 CREATE TABLE "Posts" (
     _id varchar(27) PRIMARY KEY,
     "postedAt" timestamptz,
@@ -588,6 +588,7 @@ CREATE TABLE "Posts" (
     "hideCommentKarma" bool DEFAULT false,
     "commentCount" double precision DEFAULT 0,
     "debate" bool DEFAULT false,
+    "topLevelCommentCount" double precision DEFAULT 0,
     "subforumTagId" varchar(27),
     "af" bool DEFAULT false,
     "afDate" timestamptz,

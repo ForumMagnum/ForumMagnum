@@ -261,7 +261,7 @@ export const loadSingle = async <N extends keyof FragmentTypes>({documentId, cli
   const resolverName = getResolverNameFromOptions(collection);
   const fragment = getFragment(fragmentName);
   const query = gql`
-    ${singleClientTemplate({ typeName, fragmentName, extraQueries: null, extraVariablesString: null })}
+    ${singleClientTemplate({ typeName, fragmentName, extraVariablesString: "" })}
     ${fragment}
   `;
   const queryResult = await client.query({

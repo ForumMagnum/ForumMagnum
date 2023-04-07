@@ -634,6 +634,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  topLevelCommentCount: number
   debate: boolean | null
   subforumTagId: string
   af: boolean

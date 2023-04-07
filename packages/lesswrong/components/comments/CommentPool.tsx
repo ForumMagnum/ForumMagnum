@@ -156,7 +156,10 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
       />)
     }
     {/*topLevelCommentCount && loadMoreTopLevel && topLevelCommentCount>tree.length*/
-      (!haveLoadedAll || hasHiddenTopLevelComments(stateRef.current)) && <LoadMore
+      (
+        (!haveLoadedAll && topLevelCommentCount && topLevelCommentCount > countVisibleTopLevelComments(stateRef.current))
+          || hasHiddenTopLevelComments(stateRef.current)
+      ) && <LoadMore
         loadMore={wrappedLoadMoreTopLevel}
         count={tree.length}
         totalCount={topLevelCommentCount}
@@ -191,6 +194,16 @@ function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList
     commentsSortOrder: [...state.commentsSortOrder, ...addedCommentIds],
     commentsById: newCommentStates,
   };
+}
+
+function countVisibleTopLevelComments(state: CommentPoolState): number {
+  let count = 0
+  for (let commentState of Object.values(state.commentsById)) {
+    if (!commentState.comment.parentCommentId && commentState.visibility!=="hidden") {
+      count++
+    }
+  }
+  return count
 }
 
 function hasHiddenTopLevelComments(state: CommentPoolState): boolean {

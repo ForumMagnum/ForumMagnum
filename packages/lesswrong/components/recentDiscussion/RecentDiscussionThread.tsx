@@ -195,7 +195,7 @@ const RecentDiscussionThread = ({
       client,
       collectionName: "Comments",
       terms: {
-        view: "postCommentsNew",
+        view: "loadMorePostComments",
         postId,
       },
       limit,
@@ -274,6 +274,7 @@ const RecentDiscussionThread = ({
           <div className={classes.commentsList}>
             <CommentPool
               initialComments={comments ?? []}
+              topLevelCommentCount={post.topLevelCommentCount}
               treeOptions={treeOptions}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}

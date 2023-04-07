@@ -437,6 +437,7 @@ importComponent("AllComments", () => require('../components/comments/AllComments
 importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));
 
 importComponent("CommentById", () => require('../components/comments/CommentById'));
+importComponent("CommentPool", () => require('../components/comments/CommentPool'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentOnPostWithReplies", () => require('../components/comments/CommentOnPostWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));
