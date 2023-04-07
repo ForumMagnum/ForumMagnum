@@ -34,11 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentInfo: {
     ...singleLineStyles(theme)
   },
-  profileImage: {
-    // !imporant because we're fighting with CommentsUserName which has a (much)
-    // higher style priority - changing it seems... risky
-    transform: "translateY(3px) !important",
-  },
   username: {
     display:"inline-block",
     padding: SINGLE_LINE_PADDING_TOP,
@@ -196,7 +191,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           comment={comment}
           simple
           className={classes.username}
-          imageClassName={classes.profileImage}
         />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>

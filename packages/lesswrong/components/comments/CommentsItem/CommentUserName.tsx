@@ -38,6 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   fullWrapper: {
     borderRadius: theme.borderRadius.default,
+    height: 26, // match height of vote buttons
     padding: "1px 4px 1px 2px",
     "&:hover": {
       background: theme.palette.grey[300],
@@ -47,7 +48,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: PROFILE_IMAGE_SIZE,
     marginLeft: 4,
     marginRight: 6,
-    transform: "translateY(2px)",
     ["@media screen and (max-width: 290px)"]: {
       display: "none",
     },
@@ -59,13 +59,11 @@ const CommentUserName = ({
   classes,
   simple = false,
   className,
-  imageClassName,
 }: {
   comment: CommentsList,
   classes: ClassesType,
   simple?: boolean,
   className?: string
-  imageClassName?: string,
 }) => {
   const {UserNameDeleted, UsersName, UsersProfileImage, UserTooltip} = Components
   const author = comment.user;
@@ -105,7 +103,7 @@ const CommentUserName = ({
           user={author}
           size={PROFILE_IMAGE_SIZE}
           fallback="initials"
-          className={classNames(classes.profileImage, imageClassName)}
+          className={classes.profileImage}
         />
         <UsersName
           user={author}

@@ -9,6 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderRadius: "50%",
   },
+  wrapper: {
+    display: "flex",
+    alignItems: "center",
+  },
   "@keyframes profile-image-loader": {
     "0%": {
       backgroundPosition: "right",
@@ -110,6 +114,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
           classes.loadingPlaceholder,
           className,
         )}
+        wrapperClassName={classes.wrapper}
         highDPI
       />
     );
@@ -117,7 +122,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
 
   if (fallback === "initials") {
     return (
-      <picture>
+      <picture className={classes.wrapper}>
         <InitialFallback
           displayName={user.displayName}
           size={size}

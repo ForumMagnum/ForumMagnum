@@ -38,7 +38,8 @@ const CloudinaryImage2 = ({
   imgProps,
   fullWidthHeader,
   highDPI,
-  className
+  className,
+  wrapperClassName,
 }: {
   /** Overridden if fullWidthHeader is true */
   width?: number|string,
@@ -51,6 +52,7 @@ const CloudinaryImage2 = ({
   fullWidthHeader?: boolean,
   highDPI?: boolean,
   className?: string,
+  wrapperClassName?: string,
 }) => {
   const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
 
@@ -122,7 +124,7 @@ const CloudinaryImage2 = ({
     `
   }
 
-  return <picture>
+  return <picture className={wrapperClassName}>
     {srcSetFunc && (shouldUseDarkImage === 'maybe' ? <source
       // Cast is safe for similar reasons to above
       srcSet={srcSetFunc(darkPublicId!)}
