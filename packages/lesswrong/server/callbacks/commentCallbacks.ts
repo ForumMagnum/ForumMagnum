@@ -289,7 +289,6 @@ async function commentsRejectSendPMAsync (comment: DbComment) {
       : null
     );
 
-  // const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
   const lwAccount = await getAdminTeamAccount();
   const commentUser = await Users.findOne({_id: comment.userId})
 
