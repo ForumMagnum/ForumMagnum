@@ -8,7 +8,21 @@ export type ProfileImageFallback = "initials";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderRadius: "50%",
-    background: theme.palette.grey[200],
+  },
+  "@keyframes profile-image-loader": {
+    "0%": {
+      backgroundPosition: "right",
+    },
+  },
+  loadingPlaceholder: {
+    background: `linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 33%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(0,0,0,0) 66%
+    ) ${theme.palette.grey[500]}`,
+    backgroundSize: "300% 100%",
+    animation: "profile-image-loader 1s infinite",
   },
   initalText: {
     color: "#222", // For both light and dark mode
@@ -91,7 +105,11 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
         height={size}
         imgProps={{q: "100"}}
         publicId={user.profileImageId}
-        className={classNames(classes.root, className)}
+        className={classNames(
+          classes.root,
+          classes.loadingPlaceholder,
+          className,
+        )}
         highDPI
       />
     );
