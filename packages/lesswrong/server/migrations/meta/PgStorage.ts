@@ -1,5 +1,19 @@
 import { MigrationParams, UmzugStorage } from "@centreforeffectivealtruism/umzug";
 
+export const MIGRATION_LOG_SCHEMA = `
+CREATE TABLE IF NOT EXISTS migration_log(
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ NOT NULL,
+  unlog_time TIMESTAMPTZ
+)`;
+
+export const MIGRATION_LOG_INDEXES = [
+  `CREATE INDEX IF NOT EXISTS idx_migration_log_name ON migration_log (name)`,
+];
+
 /**
  * We use umzug for orchestrating migrations which is agnostic to any particular
  * logging medium. This is a simple interface to store migration logs in a custom
@@ -11,20 +25,10 @@ class PgStorage implements UmzugStorage<MigrationContext> {
    * using any of the other methods
    */
   async setupEnvironment(db: SqlClient): Promise<void> {
-    await db.none(`
-      CREATE TABLE IF NOT EXISTS migration_log(
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        hash TEXT NOT NULL,
-        start_time TIMESTAMPTZ NOT NULL,
-        end_time TIMESTAMPTZ NOT NULL,
-        unlog_time TIMESTAMPTZ
-      )
-    `);
-    await db.none(`
-      CREATE INDEX IF NOT EXISTS idx_migration_log_name
-      ON migration_log (name)
-    `);
+    await db.none(MIGRATION_LOG_SCHEMA);
+    for (const index of MIGRATION_LOG_INDEXES) {
+      await db.none(index);
+    }
   }
 
   /**

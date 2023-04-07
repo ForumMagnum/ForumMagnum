@@ -44,7 +44,12 @@ class Table<T extends DbObject> {
   }
 
   addIndex(key: MongoIndexKeyObj<T>, options?: MongoEnsureIndexOptions<T>) {
-    const index = new TableIndex<T>(this.name, key, options);
+    const fields = Object.keys(key);
+    const existing = this.getIndex(fields, options);
+    if (existing) {
+      return existing;
+    }
+    const index = new TableIndex(this.name, key, options);
     this.indexes.push(index);
     return index;
   }

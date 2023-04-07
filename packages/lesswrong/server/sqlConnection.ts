@@ -11,6 +11,10 @@ const pgPromiseLib = pgp({
   // },
 });
 
+pgPromiseLib.pg.defaults.parseInputDatesAsUTC = true;
+
+export const pgFormat = pgPromiseLib.as.format;
+
 /**
  * The postgres default for max_connections is 100 - you can view the current setting
  * with `show max_connections`. When increasing max_connections, you also need to increase
@@ -41,7 +45,7 @@ declare global {
  * ensure the environment is setup correctly. The order in which they
  * are run is undefined.
  */
-const onConnectQueries: string[] = [
+export const onConnectQueries: string[] = [
   // The default TOAST compression in PG uses pglz - here we switch to lz4 which
   // uses slightly more disk space in exchange for _much_ faster compression and
   // decompression times

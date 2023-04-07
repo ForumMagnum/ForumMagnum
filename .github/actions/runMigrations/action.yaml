@@ -33,6 +33,10 @@ runs:
         repository: elasticdog/transcrypt
         path: transcrypt
 
+    - name: Install atlas
+      shell: bash
+      run: yarn atlas-install-curl
+
     - name: Decrypt credentials
       shell: bash
       working-directory: ${{ github.workspace }}/ForumCredentials
@@ -43,3 +47,7 @@ runs:
       env:
         FORUM_MAGNUM_MIGRATE_CI: 1
       run: yarn migrate up ${{ inputs.mode }}
+
+    - name: Sync schema
+      shell: bash
+      run: yarn schema apply ${{ inputs.mode }} ci
