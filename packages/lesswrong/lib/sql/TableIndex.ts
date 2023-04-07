@@ -5,15 +5,15 @@ import { MD5 as md5 } from "crypto-js";
  * TableIndex represents a named Postgres index on a particular group
  * of fields in a table. It may or may not be unique and/or partial.
  */
-class TableIndex {
+class TableIndex<T extends DbObject> {
   private fields: string[];
   private name: string;
   private collationType: CollationType = DEFAULT_COLLATION;
 
   constructor(
     private tableName: string,
-    private key: Record<string, 1 | -1>,
-    private options?: MongoEnsureIndexOptions,
+    private key: MongoIndexKeyObj<T>,
+    private options?: MongoEnsureIndexOptions<T>,
   ) {
     this.fields = Object.keys(key);
     this.name = options?.name
@@ -64,7 +64,7 @@ class TableIndex {
     return this.collationType === "case-insensitive";
   }
 
-  equals(fields: string[], options?: MongoEnsureIndexOptions) {
+  equals(fields: string[], options?: MongoEnsureIndexOptions<T>) {
     if (this.fields.length !== fields.length) {
       return false;
     }
@@ -92,7 +92,7 @@ class TableIndex {
     return true;
   }
 
-  equalsTableIndex(other: TableIndex) {
+  equalsTableIndex(other: TableIndex<T>) {
     return this.equals(other.fields, other.options);
   }
 }

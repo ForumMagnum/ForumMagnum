@@ -10,7 +10,7 @@ import Table from "./Table";
  * attempt at being readable for the sake of generating schemas.
  */
 class CreateTableQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, ifNotExists = false) {
+  constructor(table: Table<T>, ifNotExists = false) {
     const fields = table.getFields();
     super(table, [
       `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,

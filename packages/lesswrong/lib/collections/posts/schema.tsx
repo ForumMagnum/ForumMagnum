@@ -2414,11 +2414,10 @@ const schema: SchemaType<DbPost> = {
 
       return count;
     }
-  })
-};
+  }),
 
-/* subforum-related fields */
-Object.assign(schema, {
+  /* subforum-related fields */
+
   // If this post is associated with a subforum, the _id of the tag
   subforumTagId: {
     ...foreignKeyField({
@@ -2434,10 +2433,9 @@ Object.assign(schema, {
     canUpdate: ['admins'],
     hidden: true,
   },
-})
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
+
   af: {
     order:10,
     type: Boolean,
@@ -2501,7 +2499,7 @@ Object.assign(schema, {
         return false;
       }
     },
-    onEdit: (modifier, post: DbPost) => {
+    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }
@@ -2545,9 +2543,9 @@ Object.assign(schema, {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

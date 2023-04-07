@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
-    "&:hover $menu": {
+    "&:hover .CommentsItemMeta-menu": {
       opacity:1
     }
   },

@@ -49,8 +49,12 @@ export const parsePath = function parsePath(path: string): SegmentedUrl {
   };
 };
 
-export function parseQuery(location) {
-  let query = location && location.search;
+/**
+ * Given the props of a component which has withRouter, return the parsed query
+ * from the URL.
+ */
+export function parseQuery(location): Record<string,string> {
+  let query = location?.search;
   if (!query) return {};
 
   // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
@@ -59,7 +63,7 @@ export function parseQuery(location) {
   if (query.startsWith('?'))
     query = query.substr(1);
 
-  return qs.parse(query);
+  return qs.parse(query) as Record<string,string>;
 }
 
 // Match a string against the routes table, and parse the route components.
