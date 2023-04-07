@@ -23,8 +23,6 @@ const UsersName = ({
   nofollow?: boolean,
   /** Makes it not a link, and removes the tooltip. */
   simple?: boolean,
-  showAuthorIcon?: boolean,
-  allowNewUserIcon?: boolean,
   tooltipPlacement?: PopperPlacementType,
   noTooltip?: boolean,
   color?: boolean,

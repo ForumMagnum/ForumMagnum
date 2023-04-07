@@ -203,6 +203,7 @@ importComponent("DraftsListSettings", () => require('../components/posts/DraftsL
 importComponent("UsersName", () => require('../components/users/UsersName'));
 importComponent("UsersNameWrapper", () => require('../components/users/UsersNameWrapper'));
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
+importComponent("UserCommentMarkers", () => require('../components/users/UserCommentMarkers'));
 importComponent("LWUserTooltipContent", () => require('../components/users/LWUserTooltipContent'));
 importComponent("EAUserTooltipContent", () => require('../components/users/EAUserTooltipContent'));
 importComponent("UserTooltip", () => require('../components/users/UserTooltip'));

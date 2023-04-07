@@ -195,7 +195,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         <CommentUserName
           comment={comment}
           simple
-          hideSprout
           className={classes.username}
           imageClassName={classes.profileImage}
         />

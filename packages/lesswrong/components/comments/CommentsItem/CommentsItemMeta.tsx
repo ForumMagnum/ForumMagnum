@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(90deg)",
   },
   username: {
-    marginRight: 10,
+    marginRight: isEAForum ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -79,6 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       overflowX: "hidden",
     },
+  },
+  userMarkers: {
+    marginRight: 6,
   },
   moderatorHat: {
     marginRight: 8,
@@ -213,7 +216,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu,
+    ForumIcon, CommentsMenu, UserCommentMarkers,
   } = Components;
 
   return (
@@ -253,7 +256,11 @@ export const CommentsItemMeta = ({
       <CommentUserName
         comment={comment}
         className={classes.username}
+      />
+      <UserCommentMarkers
+        user={comment.user}
         isPostAuthor={authorIsPostAuthor}
+        className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&

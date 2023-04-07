@@ -26,21 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: "none"
     }
   },
-  iconWrapper: {
-    marginLeft: -4,
-    marginRight: 10,
-  },
-  postAuthorIcon: {
-    verticalAlign: 'text-bottom',
-    color: theme.palette.grey[500],
-    fontSize: 16,
-  },
-  sproutIcon: {
-    position: 'relative',
-    bottom: -2,
-    color: theme.palette.icon.sprout,
-    fontSize: 16,
-  },
   mainWrapper: {
     display: "flex",
     alignItems: "center",
@@ -53,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   fullWrapper: {
     borderRadius: theme.borderRadius.default,
-    padding: "1px 4px",
+    padding: "1px 4px 1px 2px",
     "&:hover": {
       background: theme.palette.grey[300],
     },
@@ -73,16 +58,12 @@ const CommentUserName = ({
   comment,
   classes,
   simple = false,
-  isPostAuthor,
-  hideSprout,
   className,
   imageClassName,
 }: {
   comment: CommentsList,
   classes: ClassesType,
   simple?: boolean,
-  isPostAuthor?: boolean,
-  hideSprout?: boolean,
   className?: string
   imageClassName?: string,
 }) => {
@@ -128,11 +109,9 @@ const CommentUserName = ({
         />
         <UsersName
           user={author}
-          allowNewUserIcon={!hideSprout}
-          showAuthorIcon={isEAForum && isPostAuthor}
           className={classes.author}
+          simple
           color
-          noTooltip
         />
       </Wrapper>
     );
@@ -142,8 +121,6 @@ const CommentUserName = ({
     <UsersName
       user={author}
       simple={simple}
-      allowNewUserIcon={!hideSprout}
-      showAuthorIcon={isEAForum && isPostAuthor}
       className={classNames(className, classes.author)}
       tooltipPlacement="bottom-start"
     />
