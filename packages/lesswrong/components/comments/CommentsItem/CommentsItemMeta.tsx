@@ -117,16 +117,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.35,
     },
   rejectedIcon: {
-    position: "absolute",
-    right: -10,
-    top: 8,
+    marginLeft: 'auto',
+    marginBottom: 2,
     color: theme.palette.grey[500],
     cursor: "pointer",
   },
   rejectedLabel: {
-    position: "absolute",
-    right: -10,
-    top: 12,
+    marginLeft: 'auto',
+    marginBottom: 2,
     color: theme.palette.grey[500],
     cursor: "pointer",
   }

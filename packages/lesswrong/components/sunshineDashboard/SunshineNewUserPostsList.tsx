@@ -34,14 +34,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 10
   },
   rejectedIcon: {
-    position: "absolute",
-    right: 40,
+    marginLeft: 'auto',
+    marginTop: 4,
     color: theme.palette.grey[500],
     cursor: "pointer",
   },
   rejectedLabel: {
-    position: "absolute",
-    right: 40,
+    marginLeft: 'auto',
+    marginBottom: 2,
     color: theme.palette.grey[500],
     cursor: "pointer",
   }
