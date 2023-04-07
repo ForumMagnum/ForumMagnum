@@ -64,4 +64,11 @@ type AnyBecauseTodo = any
  */
 type AnyBecauseObsolete = any
 
+/**
+ * Has Typescript type "any" because the developer spent more than 5 minutes
+ * trying to type this and was very frustrated. The developer promises they
+ * were not just being lazy.
+ */
+type AnyBecauseHard = any
+
 }
