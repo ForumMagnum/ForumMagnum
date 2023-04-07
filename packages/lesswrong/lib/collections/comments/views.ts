@@ -122,7 +122,7 @@ export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1, rejected:1},
   });
 }
 
