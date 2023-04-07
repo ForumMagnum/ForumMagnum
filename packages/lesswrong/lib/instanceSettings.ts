@@ -3,7 +3,7 @@ import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 
-const getNestedProperty = function (obj, desc) {
+const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;

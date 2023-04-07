@@ -64,7 +64,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
     const FormComponents = formComponents;
 
     //filter out null values to calculate array length
-    let arrayLength = value.filter(singleValue => {
+    let arrayLength = value.filter((singleValue: AnyBecauseTodo) => {
       return !!singleValue;
     }).length;
 
@@ -80,7 +80,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
         hasErrors={hasErrors}
         content={[
           value.map(
-            (subDocument, i) =>
+            (subDocument: AnyBecauseTodo, i: number) =>
               !this.isDeleted(i) && (
                 <React.Fragment key={i}>
                   <FormComponents.FormNestedItem

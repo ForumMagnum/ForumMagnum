@@ -37,16 +37,16 @@ const RESET_PROPS = [
   'prefilledProps' // TODO: prefilledProps should be merged instead?
 ] as const;
 
-const compactParent = (object, path) => {
+const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
   const parentPath = getParentPath(path);
 
   // note: we only want to compact arrays, not objects
-  const compactIfArray = x => (Array.isArray(x) ? compact(x) : x);
+  const compactIfArray = (x: AnyBecauseTodo) => (Array.isArray(x) ? compact(x) : x);
 
   update(object, parentPath, compactIfArray);
 };
 
-const getDefaultValues = convertedSchema => {
+const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
   // TODO: make this work with nested schemas, too
   return pickBy(
     mapValues(convertedSchema, field => field.defaultValue),
@@ -183,7 +183,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
    *
    * Also remove any deleted values.
    */
-  getData = async customArgs => {
+  getData = async (customArgs: AnyBecauseTodo) => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
       excludeRemovedFields: false,
@@ -435,7 +435,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     // Now that it's done being constructed, all the required fields will be set
     return field as FormField<T>;
   };
-  createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
+  createArraySubField = (fieldName: AnyBecauseTodo, subFieldSchema: AnyBecauseTodo, mutableFields: AnyBecauseTodo) => {
     const subFieldName = `${fieldName}.$`;
     let subField = this.initField(subFieldName, subFieldSchema);
     // array subfield has the same path and permissions as its parent
@@ -485,7 +485,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     - message: if id cannot be used as i81n key, message will be used
 
   */
-  throwError = error => {
+  throwError = (error: AnyBecauseTodo) => {
     let formErrors = getErrors(error);
 
     // eslint-disable-next-line no-console
@@ -520,7 +520,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // Add a callback to the form submission. Return a cleanup function which,
   // when run, removes that callback.
-  addToSubmitForm = callback => {
+  addToSubmitForm = (callback: AnyBecauseTodo) => {
     this.submitFormCallbacks.push(callback);
     return () => {
       const index = this.submitFormCallbacks.indexOf(callback);
@@ -531,7 +531,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // Add a callback to form submission success. Return a cleanup function which,
   // when run, removes that callback.
-  addToSuccessForm = callback => {
+  addToSuccessForm = (callback: AnyBecauseTodo) => {
     this.successFormCallbacks.push(callback);
     return () => {
       const index = this.successFormCallbacks.indexOf(callback);
@@ -542,7 +542,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // Add a callback to form submission failure. Return a cleanup function which,
   // when run, removes that callback.
-  addToFailureForm = callback => {
+  addToFailureForm = (callback: AnyBecauseTodo) => {
     this.failureFormCallbacks.push(callback);
     return () => {
       const index = this.failureFormCallbacks.indexOf(callback);
@@ -551,7 +551,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     };
   };
 
-  setFormState = fn => {
+  setFormState = (fn: AnyBecauseTodo) => {
     this.setState(fn);
   };
 
@@ -602,7 +602,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   // Manually update the current values of one or more fields(i.e. on change or blur).
   // Return a promise that resolves when the change is fully applied. Since this is
   // a React state update, this is not immediate.
-  updateCurrentValues = async (newValues, options: any = {}) => {
+  updateCurrentValues = async (newValues: AnyBecauseTodo, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { autoSubmit, changeCallback } = this.props;
@@ -693,7 +693,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
-      this.unblock = this.props.history.block((location, action) => {
+      this.unblock = this.props.history.block((location: AnyBecauseTodo, action: AnyBecauseTodo) => {
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
@@ -732,7 +732,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
    * see https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
    * the message returned is actually ignored by most browsers and a default message 'Are you sure you want to leave this page? You might have unsaved changes' is displayed. See the Notes section on the mozilla docs above
    */
-  handlePageLeave = (event) => {
+  handlePageLeave = (event: AnyBecauseTodo) => {
     if (this.isChanged()) {
       const message = "Discard changes?"
       if (event) {
@@ -816,15 +816,15 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     }
   };
 
-  newMutationSuccessCallback = (result, submitOptions) => {
+  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = (result, submitOptions) => {
+  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result, mutationType, submitOptions) => {
+  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -856,7 +856,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   // catch graphql errors
-  mutationErrorCallback = (document, error) => {
+  mutationErrorCallback = (document: AnyBecauseTodo, error: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
 
     // eslint-disable-next-line no-console
@@ -865,10 +865,10 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     // error, and displaying this is surprisingly hard. See this:
     // https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(error, (key, value) => 
+    console.log(JSON.stringify(error, (key: AnyBecauseTodo, value) =>
       (value instanceof Error) ?
-        Object.getOwnPropertyNames(value).reduce((ac, propName) => {
-          ac[propName] = value[propName];
+        Object.getOwnPropertyNames(value).reduce((ac: AnyBecauseTodo, propName: AnyBecauseTodo) => {
+          ac[propName] = (value as AnyBecauseTodo)[propName];
           return ac;
         }, {})
         : value
@@ -960,13 +960,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     if (window.confirm(deleteDocumentConfirm)) {
       this.props
         .removeMutation({ documentId })
-        .then(mutationResult => {
+        .then((mutationResult: AnyBecauseTodo) => {
           // the mutation result looks like {data:{collectionRemove: null}} if succeeded
           if (this.props.removeSuccessCallback)
             this.props.removeSuccessCallback({ documentId, documentTitle });
           if (this.props.refetch) this.props.refetch();
         })
-        .catch(error => {
+        .catch((error: AnyBecauseTodo) => {
           // eslint-disable-next-line no-console
           console.log(error);
         });
@@ -987,7 +987,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         id={this.props.id}
         onSubmit={this.submitForm}
         onKeyDown={this.formKeyDown}
-        ref={e => { this.form = e; }}
+        ref={(e: AnyBecauseTodo) => { this.form = e; }}
       >
         <FormComponents.FormErrors
           errors={this.state.errors}

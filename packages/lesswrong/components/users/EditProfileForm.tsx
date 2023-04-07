@@ -119,7 +119,7 @@ const EditProfileForm = ({classes}: {
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
-        successCallback={async (user) => {
+        successCallback={async (user: AnyBecauseTodo) => {
           history.push(userGetProfileUrl(user))
         }}
       />

@@ -53,7 +53,7 @@ export const parsePath = function parsePath(path: string): SegmentedUrl {
  * Given the props of a component which has withRouter, return the parsed query
  * from the URL.
  */
-export function parseQuery(location): Record<string,string> {
+export function parseQuery(location: AnyBecauseTodo): Record<string,string> {
   let query = location?.search;
   if (!query) return {};
 

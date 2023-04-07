@@ -59,7 +59,7 @@ const coronaVirusResolvers = {
             type, reviewerThoughts, foundVia, 
             sourceLink, sourceLinkDomain, lastUpdated, 
             title, dateAdded, category
-        ]) => ({
+        ]: AnyBecauseTodo) => ({
             accepted, imp, link, shortDescription,
             url, description, domain,
             type, reviewerThoughts, foundVia,

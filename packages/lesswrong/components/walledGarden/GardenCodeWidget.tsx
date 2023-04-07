@@ -52,7 +52,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
   const [copiedCode, setCopiedCode] = useState(false)
   const [open, setOpen] = useState(false)
 
-  const autoselectCode = (event) => {
+  const autoselectCode = (event: AnyBecauseTodo) => {
     event.target.select()
   }
 

@@ -477,7 +477,12 @@ export async function forEachDocumentInCollection({collection, batchSize=1000, f
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection({collection, filter, bucketSize=1000, fn})
+export async function forEachBucketRangeInCollection<T extends DbObject>({collection, filter, bucketSize=1000, fn}: {
+  collection: CollectionBase<T>
+  filter?: MongoSelector<T>
+  bucketSize?: number
+  fn: (selector: MongoSelector<T>)=>Promise<void>
+})
 {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();

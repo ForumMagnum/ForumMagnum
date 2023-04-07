@@ -21,7 +21,7 @@ function WrappedSmartForm(props: WrappedSmartFormProps) {
   if (editableCollections.has(collectionName)) {
     return <Components.FormWrapper
       {...props}
-      submitCallback={(data) => {
+      submitCallback={(data: AnyBecauseTodo) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape

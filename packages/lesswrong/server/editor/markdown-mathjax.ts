@@ -1,4 +1,4 @@
-function math (state, silent) {
+function math (state: AnyBecauseTodo, silent: AnyBecauseTodo) {
   var startMathPos = state.pos
   if (state.src.charCodeAt(startMathPos) !== 0x5C /* \ */) {
     return false

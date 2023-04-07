@@ -550,7 +550,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  validateCkEditor = (document) => {
+  validateCkEditor = (document: AnyBecauseTodo) => {
     const result = checkEditorValid(document, this.props.currentUser)
     this.setState({editorWarning: result.message})
   }

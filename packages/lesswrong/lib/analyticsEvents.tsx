@@ -266,9 +266,9 @@ const burstLimitKB = 20;
 const rateLimitEventsPerSec = 3.0;
 const rateLimitKBps = 5;
 const rateLimitEventIntervalMs = 5000;
-let eventTypeLimiters = {};
+let eventTypeLimiters: AnyBecauseTodo = {};
 
-const throttledStoreEvent = (event) => {
+const throttledStoreEvent = (event: AnyBecauseTodo) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
