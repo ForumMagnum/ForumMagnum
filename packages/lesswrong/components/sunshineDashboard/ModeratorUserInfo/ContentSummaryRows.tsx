@@ -59,22 +59,25 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
+  const getAverageBaseScore = (list) => { 
+    const average = list.reduce((sum, item) => item.baseScore + sum, 0) / list.length
+    return average.toFixed(1) 
+  }
+
   const averagePostKarma = posts?.length ? 
     <LWTooltip title="average karma">
       <span className={classes.average}>
-        {(posts.reduce((sum, post) => post.baseScore -  + sum, 0) / posts.length ).toFixed(1)}
+        {getAverageBaseScore(posts)}
       </span>
     </LWTooltip>
   : null
   const averageCommentKarma = comments?.length ? 
     <LWTooltip title="average karma">
       <span className={classes.average}>
-        {(comments.reduce((sum, comment) => comment.baseScore + sum, 0) / comments.length).toFixed(1)}
+        {getAverageBaseScore(comments)}
       </span>
     </LWTooltip>
   : null
-
-  Math
 
   return <div>
     <Row>
