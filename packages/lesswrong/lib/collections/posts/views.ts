@@ -186,6 +186,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       unlisted: false,
       shortform: false,
       authorIsUnreviewed: false,
+      rejected: { $ne: true },
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
@@ -441,6 +442,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
+      rejected: null
     },
     options: {
       limit: 5,
@@ -1216,7 +1218,8 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny
+      draft: viewFieldAllowAny,
+      rejected: null
     },
     options: {
       sort: {

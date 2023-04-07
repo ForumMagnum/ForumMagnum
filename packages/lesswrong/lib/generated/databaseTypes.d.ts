@@ -637,6 +637,8 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
+  rejected: boolean
+  rejectedByUserId: string
   subforumTagId: string
   af: boolean
   afDate: Date

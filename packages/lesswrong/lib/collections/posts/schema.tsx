@@ -2416,6 +2416,36 @@ const schema: SchemaType<DbPost> = {
     }
   }),
 
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
   /* subforum-related fields */
 
   // If this post is associated with a subforum, the _id of the tag

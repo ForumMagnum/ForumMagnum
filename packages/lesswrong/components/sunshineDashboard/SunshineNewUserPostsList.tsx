@@ -4,6 +4,8 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import RejectedIcon from "@material-ui/icons/NotInterested";
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -29,6 +31,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vote: {
     marginRight: 10
+  },
+  rejectedIcon: {
+    position: "absolute",
+    right: 40,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
+  },
+  rejectedLabel: {
+    position: "absolute",
+    right: 40,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
   }
 })
 
@@ -38,6 +52,18 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   user: SunshineUsersList
 }) => {
   const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage } = Components
+
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SunshinePostsList',
+  });
+
+  const setPostRejectedStatus = (post: SunshinePostsList, rejected: boolean) => () => {
+    void updatePost({
+      selector: { _id: post._id },
+      data: { rejected }
+    });
+  };
  
   if (!posts) return null
 
@@ -68,6 +94,14 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
               </span>
             </div>
           </div>
+          
+          {post.rejected && <span className={classes.rejectedLabel} onClick={setPostRejectedStatus(post, false)}>
+            [Rejected]
+          </span>}
+          {!post.rejected && post.authorIsUnreviewed && <span className={classes.rejectedIcon}>
+            <RejectedIcon onClick={setPostRejectedStatus(post, true)} />
+          </span>}
+          
           <PostActionsButton post={post} />
         </div>
         {!post.draft && <div className={classes.postBody}>

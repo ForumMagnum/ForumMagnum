@@ -18,6 +18,7 @@ registerFragment(`
     userId
     coauthorStatuses
     hasCoauthorPermission
+    rejected
   }
 `);
 

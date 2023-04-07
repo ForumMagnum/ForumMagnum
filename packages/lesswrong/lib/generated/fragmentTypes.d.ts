@@ -648,6 +648,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly commentCount: number,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly rejected: boolean,
+  readonly rejectedByUserId: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -809,6 +811,7 @@ interface PostsMinimumInfo { // fragment on Posts
     requested: boolean,
   }>,
   readonly hasCoauthorPermission: boolean,
+  readonly rejected: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes

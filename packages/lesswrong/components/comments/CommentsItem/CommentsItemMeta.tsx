@@ -10,7 +10,6 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
-import Button from '@material-ui/core/Button';
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 
@@ -121,13 +120,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     right: -10,
     top: 8,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    cursor: "pointer",
   },
   rejectedLabel: {
     position: "absolute",
     right: -10,
     top: 12,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    cursor: "pointer",
   }
 });
 
@@ -317,16 +318,14 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {comment.rejected && <button onClick={setCommentRejectedStatus(false)}>
-        <span className={classes.rejectedLabel}>
+      {userIsAdmin(currentUser) && <>
+        {comment.rejected && <span className={classes.rejectedLabel} onClick={setCommentRejectedStatus(false)}>
           [Rejected]
-        </span>
-      </button>}
-      {!comment.rejected && comment.authorIsUnreviewed && <button onClick={setCommentRejectedStatus(true)}>
-        <span className={classes.rejectedIcon}>
-          <RejectedIcon />
-        </span>
-      </button>}
+        </span>}
+        {!comment.rejected && comment.authorIsUnreviewed && <span className={classes.rejectedIcon}>
+          <RejectedIcon onClick={setCommentRejectedStatus(true)} />
+        </span>}
+      </>}
 
       <span className={classes.rightSection}>
         {isEAForum &&
