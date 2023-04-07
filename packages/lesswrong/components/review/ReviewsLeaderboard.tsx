@@ -38,6 +38,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+// TODO find the place in the code where this is normally set
+export const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
+  if (user?.karma && user?.karma >= 1000) {
+    return 2
+  } else {
+    return 1
+  }
+}
+
+
 export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   classes: ClassesType,
   reviews?: CommentsListWithParentMetadata[],
@@ -45,15 +55,6 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 }) => {
   const [truncated, setTruncated] = useState<boolean>(true)
   const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
-
-  // TODO find the place in the code where this is normally set
-  const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
-    if (user?.karma && user?.karma >= 1000) {
-      return 2
-    } else {
-      return 1
-    }
-  }
 
   const userRows = Object.entries(groupBy(reviews, (review) => review.userId))
   const userRowsMapping = userRows.map(userTuple => {
