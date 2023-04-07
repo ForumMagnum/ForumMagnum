@@ -108,7 +108,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerImageContainer: {
     paddingBottom: 15,
     [theme.breakpoints.up('md')]: {
-      marginTop: isEAForum ? -20 : -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,

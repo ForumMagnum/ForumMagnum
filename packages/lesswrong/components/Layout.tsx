@@ -51,7 +51,7 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    paddingTop: isEAForum ? 20 : 50,
+    paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",

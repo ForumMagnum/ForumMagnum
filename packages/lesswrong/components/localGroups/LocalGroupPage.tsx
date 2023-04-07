@@ -21,13 +21,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
-      marginTop: isEAForum ? -20 : -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     }
   },
   topSectionMap: {
     height: 250,
     [theme.breakpoints.up('md')]: {
-      marginTop: isEAForum ? -20 : -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -36,7 +36,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     [theme.breakpoints.up('md')]: {
-      marginTop: isEAForum ? -20 : -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
