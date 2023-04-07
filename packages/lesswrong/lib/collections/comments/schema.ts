@@ -693,11 +693,9 @@ const schema: SchemaType<DbComment> = {
       const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
     }
-  }
-};
+  },
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
   af: {
     type: Boolean,
     optional: true,
@@ -771,9 +769,9 @@ Object.assign(schema, {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

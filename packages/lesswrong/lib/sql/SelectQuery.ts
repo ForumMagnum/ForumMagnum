@@ -104,7 +104,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
 
   constructor(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
@@ -232,7 +232,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private getProjectedFields(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
     autoIncludeId = true,

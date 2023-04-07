@@ -110,7 +110,11 @@ const SubforumSubforumTab = ({
   const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
   const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  const sortBy = (sortByOptions.includes(query.sortedBy) && query.sortedBy) || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
+  const sortBy: CommentSortingMode = (
+    (sortByOptions.includes(query.sortedBy) && query.sortedBy)
+    || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder)
+    || defaultSubforumSorting
+  ) as CommentSortingMode;
   
   const commentNodeProps = {
     treeOptions: {
