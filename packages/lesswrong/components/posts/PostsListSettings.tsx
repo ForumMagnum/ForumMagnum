@@ -141,7 +141,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
-  currentSorting: any,
+  currentSorting: PostSortingMode,
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,

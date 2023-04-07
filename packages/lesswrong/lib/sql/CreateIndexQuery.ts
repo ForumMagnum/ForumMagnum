@@ -19,7 +19,7 @@ import { StringType } from "./Type";
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
   private isUnique: boolean;
 
-  constructor(table: Table, index: TableIndex, ifNotExists = true) {
+  constructor(table: Table<T>, index: TableIndex<T>, ifNotExists = true) {
     super(table);
     this.isIndex = true;
     this.calculateIsUnique(index);
@@ -43,12 +43,12 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private calculateIsUnique(index: TableIndex) {
+  private calculateIsUnique(index: TableIndex<T>) {
     const {useGin} = this.getFieldList(index);
     this.isUnique = index.isUnique() && !useGin;
   }
 
-  private getFieldList(index: TableIndex): {useGin: boolean, fields: Atom<T>[]} {
+  private getFieldList(index: TableIndex<T>): {useGin: boolean, fields: Atom<T>[]} {
     const isCaseInsensitive = index.isCaseInsensitive();
     const fields = index.getFields().map((field) =>
       this.fieldNameToIndexField(field, isCaseInsensitive),

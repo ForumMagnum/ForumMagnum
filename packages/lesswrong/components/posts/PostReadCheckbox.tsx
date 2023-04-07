@@ -39,7 +39,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
     graphqlArgs: {postId: 'String', isRead: 'Boolean'},
   });
   
-  const handleSetIsRead = (isRead) => {
+  const handleSetIsRead = (isRead: boolean) => {
     void markAsReadOrUnread({
       postId: post._id,
       isRead: isRead,
