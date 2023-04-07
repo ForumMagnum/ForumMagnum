@@ -59,7 +59,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
-  const getAverageBaseScore = (list) => { 
+  const getAverageBaseScore = (list: Array<SunshinePostsList|CommentsListWithParentMetadata>) => { 
     const average = list.reduce((sum, item) => item.baseScore + sum, 0) / list.length
     return average.toFixed(1) 
   }
