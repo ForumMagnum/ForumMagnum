@@ -6,6 +6,7 @@ import _filter from 'lodash/filter';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -95,12 +96,14 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             </div>
           </div>
           
-          {post.rejected && <span className={classes.rejectedLabel} onClick={setPostRejectedStatus(post, false)}>
-            [Rejected]
-          </span>}
-          {!post.rejected && post.authorIsUnreviewed && <span className={classes.rejectedIcon}>
-            <RejectedIcon onClick={setPostRejectedStatus(post, true)} />
-          </span>}
+          {isLW && <>
+            {post.rejected && <span className={classes.rejectedLabel} onClick={setPostRejectedStatus(post, false)}>
+              [Rejected]
+            </span>}
+            {!post.rejected && post.authorIsUnreviewed && <span className={classes.rejectedIcon}>
+              <RejectedIcon onClick={setPostRejectedStatus(post, true)} />
+            </span>}
+          </>}
           
           <PostActionsButton post={post} />
         </div>
