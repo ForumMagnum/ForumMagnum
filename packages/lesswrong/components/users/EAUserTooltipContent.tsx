@@ -76,6 +76,7 @@ const formatBio = (bio?: string): string => {
   if (!bio) {
     return "";
   }
+  // Note that this only works because we don't SSR tooltips
   const span = document.createElement("span");
   span.innerHTML = bio;
   if (span.children.length > 1) {
