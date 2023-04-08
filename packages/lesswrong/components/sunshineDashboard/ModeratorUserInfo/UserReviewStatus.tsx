@@ -28,7 +28,7 @@ export const UserReviewStatus = ({classes, user}: {
       : null 
     }
     {user.banned
-      ? <p><em>Banned until <FormatDate format="yyyy-mm-DD" date={user.banned}/></em></p>
+      ? <p><em>Banned until <FormatDate format="YYYY-MM-DD" date={user.banned}/></em></p>
       : null 
     }
 
