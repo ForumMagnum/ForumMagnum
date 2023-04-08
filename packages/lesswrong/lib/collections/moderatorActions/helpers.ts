@@ -1,7 +1,7 @@
 import moment from "moment";
 import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, POST_RATE_LIMIT_ONE_POST_PER_WEEK, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, POST_RATE_LIMIT_ONE_POST_PER_WEEK, rateLimitsForBoth, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
@@ -40,7 +40,7 @@ export function getTimeframeForRateLimit(type: RateLimitType) {
 export function getModeratorRateLimit(user: DbUser) {
   return ModeratorActions.findOne({
     userId: user._id,
-    type: {$in: rateLimits},
+    type: {$in: rateLimitsForBoth},
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
   }, {
     sort: {

@@ -12,11 +12,10 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimitsForBoth, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu'
@@ -410,7 +409,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         open={!!anchorEl}
         anchorEl={anchorEl}
       >
-        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => createRateLimit(rateLimit)}>
+        {rateLimitsForBoth.map(rateLimit => <MenuItem key={rateLimit} onClick={() => createRateLimit(rateLimit)}>
           {MODERATOR_ACTION_TYPES[rateLimit]}
         </MenuItem>)}
       </Menu>

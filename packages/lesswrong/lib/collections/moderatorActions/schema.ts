@@ -22,12 +22,14 @@ export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 export const REJECTED_POST = 'rejectedPost';
 export const REJECTED_COMMENT = 'rejectedComment';
 
-export const rateLimits = [POST_RATE_LIMIT_ONE_POST_PER_WEEK, RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
+export const rateLimitsForBoth = [RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
+export const rateLimitsForPosts = [POST_RATE_LIMIT_ONE_POST_PER_WEEK, ...rateLimitsForBoth] as const
+export const commentsRateLimits = [...rateLimitsForBoth] as const
 
-export const rateLimitSet = new TupleSet(rateLimits);
+export const rateLimitSet = new TupleSet(rateLimitsForBoth);
 export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 
-export type RateLimitType = typeof rateLimits[number]
+export type RateLimitType = typeof rateLimitsForBoth[number]
 
 export const MODERATOR_ACTION_TYPES = {
   [POST_RATE_LIMIT_ONE_POST_PER_WEEK]: 'Post Rate Limit (1 post per week)',
