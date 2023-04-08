@@ -1,7 +1,7 @@
 import moment from "moment";
 import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, POST_RATE_LIMIT_ONE_POST_PER_WEEK, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
@@ -9,6 +9,9 @@ import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, rateLimits, RateLimitType, RATE_LIMIT
 export function getTimeframeForRateLimit(type: RateLimitType) {
   let hours 
   switch(type) {
+    case RATE_LIMIT_ONE_PER_HOUR:
+      hours = 1; 
+      break;
     case RATE_LIMIT_ONE_PER_DAY:
       hours = 24; 
       break;
@@ -17,6 +20,9 @@ export function getTimeframeForRateLimit(type: RateLimitType) {
       break;
     case RATE_LIMIT_ONE_PER_WEEK:
       hours = 24 * 7; 
+      break;
+    case POST_RATE_LIMIT_ONE_POST_PER_WEEK:
+      hours = 24 * 7;
       break;
     case RATE_LIMIT_ONE_PER_FORTNIGHT:
       hours = 24 * 14; 

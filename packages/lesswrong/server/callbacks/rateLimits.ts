@@ -3,9 +3,8 @@ import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions'
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
 
 const countsTowardsRateLimitFilter = {

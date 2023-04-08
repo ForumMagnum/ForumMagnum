@@ -2,6 +2,8 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { userOwns } from '../../vulcan-users/permissions';
 
+export const POST_RATE_LIMIT_ONE_POST_PER_WEEK = 'postRateLimitOnePerWeek';
+export const RATE_LIMIT_ONE_PER_HOUR = 'rateLimitOnePerHour';
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
 export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
 export const RATE_LIMIT_ONE_PER_WEEK = 'rateLimitOnePerWeek';
@@ -20,7 +22,7 @@ export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 export const REJECTED_POST = 'rejectedPost';
 export const REJECTED_COMMENT = 'rejectedComment';
 
-export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
+export const rateLimits = [POST_RATE_LIMIT_ONE_POST_PER_WEEK, RATE_LIMIT_ONE_PER_HOUR, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
 
 export const rateLimitSet = new TupleSet(rateLimits);
 export type RateLimitSet = UnionOf<typeof rateLimitSet>;
@@ -28,6 +30,8 @@ export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 export type RateLimitType = typeof rateLimits[number]
 
 export const MODERATOR_ACTION_TYPES = {
+  [POST_RATE_LIMIT_ONE_POST_PER_WEEK]: 'Post Rate Limit (1 post per week)',
+  [RATE_LIMIT_ONE_PER_HOUR]: 'Rate Limit (1 per hour)',
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 per day)',
   [RATE_LIMIT_ONE_PER_THREE_DAYS]: 'Rate Limit (1 per 3 days)',
   [RATE_LIMIT_ONE_PER_WEEK]: 'Rate Limit (1 per week)',
