@@ -4,6 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -52,7 +53,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     color: theme.palette.grey[680],
     verticalAlign: 'middle',
-    lineHeight: '1.25em'
+    lineHeight: '1.25em',
+    marginTop: '3px'
   },
   checkbox: {
     padding: 6
@@ -112,8 +114,10 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     return <div className={classes.submitToFrontpageWrapper}>
       <Tooltip title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
-          <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
-          <span className={classes.checkboxLabel}>{label}</span>
+          <InputLabel className={classes.checkboxLabel}>
+            <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
+            {label}
+          </InputLabel>
         </div>
       </Tooltip>
     </div>

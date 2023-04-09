@@ -17,6 +17,7 @@ import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationForm
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
+import InputLabel from '@material-ui/core/InputLabel';
 
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
@@ -81,7 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   peopleThresholdText: {
     alignSelf: 'center',
     position: 'relative',
-    top: 2
+    top: 2,
+    color: theme.palette.text.normal,
+    cursor: 'pointer',
   },
   peopleInput: {
     width: 20
@@ -171,16 +174,14 @@ const EventNotificationsDialog = ({ onClose, classes }: {
           />
         </div>
         {!isEAForum && <div className={classes.peopleThreshold}>
-          <div>
+          <InputLabel className={classes.peopleThresholdText}>
             <Checkbox
               className={classes.peopleThresholdCheckbox}
               checked={notifyPeopleCheckboxState}
               onChange={(e) => setNotifyPeopleCheckboxState(!!e.target.checked)}
             />
-          </div>
-          <div className={classes.peopleThresholdText}>
             Notify me when there are {peopleThresholdInput} or more people in my area
-          </div>
+          </InputLabel>
         </div>}
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
