@@ -86,16 +86,20 @@ registerMigration({
 
       const [googleLocation, existingPost, premadePostObject] = await Promise.all([
         coordinatesToGoogleLocation({lat: latitude, lng: longitude}),
+        // TODO: THIS ISN'T INDEXED, SO THIS RUNS PRETTY SLOWLY IN PROD SINCE IT'S DOING ~FULL TABLE SCANS
         Posts.findOne({ title }),
         eventId ? Posts.findOne(eventId) : Promise.resolve(undefined)
       ]);
 
-      const eventTimePretendingItsUTC = new Date(`${row["Date"]} ${row["Time"]}`)
+      const eventTimePretendingItsUTC = new Date(`${row["Date"]} ${row["Time"]} UTC`)
       const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
+      // const adjustedLocalTime = localtime ? await getLocalTime(localtime, googleLocation)
       const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
       
       const fbUrlExists = eventUrl?.includes("facebook.com");
       const meetupUrlExists = eventUrl?.includes("meetup.com");
+
+      let usedPost: DbPost | undefined;
       
       //Then create event post with that user as owner, if there's none by that title and the local organizer didn't already make one.
       if (!existingPost && !premadePostObject) {
@@ -142,16 +146,26 @@ registerMigration({
         console.log("Created new ACX Meetup: ", newPost.title);
         const googleLocationInfo = newPost.googleLocation?.geometry?.location;
         eventCacheContents.push({ _id: newPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
+
+        usedPost = newPost;
       } else {
         // eslint-disable-next-line no-console
         console.log("Meetup already had a LW event. Check ", eventUrl, "or", title);
         if (existingPost) {
           const googleLocationInfo = existingPost.googleLocation?.geometry?.location;
           eventCacheContents.push({ _id: existingPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
+          usedPost = existingPost;
         } else if (premadePostObject) {
           const googleLocationInfo = premadePostObject.googleLocation?.geometry?.location;
           eventCacheContents.push({ _id: premadePostObject._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
+          usedPost = premadePostObject;
         }
+      }
+      const usedPostStartTime = usedPost?.startTime?.getTime();
+      const appliedTime = actualTime.getTime();
+
+      if (usedPostStartTime !== appliedTime) {
+        console.log({ usedPostStartTime, appliedTime, row }, 'Created event might have the wrong time');
       }
     }
     // eslint-disable-next-line no-console
@@ -950,7 +964,6 @@ const acxData = [
     "Plus.Code Coordinates": "https://plus.codes/87J9899F+C4",
     "Date": "05/19/2023",
     "Time": "6:00:00 PM",
-    "Event Link": "https://www.lesswrong.com/events/JyWmazpyCpkjeAvGb/northampton-ma-acx-meetup-meetups-everywhere-2022-edition",
     "Notes": "This is the Meetups Everywhere Spring 2023 edition of a meetup that started in the 2018 Meetups Everywhere. At most meetups we get about 5-7 people out of a rotation of 15-20; Meetups Everywhere events tend to get a boost and we get closer to 8-10. Looking forward to a fun time!",
     "GPS Coordinates": "42.318562,-72.627188"
   },
