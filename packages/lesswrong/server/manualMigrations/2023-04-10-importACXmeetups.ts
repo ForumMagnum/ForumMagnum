@@ -5,6 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import { writeFile } from 'fs/promises';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {
@@ -20,53 +21,84 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
 
 registerMigration({
   name: "importACXMeetupsSpring23",
-  dateWritten: "2023-04-09",
+  dateWritten: "2023-04-10",
   idempotent: true,
   action: async () => {
+    const eventCacheContents: { _id: string, lat: number, lng: number }[] = [];
+
     // eslint-disable-next-line no-console
     console.log("Begin importing ACX Meetups");
     for (const row of acxData) {
       let eventOrganizer
       // Figure out whether user with email address already exists
       // This used to be userFindByEmail from /lib/vulcan-users/helpers. That seems to have become userFindOneByEmail from /lib/collections/users/commonQueries, but you should check that those actually behaved the same.
-      const existingUser = await userFindOneByEmail(row["Email address"])
+      const email = row["Email address"] as string|undefined;
+      const lookupEmail = email === 'ed@newspeak.house' ? 'edsaperia@gmail.com' : email;
+      const existingUser = lookupEmail ? await userFindOneByEmail(lookupEmail) : undefined;
       // If not, create them (and send them an email, maybe?)
       if (existingUser) {
         eventOrganizer = existingUser
       } else {
-        const { data: newUser } = await createMutator({
-          collection: Users,
-          document: {
-            username: await Utils.getUnusedSlugByCollectionName("Users", row["Name/initials/handle"].toLowerCase()),
-            displayName: row["Name/initials/handle"],
-            email: row["Email address"],
-            reviewedByUserId: "XtphY3uYHwruKqDyG", //This looks like a hardcoded user who supposedly reviewed something. Who is that user?
-            reviewedAt: new Date()
-          },
-          validate: false,
-          currentUser: null
-        })
-        eventOrganizer = newUser
+        const username = await Utils.getUnusedSlugByCollectionName("Users", row["Name/initials/handle"].toLowerCase());
+        try {
+          const { data: newUser } = await createMutator({
+            collection: Users,
+            document: {
+              username,
+              displayName: row["Name/initials/handle"],
+              email: email,
+              reviewedByUserId: "XtphY3uYHwruKqDyG", //This looks like a hardcoded user who supposedly reviewed something. Who is that user?
+              reviewedAt: new Date()
+            },
+            validate: false,
+            currentUser: null
+          })
+          eventOrganizer = newUser
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.log({ err, email, row }, 'Error when creating a new user, using a different username');
+
+          const { data: newUser } = await createMutator({
+            collection: Users,
+            document: {
+              username: `${username}-acx-23`,
+              displayName: row["Name/initials/handle"],
+              email: email,
+              reviewedByUserId: "XtphY3uYHwruKqDyG", //This looks like a hardcoded user who supposedly reviewed something. Who is that user?
+              reviewedAt: new Date()
+            },
+            validate: false,
+            currentUser: null
+          })
+
+          eventOrganizer = newUser
+        }
       }
       
       //Use the coordinates to get the location
       const [latitude, longitude] = row["GPS Coordinates"].split(",");
-      const googleLocation = await coordinatesToGoogleLocation({lat: latitude, lng: longitude})
+      const title = `${row["City"]} – ACX Meetups Everywhere Spring 2023`
+
+      // Check for existing event links
+      const eventUrl = row["Event Link"];
+      const premadePost = eventUrl?.includes("lesswrong.com");
+      const eventId = eventUrl && premadePost ? new URL(eventUrl).pathname.split('/')[2] : undefined;
+
+      const [googleLocation, existingPost, premadePostObject] = await Promise.all([
+        coordinatesToGoogleLocation({lat: latitude, lng: longitude}),
+        Posts.findOne({ title }),
+        eventId ? Posts.findOne(eventId) : Promise.resolve(undefined)
+      ]);
+
       const eventTimePretendingItsUTC = new Date(`${row["Date"]} ${row["Time"]}`)
       const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
       const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
       
-      // Check for existing event links
-      const eventUrl = row["Event Link"];
-      
-      const premadePost = eventUrl?.includes("lesswrong.com");
       const fbUrlExists = eventUrl?.includes("facebook.com");
       const meetupUrlExists = eventUrl?.includes("meetup.com");
       
       //Then create event post with that user as owner, if there's none by that title and the local organizer didn't already make one.
-      const title = `${row["City"]} – ACX Meetups Everywhere Spring 2023 `
-      const existingPost = (await Posts.findOne({ title }));
-      if (!existingPost && !premadePost) {
+      if (!existingPost && !premadePostObject) {
         const newPostData = {
           title,
           postedAt: new Date(),
@@ -108,13 +140,24 @@ registerMigration({
         })
         // eslint-disable-next-line no-console
         console.log("Created new ACX Meetup: ", newPost.title);
+        const googleLocationInfo = newPost.googleLocation?.geometry?.location;
+        eventCacheContents.push({ _id: newPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
       } else {
         // eslint-disable-next-line no-console
         console.log("Meetup already had a LW event. Check ", eventUrl, "or", title);
+        if (existingPost) {
+          const googleLocationInfo = existingPost.googleLocation?.geometry?.location;
+          eventCacheContents.push({ _id: existingPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
+        } else if (premadePostObject) {
+          const googleLocationInfo = premadePostObject.googleLocation?.geometry?.location;
+          eventCacheContents.push({ _id: premadePostObject._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
+        }
       }
     }
     // eslint-disable-next-line no-console
     console.log("End importing ACX meetups.");
+
+    await writeFile('eventCache.json', JSON.stringify(eventCacheContents, null, 2))
   }
 })
 

@@ -279,14 +279,14 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     
     return sendEmailSmtp(renderedEmail);
   } else {
-    console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
-    console.log("to: " + renderedEmail.to); //eslint-disable-line
-    console.log("subject: " + renderedEmail.subject); //eslint-disable-line
-    console.log("from: " + renderedEmail.from); //eslint-disable-line
-    console.log("//////// HTML version"); //eslint-disable-line
-    console.log(renderedEmail.html); //eslint-disable-line
-    console.log("//////// Plain-text version"); //eslint-disable-line
-    console.log(renderedEmail.text); //eslint-disable-line
+    // console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
+    // console.log("to: " + renderedEmail.to); //eslint-disable-line
+    // console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+    // console.log("from: " + renderedEmail.from); //eslint-disable-line
+    // console.log("//////// HTML version"); //eslint-disable-line
+    // console.log(renderedEmail.html); //eslint-disable-line
+    // console.log("//////// Plain-text version"); //eslint-disable-line
+    // console.log(renderedEmail.text); //eslint-disable-line
     return false;
   }
 }

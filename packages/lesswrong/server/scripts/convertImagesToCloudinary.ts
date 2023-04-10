@@ -208,7 +208,7 @@ export async function convertImagesInObject(
     if (!latestRev) {
       if (!isAnyTest) {
         // eslint-disable-next-line no-console
-        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+        // console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
       }
       return 0;
     }
