@@ -9,7 +9,7 @@ import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName,
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
-import { difference } from 'lodash/fp';
+import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 const styles = (theme: ThemeType): JssStyles => ({
