@@ -164,6 +164,7 @@ registerMigration({
       const appliedTime = actualTime.getTime();
 
       if (usedPostStartTime !== appliedTime) {
+        // eslint-disable-next-line no-console
         console.log({ usedPostStartTime, appliedTime, row }, 'Created event might have the wrong time');
       }
     }
