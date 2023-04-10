@@ -1,17 +1,20 @@
 import React from 'react';
-import { hydrateRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
 
 import { createApolloClient } from './apolloClient';
+import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 
 onStartup(() => {
   populateComponentsAppDebug();
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
-  
+  const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
+  foreignApolloClient.disableNetworkFetches = true;
+
   const ssrRenderedAt: Date = window.ssrRenderedAt;
   const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
 
@@ -23,14 +26,23 @@ onStartup(() => {
   }
 
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={window.themeOptions} timeOverride={timeOverride} />
+    <AppGenerator
+      apolloClient={apolloClient}
+      foreignApolloClient={foreignApolloClient}
+      abTestGroupsUsed={{}}
+      themeOptions={window.themeOptions}
+      timeOverride={timeOverride}
+    />
   );
 
-  const container = document.getElementById('react-app');
-  const root = hydrateRoot(container!, <Main/>);
-  setTimeout(() => {
-    apolloClient.disableNetworkFetches = false;
-    timeOverride.currentTime = null;
-  }, 0);
+  ReactDOM.hydrate(
+    <Main />,
+    document.getElementById('react-app'),
+    () => {
+      apolloClient.disableNetworkFetches = false;
+      foreignApolloClient.disableNetworkFetches = false;
+      timeOverride.currentTime = null;
+    }
+  );
 // Order 100 to make this execute last
 }, 100);

@@ -2,7 +2,11 @@ import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { userTimeSinceLast, userNumberOfItemsInPast24Hours } from '../../lib/vulcan-users/helpers';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
+import { ModeratorActions } from '../../lib/collections/moderatorActions';
+import Comments from '../../lib/collections/comments/collection';
+import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -30,6 +34,17 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   return validationErrors;
 });
 
+const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
+getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser }) {
+  if (!currentUser) {
+    throw new Error(`Can't comment while logged out.`);
+  }
+
+  await enforceCommentRateLimit(currentUser);
+
+  return validationErrors;
+});
+
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
 async function enforcePostRateLimit (user: DbUser) {
@@ -37,6 +52,17 @@ async function enforcePostRateLimit (user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
     return;
   
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+
+    const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, hours)
+  
+    if (postsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }  
+  }
+
   const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
   const numberOfPostsInPast24Hours = await userNumberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
   
@@ -48,4 +74,33 @@ async function enforcePostRateLimit (user: DbUser) {
   if(timeSinceLastPost < postIntervalSetting.get()) {
     throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
   }
+
+
+}
+
+async function enforceCommentRateLimit(user: DbUser) {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
+    return;
+  }
+
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+
+    const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
+  
+    if (commentsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
+  
+  }
+
+  const timeSinceLastComment = await userTimeSinceLast(user, Comments);
+  const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
+
+  // check that user waits more than 15 seconds between comments
+  if((timeSinceLastComment < commentInterval)) {
+    throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
+  }
+
 }

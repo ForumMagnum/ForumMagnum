@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
@@ -12,6 +11,7 @@ const ReportPostMenuItem = ({post}: {
 }) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
+  const { MenuItem } = Components;
   
   const showReport = () => {
     if (!currentUser) return;

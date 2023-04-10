@@ -33,7 +33,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { gql } from '@apollo/client';
-import { graphql, withApollo } from '@apollo/client/react/hoc';
+import { withApollo } from '@apollo/client/react/hoc';
 import compose from 'lodash/flowRight';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
@@ -122,7 +122,7 @@ class FormWrapper extends PureComponent<any> {
 
     // generate query fragment based on the fields that can be edited. Note: always add _id.
     const generatedQueryFragment = gql`
-      fragment ${fragmentName} on ${this.props.typeName} {
+      fragment ${fragmentName}Query on ${this.props.typeName} {
         _id
         ${queryFields.map(convertFields).join('\n')}
       }
@@ -130,7 +130,7 @@ class FormWrapper extends PureComponent<any> {
 
     // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
     const generatedMutationFragment = gql`
-      fragment ${fragmentName} on ${this.props.typeName} {
+      fragment ${fragmentName}Mutation on ${this.props.typeName} {
         _id
         ${mutationFields.map(convertFields).join('\n')}
       }
@@ -166,19 +166,10 @@ class FormWrapper extends PureComponent<any> {
       mutationFragment = getFragment(this.props.mutationFragmentName);
     }
 
-    // if any field specifies extra queries, add them
-    const extraQueries = _.compact(
-      queryFields.map(fieldName => {
-        const field = this.getSchema()[fieldName];
-        return field.query;
-      })
-    );
-
     // get query & mutation fragments from props or else default to same as generatedFragment
     return {
       queryFragment,
       mutationFragment,
-      extraQueries
     };
   }
 
@@ -192,11 +183,10 @@ class FormWrapper extends PureComponent<any> {
     const {
       queryFragment,
       mutationFragment,
-      extraQueries
     } = this.getFragments();
 
     // LESSWRONG: ADDED extraVariables option
-    const { extraVariables = {} } = this.props
+    const { extraVariables = {}, extraVariablesValues } = this.props
 
     // props to pass on to child component (i.e. <Form />)
     const childProps = {
@@ -209,7 +199,7 @@ class FormWrapper extends PureComponent<any> {
       queryName: `${prefix}FormQuery`,
       collection: this.props.collection,
       fragment: queryFragment,
-      extraQueries,
+      extraVariables,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
       pollInterval: 0 // no polling, only load data once
     };
@@ -256,34 +246,7 @@ class FormWrapper extends PureComponent<any> {
         />
       );
     } else {
-      if (extraQueries && extraQueries.length) {
-        const extraQueriesHoC = graphql(
-          gql`
-          query formNewExtraQuery {
-            ${extraQueries}
-          }`,
-          {
-            alias: 'withExtraQueries',
-            props: returnedProps => {
-              const { /* ownProps, */ data } = returnedProps;
-              const props = {
-                loading: data!.loading,
-                data
-              };
-              return props;
-            }
-          }
-        );
-
-        WrappedComponent = compose(
-          extraQueriesHoC,
-          withCreate(mutationOptions)
-        // @ts-ignore
-        )(Loader);
-      } else {
-        WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
-      }
-
+      WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
       return <WrappedComponent {...childProps} />;
     }
   }

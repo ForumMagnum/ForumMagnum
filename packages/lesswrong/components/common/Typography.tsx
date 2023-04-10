@@ -62,7 +62,7 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
 
 const TypographyComponent = registerComponent("Typography", Typography, {
   styles,
-  stylePriority: -1,
+  stylePriority: -2,
 });
 
 declare global {
@@ -70,4 +70,3 @@ declare global {
     Typography: typeof TypographyComponent
   }
 }
-

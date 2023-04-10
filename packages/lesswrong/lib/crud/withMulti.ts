@@ -8,7 +8,8 @@ import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 
-// Multi query used on the client
+// Template of a GraphQL query for withMulti/useMulti. A sample query might look
+// like:
 //
 // mutation multiMovieQuery($input: MultiMovieInput) {
 //   movies(input: $input) {
@@ -21,7 +22,11 @@ import { useLocation, useNavigation } from '../routeUtil';
 //     __typename
 //   }
 // }
-const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
+const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
+  typeName: string,
+  fragmentName: FragmentName,
+  extraVariablesString: string,
+}) =>
 `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
@@ -30,11 +35,14 @@ const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariab
     totalCount
     __typename
   }
-  ${extraQueries ? extraQueries : ''}
 }`;
 
-function getGraphQLQueryFromOptions({
-  collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
+function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, fragment, extraVariables}: {
+  collectionName: CollectionNameString,
+  collection: any,
+  fragmentName: FragmentName,
+  fragment: any,
+  extraVariables: any,
 }) {
   const typeName = collection.options.typeName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
@@ -46,44 +54,20 @@ function getGraphQLQueryFromOptions({
   
   // build graphql query from options
   return gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
+    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
   `;
 }
 
-// Paginated items container
-//
-// Options:
-//
-//   - collection: the collection to fetch the documents from
-//   - fragment: the fragment that defines which properties to fetch
-//   - fragmentName: the name of the fragment, passed to getFragment
-//   - limit: the number of documents to show initially
-//   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
-//   - terms: an object that defines which documents to fetch
-//
-// Props Received:
-//   - terms: an object that defines which documents to fetch
-//
-// Terms object can have the following properties:
-//   - view: String
-//   - userId: String
-//   - cat: String
-//   - date: String
-//   - after: String
-//   - before: String
-//   - enableTotal: Boolean
-//   - enableCache: Boolean
-//   - listId: String
-//   - query: String # search query
-//   - postId: String
-//   - limit: String
+/**
+ * HoC for querying a collection for a list of results. DEPRECATED: you probably
+ * want to be using the hook version, useMulti, instead.
+ */
 export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
-  extraQueries,
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -96,7 +80,6 @@ export function withMulti({
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraQueries?: any,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
@@ -117,7 +100,7 @@ export function withMulti({
   const typeName = collection!.options.typeName;
   const resolverName = collection!.options.multiResolverName;
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
@@ -206,7 +189,7 @@ export function withMulti({
             count: results && results.length,
 
             // regular load more (reload everything)
-            loadMore(providedTerms) {
+            loadMore(providedTerms: any) {
               // if new terms are provided by presentational component use them, else default to incrementing current limit once
               const newTerms =
                 typeof providedTerms === 'undefined'
@@ -239,7 +222,6 @@ export interface UseMultiOptions<
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraQueries?: any,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -250,6 +232,7 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
+  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -262,6 +245,18 @@ export type LoadMoreProps = {
   hidden: boolean,
 }
 
+/**
+ * React hook that queries a collection, and returns those results along with
+ * some metadata about the query's progress and some options for refetching and
+ * loading additional results.
+ *
+ * The preferred way to handle a Load More button is to take loadMoreProps from
+ * the return value and pass it to Components.LoadMore, ie:
+ *   <LoadMore {...loadMoreProps}/>
+ * This will automatically take care of details like hiding the Load More button
+ * if there are no more results, showing a result count if enableTotal is true,
+ * showing a loading indicator, etc.
+ */
 export function useMulti<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
@@ -271,7 +266,6 @@ export function useMulti<
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
-  extraQueries,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -282,6 +276,7 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
+  createIfMissing,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -299,20 +294,23 @@ export function useMulti<
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
 
-  const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
+  const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
+  const defaultLimit: number = locationQueryLimit ?? termsLimit ?? initialLimit
+
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
   const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal,
+      enableCache, enableTotal, createIfMissing
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }
@@ -408,5 +406,3 @@ export function useMulti<
     limit: effectiveLimit,
   };
 }
-
-export default withMulti;

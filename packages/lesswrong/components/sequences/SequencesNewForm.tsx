@@ -48,6 +48,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       zIndex: 2,
       textAlign: "left",
     },
+
+    '& .form-component-EditorFormComponent': {
+      marginTop: 30
+    },
   
     "& .vulcan-form": {
       position: "absolute",
@@ -84,6 +88,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
         position: "absolute !important",
         left: 0,
         maxWidth: "100%",
+        '& img': {
+          width: "100% !important",
+          height: "380px !important",
+        },
+        '& .ImageUpload-root': {
+          marginLeft: '0 !important',
+          paddingTop: '0 !important'
+        },
   
         [theme.breakpoints.down('sm')]: {
           marginTop: 40,
@@ -142,7 +154,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
       <div className={classes.sequencesForm}>
         <Components.WrappedSmartForm
           collection={Sequences}
-          successCallback={(sequence) => {
+          successCallback={(sequence: any) => {
             history.push({pathname: redirect || '/s/' + sequence._id });
             flash({messageString: "Successfully created Sequence", type: "success"});
           }}

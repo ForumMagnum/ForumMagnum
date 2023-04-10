@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import { useCookies } from 'react-cookie';
+import moment from 'moment';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
+const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -31,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryInfo: {
     fontSize: '1.4rem',
+    fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   groupLinks: {
@@ -42,6 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
@@ -50,14 +56,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
+    fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
-  togglePodcastIcon: {
+  togglePodcastContainer: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.primary.main,
-    height: '24px'
+    height: PODCAST_ICON_SIZE,
+  },
+  togglePodcastIcon: {
+    width: PODCAST_ICON_SIZE,
+    height: PODCAST_ICON_SIZE,
   },
   actions: {
     display: 'inline-block',
@@ -116,18 +127,52 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
+const countAnswersAndDescendents = (answers: CommentsList[]) => {
+  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
+  return sum + answers.length;
+}
+
+const getResponseCounts = (
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  answers: CommentsList[],
+) => {
+  // answers may include some which are deleted:true, deletedPublic:true (in which
+  // case various fields are unpopulated and a deleted-item placeholder is shown
+  // in the UI). These deleted answers are *not* included in post.commentCount.
+  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
+  
+  return {
+    answerCount: nonDeletedAnswers.length,
+    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
+  };
+};
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
+const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  answers?: CommentsList[],
   toggleEmbeddedPlayer?: () => void,
+  hideMenu?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
-    PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
+    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
+    PostsPageEventData, FooterTagList, AddToCalendarButton,
+    NewFeaturePulse, ForumIcon} = Components;
+  const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
 
+  useEffect(() => {
+    if(!cachedTooltipSeen) {
+      setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
+        expires: moment().add(10, 'years').toDate(),
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [])
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -136,13 +181,19 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
   const wordCount = post.contents?.wordCount || 0
   const readTime = post.readTimeMinutes ?? 1
 
+  const {
+    answerCount,
+    commentCount,
+  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+
+  // TODO: If we are not the primary author of this post, but it was shared with
+  // us as a draft, display a notice and a link to the collaborative editor.
+  
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
-    {!post.group && !post.sequence && !post.question && <PostsPageTopTag post={post} />}
-    
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -157,6 +208,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
               </a>
             </LWTooltip>
           }
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}
@@ -166,27 +218,41 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
-          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
-            <a href="#" onClick={toggleEmbeddedPlayer}>
-              <VolumeUpIcon />
-            </a>
-          </LWTooltip>}
+          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
+          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
+          {toggleEmbeddedPlayer &&
+            (cachedTooltipSeen ?
+              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+                <a href="#" onClick={toggleEmbeddedPlayer}>
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+                </a>
+              </LWTooltip> :
+              <NewFeaturePulse dx={-10} dy={4}>
+                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+                <a href="#" onClick={toggleEmbeddedPlayer}>
+                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+                </a>
+                </LWTooltip>
+              </NewFeaturePulse>
+            )
+          }
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostsPageActions post={post} />
-            </AnalyticsContext>
-          </span>
+          {!hideMenu &&
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostActionsButton post={post} />
+              </AnalyticsContext>
+            </span>
+          }
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}

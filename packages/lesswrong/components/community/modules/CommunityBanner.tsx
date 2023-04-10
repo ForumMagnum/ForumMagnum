@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   bannerText: {
     maxWidth: 1200,
-    color: theme.palette.text.invertedBackgroundText,
+    color: theme.palette.text.alwaysWhite,
     margin: '0 auto'
   },
   bannerQuote: {
@@ -32,7 +32,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     maxWidth: 300,
     fontSize: 20,
     lineHeight: '1.5em',
-    fontStyle: 'italic',
     '&:before': {
       content: '"\\201C"',
       position: 'absolute',

@@ -2,18 +2,18 @@ const schema: SchemaType<DbPodcast> = {
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests']
+    canRead: ['guests']
   },
   applePodcastLink: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     nullable: true
   },
   spotifyPodcastLink: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     nullable: true
   }
 };

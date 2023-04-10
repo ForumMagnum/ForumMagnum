@@ -12,7 +12,7 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: JssStyles) => ({
   root: {
     width: "100%",
     height: 440,

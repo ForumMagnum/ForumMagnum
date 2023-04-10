@@ -5,15 +5,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { acxEverywhere } from './curatedContents';
 
 export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  section: {
+  section: isEAForum ? {} : {
     marginTop: -12,
   },
   continueReadingList: {
@@ -60,6 +59,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+  },
+  curated: {
+    marginTop: 12
   }
 });
 
@@ -96,13 +98,16 @@ const RecommendationsAndCurated = ({
   const [settingsState, setSettings] = useState<any>(null);
   const currentUser = useCurrentUser();
   const {continueReading} = useContinueReading();
+  const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
 
   const toggleSettings = useCallback(() => {
+    captureEvent("toggleSettings", {action: !showSettings})
     setShowSettings(!showSettings);
-  }, [showSettings, setShowSettings]);
+  }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
+      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -134,7 +139,7 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
-    const renderRecommendations = !settings.hideFrontpage && forumTypeSetting.get() !== "LessWrong" // temporarily hiding from LessWrong during ACX Everywhere season
+    const renderRecommendations = !settings.hideFrontpage
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
@@ -158,7 +163,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CuratedContentItem content={acxEverywhere} />
+          <CurrentSpotlightItem />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}
@@ -180,7 +185,9 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             }
-            {forumTypeSetting.get() !== "EAForum" && <CuratedPostsList />}
+            {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
+              <CuratedPostsList />
+            </div>}
           </div>
         </div>
 
@@ -213,13 +220,6 @@ const RecommendationsAndCurated = ({
         {/* disabled except during review */}
         {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
           <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
-        </AnalyticsContext> */}
-
-        {/* disabled except during coronavirus times */}
-        {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
-          <div className={classes.subsection}>
-            <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
-          </div>
         </AnalyticsContext> */}
       </AnalyticsContext>
     </SingleColumnSection>

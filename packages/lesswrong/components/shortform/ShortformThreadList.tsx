@@ -1,17 +1,18 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
-    marginTop: theme.spacing.unit*4
+    marginTop: theme.spacing.unit * (isEAForum ? 2 : 4),
   }
 })
 
 const ShortformThreadList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { LoadMore, CommentWithReplies, ShortformSubmitForm } = Components
+  const { LoadMore, CommentOnPostWithReplies, ShortformSubmitForm } = Components
   const { results, loadMoreProps, refetch } = useMulti({
     terms: {
       view: 'shortform',
@@ -31,7 +32,11 @@ const ShortformThreadList = ({ classes }: {
       {results && results.map((comment, i) => {
         if (!comment.post) return null
         return <div key={comment._id} className={classes.shortformItem}>
-          <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
+          <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
+            treeOptions: {
+              refetch
+            }
+          }}/>
         </div>
       })}
       <LoadMore {...loadMoreProps} />

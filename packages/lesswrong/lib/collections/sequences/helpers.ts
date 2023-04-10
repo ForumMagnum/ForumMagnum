@@ -2,9 +2,9 @@ import { mongoFind } from '../../mongoQueries';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { Books } from '../books/collection';
 import { Collections } from '../collections/collection';
-import { Posts } from '../posts/collection';
 import { Sequences } from './collection';
 import { accessFilterMultiple } from '../../utils/schemaUtils';
+import { loadByIds } from '../../loaders';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 
@@ -36,8 +36,8 @@ export const sequenceGetAllPostIDs = async (sequenceId: string, context: Resolve
   const validPostIds = _.filter(allPostIds, postId=>!!postId);
   
   // Filter by user access
-  const posts = await context.loaders.Posts.loadMany(validPostIds);
-  const accessiblePosts = await accessFilterMultiple(context.currentUser, Posts, posts, context);
+  const posts = await loadByIds(context, "Posts", validPostIds);
+  const accessiblePosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
   return accessiblePosts.map(post => post._id);
 }
 

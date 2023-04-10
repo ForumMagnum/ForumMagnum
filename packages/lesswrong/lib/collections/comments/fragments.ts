@@ -5,12 +5,23 @@ registerFragment(`
     _id
     postId
     tagId
+    tag {
+      slug
+    }
+    relevantTagIds
+    relevantTags {
+      ...TagBasicInfo
+    }
+    tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
+    title
     contents {
+      _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -19,6 +30,7 @@ registerFragment(`
     deletedPublic
     deletedReason
     hideAuthor
+    authorIsUnreviewed
     user {
       ...UsersMinimumInfo
     }
@@ -44,6 +56,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
@@ -53,6 +66,8 @@ registerFragment(`
     directChildrenCount
     votingSystem
     isPinnedOnProfile
+    debateResponse
+    rejected
   }
 `);
 
@@ -61,6 +76,9 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+    }
+    relevantTags {
+      ...TagPreviewFragment
     }
   }
 `)
@@ -72,6 +90,9 @@ registerFragment(`
     latestChildren {
       ...CommentsList
     }
+    tag {
+      ...TagBasicInfo
+    }
     post {
       ...PostsBase
     }
@@ -81,6 +102,7 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
     }
@@ -127,6 +149,17 @@ registerFragment(`
   }
 `);
 
+// TODO: This is now the same as CommentWithRepliesFragment, now that said
+// fragment gets the tag field
+registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
 registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
@@ -139,5 +172,14 @@ registerFragment(`
     afBaseScore
     afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
   }
 `);

@@ -20,8 +20,10 @@ export const zIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   singleColumnSection: 1,
-  curatedContentItem: 1,
-  curatedContentItemCloseButton: 2,
+  modTopBar: 1, 
+  spotlightItem: 1,
+  editorPresenceList: 1,
+  spotlightItemCloseButton: 2,
   commentsMenu: 2,
   sequencesPageContent: 2,
   sequencesImageScrim: 2,
@@ -42,10 +44,11 @@ export const zIndexes = {
   styledMapPopup: 6,
   nextUnread: 999,
   sunshineSidebar: 1000,
-  postItemMenu: 1001,
-  layout: 1100,
+  intercomButton: 1030,
+  sideCommentBox: 1040,
+  postItemMenu: 1050,
+  searchResults: 1100,
   tabNavigation: 1101,
-  searchResults: 1102,
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
@@ -81,6 +84,10 @@ export const baseTheme: BaseThemeSpecification = {
         unit: spacingUnit,
         titleDividerSpacing,
       },
+      borderRadius: {
+        default: 0,
+        small: 3,
+      },
       typography: {
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
@@ -103,6 +110,19 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight: 400,
           fontSize: '1.1rem',
           lineHeight: '1.5rem',
+        },
+        postsItemTitle: {
+          fontSize: "1.3rem"
+        },
+        chapterTitle: {
+          fontSize: "1.2em",
+          textTransform: "uppercase",
+          color: palette.grey[600]
+        },
+        largeChapterTitle: {
+          fontSize: '1.4rem',
+          margin: "1.5em 0 .5em 0",
+          color: palette.grey[800]
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
@@ -208,6 +228,12 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: 16,
           fontWeight: 600,
           marginBottom: ".5rem"
+        },
+        italic: {
+          fontStyle: "italic",
+        },
+        smallCaps: {
+          fontVariant: "small-caps",
         },
       },
       zIndexes: {

@@ -1,21 +1,12 @@
-/*
-
-HoC that provides a simple mutation that expects a single JSON object in return
-
-Example usage:
-
-export default withMutation({
-  name: 'getEmbedData',
-  args: {url: 'String'},
-})(EmbedURL);
-
-*/
-
 import { graphql } from '@apollo/client/react/hoc';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, gql, OperationVariables } from '@apollo/client';
 import { getFragment } from '../vulcan-lib';
 import * as _ from 'underscore';
 
+/**
+ * HoC for an arbitrary GraphQL mutation, which assembles a graphql query string
+ * from parts. DEPRECATED: you probably want to use Apollo's useMutation instead.
+ */
 export function withMutation({name, args, fragmentName}: {
   name: string,
   args: any,
@@ -49,7 +40,7 @@ export function withMutation({name, args, fragmentName}: {
   return graphql(gql`${mutation}${fragmentName ? fragment : ''}`, {
     alias: 'withMutation',
     props: ({ownProps, mutate}: any) => ({
-      [name]: (vars) => {
+      [name]: (vars: any) => {
         return mutate({ 
           variables: vars,
         });
@@ -58,7 +49,12 @@ export function withMutation({name, args, fragmentName}: {
   });
 }
 
-export function useNamedMutation<ArgsType=any>({name, graphqlArgs, fragmentName}: {
+/**
+ * Wrapper around Apollo's useMutation which assembles a GraphQL query from
+ * pieces. DEPRECATED: This doesn't really provide any value over calling
+ * Apollo's `useMutation`, which is more transparent/direct.
+ */
+export function useNamedMutation<ArgsType extends OperationVariables>({name, graphqlArgs, fragmentName}: {
   name: string,
   graphqlArgs: any,
   fragmentName?: keyof FragmentTypes,
@@ -94,4 +90,3 @@ export function useNamedMutation<ArgsType=any>({name, graphqlArgs, fragmentName}
   }, loading};
 }
 
-export default withMutation;

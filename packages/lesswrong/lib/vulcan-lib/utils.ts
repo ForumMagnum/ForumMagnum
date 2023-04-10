@@ -11,6 +11,7 @@ import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
 import type { ToCData } from '../../server/tableOfContents';
+import sanitizeHtml from 'sanitize-html';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -20,14 +21,6 @@ interface UtilsType {
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
-  // In client/vulcan-lib/apollo-client/updates.ts
-  mingoBelongsToSet: any
-  mingoIsInSet: any
-  mingoAddToSet: any
-  mingoUpdateInSet: any
-  mingoReorderSet: any
-  mingoRemoveFromSet: any
-  
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
@@ -36,9 +29,9 @@ interface UtilsType {
   getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
-  createMutator: any
-  updateMutator: any
-  deleteMutator: any
+  createMutator: CreateMutator
+  updateMutator: UpdateMutator
+  deleteMutator: DeleteMutator
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
@@ -87,12 +80,22 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export const makeAbsolute = function (url: string): string {
+  const baseUrl = getSiteUrl();
+  if (url.startsWith("/"))
+    return baseUrl+url.substr(1);
+  else
+    return baseUrl+url;
+}
+
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
+ * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string): string {
-  return getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
 };
 
 export const slugify = function (s: string): string {
@@ -134,8 +137,9 @@ export const addHttp = function (url: string): string|null {
   }
 };
 
-// Combine urls without extra /s at the join
 // https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
+// for searching: url-join
+/** Combine urls without extra /s at the join */
 export const combineUrls = (baseUrl: string, path:string) => {
   return path
     ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
@@ -220,7 +224,7 @@ export const decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
+export const isPromise = (value: any): value is Promise<any> => isFunction(get(value, 'then'));
 
 export const removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {
@@ -230,4 +234,89 @@ export const removeProperty = (obj: any, propertyName: string): void => {
       removeProperty(obj[prop], propertyName);
     }
   }
+};
+
+/**
+ * Sanitizing html
+ */
+export const sanitizeAllowedTags = [
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
+  'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
+  'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
+  'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+]
+
+const allowedTableStyles = {
+  'background-color': [/^.*$/],
+  'border-bottom': [/^.*$/],
+  'border-left': [/^.*$/],
+  'border-right': [/^.*$/],
+  'border-top': [/^.*$/],
+  'border': [/^.*$/],
+  'border-color': [/^.*$/],
+  'border-style': [/^.*$/],
+  'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'text-align': [/^.*$/],
+  'vertical-align': [/^.*$/],
+  'padding': [/^.*$/],
+};
+
+export const sanitize = function(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: sanitizeAllowedTags,
+    allowedAttributes:  {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: [ 'src' , 'srcset', 'alt'],
+      figure: ['style', 'class'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type', 'role'],
+      span: ['style', 'id', 'role'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      a: ['href', 'name', 'target', 'rel'],
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id', 'role'],
+    },
+    allowedIframeHostnames: [
+      'www.youtube.com', 'youtube.com',
+      'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
+      'metaculus.com',
+      'manifold.markets',
+      'metaforecast.org',
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
+    ],
+    allowedClasses: {
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
+    },
+    allowedStyles: {
+      figure: {
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'padding': [/^.*$/],
+      },
+      table: {
+        ...allowedTableStyles,
+      },
+      td: {
+        ...allowedTableStyles,
+      },
+      th: {
+        ...allowedTableStyles,
+      },
+      span: {
+        // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+      },
+    }
+  });
 };

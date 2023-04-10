@@ -6,6 +6,7 @@ import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation } from '../../lib/routeUtil';
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -39,8 +40,9 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
 
+  // TODO: fix the bug where for some reason this doesn't work for 2020 votes
   const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
+    terms: {view: "reviewVotesAdminDashboard", limit: 2800, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
@@ -100,7 +102,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
             {userRow[1][0].user?.displayName}
           </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.author}>
-            {userRow[1][0].user?.email}
+            {getUserEmail(userRow[1][0].user)}
           </PostsItemMetaInfo>
         </div>
       })}

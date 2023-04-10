@@ -139,9 +139,11 @@ export const grey = {
 
 export const defaultShadePalette = (): ThemeShadePalette => {
   const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+  const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
   return {
     grey,
     greyAlpha,
+    inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     
@@ -186,15 +188,17 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     moderationGuidelinesReignOfTerror: 'rgba(179,90,49,.8)',
     charsAdded: "#008800",
     charsRemoved: "#880000",
-    invertedBackgroundText: "#fff",
-    invertedBackgroundText2: "rgba(255,255,255,0.7)",
-    invertedBackgroundText3: "rgba(255,255,255,0.5)",
-    invertedBackgroundText4: "rgba(255,255,255,0.8)",
+    invertedBackgroundText: shades.inverseGreyAlpha(1),
+    invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
+    invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
+    invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
     error: "#9b5e5e",
     error2: "#E04E4B",
     red: "#ff0000",
+    alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
-    sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
+    sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
+    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
 
     eventMaybe: "#d59c00",
     
@@ -215,6 +219,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
+    primaryDim: "#5caab7"
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
@@ -244,6 +249,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
+    sprout: '#69886e',
     
     commentsBubble: {
       commentCount: "#fff",
@@ -278,15 +284,26 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
+    primaryTranslucent: 'rgba(12,134,155,.7)',
+    debateComment: '#1c912766',
+    debateComment2: '#df1d4566',
+    debateComment3: '#2671ff66',
+    debateComment4: '#eb26ff66',
+    debateComment5: '#efdc0066',
   },
   background: {
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
     pageActiveAreaBackground: shades.grey[0],
+    translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2'
+    primaryDim: '#e2f1f4',
+    // this is used to address a specific iOS Safari-related issue with linear-gradient:
+    // https://stackoverflow.com/questions/70446857/safari-linear-gradient
+    transparent: shades.inverseGreyAlpha(0),
+    imageOverlay: 'rgba(0,0,0,0.4)',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -314,7 +331,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
-    commentModeratorHat: "#5f9b651c",
+    commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
     metaculusBackground: "#2c3947",
@@ -337,6 +354,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
+    restoreSavedContentNotice: "rgba(255,0,0,.1)",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -384,16 +402,24 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
     },
+    imageUpload2: {
+      // Because this displays over an image, make it the same in both light and dark mode
+      background: 'rgba(0,0,0,0.6)',
+      hoverBackground: 'rgba(0,0,0,0.8)',
+    },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
   },
   tag: {
+    text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
-    coreTagBorder: shades.greyBorder("1px", .12),
-    text: shades.greyAlpha(.9),
-    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
+    coreTagText: shades.grey[600],
+    coreTagBackground: "transparent",
+    coreTagBorder: shades.greyBorder("1px", .15),
     hollowTagBackground: shades.grey[0],
+    hollowTagBorder: shades.greyBorder("1px", .15),
+    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {
@@ -416,11 +442,24 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   datePicker: {
     selectedDate: "#428bca",
   },
+  editor: {
+    commentPanelBackground: "#ffffff",
+    sideCommentEditorBackground: "#f3f7fb",
+    commentMarker: "#fef7a9",
+    commentMarkerActive: "#fdf05d",
+  },
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
+  },
+  embeddedPlayer: {
+    opacity: 1,
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
@@ -448,4 +487,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     light: "#cb5e3c",
     contrastText: shades.grey[0],
   },
+  warning: {
+    main: "#ff9800",
+  }
 })

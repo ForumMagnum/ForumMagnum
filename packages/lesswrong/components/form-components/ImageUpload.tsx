@@ -12,14 +12,17 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
+export const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
+export const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+export const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
+export const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
+export const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
+export const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    paddingTop: 4,
+    marginLeft: 8,
     "& img": {
       display: "block",
       marginBottom: 8,
@@ -55,8 +58,16 @@ const cloudinaryArgsByImageType = {
   bannerImageId: {
     minImageHeight: 300,
     minImageWidth: 700,
-    croppingAspectRatio: 1.91,
+    croppingAspectRatio: 4.7,
     croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
+  },
+  squareImageId: {
+    minImageHeight: 300,
+    minImageWidth: 300,
+    croppingAspectRatio: 1,
+    croppingDefaultSelectionRatio: 1,
+    // Reuse the banner upload preset, since they are basically different versions of the same image
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
   profileImageId: {
@@ -76,9 +87,22 @@ const cloudinaryArgsByImageType = {
   eventImageId: {
     minImageHeight: 270,
     minImageWidth: 480,
-    cropping: false,
+    croppingAspectRatio: 1.78,
+    croppingDefaultSelectionRatio: 1.78,
     uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
-  }
+  },
+  spotlightImageId: {
+    minImageHeight: 232,
+    minImageWidth: 345,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
+  spotlightDarkImageId: {
+    minImageHeight: 232,
+    minImageWidth: 345,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
 }
 
 const formPreviewSizeByImageType = {
@@ -89,6 +113,10 @@ const formPreviewSizeByImageType = {
   bannerImageId: {
     width: "auto",
     height: 280
+  },
+  squareImageId: {
+    width: 90,
+    height: 90
   },
   profileImageId: {
     width: 90,
@@ -101,20 +129,29 @@ const formPreviewSizeByImageType = {
   eventImageId: {
     width: 320,
     height: 180
-  }
+  },
+  spotlightImageId: {
+    width: 345,
+    height: 234
+  },
+  spotlightDarkImageId: {
+    width: 345,
+    height: 234
+  },
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, classes}: {
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
-  document: Object,
+  document: Record<string, any>,
   updateCurrentValues: Function,
   clearField: Function,
   label: string,
+  croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
   const theme = useTheme();
 
-  const setImageInfo = (error, result) => {
+  const setImageInfo = (error: any, result: any) => {
     if (error) {
       throw new Error(error.statusText)
     }
@@ -134,7 +171,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
   }
 
   const uploadWidget = () => {
-    const cloudinaryArgs = cloudinaryArgsByImageType[name]
+    const cloudinaryArgs = cloudinaryArgsByImageType[name as keyof typeof cloudinaryArgsByImageType]
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
     cloudinary.openUploadWidget({
@@ -160,11 +197,12 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
             }
         }
       },
-      ...cloudinaryArgs
+      ...cloudinaryArgs,
+      ...(croppingAspectRatio ? {croppingAspectRatio} : {})
     }, setImageInfo);
   }
   
-  const chooseDefaultImg = (newImageId) => {
+  const chooseDefaultImg = (newImageId: string) => {
     setImageId(newImageId)
     updateCurrentValues({[name]: newImageId})
   }
@@ -182,7 +220,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
     return ''
   })
   
-  const formPreviewSize = formPreviewSizeByImageType[name]
+  const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
   
   return (

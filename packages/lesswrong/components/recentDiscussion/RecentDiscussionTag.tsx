@@ -5,9 +5,11 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     marginTop: 0,
     marginBottom: 8,
     display: "block",
@@ -57,65 +59,44 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,
+  refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
+  tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
-  const {recordTagView} = useRecordTagView(tag);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
-  const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
   
-  const markAsRead = useCallback(
-    () => {
-      setReadStatus(true);
-      setMarkedAsVisitedAt(new Date());
-      setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: "recentDiscussionTagClick"}})
-    },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordTagView, tag]
-  );
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
   }, []);
   
   const descriptionHtml = tag.description?.html;
+  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
   const maybeTruncatedDescriptionHtml = truncated
-    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
+    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {
+    refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
-    highlightDate: lastVisitedAt,
+    highlightDate: tag.lastVisitedAt,
     tag: tag,
     condensed: true,
+    replyFormStyle: "default",
   }
   
-  let metadataWording = ''
-  if (taggingNameIsSet.get()) {
-    if (tag.wikiOnly) {
-      metadataWording = `${taggingNameCapitalSetting.get()} page`
-    } else {
-      metadataWording = `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`
-    }
-  } else {
-    if (tag.wikiOnly) {
-      metadataWording = `Wiki page`
-    } else {
-      metadataWording = `Tag page - ${tag.postCount} posts`
-    }
-  }
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
   return <div className={classes.root}>
     <div className={classes.tag}>

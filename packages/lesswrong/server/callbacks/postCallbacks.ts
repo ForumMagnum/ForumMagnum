@@ -2,18 +2,50 @@ import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
-import { performVoteServer } from '../voteServer';
+import { clearVotesServer, performVoteServer } from '../voteServer';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import cheerio from 'cheerio'
+import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { captureException } from '@sentry/core';
+import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
+import TagRels from '../../lib/collections/tagRels/collection';
+import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+if (forumTypeSetting.get() === "EAForum") {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
+    if (post.draft === false && !post.shortform && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+      throw new Error(TOS_NOT_ACCEPTED_ERROR);
+    }
+    return post;
+  }
+  getCollectionHooks("Posts").newSync.add(
+    (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
+  );
+  getCollectionHooks("Posts").updateBefore.add(
+    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+  );
+}
+
+getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+  if (document.debate && !document.coauthorStatuses?.length) {
+    throw new Error('Debate must have at least one co-author!');
+  }
+
+  return validationErrors;
+});
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -73,7 +105,14 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
- const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const {modifiedDocument: votedPost} = await performVoteServer({
+   document: post,
+   voteType: 'bigUpvote',
+   collection: Posts,
+   user: postAuthor,
+   skipRateLimits: true,
+ })
  return {...post, ...votedPost} as DbPost;
 });
 
@@ -160,7 +199,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft) return
+  if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
   
@@ -172,6 +211,40 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
+/**
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_POST,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
@@ -179,7 +252,7 @@ async function extractSocialPreviewImage (post: DbPost) {
 
   let socialPreviewImageAutoUrl = ''
   if (post.contents?.html) {
-    const $ = cheerio.load(post.contents.html)
+    const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
     if (firstImg) {
       socialPreviewImageAutoUrl = firstImg.attr('src') || ''
@@ -205,6 +278,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
 async function oldPostsLastCommentedAt (post: DbPost) {
+  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
@@ -278,5 +352,85 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
   if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
     post = scheduleCoauthoredPost(post);
   }
+  return post;
+});
+
+getCollectionHooks("Posts").newSync.add(performCrosspost);
+getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
+
+async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
+  const applyOneTag = async (tagId: string) => {
+    try {
+      await addOrUpvoteTag({
+        tagId, postId,
+        currentUser: currentUser!,
+        ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
+        context
+      });
+    } catch(e) {
+      // This can throw if there's a tag applied which doesn't exist, which
+      // can happen if there are issues with the Algolia index.
+      //
+      // If we fail to add a tag, capture the exception in Sentry but don't
+      // throw from the form-submission callback. From the user perspective
+      // letting this exception esscape would make posting appear to fail (but
+      // actually the post is created, minus some of its callbacks having
+      // completed).
+      captureException(e)
+    }
+  }
+  await Promise.all(tagsToApply.map(applyOneTag))
+}
+
+async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
+  const clearOneTag = async (tagRel: DbTagRel) => {
+    try {
+      await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
+    } catch(e) {
+      captureException(e)
+    }
+  }
+  await Promise.all(tagRels.map(clearOneTag))
+}
+
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  const {currentUser, context} = props;
+  if (!currentUser) return post; // Shouldn't happen, but just in case
+  
+  if (post.tagRelevance) {
+    // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
+    const tagsToApply = Object.keys(post.tagRelevance);
+    post = {...post, tagRelevance: undefined};
+    await bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+  }
+
+  return post;
+});
+
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  const {currentUser, context} = props;
+  if (!currentUser) return post; // Shouldn't happen, but just in case
+
+  if (post.tagRelevance) {
+    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0} }).fetch()
+    const existingTagIds = existingTagRels.map(tr => tr.tagId);
+
+    const formTagIds = Object.keys(post.tagRelevance);
+    const tagsToApply = formTagIds.filter(tagId => !existingTagIds.includes(tagId));
+    const tagsToRemove = existingTagIds.filter(tagId => !formTagIds.includes(tagId));
+
+    const applyPromise = bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+    const removePromise = bulkRemovePostTags({tagRels: existingTagRels.filter(tagRel => tagsToRemove.includes(tagRel.tagId)), currentUser, context})
+
+    await Promise.all([applyPromise, removePromise])
+    if (tagsToApply.length || tagsToRemove.length) {
+      // Rebuild the tagRelevance field on the post. It's unfortunate that we have to do this extra (slow) step, but
+      // it's necessary because tagRelevance can depend on votes from other people so it's not that straightforward to
+      // work out the final state from the data we have here.
+      // This isn't necessary in the create case because we know there will be no existing tagRels when a post is created
+      await updatePostDenormalizedTags(post._id);
+    }
+  }
+
   return post;
 });

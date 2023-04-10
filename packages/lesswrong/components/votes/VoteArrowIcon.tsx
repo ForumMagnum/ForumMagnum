@@ -5,7 +5,8 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { useTheme } from '../themes/useTheme';
+import { VoteColor, cssVoteColors } from './voteColors';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,6 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 'inherit',
     width: 'initial',
     height: 'initial',
+    marginTop: isEAForum ? 2 : undefined,
     padding: 0,
     '&:hover': {
       backgroundColor: 'transparent',
@@ -67,7 +69,7 @@ export interface VoteArrowIconProps {
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   enabled?: boolean,
-  color: "error"|"primary"|"secondary",
+  color: VoteColor,
   voted: boolean,
   eventHandlers: {
     handleMouseDown?: ()=>void,
@@ -84,13 +86,12 @@ export interface VoteArrowIconProps {
 const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
-  const theme = useTheme();
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
   const { LWTooltip } = Components;
 
   const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
+    ? ({children}: {children: React.ReactNode}) => <>{children}</>
+    : ({children}: {children: React.ReactNode}) => (
       <LWTooltip title={"You do not have permission to vote on this"} placement="top">
         {children}
       </LWTooltip>
@@ -119,7 +120,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
+            style={bigVoteCompleted ? {color: cssVoteColors[color]} : undefined}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
             color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'

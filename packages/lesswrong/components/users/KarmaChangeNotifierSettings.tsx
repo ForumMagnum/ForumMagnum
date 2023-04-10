@@ -5,13 +5,12 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import type { KarmaChangeSettingsType } from '../../lib/collections/users/custom_fields';
+import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -112,7 +111,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   
   render() {
     const { timezone, classes } = this.props;
-    const { Typography } = Components;
+    const { Typography, MenuItem } = Components;
     const settings = this.props.value || {}
 
     if (!settings.timeOfDayGMT || !settings.dayOfWeekGMT) {

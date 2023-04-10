@@ -9,6 +9,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -28,8 +29,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
-    fontVariant: "small-caps",
     marginTop: 0,
+    ...(isEAForum
+      ? {textTransform: "uppercase"}
+      : theme.typography.smallCaps),
   },
   description: {
     marginTop: theme.spacing.unit * 2,
@@ -66,7 +69,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit * 4,
     position: 'relative',
     backgroundColor: theme.palette.panelBackground.default,
-    marginTop: -200,
+    borderRadius: theme.borderRadius.default,
+    marginTop: -127,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
       marginTop: -100,
@@ -127,6 +131,7 @@ const SequencesPage = ({ documentId, classes }: {
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
+  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
   const { html = "" } = document.contents || {}
 
   if (!canEdit && document.draft)
@@ -158,9 +163,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
-              {document.user.displayName}
-            </UsersName></span>}
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
           </div>
           {canEdit && <span className={classes.leftAction}><SectionSubtitle>
             <a onClick={showEdit}>edit</a>
@@ -172,7 +175,7 @@ const SequencesPage = ({ documentId, classes }: {
         </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEdit} />
+            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} />
           </AnalyticsContext>
           {canCreateChapter && <SectionFooter>
             <SectionButton>

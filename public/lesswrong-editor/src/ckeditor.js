@@ -36,19 +36,15 @@ import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+import Mention from './ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
-// The following plugin enables real-time collaborative comments.
-// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
-
-// The following plugin enables real-time collaborative track changes and is optional.
-// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
+import TrackChangesData from '@ckeditor/ckeditor5-track-changes/src/trackchangesdata';
 
-// The following plugin enables users presence list and is optional.
-// You do not need to import it if you do not want to integrate it.
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
@@ -60,291 +56,95 @@ import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapte
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
-import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
+import RestyledCommentButton from './restyled-comment-button-plugin';
 import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
+import RemoveRedirect from './remove-redirect-plugin';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
-class CommentEditor extends BalloonBlockEditorBase {}
-class PostEditor extends BalloonBlockEditorBase {}
-class PostEditorCollaboration extends BalloonBlockEditorBase {}
+import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 
-// NOTE: If you make changes to this file, you must:
-// 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
-// 2. 'yarn run build'
-// 3. navigate back to main folder (i.e. 'cd ../..')
-// 4. run 'yarn add ./public/lesswrong-editor'.
-//
-// alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
+export class CommentEditor extends BalloonBlockEditorBase {}
+export class PostEditor extends BalloonBlockEditorBase {}
+export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
-const headingOptions = {
-	options: [
-		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-		{ model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
-	]
-};
+// NOTE: If you make changes to this file, you must then run:
+// `yarn run rebuild-ckeditor`
 
-const postEditorPlugins = [
+const sharedPlugins = [
 	Autosave,
 	Alignment,
 	Autoformat,
-	BlockToolbar,
 	BlockQuote,
 	Bold,
 	CKFinder,
 	Essentials,
+	Heading,
+	HorizontalLine,
+	Image,
+	ImageCaption,
+	ImageStyle,
+	ImageToolbar,
+	EasyImage,
+	ImageUpload,
+	CloudServicesPlugin,
+	ImageResize,
+	Italic,
+	Link,
+	List,
+	ListStyle,
+	Code,
+	CodeBlock,
+	Subscript,
+	Superscript,
+	Paragraph,
+	MediaEmbed,
+	PasteFromOffice,
+	RemoveFormat,
+	Strikethrough,
+	Table,
+	TableToolbar,
+	TableProperties,
+	TableCellProperties,
+	Underline,
+	UploadAdapter,
+	Mathematics,
+	SanitizeTags,
+	Spoilers,
+	AutoLink,
+	Footnote,
+	Mention,
+	UrlValidator,
+	RemoveRedirect,
+];
+
+const postEditorPlugins = [
+	...sharedPlugins,
+	BlockToolbar,
 	FontFamily,
 	FontSize,
 	// FontColor,
 	// FontBackgroundColor,
-	Heading,
-	HorizontalLine,
-	Image,
-	ImageCaption,
-	ImageStyle,
-	ImageToolbar,
-	EasyImage,
-	ImageUpload,
-	CloudServicesPlugin,
-	ImageResize,
-	Italic,
-	Link,
-	List,
-	ListStyle,
-	Code,
-	CodeBlock,
-	Subscript,
-	Superscript,
-	MediaEmbed,
-	Paragraph,
-	PasteFromOffice,
-	RemoveFormat,
-	Strikethrough,
-	Table,
-	TableToolbar,
-	TableProperties,
-	TableCellProperties,
-	Underline,
-	UploadAdapter,
-	Mathematics,
-	SanitizeTags,
-	Spoilers,
-	AutoLink,
-	Footnote,
-	UrlValidator,
 ];
 
-PostEditor.builtinPlugins = [
-	...postEditorPlugins
-];
-
-PostEditorCollaboration.builtinPlugins = [
+const collaborativeEditorPlugins = [
 	...postEditorPlugins,
+	RestyledCommentButton,
 	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
 	RealTimeCollaborativeTrackChanges,
+	TrackChangesData,
 	PresenceList
 ];
 
-const mathConfig = {
-	engine: 'mathjax',
-	outputType: 'span',
-	forceOutputType: true,
-	enablePreview: true
-}
+PostEditor.builtinPlugins = [ ...postEditorPlugins ];
+PostEditor.defaultConfig = { ...postEditorConfig };
+PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
+PostEditorCollaboration.defaultConfig = {...postEditorConfig};
+CommentEditor.builtinPlugins = [ ...sharedPlugins ];
+CommentEditor.defaultConfig = { ...commentEditorConfig };
 
-const embedConfig = {
-	toolbar: [ 'comment' ],
-	previewsInData: true,
-	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
-	extraProviders: [
-		{
-			name: 'Elicit',
-			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
-			html: ([match, questionId]) => `
-				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
-					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
-				</div>
-			`
-		},
-		{
-			name: 'Metaculus',
-			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
-			html: ([match, questionNumber]) => `
-				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
-					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
-				</div>
-			`
-		},
-		{
-			name: "Manifold",
-			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
-			html: ([match, longslug]) => `
-				<div data-manifold-id="${longslug}" class="manifold-preview">
-					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}" />
-				</div>
-			`
-		},
-		{
-			name: "OWID",
-			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
-			html: ([match, slug]) => {
-				return `
-					<div data-owid-slug="${slug}" class="owid-preview">
-						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
-					</div>
-				`
-			}
-		},
-		{
-		  name: 'Thoughtsaver',
-		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
-		  html: ([match,urlParams]) => `
-		    <div class="thoughtSaverFrameWrapper">
-		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
-		    </div>
-		  `
-		}
-	]
-}
-
-const postEditorConfig = {
-	blockToolbar: [
-		'imageUpload',
-		'insertTable',
-		'horizontalLine',
-		'mathDisplay',
-		'mediaEmbed',
-		'footnote',
-	],
-	toolbar: [
-		'heading',
-		'|',
-		'bold',
-		'italic',
-		'strikethrough',
-		'|',
-		'link',
-		'|',
-		'blockQuote',
-		'bulletedList',
-		'numberedList',
-		'codeBlock',
-		'|',
-		'trackChanges',
-		'comment',
-		'math',
-		'footnote',
-	],
-	image: {
-		toolbar: [
-			'imageTextAlternative',
-			'comment',
-		],
-	},
-	heading: headingOptions,
-	table: {
-		contentToolbar: [
-			'tableColumn', 'tableRow', 'mergeTableCells',
-			'tableProperties', 'tableCellProperties'
-		],
-		tableToolbar: [ 'comment' ]
-	},
-	math: mathConfig,
-	mediaEmbed: embedConfig,
-};
-
-PostEditor.defaultConfig = {
-	...postEditorConfig
-};
-
-PostEditorCollaboration.defaultConfig = {
-	...postEditorConfig
-};
-
-CommentEditor.builtinPlugins = [
-	Autosave,
-	Alignment,
-	Autoformat,
-	BlockQuote,
-	Bold,
-	CKFinder,
-	Essentials,
-	Heading,
-	HorizontalLine,
-	EasyImage,
-	Image,
-	ImageCaption,
-	ImageStyle,
-	ImageToolbar,
-	ImageUpload,
-	CloudServicesPlugin,
-	ImageResize,
-	Italic,
-	Link,
-	List,
-	ListStyle,
-	Paragraph,
-	Code,
-	CodeBlock,
-	Subscript,
-	Superscript,
-	MediaEmbed,
-	PasteFromOffice,
-	RemoveFormat,
-	Strikethrough,
-	Table,
-	TableToolbar,
-	TableProperties,
-	TableCellProperties,
-	Underline,
-	UploadAdapter,
-	Mathematics,
-	SanitizeTags,
-	Spoilers,
-	AutoLink,
-	Footnote,
-	UrlValidator,
-];
-
-CommentEditor.defaultConfig = {
-	toolbar: [
-		'heading',
-		'|',
-		'bold',
-		'italic',
-		'strikethrough',
-		'|',
-		'link',
-		'|',
-		'blockQuote',
-		'bulletedList',
-		'numberedList',
-		'|',
-		'math',
-		'footnote'
-	],
-	image: {
-		toolbar: [
-			'imageTextAlternative'
-		]
-	},
-	heading: headingOptions,
-	table: {
-		contentToolbar: [
-			'tableColumn', 'tableRow', 'mergeTableCells',
-			'tableProperties', 'tableCellProperties'
-		],
-		tableToolbar: [ 'comment' ]
-	},
-	math: mathConfig,
-	mediaEmbed: embedConfig,
-};
-
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };

@@ -1,6 +1,7 @@
-import pick from 'lodash/pick';
+import pick from 'lodash/pick'
 import mjAPI from 'mathjax-node'
-import Revisions from '../../lib/collections/revisions/collection';
+import Revisions from '../../lib/collections/revisions/collection'
+import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -37,10 +38,12 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-mjAPI.config({
-  MathJax: MATHJAX_OPTIONS
-});
-mjAPI.start();
+if (!isAnyTest && !isMigrations) {
+  mjAPI.config({
+    MathJax: MATHJAX_OPTIONS
+  });
+  mjAPI.start();
+}
 
 export const preProcessLatex = async (content) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
@@ -120,7 +123,10 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
   fieldName: string
 ): Promise<void> {
   const latestRevision = await Revisions.findOne(
-    {documentId: document._id,},
+    {
+      documentId: document._id,
+      draft: false
+    },
     { sort: { version: -1 } }
   )
   if (!latestRevision) {
@@ -140,3 +146,6 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
     }
   })
 }
+
+export type MaybeDrafteable = { draft?: boolean } 
+export const isBeingUndrafted = (oldDocument: MaybeDrafteable, newDocument: MaybeDrafteable) => oldDocument.draft && !newDocument.draft

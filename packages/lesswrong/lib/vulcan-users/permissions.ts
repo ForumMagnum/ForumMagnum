@@ -30,12 +30,17 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
+export type PermissionableUser = UsersMinimumInfo & {
+  readonly groups: Array<string>
+  readonly banned: Date
+}
+
 // get a list of a user's groups
-export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
+export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   }
-  if (user.banned > moment().toDate()) { // banned users have no membership permissions
+  if (user.banned && user.banned > moment().toDate()) { // banned users have no membership permissions
     return ['guests'];
   }
   let userGroups: Array<string> = ['members'];
@@ -67,13 +72,18 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: string): boolean => {
+export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: PermissionGroups): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
       return true;
   }
   return false;
+};
+
+
+export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): boolean => {
+  return userIsMemberOf(user, 'podcasters');
 };
 
 // Check if a user can perform at least one of the specified actions
@@ -84,7 +94,7 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
 };
 
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -116,19 +126,23 @@ export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, documen
   if (!user) return false
   return !user.previousDisplayName
 }
-  
 
 // Check if a user is an admin
-export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
+export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
   if (!user) return false;
   return user.isAdmin;
 };
 
 export const isAdmin = userIsAdmin;
 
+export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): user is Exclude<T, null> {
+  if (!user) return false;
+  return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
+};
+
 // Check if a user can view a field
 export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
-  const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
+  const canRead = field.canRead;
   if (canRead) {
     if (typeof canRead === 'function') {
       // if canRead is a function, execute it with user and document passed. it must return a boolean
@@ -187,7 +201,7 @@ export const restrictViewableFields = function <T extends DbObject>(user: UsersC
 
 // Check if a user can submit a field
 export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>): boolean => {
-  const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
+  const canCreate = field.canCreate; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
       // if canCreate is a function, execute it with user and document passed. it must return a boolean
@@ -206,7 +220,7 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent
 
 // Check if a user can edit a field
 export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>): boolean => {
-  const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
+  const canUpdate = field.canUpdate;
 
   if (canUpdate) {
     if (typeof canUpdate === 'function') {

@@ -2,12 +2,12 @@
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after': {
+  '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
-  }
+  },
 });
 
 const spoilerStyles = (theme: ThemeType): JssStyles => ({
@@ -67,6 +67,16 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
 
 const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.manifold-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
+const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.metaforecast-preview": {
     "& iframe": {
       width: "100%",
       height: 400,
@@ -246,7 +256,17 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    display: 'table'
+    width: 'fit-content !important',
+    height: 'fit-content !important',
+  },
+  // Many column tables should overflow instead of squishing
+  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
+  //    squishy tables (which is the default behavior above)
+  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
+    overflowX: 'auto',
+    '& table': {
+      width: 700,
+    },
   },
   '& td, & th': {
     ...tableCellStyles(theme)
@@ -255,6 +275,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -276,6 +297,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
@@ -322,7 +344,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     {
       pointerEvents: 'none',
       '& *': {
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
       },
     }
 
@@ -360,7 +382,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*1.5
-    }
+    },
   }
   return commentBodyStyles;
 }
@@ -458,6 +480,18 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
+        },
+      },
+      '& .ck-placeholder:before': {
+        whiteSpace: 'break-spaces'
       },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
@@ -511,9 +545,14 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': theme.palette.primary.main,
       },
       
+      "--ck-color-base-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-annotation-wrapper-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-comment-background": theme.palette.editor.sideCommentEditorBackground,
+      "--ck-color-comment-marker": theme.palette.editor.commentMarker,
+      "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
       '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
     }
   }

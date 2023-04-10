@@ -1,23 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useLocation } from '../../../lib/routeUtil';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
+import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { useRecordPostView } from '../../common/withRecordPostView';
+import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
+import { useDialog } from '../../common/withDialog';
+import { useMulti } from '../../../lib/crud/withMulti';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { PostsPageContext } from './PostsPageContext';
 
 export const MAX_COLUMN_WIDTH = 720
+export const CENTRAL_COLUMN_WIDTH = 682
+
+const MAX_ANSWERS_QUERIED = 100
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -26,7 +34,7 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 ];
 
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
+export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
   if (post.contents?.plaintextDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
     const plaintextPars = post.contents.plaintextDescription
@@ -79,7 +87,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: 650 + (theme.spacing.unit*4),
+    maxWidth: CENTRAL_COLUMN_WIDTH, 
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
@@ -136,6 +144,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+  comment: debateResponse,
+  replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
+}));
+
 const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
 const PostsPage = ({post, refetch, classes}: {
@@ -143,8 +156,10 @@ const PostsPage = ({post, refetch, classes}: {
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
-  const location = useLocation();
+  const location = useSubscribedLocation();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
+  const { openDialog, closeDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -174,20 +189,54 @@ const PostsPage = ({post, refetch, classes}: {
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
-  const shouldHideAsSpam = () => {
-    // Logged-out users shouldn't be able to see spam posts
-    if (post.authorIsUnreviewed && !currentUser) {
-      return true;
-    }
-
-    return false;
-  }
-
   const { query, params } = location;
-  const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
-    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+
+  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
+  const { results: answers } = useMulti({
+    terms: {
+      view: "questionAnswers",
+      postId: post._id,
+      limit: MAX_ANSWERS_QUERIED,
+      sortBy
+    },
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+    skip: !post.question,
+  });
+
+  const { results: debateResponses } = useMulti({
+    terms: {
+      view: 'debateResponses',
+      postId: post._id,
+    },
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    skip: !post.debate,
+    limit: 1000
+  });
+
+  const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+    ? {...(query as CommentsViewTerms), limit:1000}
+    : {view: defaultView, limit: 1000}
+
+  const { results: nonDebateComments } = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    skip: !post.debate
+  });
+
+  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+    PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
+    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
+  } = Components
 
   useEffect(() => {
     recordPostView({
@@ -199,15 +248,15 @@ const PostsPage = ({post, refetch, classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  if (shouldHideAsSpam()) {
-    throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
-  }
+  const defaultSideCommentVisibility = userHasSideComments(currentUser)
+    ? (post.sideCommentVisibility ?? "highKarma")
+    : "hidden";
+  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
+  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
+    () => ({ sideCommentMode, setSideCommentMode }),
+    [sideCommentMode, setSideCommentMode]
+  );
   
-  const defaultView = commentGetDefaultView(post, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
@@ -223,20 +272,53 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
+  const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
+  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+
+  const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
+  
+  useEffect(() => {
+    if (isDebateResponseLink) {
+      history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
+    }
+    // No exhaustive deps to avoid any infinite loops with links to comments
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDebateResponseLink, commentId]);
+
+  const onClickCommentOnSelection = useCallback((html: string) => {
+    openDialog({
+      componentName:"ReplyCommentDialog",
+      componentProps: {
+        post, initialHtml: html
+      },
+      noClickawayCancel: true,
+    })
+  }, [openDialog, post]);
+
   const tableOfContents = sectionData
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
   
   const header = <>
-    {!commentId && <HeadTags
-      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-      title={post.title} description={description} noIndex={post.noIndex}
-    />}
+    {!commentId && <>
+      <HeadTags
+        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+        title={post.title} description={description} noIndex={post.noIndex}
+      />
+      <CitationTags
+        title={post.title}
+        author={post.user?.displayName}
+        coauthors={post.coauthors
+          ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
+          .map(({displayName}) => displayName)}
+        date={post.createdAt}
+      />
+    </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
         <div className={classes.centralColumn}>
-          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
@@ -245,7 +327,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -255,7 +337,16 @@ const PostsPage = ({post, refetch, classes}: {
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
+  // If this is a non-AF post being viewed on AF, redirect to LW.
+  const isAF = (forumTypeSetting.get() === 'AlignmentForum');
+  if (isAF && !post.af) {
+    const lwURL = "https://www.lesswrong.com" + location.url;
+    return <PermanentRedirect url={lwURL}/>
+  }
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <PostsPageContext.Provider value={post}>
+    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
       tableOfContents={tableOfContents}
       header={header}
@@ -264,15 +355,26 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} />
+          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classes.postContent}>
+        {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
-            { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`} nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}/> }
+            <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+              {htmlWithAnchors && <PostBody
+                post={post} html={htmlWithAnchors}
+                sideCommentMode={sideCommentMode}
+              />}
+            </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
-        </ContentStyles>
+        </ContentStyles>}
+
+        {post.debate && debateResponses && debateResponseReplies &&
+          <DebateBody
+            debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
+            post={post}
+          />}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
@@ -282,18 +384,20 @@ const PostsPage = ({post, refetch, classes}: {
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
           <AnalyticsContext pageSectionContext="answersSection">
-            <PostsPageQuestionContent post={post} refetch={refetch}/>
+            <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
           </AnalyticsContext>
         </div>}
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-            {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} />
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    </SideCommentVisibilityContext.Provider>
+    </PostsPageContext.Provider>
   </AnalyticsContext>);
 }
 

@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     '&.ea-forum': {
+      maxWidth: 400,
       justifyContent: 'space-around',
       padding: '8px 20px',
     }
@@ -122,6 +123,7 @@ const currentActionToButtonText : Record<possibleActions, string> = {
 
 type WrappedLoginFormProps = {
   startingState?: possibleActions,
+  immediateRedirect?: boolean,
   classes: ClassesType
 }
 
@@ -136,9 +138,9 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
-  const [username, setUsername] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string | undefined>(undefined)
-  const [email, setEmail] = useState<string | undefined>(undefined)
+  const [username, setUsername] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(!['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()))
@@ -197,15 +199,27 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </Components.ContentStyles>;
 }
 
-const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
-  const { pathname } = useLocation()
-  
+const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: WrappedLoginFormProps) => {
+  const { pathname, query } = useLocation()
+  const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
+  const returnTo = encodeURIComponent(returnUrl);
+
+  const urls = {
+    login: `/auth/auth0?returnTo=${returnTo}`,
+    signup: `/auth/auth0?screen_hint=signup&returnTo=${returnTo}`,
+  };
+
+  if (immediateRedirect) {
+    window.location.href = urls[startingState ?? "login"];
+    return <Components.Loading />;
+  }
+
   return <Components.ContentStyles contentType="commentExceptPointerEvents">
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
       <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
-        href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+        href={urls.login}>Login</a>
       <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
-        href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
+        href={urls.signup}>Sign Up</a>
     </div>
   </Components.ContentStyles>
 }

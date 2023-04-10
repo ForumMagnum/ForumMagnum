@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Checkbox from '@material-ui/core/Checkbox';
+import { tagStyle } from './FooterTag';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,20 +18,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tag: {
-    minWidth: "25%",
-    display: "inline-block",
-    ...theme.typography.commentStyle,
-    marginRight: 16,
-    color: theme.palette.grey[600],
-    marginTop: 4
+    ...tagStyle(theme),
+    backgroundColor: "unset",
+    color: theme.palette.grey[500],
+    border: theme.palette.border.extraFaint,
+    '&:hover': {
+      border: theme.palette.border.grey300,
+      color: theme.palette.grey[800]
+    }
   }
-});
+}); 
 
-const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
-  onSetTagsSelected: (selectedTags: Record<string,boolean>)=>void,
+const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+  onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>)=>void,
   classes: ClassesType,
-  post: PostsList|SunshinePostsList
+  existingTagIds?: Array<string|undefined>
 }) => {
+  const { TagsChecklist } = Components
+
   const { results, loading } = useMulti({
     terms: {
       view: "coreTags",
@@ -41,24 +46,10 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
   });
   
   const { Loading } = Components;
-  const [selections, setSelections] = useState<Record<string,boolean>>({});
-  if (loading)
-    return <Loading/>
+  if (loading) return <Loading/>
+  if (!results) return null
   
-  return <div className={classes.root}>
-    {results?.map(tag => <span key={tag._id} className={classes.tag}>
-      <Checkbox
-        className={classes.checkbox}
-        checked={selections[tag._id]}
-        onChange={(event, checked) => {
-          const newSelections = {...selections, [tag._id]: checked};
-          setSelections(newSelections);
-          onSetTagsSelected(newSelections);
-        }}
-      />
-      {tag.name}
-    </span>)}
-  </div>
+  return <TagsChecklist tags={results} onTagSelected={onTagSelected} selectedTagIds={existingTagIds}/>
 }
 
 

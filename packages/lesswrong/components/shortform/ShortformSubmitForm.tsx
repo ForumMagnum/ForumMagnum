@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,39 +14,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const forumHintText: ForumOptions<JSX.Element> = {
-  LessWrong: <div>
-    <div>Write your thoughts here! What have you been thinking about?</div>
-    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
-  </div>,
-  AlignmentForum: <div>
-    <div>Write your thoughts here! What have you been thinking about?</div>
-    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
-  </div>,
-  EAForum: <div>
-    <div>Write your brief or quickly written post here.</div>
-    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
-  </div>,
-  default: <div>
-    <div>Write your brief or quickly written post here.</div>
-    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
-  </div>
+const forumHintText: ForumOptions<string> = {
+  LessWrong: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
+  AlignmentForum: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
+  EAForum: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.",
+  default: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform."
 }
 
-const ShortformSubmitForm = ({ successCallback, classes }: {
-  successCallback?: any,
+const ShortformSubmitForm = ({
+  successCallback,
+  cancelCallback,
+  prefilledProps,
+  noDefaultStyles,
+  classes,
+}: {
+  successCallback?: (comment: CommentsList, otherArgs: any) => (void | Promise<void>),
+  cancelCallback?: any,
+  prefilledProps?: any,
+  noDefaultStyles?: boolean,
   classes: ClassesType,
 }) => {
   const { CommentsNewForm } = Components;
 
   return (
-    <div className={classes.root}>
+    <div className={classNames({[classes.root]: !noDefaultStyles})}>
       <CommentsNewForm
         prefilledProps={{
-          shortform: true, 
+          ...prefilledProps,
+          shortform: true,
         }}
         successCallback={successCallback}
-        type="comment"
+        cancelCallback={cancelCallback}
+        // Put in "reply" to make the cancel button appear
+        type={cancelCallback ? "reply" : "comment"}
         formProps={{
           editorHintText: forumSelect(forumHintText)
         }}
@@ -61,4 +62,3 @@ declare global {
     ShortformSubmitForm: typeof ShortformSubmitFormComponent
   }
 }
-

@@ -7,6 +7,7 @@ registerFragment(`
     title
     number
     subtitle
+    tocTitle
     contents {
       ...RevisionDisplay
     }
@@ -16,7 +17,7 @@ registerFragment(`
     }
     postIds
     posts {
-      ...PostsList
+      ...PostsListWithVotes
     }
     collectionId
     displaySequencesAsGrid

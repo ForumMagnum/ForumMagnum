@@ -6,7 +6,7 @@ import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import EmailIcon from '@material-ui/icons/Email';
-import { useDialog } from '../../common/withDialog'
+import { CloseableComponents, OpenDialogContextType, useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
@@ -63,14 +63,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const hideMapCookieName = `hideMapFromFrontpage`;
 
-const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
+const createFallBackDialogHandler = (
+  openDialog: OpenDialogContextType['openDialog'],
+  dialogName: CloseableComponents,
+  currentUser: UsersCurrent | null
+) => {
   return () => openDialog({
     componentName: currentUser ? dialogName : "LoginPopup",
   });
 }
 
 const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
-  const openDialog = useDialog()
+  const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
   const updateCurrentUser = useUpdateCurrentUser();

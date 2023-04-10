@@ -41,6 +41,10 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -74,8 +78,8 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
+    petrovOptOut
+    sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
@@ -96,6 +100,7 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
     voteBanned
     banned
@@ -105,12 +110,17 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
+    draftsListSorting
+    draftsListShowArchived
+    draftsListShowShared
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
@@ -121,6 +131,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -148,6 +159,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -172,13 +184,23 @@ registerFragment(`
     abTestKey
     abTestOverrides
 
-    sortDrafts
+    sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
+    notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
+    noComicSans
   }
 `);
 
@@ -212,6 +234,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id
@@ -230,6 +253,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 
@@ -241,6 +265,7 @@ registerFragment(`
     website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
@@ -254,6 +279,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes
@@ -263,6 +290,28 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    usersContactedBeforeReview
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
+    altAccountsDetected
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -314,7 +363,10 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    showCommunityInRecentDiscussion
     beta
+    theme
+    noComicSans
 
     # Emails
     email
@@ -329,6 +381,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge
@@ -349,6 +402,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -375,8 +431,11 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -427,6 +486,7 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -438,5 +498,14 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)

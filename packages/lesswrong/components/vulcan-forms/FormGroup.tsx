@@ -5,6 +5,8 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { withLocation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -19,6 +21,7 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
+    fontWeight: isEAForum ? 600 : undefined,
   },
 });
 
@@ -43,12 +46,13 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
+export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
-    border: theme.palette.border.grey400,
+    border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.background.pageActiveAreaBackground,
+    ...(isEAForum ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
@@ -58,17 +62,13 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSectionPadding: {
     paddingRight: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
-    },
   },
   formSectionCollapsed: {
     display: "none",
   },
   flex: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     flexWrap: "wrap"
   }
 });
@@ -110,8 +110,13 @@ class FormGroup extends PureComponent<any,any> {
     this.toggle = this.toggle.bind(this);
     this.renderHeading = this.renderHeading.bind(this);
     this.setFooterContent = this.setFooterContent.bind(this);
+
+    const { query } = this.props.location;
+    const highlightInFields = query.highlightField && props.fields.map(f => f.name).includes(query.highlightField)
+    const collapsed = (props.startCollapsed && !highlightInFields) || false
+
     this.state = {
-      collapsed: props.startCollapsed || false,
+      collapsed,
       footerContent: null,
     };
   }
@@ -207,7 +212,7 @@ class FormGroup extends PureComponent<any,any> {
   currentUser: PropTypes.object,
 };
 
-const FormGroupComponent = registerComponent('FormGroup', FormGroup);
+const FormGroupComponent = registerComponent('FormGroup', FormGroup, {hocs: [withLocation]});
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg

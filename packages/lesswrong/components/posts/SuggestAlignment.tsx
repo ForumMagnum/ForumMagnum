@@ -1,15 +1,15 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import { userCanSuggestPostForAlignment } from '../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const SuggestAlignment = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
+  const { MenuItem } = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',

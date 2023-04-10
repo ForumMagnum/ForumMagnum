@@ -6,7 +6,7 @@ import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionUtils";
+import { ensureIndex } from "../../../lib/collectionIndexUtils";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -56,7 +56,7 @@ async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocT
 
 voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
-async function updateAlignmentUserServer (newDocument: VoteableType, vote: DbVote, multiplier: number) {
+async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")

@@ -8,6 +8,7 @@ import { getUrlClass, useNavigation } from '../../lib/routeUtil';
 import { useHover } from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
-  notification: any,
+  notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
   classes: ClassesType,
@@ -68,30 +69,47 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     pageElementContext: "linkPreview",
     pageElementSubContext: "notificationItem",
   });
+  const { captureEvent } = useTracking();
   const { history } = useNavigation();
   const { LWPopper } = Components
+  const notificationType = getNotificationTypeByName(notification.type);
+
+  const notificationLink = (notificationType.getLink
+    ? notificationType.getLink({
+      documentType: notification.documentType,
+      documentId: notification.documentId,
+      extraData: notification.extraData,
+    })
+    : notification.link
+  );
 
   const renderPreview = () => {
     const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
-    const parsedPath = parseRouteWithErrors(notification.link)
-    if (notification.type == "postNominated") {
+    const parsedPath = parseRouteWithErrors(notificationLink)
+
+    if (notificationType.onsiteHoverView) {
+      return <Card>
+        {notificationType.onsiteHoverView({notification})}
+      </Card>
+    } else if (notification.type == "postNominated") {
       return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
-    }
-    switch (notification.documentType) {
-      case 'tagRel':
-        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
-      case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId}/></Card>
-      case 'comment':
-        const postId = parsedPath?.params?._id
-        if (!postId) return null
-        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
-      case 'message':
-        return <Card>
-          <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
-        </Card>
-      default:
-        return null
+    } else {
+      switch (notification.documentType) {
+        case 'tagRel':
+          return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
+        case 'post':
+          return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+        case 'comment':
+          const postId = parsedPath?.params?._id
+          if (!postId) return null
+          return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
+        case 'message':
+          return <Card>
+            <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
+          </Card>
+        default:
+          return null
+      }
     }
   }
 
@@ -105,11 +123,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         return notification.message
     }
   }
-
+  
   return (
     <span {...eventHandlers}>
       <a
-        href={notification.link}
+        href={notificationLink}
         className={classNames(
           classes.root,
           {
@@ -120,16 +138,26 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         onClick={(ev) => {
           if (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey)
             return;
+            
+          captureEvent("notificationItemClick", {
+            notification: {
+              _id: notification._id,
+              type: notification.type,
+              documentId: notification.documentId,
+              documentType: notification.documentType,
+              link: notification.link,
+            }
+          });
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
-          history.push(notification.link)
+          history.push(notificationLink)
 
           setClicked(true);
           
           // we also check whether it's a relative link, and if so, scroll to the item
           const UrlClass = getUrlClass()
-          const url = new UrlClass(notification.link, getSiteUrl())
+          const url = new UrlClass(notificationLink, getSiteUrl())
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))
@@ -145,7 +173,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         >
           <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>
-        {getNotificationTypeByName(notification.type).getIcon()}
+        {notificationType.getIcon()}
         <div className={classes.notificationLabel}>
           {renderMessage()}
         </div>

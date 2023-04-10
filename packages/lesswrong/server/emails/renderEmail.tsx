@@ -1,5 +1,5 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
@@ -11,7 +11,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
+import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -21,7 +21,6 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -191,7 +190,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText.fromString(html, {
+  const plaintext = htmlToText(html, {
     wordwrap: plainTextWordWrap
   });
   
@@ -239,7 +238,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   body: React.ReactNode}
 ): Promise<boolean> => {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
-  const destinationAddress = to || userGetEmail(user!);
+  const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
   try {

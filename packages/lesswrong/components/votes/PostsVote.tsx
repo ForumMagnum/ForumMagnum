@@ -3,14 +3,14 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
     marginBottom: -22
   },
   downvote: {
-    marginTop: -25
+    marginTop: isEAForum ? -27 : -25,
   },
   voteScores: {
     margin:"15%",
@@ -18,9 +18,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteScore: {
     color: theme.palette.grey[500],
     paddingLeft: 1, // For some weird reason having this padding here makes it look more centered
+    lineHeight: isEAForum ? 1.2 : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
+  },
+  voteScoreGoodHeart: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    fontSize: '45%',
+    textAlign: "center",
   },
   secondaryVoteScore: {
     fontSize: '35%',

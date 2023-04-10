@@ -48,7 +48,7 @@ const ReportUserButton = ({user, classes}: {
   
   const { SingleColumnSection } = Components
 
-  if (currentUser && user.karma < 50 && (currentUser._id !== user._id)) {
+  if (currentUser && (currentUser._id !== user._id)) {
     return <SingleColumnSection className={classes.reportUserSection}>
       <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
     </SingleColumnSection>

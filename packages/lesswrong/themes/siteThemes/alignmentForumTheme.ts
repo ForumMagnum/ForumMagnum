@@ -29,9 +29,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
-      main: "#3f51b5",
-      dark: "#303f9f",
-      light: "#7986cb",
+      main: shadePalette.type === "dark" ? "#7581d1": "#3f51b5",
+      dark: shadePalette.type === "dark" ? "#7986cb": "#303f9f",
+      light: shadePalette.type === "dark" ? "#5968c9": "#7986cb",
       contrastText: shadePalette.grey[0],
     },
     secondary: {
@@ -40,9 +40,13 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       light: "#7986cb",
       contrastText: shadePalette.grey[0],
     },
+    review: {
+      activeProgress: "rgba(63,81,181, .5)",
+      progressBar: "rgba(63,81,181, 1)"
+    },
     lwTertiary: {
-      main: "#607e88",
-      dark: "#607e88",
+      main:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
+      dark:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
     },
     error: {
       main: '#bf360c',

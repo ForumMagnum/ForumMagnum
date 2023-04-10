@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 
 const ToggleIsModeratorComment = ({comment}: {
@@ -13,15 +12,16 @@ const ToggleIsModeratorComment = ({comment}: {
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
+  const { MenuItem } = Components;
   
   if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) {
     return null;
   }
   
-  const handleMarkAsModeratorComment = (event: React.MouseEvent) => {
+  const handleMarkAsModeratorComment = (modHatVisibility?: { hideModeratorHat: boolean }) => (event: React.MouseEvent) => {
     void updateComment({
       selector: { _id: comment._id },
-      data: { moderatorHat: true }
+      data: { moderatorHat: true, ...modHatVisibility }
     });
   }
   const handleUnmarkAsModeratorComment = (event: React.MouseEvent) => {
@@ -39,9 +39,14 @@ const ToggleIsModeratorComment = ({comment}: {
     );
   } else {
     return (
-      <MenuItem onClick={handleMarkAsModeratorComment}>
-        Mark as Moderator Comment
-      </MenuItem>
+      <>
+        <MenuItem onClick={handleMarkAsModeratorComment()}>
+          Mark as Moderator Comment (visible)
+        </MenuItem>
+        <MenuItem onClick={handleMarkAsModeratorComment({ hideModeratorHat: true })}>
+          Mark as Moderator Comment (invisible)
+        </MenuItem>
+      </>
     );
   }
 }

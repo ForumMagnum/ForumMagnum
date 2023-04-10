@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     name
+    shortName
     slug
     core
     postCount
@@ -16,18 +17,29 @@ registerFragment(`
     createdAt
     wikiOnly
     deleted
+    isSubforum
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
+    subtitle
     oldSlugs
     isRead
     defaultOrder
     reviewedByUserId
     wikiGrade
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
+    moderationGuidelines {
+      _id
+      html
+    }
     bannerImageId
+    squareImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
     sequence {
@@ -40,14 +52,11 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
-    
     description {
       _id
       html
@@ -55,13 +64,7 @@ registerFragment(`
       plaintextDescription
       version
     }
-  }
-`);
-
-registerFragment(`
-  fragment TagWithTocFragment on Tag {
-    ...TagFragment
-    descriptionHtmlWithToc
+    canVoteOnRels
   }
 `);
 
@@ -90,12 +93,10 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
     isRead
     description(version: $version) {
@@ -116,17 +117,45 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
     description {
       _id
       htmlHighlight
     }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumFragment on Tag {
+    ...TagPreviewFragment
+    subforumModeratorIds
+    tableOfContents
+    subforumWelcomeText {
+      _id
+      html
+    }
+  }
+`);
+
+// TODO: would prefer to fetch subtags in fewer places
+registerFragment(`
+  fragment TagSubtagFragment on Tag {
+    _id
+    subforumModeratorIds
+    subTags {
+      ...TagPreviewFragment
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
   }
 `);
 
@@ -165,6 +194,13 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
+    subforumIntroPost {
+      ...PostsList
+    }
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -176,6 +212,14 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
   }
 `);
 
@@ -184,6 +228,13 @@ registerFragment(`
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
+    subforumIntroPost {
+      ...PostsList
+    }
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -195,6 +246,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 
@@ -216,15 +268,24 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
+    subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    
+    autoTagModel
+    autoTagPrompt
+    
     description {
+      ...RevisionEdit
+    }
+    subforumWelcomeText {
+      ...RevisionEdit
+    }
+    moderationGuidelines {
       ...RevisionEdit
     }
   }

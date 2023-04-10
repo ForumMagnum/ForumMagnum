@@ -1,5 +1,7 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString } from '../colorUtil';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -19,8 +21,8 @@ export const invertedGreyscale = {
   A700: invertHexColor('#616161'),
   
   // Greyscale colors not in the MUI palette
-  0: "#000",
-  1000: "#fff",
+  0: invertHexColor('#ffffff'),
+  1000: invertHexColor('#000000'),
   
   10: invertHexColor('#fefefe'),
   20: invertHexColor('#fdfdfd'),
@@ -44,6 +46,7 @@ export const invertedGreyscale = {
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -68,25 +71,37 @@ const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 //   }
 // (Not real color values, but real syntax.)
 //
-const safeColorFallbacks = `
-.content td[style*="background-color:"], .content table[style*="background-color:"] {
+const safeColorFallbacks = (palette: ThemePalette) => `
+.content td[style*="background-color:"] {
   background-color: black !important;
+}
+.content th[style*="background-color:"] {
+  background-color: ${palette.panelBackground.tableHeading} !important;
+}
+.content table[style*="background-color:"] {
+  background-color: black !important;
+}
+.content td[style*="border:"], .content th[style*="border:"] {
+  border: ${palette.border.tableCell} !important;
+}
+.content table[style*="border:"] {
   border-color: #333 !important;
 }
 `;
 
-const colorReplacements = {
+const colorReplacements: Record<string,string> = {
+  "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
   "rgb(255, 247, 222)": "rgb(50,30,0)",
   "rgb(255, 255, 255)": invertHexColor("#ffffff"),
   "hsl(0,0%,100%)":     invertHexColor("#ffffff"),
   "#FFEEBB":            invertHexColor("#ffeebb"),
-  "rgb(255, 238, 187)": invertColor([255/255.0,238/255.0,187/255.0,1]),
-  "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
-};
+  "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
+  "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
+} as const;
 function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: string) => {
+  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
     return `
       .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
@@ -99,21 +114,63 @@ function generateColorOverrides(): string {
   }).join('\n');
 }
 
+const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
+  forumSelect({
+    EAForum: {
+      primary: {
+        main: '#009da8',
+        light: '#0c869b',
+        dark: '#009da8'
+      },
+      secondary: {
+        main: '#3c9eaf',
+        light: '#0c869b',
+        dark: '#3c9eaf'
+      },
+      lwTertiary: {
+        main: "#0e9bb4",
+        dark: "#0e9bb4",
+      },
+      panelBackground: {
+        default: shadePalette.grey[20],
+      },
+    },
+    default: {},
+  });
+
+const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
+  forumSelect({
+    EAForum: {
+      PostsTopSequencesNav: {
+        title: {
+          color: palette.icon.dim,
+        },
+      },
+    },
+    default: {},
+  });
+
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
     greyAlpha,
+    inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     type: "dark",
   },
-  componentPalette: (shadePalette: ThemeShadePalette) => ({
+  componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      alwaysWhite: '#fff',
+      primaryDarkOnDim: '#a8cad7',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
         green: "#7ee486",
       },
+    },
+    link: {
+      primaryDim: '#3a7883'
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -122,20 +179,36 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
+      spoilerBlock: "#1b1b1b",
     },
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
+      primaryDim: "#28383e",
+      transparent: 'transparent'
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
+      primaryHighlight: '#314a4e',
+      primaryHighlight2: '#314a4e',
+      secondaryHighlight: '#3e503a',
+      secondaryHighlight2: '#3e503a',
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
     },
-  }),
+    embeddedPlayer: {
+      opacity: 0.85,
+    },
+    editor: {
+      commentPanelBackground: shadePalette.grey[200],
+      sideCommentEditorBackground: shadePalette.grey[100],
+      commentMarker: "#80792e",
+      commentMarkerActive: "#cbc14f",
+    },
+  }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
@@ -143,8 +216,9 @@ export const darkModeTheme: UserThemeSpecification = {
       // have black-on-transparent text in them.
       background: "#ffffff",
     },
+    overrides: forumOverrides(palette),
     rawCSS: [
-      safeColorFallbacks,
+      safeColorFallbacks(palette),
       generateColorOverrides()
     ]
   }),

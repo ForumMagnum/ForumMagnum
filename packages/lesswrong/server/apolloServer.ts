@@ -4,14 +4,13 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -32,14 +31,19 @@ import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
 import expressSession from 'express-session';
-import MongoStore from 'connect-mongo'
-import { ckEditorTokenHandler } from './ckEditorToken';
-import { getMongoClient } from '../lib/mongoCollection';
+import MongoStore from './vendor/ConnectMongo/MongoStore';
+import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { addCypressRoutes } from './createTestingPgDb';
+import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { getUserEmail } from "../lib/collections/users/helpers";
+import { inspect } from "util";
+import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
+import { Sessions } from '../lib/collections/sessions';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -97,16 +101,16 @@ class ApolloServerLogging {
 }
 
 export function startWebserver() {
-  const addMiddleware = (...args) => app.use(...args);
+  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
-    const store = MongoStore.create({
-      client: getMongoClient()
-    })
+    const store = new MongoStore({
+      collection: Sessions,
+    });
     app.use(expressSession({
       secret: expressSessionSecret,
       resave: false,
@@ -119,13 +123,16 @@ export function startWebserver() {
       }
     }))
   }
-  app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
+
+  app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
@@ -142,8 +149,9 @@ export function startWebserver() {
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
+      const {message, ...properties} = e;
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;
@@ -151,17 +159,16 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: async ({ req, res }) => {
-      const user = await getUserFromReq(req);
-      const context = await computeContextFromUser(user, req, res);
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
+      const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
       return context;
     },
     plugins: [new ApolloServerLogging()]
   });
 
-  app.use('/graphql', bodyParser.json({ limit: '50mb' }));
-  app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
+  app.use('/graphql', express.json({ limit: '50mb' }));
+  app.use('/graphql', express.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -228,7 +235,7 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !currentUser.email) {
+    if (!currentUser || !getUserEmail(currentUser)){
       res.status(403).send("Not logged in or current user has no email address")
       return
     }
@@ -236,6 +243,16 @@ export function startWebserver() {
     const eagApp = await getEAGApplicationData(currentUser.email)
     res.send(eagApp)
   })
+
+  addCrosspostRoutes(app);
+  addCypressRoutes(app);
+
+  if (testServerSetting.get()) {
+    app.post('/api/quit', (_req, res) => {
+      res.status(202).send('Quiting server');
+      process.kill(estrellaPid, 'SIGQUIT');
+    })
+  }
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
@@ -255,7 +272,7 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const stylesheet = getMergedStylesheet(themeOptions);
+    const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
@@ -269,20 +286,31 @@ export function startWebserver() {
       '<!doctype html>\n'
       + '<html lang="en">\n'
       + '<head>\n'
-        + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
         + clientScript
     );
     
     if (prefetchResources) {
+      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
       response.status(200);
       response.write(prefetchPrefix);
     }
     
     const renderResult = await renderWithCache(request, response, user);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
+    const {
+      ssrBody,
+      headers,
+      serializedApolloState,
+      serializedForeignApolloState,
+      jssSheets,
+      status,
+      redirectUrl,
+      renderedAt,
+      allAbTestGroups,
+    } = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -310,6 +338,7 @@ export function startWebserver() {
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
+        + serializedForeignApolloState + '\n'
         + '</html>\n')
       response.end();
     }
@@ -323,4 +352,11 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
+  
+  // Route used for checking whether the server is ready for an auto-refresh
+  // trigger. Added last so that async stuff can't lead to auto-refresh
+  // happening before the server is ready.
+  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+    res.end('true');
+  });
 }

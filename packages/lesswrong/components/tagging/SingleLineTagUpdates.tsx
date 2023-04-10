@@ -2,20 +2,32 @@ import React, {useState} from 'react';
 import TagHistory from '@material-ui/icons/History';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
-import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.panelBackground.default,
-    border: theme.palette.border.commentBorder,
-    borderRadius: 3,
-    marginBottom: 4,
+    ...(isEAForum
+      ? {
+        background: theme.palette.grey[0],
+        border: `1px solid ${theme.palette.grey[100]}`,
+        borderRadius: theme.borderRadius.default,
+        fontWeight: 500,
+        fontSize: 14,
+        padding: "6px 0",
+        color: theme.palette.grey[600],
+      }
+      : {
+        background: theme.palette.panelBackground.default,
+        border: theme.palette.border.commentBorder,
+        borderRadius: 3,
+        marginBottom: 4,
+      }),
   },
   metadata: {
     display: "flex",
@@ -31,8 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: 17,
-    fontVariant: "small-caps",
+    fontSize: isEAForum ? 14 : 17,
+    fontWeight: isEAForum ? 600 : undefined,
+    ...theme.typography.smallCaps,
+    marginLeft: isEAForum ? 2 : undefined,
   },
   expandedBody: {
     marginTop: 8,
@@ -46,11 +60,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   commentBubble: {
-    marginLeft: 11,
-    marginTop: -5,
+    margin: `-5px ${isEAForum ? 6 : 0}px 0 11px`,
   },
   changeMetrics: {
     cursor: "pointer",
+    margin: isEAForum ? "0 4px -2px 2px" : undefined,
   },
   postedAt: {
     '&&': {
@@ -73,11 +87,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: "-8px 0 8px 8px",
+    margin: `${isEAForum ? -4 : -8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,
-    
     maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
@@ -141,7 +154,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
     {expanded && <div className={classes.expandedBody}>
       {revisionIds.length>0 && 
         <Link
-          to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+          to={tagGetHistoryUrl(tag)}
           className={classes.history}
         >
           <TagHistory className={classes.icon}  />

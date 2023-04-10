@@ -1,14 +1,13 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
-  post: PostsDetails,
+  post?: PostsDetails,
   terms: CommentsViewTerms,
   newForm?: boolean,
 }) => {
-  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+  let { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -17,23 +16,24 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   });
   
   if (loading && !results) {
-    return <Components.Loading/>
+    return <Components.Loading />;
   } else if (!results) {
-    return null
-  } else {
-    const nestedComments = unflattenComments(results);
-    return (
-      <Components.CommentsListSection
-        comments={nestedComments}
-        loadMoreComments={loadMore}
-        totalComments={totalCount as number}
-        commentCount={(results && results.length) || 0}
-        loadingMoreComments={loadingMore}
-        post={post}
-        newForm={newForm}
-      />
-    );
+    return null;
   }
+
+  const commentCount = results?.length ?? 0;
+
+  return (
+    <Components.CommentsListSection
+      comments={results}
+      loadMoreComments={loadMore}
+      totalComments={totalCount as number}
+      commentCount={commentCount}
+      loadingMoreComments={loadingMore}
+      post={post}
+      newForm={newForm}
+    />
+  );
 }
 
 const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', PostsCommentsThread, {

@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { isMod } from '../../lib/collections/users/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import type { Column } from '../vulcan-core/Datatable';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -17,7 +18,7 @@ const shouldShowEndUserModerationToNonMods = forumSelect({
   default: true,
 })
 
-const styles = theme => ({
+const styles = (theme: JssStyles) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   
@@ -45,23 +46,35 @@ const styles = theme => ({
 })
 
 
-const DateDisplay = ({column, document}) => {
+const DateDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
-const PostDisplay = ({column, document}) => {
+const PostDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
   const post = document.post || document
   return <Link rel="nofollow" to={postGetPageUrl(post) + "#" + document._id }>{ post.title }</Link>
 }
 
-const UserDisplay = ({column, document}) => {
+const UserDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
   const user = document.user || document
   return <div>
     <Components.UsersName user={user} nofollow />
   </div>
 }
 
-const DeletedByUserDisplay = ({column, document}) => {
+const DeletedByUserDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
   const user = document.deletedByUser || document.user || document
   return <span>
     <Components.UsersName user={user} nofollow />
@@ -69,17 +82,20 @@ const DeletedByUserDisplay = ({column, document}) => {
 }
 
 
-const BannedUsersDisplay = ({column, document}) => {
-  const bannedUsers = document[column.name]
+const BannedUsersDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
+  const bannedUsers = document[column.name] ?? []
   return <div>
-    { bannedUsers.map((userId) => <div key={userId}>
+    { bannedUsers.map((userId: string) => <div key={userId}>
       <Components.UsersNameWrapper documentId={userId} nofollow />
       </div>)}
   </div>
 }
 
 
-const deletedCommentColumns = [
+const deletedCommentColumns: Column[] = [
   {
     name: 'user',
     component: UserDisplay,
@@ -107,9 +123,10 @@ const deletedCommentColumns = [
   },
 ]
 
-const usersBannedFromPostsColumns = [
+const usersBannedFromPostsColumns: Column[] = [
   {
     name: 'user',
+    label: "Author",
     component: UserDisplay,
   },
   {
@@ -124,19 +141,26 @@ const usersBannedFromPostsColumns = [
   },
 ]
 
-const usersBannedFromUsersColumns = [
+const usersBannedFromUsersColumns: Column[] = [
   {
     name: '_id',
     component: UserDisplay,
   },
   {
     name:'bannedUserIds',
-    label:'Banned Users',
+    label:'Banned From Frontpage',
+    component: BannedUsersDisplay
+  },
+  {
+    name:'bannedPersonalUserIds',
+    label:'Banned from Personal Posts',
     component: BannedUsersDisplay
   },
 ]
 
-const ModerationLog = ({classes}) => {
+const ModerationLog = ({classes}: {
+  classes: ClassesType
+}) => {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
@@ -167,7 +191,7 @@ const ModerationLog = ({classes}) => {
             options={{
               fragmentName: 'UsersBannedFromPostsModerationLog',
               terms: {view: "postsWithBannedUsers"},
-              limit: 10,
+              limit: 20,
               enableTotal: true
             }}
             showEdit={false}
@@ -182,7 +206,7 @@ const ModerationLog = ({classes}) => {
             options={{
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
-              limit: 10,
+              limit: 20,
               enableTotal: true
             }}
             showEdit={false}

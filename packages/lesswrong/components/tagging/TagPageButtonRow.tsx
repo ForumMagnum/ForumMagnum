@@ -10,10 +10,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -36,6 +33,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "@media print": {
       display: "none",
+    },
+  },
+  headerSubforumLink: {
+    alignItems: "center",
+    marginRight: 16,
+    display: "none",
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
     },
   },
   buttonTooltip: {
@@ -75,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     marginLeft: 'auto',
     color: theme.palette.grey[700],
-    fontStyle: "italic",
+    ...theme.typography.italic,
   },
 });
 
@@ -153,7 +158,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     </LWTooltip>}
     {<Link
       className={classes.button}
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+      to={tagGetHistoryUrl(tag)}
     >
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
@@ -168,9 +173,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    <div className={classes.button}>
-      <TagDiscussionButton tag={tag} hideLabelOnMobile />
-    </div>
+    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}

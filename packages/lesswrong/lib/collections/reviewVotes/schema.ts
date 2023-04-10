@@ -6,12 +6,6 @@ import SimpleSchema from 'simpl-schema'
 export const DEFAULT_QUALITATIVE_VOTE = 4
 
 const schema: SchemaType<DbReviewVote> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onCreate: () => new Date(),
-  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -21,7 +15,7 @@ const schema: SchemaType<DbReviewVote> = {
       nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser!._id,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true
   },
   postId: {
@@ -32,38 +26,38 @@ const schema: SchemaType<DbReviewVote> = {
       type: "Post",
       nullable: true,
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   qualitativeScore: {
     type: SimpleSchema.Integer, 
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     ...schemaDefaultValue(DEFAULT_QUALITATIVE_VOTE)
   },
   quadraticScore: {
     type: SimpleSchema.Integer, 
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     ...schemaDefaultValue(0)
   },
   comment: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true
   },
   year: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     ...schemaDefaultValue("2018")
   },
   dummy: {
     type: Boolean,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     ...schemaDefaultValue(false)
   },
   reactions: {
     type: Array,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   'reactions.$': {
     type: String,

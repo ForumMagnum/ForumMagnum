@@ -2,13 +2,16 @@ import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts/collection';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { Collections } from '../lib/collections/collections/collection';
-import { ensureIndex } from '../lib/collectionUtils';
+import { ensureIndex } from '../lib/collectionIndexUtils';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
 import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import SelectQuery from "../lib/sql/SelectQuery";
+import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -17,7 +20,7 @@ const MINIMUM_BASE_SCORE = 50
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
-const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
+const scoreRelevantFields = {_id:1, baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
@@ -73,11 +76,12 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       question: true
     }
   }
+  // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
     if (isEAForum) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
       }
     }
     return {
@@ -85,12 +89,16 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
         $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
       },
-      positiveReviewVoteCount: {$gte: 1},
+      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},
     }
   }
   if (algorithm.lwRationalityOnly) {
     return {
-      "tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0} // rationality tag
+      $or: [
+        {"tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0}}, // rationality tag
+        {"tagRelevance.3uE2pXvbcnS9nnZRE": {$gt:0}}, // world modeling tag
+      ]
+      
     }
   }
   if (algorithm.reviewNominations) {
@@ -128,7 +136,7 @@ const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
   const recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...Posts.getParameters({}).selector,
+    ...getDefaultViewSelector("Posts"),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -158,18 +166,38 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: RecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  return await Posts.aggregate([
-    // Filter to recommendable posts
-    { $match: {
-      ...recommendablePostFilter(algorithm),
-    } },
+  if (Posts.isPostgres()) {
+    const joinHook = algorithm.onlyUnread && currentUser
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
+      : undefined;
+    const query = new SelectQuery(
+      new SelectQuery(
+        new SelectQuery(
+          Posts.getTable(),
+          {},
+          {},
+          {joinHook},
+        ),
+        recommendablePostFilter(algorithm),
+      ),
+      {},
+      {projection: scoreRelevantFields},
+    );
+    return Posts.executeQuery(query) as Promise<DbPost[]>;
+  } else {
+    return await Posts.aggregate([
+      // Filter to recommendable posts
+      { $match: {
+        ...recommendablePostFilter(algorithm),
+      } },
 
-    // If onlyUnread, filter to just unread posts
-    ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
+      // If onlyUnread, filter to just unread posts
+      ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
-    // Project out fields other than _id and scoreRelevantFields
-    { $project: {_id:1, ...scoreRelevantFields} },
-  ]).toArray();
+      // Project out fields other than _id and scoreRelevantFields
+      { $project: scoreRelevantFields },
+    ]).toArray();
+  }
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.

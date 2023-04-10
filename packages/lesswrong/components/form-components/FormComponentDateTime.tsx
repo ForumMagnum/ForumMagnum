@@ -9,7 +9,8 @@ import FormControl from '@material-ui/core/FormControl';
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
-    padding: '6px 0 7px 0'
+    padding: '6px 0 7px 0',
+    background: 'transparent',
   },
   label: {
     position:"relative",
@@ -226,12 +227,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
+const FormComponentDateTime = ({ path, value, name, label, classes }: {
+  path: string;
+  value: string | Date;
+  name: string;
+  label: string;
+  classes: ClassesType;
+}, context: any) => {
   const updateDate = (date: Date | undefined) => {
     if (date) context.updateCurrentValues({[path]: date})
   }
 
-  const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = date ? moment(date) : moment();

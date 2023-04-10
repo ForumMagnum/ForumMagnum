@@ -1,15 +1,19 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
+import * as _ from 'underscore';
+import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import { DatabasePublicSetting } from '../../publicSettings';
+import moment from 'moment';
+
+const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
+export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
   if (!user) {
     return "";
   } else {
@@ -20,7 +24,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+export const getUserName = function(user: {username: string} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -29,20 +33,48 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
   return null;
 };
 
-export const userOwnsAndInGroup = (group: string) => {
+export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
 }
 
-export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
-  if (!currentUser) return false;
-  return document.shareWithUsers?.includes(currentUser._id) ||
-    document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0;
+/**
+ * Count a user as "new" if they have low karma or joined less than a week ago
+ */
+export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  return (
+    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
+  );
 }
 
-export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
-  return userHasCkCollaboration(currentUser) && userIsSharedOn(currentUser, document)
+export interface SharableDocument {
+  coauthorStatuses?: DbPost["coauthorStatuses"]
+  shareWithUsers?: DbPost["shareWithUsers"]
+  sharingSettings?: DbPost["sharingSettings"]
+}
+
+export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: SharableDocument): boolean => {
+  if (!currentUser) return false;
+  
+  // Shared as a coauthor? Always give access
+  const coauthorStatuses = document.coauthorStatuses ?? []
+  if (coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  
+  // Explicitly shared?
+  if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
+    return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";
+  } else {
+    // If not individually shared with this user, still counts if shared if
+    // (1) link sharing is enabled and (2) the user's ID is in
+    // linkSharingKeyUsedBy.
+    return (
+      document.sharingSettings?.anyoneWithLinkCan
+      && document.sharingSettings.anyoneWithLinkCan !== "none"
+      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+    )
+  }
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {
@@ -58,11 +90,11 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = post => {
+const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return post.moderationGuidelines?.originalContents || post.moderationStyle
+  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
 }
 
 export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
@@ -164,11 +196,11 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
-  if (user.commentingOnOtherUsersDisabled && post.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
   if (!post) return true
   if (post.commentsLocked) return false
-  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
+  if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -229,11 +261,31 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!(user?.emails && user.emails.length > 0);
+  return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
-  return user.email || user.emails?.[0]?.address
+type UserWithEmail = {
+  email: string
+  emails: UsersCurrent["emails"] 
+}
+
+export function getUserEmail (user: UserWithEmail|null): string | undefined {
+  return user?.emails?.[0]?.address ?? user?.email
+}
+
+type DatadogUser = {
+  id: string,
+  email?: string,
+  name?: string,
+  slug?: string,
+}
+export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName,
+    slug: user.slug,
+  }
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
@@ -277,11 +329,13 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   return user.markDownPostEditor
 }
 
-export const userCanEdit = (currentUser, user) => {
-  return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
+export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: HasIdType|HasSlugType|UsersMinimumInfo|DbUser) => {
+  // We allow users to call this function with basically "pretend" user objects
+  // as the second argument. We know from inspecting userOwns that those pretend
+  // user objects are safe, but if userOwns allowed them it would make the type
+  // checks much less safe.
+  return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
 }
-
-
 
 interface UserLocation {
   lat: number,
@@ -436,6 +490,9 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
 
+// TODO: I (JP) think this should be configurable in the function parameters
+/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
+ * we get from auth0 but is ultimately from google this function will throw. */
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {
@@ -446,3 +503,24 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+
+const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
+export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  if (forumTypeSetting.get() !== 'LessWrong') return false;
+
+  const userCreatedAfterCutoff = user.createdAt
+    ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
+    : false;
+
+  return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
+};
+
+export const getSignature = (name: string) => {
+  const today = new Date();
+  const todayString = today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  return `${todayString}, ${name}`;
+};
+
+export const getSignatureWithNote = (name: string, note: string) => {
+  return `${getSignature(name)}: ${note}\n`;
+};

@@ -1,7 +1,7 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
-import startCase from 'lodash/startCase'
+import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -110,13 +110,26 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
-export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
+export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum"|"EAForumCS";
+export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum","EAForumCS"];
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+
+export const isLW = forumTypeSetting.get() === "LessWrong"
+export const isEAForum = forumTypeSetting.get() === "EAForum"
+export const isAF = forumTypeSetting.get() === "AlignmentForum"
+
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
+
+/**
+ * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
+ * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
+ * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
+ * easier.
+ */
+export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
 
 /**
  * Name of the tagging feature on your site. The EA Forum is going to try
@@ -141,7 +154,20 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
+// FM Crossposting
+export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
+export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");
+
+// For development, there's a matched set of CkEditor settings as instance
+// settings, which take precedence over the database settings. This allows
+// using custom CkEditor settings that don't match what's in the attached
+// database.
+export const ckEditorUploadUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.uploadUrl', null, "optional") // Image Upload URL for CKEditor
+export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.webSocketUrl', null, "optional") // Websocket URL for CKEditor (for collaboration)
+
 // Stripe setting
 
 //Test vs Production Setting
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+
+export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");

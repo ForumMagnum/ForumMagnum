@@ -9,12 +9,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -28,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     width: '100%',
-    '& > img': {
+    '& > picture > img': {
       height: 300,
       objectFit: 'cover',
       width: '100%',
@@ -37,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 90,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
-      '& > img': {
+      '& > picture > img': {
         height: 200,
         width: '100%',
       },
@@ -57,10 +59,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
-  },
-  tableOfContentsWrapper: {
-    position: "relative",
-    top: 12,
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -69,11 +69,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography[isEAForum ? "display2" : "display3"],
+    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: isEAForum ? 700 : 600,
+    ...theme.typography.smallCaps,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -104,6 +104,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
     paddingLeft: 42,
@@ -119,6 +121,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.extraFaint,
     borderBottom: theme.palette.border.extraFaint,
   },
+  relatedTag : {
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
+  },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
   },
@@ -126,6 +134,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 8,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
@@ -139,17 +148,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  randomTagLink: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.16rem",
-    color: theme.palette.grey[600],
-    display: "inline-block",
-    marginTop: 8,
-    marginBottom: 8,
-  },
 });
 
-export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
   return ({
     ...query,
@@ -165,12 +166,16 @@ const TagPage = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
-   } = Components;
+    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    SectionTitle, TagTableOfContents, ContentStyles
+  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { revision } = query;
+  
+  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
+  const { version: queryVersion, revision: queryRevision } = query;
+  const revision = queryVersion ?? queryRevision ?? null;
+  
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
@@ -207,6 +212,7 @@ const TagPage = ({classes}: {
     skip: !query.flagId
   })
   
+  useOnSearchHotkey(() => setTruncated(false));
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -263,40 +269,17 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
-    description = htmlWithAnchors;
-    for (let matchString of [
-        'id="Further_reading"',
-        'id="Bibliography"',
-        'id="Related_entries"',
-        'class="footnotes"',
-      ]) {
-      if(htmlWithAnchors.includes(matchString)) {
-        const truncationLength = htmlWithAnchors.indexOf(matchString);
-        /**
-         * The `truncate` method used below uses a complicated criterion for what
-         * counts as a character. Here, we want to truncate at a known index in
-         * the string. So rather than using `truncate`, we can slice the string
-         * at the desired index, use `parseFromString` to clean up the HTML,
-         * and then append our footer 'read more' element.
-         */
-        description = truncated ?
-          new DOMParser().parseFromString(
-            htmlWithAnchors.slice(0, truncationLength), 
-            'text/html'
-          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
-          htmlWithAnchors;
-        break;
-      }
-    }
+  if (isEAForum) {
+    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   }
+
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -327,20 +310,10 @@ const TagPage = ({classes}: {
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       <ToCColumn
         tableOfContents={
-          tag.tableOfContents
-            ? <span className={classes.tableOfContentsWrapper}>
-                <TableOfContents
-                  sectionData={tag.tableOfContents}
-                  title={tag.name}
-                  onClickSection={expandAll}
-                />
-                <Link to="/tags/random" className={classes.randomTagLink}>
-                  Random {taggingNameCapitalSetting.get()}
-                </Link>
-                <TableOfContentsRow href="#" divider={true}/>
-                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-              </span>
-            : null
+          <TagTableOfContents
+            tag={tag} expandAll={expandAll} showContributors={true}
+            onHoverContributor={onHoverContributor}
+          />
         }
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
@@ -366,7 +339,7 @@ const TagPage = ({classes}: {
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
+                unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             }

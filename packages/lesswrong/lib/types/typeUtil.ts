@@ -34,4 +34,10 @@ type ReplaceFieldsOfType<Interface, FieldType,ReplacementType> = {
 
 type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>
 
+type NameOfFieldWithType<ObjType,FieldName,FieldType> =
+  FieldName extends keyof ObjType
+    ? TypesEqual<ObjType[FieldName],FieldType,FieldName&string,never>
+    : never;
+
+type FromPartial<T> = T extends Partial<infer U> ? U : never;
 }

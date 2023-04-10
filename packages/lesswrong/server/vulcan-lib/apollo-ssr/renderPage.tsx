@@ -20,15 +20,19 @@ import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
-import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
+import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
+import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
+const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
 type RenderTimings = {
   totalTime: number
@@ -40,12 +44,13 @@ export type RenderResult = {
   ssrBody: string
   headers: Array<string>
   serializedApolloState: string
+  serializedForeignApolloState: string
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
-  themeOptions: ThemeOptions,
+  themeOptions: AbstractThemeOptions,
   renderedAt: Date,
   timings: RenderTimings
 }
@@ -53,11 +58,7 @@ export type RenderResult = {
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
   
-  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
-  if (ip.indexOf(",")>=0)
-    ip = ip.split(",")[0];
-  
+  const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
@@ -79,33 +80,34 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     clientId, tabId,
     userAgent: userAgent,
   };
-  
-  if (user) {
+
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
+  const abTestGroups = getAllUserABTestGroups(user, clientId);
+  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime, res, clientId,
+      req, user, startTime, res, clientId, userAgent,
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
-      userId: user._id,
+      userId: user?._id,
       timings: rendered.timings,
       cached: false,
       abTestGroups: rendered.allAbTestGroups,
       ip
     });
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
+    console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
     
     return {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
-      req, user: null, startTime, res, clientId,
+      req, user: null, startTime, res, clientId, userAgent
     }));
     
     if (rendered.cached) {
@@ -134,17 +136,39 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-export function getThemeOptionsFromReq(req: Request, user: DbUser|null) {
+function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+  if (isEAForum && abTestGroups["slowerFrontpage"] !== "control" && path === "/" && frontpageAlgoCacheDisabled.get()) {
+    return true;
+  }
+  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
+  return false
+}
+
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
   const themeCookie = getCookieFromReq(req, "theme");
   return getThemeOptions(themeCookie, user);
 }
 
-export const renderRequest = async ({req, user, startTime, res, clientId}: {
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+}
+
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   req: Request,
   user: DbUser|null,
   startTime: Date,
   res: Response,
   clientId: string,
+  userAgent?: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
@@ -152,6 +176,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
+  const foreignClient = await createClient(requestContext, true);
 
   // Used by callbacks to handle side effects
   // E.g storing the stylesheet generated by styled-components
@@ -173,7 +198,9 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const now = new Date();
   const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
-    req={req} apolloClient={client}
+    req={req}
+    apolloClient={client}
+    foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
     timeOverride={timeOverride}
@@ -192,9 +219,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   }
   const afterPrerenderTime = new Date();
 
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  const ssrBody = `<div id="react-app">${htmlContent}</div>`;
+  const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
   const head = ReactDOM.renderToString(<Head />);
@@ -202,29 +227,10 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
-  
-  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
-  // context.
-  const sheetsRegistry = context.sheetsRegistry;
-  
-  // Experimental handling to make default theme (dark mode or not) depend on
-  // the user's system setting. Currently doesn't work because, while this does
-  // successfully customize everything that goes through our merged stylesheet,
-  // it can't handle the material-UI stuff that gets stuck into the page header.
-  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
-  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +'<style>'
-    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
-    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
-    +'</style>'*/
-  
-  const stylesheet = getMergedStylesheet(themeOptions);
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
-  
+  const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
+
+  const jssSheets = renderJssSheetImports(themeOptions);
+
   const finishedTime = new Date();
   const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
@@ -243,15 +249,19 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     });
   }
   
+  await client.clearStore();
+  
   return {
     ssrBody,
     headers: [head],
-    serializedApolloState, jssSheets,
+    serializedApolloState,
+    serializedForeignApolloState,
+    jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
-    themeOptions: themeOptions,
+    themeOptions,
     renderedAt: now,
     timings,
   };

@@ -1,5 +1,4 @@
 import React from 'react';
-import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
@@ -12,12 +11,11 @@ import { randomId } from '../../lib/random';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
-import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import { userGetLocation } from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -28,6 +26,10 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
+import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
+import Tags from '../../lib/collections/tags/collection';
+import keyBy from 'lodash/keyBy';
+import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -79,6 +81,46 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
   }
 });
 
+getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
+  // check if the user added any tags to their profile
+  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
+  
+  // if so, then we want to subscribe them to the newly added tags
+  if (tagIdsAdded.length > 0) {
+    const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
+    const tagsById = keyBy(tagsAdded, tag => tag._id)
+    
+    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings ?? getDefaultFilterSettings()
+    for (let addedTag of tagIdsAdded) {
+      const newTagFilter: FilterTag = {tagId: addedTag, tagName: tagsById[addedTag].name, filterMode: 'Subscribed'}
+      const existingFilter = newFrontpageFilterSettings.tags.find(tag => tag.tagId === addedTag)
+      // if the user already had a filter for this tag, see if we should update it or leave it alone
+      if (existingFilter) {
+        if ([0, 'Default', 'TagDefault'].includes(existingFilter.filterMode)) {
+          newFrontpageFilterSettings = {
+            ...newFrontpageFilterSettings,
+            tags: [
+              ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
+              newTagFilter
+            ]
+          }
+        }
+      } else {
+        // otherwise, subscribe them to this tag
+        newFrontpageFilterSettings = {
+          ...newFrontpageFilterSettings,
+          tags: [
+            ...newFrontpageFilterSettings.tags,
+            newTagFilter
+          ]
+        }
+      }
+    }
+    return {...data, frontpageFilterSettings: newFrontpageFilterSettings}
+  }
+  return data
+})
+
 getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
@@ -86,7 +128,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // For each post by this author which has the authorIsUnreviewed flag set,
     // clear the authorIsUnreviewed flag so it's visible, and update postedAt
     // to now so that it goes to the right place int he latest posts list.
-    const unreviewedPosts = await Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
       await updateMutator<DbPost>({
         collection: Posts,
@@ -99,16 +141,28 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
       });
     }
     
-    // Also clear the authorIsUnreviewed flag on comments. We don't want to
-    // reset the postedAt for comments, since those are by default visible
-    // almost everywhere. This can bypass the mutation system fine, because the
-    // flag doesn't control whether they're indexed in Algolia.
-    await Comments.rawUpdateMany({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
+    // This only matters if the hideUnreviewedAuthorComments setting is active -
+    // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
+    const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
+    for (let comment of unreviewedComments) {
+      await updateMutator<DbComment>({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          authorIsUnreviewed: false,
+        },
+        validate: false
+      });
+    }
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
-  void triggerReviewIfNeeded(document._id)
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
+  const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
+  if (reviewTriggerFields.some(field => field in data)) {
+    void triggerReviewIfNeeded(document._id)
+  }
 })
 
 // When the very first user account is being created, add them to Sunshine
@@ -144,10 +198,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // emails doesn't make sense.)
   if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     void sendVerificationEmail(user);
-    
-    if (user.emailSubscribedToCurated) {
-      await bellNotifyEmailVerificationRequired(user);
-    }
+    await bellNotifyEmailVerificationRequired(user);
   }
 });
 
@@ -155,6 +206,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
+  // FIXME totally broken
   if (!user.abTestKey) {
     const abTestKey = user.profile?.clientId || randomId();
     await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
@@ -205,6 +257,13 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
   return user;
 });
 
+const sendVerificationEmailConditional = async  (user: DbUser) => {
+  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+    void sendVerificationEmail(user);
+    await bellNotifyEmailVerificationRequired(user);
+  }
+}
+
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email) {
@@ -212,7 +271,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     const newEmail = modifier.$set.email;
 
     // check for existing emails and throw error if necessary
-    const userWithSameEmail = await userFindByEmail(newEmail);
+    const userWithSameEmail = await userFindOneByEmail(newEmail);
     if (userWithSameEmail && userWithSameEmail._id !== user._id) {
       throw new Error(encodeIntlError({id:'users.email_already_taken', value: newEmail}));
     }
@@ -223,9 +282,11 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
         modifier.$set.emails = user.emails;
+        await sendVerificationEmailConditional(user)
       }
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
+      await sendVerificationEmailConditional(user)
     }
   }
   return modifier;
@@ -252,7 +313,8 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
   
-  const emailHash = md5(newUser.email.toLowerCase());
+  const email = getUserEmail(newUser)
+  const emailHash = md5(email!.toLowerCase());
 
   void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
     method: 'PUT',
@@ -320,7 +382,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 });
 
 
-const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
   // Delay 60 minutes between when you create an account, and when we send the
@@ -339,7 +401,6 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
 getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    data: {},
   });
 });
 

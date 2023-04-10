@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
@@ -33,6 +33,53 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+export interface CommentsNodeProps {
+  treeOptions: CommentTreeOptions,
+  comment: CommentsList & {gapIndicator?: boolean},
+  startThreadTruncated?: boolean,
+  truncated?: boolean,
+  shortform?: any,
+  nestingLevel?: number,
+  expandAllThreads?:boolean,
+  /**
+   * Determines whether this specific comment is expanded, without passing that
+   * expanded state to child comments
+   */
+  expandByDefault?: boolean,
+  expandNewComments?: boolean,
+  isChild?: boolean,
+  parentAnswerId?: string|null,
+  parentCommentId?: string,
+  showExtraChildrenButton?: any,
+  hoverPreview?: boolean,
+  childComments?: Array<CommentTreeNode<CommentsList>>,
+  loadChildrenSeparately?: boolean,
+  loadDirectReplies?: boolean,
+  showPinnedOnProfile?: boolean,
+  enableGuidelines?: boolean,
+  /**
+   * Determines the karma threshold used to decide whether to collapse a comment.
+   * 
+   * Currently only overriden in the comment moderation tab.
+   */
+  karmaCollapseThreshold?: number,
+  /**
+   * Determines whether to expand this comment's parent comment (if it exists) by default.
+   * 
+   * Default: false.  Currently only used in the comment moderation tab.
+   */
+  showParentDefault?: boolean,
+  noAutoScroll?: boolean,
+  displayTagIcon?: boolean,
+  className?: string,
+  classes: ClassesType,
+}
+/**
+ * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
+ * recurses to handle reply comments in the tree
+ *
+ * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
+ */
 const CommentsNode = ({
   treeOptions,
   comment,
@@ -42,47 +89,29 @@ const CommentsNode = ({
   nestingLevel=1,
   expandAllThreads,
   expandByDefault,
+  expandNewComments=true,
   isChild,
   parentAnswerId,
   parentCommentId,
   showExtraChildrenButton,
-  noHash,
   hoverPreview,
-  forceSingleLine,
-  forceNotSingleLine,
   childComments,
   loadChildrenSeparately,
   loadDirectReplies=false,
   showPinnedOnProfile=false,
-  classes
-}: {
-  treeOptions: CommentTreeOptions,
-  comment: CommentsList & {gapIndicator?: boolean},
-  startThreadTruncated?: boolean,
-  truncated?: boolean,
-  shortform?: any,
-  nestingLevel?: number,
-  expandAllThreads?:boolean,
-  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
-  isChild?: boolean,
-  parentAnswerId?: string|null,
-  parentCommentId?: string,
-  showExtraChildrenButton?: any,
-  noHash?: boolean,
-  hoverPreview?: boolean,
-  forceSingleLine?: boolean,
-  forceNotSingleLine?: boolean,
-  childComments?: Array<CommentTreeNode<CommentsList>>,
-  loadChildrenSeparately?: boolean,
-  loadDirectReplies?: boolean,
-  showPinnedOnProfile?: boolean,
-  classes: ClassesType,
-}) => {
+  enableGuidelines=true,
+  karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
+  showParentDefault=false,
+  noAutoScroll=false,
+  displayTagIcon=false,
+  className,
+  classes,
+}: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
+  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -92,6 +121,8 @@ const CommentsNode = ({
     const postPageAndTop = (nestingLevel === 1) && postPage
 
     if (forceSingleLine)
+      return true;
+    if (treeOptions.isSideComment && nestingLevel>1)
       return true;
 
     return (
@@ -126,16 +157,29 @@ const CommentsNode = ({
     }, HIGHLIGHT_DURATION*1000);
   }, []);
 
-  const {hash: commentHash} = useLocation();
+  const handleExpand = async (event?: React.MouseEvent) => {
+    event?.stopPropagation()
+    if (isTruncated || isSingleLine) {
+      setTruncated(false);
+      setSingleLine(false);
+      setTruncatedStateSet(true);
+      if (scrollOnExpand) {
+        scrollIntoView("auto") // should scroll instantly
+      }
+    }
+  }
+
+  const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
-    if (comment && commentHash === ("#" + comment._id) && post && postPage) {
+    if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        void handleExpand()
         scrollIntoView()
       }, 0);
     }
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [commentHash]);
 
   const toggleCollapse = useCallback(
     () => setCollapsed(!collapsed),
@@ -156,28 +200,16 @@ const CommentsNode = ({
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated && !isNewComment;
+    return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const handleExpand = async (event: React.MouseEvent) => {
-    event.stopPropagation()
-    if (isTruncated || isSingleLine) {
-      markAsRead && await markAsRead()
-      setTruncated(false);
-      setSingleLine(false);
-      setTruncatedStateSet(true);
-      if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
-      }
-    }
-  }
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
+  
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}
@@ -194,6 +226,7 @@ const CommentsNode = ({
       hoverPreview={hoverPreview}
       shortform={shortform}
       showPinnedOnProfile={showPinnedOnProfile}
+      className={className}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine
@@ -206,6 +239,7 @@ const CommentsNode = ({
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
                   showDescendentCount={loadChildrenSeparately}
+                  displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -219,6 +253,7 @@ const CommentsNode = ({
               key={comment._id}
               scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
+              displayTagIcon={displayTagIcon}
               { ...passedThroughItemProps}
             />
         }
@@ -238,6 +273,8 @@ const CommentsNode = ({
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
+            expandNewComments={expandNewComments}
+            enableGuidelines={enableGuidelines}
           />)}
       </div>}
 
@@ -269,4 +306,3 @@ declare global {
     CommentsNode: typeof CommentsNodeComponent,
   }
 }
-

@@ -3,15 +3,16 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { getNewSnoozeUntilContentCount } from './SunshineNewUsersInfo';
+import { getNewSnoozeUntilContentCount } from './ModeratorActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[50],
     padding: 12,
     border: theme.palette.border.faint,
+    borderRadius: theme.borderRadius.default,
   }
 })
 
@@ -21,7 +22,7 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
 
   const { SunshineNewUsersInfo, SectionButton } = Components
 
-  const { document: user } = useSingle({
+  const { document: user, refetch } = useSingle({
     documentId:userId,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -43,16 +44,16 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
     })
   }
 
-  if (!userCanDo(currentUser, 'posts.moderate.all')) return null
+  if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) return null
   
   if (user.reviewedByUserId && !user.snoozedUntilContentCount) return <div className={classes.root} onClick={unapproveUser}>
     <SectionButton>Unapprove</SectionButton>
   </div>
   
   return <div className={classes.root}>
-    <NoSsr>
-      <SunshineNewUsersInfo user={user}/>
-    </NoSsr>
+    <NoSSR>
+      <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
+    </NoSSR>
   </div>
 }
 

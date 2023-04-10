@@ -1,7 +1,12 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
-import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils';
+import {
+  createDummyMessage,
+  createDummyConversation,
+  createDummyPost,
+  createDummyComment,
+} from '../../integrationTests/utils';
 import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';
 import * as _ from 'underscore';
@@ -39,7 +44,9 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
-      await performSubscriptionAction('subscribe', Posts, post?._id, user)
+      if (post?._id) {
+        await performSubscriptionAction('subscribe', Posts, post._id, user)
+      }
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");

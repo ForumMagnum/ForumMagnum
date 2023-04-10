@@ -7,6 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
+import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -32,6 +33,9 @@ const highlightStyles = (theme: ThemeType) => ({
     fontSize: "1.2rem"
   },
   '& h3': {
+    fontSize: "1.1rem"
+  },
+  '& li': {
     fontSize: "1.1rem"
   },
   ...highlightSimplifiedStyles
@@ -71,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipInfo: {
     marginLeft: 2,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
@@ -134,14 +138,17 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false)
 
+  const foreignApolloClient = useForeignApolloClient();
+  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const {document: postWithHighlight, loading} = useSingle({
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
-    documentId: post?._id,
+    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
     extraVariables: { hash: "String" },
-    extraVariablesValues: {hash}
+    extraVariablesValues: {hash},
+    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
   if (!post) return null
@@ -174,16 +181,10 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
-                {post.user && <LWTooltip title="Author">
-                  <PostsUserAndCoauthors post={post} simple/>
-                </LWTooltip>}
+                {post.user && <PostsUserAndCoauthors post={post}/>}
                 <div className={classes.metadata}>
-                  <LWTooltip title={`${postGetKarma(post)} karma`}>
-                    <span className={classes.smallText}>{postGetKarma(post)} karma</span>
-                  </LWTooltip>
-                  <LWTooltip title={`${postGetCommentCountStr(post)}`}>
-                    <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
-                  </LWTooltip>
+                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
+                  <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>
                   </span>
@@ -201,11 +202,11 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 treeOptions={{
                   post,
                   hideReply: true,
+                  forceNotSingleLine: true,
                 }}
                 truncated
                 comment={renderedComment}
                 hoverPreview
-                forceNotSingleLine
               />
             </div>
           : loading

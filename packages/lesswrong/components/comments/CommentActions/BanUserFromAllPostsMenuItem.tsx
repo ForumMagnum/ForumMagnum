@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
@@ -15,6 +14,7 @@ const BanUserFromAllPostsMenuItem = ({comment, post}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
+  const { MenuItem } = Components;
   
   const handleBanUserFromAllPosts = (event: React.MouseEvent) => {
     event.preventDefault();

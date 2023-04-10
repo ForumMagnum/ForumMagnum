@@ -2,14 +2,12 @@ import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { userGetDisplayName } from '../users/helpers';
+import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 
-
-// EXAMPLE-FORUM Helpers
 
 //////////////////
 // Link Helpers //
@@ -17,7 +15,10 @@ import moment from '../../moment-timezone';
 
 // Return a post's link if it has one, else return its post page URL
 export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
-  const url = isRedirected ? getOutgoingUrl(post.url) : post.url;
+  const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
+    ? post.fmCrosspost.foreignPostId
+    : undefined;
+  const url = isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
   return !!post.url ? url : postGetPageUrl(post, isAbsolute);
 };
 
@@ -56,12 +57,6 @@ export const postGetStatusName = function (post: DbPost): string {
 export const postIsApproved = function (post: DbPost): boolean {
   return post.status === postStatuses.STATUS_APPROVED;
 };
-
-// Check if a post is pending
-export const postIsPending = function (post: DbPost): boolean {
-  return post.status === postStatuses.STATUS_PENDING;
-};
-
 
 // Get URL for sharing on Twitter.
 export const postGetTwitterShareUrl = (post: DbPost): string => {
@@ -120,7 +115,25 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-export const postGetCommentCount = (post: PostsBase|DbPost): number => {
+export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  if (linkSharingKey) {
+    return `${prefix}/collaborateOnPost?postId=${postId}&key=${linkSharingKey}`;
+  } else {
+    return `${prefix}/collaborateOnPost?postId=${postId}`;
+  }
+}
+
+export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSharingKey?: string): string {
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  if (linkSharingKey) {
+    return `${prefix}/editPost?postId=${postId}&key=${linkSharingKey}`;
+  } else {
+    return `${prefix}/editPost?postId=${postId}`;
+  }
+}
+
+export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -128,20 +141,29 @@ export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
-  // can be passed in a manual comment count, or retrieve the post's cached comment count
-
-  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
-
+/**
+ * Can pass in a manual comment count, or retrieve the post's cached comment count
+ */
+export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    return "No comments"
-  } else if (count == 1) {
-    return "1 comment"
+    return "No comments";
+  } else if (count === 1) {
+    return "1 comment";
   } else {
-    return count + " comments"
+    return count + " comments";
   }
 }
 
+export const postGetAnswerCountStr = (count: number): string => {
+  if (!count) {
+    return "No answers";
+  } else if (count === 1) {
+    return "1 answer";
+  } else {
+    return count + " answers";
+  }
+}
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -172,10 +194,26 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const postCanEdit = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
-  const organizerIds = post.group?.organizerIds;
+/**
+ * Whether the user can make updates to the post document (including both the main post body and most other post fields)
+ */
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+  if (!currentUser) return false;
+
+  const organizerIds = (post as PostsBase)?.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
-  return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all') || isPostGroupOrganizer;
+  if (isPostGroupOrganizer) return true
+
+  if (userOwns(currentUser, post)) return true
+  if (userCanDo(currentUser, 'posts.edit.all')) return true
+  // Shared as a coauthor? Always give access
+  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+
+  if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
+
+  if (post.shareWithUsers?.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
+
+  return false
 }
 
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
@@ -267,15 +305,17 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
+
+export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
     return false;
   }
-  const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
+  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
 
-export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
+export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
   let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
@@ -283,4 +323,16 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
     coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
   }
   return coauthorStatuses.map(({ userId }) => userId);
+}
+
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
+  if (!user) {
+    return false;
+  }
+  const userIds = getConfirmedCoauthorIds(post);
+  return userIds.indexOf(user._id) >= 0;
+}
+
+export const isNotHostedHere = (post: PostsPage|DbPost) => {
+  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }

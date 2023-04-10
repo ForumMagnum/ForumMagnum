@@ -7,6 +7,7 @@ import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -24,10 +25,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     backgroundPosition: 'center',
     background: theme.palette.primary.main,
     textAlign: 'center',
-    color: theme.palette.text.invertedBackgroundText,
+    color: theme.palette.text.alwaysWhite,
     overflow: 'visible',
-    borderRadius: 0,
     boxShadow: theme.palette.boxShadow.moreFocused,
+    borderRadius: theme.borderRadius.default,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -8,
@@ -39,7 +40,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     top: 20,
     left: 25,
     ...theme.typography.commentStyle,
-    fontStyle: 'italic',
+    ...theme.typography.italic,
     fontSize: 14,
     opacity: 0.7
   },
@@ -53,7 +54,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   addToCalIcon: {
-    fill: theme.palette.icon.inverted,
+    fill: theme.palette.text.alwaysWhite,
   },
   content: {
     position: 'relative',
@@ -70,11 +71,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'center',
     height: '100%'
   },
-  spinner: { //UNUSED
-    "& div": {
-      backgroundColor: theme.palette.panelBackground.default,
-    }
-  },
   row: {
     marginTop: 8
   },
@@ -85,9 +81,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
-    color: theme.palette.text.invertedBackgroundText,
+    color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     marginBottom: 10,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
     [theme.breakpoints.down('sm')]: {
       fontSize: 32,
     }

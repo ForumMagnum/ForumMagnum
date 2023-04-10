@@ -10,9 +10,16 @@ import { Helmet } from 'react-helmet';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
+import { useMessages } from "../common/withMessages";
+import {
+  getPetrovDayKarmaThreshold,
+  userCanLaunchPetrovMissile,
+  usersAboveKarmaThresholdHardcoded20220922
+} from "../../lib/petrovHelpers";
 
-const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
+export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
+export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -52,13 +59,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2
   },
-  incomingTitle: {
+  karmaThreshold: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
-    color: theme.palette.text.red,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
+  },
+  usersAboveThreshold: {
+    marginTop: theme.spacing.unit*1.5,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    fontSize: "1.6rem"
+  },
+  yourKarma: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    fontSize: "1.6rem"
   },
   timer: {
     fontSize: '3rem',
@@ -88,7 +107,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   inputSection: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    alignItems: "center"
   },
   keyCode: {
     marginTop: theme.spacing.unit*2,
@@ -110,8 +130,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*1.5,
     width: 255,
     textAlign: "center",
-    lineHeight: "1.8em",
-    color: theme.palette.grey[600]
+    lineHeight: "1.4em",
+    color: theme.palette.grey[600],
+    fontSize: "1.4rem"
   },
   link: {
     marginTop: theme.spacing.unit*1.5,
@@ -119,17 +140,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
+const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   classes: ClassesType,
   refetch?: any,
   alreadyLaunched?: boolean,
-  timeTillArrival?: number
 }) => {
   const currentUser = useCurrentUser()
-  const { petrovPressedButtonDate, petrovCodesEntered } = (currentUser || {}) as any; //FIXME: These fields are not in the fragment; add them back for next Petrov day if we want to do it again
+  const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
-  const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
-  const [launched, setLaunched] = useState(!!alreadyLaunched)
+  const [launchCode, setLaunchCode] = useState('')
 
 
   const [ mutate ] = useMutation(gql`
@@ -140,6 +159,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
     }
   `
   );
+  
+  const { flash } = useMessages();
   
   const { LWTooltip, LoginPopupButton, Typography } = Components
 
@@ -152,8 +173,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
     });
   }
 
-  const updateLaunchCode = (event) => {
-    if (!petrovCodesEntered) {
+  const updateLaunchCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!alreadyLaunched) {
       setLaunchCode(event.target.value)
     }
   }
@@ -161,23 +182,24 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
   const launch = async () => {
     if (!currentUser) return
     void mutate({ variables: { launchCode } })
-    setLaunched(true)
+    
+    if (launchCode !== petrovDayLaunchCode) {
+      flash({ messageString: "incorrect code, missile launch aborted", type: 'failure'});
+    } else {
+      flash({ messageString: "missiles launched!! i hope you made good choices...", type: 'success'});
+    }
+    
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
-
-  const secondsRemainingToTimeDisplay = (differenceInSeconds: number) : string => {
-    const absSeconds = Math.abs(differenceInSeconds)
-    
-    const minutes = Math.sign(differenceInSeconds)*Math.floor(absSeconds/60)
-    const seconds = ('0' + (absSeconds % 60)).slice(-2)
-    return `${minutes}:${seconds}`
-  }
   
+  const currentKarmaThreshold = getPetrovDayKarmaThreshold()
+  const disableLaunchButton = !userCanLaunchPetrovMissile(currentUser) 
   
-
+  const beforePressMessage = <p>press button to initiate missile launch procedure</p>
+  const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
+  
 
   return (
     <div className={classes.root}>
@@ -188,30 +210,23 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
         
         
         {<div className={classes.panel}>
-          {!!timeTillArrival ? 
-            <Typography variant="display1" className={classes.incomingTitle}>
-              <Link className={classes.incomingTitle} to={"/posts/" + petrovPostIdSetting.get()}>
-                <div>MISSILES INCOMING!!</div>
-                <div className={classes.timer}>
-                  {secondsRemainingToTimeDisplay(timeTillArrival)}
-                </div>
-              </Link>
-            </Typography>
-            : 
-            <Typography variant="display1" className={classes.title}>
-            <Link to={"/posts/" + petrovPostIdSetting.get()}>Petrov Day</Link>
-            </Typography>
-          }
+          <Typography variant="display1" className={classes.karmaThreshold}>
+            <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
+              <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
+              <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
+              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
+            </Link>
+          </Typography>
           {currentUser ? 
               <div className={classes.button}>
-                {(renderButtonAsPressed || launched) ? 
+                {renderButtonAsPressed ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
                     <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
@@ -235,38 +250,27 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
             </div>
           }
   
-          {launched ?
+          <div className={classes.inputSection}>
+            {renderButtonAsPressed && <TextField
+              onChange={updateLaunchCode}
+              placeholder={"Enter The Launch Code"}
+              margin="normal"
+              variant="outlined"
+            />}
+            {(renderLaunchButton) && 
+              <Button onClick={launch} className={classes.launchButton} disabled={disableLaunchButton}>
+                Launch
+              </Button>
+            }
             <div className={classes.info}>
-              <p >{isEAForum ? "The EA Forum's" : "LessWrong's"} missiles have been launched.</p>
-              <p>We hope you made good choices.</p>
+              { renderButtonAsPressed ? afterPressMessage : beforePressMessage }
             </div>
-            : <div className={classes.inputSection}>
-              {renderButtonAsPressed && <TextField
-                onChange={updateLaunchCode}
-                placeholder={"Enter Launch Codes"}
-                margin="normal"
-                variant="outlined"
-              />}
-              {(renderLaunchButton) && 
-                <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
-                  Launch
-                </Button>
-              }
-              <div className={classes.info}>
-                <p>Enter launch codes to destroy {isEAForum ? ' LessWrong' : " the EA Forum"}.</p>
-                <p>(This is not an anonymous action)</p>
-              </div>
-            </div>
-          }
+          </div>
           
             <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
               Learn More
             </Link>
           </div>}
-        
-        
-        
-        
         </div>
     </div>
   )

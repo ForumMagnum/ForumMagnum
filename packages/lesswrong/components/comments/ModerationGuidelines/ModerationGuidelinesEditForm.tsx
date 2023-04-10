@@ -5,6 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import Tags from '../../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -21,11 +22,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
-  postId: string,
+const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose, classes }: {
+  commentType?: "post" | "subforum",
+  documentId: string,
   onClose?: ()=>void,
   classes: ClassesType,
 }) => {
+  const isPost = commentType === "post"
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className="form-submit">
       <Button
@@ -46,20 +49,25 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
       </DialogTitle>
       <DialogContent>
         <Components.Typography variant="body2">
-          Edit the moderation guidelines specific to this post:
+          Edit the moderation guidelines specific to this {commentType}:
         </Components.Typography>
-        {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}
         <Components.WrappedSmartForm
-          collection={Posts}
-          documentId={postId}
-          fields={['moderationGuidelines', 'moderationStyle']}
-          queryFragment={getFragment("PostsEdit")}
-          mutationFragment={getFragment("PostsPage")}
+          collection={isPost ? Posts : Tags}
+          documentId={documentId}
+          fields={['moderationGuidelines', ...(isPost ? ['moderationStyle'] : [])]}
+          queryFragment={getFragment(isPost ? "PostsEditQueryFragment" : "TagEditFragment")}
+          mutationFragment={getFragment(isPost ? "PostsPage" : "TagWithFlagsFragment")}
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,
             FormGroupLayout: Components.DefaultStyleFormGroup
           }}
+          extraVariables={isPost ? {
+            version: 'String'
+          } : {}}
+          extraVariablesValues={isPost ? {
+            version: 'draft'
+          } : {}}
         />
       </DialogContent>
     </Components.LWDialog>

@@ -4,6 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   description: {
     ...theme.typography.body2,
@@ -22,7 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
   },
   author: {
-    color: theme.palette.text.dim
+    color: theme.palette.text.dim,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   wordcount: {
     ...theme.typography.commentStyle,
@@ -37,7 +44,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
-  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
+  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip, ChapterTitle } = Components
 
   const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
@@ -74,13 +81,16 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     </ContentStyles>
     {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
-    {sequence && posts.map(post => 
-      <SequencesSmallPostLink 
-        key={sequence._id + post._id} 
-        post={post}
-        sequenceId={sequence._id}
-      />
-    )}
+    {sequence && chapters?.flatMap(chapter => {
+      return <div>
+        {chapter.title && <ChapterTitle title={chapter.title}/>}
+        {chapter.posts.map(post => <SequencesSmallPostLink 
+          key={sequence._id + post._id} 
+          post={post}
+          sequenceId={sequence._id}
+        />)}
+      </div>
+    })}
     <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
       <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
     </LWTooltip>

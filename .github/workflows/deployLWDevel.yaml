@@ -5,13 +5,13 @@ name: Deploy LW-Devel
 concurrency: deploy-lw-devel
 on:
   push:
-    branches: [ deployLessestWrong ]
+    branches: [ deployLessestWrong, master ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        node-version: [15.x]
+        node-version: [18.x]
         environment: [LessestWrong]
     steps:
     - uses: actions/checkout@v2

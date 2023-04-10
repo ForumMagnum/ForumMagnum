@@ -1,10 +1,31 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
+import { forumTypeSetting, taggingNameSetting } from "../../instanceSettings";
+import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
+import { tagCommentTypes } from './types';
+import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
+import { viewTermsToQuery } from '../../utils/viewUtils';
+import { userHasShortformTags } from '../../betas';
+
+export const moderationOptionsGroup: FormGroup = {
+  order: 50,
+  name: "moderation",
+  label: "Moderator Options",
+  startCollapsed: true
+};
+
+export const alignmentOptionsGroup = {
+  order: 50,
+  name: "alignment",
+  label: "Alignment Options",
+  startCollapsed: true
+};
+
+const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -35,13 +56,6 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members'],
     optional: true,
     hidden: true,
-  },
-  // The timestamp of comment creation
-  createdAt: {
-    type: Date,
-    optional: true,
-    canRead: ['admins'],
-    onInsert: (document, currentUser) => new Date(),
   },
   // The timestamp of the comment being posted. For now, comments are always
   // created and posted at the same time
@@ -83,7 +97,7 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members'],
     hidden: true,
   },
-  // If this comment is in a tag discussion section, the _id of the tag.
+  // If this comment is associated with a tag (in the discussion section or subforum), the _id of the tag.
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -95,6 +109,25 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
+    hidden: true,
+  },
+  // Whether the comment is in the discussion section or subforum
+  tagCommentType: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    allowedValues: Object.values(tagCommentTypes),
+    hidden: true,
+    ...schemaDefaultValue("DISCUSSION"),
+  },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     hidden: true,
   },
   // The comment author's `_id`
@@ -131,9 +164,9 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     denormalized: true,
     ...schemaDefaultValue(false),
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
   },
 
@@ -143,7 +176,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, true)
+      return await commentGetPageUrlFromDB(comment, context, true)
     },
   }),
 
@@ -151,7 +184,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, false)
+      return await commentGetPageUrlFromDB(comment, context, false)
     },
   }),
 
@@ -188,7 +221,7 @@ const schema: SchemaType<DbComment> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: (comment: DbComment) => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -205,10 +238,10 @@ const schema: SchemaType<DbComment> = {
   latestChildren: resolverOnlyField({
     type: Array,
     graphQLtype: '[Comment]',
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
-      const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
+      const params = viewTermsToQuery("Comments", {view:"shortformLatestChildren", topLevelCommentId: comment._id});
       return await Comments.find(params.selector, params.options).fetch()
     }
   }),
@@ -259,7 +292,7 @@ const schema: SchemaType<DbComment> = {
     type: Date,
     denormalized: true,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: (document, currentUser) => new Date(),
   },
 
@@ -281,6 +314,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
+    label: "Pinned"
   },
 
   promotedByUserId: {
@@ -304,10 +338,10 @@ const schema: SchemaType<DbComment> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        Utils.updateMutator({
+        void Utils.updateMutator({
           collection: context.Posts,
           context,
-          selector: {_id:document.postId},
+          documentId: document.postId,
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false
@@ -358,7 +392,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
@@ -368,7 +402,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
@@ -378,15 +412,397 @@ const schema: SchemaType<DbComment> = {
   
   votingSystem: resolverOnlyField({
     type: String,
-    viewableBy: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      if (!comment?.postId) {
-        return "default";
-      }
-      const post = await context.loaders.Posts.load(comment.postId);
-      return post.votingSystem || "default";
+    canRead: ['guests'],
+    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+      return getVotingSystemNameForDocument(comment, context)
     }
   }),
+  // Legacy: Boolean used to indicate that post was imported from old LW database
+  legacy: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy ID: ID used in the original LessWrong database
+  legacyId: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy Poll: Boolean to indicate that original LW data had a poll here
+  legacyPoll: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy Parent Id: Id of parent comment in original LW database
+  legacyParentId: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // retracted: Indicates whether a comment has been retracted by its author.
+  // Results in the text of the comment being struck-through, but still readable.
+  retracted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  // deleted: Indicates whether a comment has been deleted by an admin.
+  // Deleted comments and their replies are not rendered by default.
+  deleted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  deletedPublic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  deletedReason: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  deletedDate: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
+        return new Date()
+      }
+    },
+    hidden: true,
+  },
+
+  deletedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "deletedByUserId",
+      resolverName: "deletedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
+        return modifier.$set.deletedByUserId || currentUser._id
+      }
+    },
+  },
+
+  // spam: Indicates whether a comment has been marked as spam.
+  // This removes the content of the comment, but still renders replies.
+  spam: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  // repliesBlockedUntil: Deactivates replying to this post by anyone except
+  // admins and sunshineRegiment members until the specified time is reached.
+  repliesBlockedUntil: {
+    type: Date,
+    optional: true,
+    group: moderationOptionsGroup,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    control: 'datetime'
+  },
+
+  needsReview: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  reviewedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  // hideAuthor: Displays the author as '[deleted]'. We use this to copy over
+  // old deleted comments from LW 1.0
+  hideAuthor: {
+    type: Boolean,
+    group: moderationOptionsGroup,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    ...schemaDefaultValue(false),
+  },
+  
+  moderatorHat: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+    hidden: true
+  },
+
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
+  hideModeratorHat: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    onUpdate: ({ newDocument }) => {
+      if (!newDocument.moderatorHat) return null;
+      return newDocument.hideModeratorHat;
+    },
+    hidden: true
+  },
+
+  // whether this comment is pinned on the author's profile
+  isPinnedOnProfile: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  title: {
+    type: String,
+    optional: true,
+    max: 500,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    order: 10,
+    placeholder: "Title (optional)",
+    control: "EditCommentTitle",
+    hidden: (props) => {
+      // Currently only allow titles for top level subforum comments
+      const comment = props?.document
+      return !commentAllowTitle(comment)
+    }
+  },
+
+  relevantTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "relevantTagIds",
+      resolverName: "relevantTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    canRead: ['guests'],
+    canCreate: ['members', 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    label: `Shortform ${taggingNameSetting.get()}`,
+    tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
+    control: "FormComponentTagsChecklist",
+    hidden: (
+      {currentUser, document}: {currentUser: UsersCurrent|DbUser|null, document: CommentsList}): boolean => {
+        if (!userHasShortformTags(currentUser)) return true;
+        return !document.shortform
+    },
+  },
+  'relevantTagIds.$': {
+    type: String,
+    optional: true,
+    foreignKey: "Tags",
+  },
+
+  debateResponse: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
+      if (!currentUser || !formProps?.post?.debate) return true;
+
+      const { post } = formProps;
+      
+      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      return !debateParticipantsIds.includes(currentUser._id);
+    },
+  },
+
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
+
+  /* Alignment Forum fields */
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "AI Alignment Forum",
+    ...schemaDefaultValue(false),
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'admins'],
+    canCreate: ['alignmentForum', 'admins'],
+    hidden: (props) => alignmentForum || !props.alignmentForumPost
+  },
+
+  suggestForAlignmentUserIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "suggestForAlignmentUserIds",
+      resolverName: "suggestForAlignmentUsers",
+      collectionName: "Users",
+      type: "User"
+    }),
+    canRead: ['members'],
+    canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
+    optional: true,
+    label: "Suggested for Alignment by",
+    control: "UsersListEditor",
+    group: alignmentOptionsGroup,
+    hidden: true
+  },
+  'suggestForAlignmentUserIds.$': {
+    type: String,
+    optional: true
+  },
+
+  reviewForAlignmentUserId: {
+    type: String,
+    optional: true,
+    group: alignmentOptionsGroup,
+    canRead: ['guests'],
+    canUpdate: ['alignmentForumAdmins', 'admins'],
+    label: "AF Review UserId",
+    hidden: forumTypeSetting.get() === 'EAForum'
+  },
+
+  afDate: {
+    order:10,
+    type: Date,
+    optional: true,
+    label: "Alignment Forum",
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    canCreate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+  },
+
+  moveToAlignmentUserId: {
+    ...foreignKeyField({
+      idFieldName: "moveToAlignmentUserId",
+      resolverName: "moveToAlignmentUser",
+      collectionName: "Users",
+      type: "User",
+    }),
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+    label: "Move to Alignment UserId",
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
 };
 
 export default schema;

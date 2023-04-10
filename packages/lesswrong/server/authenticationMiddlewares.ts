@@ -13,10 +13,11 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
+import {userFindOneByEmail, usersFindAllByEmail} from "../lib/collections/users/commonQueries";
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -35,6 +36,11 @@ declare global {
     interface User extends DbUser {
     }
   }
+}
+
+// Extend Auth0Strategy to include the missing userProfile method
+class Auth0StrategyFixed extends Auth0Strategy {
+  userProfile!: any;
 }
 
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
@@ -88,9 +94,9 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await usersFindAllByEmail(email)
           if (matchingUsers.length > 1) {
-            throw new Error(`Multiple users found with email ${email}, please contact support`)
+            throw new Error(`Multiple existing users found with email ${email}, please contact support`)
           }
           const user = matchingUsers[0]
           if (user) {
@@ -151,12 +157,15 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
     // Attempt to update the email field on the account to match the OAuth-provided
     // email. This will fail if the user has both an OAuth and a non-OAuth account
     // with the same email.
-    const preexistingAccountWithEmail = await Users.findOne({email: profileEmails[0]});
+    const preexistingAccountWithEmail = await userFindOneByEmail(profileEmails[0]);
     if (!preexistingAccountWithEmail) {
       const updatedUserResponse = await updateMutator({
         collection: Users,
         documentId: user._id,
-        set: {email: profileEmails[0]},
+        set: {
+          email: profileEmails[0],
+          emails: [{address: profileEmails[0], verified: true}] //will overwrite other past emails which we don't actually want to support
+        },
         validate: false
       })
       return updatedUserResponse.data
@@ -212,6 +221,29 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
   done(null, user)
 })
 
+/**
+ * Creates a custom strategy which allows third-party API clients to log in via Auth0
+ */
+function createAccessTokenStrategy(auth0Strategy) {
+  const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+
+  return new CustomStrategy((req, done) => {
+    const accessToken = req.query['access_token']
+    const resumeToken = "" // not used
+    if (typeof(accessToken) !== 'string') {
+      return done("Invalid token")
+    } else {
+      auth0Strategy.userProfile(accessToken, (err, profile) => {
+        if (profile) {
+          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+        } else {
+          return done("Invalid token")
+        }
+      })
+    }
+  })
+}
+
 async function deserializeUserPassport(id, done) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
@@ -261,7 +293,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
-        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+        const returnUrl = encodeURIComponent(siteUrlSetting.get());
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}&returnTo=${returnUrl}`);
       } else {
         res.setHeader('Location', '/');
       }
@@ -272,37 +305,41 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const googleClientId =  googleClientIdSetting.get()
   const googleOAuthSecret = googleOAuthSecretSetting.get()
   if (googleClientId && googleOAuthSecret) {
-    passport.use(new GoogleOAuthStrategy({
-      clientID: googleClientId,
-      clientSecret: googleOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/google/callback`,
-      proxy: true
-    },
-    createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
-      email: profile.emails?.[0].value,
-      services: {
-        google: profile
+    passport.use(
+      new GoogleOAuthStrategy({
+        clientID: googleClientId,
+        clientSecret: googleOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/google/callback`,
+        proxy: true
       },
-      emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
-      username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-      displayName: profile.displayName,
-      emailSubscribedToCurated: true
-      // Type assertion here is because @types/passport-google-oauth20 doesn't
-      // think their verify callback is able to take a null in the place of the
-      // error, which seems like a bug and which prevents are seemingly working
-      // code from type-checking
-    })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
-  ))}
+      createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
+        services: {
+          google: profile
+        },
+        email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
+        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        displayName: profile.displayName,
+        emailSubscribedToCurated: true
+        // Type assertion here is because @types/passport-google-oauth20 doesn't
+        // think their verify callback is able to take a null in the place of the
+        // error, which seems like a bug and which prevents are seemingly working
+        // code from type-checking
+      })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
+      )
+    )
+  }
   
   const facebookClientId = facebookClientIdSetting.get()
   const facebookOAuthSecret = facebookOAuthSecretSetting.get()
   if (facebookClientId && facebookOAuthSecret) {
-    passport.use(new FacebookOAuthStrategy({
-      clientID: facebookClientId,
-      clientSecret: facebookOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/facebook/callback`,
-      profileFields: ['id', 'emails', 'name', 'displayName'],
-    },
+    passport.use(
+      new FacebookOAuthStrategy({
+        clientID: facebookClientId,
+        clientSecret: facebookOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/facebook/callback`,
+        profileFields: ['id', 'emails', 'name', 'displayName'],
+      },
       createOAuthUserHandler<FacebookProfile>('services.facebook', profile => profile.id, async profile => ({
         email: profile.emails?.[0].value,
         emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
@@ -370,7 +407,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
   if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
-    passport.use(new Auth0Strategy(
+    const auth0Strategy = new Auth0StrategyFixed(
       {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
@@ -378,7 +415,16 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
       createOAuthUserHandlerAuth0('services.auth0', profile => profile.id, userFromAuth0Profile)
-    ));
+    )
+    passport.use(auth0Strategy)
+
+    passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
+
+    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
+      passport.authenticate('access_token', {}, (err, user, info) => {
+        handleAuthenticate(req, res, next, err, user, info)
+      })(req, res, next)
+    })
   }
 
   addConnectHandler('/auth/google/callback', (req, res, next) => {

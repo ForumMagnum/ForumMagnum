@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
@@ -28,31 +28,63 @@ const styles = (theme: ThemeType): JssStyles => ({
   noMouseEvents: {
     pointerEvents: "none",
   },
+  hideOnTouchScreens: {
+    "@media (pointer:coarse)": {
+      display: "none",
+    },
+  },
 })
 
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
 // implementations
-const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
+const LWPopper = ({
+  classes,
+  children,
+  className,
+  tooltip=false,
+  allowOverflow,
+  open,
+  anchorEl,
+  placement,
+  clickable = true,
+  hideOnTouchScreens,
+}: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
-  clickable?: boolean
+  clickable?: boolean,
+  hideOnTouchScreens?: boolean,
 }) => {
+  const [everOpened, setEverOpened] = useState(open);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
-  const preventOverflowModifier = allowOverflow ? [{
-    name: 'preventOverflow',
-    enabled: false, 
-  }] : undefined
+  const preventOverflowModifier = allowOverflow ? [
+    {
+      name: 'preventOverflow',
+      enabled: false,
+    },
+    {
+      name: 'flip',
+      enabled: false,
+    },
+  ] : []
 
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,
-    modifiers: preventOverflowModifier
+    modifiers: [
+      {
+        name: 'computeStyles',
+        options: {
+          gpuAcceleration: false, // true by default
+        },
+      },
+      ...preventOverflowModifier
+    ],
   });
 
   if (!open)
@@ -65,7 +97,13 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
     createPortal(
       <div
         ref={setPopperElement}
-        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
+        className={classNames({
+          [classes.tooltip]: tooltip,
+          [classes.default]: !tooltip,
+          [classes.noMouseEvents]: !clickable,
+          [classes.hideOnTouchScreens]: hideOnTouchScreens},
+          className
+        )}
         style={styles.popper}
         {...attributes.popper}
       >

@@ -7,7 +7,7 @@ import StarIcon from '@material-ui/icons/Star';
 import { forumTypeSetting } from '../../instanceSettings';
 
 export const postStatuses = {
-  STATUS_PENDING: 1,
+  STATUS_PENDING: 1, // Unused
   STATUS_APPROVED: 2,
   STATUS_REJECTED: 3,
   STATUS_SPAM: 4,
@@ -62,3 +62,6 @@ export const idSettingIcons = new Map([
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
   [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
 ]);
+
+export const sideCommentFilterMinKarma = 10;
+export const sideCommentAlwaysExcludeKarma = -1;

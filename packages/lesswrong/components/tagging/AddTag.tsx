@@ -6,18 +6,24 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
     },
+    '& .ais-SearchBox-input': {
+      background: "transparent",
+    },
     '& .ais-SearchBox-submit': {
       position: "absolute",
       right: 11
-    }
+    },
+    '& .ais-SearchBox-submitIcon path': {
+      fill: theme.palette.grey[900],
+    },
   },
   newTag: {
     display: "block",
@@ -28,8 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTag = ({onTagSelected, classes}: {
+const AddTag = ({onTagSelected, isVotingContext, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  isVotingContext?: boolean,
   classes: ClassesType,
 }) => {
   const { TagSearchHit, WrappedSmartForm } = Components
@@ -92,13 +99,15 @@ const AddTag = ({onTagSelected, classes}: {
         hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>
-        <TagSearchHit hit={hit}
-            onClick={ev => {
-              onTagSelected({tagId: hit._id, tagName: hit.name});
-              ev.stopPropagation();
-            }}
-          />
-        }/>
+        <TagSearchHit
+          hit={hit}
+          onClick={ev => {
+            onTagSelected({tagId: hit._id, tagName: hit.name});
+            ev.stopPropagation();
+          }}
+          isVotingContext={isVotingContext}
+        />
+      }/>
     </InstantSearch>
     <Divider/>
     <Link target="_blank" to="/tags/all" className={classes.newTag}>
@@ -106,7 +115,7 @@ const AddTag = ({onTagSelected, classes}: {
     </Link>
     {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
       target="_blank"
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
+      to={tagCreateUrl}
       className={classes.newTag}
     >
       Create {taggingNameCapitalSetting.get()}

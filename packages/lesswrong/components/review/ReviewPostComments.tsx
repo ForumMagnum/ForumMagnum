@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { useRecordPostView } from '../common/withRecordPostView';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
 
@@ -21,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: CONDENSED_MARGIN_BOTTOM,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     paddingTop: 4,
   }
 })
@@ -36,8 +35,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   hideReviewVoteButtons?: boolean
   singleLineCollapse?: boolean
 }) => {
-  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
-  const { recordPostView } = useRecordPostView(post)
   const { loading, results, loadMoreProps } = useMulti({
     terms,
     collectionName: "Comments",
@@ -46,17 +43,13 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     limit: 5
   });
   
-  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore, ContentStyles } = Components
-  
-  // TODO: This doesn't quite work yet. Not sure why - Ray
-  const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
-  }
+  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
   
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
+
+  if (!results?.length && !placeholderCount) return null
 
   return (
     <div>
@@ -64,10 +57,10 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {loading && <Loading/>}
         {results && results.length}{" "}
         {title}
-        {(!results || results.length > 1) && "s"}
+        {(!results || results.length !== 1) && "s"}
       </div>}
       <SubSection>
-        {loading && <div>
+        {loading && !results && <div>
           {placeholderArray.map((pl,i) =>
             <ContentStyles contentType="comment"
               className={classes.singleLinePlaceholder}
@@ -80,20 +73,19 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
-            highlightDate: markedVisitedAt || post.lastVisitedAt,
+            highlightDate: post.lastVisitedAt,
             hideSingleLineMeta: true,
             hideReviewVoteButtons: hideReviewVoteButtons,
             singleLineCollapse: singleLineCollapse,
             enableHoverPreview: false,
-            markAsRead: markAsRead,
             post: post,
+            forceSingleLine: true
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          forceSingleLine
         />
         : <div>
-          {results && results.map((comment) => <CommentWithReplies key={comment._id} comment={comment} post={post}/>)}
+          {results && results.map((comment) => <CommentOnPostWithReplies key={comment._id} comment={comment} post={post}/>)}
           <LoadMore {...loadMoreProps} />
         </div>}
       </SubSection>

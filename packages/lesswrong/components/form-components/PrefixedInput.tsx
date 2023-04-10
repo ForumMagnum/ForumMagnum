@@ -36,10 +36,16 @@ export const socialMediaIconPaths = {
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInput = ({ path, inputPrefix, updateCurrentValues, value, classes }) => {
+const PrefixedInput = ({ path, inputPrefix, updateCurrentValues, value, classes }: {
+  path: string;
+  inputPrefix?: string;
+  updateCurrentValues<T extends {}>(values: T) : void;
+  value: string;
+  classes: ClassesType;
+}) => {
   const icon = (path in socialMediaIconPaths) ? (
     <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" className={classes.icon}>
-      {socialMediaIconPaths[path]}
+      {socialMediaIconPaths[path as keyof typeof socialMediaIconPaths]}
     </svg>
   ) : null
 

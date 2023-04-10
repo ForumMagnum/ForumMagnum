@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow:"hidden",
   },
   drawerNavigationMenuUncompressed: {
-    paddingTop: '10px',
     left:0,
     width:260,
     paddingBottom: 20,
@@ -56,7 +55,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
   open: boolean,
   handleOpen: ()=>void,
   handleClose: ()=>void,
-  toc: ToCData,
+  toc: ToCData|null,
   classes: ClassesType,
 }) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
@@ -83,7 +82,6 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
           sectionData={toc}
           title={null}
           onClickSection={() => handleClose()}
-          drawerStyle={true}
         />
       </div>
     </React.Fragment>}
