@@ -164,7 +164,7 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, RecentComments } = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <h2>Moderation Log</h2>
@@ -213,6 +213,25 @@ const ModerationLog = ({classes}: {
             showNew={false}
           />
         </div>
+        <RecentComments terms={{
+            view: "rejectedComments"
+          }}
+        />
+        {/* <div className={classNames(classes.section, classes.floatLeft)}>
+          <h3>Comments rejected by moderators</h3>
+          <Components.Datatable
+            collection={Comments}
+            columns={usersBannedFromUsersColumns}
+            options={{
+              fragmentName: 'CommentsList',
+              terms: {view: "rejectedComments"},
+              limit: 20,
+              enableTotal: true
+            }}
+            showEdit={false}
+            showNew={false}
+          />
+        </div> */}
       </>}
     </SingleColumnSection>
   )

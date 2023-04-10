@@ -650,3 +650,19 @@ Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
      }
   }
 }));
+
+
+Comments.addView('rejectedComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    rejected: true
+  },
+  options: {
+    sort: {
+      postedAt: -1,
+    }
+  }
+}))
+ensureIndex(Comments,
+  augmentForDefaultView({rejected: 1, postedAt:-1}),
+  { name: "comments.rejectedComments" }
+);
