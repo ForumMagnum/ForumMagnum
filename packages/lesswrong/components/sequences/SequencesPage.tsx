@@ -131,7 +131,7 @@ const SequencesPage = ({ documentId, classes }: {
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
-  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all')
+  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
   const { html = "" } = document.contents || {}
 
   if (!canEdit && document.draft)

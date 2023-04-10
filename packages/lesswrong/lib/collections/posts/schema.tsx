@@ -2336,7 +2336,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -2414,11 +2414,40 @@ const schema: SchemaType<DbPost> = {
 
       return count;
     }
-  })
-};
+  }),
 
-/* subforum-related fields */
-Object.assign(schema, {
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
+  /* subforum-related fields */
+
   // If this post is associated with a subforum, the _id of the tag
   subforumTagId: {
     ...foreignKeyField({
@@ -2434,10 +2463,9 @@ Object.assign(schema, {
     canUpdate: ['admins'],
     hidden: true,
   },
-})
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
+
   af: {
     order:10,
     type: Boolean,
@@ -2501,7 +2529,7 @@ Object.assign(schema, {
         return false;
       }
     },
-    onEdit: (modifier, post: DbPost) => {
+    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }
@@ -2545,9 +2573,9 @@ Object.assign(schema, {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

@@ -17,9 +17,9 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
  * files, so it's possible for this to become out-of-date with what's
  * actually in the database if migrations are not done correctly.
  */
-class Table {
+class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
-  private indexes: TableIndex[] = [];
+  private indexes: TableIndex<T>[] = [];
 
   constructor(private name: string) {}
 
@@ -43,17 +43,17 @@ class Table {
     return Object.keys(this.fields).length;
   }
 
-  addIndex(key: Record<string, 1 | -1>, options?: MongoEnsureIndexOptions) {
-    const index = new TableIndex(this.name, key, options);
+  addIndex(key: MongoIndexKeyObj<T>, options?: MongoEnsureIndexOptions<T>) {
+    const index = new TableIndex<T>(this.name, key, options);
     this.indexes.push(index);
     return index;
   }
 
-  hasIndex(fields: string[], options?: MongoEnsureIndexOptions) {
+  hasIndex(fields: string[], options?: MongoEnsureIndexOptions<T>) {
     return this.indexes.some((index) => index.equals(fields, options));
   }
 
-  getIndex(fields: string[], options?: MongoEnsureIndexOptions) {
+  getIndex(fields: string[], options?: MongoEnsureIndexOptions<T>) {
     return this.indexes.find((index) => index.equals(fields, options));
   }
 
@@ -61,8 +61,8 @@ class Table {
     return this.indexes;
   }
 
-  static fromCollection<T extends DbObject>(collection: CollectionBase<T>, forumType?: ForumTypeString) {
-    const table = new Table(collection.collectionName);
+  static fromCollection<T extends DbObject>(collection: CollectionBase<T>, forumType?: ForumTypeString): Table<T> {
+    const table = new Table<T>(collection.collectionName);
     forumType ??= forumTypeSetting.get() ?? "EAForum";
 
     const schema = collection._schemaFields;

@@ -30,7 +30,27 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   // Check if there is more than one combination
   if (dateCombinations.length > 1) {
     // eslint-disable-next-line no-console
-    console.error('UserActivities table has rows with different start and end dates. Dropping rows to fix this.');
+    console.error(`UserActivities table has rows with different start and end dates. Dropping rows to fix this.`);
+    console.error('Incorrect date combinations and their counts:');
+    for (const dateCombo of dateCombinations.slice(1)) {
+      console.error(`startDate: ${dateCombo.startDate}, endDate: ${dateCombo.endDate}, count: ${dateCombo.count}`);
+      // get first 10 user ids with this date combo
+      const userIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE "startDate" = $1 AND "endDate" = $2 AND "type" = 'userId'
+        LIMIT 10;
+      `, [dateCombo.startDate, dateCombo.endDate])).map((row) => row.visitorId);
+      // get first 10 client ids with this date combo
+      const clientIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE "startDate" = $1 AND "endDate" = $2 AND "type" = 'clientId'
+        LIMIT 10;
+      `, [dateCombo.startDate, dateCombo.endDate])).map((row) => row.visitorId);
+      console.error(`First 10 userIds: ${userIds.join(', ')}`);
+      console.error(`First 10 clientIds: ${clientIds.join(', ')}`);
+    }
 
     // Get the most common combination
     const { startDate: mostCommonStartDate, endDate: mostCommonEndDate } = dateCombinations[0];
@@ -53,6 +73,39 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   if (!correctActivityLengthInt) return
 
   // Delete rows with an array of activity that is the wrong length
+  const arrayLengths = await dataDb.any(`
+  SELECT array_length("activityArray", 1) as length, COUNT(*) AS count
+    FROM "UserActivities"
+    WHERE array_length("activityArray", 1) <> $1
+    GROUP BY array_length("activityArray", 1)
+    ORDER BY count DESC;
+  `, [correctActivityLengthInt]);
+
+  // Log the incorrect array lengths and their counts
+  if (arrayLengths.length > 0) {
+    console.error(`UserActivities table has rows with arrays of the incorrect length. Dropping rows to fix this.`);
+    console.error('Incorrect array lengths and their counts:');
+    for (const arrayLength of arrayLengths) {
+      console.error(`length: ${arrayLength.length}, count: ${arrayLength.count}`);
+      // get first 10 user ids with this array length
+      const userIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE array_length("activityArray", 1) = $1 AND "type" = 'userId'
+        LIMIT 10;
+      `, [parseInt(arrayLength.length)])).map((row) => row.visitorId);
+      // get first 10 client ids with this array length
+      const clientIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE array_length("activityArray", 1) = $1 AND "type" = 'clientId'
+        LIMIT 10;
+      `, [parseInt(arrayLength.length)])).map((row) => row.visitorId);
+      console.error(`First 10 userIds: ${userIds.join(', ')}`);
+      console.error(`First 10 clientIds: ${clientIds.join(', ')}`);
+    };
+  }
+
   await dataDb.none(`
     DELETE FROM "UserActivities"
     WHERE array_length("activityArray", 1) <> $1;
@@ -109,6 +162,11 @@ interface ConcatNewActivityParams {
  *  - Rows from inactive users will be deleted
  */
 async function concatNewActivity({dataDb, newActivityData, prevStartDate, updateStartDate, updateEndDate, visitorIdType}: ConcatNewActivityParams) {
+  if (updateEndDate.getTime() <= updateStartDate.getTime()) {
+    // eslint-disable-next-line no-console
+    console.log('No new activity data to update');
+    return;
+  }
   // validate against SQL injection attacks (userId and clientId are inserted verbatim from the analytics event)
   const cleanedActivityData = newActivityData.filter(({userOrClientId}) => userOrClientId.length <= 17 || !userOrClientId.match(/^[A-Za-z0-9]+$/))
 

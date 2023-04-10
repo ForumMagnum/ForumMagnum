@@ -166,6 +166,8 @@ interface DbComment extends DbObject {
   title: string
   relevantTagIds: Array<string>
   debateResponse: boolean | null
+  rejected: boolean
+  rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -410,7 +412,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -635,6 +637,8 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
+  rejected: boolean
+  rejectedByUserId: string
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -879,6 +883,7 @@ interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
   shortName: string | null
+  subtitle: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -908,7 +913,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<string>
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -1255,7 +1260,7 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
-  subforumPreferredLayout: "feed" | "list"
+  subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string>
   interestedIn: Array<string>
   allowDatadogSessionReplay: boolean | null

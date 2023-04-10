@@ -272,7 +272,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     setLeftArrowVisible(true)
   }
   
-  const handleTabClick = (tab) => {
+  const handleTabClick = (tab: TopicsBarTab) => {
     history.replace({
       ...location,
       search: qs.stringify({...query, tab: tab.slug}),

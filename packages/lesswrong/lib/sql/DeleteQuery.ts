@@ -16,7 +16,7 @@ export type DeleteSqlOptions = Partial<{
  */
 class DeleteQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
+    table: Table<T>,
     selector: string | MongoSelector<T>,
     _options?: MongoRemoveOptions<T>, // TODO: What can options be?
     sqlOptions?: DeleteSqlOptions,
