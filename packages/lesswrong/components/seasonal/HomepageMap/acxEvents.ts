@@ -4,6 +4,8 @@ export type LocalEvent = {
   lat: number,
   lng: number
 }
+
+// these need to be updated for each ACX meetup
 export const localEvents = [
   {
     "_id": "mffBHYzGJgq5FjpZz",
