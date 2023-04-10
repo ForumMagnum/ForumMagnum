@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import sanitizeHtml from 'sanitize-html';
 import { Comments } from '../../../lib/collections/comments';
 import { sanitizeAllowedTags } from '../../../lib/vulcan-lib/utils';
@@ -9,7 +10,7 @@ import { htmlToText } from 'html-to-text';
 
 const prompt = `
   Example output:
-  Assessment: Consider reviewing
+  Assessment: Does not meet the norms
   Flag: Unnecessary rudeness or offensiveness
   Recommendation: Intervene
   
@@ -19,58 +20,51 @@ const prompt = `
   
   Prompt:
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
-  Please review each comment you're given by making an overall assessment of how well the comment meets the norms. Then flag if the comment breaks any forum rules. Conclude by making a recommendation as to whether the EA Forum moderation team should intervene. Your options are:
+  Review each comment you're given by making an overall assessment of how well the comment meets the norms. Then flag if the comment breaks any Forum rules. Conclude by making a recommendation as to whether the moderation team should intervene. Your options are:
   Intervene
   Consider reviewing
   Don't intervene
   
-  Finally make a suggestion of how the comment could improve.
+  Finally make a suggestion of how the comment could be improved.
   Treat each user input as a comment to assess.
+  
   The norms are:
+  Be kind. Stay civil, at the minimum. Don't sneer or be snarky. In general, assume good faith. Substantive disagreements are fine and expected. Disagreements help us find the truth and are part of healthy communication.
+  Be honest. Don't mislead or manipulate. Communicate your uncertainty and the true reasons behind your beliefs as much as you can. Be willing to change your mind.
   
-  1. Be kind.
-  Stay civil, at the minimum. Don't sneer or be snarky. In general, assume good faith. No unnecessary rudeness.
-  Substantive disagreements are fine and expected. Disagreements help us find the truth and are part of healthy communication.
-  
-  2. Stay on topic.
-  No spam. This forum is for discussions about improving the world, not the promotion of services.
-  
-  3. Be honest.
-  Don't mislead or manipulate.
-  Communicate your uncertainty and the true reasons behind your beliefs as much as you can.
-  Be willing to change your mind.
-  
-  Important rules:
-  Forum moderators should intervene if comments contain any of the following:
+  These are against Forum rules. Moderators should intervene if the comment contains any of the following:
   Unnecessary rudeness or offensiveness
-  Materials advocating major harm or illegal activities, or materials that may be easily perceived as such
+  Advocating major harm or illegal activities, or any content that may be easily perceived as such
   Information hazards
   Deliberate misinformation or manipulation
-  Spam and any commercial messaging not related to EA
+  Spam and any commercial messaging not related to effective altruism
   Deliberate flamebait or trolling
-  Hate speech or content that promotes hate based on identity.
-  Revealing someone's real name if they are anonymous on the Forum or elsewhere on the internet is prohibited.
-  Misgendering deliberately and/or deadnaming gratuitously is not ok, although mistakes are expected and fine.
+  Hate speech or content that promotes hate based on identity
+  Revealing someone's real name if they are anonymous on the Forum or elsewhere on the internet
+  Misgendering deliberately and/or deadnaming gratuitously
   `
 
+/**
+ * This was written for the EA Forum to test out having GPT-4 help moderate comments.
+ */
 Vulcan.testModGPT = wrapVulcanAsyncScript(
   'testModGPT',
   async () => {
     const api = await getOpenAI()
     if (!api) throw new Error("OpenAI API not configured")
     
-    const comments = await Comments.find({deleted: false}, {sort: {createdAt: -1}, limit: 10}).fetch()
-    console.log('comments', comments)
+    const comments = await Comments.find({deleted: false}, {sort: {createdAt: -1}, limit: 3}).fetch()
   
     for (const comment of comments) {
       const mainTextHtml = sanitizeHtml(
         comment.contents.html, {
-          allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img', 'iframe', 'a'),
-          nonTextTags: ['blockquote', 'img', 'style']
+          allowedTags: _.without(sanitizeAllowedTags, 'img', 'iframe'),
+          nonTextTags: ['img', 'style']
         }
       )
       const text = htmlToText(mainTextHtml)
-      console.log('~~comment~~', comment._id, text)
+      console.log('============ check comment', comment._id)
+      console.log(text)
       
       const response = await api.createChatCompletion({
         model: 'gpt-4',
@@ -79,9 +73,12 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
           {role: 'user', content: text},
         ],
       })
-      console.log('response.data', response.data)
+      
       const topResult = response.data.choices[0].message?.content
-      if (topResult) console.log('topResult', topResult)
+      if (topResult) {
+        console.log('----- ModGPT response:')
+        console.log(topResult)
+      }
       else throw new Error("API did not return a top result")
     }
   }
