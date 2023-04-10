@@ -138,7 +138,7 @@ export const HomepageCommunityMap = ({classes}: {
   classes: ClassesType,
 }) => {
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-  
+
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.

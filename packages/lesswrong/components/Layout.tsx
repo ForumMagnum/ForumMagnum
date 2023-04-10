@@ -186,6 +186,7 @@ const Layout = ({currentUser, children, classes}: {
   const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
+  const [cookies] = useCookies()
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -266,8 +267,6 @@ const Layout = ({currentUser, children, classes}: {
   
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper, HomepageCommunityMap } = Components
-
-    const [cookies] = useCookies();
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
