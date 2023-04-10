@@ -93,7 +93,6 @@ registerMigration({
 
       const eventTimePretendingItsUTC = new Date(`${row["Date"]} ${row["Time"]} UTC`)
       const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
-      // const adjustedLocalTime = localtime ? await getLocalTime(localtime, googleLocation)
       const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
       
       const fbUrlExists = eventUrl?.includes("facebook.com");
