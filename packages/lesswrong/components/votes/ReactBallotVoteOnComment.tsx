@@ -142,7 +142,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
       orientation={direction}
       color={direction==="up" ? "secondary" : "error"}
       upOrDown={direction==="up" ? "Upvote" : "Downvote"}
-      enabled={true}
+      enabled
       {...voteProps}
     />
   );
