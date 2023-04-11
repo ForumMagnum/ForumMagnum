@@ -231,6 +231,7 @@ export const CommentsItemMeta = ({
       selector: { _id: comment._id },
       data: { rejected: true, rejectedReason: reason }
     });
+    setShowRejectionDialog(false);
   };
   
   const unrejectComment = () => {

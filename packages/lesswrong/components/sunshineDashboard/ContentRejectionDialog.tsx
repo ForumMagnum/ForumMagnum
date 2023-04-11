@@ -46,11 +46,9 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     fragmentName: 'ModerationTemplateFragment'
   });
 
-  const rejectionReasons = {
-    'Quality': '<li>This is bad!</li>',
-    'AI 101': '<li>Go read some more AI stuff!</li>',
-    'Too Long': '<li>tl;dr</li>'
-  };
+  if (!results) return null;
+  
+  const rejectionReasons = Object.fromEntries(results.map(({name, contents}) => [name, contents?.html]))
 
   const handleClick = () => {
     rejectContent(rejectedReason);
@@ -63,7 +61,7 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     const composedReason = `<ul>${
       Object.entries(newSelections)
         .filter(([_, reasonSelected]) => reasonSelected)
-        .map(([reasonKey]) => rejectionReasons[reasonKey])
+        .map(([reasonKey]) => `<li>${rejectionReasons[reasonKey]}</li>`)
         .join('')
     }</ul>`;
 
