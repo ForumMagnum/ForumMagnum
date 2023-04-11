@@ -360,7 +360,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
   // posts list sort settings
-  const currentSorting = query.sortedBy || query.view ||  "new"
+  const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
   const currentFilter = query.filter ||  "all"
   const ownPage = currentUser?._id === user._id
   const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)

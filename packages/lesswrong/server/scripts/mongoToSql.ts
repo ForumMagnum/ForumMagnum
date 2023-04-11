@@ -27,7 +27,7 @@ const formatters = {
 
 const showArray = <T>(array: T[]) => util.inspect(array, {maxArrayLength: null});
 
-const createIndexes = async (table: Table, sql: SqlClient) => {
+const createIndexes = async <T extends DbObject>(table: Table<T>, sql: SqlClient) => {
   const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
   if (indexQueries.length === 0) {
     console.warn("...Warning: 0 indexes found: did you wait for the timeout?");
@@ -38,13 +38,13 @@ const createIndexes = async (table: Table, sql: SqlClient) => {
   }
 }
 
-const copyData = async <T extends DbObject>(table: Table, sql: SqlClient, collection: CollectionBase<T>) => {
+const copyData = async <T extends DbObject>(table: Table<T>, sql: SqlClient, collection: CollectionBase<T>) => {
   // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65535. The largest
   // collections have ~150 fields, so these can be safely imported in batches of 400 with a little safety
   // margin. For collections with fewer fields, it may be quicker to increase this number appropriately.
   const batchSize = 400;
   const collectionName = collection.options.collectionName;
-  const formatData: (doc: DbObject) => DbObject = formatters[collectionName] ?? ((document) => document);
+  const formatData: (doc: DbObject) => T = formatters[collectionName] ?? ((document) => document);
   let errorIds: string[] = [];
   let count = 0;
   await forEachDocumentBatchInCollection({

@@ -1992,7 +1992,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && !post.rejected && post.status===postStatuses.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },
@@ -2031,7 +2031,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -2494,10 +2494,9 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
   },
-};
 
-/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-Object.assign(schema, {
+  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+
   experiencedIn: {
     type: Array,
     optional: true,
@@ -2520,10 +2519,8 @@ Object.assign(schema, {
     type: String,
     optional: true
   },
-})
 
-/* Privacy settings */
-Object.assign(schema, {
+  /* Privacy settings */
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
@@ -2537,10 +2534,8 @@ Object.assign(schema, {
     group: formGroups.privacy,
     ...schemaDefaultValue(false),
   },
-})
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
   afPostCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afPostCount",
@@ -2556,7 +2551,7 @@ Object.assign(schema, {
   afCommentCount: {
     type: Number,
     optional: true,
-    onInsert: (document, currentUser: DbUser) => 0,
+    onCreate: () => 0,
     ...denormalizedCountOfReferences({
       fieldName: "afCommentCount",
       collectionName: "Users",
@@ -2618,6 +2613,6 @@ Object.assign(schema, {
     canCreate: ['admins'],
     hidden: true,
   },
-});
+};
 
 export default schema;
