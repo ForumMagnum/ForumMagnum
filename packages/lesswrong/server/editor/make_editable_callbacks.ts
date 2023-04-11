@@ -277,7 +277,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: DbRevision)
+    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -313,7 +313,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
-            contents: newDoc[fieldName],
+            contents: newDoc[fieldName as keyof DbPost],
             debateResponse: true,
           },
           context,

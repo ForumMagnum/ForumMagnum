@@ -26,7 +26,7 @@ class SwitchingCollection<T extends DbObject> {
     "findOne",
     "findOneArbitrary",
     "aggregate",
-  ];
+  ] as const;
 
   static readonly writeOperations = [
     "rawInsert",
@@ -34,11 +34,11 @@ class SwitchingCollection<T extends DbObject> {
     "rawUpdateMany",
     "rawRemove",
     "_ensureIndex",
-  ];
+  ] as const;
 
   static readonly rawReadOperations = [
     "indexes",
-  ];
+  ] as const;
 
   static readonly rawWriteOperations = [
     "bulkWrite",
@@ -46,7 +46,7 @@ class SwitchingCollection<T extends DbObject> {
     "dropIndex",
     "updateOne",
     "updateMany",
-  ];
+  ] as const;
 
   private mongoCollection: MongoCollection<T>;
   private pgCollection: PgCollection<T>;
@@ -78,7 +78,7 @@ class SwitchingCollection<T extends DbObject> {
           const targets = this.getWriteCollections().map(
             (collection) => collection.rawCollection(),
           );
-          const result = {};
+          const result: AnyBecauseTodo = {};
           const rawRead = this.getReadCollection().rawCollection();
           for (const op of SwitchingCollection.rawReadOperations) {
             result[op] = rawRead[op];

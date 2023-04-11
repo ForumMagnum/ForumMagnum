@@ -212,7 +212,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
     return
   }
 
-  let previousDocumentIds = {};
+  let previousDocumentIds: AnyBecauseTodo = {};
   let documentsAffected = 0;
   let done = false;
 

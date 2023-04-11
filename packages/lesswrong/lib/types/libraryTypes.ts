@@ -76,3 +76,8 @@ declare module "html-lexer" {
   const HtmlLexer: AnyBecauseTodo
   export default HtmlLexer
 }
+
+declare module "passport-auth0/lib/Profile" {
+  const Profile: AnyBecauseTodo
+  export default Profile;
+}
