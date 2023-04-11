@@ -160,8 +160,13 @@
     "timestamp": "2023-04-04T17:05:23.000Z"
   },
   {
-    "acceptsSchemaHash": "4de793cf9e6f1cb7ce6669fa436e1185",
-    "acceptedByMigration": "20230406T173153.add_hideCommunitySection_to_users.ts",
-    "timestamp": "2023-04-06T17:31:53.000Z"
+    "acceptsSchemaHash": "380d30e2ea28cacb71bbc6d29e540a6e",
+    "acceptedByMigration": "20230407T214751.add_rejection_fields.ts",
+    "timestamp": "2023-04-07T21:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1728cb3d532414ce56d22566ab53c3be",
+    "acceptedByMigration": "20230411T172612.add_hideCommunitySection_to_users.ts",
+    "timestamp": "2023-04-11T17:26:12.000Z"
   }
 ]

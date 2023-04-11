@@ -11,7 +11,7 @@ import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { parseQuery } from './routeUtil'
+import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
 

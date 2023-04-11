@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
+import { loadByIds } from '../loaders';
+import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -91,8 +93,8 @@ registerVotingSystem({
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-    const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
-    const usersById = keyBy(usersThatVoted, u=>u._id);
+    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
     
     const result = {
       approvalVoteCount: votes.filter(v=>(v.voteType && v.voteType!=="neutral")).length,
@@ -171,8 +173,8 @@ registerVotingSystem({
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-    const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
-    const usersById = keyBy(usersThatVoted, u=>u._id);
+    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
     
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       return [axis, sumBy(votes, v => getVoteAxisStrength(v, usersById, axis))];

@@ -14,6 +14,7 @@ import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../lib/sql/tests/testingSqlClient';
+import { isEAForum } from '../lib/instanceSettings';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -22,7 +23,7 @@ require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
 
 let dbConnected = false;
 async function ensureDbConnection() {
-  if (dbConnected)
+  if (dbConnected || isEAForum)
     return;
 
   try {

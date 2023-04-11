@@ -44,7 +44,7 @@ const AllPostsList = ({
 }: {
   currentTimeframe: string,
   currentFilter: string,
-  currentSorting: string,
+  currentSorting: PostSortingMode,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   currentHideCommunity: boolean,

@@ -53,7 +53,7 @@ const buildTables = async (client: SqlClient) => {
       const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
-        const fields: Record<string, 1 | -1> = typeof key === "string" ? {[key]: 1} : key;
+        const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
         const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
         const createIndexQuery = new CreateIndexQuery(table, index, true);
         const {sql, args} = createIndexQuery.compile();

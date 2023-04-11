@@ -20,7 +20,7 @@ Sequences.addDefaultView((terms: SequencesViewTerms) => {
   return params;
 })
 
-function augmentForDefaultView(indexFields)
+function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): MongoIndexKeyObj<DbSequence>
 {
   return { hidden:1, af:1, isDeleted:1, ...indexFields };
 }

@@ -68,7 +68,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
   }, [showSettings, captureEvent, currentUser, updateCurrentUser]);
 
   const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily';
-  const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic';
+  const currentSorting = (query.sortedBy   || currentUser?.allPostsSorting   || 'magic') as PostSortingMode;
   const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all';
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
     currentUser?.allPostsShowLowKarma || false;
