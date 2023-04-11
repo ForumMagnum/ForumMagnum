@@ -49,7 +49,7 @@ export type MaybeFunction<T,P> = T|((props:P)=>T)
  * wire protocol field, config file, or similar. This should probably be
  * validated and converted to a more specific type before use.
  */
-type AnyBecauseIsInput = any
+export type AnyBecauseIsInput = any
 
 /**
  * Has Typescript type "any" because no one has gotten around to annotating
@@ -57,7 +57,7 @@ type AnyBecauseIsInput = any
  * to when we switched from Javascript to Typescript and should mostly not be
  * used in new code.
  */
-type AnyBecauseTodo = any
+export type AnyBecauseTodo = any
 
 /**
  * Has Typescript type "any" because this is legacy code that someone has
@@ -65,13 +65,13 @@ type AnyBecauseTodo = any
  * import scripts that are kept around for recordkeeping purposes but aren't
  * expected to actually be used again.
  */
-type AnyBecauseObsolete = any
+export type AnyBecauseObsolete = any
 
 /**
  * Has Typescript type "any" because the developer spent more than 5 minutes
  * trying to type this and was very frustrated. The developer promises they
  * were not just being lazy.
  */
-type AnyBecauseHard = any
+export type AnyBecauseHard = any
 
 }

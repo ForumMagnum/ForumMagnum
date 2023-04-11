@@ -260,7 +260,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
 
-export async function dropUnusedField(collection, fieldName) {
+export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: string) {
   const loadFactor = 0.5;
   let nMatched = 0;
   

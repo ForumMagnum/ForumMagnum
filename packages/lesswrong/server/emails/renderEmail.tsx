@@ -254,7 +254,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   }
 }
 
-function validateSheets(sheetsRegistry: SheetsRegistry)
+function validateSheets(sheetsRegistry: typeof SheetsRegistry)
 {
   let styleValidator = new StyleValidator();
   

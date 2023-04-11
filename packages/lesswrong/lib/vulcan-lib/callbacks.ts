@@ -245,7 +245,7 @@ export const runCallbacksList = function (this: any, options: {
     };
 
     logger("Running callbacks list")
-    return callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index) {
+    return callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
           asyncContext = true;

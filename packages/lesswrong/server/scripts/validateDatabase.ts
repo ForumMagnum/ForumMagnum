@@ -39,7 +39,7 @@ export function registerCollectionValidator<T extends DbObject>({collection, nam
 //
 // Outputs a summary of any problems found through console.log, and returns
 // nothing.
-export async function validateCollection(collection)
+export async function validateCollection(collection: AnyBecauseTodo)
 {
   const collectionName = collection.collectionName;
   console.log(`Checking ${collectionName}`); // eslint-disable-line no-console
@@ -64,9 +64,9 @@ export async function validateCollection(collection)
   const validationContext = getSimpleSchema(collection).newContext();
   
   // Dictionary field=>type=>count
-  const errorsByField = {};
+  const errorsByField: AnyBecauseTodo = {};
   
-  function recordError(field, errorType) {
+  function recordError(field: AnyBecauseTodo, errorType: AnyBecauseTodo) {
     let fieldGroupedByNums = field.replace(/[0-9]+/g, '<n>');
     
     if (!errorsByField[fieldGroupedByNums])
@@ -118,7 +118,7 @@ export async function validateCollection(collection)
         
         if (foreignKeySpec) {
           // Get a list of foreign values to check for
-          let foreignValuesDict = {};
+          let foreignValuesDict: AnyBecauseTodo = {};
           for (const document of batch) {
             if (document[fieldName])
               foreignValuesDict[document[fieldName]] = true;
