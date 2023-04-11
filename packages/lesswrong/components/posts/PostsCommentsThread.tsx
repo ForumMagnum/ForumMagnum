@@ -7,7 +7,7 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   terms: CommentsViewTerms,
   newForm?: boolean,
 }) => {
-  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+  let { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -21,12 +21,14 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
     return null;
   }
 
+  const commentCount = results?.length ?? 0;
+
   return (
     <Components.CommentsListSection
       comments={results}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
-      commentCount={(results && results.length) || 0}
+      commentCount={commentCount}
       loadingMoreComments={loadingMore}
       post={post}
       newForm={newForm}

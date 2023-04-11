@@ -6,6 +6,8 @@ import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import qs from 'qs';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -203,7 +205,22 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
+  const { history } = useNavigation()
+  const { location, query } = useLocation()
   const { captureEvent } = useTracking()
+  
+  useEffect(() => {
+    if (coreTopics) {
+      // set the initial active tab based on the query,
+      // and update the tab if the user clicks on a new one
+      const activeTab = coreTopics.find(topic => topic.slug === query.tab)
+      if (activeTab) {
+        setActiveTab(activeTab)
+      } else {
+        setActiveTab(frontpageTab)
+      }
+    }
+  }, [coreTopics, query])
   
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
@@ -255,8 +272,11 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     setLeftArrowVisible(true)
   }
   
-  const handleTabClick = (tab) => {
-    setActiveTab(tab)
+  const handleTabClick = (tab: TopicsBarTab) => {
+    history.replace({
+      ...location,
+      search: qs.stringify({...query, tab: tab.slug}),
+    })
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   

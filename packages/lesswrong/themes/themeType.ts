@@ -233,6 +233,11 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
+      debateComment: string,
+      debateComment2: string,
+      debateComment3: string,
+      debateComment4: string,
+      debateComment5: string,
     },
     panelBackground: {
       default: ColorString,
@@ -374,6 +379,7 @@ declare global {
       usersListItem: ColorString,
       primaryDim: ColorString,
       transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -426,6 +432,7 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
     },
     borderRadius: {
       default: number,

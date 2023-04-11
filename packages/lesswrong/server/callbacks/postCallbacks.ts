@@ -15,7 +15,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
@@ -38,6 +38,14 @@ if (forumTypeSetting.get() === "EAForum") {
     (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
   );
 }
+
+getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+  if (document.debate && !document.coauthorStatuses?.length) {
+    throw new Error('Debate must have at least one co-author!');
+  }
+
+  return validationErrors;
+});
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -191,7 +199,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft) return
+  if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
   
@@ -216,6 +224,21 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
       document: {
         userId: document.userId,
         type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_POST,
         endedAt: new Date()
       }
     });

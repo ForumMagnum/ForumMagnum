@@ -91,7 +91,7 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
 
     const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
     const permissionResult = userCanVoteOn &&
-      await userCanVoteOn(currentUser, document, voteType, extendedVote)
+      await userCanVoteOn(currentUser, document, voteType, extendedVote, context);
     if (permissionResult && permissionResult.fail) {
       throw new Error(permissionResult.reason);
     }

@@ -2,7 +2,7 @@ import React from 'react';
 import Badge from '@material-ui/core/Badge';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import IconButton from '@material-ui/core/IconButton';
-import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -13,12 +13,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   badge: {
     backgroundColor: 'inherit',
     color: theme.palette.header.text,
-    fontFamily: 'freight-sans-pro, sans-serif',
-    fontSize: "12px",
     fontWeight: 500,
     right: "1px",
     top: "1px",
     pointerEvents: "none",
+    ...(isEAForum
+      ? {
+        fontSize: 10,
+      }
+      : {
+        fontFamily: "freight-sans-pro, sans-serif",
+        fontSize: 12,
+      }),
   },
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
@@ -30,11 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({ unreadNotifications, open, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ unreadNotifications, open, toggle, classes }: {
   unreadNotifications: number,
   open: boolean,
   toggle: ()=>void,
-  currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
   const { ForumIcon } = Components

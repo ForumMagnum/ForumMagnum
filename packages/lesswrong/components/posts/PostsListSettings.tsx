@@ -11,7 +11,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
@@ -141,7 +141,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
-  currentSorting: any,
+  currentSorting: PostSortingMode,
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,

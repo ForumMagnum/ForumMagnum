@@ -7,7 +7,7 @@ import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
-const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
+export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
 const serverId = randomId();
 

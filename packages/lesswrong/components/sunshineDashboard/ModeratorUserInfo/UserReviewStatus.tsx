@@ -6,7 +6,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 16,
     fontStyle: "italic"
-  }
+  },
+  accountFlag: {
+  },
 });
 
 export const UserReviewStatus = ({classes, user}: {
@@ -21,14 +23,23 @@ export const UserReviewStatus = ({classes, user}: {
 
   const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
-    {user.reviewedAt
+    {(user.reviewedByUserId && user.reviewedAt)
       ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
       : null 
     }
     {user.banned
-      ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
+      ? <p><em>Banned until <FormatDate format="yyyy-mm-DD" date={user.banned}/></em></p>
       : null 
     }
+
+    {user.allCommentingDisabled && <div className={classes.accountFlag}>All commenting disabled</div>}
+    {user.commentingOnOtherUsersDisabled && <div className={classes.accountFlag}>Commenting on other users disabled</div>}
+    {user.conversationsDisabled && <div className={classes.accountFlag}>Private messaging disabled</div>}
+    {user.postingDisabled && <div className={classes.accountFlag}>Posting disabled</div>}
+    {user.voteBanned && <div className={classes.accountFlag}>Banned from voting</div>}
+    {user.nullifyVotes && <div className={classes.accountFlag}>Previous votes deleted</div>}
+    {user.deleteContent && <div className={classes.accountFlag}>Content purged</div>}
+
     {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
     {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
     {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>

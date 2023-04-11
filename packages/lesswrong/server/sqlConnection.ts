@@ -1,8 +1,10 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import md5 from "md5";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
+  noWarnings: isAnyTest,
   // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);

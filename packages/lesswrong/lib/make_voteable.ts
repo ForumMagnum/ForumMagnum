@@ -5,6 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 
 export type PermissionResult = {
   fail: false,
+  reason?: never
 } | {
   fail: true,
   reason: string
@@ -13,7 +14,13 @@ export type PermissionResult = {
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType, voteType: string|null, extendedVote?: any) => PermissionResult|Promise<PermissionResult>,
+  userCanVoteOn?: (
+    user: DbUser,
+    document: DbVoteableType,
+    voteType: string|null,
+    extendedVote: any,
+    context: ResolverContext,
+  ) => PermissionResult|Promise<PermissionResult>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];

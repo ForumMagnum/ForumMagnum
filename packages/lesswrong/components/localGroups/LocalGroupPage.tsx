@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
@@ -21,13 +21,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     }
   },
   topSectionMap: {
     height: 250,
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -36,7 +36,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -56,8 +56,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     columnGap: 20,
     marginTop: 24,
     [theme.breakpoints.down('xs')]: {
-      display: 'block'
-    }
+      display: 'block',
+    },
   },
   inactiveGroupTag: {
     color: theme.palette.grey[500],
@@ -162,10 +162,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontWeight: 500,
+    }),
   },
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontWeight: 500,
+    }),
   },
   eventCards: {
     display: 'grid',
@@ -273,12 +281,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const htmlBody = {__html: html}
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
-  
+
   const groupNameHeading = <span>
     {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}
   </span>
-  
+
   // by default, we try to show the map at the top if the group has a location
   let topSection = (group.googleLocation && !group.isOnline) ? <CommunityMapWrapper
     className={classes.topSectionMap}
@@ -287,7 +294,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     hideLegend={true}
     mapOptions={{zoom: 11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
   /> : <div className={classes.topSection}></div>;
-  let smallMap;
+  let smallMap: React.ReactNode;
   // if the group has a banner image, show that at the top instead, and move the map down
   if (group.bannerImageId) {
     topSection = <div className={classes.imageContainer}>

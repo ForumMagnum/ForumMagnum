@@ -66,6 +66,8 @@ registerFragment(`
     directChildrenCount
     votingSystem
     isPinnedOnProfile
+    debateResponse
+    rejected
   }
 `);
 

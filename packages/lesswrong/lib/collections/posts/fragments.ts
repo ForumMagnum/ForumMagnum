@@ -18,6 +18,7 @@ registerFragment(`
     userId
     coauthorStatuses
     hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -55,6 +56,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -210,6 +212,8 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
   }
 `);
 
@@ -580,6 +584,7 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
   }

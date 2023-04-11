@@ -55,7 +55,7 @@ type UpsertOperator = keyof typeof UPSERT_OPERATORS;
  */
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
+    table: Table<T>,
     data: InsertQueryData<T> | InsertQueryData<T>[],
     _options: MongoInsertOptions<T> = {}, // TODO: What can options be?
     sqlOptions?: InsertSqlOptions<T>,

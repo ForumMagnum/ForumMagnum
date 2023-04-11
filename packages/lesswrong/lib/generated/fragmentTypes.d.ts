@@ -77,7 +77,9 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
+  readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -214,6 +216,18 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationDebateCommentsOnSubscribedPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationDebateReplies: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -317,7 +331,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
-  readonly subforumPreferredLayout: "feed" | "list",
+  readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
@@ -377,6 +391,9 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
   readonly relevantTagIds: Array<string>,
+  readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
+  readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -396,6 +413,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly shortName: string | null,
+  readonly subtitle: string | null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
@@ -426,7 +444,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<string>,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumIntroPostId: string,
@@ -630,6 +648,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly languageModelSummary: string,
+  readonly debate: boolean | null,
+  readonly rejected: boolean,
+  readonly rejectedByUserId: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -772,7 +793,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly endedAt: Date | null,
 }
 
@@ -791,6 +812,7 @@ interface PostsMinimumInfo { // fragment on Posts
     requested: boolean,
   }>,
   readonly hasCoauthorPermission: boolean,
+  readonly rejected: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -827,6 +849,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
+  readonly debate: boolean | null,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -932,6 +955,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly unreadDebateResponseCount: number,
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
@@ -1244,6 +1268,7 @@ interface HighlightWithHash { // fragment on Posts
 }
 
 interface HighlightWithHash_contents { // fragment on Revisions
+  readonly _id: string,
   readonly htmlHighlightStartingAtHash: string,
 }
 
@@ -1309,6 +1334,8 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
+  readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -2006,6 +2033,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
+  readonly subtitle: string | null,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean,
   readonly defaultOrder: number,
@@ -2030,6 +2058,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2073,6 +2102,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2125,6 +2155,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2142,6 +2173,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -2207,7 +2239,7 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts",
+  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments",
 }
 
 interface SubscriptionState { // fragment on Subscriptions
@@ -2218,7 +2250,7 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts",
+  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments",
 }
 
 interface PodcastsDefaultFragment { // fragment on Podcasts
@@ -2333,6 +2365,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly nullifyVotes: boolean,
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
+  readonly hideCommunitySection: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
@@ -2452,10 +2485,11 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
-  readonly subforumPreferredLayout: "feed" | "list",
+  readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly noComicSans: boolean,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2506,6 +2540,9 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly snoozedUntilContentCount: number,
+  readonly voteBanned: boolean,
+  readonly nullifyVotes: boolean,
+  readonly deleteContent: boolean,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
@@ -2556,12 +2593,14 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
+  readonly noComicSans: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
@@ -2870,7 +2909,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -3296,5 +3335,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
 
