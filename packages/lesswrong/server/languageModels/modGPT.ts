@@ -1,22 +1,21 @@
-import React from 'react';
 import { getOpenAI } from './languageModelIntegration';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToText } from 'html-to-text';
-import { updateMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib';
 import Comments from '../../lib/collections/comments/collection';
 import Posts from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import Users from '../../lib/collections/users/collection';
-import { wrapAndSendEmail } from '../emails/renderEmail';
-import { Components } from '../../lib/vulcan-lib/components';
-import './../emailComponents/ModGPTFlagEmail';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import type { OpenAIApi } from 'openai';
+import Conversations from '../../lib/collections/conversations/collection';
+import Messages from '../../lib/collections/messages/collection';
+import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 
 
 export const modGPTPrompt = `
@@ -66,6 +65,29 @@ const getModGPTAnalysis = async (api: OpenAIApi, text: string) => {
 }
 
 /**
+ * Constructs the PM sent to the commenter when ModGPT flags their comment as "Intervene".
+ */
+const getMessageToCommenter = (user: DbUser, commentLink: string, flag?: string) => {
+  const normsLink = 'https://forum.effectivealtruism.org/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum'
+  let intro = `
+    <p>Our moderation bot suspects that <a href="${commentLink}">your recent comment</a> violates the <a href="${normsLink}">EA Forum discussion norms</a>.</p>
+  `
+  if (flag) {
+    intro = `
+      <p>Our moderation bot suspects that <a href="${commentLink}">your recent comment</a> violates the following <a href="${normsLink}">EA Forum discussion norm(s)</a>:</p>
+      <p><ul><li>${flag}</li></ul></p>
+    `
+  }
+  
+  return `
+  <p>Hi ${user.displayName},</p>
+  ${intro}
+  <p>Your comment will be collapsed by default. We encourage you to improve the comment, after which the bot will re-evaluate it.</p>
+  <p>This system is new. If you believe the bot made a mistake, please report this to the EA Forum Team by replying to this message or contacting us <a href="https://forum.effectivealtruism.org/contact">here</a>. Please also reach out if you'd like any help editing your comment to better follow the Forum's norms.</p>
+  `
+}
+
+/**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
 async function checkModGPT(comment: DbComment): Promise<void> {
@@ -103,6 +125,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       },
       validate: false,
     })
+    return
   }
   
   const topResult = response.data.choices[0].message?.content
@@ -119,7 +142,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       validate: false,
     })
     
-    // if ModGPT recommends intervening, we collapse the comment and email the comment author
+    // if ModGPT recommends intervening, we collapse the comment and PM the comment author
     if (rec === 'Intervene') {
       const user = await Users.findOne(comment.userId)
       if (!user) throw new Error(`Could not find ${comment.userId}`)
@@ -133,10 +156,34 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       const flagMatches = topResult.match(/^Flag: (.+)/m)
       const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
       
-      await wrapAndSendEmail({
-        user,
-        subject: 'Your comment was flagged',
-        body: <Components.ModGPTFlagEmail commentLink={commentLink} flag={flag} />
+      // create a new conversation between the commenter and the admin team account
+      const adminsAccount = await getAdminTeamAccount()
+      const conversationData = {
+        participantIds: [user._id, adminsAccount._id],
+        title: 'Your comment was auto-flagged'
+      }
+      const conversation = await createMutator({
+        collection: Conversations,
+        document: conversationData,
+        currentUser: adminsAccount,
+        validate: false
+      })
+      
+      const messageDocument = {
+        userId: adminsAccount._id,
+        contents: {
+          originalContents: {
+            type: "html",
+            data: getMessageToCommenter(user, commentLink, flag)
+          }
+        },
+        conversationId: conversation.data._id,
+      }
+      await createMutator({
+        collection: Messages,
+        document: messageDocument,
+        currentUser: adminsAccount,
+        validate: false
       })
     }
   }
