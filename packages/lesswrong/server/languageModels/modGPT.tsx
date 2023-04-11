@@ -16,6 +16,7 @@ import { wrapAndSendEmail } from '../emails/renderEmail';
 import { Components } from '../../lib/vulcan-lib/components';
 import './../emailComponents/ModGPTFlagEmail';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import type { OpenAIApi } from 'openai';
 
 
 export const modGPTPrompt = `
@@ -54,7 +55,7 @@ export const modGPTPrompt = `
   Misgendering deliberately and/or deadnaming gratuitously
   `
 
-const getModGPTAnalysis = async (api, text) => {
+const getModGPTAnalysis = async (api: OpenAIApi, text: string) => {
   return await api.createChatCompletion({
     model: 'gpt-4',
     messages: [
@@ -83,10 +84,8 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     nonTextTags: ['img', 'style']
   })
   const text = htmlToText(html)
-  
+
   let response = await getModGPTAnalysis(api, text)
-  console.log(response.status)
-  
   // If it fails with "Too Many Requests", we try one more time.
   // We seem to hit this occasionally, even when we're nowhere near the rate limit.
   if (response.status === 429) {
@@ -110,8 +109,6 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   if (topResult) {
     const matches = topResult.match(/^Recommendation: (.+)/)
     const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
-    console.log(text)
-    console.log(rec)
     await updateMutator({
       collection: Comments,
       documentId: comment._id,
@@ -135,7 +132,6 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       })
       const flagMatches = topResult.match(/^Flag: (.+)/m)
       const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
-      console.log('flag', flag)
       
       await wrapAndSendEmail({
         user,

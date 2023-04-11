@@ -9,7 +9,6 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 
-
 const styles = (theme: JssStyles) => ({
   root: {
     maxWidth: 1200,
@@ -30,8 +29,6 @@ const styles = (theme: JssStyles) => ({
     }
   },
 })
-
-
 
 const UserDisplay = ({column, document}: {
   column: Column;
@@ -71,7 +68,6 @@ const DateDisplay = ({column, document}: {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
-
 const columns: Column[] = [
   {
     name: 'postedAt',
@@ -98,12 +94,13 @@ const columns: Column[] = [
   },
 ]
 
+
 const ModGPTDashboard = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser()
   if (!userIsAdminOrMod(currentUser)) {
-    return null
+    return <Components.Error404 />
   }
 
   return (
