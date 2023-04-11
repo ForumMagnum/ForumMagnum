@@ -294,8 +294,12 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
 
   let firstMessageContents =
       // TODO: make link conditional on forum, or something
-      `Your comments on "${onWhat}" has been rejected by the moderator team (LessWrong is generally raising their moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details). We've sent you another PM with the content.`
+      `Your comment on "${onWhat}" has been rejected by the moderator team (LessWrong is generally raising their moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details). We've sent you another PM with the content.`
 
+  if (comment.rejectedReason) {
+    firstMessageContents += ` It was rejected for the following reason(s): ${comment.rejectedReason}.`;
+  }
+  
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
   ? false 

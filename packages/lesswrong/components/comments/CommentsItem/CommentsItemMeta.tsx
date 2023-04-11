@@ -12,6 +12,9 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useUpdate } from "../../../lib/crud/withUpdate";
+import { useDialog } from "../../common/withDialog";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import { useHover } from "../../common/withHover";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -168,6 +171,10 @@ export const CommentsItemMeta = ({
     fragmentName: 'CommentsListWithParentMetadata',
   });
 
+  const { openDialog } = useDialog();
+  const { eventHandlers, anchorEl } = useHover();
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -221,17 +228,27 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-  const setCommentRejectedStatus = (rejected: boolean) => () => {
+  const rejectComment = (reason: string) => {
     void updateComment({
       selector: { _id: comment._id },
-      data: { rejected }
+      data: { rejected: true, rejectedReason: reason }
     });
   };
+  
+  const unrejectComment = () => {
+    void updateComment({
+      selector: { _id: comment._id },
+      data: { rejected: false }
+    });
+  }
+
+  // const setCommentRejectedStatus = (rejected: boolean, reason: string) => () => {
+  // };
 
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu,
+    ForumIcon, CommentsMenu, LWPopper, ContentRejectionDialog
   } = Components;
 
   return (
@@ -316,14 +333,26 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {isLW && userIsAdmin(currentUser) && <>
-        {comment.rejected && <span className={classes.rejectedLabel} onClick={setCommentRejectedStatus(false)}>
+      {isLW && userIsAdmin(currentUser) && <span className={classes.rejectedIcon} {...eventHandlers}>
+        {comment.rejected && <span className={classes.rejectedLabel} onClick={unrejectComment}>
           [Rejected]
         </span>}
         {!comment.rejected && comment.authorIsUnreviewed && <span className={classes.rejectedIcon}>
-          <RejectedIcon onClick={setCommentRejectedStatus(true)} />
+          <RejectedIcon onClick={() => setShowRejectionDialog(true)} />
         </span>}
-      </>}
+        {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
+          <LWPopper
+            open={showRejectionDialog}
+            anchorEl={anchorEl}
+            className={classes.popper}
+            clickable={true}
+            allowOverflow={true}
+            placement={"bottom-start"}
+          >
+            <ContentRejectionDialog rejectContent={rejectComment}/>
+          </LWPopper>
+        </ClickAwayListener>}
+      </span>}
 
       <span className={classes.rightSection}>
         {isEAForum &&

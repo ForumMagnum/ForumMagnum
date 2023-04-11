@@ -393,6 +393,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string,
   readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
