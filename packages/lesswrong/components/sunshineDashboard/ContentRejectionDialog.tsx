@@ -53,17 +53,19 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     const newSelections = {...selections, [label]: checked};
     setSelections(newSelections);
 
-    const composedReason = `<ul>${Object.entries(newSelections)
-      .filter(([_, reasonSelected]) => reasonSelected)
-      .map(([reasonKey]) => rejectionReasons[reasonKey])
-      .join('')}</ul>`;
+    const composedReason = `<ul>${
+      Object.entries(newSelections)
+        .filter(([_, reasonSelected]) => reasonSelected)
+        .map(([reasonKey]) => rejectionReasons[reasonKey])
+        .join('')
+    }</ul>`;
 
     setRejectedReason(composedReason);
   };
 
   const dialogContent = <div className={classes.rejectionCheckboxes}>
     {Object.entries(rejectionReasons).map(([label, description]) => {
-      return <span>
+      return <span key={`rejection-reason-${label}`}>
         <Checkbox
           checked={selections[label]}
           onChange={(_, checked) => composeRejectedReason(label, checked)}
@@ -89,11 +91,11 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     <Paper>
       <div className={classes.dialogContent}>
         {dialogContent}
-        <Button onClick={() => setHideTextField(!hideTextField)}>
-          Edit Message
-        </Button>
         <Button onClick={handleClick}>
           Reject
+        </Button>
+        <Button onClick={() => setHideTextField(!hideTextField)}>
+          Edit Message
         </Button>
       </div>
     </Paper>

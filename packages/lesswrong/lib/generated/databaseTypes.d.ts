@@ -167,7 +167,7 @@ interface DbComment extends DbObject {
   relevantTagIds: Array<string>
   debateResponse: boolean | null
   rejected: boolean
-  rejectedReason: string
+  rejectedReason: string | null
   rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
