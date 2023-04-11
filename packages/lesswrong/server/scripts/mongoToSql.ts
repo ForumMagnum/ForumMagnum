@@ -9,7 +9,7 @@ import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationU
 import util from "util";
 
 // A place for nasty hacks to live...
-const formatters = {
+const formatters: AnyBecauseTodo = {
   Posts: (document: DbPost): DbPost => {
     const scoreThresholds = [2, 30, 45, 75, 125, 200] as const;
     for (const threshold of scoreThresholds) {

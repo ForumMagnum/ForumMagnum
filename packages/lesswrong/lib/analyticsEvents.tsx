@@ -165,7 +165,7 @@ export const AnalyticsContext = ({children, ...props}: any) => {
   // the newest values of these props when they actually log an event.)
   const newContextData = useRef({...existingContextData});
   for (let key of Object.keys(props))
-    newContextData.current[key] = props[key];
+    (newContextData.current as AnyBecauseTodo)[key] = props[key];
   
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
@@ -205,7 +205,7 @@ export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEven
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
-    const eventData = {...trackingContext, ...eventProps}
+    const eventData: AnyBecauseTodo = {...trackingContext, ...eventProps}
     if (typeof captureOnMount === "function") {
       !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
     } else if (!!captureOnMount) {

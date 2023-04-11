@@ -96,7 +96,7 @@ export async function validateCollection(collection: AnyBecauseTodo)
       
       // If the collection has a custom validation function defined, run it
       if (collectionName in customValidators) {
-        for (let validator of customValidators[collectionName]) {
+        for (let validator of (customValidators as AnyBecauseTodo)[collectionName]) {
           try {
             await validator.validateBatch(batch, recordError);
           } catch(e) {
@@ -114,14 +114,14 @@ export async function validateCollection(collection: AnyBecauseTodo)
         if (fieldName.indexOf("$") >= 0)
           continue;
         
-        const foreignKeySpec = schema._schema[fieldName].foreignKey;
+        const foreignKeySpec = (schema as AnyBecauseTodo)._schema[fieldName].foreignKey;
         
         if (foreignKeySpec) {
           // Get a list of foreign values to check for
           let foreignValuesDict: AnyBecauseTodo = {};
           for (const document of batch) {
-            if (document[fieldName])
-              foreignValuesDict[document[fieldName]] = true;
+            if ((document as AnyBecauseTodo)[fieldName])
+              foreignValuesDict[(document as AnyBecauseTodo)[fieldName]] = true;
           }
           const foreignValues = Object.keys(foreignValuesDict);
           
@@ -137,7 +137,7 @@ export async function validateCollection(collection: AnyBecauseTodo)
             if (typeof foreignCollectionName !== "string")
               throw new Error(`Expected a collection name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string`);
           }
-          const foreignCollection = getCollection(foreignCollectionName);
+          const foreignCollection = getCollection(foreignCollectionName as AnyBecauseTodo);
           
           if (!foreignCollection) {
               //eslint-disable-next-line no-console
@@ -151,12 +151,12 @@ export async function validateCollection(collection: AnyBecauseTodo)
           // Collect a list of values present
           const foreignValuesFound = {};
           for (const foreignRow of foreignRows)
-            foreignValuesFound[foreignRow[foreignField]] = true;
+            (foreignValuesFound as AnyBecauseTodo)[foreignRow[foreignField]] = true;
           
           // Compare against values referred to, and report an error for any missing
           for (const document of batch) {
-            if (document[fieldName] && !(document[fieldName] in foreignValuesFound)) {
-              recordError(fieldName, `foreignKeyViolation: from ${document._id} to ${document[fieldName]}`);
+            if ((document as AnyBecauseTodo)[fieldName] && !((document as AnyBecauseTodo)[fieldName] in foreignValuesFound)) {
+              recordError(fieldName, `foreignKeyViolation: from ${document._id} to ${(document as AnyBecauseTodo)[fieldName]}`);
             }
           }
         }

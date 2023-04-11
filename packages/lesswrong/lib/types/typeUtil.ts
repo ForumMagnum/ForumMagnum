@@ -56,6 +56,11 @@ export type AnyBecauseIsInput = any
  * this with a more specific type yet. This is intended for code written prior
  * to when we switched from Javascript to Typescript and should mostly not be
  * used in new code.
+ *
+ * If something is cast to this, eg `(x as AnyBecauseTodo)[s]`, this indicates
+ * that without the cast it would be an implicit-any type error. This can happen
+ * if an object is annotated with a more detailed type than the index accessor;
+ * eg `s` is type `string` but `x` contains only *specific* strings.
  */
 export type AnyBecauseTodo = any
 

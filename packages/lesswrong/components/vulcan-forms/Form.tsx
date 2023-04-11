@@ -351,7 +351,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     const inputProperties = fieldSchema.form || {};
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
-      field[prop] =
+      (field as AnyBecauseTodo)[prop] =
         typeof property === 'function'
           ? property.call(fieldSchema, this.props)
           : property;

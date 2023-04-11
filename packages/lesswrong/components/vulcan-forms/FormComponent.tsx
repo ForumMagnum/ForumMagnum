@@ -267,8 +267,8 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
           return FormComponents.FormComponentDate;
 
         default:
-          if (this.props.input && FormComponents[this.props.input]) {
-            return FormComponents[this.props.input];
+          if (this.props.input && (FormComponents as AnyBecauseTodo)[this.props.input]) {
+            return (FormComponents as AnyBecauseTodo)[this.props.input];
           } else if (this.isArrayField()) {
             return Components.FormNestedArray;
           } else if (this.isObjectField()) {

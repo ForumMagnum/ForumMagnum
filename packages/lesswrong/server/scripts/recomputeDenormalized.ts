@@ -94,7 +94,7 @@ async function runDenormalizedFieldMigration<T extends DbObject>({ collection, f
   let numDifferent = 0;
 
   await migrateDocuments({
-    description: `Recomputing denormalized values for ${collection.collectionName} field ${fieldName}`,
+    description: `Recomputing denormalized values for ${collection.collectionName} field ${String(fieldName)}`,
     collection,
     batchSize: 100,
     migrate: async (documents) => {
