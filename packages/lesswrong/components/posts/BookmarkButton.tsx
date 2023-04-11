@@ -16,10 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-  icon: isEAForum ? {fontSize: 22} : {}, // TODO: keep this or replace this?
   iconWithText: {
     color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
     display: "inline-block",
     marginRight: 20,
     "@media print": { display: "none" },
@@ -32,7 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   iconWithTextEAForum: {
     '& svg': {
-      fontSize: "1.45em",
       transform: "translateY(5px)",
       marginRight: -1,
     },

@@ -121,7 +121,7 @@ const RecommendationsAndCurated = ({
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've bookmarked</div>
+      <div>Individual posts that you've {isEAForum ? 'saved' : 'bookmarked'}</div>
       <div><em>(Click to see all)</em></div>
     </div>
 

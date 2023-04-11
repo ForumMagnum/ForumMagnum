@@ -18,7 +18,7 @@ const BookmarksPage = () => {
 
   return <SingleColumnSection>
       <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
-        <SectionTitle title={isEAForum ? "Bookmarks" : "Saved Posts"}/>
+        <SectionTitle title={isEAForum ? "Saved posts" : "Bookmarks"}/>
         <BookmarksList/>
         <SectionTitle title="Continue Reading"/>
         <ContinueReadingList continueReading={continueReading}/>

@@ -215,7 +215,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <BookmarksIcon className={classes.icon}/>
                 </ListItemIcon>
-                {isEAForum ? "Saved Posts" : "Bookmarks"}
+                {isEAForum ? "Saved posts" : "Bookmarks"}
               </MenuItem>
             </Link>}
             {currentUser.shortformFeedId &&

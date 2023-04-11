@@ -45,16 +45,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryInfoLink: {
     marginRight: SECONDARY_SPACING,
-    whiteSpace: "no-wrap",
     display: "inline-block",
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
-    whiteSpace: "no-wrap",
     fontWeight: isEAForum ? 450 : undefined,
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
@@ -249,7 +247,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
             )
           }
           {post.startTime && <div className={classes.secondaryInfoLink}>
-            <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
+            <AddToCalendarButton post={post} label="Add to calendar" hideTooltip={true} />
           </div>}
           {!hideMenu &&
             <span className={classes.actions}>
