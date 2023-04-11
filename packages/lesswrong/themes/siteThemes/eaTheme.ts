@@ -138,7 +138,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         postStyle: {
           ...basicText,
-          fontFamily: sansSerifStack,
         },
         headerStyle: {
           fontFamily: titleStack
