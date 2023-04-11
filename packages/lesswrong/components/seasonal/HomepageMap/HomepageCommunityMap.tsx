@@ -134,7 +134,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 });
 
 
-export const HomepageCommunityMap = ({requestUserLocation, classes}: {
+export const HomepageCommunityMap = ({requestUserLocation = true, classes}: {
   requestUserLocation?: boolean,
   classes: ClassesType,
 }) => {
