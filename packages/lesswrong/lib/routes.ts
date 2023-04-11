@@ -1269,7 +1269,7 @@ addRoute(
     title: "Moderation Message Templates"
   },
   {
-    name: 'modGPTVerdicts',
+    name: 'ModGPTDashboard',
     path: '/admin/modgpt',
     componentName: 'ModGPTDashboard',
     title: "ModGPT Dashboard"
