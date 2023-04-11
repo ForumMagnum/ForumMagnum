@@ -7,7 +7,8 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { Link } from '../../lib/reactRouterWrapper'
+
+export const CONTENT_LIMIT = 20
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -162,7 +163,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
@@ -170,7 +171,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
 
   const reviewTrigger = getReasonForReview(user)

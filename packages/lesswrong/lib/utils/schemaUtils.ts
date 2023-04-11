@@ -1,7 +1,7 @@
 import { addCallback, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
-import { getWithLoader } from "../loaders";
+import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
@@ -54,9 +54,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as unknown as CollectionBase<DbType>
 
-    const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
-    const resolvedDocs: Array<DbType> = await loader.loadMany(keys)
-
+    const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
 }
