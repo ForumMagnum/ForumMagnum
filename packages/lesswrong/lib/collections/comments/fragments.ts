@@ -182,3 +182,13 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment CommentsListWithModGPTVerdict on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    modGPTVerdict
+  }
+`);

@@ -158,5 +158,10 @@
     "acceptsSchemaHash": "cc99890ebfba1e45ded25456d68f852b",
     "acceptedByMigration": "20230404T170523.add_subtitle.ts",
     "timestamp": "2023-04-04T17:05:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "01e0671c67b7b095e6aeb446d33d7d88",
+    "acceptedByMigration": "20230411T003252.add_modGPTVerdict.ts",
+    "timestamp": "2023-04-11T00:32:52.000Z"
   }
 ]

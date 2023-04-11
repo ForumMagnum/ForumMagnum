@@ -391,6 +391,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly title: string,
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
+  readonly modGPTVerdict: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1412,6 +1413,10 @@ interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment 
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
   readonly voteType: string,
+}
+
+interface CommentsListWithModGPTVerdict extends CommentsList { // fragment on Comments
+  readonly modGPTVerdict: string,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -3024,6 +3029,7 @@ interface FragmentTypes {
   StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
+  CommentsListWithModGPTVerdict: CommentsListWithModGPTVerdict
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
@@ -3208,6 +3214,7 @@ interface CollectionNamesByFragmentName {
   StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
+  CommentsListWithModGPTVerdict: "Comments"
   RevisionDisplay: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"

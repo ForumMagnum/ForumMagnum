@@ -164,6 +164,15 @@ Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
   };
 });
 
+Comments.addView("checkedByModGPT", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      modGPTVerdict: {$exists: true}
+    },
+    options: {sort: {postedAt: -1}}
+  };
+});
+
 Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
   return {
     selector: {

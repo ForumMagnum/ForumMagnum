@@ -694,6 +694,16 @@ const schema: SchemaType<DbComment> = {
       return !debateParticipantsIds.includes(currentUser._id);
     }
   },
+  
+  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  modGPTVerdict: {
+    type: String,
+    optional: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
 
   /* Alignment Forum fields */
   af: {
