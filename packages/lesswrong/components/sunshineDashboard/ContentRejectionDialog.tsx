@@ -4,6 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import React, { ChangeEventHandler, useState } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,6 +39,12 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
+
+  const { results } = useMulti({
+    collectionName: 'ModerationTemplates',
+    terms: { view: 'rejectionModerationTemplates' },
+    fragmentName: 'ModerationTemplateFragment'
+  });
 
   const rejectionReasons = {
     'Quality': '<li>This is bad!</li>',

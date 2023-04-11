@@ -398,7 +398,7 @@ interface ModerationTemplatesCollection extends CollectionBase<DbModerationTempl
 interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
   name: string
-  collectionName: "Messages" | "Comments"
+  collectionName: "Messages" | "Comments" | "Rejections"
   order: number
   deleted: boolean
   createdAt: Date

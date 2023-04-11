@@ -3,7 +3,7 @@ import ModerationTemplates from './collection';
 
 declare global {
   type ModerationTemplatesViewTerms = Omit<ViewTermsBase, 'view'> & ({
-    view?: 'moderationTemplatesPage'|'moderationTemplatesQuickview',
+    view?: 'moderationTemplatesPage' | 'moderationTemplatesQuickview' | 'rejectionModerationTemplates',
   })
 }
 
@@ -20,3 +20,9 @@ ModerationTemplates.addView('moderationTemplatesQuickview', function (terms: Mod
     options: { sort: { order: 1 } }
   };
 })
+
+ModerationTemplates.addView('rejectionModerationTemplates', function (terms) {
+  return {
+    selector: { collectionName: 'Rejections' }
+  };
+});

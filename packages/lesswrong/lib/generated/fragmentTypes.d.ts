@@ -2934,7 +2934,7 @@ interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
 
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
   readonly name: string,
-  readonly collectionName: "Messages" | "Comments",
+  readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
   readonly deleted: boolean,
 }
@@ -2942,7 +2942,7 @@ interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplate
 interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly _id: string,
   readonly name: string,
-  readonly collectionName: "Messages" | "Comments",
+  readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,
