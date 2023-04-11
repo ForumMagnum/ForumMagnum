@@ -149,7 +149,7 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
   if (noChange) return
   // only have ModGPT check comments on posts tagged with "Community"
   const postTags = (await Posts.findOne(newDocument.postId))?.tagRelevance
-  if (!Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
+  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   void checkModGPT(newDocument)
 })
@@ -158,7 +158,7 @@ getCollectionHooks("Comments").createAsync.add(async ({document}) => {
   if (!isEAForum || !document.postId) return
   // only have ModGPT check comments on posts tagged with "Community"
   const postTags = (await Posts.findOne({_id: document.postId}))?.tagRelevance
-  if (!Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
+  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   void checkModGPT(document)
 })
