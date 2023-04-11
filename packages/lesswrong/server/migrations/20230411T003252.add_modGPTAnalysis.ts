@@ -20,7 +20,8 @@
  *  CREATE TABLE "Comments" (
  * @@ -158,2 +156,3 @@ CREATE TABLE "Comments" (
  *      "debateResponse" bool,
- * +    "modGPTVerdict" text,
+ * +    "modGPTAnalysis" text,
+ * +    "modGPTRecommendation" text,
  *      "af" bool DEFAULT false,
  * 
  * -------------------------------------------
@@ -39,11 +40,13 @@ import { addField, dropField } from "./meta/utils";
 export const up = async ({db}: MigrationContext) => {
   if (!Comments.isPostgres()) return
   
-  await addField(db, Comments, "modGPTVerdict")
+  await addField(db, Comments, "modGPTAnalysis")
+  await addField(db, Comments, "modGPTRecommendation")
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (!Comments.isPostgres()) return
   
-  await dropField(db, Comments, "modGPTVerdict")
+  await dropField(db, Comments, "modGPTAnalysis")
+  await dropField(db, Comments, "modGPTRecommendation")
 }

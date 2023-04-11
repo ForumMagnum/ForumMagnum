@@ -184,11 +184,11 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentsListWithModGPTVerdict on Comment {
+  fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList
     post {
       ...PostsMinimumInfo
     }
-    modGPTVerdict
+    modGPTAnalysis
   }
 `);

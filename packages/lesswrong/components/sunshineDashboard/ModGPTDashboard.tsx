@@ -93,8 +93,8 @@ const columns: Column[] = [
     component: UserDisplay,
   },
   {
-    name:'modGPTVerdict',
-    label: 'Verdict'
+    name:'modGPTAnalysis',
+    label: 'Analysis'
   },
 ]
 
@@ -114,7 +114,7 @@ const ModGPTDashboard = ({classes}: {
         collection={Comments}
         columns={columns}
         options={{
-          fragmentName: 'CommentsListWithModGPTVerdict',
+          fragmentName: 'CommentsListWithModGPTAnalysis',
           terms: {view: "checkedByModGPT"},
           limit: 10,
           enableTotal: true

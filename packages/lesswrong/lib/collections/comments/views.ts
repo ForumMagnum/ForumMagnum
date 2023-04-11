@@ -167,7 +167,7 @@ Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
 Comments.addView("checkedByModGPT", (terms: CommentsViewTerms) => {
   return {
     selector: {
-      modGPTVerdict: {$exists: true}
+      modGPTAnalysis: {$exists: true}
     },
     options: {sort: {postedAt: -1}}
   };

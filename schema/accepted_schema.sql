@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: 01e0671c67b7b095e6aeb446d33d7d88
 
--- Accepted on 2023-04-11T00:32:52.000Z by 20230411T003252.add_modGPTVerdict.ts
+-- Accepted on 2023-04-11T00:32:52.000Z by 20230411T003252.add_modGPTAnalysis.ts
 
 -- Schema for "AdvisorRequests", hash: 7d8b2c2f86db29368d55481bc888c1d9
 CREATE TABLE "AdvisorRequests" (
@@ -156,7 +156,8 @@ CREATE TABLE "Comments" (
     "title" varchar(500),
     "relevantTagIds" varchar(27)[] DEFAULT '{}' ::varchar(27)[],
     "debateResponse" bool,
-    "modGPTVerdict" text,
+    "modGPTAnalysis" text,
+    "modGPTRecommendation" text,
     "af" bool DEFAULT false,
     "suggestForAlignmentUserIds" text[] DEFAULT '{}' ::text[],
     "reviewForAlignmentUserId" text,

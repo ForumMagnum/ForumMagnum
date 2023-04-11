@@ -10,6 +10,7 @@ import Posts from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import { isEAForum } from '../../lib/instanceSettings';
+import Users from '../../lib/collections/users/collection';
 
 
 export const modGPTPrompt = `
@@ -78,15 +79,27 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   
   const topResult = response.data.choices[0].message?.content
   if (topResult) {
+    const matches = topResult.match(/^Recommendation: (.+)/)
+    const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
+    console.log(text)
+    console.log(rec)
     await updateMutator({
       collection: Comments,
       documentId: comment._id,
       set: {
-        modGPTVerdict: topResult
+        modGPTAnalysis: topResult,
+        modGPTRecommendation: rec
       },
       unset: {},
       validate: false,
     })
+    
+    // if ModGPT recommends intervening, we collapse the comment and email the comment author
+    if (rec === 'Intervene') {
+      const user = await Users.findOne(comment.userId)
+      if (!user) throw new Error(`Could not find ${comment.userId}`)
+      // TODO: send email
+    }
   }
 }
 
@@ -96,7 +109,7 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
   const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
   if (noChange) return
   // only have ModGPT check comments on posts tagged with "Community"
-  const postTags = (await Posts.findOne({_id: newDocument.postId}))?.tagRelevance
+  const postTags = (await Posts.findOne(newDocument.postId))?.tagRelevance
   if (!Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   void checkModGPT(newDocument)

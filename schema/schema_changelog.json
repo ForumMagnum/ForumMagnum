@@ -161,7 +161,7 @@
   },
   {
     "acceptsSchemaHash": "01e0671c67b7b095e6aeb446d33d7d88",
-    "acceptedByMigration": "20230411T003252.add_modGPTVerdict.ts",
+    "acceptedByMigration": "20230411T003252.add_modGPTAnalysis.ts",
     "timestamp": "2023-04-11T00:32:52.000Z"
   }
 ]
