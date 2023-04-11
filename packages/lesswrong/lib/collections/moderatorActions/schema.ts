@@ -17,6 +17,8 @@ export const MANUAL_FLAG_ALERT = 'manualFlag';
 export const RECEIVED_VOTING_PATTERN_WARNING = 'votingPatternWarningDelivered';
 export const FLAGGED_FOR_N_DMS = 'flaggedForNDMs';
 export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
+export const REJECTED_POST = 'rejectedPost';
+export const REJECTED_COMMENT = 'rejectedComment';
 
 export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
 
@@ -41,6 +43,8 @@ export const MODERATOR_ACTION_TYPES = {
   [RECEIVED_VOTING_PATTERN_WARNING]: 'Received automatic warning for voting too fast',
   [FLAGGED_FOR_N_DMS]: 'Auto-flagged for sending suspiciously many DMs',
   [AUTO_BLOCKED_FROM_SENDING_DMS]: 'Auto-blocked from sending DMs for trying to send suspiciously many DMs',
+  [REJECTED_POST]: 'Rejected Post',
+  [REJECTED_COMMENT]: 'Rejected Comment'
 };
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */

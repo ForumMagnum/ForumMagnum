@@ -108,6 +108,7 @@ registerFragment(`
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -363,6 +364,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
     showCommunityInRecentDiscussion
     beta
     theme

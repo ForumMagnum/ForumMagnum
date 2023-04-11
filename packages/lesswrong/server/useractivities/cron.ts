@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
-import { chunk, max } from 'lodash/fp';
+import chunk from 'lodash/fp/chunk';
+import max from 'lodash/fp/max';
 import UserActivities from '../../lib/collections/useractivities/collection';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
@@ -29,16 +30,38 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   // Check if there is more than one combination
   if (dateCombinations.length > 1) {
     // eslint-disable-next-line no-console
-    console.error('UserActivities table has rows with different start and end dates. Dropping rows to fix this.');
+    console.error(`UserActivities table has rows with different start and end dates. Dropping rows to fix this.`);
+    console.error('Date combinations and their counts:');
+    for (let i = 0; i < dateCombinations.length; i++) {
+      const dateCombo = dateCombinations[i];
+      console.error(`(${i === 0 ? "correct" : "incorrect"}) startDate: ${dateCombo.startDate}, endDate: ${dateCombo.endDate}, count: ${dateCombo.count}`);
+      // get first 10 user ids with this date combo
+      const userIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE "startDate" = $1 AND "endDate" = $2 AND "type" = 'userId'
+        LIMIT 10;
+      `, [dateCombo.startDate, dateCombo.endDate])).map((row) => row.visitorId);
+      // get first 10 client ids with this date combo
+      const clientIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE "startDate" = $1 AND "endDate" = $2 AND "type" = 'clientId'
+        LIMIT 10;
+      `, [dateCombo.startDate, dateCombo.endDate])).map((row) => row.visitorId);
+      console.error(`First 10 userIds: ${userIds.join(', ')}`);
+      console.error(`First 10 clientIds: ${clientIds.join(', ')}`);
+    }
 
     // Get the most common combination
     const { startDate: mostCommonStartDate, endDate: mostCommonEndDate } = dateCombinations[0];
 
     // Step 1.1: Delete rows with different startDate and endDate, keeping the most common combination
-    await dataDb.none(`
-      DELETE FROM "UserActivities"
-      WHERE "startDate" <> $1 OR "endDate" <> $2;
-    `, [mostCommonStartDate, mostCommonEndDate]);
+    // FIXME currently there is a bug where rows get dropped, add this back in when that is fixed
+    // await dataDb.none(`
+    //   DELETE FROM "UserActivities"
+    //   WHERE "startDate" <> $1 OR "endDate" <> $2;
+    // `, [mostCommonStartDate, mostCommonEndDate]);
   }
 
   // Step 2: Check if the array of activity has the correct length for each row
@@ -52,10 +75,44 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   if (!correctActivityLengthInt) return
 
   // Delete rows with an array of activity that is the wrong length
-  await dataDb.none(`
-    DELETE FROM "UserActivities"
-    WHERE array_length("activityArray", 1) <> $1;
+  const arrayLengths = await dataDb.any(`
+  SELECT array_length("activityArray", 1) as length, COUNT(*) AS count
+    FROM "UserActivities"
+    WHERE array_length("activityArray", 1) <> $1
+    GROUP BY array_length("activityArray", 1)
+    ORDER BY count DESC;
   `, [correctActivityLengthInt]);
+
+  // Log the incorrect array lengths and their counts
+  if (arrayLengths.length > 0) {
+    console.error(`UserActivities table has rows with arrays of the incorrect length. Dropping rows to fix this.`);
+    console.error('Incorrect array lengths and their counts:');
+    for (const arrayLength of arrayLengths) {
+      console.error(`length: ${arrayLength.length}, count: ${arrayLength.count}`);
+      // get first 10 user ids with this array length
+      const userIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE array_length("activityArray", 1) = $1 AND "type" = 'userId'
+        LIMIT 10;
+      `, [parseInt(arrayLength.length)])).map((row) => row.visitorId);
+      // get first 10 client ids with this array length
+      const clientIds = (await dataDb.any(`
+        SELECT "visitorId"
+        FROM "UserActivities"
+        WHERE array_length("activityArray", 1) = $1 AND "type" = 'clientId'
+        LIMIT 10;
+      `, [parseInt(arrayLength.length)])).map((row) => row.visitorId);
+      console.error(`First 10 userIds: ${userIds.join(', ')}`);
+      console.error(`First 10 clientIds: ${clientIds.join(', ')}`);
+    };
+  }
+
+  // FIXME currently there is a bug where rows get dropped, add this back in when that is fixed
+  // await dataDb.none(`
+  //   DELETE FROM "UserActivities"
+  //   WHERE array_length("activityArray", 1) <> $1;
+  // `, [correctActivityLengthInt]);
 }
 
 
@@ -108,6 +165,11 @@ interface ConcatNewActivityParams {
  *  - Rows from inactive users will be deleted
  */
 async function concatNewActivity({dataDb, newActivityData, prevStartDate, updateStartDate, updateEndDate, visitorIdType}: ConcatNewActivityParams) {
+  if (updateEndDate.getTime() <= updateStartDate.getTime()) {
+    // eslint-disable-next-line no-console
+    console.log('No new activity data to update');
+    return;
+  }
   // validate against SQL injection attacks (userId and clientId are inserted verbatim from the analytics event)
   const cleanedActivityData = newActivityData.filter(({userOrClientId}) => userOrClientId.length <= 17 || !userOrClientId.match(/^[A-Za-z0-9]+$/))
 
@@ -233,13 +295,21 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
  */
-export async function updateUserActivities(props?: {updateStartDate?: Date, updateEndDate?: Date}) {
+export async function updateUserActivities(props?: {updateStartDate?: Date, updateEndDate?: Date, randomWait?: boolean}) {
   const dataDb = await getSqlClientOrThrow();
   if (!dataDb) {
     throw new Error("updateUserActivities: couldn't get database connection");
   };
   if (!UserActivities.isPostgres()) {
     console.log("updateUserActivities: only supported on Postgres");
+  }
+
+  if (props?.randomWait) {
+    // sleep for random amount of time up to 10 seconds
+    // FIXME remove once we have a better solution for not running this function twice
+    const sleepTime = Math.random() * 10000;
+    console.log(`Sleeping for ${sleepTime.toFixed(0)}ms before updating user activity to avoid multiple jobs running at the same time`)
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000));
   }
 
   await assertTableIntegrity(dataDb);
@@ -304,7 +374,7 @@ addCronJob({
   name: 'updateUserActivitiesCron',
   interval: 'every 3 hours',
   async job() {
-    await updateUserActivities();
+    await updateUserActivities({randomWait: true});
   }
 });
 

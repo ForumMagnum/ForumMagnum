@@ -48,7 +48,7 @@ const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
     <LWPopper
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement="bottom"
+      placement="bottom-start"
       allowOverflow
     >
       <LWClickAwayListener

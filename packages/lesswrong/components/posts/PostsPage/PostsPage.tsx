@@ -191,7 +191,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
 
-  const sortBy = query.answersSorting || "top";
+  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({
     terms: {
       view: "questionAnswers",
