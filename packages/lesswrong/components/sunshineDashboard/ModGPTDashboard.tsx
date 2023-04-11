@@ -16,11 +16,8 @@ const styles = (theme: JssStyles) => ({
     fontFamily: theme.typography.fontFamily,
     whiteSpace: 'pre-line',
     margin: '0 auto',
-    // '& table': {
-    //   borderSpacing: 0,
-    // },
     '& tbody tr:nth-child(2n)': {
-      background: theme.palette.grey[20]
+      background: theme.palette.grey[30]
     },
     '& tbody tr:nth-child(2n-1)': {
       background: theme.palette.grey[0]

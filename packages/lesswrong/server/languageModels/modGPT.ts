@@ -8,7 +8,7 @@ import { updateMutator } from '../vulcan-lib';
 import Comments from '../../lib/collections/comments/collection';
 import Posts from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
-import moment from 'moment';
+import { dataToHTML } from '../editor/conversionUtils';
 
 
 export const modGPTPrompt = `
@@ -51,8 +51,6 @@ export const modGPTPrompt = `
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
 async function checkModGPT(comment: DbComment): Promise<void> {
-  const start = moment()
-  console.debug('===== start', start)
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -62,13 +60,12 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     return
   }
   
-  const mainTextHtml = sanitizeHtml(
-    comment.contents.html, {
-      allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
-      nonTextTags: ['img', 'style']
-    }
-  )
-  const text = htmlToText(mainTextHtml)
+  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, true)
+  const html = sanitizeHtml(data, {
+    allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
+    nonTextTags: ['img', 'style']
+  })
+  const text = htmlToText(html)
   
   const response = await api.createChatCompletion({
     model: 'gpt-4',
@@ -89,16 +86,18 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       unset: {},
       validate: false,
     })
-    console.debug('===== end', moment().diff(start, 'seconds', true))
   }
 }
 
-// TODO?
-// getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument, context}) => {
-//   if (oldDocument.draft && !newDocument.draft) {
-//     void checkModGPT(newDocument, context);
-//   }
-// })
+getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
+  const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
+  if (!newDocument.postId || noChange) return
+  // only have ModGPT check comments on posts tagged with "Community"
+  const postTags = (await Posts.findOne({_id: newDocument.postId}))?.tagRelevance
+  if (!Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
+  
+  void checkModGPT(newDocument)
+})
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
   if (!document.postId) return
