@@ -75,7 +75,7 @@ const getMessageToCommenter = (user: DbUser, commentLink: string, flag?: string)
   if (flag) {
     intro = `
       <p>Our moderation bot suspects that <a href="${commentLink}">your recent comment</a> violates the following <a href="${normsLink}">EA Forum discussion norm(s)</a>:</p>
-      <p><ul><li>${flag}</li></ul></p>
+      <ul><li>${flag}</li></ul>
     `
   }
   
