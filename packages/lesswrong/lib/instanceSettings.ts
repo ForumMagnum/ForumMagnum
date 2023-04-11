@@ -171,3 +171,8 @@ export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<str
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 
 export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");
+
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");

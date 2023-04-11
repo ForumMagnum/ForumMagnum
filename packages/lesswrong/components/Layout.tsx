@@ -54,7 +54,7 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    paddingTop: isEAForum ? 20 : 50,
+    paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
@@ -337,7 +337,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap/></span>}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {

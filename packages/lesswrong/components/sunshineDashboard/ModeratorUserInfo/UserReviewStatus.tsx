@@ -23,12 +23,12 @@ export const UserReviewStatus = ({classes, user}: {
 
   const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
-    {user.reviewedAt
+    {(user.reviewedByUserId && user.reviewedAt)
       ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
       : null 
     }
     {user.banned
-      ? <p><em>Banned until <FormatDate format="yyyy-mm-DD" date={user.banned}/></em></p>
+      ? <p><em>Banned until <FormatDate format="YYYY-MM-DD" date={user.banned}/></em></p>
       : null 
     }
 
