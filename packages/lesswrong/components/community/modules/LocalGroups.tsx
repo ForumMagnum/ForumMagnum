@@ -6,6 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -59,7 +60,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.background.primaryDim2,
+    backgroundColor: theme.palette.background.primaryDim,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -85,8 +86,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography.headline,
+    ...theme.typography[isEAForum ? "headerStyle" : "headline"],
     fontSize: 18,
+    fontWeight: isEAForum ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -140,7 +142,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
    * @returns {number}
    */
  export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
-  const toRad = (num) => num * Math.PI / 180
+  const toRad = (num: number) => num * Math.PI / 180
   
   const dLat = toRad(end.lat - start.lat)
   const dLng = toRad(end.lng - start.lng)
@@ -151,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }
 
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim2");
+const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
@@ -195,7 +197,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   let localGroups = results
   if (results && keywordSearch) {
     localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.location.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
     ))
   }
 

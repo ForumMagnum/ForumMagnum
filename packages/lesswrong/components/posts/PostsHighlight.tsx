@@ -7,10 +7,24 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
+import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
-    marginTop:theme.spacing.unit*2
+    marginTop:theme.spacing.unit*2,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
+  smallerFonts: {
+    fontSize: '1.1rem',
+    lineHeight: '1.7em',
+    '& h1, & h2, & h3': {
+      fontSize: "1.4rem",
+    },
+    '& li': {
+      fontSize: '1.1rem'
+    }
   }
 })
 
@@ -33,6 +47,7 @@ const HighlightBody = ({
   setExpanded,
   expandedLoading,
   expandedDocument,
+  smallerFonts,
   classes,
 }: {
   post: PostsList,
@@ -42,6 +57,7 @@ const HighlightBody = ({
   setExpanded: (value: boolean) => void,
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
+  smallerFonts?: boolean,
   classes: ClassesType,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
@@ -51,7 +67,7 @@ const HighlightBody = ({
     ev.preventDefault();
   }, [setExpanded]);
 
-  return <Components.ContentStyles contentType="postHighlight">
+  return <Components.ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
     <Components.LinkPostMessage post={post} />
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
@@ -61,10 +77,10 @@ const HighlightBody = ({
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
         {(forceSeeMore || wordsLeft < 1000)
           ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
-              (See More – {wordsLeft} more words)
+              ({preferredHeadingCase("See More")} – {wordsLeft} more words)
             </Link>
           : <Link to={postGetPageUrl(post)}>
-              (Continue Reading – {wordsLeft} more words)
+              ({preferredHeadingCase("Continue Reading")}  – {wordsLeft} more words)
             </Link>
         }
       </div>}
@@ -76,10 +92,11 @@ const HighlightBody = ({
   </Components.ContentStyles>
 }
 
-const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, loading, classes}: {
+const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, loading, classes}: {
   post: PostsList & PostWithForeignId,
   maxLengthWords: number,
   forceSeeMore?: boolean,
+  smallerFonts?: boolean,
   loading: boolean,
   classes: ClassesType,
 }) => {
@@ -98,6 +115,7 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, lo
       post,
       maxLengthWords,
       forceSeeMore,
+      smallerFonts,
       expanded,
       setExpanded,
       expandedLoading,
@@ -106,10 +124,11 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, lo
     }} />
 }
 
-const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
+const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
   post: PostsList & PostWithForeignId,
   maxLengthWords: number,
   forceSeeMore?: boolean,
+  smallerFonts?: boolean,
   classes: ClassesType,
 }) => {
   const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
@@ -118,14 +137,15 @@ const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classe
     captureException(error);
   }
   return error
-    ? <LocalPostsHighlight {...{post, maxLengthWords, forceSeeMore, classes}} />
-    : <ForeignPostsHighlightBody {...{post, maxLengthWords, forceSeeMore, loading, classes}} />;
+    ? <LocalPostsHighlight {...{post, maxLengthWords, forceSeeMore, smallerFonts, classes}} />
+    : <ForeignPostsHighlightBody {...{post, maxLengthWords, forceSeeMore, smallerFonts, loading, classes}} />;
 }
 
-const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
+const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
+  smallerFonts?: boolean,
   classes: ClassesType,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -139,6 +159,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}
     post,
     maxLengthWords,
     forceSeeMore,
+    smallerFonts,
     expanded,
     setExpanded,
     expandedLoading,
@@ -151,6 +172,7 @@ const PostsHighlight = ({post, ...rest}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
+  smallerFonts?: boolean,
   classes: ClassesType,
 }) => isPostWithForeignId(post)
   ? <ForeignPostsHighlight post={post} {...rest} />

@@ -1,33 +1,20 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
+import { permissionGroups } from "../permissions";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-// TODO: This should probably be defined in some central permissions file
-type PermissionGroups = 'guests' |
-  'members' |
-  'admins' |
-  'sunshineRegiment' |
-  'alignmentForumAdmins' |
-  'alignmentForum' |
-  'alignmentVoters' |
-  'podcasters' |
-  'canBypassPostRateLimit' |
-  'trustLevel1' |
-  'canModeratePersonal' |
-  'canSuggestCuration';
+type PermissionGroups = typeof permissionGroups[number];
+
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
-  viewableBy?: FieldPermissions,
-  insertableBy?: FieldCreatePermissions,
-  editableBy?: FieldPermissions,
   canRead?: FieldPermissions,
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
@@ -127,8 +114,10 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //
+  /** DEPRECATED */
   onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
   onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
+  /** DEPRECATED */
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,

@@ -100,6 +100,7 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
     voteBanned
     banned
@@ -109,11 +110,13 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -156,6 +159,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -190,6 +194,13 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
+    noComicSans
   }
 `);
 
@@ -242,6 +253,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 
@@ -278,14 +290,28 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }
-    associatedClientId {
+    usersContactedBeforeReview
+    associatedClientIds {
+      clientId
       firstSeenReferrer
       firstSeenLandingPage
       userIds
     }
+    altAccountsDetected
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -337,8 +363,10 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    showCommunityInRecentDiscussion
     beta
     theme
+    noComicSans
 
     # Emails
     email
@@ -374,6 +402,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -404,6 +435,7 @@ registerFragment(`
     notificationPostsNominatedReview
     notificationGroupAdministration
     notificationSubforumUnread
+    notificationNewMention
 
     hideFrontpageMap
     hideTaggingProgressBar

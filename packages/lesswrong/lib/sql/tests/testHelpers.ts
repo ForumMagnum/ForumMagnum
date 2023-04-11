@@ -22,6 +22,7 @@ export const TestCollection = {
     },
     a: {
       type: Number,
+      defaultValue: 3,
     },
     b: {
       type: String,
@@ -35,12 +36,13 @@ export const TestCollection = {
   },
 } as unknown as CollectionBase<DbTestObject>;
 
-export const testTable = Table.fromCollection(TestCollection);
+export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
 
-testTable.addIndex(["a", "b"]);
-testTable.addIndex(["a", "c.d"]);
-testTable.addIndex(["a", "b"], {unique: true});
-testTable.addIndex(["a", "b"], {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
+testTable.addIndex({a: 1, b: 1});
+testTable.addIndex({a: 1, "c.d": 1});
+testTable.addIndex({a: 1, b: 1}, {unique: true});
+testTable.addIndex({a: 1, b: 1}, {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
+testTable.addIndex({b: 1}, {collation: {locale: "en", strength: 2}});
 
 export type DbTestObject2 = {
   _id: string,

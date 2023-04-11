@@ -4,26 +4,24 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import FilterIcon from '@material-ui/icons/FilterList';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/schema';
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -45,7 +43,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     flex: 'none',
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0
+    margin: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -211,16 +212,20 @@ const EventsHome = ({classes}: {
    * @param {Object} location.gmaps - The Google Maps location data.
    * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-  const saveUserLocation = ({lat, lng, gmaps}) => {
+  const saveUserLocation = ({lat, lng, gmaps}: {
+    lat: number;
+    lng: number;
+    gmaps?: google.maps.GeocoderResult
+  }) => {
     // save it in the page state
-    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps?.formatted_address})
 
     if (currentUser) {
       // save it on the user document
       void updateUser({
         selector: {_id: currentUser._id},
         data: {
-          location: gmaps.formatted_address,
+          location: gmaps?.formatted_address,
           googleLocation: gmaps
         }
       })
@@ -228,7 +233,7 @@ const EventsHome = ({classes}: {
       // save it in local storage
       const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps.formatted_address}))
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -240,7 +245,11 @@ const EventsHome = ({classes}: {
   // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
+  const saveReverseGeocodedLocation = async ({lat, lng, known}: {
+    lat: number;
+    lng: number;
+    known: boolean;
+  }) => {
     if (
       mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
       !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
@@ -291,7 +300,7 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const handleChangeDistance = (e) => {
+  const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const distance = parseInt(e.target.value)
     setDistance(distance)
     
@@ -300,18 +309,18 @@ const EventsHome = ({classes}: {
     ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
   }
   
-  const handleChangeDistanceUnit = (unit) => {
+  const handleChangeDistanceUnit = (unit: 'km' | 'mi') => {
     setDistanceUnit(unit)
     // when changing between miles and km, we convert the distance to the new unit
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
   
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem, ForumIcon } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
-  if (forumTypeSetting.get() !== 'EAForum' || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
+  if (!isEAForum || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
     numSpecialCards = 0
   }
 
@@ -370,7 +379,7 @@ const EventsHome = ({classes}: {
   }
   
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
-    Load More
+    {preferredHeadingCase("Load More")}
   </button>
   if (loading && results?.length) {
     loadMoreButton = <div className={classes.loading}><Loading /></div>
@@ -467,7 +476,9 @@ const EventsHome = ({classes}: {
             
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
-                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+                {currentUser?.nearbyEventsNotifications ?
+                  <ForumIcon icon="Bell" className={classes.notificationsIcon} /> :
+                  <ForumIcon icon="BellBorder" className={classes.notificationsIcon} />} Notify me
               </Button>
             </div>
           </div>

@@ -8,7 +8,8 @@ import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 
-// Multi query used on the client
+// Template of a GraphQL query for withMulti/useMulti. A sample query might look
+// like:
 //
 // mutation multiMovieQuery($input: MultiMovieInput) {
 //   movies(input: $input) {
@@ -21,7 +22,11 @@ import { useLocation, useNavigation } from '../routeUtil';
 //     __typename
 //   }
 // }
-const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }) =>
+const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
+  typeName: string,
+  fragmentName: FragmentName,
+  extraVariablesString: string,
+}) =>
 `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
@@ -32,8 +37,12 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }) =
   }
 }`;
 
-function getGraphQLQueryFromOptions({
-  collectionName, collection, fragmentName, fragment, extraVariables,
+function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, fragment, extraVariables}: {
+  collectionName: CollectionNameString,
+  collection: any,
+  fragmentName: FragmentName,
+  fragment: any,
+  extraVariables: any,
 }) {
   const typeName = collection.options.typeName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
@@ -50,33 +59,10 @@ function getGraphQLQueryFromOptions({
   `;
 }
 
-// Paginated items container
-//
-// Options:
-//
-//   - collection: the collection to fetch the documents from
-//   - fragment: the fragment that defines which properties to fetch
-//   - fragmentName: the name of the fragment, passed to getFragment
-//   - limit: the number of documents to show initially
-//   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
-//   - terms: an object that defines which documents to fetch
-//
-// Props Received:
-//   - terms: an object that defines which documents to fetch
-//
-// Terms object can have the following properties:
-//   - view: String
-//   - userId: String
-//   - cat: String
-//   - date: String
-//   - after: String
-//   - before: String
-//   - enableTotal: Boolean
-//   - enableCache: Boolean
-//   - listId: String
-//   - query: String # search query
-//   - postId: String
-//   - limit: String
+/**
+ * HoC for querying a collection for a list of results. DEPRECATED: you probably
+ * want to be using the hook version, useMulti, instead.
+ */
 export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
@@ -203,7 +189,7 @@ export function withMulti({
             count: results && results.length,
 
             // regular load more (reload everything)
-            loadMore(providedTerms) {
+            loadMore(providedTerms: any) {
               // if new terms are provided by presentational component use them, else default to incrementing current limit once
               const newTerms =
                 typeof providedTerms === 'undefined'
@@ -246,6 +232,7 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
+  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -258,6 +245,18 @@ export type LoadMoreProps = {
   hidden: boolean,
 }
 
+/**
+ * React hook that queries a collection, and returns those results along with
+ * some metadata about the query's progress and some options for refetching and
+ * loading additional results.
+ *
+ * The preferred way to handle a Load More button is to take loadMoreProps from
+ * the return value and pass it to Components.LoadMore, ie:
+ *   <LoadMore {...loadMoreProps}/>
+ * This will automatically take care of details like hiding the Load More button
+ * if there are no more results, showing a result count if enableTotal is true,
+ * showing a loading indicator, etc.
+ */
 export function useMulti<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
@@ -277,6 +276,7 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
+  createIfMissing,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -310,7 +310,7 @@ export function useMulti<
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal,
+      enableCache, enableTotal, createIfMissing
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }
@@ -406,5 +406,3 @@ export function useMulti<
     limit: effectiveLimit,
   };
 }
-
-export default withMulti;

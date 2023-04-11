@@ -16,7 +16,7 @@ import GraphQLJSON from 'graphql-type-json';
 // that was reversed.
 //
 
-const docIsTagRel = (currentUser, document) => {
+const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) => {
   // TagRel votes are treated as public
   return document?.collectionName === "TagRels"
 }
@@ -119,7 +119,7 @@ const schema: SchemaType<DbVote> = {
     ...schemaDefaultValue(false),
   },
   
-  // Whether this is an unvote.
+  // Whether this is an unvote. This data is unreliable on the EA Forum for old votes (around 2019).
   isUnvote: {
     type: Boolean,
     canRead: ['guests'],

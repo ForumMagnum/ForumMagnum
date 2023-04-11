@@ -6,7 +6,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { allOf } from '../../utils/functionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -48,7 +48,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  collectionType: 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
@@ -61,7 +61,7 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 
 addUniversalFields({
   collection: Posts,
-  createdAtOptions: {viewableBy: ['admins']},
+  createdAtOptions: {canRead: ['admins']},
 });
 
 makeEditable({
@@ -71,10 +71,10 @@ makeEditable({
     order: 25,
     pingbacks: true,
     permissions: {
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: ['members']
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
     },
   }
 })
@@ -90,9 +90,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: [userHasModerationGuidelines]
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
     },
   }
 })
@@ -103,9 +103,9 @@ makeEditable({
     formGroup: formGroups.highlight,
     fieldName: "customHighlight",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }
 })

@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 650,
     fontSize: '36px',
     color: theme.palette.text.invertedBackgroundText,
-    fontVariant: 'small-caps',
+    ...theme.typography.smallCaps,
     zIndex: theme.zIndexes.editSequenceTitleInput,
     height: '1em',
     resize: 'none',
@@ -50,7 +50,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}, context) => {
+const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}: {
+  classes: ClassesType;
+  inputProperties: any;
+  value: string;
+  path: string;
+  placeholder?: string;
+}, context: any) => {
   return <div className={classes.root}>
     <div className={classes.imageScrim}/>
     <div className={classes.wrapper}>

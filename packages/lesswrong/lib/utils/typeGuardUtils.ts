@@ -1,5 +1,9 @@
-type Literal<T> = string extends T ? never : T;
-type Tuple<T extends ReadonlyArray<string>> = Literal<T[number]> extends never ? never : T;
+export function fieldIn<T extends {}>(field: string | number | symbol, ...objects: T[]): field is keyof T {
+  return objects.every(object => field in object);
+}
+
+type Literal<T> = string|number extends T ? never : T;
+type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
 /**
  * We fairly frequently encounter the following pattern:
@@ -31,15 +35,23 @@ type Tuple<T extends ReadonlyArray<string>> = Literal<T[number]> extends never ?
  * new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments']); // missing `as const`
  * ```
  */
-export class TupleSet<T extends ReadonlyArray<string>> extends Set<string> {
+export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string|number> {
   constructor(knownValues: Tuple<T>) {
     super(knownValues);
   }
 
-  has (value: string): value is T[number] {
+  has (value: string|number): value is T[number] {
     return super.has(value);
+  }
+  
+  [Symbol.iterator](): IterableIterator<Tuple<T>[number]> {
+    return super[Symbol.iterator]();
   }
 }
 
 export type TupleOf<T extends TupleSet<any>> = T extends TupleSet<infer U> ? U : never;
 export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
+
+export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
+  return arr.filter(x=>x!=null && x!==undefined) as T[];
+}

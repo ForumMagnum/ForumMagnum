@@ -11,6 +11,8 @@ import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useMessages} from "../common/withMessages";
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
+import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -54,7 +56,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostVersionHistoryButton = ({postId, classes}: {
+const PostVersionHistoryButton = ({post, postId, classes}: {
+  post: PostsBase,
   postId: string,
   classes: ClassesType
 }) => {
@@ -66,7 +69,7 @@ const PostVersionHistoryButton = ({postId, classes}: {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
         componentName: "PostVersionHistory",
-        componentProps: {postId},
+        componentProps: {post, postId},
       })
     }}
   >
@@ -74,12 +77,14 @@ const PostVersionHistoryButton = ({postId, classes}: {
   </Button>
 }
 
-const PostVersionHistory = ({postId, onClose, classes}: {
+const PostVersionHistory = ({post, postId, onClose, classes}: {
+  post: PostsBase,
   postId: string,
   onClose: ()=>void,
   classes: ClassesType
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
+  const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   const [revertMutation] = useMutation(gql`
@@ -91,6 +96,7 @@ const PostVersionHistory = ({postId, onClose, classes}: {
     ${fragmentTextForQuery("PostsEdit")}
   `);
   const [revertLoading, setRevertLoading] = useState(false);
+  const canRevert = canUserEditPostMetadata(currentUser, post);
   
   const {flash} = useMessages();
   
@@ -140,7 +146,7 @@ const PostVersionHistory = ({postId, onClose, classes}: {
         </div>
       </div>
       <div className={classes.selectedRevisionDisplay}>
-        {revision && <div className={classes.restoreButton}>
+        {revision && canRevert && <div className={classes.restoreButton}>
           {revertLoading
             ? <Loading/>
             : <Button variant="contained" color="primary" onClick={async () => {

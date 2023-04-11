@@ -2,16 +2,14 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import Users from '../../../lib/vulcan-users';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
-import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
-import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
@@ -250,7 +248,7 @@ const EAGApplicationImportForm = ({classes}: {
         setImportedData({
           jobTitle: eagData.What_is_your_job_title_or_current_role,
           organization: eagData.Where_do_you_work,
-          careerStage: careerStage?.map(stage => CAREER_STAGES.find(s => stage.includes(s.label))?.value)?.filter(stage => !!stage),
+          careerStage: careerStage?.map((stage: string) => CAREER_STAGES.find(s => stage.includes(s.label))?.value)?.filter((stage?: string) => !!stage),
           biography: {
             markdownValue: bio,
             ckEditorValue: markdownToHtmlSimple(bio)
@@ -283,8 +281,9 @@ const EAGApplicationImportForm = ({classes}: {
     // 'organizerOfGroupIds', // TODO: implement later - for the first release I decided this wasn't worth the effort to include
     'mapLocation',
     'linkedinProfileURL',
-  ]
+  ] as const
   // formValues holds the state of the form EXCEPT for CKEditor fields, which have their own state
+  // TODO: pick should be correctly typed, but it can't be right now because currentUser can be null
   const [formValues, setFormValues] = useState(pick(currentUser, formFields))
 
   // these are used to access CKEditor fields, to copy over the imported data
@@ -319,7 +318,7 @@ const EAGApplicationImportForm = ({classes}: {
     return matches?.length ? matches[1] : ''
   }
   
-  const handleCopyAll = async (e) => {
+  const handleCopyAll = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (!importedData) return
 
@@ -335,7 +334,7 @@ const EAGApplicationImportForm = ({classes}: {
     howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
   }
   
-  const handleCopyField = async (e, field) => {
+  const handleCopyField = async (e: React.MouseEvent<HTMLButtonElement>, field: keyof EAGApplicationDataType) => {
     e.preventDefault()
     if (!importedData) return
     
@@ -388,17 +387,18 @@ const EAGApplicationImportForm = ({classes}: {
     })
   }
   
-  const handleChangeField = (e, field) => {
+  const handleChangeField = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof EAGApplicationDataType) => {
     e.preventDefault()
+    const val = e.target.value
     setFormValues(currentValues => {
       return {
         ...currentValues,
-        [field]: e.target.value
+        [field]: val
       }
     })
   }
   
-  const handleUpdateValue = (val) => {
+  const handleUpdateValue = <T extends {}>(val: T) => {
     setFormValues(currentValues => {
       return {
         ...currentValues,
@@ -407,7 +407,7 @@ const EAGApplicationImportForm = ({classes}: {
     })
   }
   
-  const handleSubmit = async (e, copyAll=false) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>, copyAll=false) => {
     e.preventDefault()
     
     let updatedFormData = {...formValues}
@@ -425,8 +425,9 @@ const EAGApplicationImportForm = ({classes}: {
     }
     
     for (let field in updatedFormData) {
-      if (Array.isArray(updatedFormData[field]) && !updatedFormData[field].length) {
-        updatedFormData[field] = null
+      type UpdatedFormDataKey = keyof typeof updatedFormData;
+      if (Array.isArray(updatedFormData[field as UpdatedFormDataKey]) && !updatedFormData[field as UpdatedFormDataKey].length) {
+        updatedFormData[field as UpdatedFormDataKey] = null
       }
     }
     
@@ -680,7 +681,7 @@ const EAGApplicationImportForm = ({classes}: {
       <div className={classes.formRow}>
         <label className={classes.label}>LinkedIn profile</label>
         <PrefixedInput
-          value={formValues.linkedinProfileURL}
+          value={formValues.linkedinProfileURL ?? ''}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
           path="linkedinProfileURL"
           updateCurrentValues={handleUpdateValue}

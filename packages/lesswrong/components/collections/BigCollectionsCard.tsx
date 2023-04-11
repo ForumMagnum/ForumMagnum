@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,6 +44,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   media: {
     height:271,

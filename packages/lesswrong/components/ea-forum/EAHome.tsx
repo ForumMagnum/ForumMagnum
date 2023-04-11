@@ -3,8 +3,9 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
-import { reviewIsActive } from '../../lib/reviewUtils'
+import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -15,8 +16,9 @@ const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMai
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, MaintenanceBanner, FrontpageReviewWidget, SingleColumnSection
+    RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
+    SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
+    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -29,26 +31,34 @@ const EAHome = () => {
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
 
   return (
-    <React.Fragment>
+    <AnalyticsContext pageContext="homePage">
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-      
-      <StickiedPosts />
+
+      {/* <SingleColumnSection>
+        <CurrentSpotlightItem />
+      </SingleColumnSection> */}
 
       {reviewIsActive() && <SingleColumnSection>
-        <FrontpageReviewWidget />
+        <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       
-      <HomeLatestPosts />
+      <EAHomeMainContent FrontpageNode={
+        () => <>
+          <HomeLatestPosts />
+          <EAHomeCommunityPosts />
+          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
+          <RecentDiscussionFeed
+            title="Recent comments"
+            af={false}
+            commentsLimit={recentDiscussionCommentsPerPost}
+            maxAgeHours={18}
+          />
+        </>
+      } />
       
-      {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
-      <RecentDiscussionFeed
-        af={false}
-        commentsLimit={recentDiscussionCommentsPerPost}
-        maxAgeHours={18}
-      />
-    </React.Fragment>
+    </AnalyticsContext>
   )
 }
 

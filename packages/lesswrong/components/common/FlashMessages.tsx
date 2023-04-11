@@ -4,11 +4,13 @@ import classnames from 'classnames';
 import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .MuiSnackbarContent-message': {
       color: theme.palette.text.maxIntensity,
+      fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     },
   },
 });
@@ -16,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const FlashMessages = ({classes}: {
   classes: ClassesType,
 }) => {
-  const getProperties = (message) => {
+  const getProperties = (message: WithMessagesMessage) => {
     if (typeof message === 'string') {
       // if error is a string, use it as message
       return {
@@ -34,15 +36,25 @@ const FlashMessages = ({classes}: {
   }
 
   const { messages, clear } = useMessages();
-  let messageObject = messages.length > 0 && getProperties(messages[0]);
+  let messageObject = messages.length > 0 ? getProperties(messages[0]) : undefined;
   return (
     <div className={classnames("flash-messages", classes.root)}>
       <Snackbar
-        open={messageObject && !messageObject.hide}
+        // @ts-ignore there is no hide property on the message props!
+        open={!!messageObject && !messageObject.hide}
         message={messageObject && messageObject.message}
         autoHideDuration={6000}
         onClose={clear}
-        action={messageObject?.action && <Button onClick={messageObject?.action} color="primary">{messageObject?.actionName || "UNDO"}</Button>}
+        action={
+          messageObject?.action &&
+          <Button
+            onClick={messageObject?.action}
+            color="primary"
+          >
+            {/* @ts-ignore there is no actionName property on the message props! */}
+            {messageObject?.actionName || "UNDO"}
+          </Button>
+        }
       />
     </div>
   );

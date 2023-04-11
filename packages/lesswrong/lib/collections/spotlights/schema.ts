@@ -51,13 +51,18 @@ const schema: SchemaType<DbSpotlight> = {
       // TODO: try a graphql union type?
       type: 'Post!',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
-        const collectionName = getCollectionName(spotlight.documentType) as SpotlightDocumentType;
+        const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
         return accessFilterSingle(context.currentUser, collection, document, context);
       }
     },
   },
+  
+  /**
+   * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
+   * Note subtle distinction: those are type names, not collection names.
+   */
   documentType: {
     type: String,
     typescriptType: 'SpotlightDocumentType',
@@ -172,6 +177,16 @@ const schema: SchemaType<DbSpotlight> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  showAuthor: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 85,
+    ...schemaDefaultValue(false),
+   optional: true,
+   nullable: false,
+  },
   spotlightImageId: {
     type: String,
     canRead: ['guests'],
@@ -181,7 +196,17 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true,
     order: 90,
-  }
+  },
+  spotlightDarkImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    optional: true,
+    nullable: true,
+    order: 100,
+  },
 };
   
 export default schema;

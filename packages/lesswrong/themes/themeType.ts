@@ -2,6 +2,7 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
@@ -12,21 +13,21 @@ declare global {
    * UserThemeName represents a concrete theme name that can be directly mapped
    * to a stylesheet (eg; "default", "dark")
    */
-  type UserThemeName = typeof userThemeNames[number];
+  type UserThemeName = UnionOf<typeof userThemeNames>;
 
   /**
    * UserThemeSetting is a strict superset of UserThemeName which also includes
    * "abstract" themes which require some logic to be mapped to a stylesheet
    * (eg; "auto")
    */
-  type UserThemeSetting = typeof userThemeSettings[number];
+  type UserThemeSetting = UnionOf<typeof userThemeSettings>;
 
   /**
    * MuiThemeName includes all theme names that can be directly passed to
    * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
    * UserThemeName.
    */
-  type MuiThemeName = typeof muiThemeNames[number];
+  type MuiThemeName = UnionOf<typeof muiThemeNames>;
 
   /**
    * Overridden forum type (for admins to quickly test AF and EA Forum themes).
@@ -45,7 +46,6 @@ declare global {
     20: ColorString,
     25: ColorString,
     30: ColorString,
-    40: ColorString,
     55: ColorString,
     60: ColorString,
     110: ColorString,
@@ -56,14 +56,16 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
-    grey: MuiColorShades,
+    grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
@@ -101,6 +103,9 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
+    warning: {
+      main: ColorString,
+    }
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -142,6 +147,7 @@ declare global {
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
+      primaryDarkOnDim: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -191,6 +197,7 @@ declare global {
       inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
+      sprout: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -225,6 +232,12 @@ declare global {
       primaryHighlight2: string,
       secondaryHighlight: string,
       secondaryHighlight2: string,
+      primaryTranslucent: string,
+      debateComment: string,
+      debateComment2: string,
+      debateComment3: string,
+      debateComment4: string,
+      debateComment5: string,
     },
     panelBackground: {
       default: ColorString,
@@ -321,16 +334,26 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      imageUpload2: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
     },
     tag: {
-      background: ColorString,
-      border: string,
-      coreTagBorder: string,
       text: ColorString,
-      boxShadow: string,
+      background: ColorString,
+      backgroundHover?: ColorString,
+      border: string,
+      coreTagText: ColorString,
+      coreTagBackground: ColorString,
+      coreTagBackgroundHover?: ColorString,
+      coreTagBorder: string,
       hollowTagBackground: ColorString,
+      hollowTagBackgroundHover?: ColorString,
+      hollowTagBorder: string,
+      boxShadow: string,
       addTagButtonBackground: ColorString,
     },
     geosuggest: {
@@ -355,7 +378,8 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
-      primaryDim2: ColorString,
+      transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -369,6 +393,15 @@ declare global {
       sideCommentEditorBackground: ColorString,
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
+    },
+    blockquoteHighlight: {
+      commentHovered: ColorString,
+      individualQuoteHovered: ColorString,
+      
+      //CSS added to the <style> node of hovered blockquotes. Used for adding
+      //extra top/bottom padding to extend the highlighted region a few pixels,
+      //which is needed with EA Forum's font but not needed with LW's font.
+      addedBlockquoteHighlightStyles: string,
     },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
@@ -391,6 +424,7 @@ declare global {
     forumType: ForumTypeString,
     
     breakpoints: {
+      /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
       values: Record<BreakpointName,number>,
@@ -398,6 +432,10 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+    },
+    borderRadius: {
+      default: number,
+      small: number,
     },
     palette: ThemePalette,
     typography: {
@@ -436,6 +474,8 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
+      smallCaps: JssStyles,
     },
     zIndexes: any,
     overrides: any,

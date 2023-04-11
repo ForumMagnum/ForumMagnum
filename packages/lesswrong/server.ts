@@ -11,6 +11,7 @@ import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
 import './server/karmaInflation/cron';
+import './server/useractivities/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -23,12 +24,14 @@ import './server/scripts/sscImport';
 import './server/scripts/hpmorImport';
 import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
+import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
 import './server/scripts/convertImagesToCloudinary';
 import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';
+import './server/scripts/generateUserActivityReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
@@ -41,6 +44,8 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/reviewGetResultsPost';
+import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -53,6 +58,10 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
+import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/importLocalgroups";
+import "./server/scripts/setUserTagFilters";
+import "./server/scripts/languageModels/generateTaggingPostSets";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -92,9 +101,11 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/conversationCallbacks';
 import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
+import './server/resolvers/notificationResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
@@ -104,6 +115,7 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
+import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
@@ -111,6 +123,7 @@ import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
+import './server/callbacks/advisorRequestsCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
@@ -135,6 +148,7 @@ import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
+import './server/resolvers/moderationResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -142,10 +156,16 @@ import './server/callbacks/intercomCallbacks';
 import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
 
+import './server/exportUserData';
+import './server/deleteUserContent';
+
 import './server/spotlightCron';
 
-import './server/codegen/generateTypes';
+import "./server/languageModels/autoTagCallbacks";
+import './server/languageModels/languageModelIntegration';
+import './server/languageModels/postSummaryResolver';
 
+import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 // Algolia Search Integration

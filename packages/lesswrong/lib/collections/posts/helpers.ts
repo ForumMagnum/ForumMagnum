@@ -133,7 +133,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
   }
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost): number => {
+export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -141,20 +141,29 @@ export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
-  // can be passed in a manual comment count, or retrieve the post's cached comment count
-
-  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
-
+/**
+ * Can pass in a manual comment count, or retrieve the post's cached comment count
+ */
+export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    return "No comments"
-  } else if (count == 1) {
-    return "1 comment"
+    return "No comments";
+  } else if (count === 1) {
+    return "1 comment";
   } else {
-    return count + " comments"
+    return count + " comments";
   }
 }
 
+export const postGetAnswerCountStr = (count: number): string => {
+  if (!count) {
+    return "No answers";
+  } else if (count === 1) {
+    return "1 answer";
+  } else {
+    return count + " answers";
+  }
+}
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -296,15 +305,17 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
+
+export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
     return false;
   }
-  const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
+  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
 
-export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
+export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
   let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
@@ -314,6 +325,14 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
   return coauthorStatuses.map(({ userId }) => userId);
 }
 
-export const isNotHostedHere = (post: PostsPage) => {
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
+  if (!user) {
+    return false;
+  }
+  const userIds = getConfirmedCoauthorIds(post);
+  return userIds.indexOf(user._id) >= 0;
+}
+
+export const isNotHostedHere = (post: PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }

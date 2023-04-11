@@ -1,7 +1,10 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
+import md5 from "md5";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
+  noWarnings: isAnyTest,
   // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);
@@ -33,6 +36,80 @@ declare global {
   };
 }
 
+/**
+ * When a new database connection is created we run these queries to
+ * ensure the environment is setup correctly. The order in which they
+ * are run is undefined.
+ */
+const onConnectQueries: string[] = [
+  // The default TOAST compression in PG uses pglz - here we switch to lz4 which
+  // uses slightly more disk space in exchange for _much_ faster compression and
+  // decompression times
+  `SET default_toast_compression = lz4`,
+  // Enable to btree_gin extension - this allows us to use a lot of BTREE operators
+  // with GIN indexes that otherwise wouldn't work
+  `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
+  // Enable the earthdistance extension - this is used for finding nearby events
+  `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
+  // Build a nested JSON object from a path and a value - this is a dependency of
+  // fm_add_to_set below
+  `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
+    target_path TEXT[],
+    terminal_element JSONB
+  )
+    RETURNS JSONB LANGUAGE sql IMMUTABLE AS
+   'SELECT JSONB_BUILD_OBJECT(
+      target_path[1],
+      CASE
+        WHEN CARDINALITY(target_path) = 1 THEN terminal_element
+        ELSE fm_build_nested_jsonb(
+          target_path[2:CARDINALITY(target_path)],
+          terminal_element
+        )
+      END
+    );'
+  `,
+  // Implement Mongo's $addToSet for native PG arrays
+  `CREATE OR REPLACE FUNCTION fm_add_to_set(ANYARRAY, ANYELEMENT)
+    RETURNS ANYARRAY LANGUAGE sql IMMUTABLE AS
+   'SELECT CASE WHEN ARRAY_POSITION($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;'
+  `,
+  // Implement Mongo's $addToSet for JSON fields - this requires a lot more work
+  // than for native PG arrays...
+  `CREATE OR REPLACE FUNCTION fm_add_to_set(
+    base_field JSONB,
+    target_path TEXT[],
+    value_to_add ANYELEMENT
+  )
+    RETURNS JSONB LANGUAGE sql IMMUTABLE AS
+   'SELECT CASE
+    WHEN base_field #> target_path IS NULL
+      THEN COALESCE(base_field, ''{}''::JSONB) || fm_build_nested_jsonb(
+        target_path,
+        JSONB_BUILD_ARRAY(value_to_add)
+      )
+    WHEN EXISTS (
+      SELECT *
+      FROM JSONB_ARRAY_ELEMENTS(base_field #> target_path) AS elem
+      WHERE elem = TO_JSONB(value_to_add)
+    )
+      THEN base_field
+    ELSE JSONB_INSERT(
+      base_field,
+      (SUBSTRING(target_path::TEXT FROM ''(.*)}.*$'') || '', -1}'')::TEXT[],
+      TO_JSONB(value_to_add),
+      TRUE
+    )
+    END;'
+  `,
+];
+
+/**
+ * pg_advisory_xact_lock takes a 64-bit integer as an argument. Generate this from the query
+ * string to ensure that each query gets a unique lock key.
+ */
+const getLockKey = (query: string) => parseInt(md5(query), 16) / 1e20
+
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
@@ -43,13 +120,19 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
-  await db.none("SET default_toast_compression = lz4");
+
   try {
-    await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\" CASCADE");
-    await db.none("CREATE EXTENSION IF NOT EXISTS \"earthdistance\" CASCADE");
+    await Promise.all(onConnectQueries.map((query) => {
+      return db.tx(async (transaction) => {
+        // Set advisory lock to ensure only one server runs each query at a time
+        await transaction.any(`SET LOCAL lock_timeout = '10s';`);
+        await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
+        await transaction.any(query)
+      })
+    }));
   } catch (e) {
-    // eslint-disable-next-line
-    console.error("Failed to create Postgres extensions:", e);
+    // eslint-disable-next-line no-console
+    console.error("Failed to run Postgres onConnectQuery:", e);
   }
 
   return {

@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -117,7 +117,7 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
   const { html = "" } = sequence.contents || {};
-  const plaintextBody = htmlToText.fromString(html);
+  const plaintextBody = htmlToText(html);
   algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   return [algoliaSequence]
 }
@@ -196,6 +196,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     curated: !!post.curatedDate,
     legacy: post.legacy,
     commentCount: post.commentCount,
+    // TODO: handle afCommentCount
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
@@ -225,7 +226,12 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
   let body = ""
   if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
-    body = dataToMarkdown(data, type)
+    try {
+      body = dataToMarkdown(data, type)
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log(`Failed in dataToMarkdown on post body of ${post._id}`);
+    }
   }
   if (body) {
     body.split("\n\n").forEach((paragraph, paragraphCounter) => {
@@ -276,7 +282,8 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     wikiOnly: tag.wikiOnly,
     isSubforum: tag.isSubforum,
     description,
-    bannerImageId: tag.bannerImageId
+    bannerImageId: tag.bannerImageId,
+    parentTagId: tag.parentTagId,
   }];
 }
 
@@ -634,12 +641,26 @@ export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDb
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);
+  // eslint-disable-next-line no-console
+  console.log(`Algolia index contains ${uniqueIds.length} unique IDs`);
   const pages = chunk(uniqueIds, 1000);
   let itemsToIndexById: Record<string,boolean> = {};
+  let pageNum=0;
   
   for (let page of pages) {
+    // eslint-disable-next-line no-console
+    console.log(`Checking page ${pageNum}/${pages.length}...`);
+    pageNum++;
     let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
-    let itemsToIndex = await asyncFilter(items, async (item: T) => !!(await collection.toAlgolia(item)));
+    let itemsToIndex = await asyncFilter(items, async (item: T) => {
+      try {
+        return !!(await collection.toAlgolia(item));
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed in ${collection.collectionName}.toAlgolia(${item._id}): ${e}`);
+        return false;
+      }
+    });
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;
     }

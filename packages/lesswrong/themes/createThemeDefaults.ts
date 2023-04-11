@@ -44,10 +44,11 @@ export const zIndexes = {
   styledMapPopup: 6,
   nextUnread: 999,
   sunshineSidebar: 1000,
-  postItemMenu: 1001,
-  layout: 1100,
+  intercomButton: 1030,
+  sideCommentBox: 1040,
+  postItemMenu: 1050,
+  searchResults: 1100,
   tabNavigation: 1101,
-  searchResults: 1102,
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
@@ -82,6 +83,10 @@ export const baseTheme: BaseThemeSpecification = {
       spacing: {
         unit: spacingUnit,
         titleDividerSpacing,
+      },
+      borderRadius: {
+        default: 0,
+        small: 3,
       },
       typography: {
         postStyle: {
@@ -223,6 +228,12 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: 16,
           fontWeight: 600,
           marginBottom: ".5rem"
+        },
+        italic: {
+          fontStyle: "italic",
+        },
+        smallCaps: {
+          fontVariant: "small-caps",
         },
       },
       zIndexes: {

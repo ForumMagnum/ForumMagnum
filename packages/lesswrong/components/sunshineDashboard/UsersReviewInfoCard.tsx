@@ -1,15 +1,14 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag';
-import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
+
+export const CONTENT_LIMIT = 20
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,10 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     alignItems: "center",
-  },
-  disabled: {
-    opacity: .2,
-    cursor: "default"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -142,6 +137,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...hideScrollBars
   },
+  flagged: {
+    border: theme.palette.border.intense,
+    borderColor: theme.palette.error.main
+  }
 })
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
@@ -150,7 +149,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  const { MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+  const {
+    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
+    UsersName, NewUserDMSummary, FirstContentIcons
+  } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
@@ -160,7 +163,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
@@ -168,28 +171,23 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
 
   const reviewTrigger = getReasonForReview(user)
   const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
+  
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
       <div className={classes.displayName}>
         <UsersName user={user}/>
-        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
+        <FirstContentIcons user={user}/>
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
-      </MetaInfo>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
-      </MetaInfo>
+      <UserReviewStatus user={user}/>
     </div>
 
     <div className={classes.row}>
@@ -232,7 +230,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const renderExpand = !!(posts?.length || comments?.length)
   
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
       {basicInfoRow}
       <div className={classes.columns}>
         <div className={classes.infoColumn}>
@@ -246,6 +244,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
+          <NewUserDMSummary user={user} />
           <div 
             className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
@@ -276,5 +275,3 @@ declare global {
     UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
-
-

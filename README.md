@@ -32,6 +32,8 @@ Forum Magnum is built on top of a number major open-source libraries.
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
+    * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
+  * Curl, Perl are optional, but needed to run some scripts and tests
 
 ### Installation
 
@@ -194,6 +196,22 @@ For these the development process will be like this:
 * Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
 * Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
 * Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
+
+#### Migrations and git conflicts
+* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
+* To resolve it you basically need to re-run migration process:
+  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
+  * run `yarn makemigrations` again, to generate new hashes for the schema
+  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
+  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
+  * run `yarn acceptmigrations`
+  * finish merge/rebase
+
+### Migrating both Mongo and Postgres
+* Currently, you need to create a migration for both Mongo and Postgres separately. 
+* You do the Postgres migration via the `yarn makemigrations` process described above.
+* You make Mongo migration by imitating the previous examples in `packages/lesswrong/server/manualMigrations`
+* See https://github.com/ForumMagnum/ForumMagnum/pull/6458 for an example of a migration that does both.
 
 ## Testing
 

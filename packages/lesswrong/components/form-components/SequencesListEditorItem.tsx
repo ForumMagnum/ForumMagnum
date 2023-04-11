@@ -15,9 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: "inline",
     marginRight: 10,
-    fontVariant: "small-caps",
     fontSize: 20,
     lineHeight: 1.25,
+    ...theme.typography.smallCaps,
   },
   meta: {
     display: "inline-block",
@@ -48,7 +48,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SequencesListEditorItem = ({documentId, removeItem, classes}) => {
+const SequencesListEditorItem = ({documentId, removeItem, classes}: {
+  documentId: string;
+  removeItem: (itemId: string) => void;
+  classes: ClassesType;
+}) => {
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",

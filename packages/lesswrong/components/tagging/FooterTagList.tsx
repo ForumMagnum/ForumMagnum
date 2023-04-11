@@ -9,21 +9,38 @@ import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
-import * as _ from 'underscore';
+import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { filter } from 'underscore';
+import { useMessages } from '../common/withMessages';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 8,
     marginBottom: 8,
   },
+  postTypeLink: {
+    "&:hover": isEAForum ? {opacity: 1} : {},
+  },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    paddingTop: 4,
-    paddingBottom: 4,
-    border: theme.palette.tag.coreTagBorder,
+    ...(isEAForum
+      ? {
+        marginBottom: 0,
+        "&:hover": {
+          opacity: 1,
+          backgroundColor: theme.palette.tag.hollowTagBackgroundHover,
+        },
+        "& a:hover": {
+          opacity: 1,
+        },
+      }
+      : {
+        paddingTop: 4,
+        paddingBottom: 4,
+      }),
+    border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
   card: {
@@ -37,10 +54,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
-  return _.sortBy(list, item=>toTag(item)?.core);
+  return sortBy(
+    list,
+    isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+  );
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true, highlightAutoApplied=false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
@@ -49,10 +69,12 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   hidePostTypeTag?: boolean,
   smallText?: boolean,
   link?: boolean
+  highlightAutoApplied?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
+  const { flash } = useMessages();
   const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
@@ -70,9 +92,11 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     collectionName: "TagRels",
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
+    fetchPolicy: 'cache-and-network',
   });
-  const tagIds = (results||[]).map((tagRel) => tagRel.tag?._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+
+  const tagIds = (results||[]).map((tag) => tag._id)
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -84,26 +108,32 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   `);
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
-    setIsAwaiting(true)
-    await mutate({
-      variables: {
-        tagId: tagId,
-        postId: post._id,
-      },
-    });
-    setIsAwaiting(false)
-    refetch()
-    captureEvent("tagAddedToItem", {tagId, tagName})
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
+    try {
+      setIsAwaiting(true);
+      await mutate({
+        variables: {
+          tagId: tagId,
+          postId: post._id,
+        },
+      });
+      setIsAwaiting(false);
+      refetch();
+      captureEvent("tagAddedToItem", {tagId, tagName});
+    } catch (e) {
+      setIsAwaiting(false);
+      flash(e.message);
+    }
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
   const { Loading, FooterTag, ContentStyles } = Components
   
-  const MaybeLink = ({to, children}: {
-    to: string|null
-    children: React.ReactNode
+  const MaybeLink = ({to, children, className}: {
+    to: string|null,
+    children: React.ReactNode,
+    className?: string,
   }) => {
     if (to) {
-      return <Link to={to}>{children}</Link>
+      return <Link to={to} className={className}>{children}</Link>
     } else {
       return <>{children}</>;
     }
@@ -111,7 +141,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
   const contentTypeInfo = forumSelect(contentTypes);
   
-  const PostTypeTag = ({tooltipBody, label}) =>
+  const PostTypeTag = ({tooltipBody, label}: {
+    tooltipBody: React.ReactNode;
+    label: string;
+  }) =>
     <LWTooltip
       title={<Card className={classes.card}>
         <ContentStyles contentType="comment">
@@ -127,15 +160,15 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
-    ? <Link to={contentTypeInfo.curated.linkTarget}>
+    ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
         <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
       </Link>
     : (post.frontpageDate
-      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
+      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
         </MaybeLink>
       : (post.reviewedByUserId
-        ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
+        ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
           </MaybeLink>
         : null
@@ -149,22 +182,25 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     </span>;
   }
 
-  
+  const sortedTagRels = sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag)
  
   return <span className={classes.root}>
-    {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
-    {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
+    {showCoreTags && <div>
+      <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/>
+    </div>}
+    {sortedTagRels.map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 
         tagRel={tagRel} 
         tag={tagRel.tag} 
         hideScore={hideScore}
         smallText={smallText}
+        highlightAsAutoApplied={highlightAutoApplied && tagRel.autoApplied}
         link={link}
       />
     )}
     { !hidePostTypeTag && postType }
-    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
+    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
     { isAwaiting && <Loading/>}
   </span>
 };

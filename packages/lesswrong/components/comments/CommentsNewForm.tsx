@@ -15,6 +15,8 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { isLW } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -92,14 +94,13 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
-{
+export type CommentsNewFormProps = {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: any,
+  successCallback?: (comment: CommentsList, otherArgs: any) => void,
   type: string,
   cancelCallback?: any,
   classes: ClassesType,
@@ -108,8 +109,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  displayMode?: CommentFormDisplayMode
-}) => {
+  replyFormStyle?: CommentFormDisplayMode
+}
+
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   prefilledProps = {
@@ -117,10 +120,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = displayMode === "minimalist"
+  const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, ContentStyles } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -158,7 +161,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     setLoading(false)
   };
 
-  const wrappedCancelCallback = (...args) => {
+  const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
     }
@@ -220,15 +223,27 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
-  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
+  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
+    currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const parentDocumentId = post?._id || tag?._id
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {commentWillBeHidden && <div className={classes.modNote}><em>
-            A moderator will need to review your account before your comments will show up.
-          </em></div>}
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <ContentStyles contentType="comment">
+              <em>
+                {isLW ? <>
+                  LessWrong is raising our moderation standards for new comments.<br/>
+                  See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your comments are approved.
+                </>
+                : <>A moderator will need to review your account before your comments will show up.</>
+                }          
+              </em>
+            </ContentStyles>
+          </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -239,7 +254,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data) => { 
+              submitCallback={(data: unknown) => { 
                 setLoading(true);
                 return data
               }}
@@ -251,7 +266,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 FormGroupLayout: Components.DefaultStyleFormGroup
               }}
               alignmentForumPost={post?.af}
-              addFields={currentUser?[]:["contents"]}
+              addFields={currentUser ? [] : ["title", "contents"]}
               removeFields={removeFields}
               formProps={{
                 ...extraFormProps,
@@ -260,8 +275,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             />
           </div>
         </div>
-        {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-          <ModerationGuidelinesBox post={post} />
+        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>
     </div>

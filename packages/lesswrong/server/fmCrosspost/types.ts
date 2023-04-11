@@ -112,21 +112,16 @@ export const GetCrosspostRequestValidator = t.intersection([
   t.strict({
     documentId: t.string,
     collectionName: t.literal('Posts'),
-    fragmentName: t.keyof({ 'PostsWithNavigation': null, 'PostsWithNavigationAndRevision': null }),
+    // This is a more performant way of representing a union of string literals
+    fragmentName: t.keyof({ 'PostsWithNavigation': null, 'PostsWithNavigationAndRevision': null, 'PostsList': null }),
+  }),
+  t.partial({
     extraVariables: t.strict({
       sequenceId: t.literal('String')
     }),
     extraVariablesValues: t.strict({
       sequenceId: t.union([t.string, t.null])
     }),
-  }),
-  t.partial({
-    extraVariables: t.partial({
-      version: t.literal('String')
-    }),
-    extraVariablesValues: t.partial({
-      version: t.string
-    })
   })
 ]);
 

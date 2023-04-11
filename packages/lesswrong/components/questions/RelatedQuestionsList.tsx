@@ -32,7 +32,7 @@ const RelatedQuestionsList = ({ post, classes }: {
   post: PostsDetails,
   classes: ClassesType,
 }) => {
-  const { PostsItem2, SectionTitle } = Components
+  const { PostsItem, SectionTitle } = Components
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
   const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
@@ -49,7 +49,7 @@ const RelatedQuestionsList = ({ post, classes }: {
       
       {showParentLabel && <div className={classes.header}>Parent Question{(sourcePostRelations.length > 1) && "s"}</div>}
       {sourcePostRelations.map((rel, i) => rel.sourcePost && 
-        <PostsItem2
+        <PostsItem
           key={rel._id}
           post={rel.sourcePost}
           index={i}
@@ -63,20 +63,18 @@ const RelatedQuestionsList = ({ post, classes }: {
         if (!rel.targetPost) return null
         return (
           <div key={rel._id} className={classes.subQuestion} >
-            <PostsItem2 
+            <PostsItem 
               post={rel.targetPost} 
               index={i}
-              showQuestionTag={false}
               showPostedAt={false}
               showIcons={false}
               showBottomBorder={!showSubQuestions}
               defaultToShowComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
-              {subQuestionTargetPostRelations.map((rel, i) => rel.targetPost && <PostsItem2 
+              {subQuestionTargetPostRelations.map((rel, i) => rel.targetPost && <PostsItem 
                 key={rel._id}
                 post={rel.targetPost} 
-                showQuestionTag={false}
                 showPostedAt={false}
                 showIcons={false}
                 defaultToShowComments={true}

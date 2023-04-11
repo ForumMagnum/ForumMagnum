@@ -24,7 +24,7 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   checkboxContainer: {
     margin: '10px 0',
     fontSize: '1.1rem',
-    fontWeight: 400,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
   },
 });
 
@@ -84,7 +84,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
         <SortableList
           axis="xy"
           value={value.map(v=>v.userId)}
-          setValue={(newValue) => {
+          setValue={(newValue: string[]) => {
             setValue(newValue.map(userId => {
               const userWithStatus = find(initialValue, u=>u.userId===userId);
               return {

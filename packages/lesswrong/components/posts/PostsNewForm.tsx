@@ -6,12 +6,15 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import NoSsr from '@material-ui/core/NoSsr';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import NoSSR from 'react-no-ssr';
+import { forumTypeSetting, isLW } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
+import { Link } from '../../lib/reactRouterWrapper';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -93,9 +96,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+    marginTop: 20
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
+  },
+  modNote: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 20,
+    },
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20
   }
 })
 
@@ -159,11 +171,14 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, ContentStyles } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  const debateForm = !!(query && query.debate);
+
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
+    question: query && !!query.question,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -172,14 +187,16 @@ const PostsNewForm = ({classes}: {
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
+    debate: debateForm
   }
   const eventForm = query && query.eventForm
   
-  if (query.subforumTagId) {
+  if (query?.subforumTagId) {
     prefilledProps = {
+      ...prefilledProps,
       subforumTagId: query.subforumTagId,
-      submitToFrontpage: false,
+      tagRelevance: {[query.subforumTagId]: 1},
     }
   }
 
@@ -199,22 +216,32 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const NewPostsSubmit = (props) => {
+  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
 
+  // on LW, show a moderation message to users who haven't been approved yet
+  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
+
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
-        <NoSsr>
+        <Components.PostsAcceptTos currentUser={currentUser} />
+        {postWillBeHidden && <ContentStyles contentType="comment" className={classes.modNote}>
+          <em>
+            LessWrong is raising our moderation standards for new posts.<br/>
+            See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your post is approved.
+          </em>
+        </ContentStyles>}
+        <NoSSR>
           <WrappedSmartForm
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
-            successCallback={(post, options) => {
+            successCallback={(post: any, options: any) => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));
@@ -224,13 +251,14 @@ const PostsNewForm = ({classes}: {
               }
             }}
             eventForm={eventForm}
+            debateForm={debateForm}
             repeatErrors
             noSubmitOnCmdEnter
             formComponents={{
               FormSubmit: NewPostsSubmit
             }}
           />
-        </NoSsr>
+        </NoSSR>
       </RecaptchaWarning>
     </div>
   );

@@ -12,7 +12,7 @@ const schema: SchemaType<DbCollection> = {
       nullable: true
     }),
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
 
   // Custom Properties
@@ -20,24 +20,24 @@ const schema: SchemaType<DbCollection> = {
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   slug: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   // Field that resolves to the array of books that belong to a sequence
   books: resolverOnlyField({
     type: Array,
     graphQLtype: '[Book]',
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
       const { currentUser, Books } = context;
       const books = await Books.find(
@@ -58,25 +58,25 @@ const schema: SchemaType<DbCollection> = {
     type: String,
     // Corresponds to a Cloudinary ID
     optional: true,
-    viewableBy: ["guests"],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ["guests"],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   firstPageLink: {
     type: String,
     optional: true,
-    viewableBy: ["guests"],
-    editableBy: ["admins"],
-    insertableBy: ["admins"],
+    canRead: ["guests"],
+    canUpdate: ["admins"],
+    canCreate: ["admins"],
   },
 
   hideStartReadingButton: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 }
 

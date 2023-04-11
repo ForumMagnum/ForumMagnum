@@ -14,12 +14,13 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
-    margin: '1em 0 1em 1em',
+    margin: '1.5em 0 1em 1em',
     padding: '2em',
     boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    borderRadius: theme.borderRadius.default,
   },
   closeButton: {
     padding: '.25em',
@@ -51,7 +52,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: '1.05rem',
   },
   ctaButton: {
-    borderRadius: 'unset',
+    borderRadius: theme.borderRadius.small,
     minWidth: '50%',
     background: theme.palette.primary.main,
     color: theme.palette.buttons.featuredResourceCTAtext,
@@ -66,7 +67,7 @@ const LinkButton = ({ resource, classes }: {
   resource: FeaturedResourcesFragment,
 }) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     captureEvent(undefined, {buttonPressed: e.button});
   };
 

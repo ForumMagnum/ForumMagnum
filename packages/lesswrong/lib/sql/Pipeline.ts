@@ -20,8 +20,9 @@ class Unit<T extends DbObject> {
   private group?: any;
   private unwind?: string;
   private project?: MongoProjection<T>;
+  private sampleSize?: number;
 
-  constructor(private table: Table | Unit<T>) {}
+  constructor(private table: Table<T> | Unit<T>) {}
 
   isEmpty() {
     return this.empty;
@@ -47,6 +48,7 @@ class Unit<T extends DbObject> {
         lookup: this.lookup,
         group: this.group,
         unwind: this.unwind,
+        sampleSize: this.sampleSize,
       },
     );
   }
@@ -99,6 +101,14 @@ class Unit<T extends DbObject> {
     // TODO
     throw new Error("$unwind not yet implemented");
   }
+
+  addSampleStage(data: any): Unit<T> {
+    const size = data.size;
+    if (typeof size !== "number" || size < 1) {
+      throw new Error(`Invalid sample size: ${size}`);
+    }
+    return this.addSimpleStage("sampleSize", size);
+  }
 }
 
 /**
@@ -115,7 +125,7 @@ class Unit<T extends DbObject> {
  */
 class Pipeline<T extends DbObject> {
   constructor(
-    private table: Table,
+    private table: Table<T>,
     private stages: MongoAggregationPipeline<T> = [],
     private options?: MongoAggregationOptions, // TODO: What can options be?
   ) {}
@@ -143,6 +153,7 @@ class Pipeline<T extends DbObject> {
         case "$project":   unit = unit.addProjectStage(data);   break;
         case "$group":     unit = unit.addGroupStage(data);     break;
         case "$unwind":    unit = unit.addUnwindStage(data);    break;
+        case "$sample":    unit = unit.addSampleStage(data);    break;
         default:           throw new Error(`Invalid pipeline stage: ${name}`);
       }
     }

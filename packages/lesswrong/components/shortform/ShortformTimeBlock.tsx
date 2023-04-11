@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_: ThemeType): JssStyles => ({
   shortformGroup: {
-    marginTop: 12,
+    marginTop: isEAForum ? -10 : 12,
   },
   subtitle: {
     marginTop: 6,
@@ -14,6 +15,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6
   }
 })
+
+const ShortformItem = ({comment}: {comment: ShortformComments}) => {
+  if (!comment.post) {
+    return null;
+  }
+  if (isEAForum) {
+    return <Components.ShortformListItem comment={comment} />;
+  }
+  return (
+    <Components.CommentsNode
+      treeOptions={{
+        post: comment.post || undefined,
+        forceSingleLine: true
+      }}
+      comment={comment}
+      loadChildrenSeparately
+    />
+  );
+}
 
 const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
   reportEmpty: ()=>void,
@@ -45,18 +65,9 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType type="shortform" label="Shortform"/>
       </div>
-      {comments?.map((comment, i) => {
-        if (!comment.post)
-          return null;
-        return <CommentsNode
-          treeOptions={{
-            post: comment.post || undefined,
-          }}
-          comment={comment}
-          key={comment._id}
-          forceSingleLine loadChildrenSeparately
-        />
-      })}
+      {comments?.map((comment) =>
+        <ShortformItem key={comment._id} comment={comment} />
+      )}
       {comments?.length < totalCount! &&
         <div className={classes.loadMore}>
           <LoadMore

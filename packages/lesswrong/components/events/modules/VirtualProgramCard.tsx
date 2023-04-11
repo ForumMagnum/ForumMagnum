@@ -12,7 +12,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 373,
     height: 374,
-    borderRadius: 0,
+    borderRadius: theme.borderRadius.default,
     overflow: 'visible',
     boxShadow: theme.palette.boxShadow.eventCard,
     [theme.breakpoints.down('xs')]: {
@@ -48,7 +48,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   inDepthSection: {
     background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
-    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)',
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
   },
   precipiceSection: {
     background: "linear-gradient(rgb(168, 114, 51, 0.5), rgb(168, 114, 51, 0.5)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
@@ -56,7 +57,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'absolute',
     bottom: 0,
     alignItems: 'flex-end',
-    textAlign: 'right'
+    textAlign: 'right',
+    borderRadius: `0 0 ${theme.borderRadius.default}px ${theme.borderRadius.default}px`,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -104,30 +106,17 @@ const VirtualProgramCard = ({program, classes}: {
 }) => {
   const { captureEvent } = useTracking()
   
-  // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-  let deadline = moment()
-  // Iterate through 5 Sundays to find the one we want
-  for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
-    const nextSunday = moment(sunday).add(1, 'week')
-    // needs to be in the future, and needs to be the last Sunday of the month
-    if (sunday.isSameOrAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
-      deadline = sunday
-      break
-    }
-  }
-  // this Dec, the dates are different
-  // TODO: remove once 2023 arrives
-  const dec11 = moment("12-11-2022", "MM-DD-YYYY") // deadline for Jan-Feb cohort (start date is Jan 9)
-  const jan1 = moment("01-01-2023", "MM-DD-YYYY")
-  const jan29 = moment("01-29-2023", "MM-DD-YYYY") // deadline for Feb-Mar cohort? (should be normal start date logic)
-  if (moment().isSameOrBefore(dec11)) {
-    deadline = dec11
-  } else if (moment().isSameOrBefore(jan1)) {
-    deadline = jan29
+  // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
+  // (though it will sometimes move to the 5th Sunday - this is not accounted for in the code).
+  // This defaults to the Sunday in the week of the 28th day of this month.
+  let deadline = moment().date(28).day(0)
+  // If that Sunday is in the past, use next month's 4th Sunday.
+  if (deadline.isBefore(moment())) {
+    deadline = moment().add(1, 'months').date(28).day(0)
   }
   
-  // VP starts 8 days after the deadline, on a Monday
-  const startOfVp = moment().isSameOrBefore(dec11) ? moment("01-09-2023", "MM-DD-YYYY") : moment(deadline).add(8, 'days')
+  // VP starts 15 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(15, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 

@@ -13,6 +13,8 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import moment from 'moment';
+import { postsLayouts } from '../posts/dropdownOptions';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -54,6 +56,9 @@ const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user);
 };
 
+const ownsOrIsMod = (user: DbUser|null, document: any) => {
+  return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes('sunshineRegiment') ?? false);
+};
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -144,7 +149,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  control: "NotificationTypeSettings" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -233,6 +238,9 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   githubProfileURL: 'github.com/'
 }
 
+export const CS_START = '2023/04/01'
+export const CS_END = '2023/04/02'
+
 /**
  * @summary Users schema
  * @type {Object}
@@ -320,7 +328,8 @@ const schema: SchemaType<DbUser> = {
   },
   hasAuth0Id: resolverOnlyField({
     type: Boolean,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    // Mods cannot read because they cannot read services, which is a prerequisite
+    canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
       try {
         getAuth0Id(user);
@@ -367,7 +376,7 @@ const schema: SchemaType<DbUser> = {
     input: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ownsOrIsAdmin,
+    canRead: ownsOrIsMod,
     order: 20,
     group: formGroups.default,
     onCreate: ({ document: user }) => {
@@ -391,6 +400,7 @@ const schema: SchemaType<DbUser> = {
       return data.email;
     },
     form: {
+      // Will always be disabled for mods, because they cannot read hasAuth0Id
       disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
@@ -742,8 +752,40 @@ const schema: SchemaType<DbUser> = {
     label: "Do not truncate comments (on home page)"
   },
   
-  petrovOptOut: {
+  // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
+  showCommunityInRecentDiscussion: {
+    order: 94,
+    type: Boolean,
+    optional: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Show Community posts in Recent Discussion"
+  },
+  
+  // Used for EAF 4/1/2023
+  noComicSans: {
     order: 95,
+    type: Boolean,
+    optional: true,
+    hidden: () => forumTypeSetting.get() !== 'EAForum' ||
+      moment().isBefore(moment(new Date(CS_START))) ||
+      moment().isAfter(moment(new Date(CS_END))),
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Opt out of Comic Sans on April 1"
+  },
+  
+  petrovOptOut: {
+    order: 96,
     type: Boolean,
     optional: true,
     nullable: true,
@@ -758,6 +800,17 @@ const schema: SchemaType<DbUser> = {
     // note this date is hard coded as a hack
     // we originally were using petrovBeforeTime but it didn't work in this file because the database
     // public settings aren't been loaded yet.
+  },
+
+  acceptedTos: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   },
 
   hideNavigationSidebar: {
@@ -786,6 +839,14 @@ const schema: SchemaType<DbUser> = {
     canCreate: 'guests',
     // FIXME this isn't filling default values as intended
     // ...schemaDefaultValue(getDefaultFilterSettings),
+  },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
   },
   allPostsTimeframe: {
     type: String,
@@ -820,6 +881,14 @@ const schema: SchemaType<DbUser> = {
     hidden: true,
   },
   allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  allPostsHideCommunity: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
@@ -873,6 +942,7 @@ const schema: SchemaType<DbUser> = {
   karma: {
     type: Number,
     optional: true,
+    // TODO: add nullable: true
     canRead: ['guests'],
   },
 
@@ -1230,8 +1300,20 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationSubforumUnread: {
-    label: `New messages in subforums I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
+    label: `New discussions in topics I'm subscribed to`,
+    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+  },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
+  },
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "New debate content in a debate I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+  },
+  notificationDebateReplies: {
+    label: "New debate content in a debate I'm participating in",
+    ...notificationTypeSettingsField()
   },
 
   // Karma-change notifier settings
@@ -1736,6 +1818,15 @@ const schema: SchemaType<DbUser> = {
     canRead: ['admins', 'sunshineRegiment'],
   },
 
+  usersContactedBeforeReview: {
+    type: Array,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  "usersContactedBeforeReview.$": {
+    type: String,
+  },
+
   // Full Name field to display full name for alignment forum users
   fullName: {
     type: String,
@@ -1756,18 +1847,18 @@ const schema: SchemaType<DbUser> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
 
   viewUnreviewedComments: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     order: 0,
   },
@@ -1901,9 +1992,9 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && !post.rejected && post.status===postStatuses.STATUS_APPROVED),
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   maxPostCount: {
     ...denormalizedCountOfReferences({
@@ -1913,14 +2004,14 @@ const schema: SchemaType<DbUser> = {
       foreignTypeName: "post",
       foreignFieldName: "userId"
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
   // The user's associated posts (GraphQL only)
   posts: {
     type: Object,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
@@ -1940,7 +2031,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -2057,8 +2148,8 @@ const schema: SchemaType<DbUser> = {
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    canRead: ['guests'],
+    canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
     control: "ImageUpload"
   },
@@ -2125,13 +2216,13 @@ const schema: SchemaType<DbUser> = {
 
   bio: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     hidden: true,
   },
   htmlBio: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     hidden: true,
   },
@@ -2207,9 +2298,9 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     group: formGroups.activity,
     order: 1,
     control: "TagMultiselect",
@@ -2234,9 +2325,9 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     group: formGroups.activity,
     order: 2,
     control: "SelectLocalgroup",
@@ -2330,6 +2421,46 @@ const schema: SchemaType<DbUser> = {
       });
     }
   }),
+  
+  associatedClientIds: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[ClientId!]",
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId[]|null> => {
+      return await context.ClientIds.find(
+        {userIds: user._id},
+        {
+          sort: {createdAt: -1},
+          limit: 100
+        }
+      ).fetch();
+    }
+  }),
+  "associatedClientIds.$": {
+    type: "ClientId",
+  },
+  
+  altAccountsDetected: resolverOnlyField({
+    type: Boolean,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
+      const clientIds = await context.ClientIds.find(
+        {userIds: user._id},
+        {
+          sort: {createdAt: -1},
+          limit: 100
+        }
+      ).fetch();
+      const userIds = new Set<string>();
+      for (let clientId of clientIds) {
+        for (let userId of clientId.userIds)
+          userIds.add(userId);
+      }
+      return userIds.size > 1;
+    }
+  }),
+  
 
   acknowledgedNewUserGuidelines: {
     type: Boolean,
@@ -2353,11 +2484,58 @@ const schema: SchemaType<DbUser> = {
 
   'moderatorActions.$': {
     type: 'Object'
-  }
-};
+  },
+  subforumPreferredLayout: {
+    type: String,
+    allowedValues: Array.from(postsLayouts),
+    hidden: true, // only editable by changing the setting from the subforum page
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+
+  experiencedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'experiencedIn.$': {
+    type: String,
+    optional: true
+  },
+  interestedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'interestedIn.$': {
+    type: String,
+    optional: true
+  },
+
+  /* Privacy settings */
+  allowDatadogSessionReplay: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    label: "Allow Session Replay",
+    tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+
+  /* Alignment Forum fields */
   afPostCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afPostCount",
@@ -2373,7 +2551,7 @@ Object.assign(schema, {
   afCommentCount: {
     type: Number,
     optional: true,
-    onInsert: (document, currentUser: DbUser) => 0,
+    onCreate: () => 0,
     ...denormalizedCountOfReferences({
       fieldName: "afCommentCount",
       collectionName: "Users",
@@ -2435,6 +2613,6 @@ Object.assign(schema, {
     canCreate: ['admins'],
     hidden: true,
   },
-});
+};
 
 export default schema;

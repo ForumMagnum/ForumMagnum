@@ -3,8 +3,10 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
@@ -12,7 +14,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.postStyle,
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   }
 })
 
@@ -76,7 +83,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
     };
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps: PostsTimeframeListProps) {
     // If we receive a new `after` or `postListParameters` prop, it's because
     // our parent is asking us to change what we've loaded. Throw away any
     // previous updates to the `after` state and redim for reloading.
@@ -96,7 +103,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
     }
   }
 
-  loadMoreTimeBlocks = (e) => {
+  loadMoreTimeBlocks = (e: React.MouseEvent) => {
     e.preventDefault();
     const { timeframe, numTimeBlocks=10, reverse } = this.props
     const timeBlock = timeframeToTimeBlock[timeframe]
@@ -161,9 +168,13 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
             includeTags={this.props.includeTags}
           />
         )}
-        {renderLoadMoreTimeBlocks && 
-          <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
-            <a>{loadMoreTimeframeMessages[timeframe]}</a>
+        {renderLoadMoreTimeBlocks &&
+          <Typography
+            variant="body1"
+            className={classes.loadMore}
+            onClick={this.loadMoreTimeBlocks}
+          >
+            <a>{preferredHeadingCase(loadMoreTimeframeMessages[timeframe])}</a>
           </Typography>
         }
       </div>

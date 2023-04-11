@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -12,7 +12,7 @@ export const voteTextStyling = (theme: ThemeType): JssStyles => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
-  width: 28,
+  width: 40,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,6 +53,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 24,
     display: "inline-block"
   },
+  voteButton: {
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    paddingTop: 2,
+    paddingBottom: 2,
+    width: 40,
+    display: "inline-block"
+  },
   card: {
     padding: isEAForum ? "8px 24px" : 8,
     textAlign: "center",
@@ -71,21 +79,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:ClassesType, post:PostsListBase, marginRight?: boolean}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
-  const [newVote, setNewVote] = useState<number|null>(null)
+  const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
   const currentUser = useCurrentUser()
 
   if (!canNominate(currentUser, post)) return null
 
   const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
-  const displayVote = getCostData({})[voteIndex]?.label
+  const displayVote = getCostData({})[voteIndex as VoteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
-    <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
+    <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a nomination vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
+        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
       </div>
     </LWTooltip>
 

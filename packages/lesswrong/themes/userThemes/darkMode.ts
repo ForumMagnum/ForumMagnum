@@ -1,5 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
@@ -89,7 +89,7 @@ const safeColorFallbacks = (palette: ThemePalette) => `
 }
 `;
 
-const colorReplacements = {
+const colorReplacements: Record<string,string> = {
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
@@ -97,11 +97,11 @@ const colorReplacements = {
   "rgb(255, 255, 255)": invertHexColor("#ffffff"),
   "hsl(0,0%,100%)":     invertHexColor("#ffffff"),
   "#FFEEBB":            invertHexColor("#ffeebb"),
-  "rgb(255, 238, 187)": invertColor([255/255.0,238/255.0,187/255.0,1]),
-  "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
-};
+  "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
+  "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
+} as const;
 function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: string) => {
+  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
     return `
       .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
@@ -162,6 +162,7 @@ export const darkModeTheme: UserThemeSpecification = {
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
       alwaysWhite: '#fff',
+      primaryDarkOnDim: '#a8cad7',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
@@ -183,8 +184,8 @@ export const darkModeTheme: UserThemeSpecification = {
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
-      primaryDim: "#303435",
-      primaryDim2: "#303435",
+      primaryDim: "#28383e",
+      transparent: 'transparent'
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),

@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
+import type { CommentsNewFormProps } from './CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
-  commentFormProps: any,
+  commentFormProps: Partial<CommentsNewFormProps>,
   onClose: ()=>void,
   classes: ClassesType
 }) => {
@@ -76,8 +77,8 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
         {title}
       </div>
       <CloseIcon className={classes.close} onClick={onClose}/>
+      {guidelines}
     </div>
-    {guidelines}
     <div className={classes.editor}>
       <CommentsNewForm
         enableGuidelines={false}

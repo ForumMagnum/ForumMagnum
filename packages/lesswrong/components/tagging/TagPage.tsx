@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     width: '100%',
-    '& > img': {
+    '& > picture > img': {
       height: 300,
       objectFit: 'cover',
       width: '100%',
@@ -39,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 90,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
-      '& > img': {
+      '& > picture > img': {
         height: 200,
         width: '100%',
       },
@@ -59,6 +59,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -67,11 +69,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography[isEAForum ? "display2" : "display3"],
+    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: isEAForum ? 700 : 600,
+    ...theme.typography.smallCaps,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -102,6 +104,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
     paddingLeft: 42,
@@ -130,6 +134,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 8,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
@@ -145,7 +150,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
   return ({
     ...query,
@@ -264,11 +269,10 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
+  if (isEAForum) {
     description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
@@ -335,7 +339,7 @@ const TagPage = ({classes}: {
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
+                unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             }

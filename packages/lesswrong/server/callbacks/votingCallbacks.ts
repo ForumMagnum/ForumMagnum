@@ -13,23 +13,29 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
-  // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  // Only update user karma if the operation isn't done by one of the item's current authors.
+  // We don't want to let any of the authors give themselves or another author karma for this item.
+  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
-  // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
+  // We expect vote.authorIds here to be the same as the authorIds of the original vote.
+  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
 });
 
 
 voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
@@ -38,6 +44,10 @@ voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}
 });
 
 voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
@@ -50,9 +60,11 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
 });
 
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
-  if (vote.collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
-    void triggerAutomodIfNeeded(newDocument.userId)
-    void triggerCommentAutomodIfNeeded(newDocument._id, vote);
+  if (vote.collectionName === 'Comments') {
+    if (forumTypeSetting.get() === 'LessWrong') {
+      void triggerAutomodIfNeeded(newDocument.userId)
+    }
+    void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
 });
 

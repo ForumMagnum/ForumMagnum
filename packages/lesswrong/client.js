@@ -1,4 +1,3 @@
-import './client/mingoUpdates';
 import './client/apolloClient';
 import './lib/vulcan-lib';
 import './client/start';
@@ -6,8 +5,9 @@ import './client/start';
 // Make sure to register settings before everything else
 import './client/publicSettings'
 
-// Then import the google analytics stuff
+// Then import google analytics and datadog
 import './client/ga';
+import './client/datadogRum';
 
 // Then import google reCaptcha v3
 import './client/reCaptcha'

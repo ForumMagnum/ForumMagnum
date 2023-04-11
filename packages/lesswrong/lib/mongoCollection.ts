@@ -86,7 +86,9 @@ export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
   options = {}
-  
+  collectionName: string
+  postProcess?: (data: T) => T;
+
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
   }) {
@@ -175,12 +177,13 @@ export class MongoCollection<T extends DbObject> {
     try {
       const table = this.getTable();
       return await wrapQuery(`${this.tableName}.updateOne`, async () => {
+        const returnCount = options?.returnCount ?? "matchedCount";
         if (typeof selector === 'string') {
           const updateResult = await table.updateOne({_id: selector}, update, options);
-          return updateResult.matchedCount;
+          return updateResult[returnCount];
         } else {
           const updateResult = await table.updateOne(removeUndefinedFields(selector), update, options);
-          return updateResult.matchedCount;
+          return updateResult[returnCount];
         }
       });
     } catch(e) {

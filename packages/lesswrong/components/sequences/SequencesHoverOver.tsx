@@ -4,6 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   description: {
     ...theme.typography.body2,
@@ -22,7 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
   },
   author: {
-    color: theme.palette.text.dim
+    color: theme.palette.text.dim,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   wordcount: {
     ...theme.typography.commentStyle,

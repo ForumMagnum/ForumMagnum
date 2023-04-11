@@ -6,14 +6,14 @@ import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import FormLabel from '@material-ui/core/FormLabel';
+import {checkEditorValid} from './validation'
 
-const postEditorHeight = 250;
+const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
@@ -153,17 +153,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
+  editorWarningText: {
+    margin: `${theme.spacing.unit * 3}px 0`,
+    color: theme.palette.warning.main,
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
-const checkImgErrsInterval = 500; //milliseconds
-const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+const validationInterval = 500; //milliseconds
+export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
 export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
+  ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
   draftJS: {name: 'Draft-JS'},
 }
@@ -240,6 +244,7 @@ interface EditorComponentState {
   ckEditorReference: any,
   loading: boolean,
   markdownImgErrs: boolean
+  editorWarning?: string
 }
 
 export const getBlankEditorContents = (editorType: EditorTypeString): EditorContents => {
@@ -268,7 +273,7 @@ export const isBlank = (editorContents: EditorContents): boolean => {
   }
 }
 
-export const getInitialEditorContents = (value, document, fieldName, currentUser: UsersCurrent|null): EditorContents => {
+export const getInitialEditorContents = (value: any, document: any, fieldName: string, currentUser: UsersCurrent|null): EditorContents => {
   const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
   if (initialValue) {
     const result = deserializeEditorContents({
@@ -307,9 +312,27 @@ export const deserializeEditorContents = (contents: SerializedEditorContents): E
   }
 }
 
+/**
+ * Editor's `submitData` is called in `EditorFormComponent`.
+ * Curently, the only situation where we (validly) won't have a ckEditorReference is if a podcaster is editing a post to add a podcast episode to it.
+ * 
+ * Podcasters don't have permissions to edit the contents of a post, so the editor itself isn't rendered (due to the field permissions).
+ * 
+ * Simply submitting the post was causing an error in `submitData`, since it expects a ckEditorReference if we're attempting to submit the contents of the post.
+ * We just shouldn't try to submit post contents if we'll blow up by doing so (or know that we can't ahead of time).
+ */
+export const shouldSubmitContents = (editorRef: Editor) => {
+  const editorType = editorRef.props.value.type;
+  const ckEditorReference = editorRef.state.ckEditorReference;
+
+  if (editorType !== 'ckEditorMarkup') return true;
+  return !!ckEditorReference;
+}
+
 export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
+  debouncedValidateEditor: typeof this.validateCkEditor
 
   constructor(props: EditorProps) {
     super(props)
@@ -319,11 +342,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       commitMessage: "",
       ckEditorReference: null,
       loading: true,
-      markdownImgErrs: false
+      markdownImgErrs: false,
     }
     
-    this.throttledSetCkEditor = _.debounce((getValue) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
-    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
+    this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
+    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, validationInterval);
+    this.debouncedValidateEditor = _.debounce(this.validateCkEditor, validationInterval);
   }
 
   async componentDidMount() {
@@ -332,7 +356,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  submitData = async (submission) => {
+  submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
     const { updateType, commitMessage, ckEditorReference } = this.state
@@ -356,7 +380,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           dataWithDiscardedSuggestions = await ckEditorReference.plugins.get( 'TrackChangesData' ).getDataWithDiscardedSuggestions()
         }
         break
-    } 
+    }
 
     return {
       originalContents: {type, data},
@@ -365,7 +389,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     };
   }
   
-  setContents = (editorType: EditorTypeString, value) => {
+  setContents = (editorType: EditorTypeString, value: string) => {
     switch (editorType) {
       case "html": {
         if (this.props.value.value === value)
@@ -411,6 +435,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, _classes: classes, hideControls } = this.props
+    const { MenuItem } = Components;
     if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
@@ -461,7 +486,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  renderPlaceholder = (showPlaceholder, isCollaborative) => {
+  renderPlaceholder = (showPlaceholder: boolean, isCollaborative: boolean) => {
     const { _classes: classes, placeholder } = this.props
     const {className, contentType} = this.getBodyStyles();
 
@@ -473,6 +498,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
   
   renderCkEditor = (contents: EditorContents) => {
+    const { editorWarning } = this.state
     const { ckEditorReference } = this.state
     const value = (typeof contents?.value === 'string') ? contents.value : ckEditorReference?.getData();
     const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative, _classes: classes } = this.props
@@ -488,7 +514,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
-        onChange: (event, editor) => {
+        onChange: (event: any, editor: any) => {
+          this.debouncedValidateEditor(editor.model.document)
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
           // implications that motivated having throttling in the first place,
@@ -500,7 +527,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.throttledSetCkEditor(() => editor.getData())
           }
         },
-        onInit: editor => this.setState({ckEditorReference: editor})
+        onInit: (editor: any) => this.setState({ckEditorReference: editor})
       }
 
       // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)
@@ -516,8 +543,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
               accessLevel={this.props.accessLevel}
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
+        {editorWarning && <Components.Typography component='aside' variant='body2' className={classes.editorWarningText}>
+          {editorWarning}
+        </Components.Typography>}
       </div>
     }
+  }
+
+  validateCkEditor = (document) => {
+    const result = checkEditorValid(document, this.props.currentUser)
+    this.setState({editorWarning: result.message})
   }
 
   checkMarkdownImgErrs = () => {
@@ -573,7 +608,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       { this.renderPlaceholder(showPlaceholder, false) }
       {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
-        onChange={(value) => this.setContents("draftJS", value)}
+        onChange={(value: string) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
         className={classNames(
           className,

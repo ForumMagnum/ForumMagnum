@@ -77,7 +77,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(yesterday, 1000);
@@ -89,7 +89,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -100,7 +100,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
@@ -111,8 +111,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
       await waitUntilCallbacksFinished();
 
@@ -125,8 +125,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -140,7 +140,7 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         await waitUntilCallbacksFinished();
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
@@ -154,7 +154,7 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
         (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
@@ -167,8 +167,8 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
         await waitUntilCallbacksFinished();
 
@@ -182,8 +182,8 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
 
         (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);
@@ -200,10 +200,10 @@ describe('Voting', function() {
         coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
       });
 
-      expect(author.karma).toBe(undefined);
-      expect(coauthor.karma).toBe(undefined);
+      expect(author.karma).toBe(null);
+      expect(coauthor.karma).toBe(null);
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();
 
       const updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -220,7 +220,7 @@ describe('Voting', function() {
         postedAt: new Date(yesterday),
       });
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();
 
       let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -236,7 +236,7 @@ describe('Voting', function() {
         validate: false,
       });
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();
 
       updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -253,7 +253,7 @@ describe('Voting', function() {
       const maxVotesPerHour = 100;
       await createManyDummyVotes(maxVotesPerHour, voter);
       await expect(async () => {
-        await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+        await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
     });
     it("self-votes don't count towards rate limit", async () => {
@@ -261,7 +261,7 @@ describe('Voting', function() {
       const post = await createDummyPost(voter);
       const maxVotesPerHour = 100;
       await createManyDummyVotes(maxVotesPerHour, voter);
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
     });
   })
   describe('getKarmaChanges', () => {
@@ -277,6 +277,7 @@ describe('Voting', function() {
         voteType: "smallUpvote",
         collection: Posts,
         user: voter,
+        skipRateLimits: false,
       });
 
       const karmaChanges = await getKarmaChanges({
@@ -289,6 +290,11 @@ describe('Voting', function() {
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
+        // NB: The addition of collectionName is to work with the custom-written
+        // postgres-specific function in VotesRepo -- it is not returned by the
+        // mongo aggregation. To run these tests in mongo again, remove
+        // collectionName from the expected object.
+        collectionName: "Posts",
         scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
@@ -310,6 +316,7 @@ describe('Voting', function() {
         voteType: "smallUpvote",
         collection: Posts,
         user: voter,
+        skipRateLimits: false,
       });
 
       const karmaChanges = await getKarmaChanges({
@@ -324,6 +331,8 @@ describe('Voting', function() {
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
+        // NB: See above
+        collectionName: "Posts",
         scoreChange: 2,
         title: post.title,
         slug: slugify(post.title),

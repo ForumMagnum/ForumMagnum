@@ -3,6 +3,7 @@ import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { Popup } from 'react-map-gl';
+import { isEAForum } from '../../lib/instanceSettings';
 
 // Shared with LocalEventMarker
 export const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -27,11 +28,11 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: 400,
+    fontWeight: isEAForum ? 450 : 400,
     color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: 400,
+    fontWeight: isEAForum ? 450 : 400,
     color: theme.palette.link.dim3,
     flex: 'none'
   },
@@ -44,7 +45,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
-  onClose, offsetTop=-20, hideBottomLinks
+  onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
   children?: ReactNode,
   classes: ClassesType,
@@ -56,6 +57,7 @@ const StyledMapPopup = ({
   lng: number,
   onClose: any,
   offsetTop?: number,
+  offsetLeft?: number,
   hideBottomLinks?: boolean
 }) => {
   return <Popup
@@ -64,6 +66,7 @@ const StyledMapPopup = ({
     closeButton={true}
     closeOnClick={false}
     offsetTop={offsetTop}
+    offsetLeft={offsetLeft}
     onClose={onClose}
     captureClick
     captureScroll

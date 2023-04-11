@@ -5,6 +5,8 @@ import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canC
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
 import { userIsPostGroupOrganizer } from './helpers';
+import { getSharingKeyFromContext } from './collabEditingPermissions';
+import { constantTimeCompare } from '../../helpers';
 
 const guestsActions = [
   'posts.view.approved'
@@ -35,6 +37,9 @@ adminsGroup.can(adminActions);
 // LessWrong Permissions
 
 Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
+  const canonicalLinkSharingKey = post.linkSharingKey;
+  const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
+
   if (post.onlyVisibleToLoggedIn && !currentUser) {
     if (outReasonDenied)
       outReasonDenied.reason = "This post is only visible to logged-in users.";
@@ -44,8 +49,12 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return true
   } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
     return true;
+  } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
+    return true;
   } else if (post.isFuture || post.draft) {
     return false;
+  } else if (post.authorIsUnreviewed) {
+    return false
   } else {
     const status = _.findWhere(postStatusLabels, {value: post.status});
     if (!status) return false;

@@ -8,8 +8,7 @@ import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/hel
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
-import { useItemsRead } from '../../common/withRecordPostView';
-import MenuItem from '@material-ui/core/MenuItem';
+import { useItemsRead } from '../../hooks/useRecordPostView';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -22,6 +21,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { userHasAutosummarize } from '../../../lib/betas';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
@@ -31,7 +31,10 @@ const NotFPSubmittedWarning = ({className}: {className?: string}) => <div classN
 </div>
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
+  actions: {
+    minWidth: 300,
+  },
+  root: { //FIXME orphaned styles
     margin: 0,
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -50,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostActions = ({post, closeMenu, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   closeMenu: ()=>void,
   classes: ClassesType,
 }) => {
@@ -154,10 +157,17 @@ const PostActions = ({post, closeMenu, classes}: {
     })
   }
 
+  // TODO refactor this so it shares code with ModeratorActions and doens't get out of sync
   const handleApproveUser = async () => {
     await updateUser({
       selector: {_id: post.userId},
-      data: {reviewedByUserId: currentUser?._id}
+      data: {
+        reviewedByUserId: currentUser?._id, 
+        sunshineFlagged: false,
+        reviewedAt: new Date(),
+        needsReview: false,
+        snoozedUntilContentCount: null
+      }
     })
   }
 
@@ -171,7 +181,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton} = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -210,6 +220,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
+        {editLink}
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -218,7 +229,6 @@ const PostActions = ({post, closeMenu, classes}: {
             Duplicate Event
           </MenuItem>
         </Link>}
-        {editLink}
         { forumTypeSetting.get() === 'EAForum' && canUserEditPostMetadata(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
@@ -252,6 +262,18 @@ const PostActions = ({post, closeMenu, classes}: {
           />
         }
 
+        {currentUser && post.debate &&
+          <NotifyMeButton
+            asMenuItem
+            showIcon
+            document={post}
+            subscriptionType={subscriptionTypes.newDebateComments}
+            subscribeMessage="Subscribe to debate"
+            unsubscribeMessage="Unsubscribe from debate"
+            tooltip="Notifies you when there is new activity in the debate"
+          />
+        }
+
         {currentUser && <NotifyMeButton asMenuItem
           document={post} showIcon
           subscribeMessage="Subscribe to comments"
@@ -259,6 +281,7 @@ const PostActions = ({post, closeMenu, classes}: {
         />}
 
         <BookmarkButton post={post} menuItem/>
+        <SetSideCommentVisibility />
         
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
@@ -271,6 +294,10 @@ const PostActions = ({post, closeMenu, classes}: {
             Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
+        
+        {userHasAutosummarize(currentUser)
+          && <Components.PostSummaryAction closeMenu={closeMenu} post={post}/>}
+        
         { isRead
           ? <div onClick={handleMarkAsUnread}>
               <MenuItem>

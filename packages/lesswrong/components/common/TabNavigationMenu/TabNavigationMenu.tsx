@@ -8,6 +8,7 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -19,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => {
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
+      paddingLeft: isEAForum ? 6 : undefined,
     },
     navSidebarTransparent: {
       zIndex: 10,
@@ -27,16 +29,23 @@ const styles = (theme: ThemeType): JssStyles => {
     },
     divider: {
       width: 50,
-      marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
-      marginTop: theme.spacing.unit*1.5,
-      marginBottom: theme.spacing.unit*2.5,
       borderBottom: theme.palette.border.normal,
+      marginBottom: theme.spacing.unit * 2.5,
+      ...(isEAForum
+        ? {
+          marginLeft: theme.spacing.unit * 2.5,
+          marginTop: theme.spacing.unit * 2.5,
+        }
+        : {
+          marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
+          marginTop: theme.spacing.unit * 1.5,
+        }),
     },
   }
 }
 
 const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
-  onClickSection?: any,
+  onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
   classes: ClassesType,
 }) => {
@@ -45,7 +54,7 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
   const { TabNavigationItem, FeaturedResourceBanner } = Components
   const customComponentProps = {currentUser}
   
-  const handleClick = (e, tabId) => {
+  const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
   }
@@ -60,10 +69,11 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
               return <div key={tab.id} className={classes.divider} />
             }
             if ('customComponentName' in tab) {
-              const CustomComponent = Components[tab.customComponentName];
+              // FIXME: not clear how to type this without the intersection of all the component types causing all the props to evaluate to `never`
+              const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
-                onClick={(e) => handleClick(e, tab.id)}
+                onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />
             }

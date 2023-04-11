@@ -3,7 +3,10 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import RejectedIcon from "@material-ui/icons/NotInterested";
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -29,6 +32,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vote: {
     marginRight: 10
+  },
+  rejectedIcon: {
+    marginLeft: 'auto',
+    marginTop: 4,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
+  },
+  rejectedLabel: {
+    marginLeft: 'auto',
+    marginBottom: 2,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
   }
 })
 
@@ -37,7 +52,19 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage } = Components
+
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SunshinePostsList',
+  });
+
+  const setPostRejectedStatus = (post: SunshinePostsList, rejected: boolean) => () => {
+    void updatePost({
+      selector: { _id: post._id },
+      data: { rejected }
+    });
+  };
  
   if (!posts) return null
 
@@ -60,19 +87,32 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
-                {post.commentCount && <MetaInfo>
+                <MetaInfo>
                   <Link to={`${postGetPageUrl(post)}#comments`}>
-                    {post.commentCount} comments
+                    {postGetCommentCountStr(post)}
                   </Link>
-                </MetaInfo>}
+                </MetaInfo>
               </span>
             </div>
           </div>
-          <PostsPageActions post={post} />
+          
+          {isLW && <>
+            {post.rejected && <span className={classes.rejectedLabel} onClick={setPostRejectedStatus(post, false)}>
+              [Rejected]
+            </span>}
+            {!post.rejected && post.authorIsUnreviewed && <span className={classes.rejectedIcon}>
+              <RejectedIcon onClick={setPostRejectedStatus(post, true)} />
+            </span>}
+          </>}
+          
+          <PostActionsButton post={post} />
         </div>
-        {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
-          <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
-        </ContentStyles>}
+        {!post.draft && <div className={classes.postBody}>
+          <LinkPostMessage post={post}/>
+          <ContentStyles contentType="postHighlight">
+            <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
+          </ContentStyles>
+        </div>}
       </div>)}
     </div>
   )

@@ -143,7 +143,8 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesForFaceting: [
       'filterOnly(wikiOnly)',
-      'filterOnly(isSubforum)',
+      'filterOnly(isSubforum)', // DEPRECATED: remove once isSubforum -> core filter change is deployed
+      'filterOnly(core)',
     ],
     distinct: false,
     attributesToSnippet: isEAForum ? ['description:20'] : ['description:10'],

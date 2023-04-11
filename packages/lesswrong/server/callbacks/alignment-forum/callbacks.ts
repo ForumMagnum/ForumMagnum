@@ -56,7 +56,7 @@ async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocT
 
 voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
-async function updateAlignmentUserServer (newDocument: VoteableType, vote: DbVote, multiplier: number) {
+async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")

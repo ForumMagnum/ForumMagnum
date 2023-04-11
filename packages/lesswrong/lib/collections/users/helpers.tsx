@@ -7,9 +7,13 @@ import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import { DatabasePublicSetting } from '../../publicSettings';
+import moment from 'moment';
+
+const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
+export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
   if (!user) {
     return "";
   } else {
@@ -20,7 +24,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+export const getUserName = function(user: {username: string} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -33,6 +37,16 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
+}
+
+/**
+ * Count a user as "new" if they have low karma or joined less than a week ago
+ */
+export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  return (
+    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
+  );
 }
 
 export interface SharableDocument {
@@ -76,11 +90,11 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = post => {
+const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return post.moderationGuidelines?.originalContents || post.moderationStyle
+  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
 }
 
 export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
@@ -257,6 +271,21 @@ type UserWithEmail = {
 
 export function getUserEmail (user: UserWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
+}
+
+type DatadogUser = {
+  id: string,
+  email?: string,
+  name?: string,
+  slug?: string,
+}
+export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName,
+    slug: user.slug,
+  }
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
@@ -461,6 +490,9 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
 
+// TODO: I (JP) think this should be configurable in the function parameters
+/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
+ * we get from auth0 but is ultimately from google this function will throw. */
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {

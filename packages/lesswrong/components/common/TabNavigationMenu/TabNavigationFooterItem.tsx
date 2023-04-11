@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const smallIconSize = 23
 
@@ -12,9 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
+      color: isEAForum ? 'white' : undefined,
     },
     '& $navText': {
-      color: theme.palette.grey[900],
+      color: isEAForum ? 'white' : theme.palette.grey[900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]
@@ -29,21 +31,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "column",
+    ...(isEAForum
+      ? {
+        color: theme.palette.grey[600],
+        "&:hover": {
+          opacity: 1,
+          color: theme.palette.grey[800],
+        },
+      }
+      : {}),
   },
   icon: {
     display: "block",
-    opacity: .45,
+    opacity: isEAForum ? 1 : 0.45,
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
-      fill: "currentColor",
+      fill: isEAForum ? undefined : "currentColor",
+      color: isEAForum ? "inherit" : undefined,
     }
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[700],
+    color: isEAForum ? "inherit" : theme.palette.grey[700],
     fontSize: '.8rem',
   },
   homeIcon: {
@@ -66,18 +78,26 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
   const Element = externalLink ?
-    ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
+
+  const isSelected = pathname === tab.link;
+  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
+  const IconComponent = isSelected
+    ? tab.selectedIconComponent ?? tab.iconComponent
+    : tab.iconComponent;
 
   return <Tooltip placement='top' title={tab.tooltip || ''}>
     <Element
       to={tab.link}
-      className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}
+      className={classNames(classes.navButton, {
+        [classes.selected]: isSelected,
+      })}
     >
-      {(tab.icon || tab.iconComponent) && <span
+      {hasIcon && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
-        {tab.iconComponent && <tab.iconComponent />}
+        {IconComponent && <IconComponent />}
         {tab.icon && tab.icon}
       </span>}
       {tab.subItem ?

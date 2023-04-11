@@ -30,7 +30,6 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
-import {ClientIds} from '../../lib/collections/clientIds/collection';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -129,7 +128,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // For each post by this author which has the authorIsUnreviewed flag set,
     // clear the authorIsUnreviewed flag so it's visible, and update postedAt
     // to now so that it goes to the right place int he latest posts list.
-    const unreviewedPosts = await Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
       await updateMutator<DbPost>({
         collection: Posts,
@@ -142,11 +141,20 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
       });
     }
     
-    // Also clear the authorIsUnreviewed flag on comments. We don't want to
-    // reset the postedAt for comments, since those are by default visible
-    // almost everywhere. This can bypass the mutation system fine, because the
-    // flag doesn't control whether they're indexed in Algolia.
-    await Comments.rawUpdateMany({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
+    // This only matters if the hideUnreviewedAuthorComments setting is active -
+    // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
+    const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
+    for (let comment of unreviewedComments) {
+      await updateMutator<DbComment>({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          authorIsUnreviewed: false,
+        },
+        validate: false
+      });
+    }
   }
 });
 
@@ -374,7 +382,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 });
 
 
-const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
   // Delay 60 minutes between when you create an account, and when we send the
@@ -393,7 +401,6 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
 getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    data: {},
   });
 });
 

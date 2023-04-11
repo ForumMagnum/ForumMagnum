@@ -120,6 +120,22 @@ class SwitchingCollection<T extends DbObject> {
     });
   }
 
+  addDefaultView(view: Function) {
+    this.mongoCollection.defaultView = view;
+    this.pgCollection.defaultView = view;
+  }
+
+  addView(viewName: string, view: Function) {
+    if (!this.mongoCollection.views) {
+      this.mongoCollection.views = {};
+    }
+    if (!this.pgCollection.views) {
+      this.pgCollection.views = {};
+    }
+    this.mongoCollection.views[viewName] = view;
+    this.pgCollection.views[viewName] = view;
+  }
+
   setTargets(readTarget: ReadTarget, writeTarget: WriteTarget) {
     this.readTarget = readTarget;
     this.writeTarget = writeTarget;
@@ -224,7 +240,7 @@ class SwitchingCollection<T extends DbObject> {
    * are searching by primary key, and the network overhead is minimal as the
    * database and server instances are both in the same AWS region.
    */
-  startPolling(): void {
+  startPolling(): Promise<void> {
     const poll = async () => {
       const {collectionName} = this.mongoCollection.options as any;
       const {read, write} = await getCollectionLockType(collectionName);
@@ -233,7 +249,7 @@ class SwitchingCollection<T extends DbObject> {
       setTimeout(poll, SwitchingCollection.POLL_RATE_SECONDS * 1000);
     }
 
-    void poll();
+    return poll();
   }
 }
 

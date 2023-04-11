@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -10,6 +10,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
+import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
 
 const hitsPerPage = 10
@@ -79,17 +80,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchIcon: {
     marginLeft: 12
   },
-  searchInputArea: {
+  searchBoxRow: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 625,
     marginBottom: 15,
-    height: 48,
-    border: theme.palette.border.slightlyIntense2,
-    borderRadius: 3,
+    gap: '16px',
     [theme.breakpoints.down('xs')]: {
       marginBottom: 12,
     },
+  },
+  searchInputArea: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    maxWidth: 625,
+    height: 48,
+    border: theme.palette.border.slightlyIntense2,
+    borderRadius: 3,
     "& .ais-SearchBox": {
       display: 'inline-block',
       position: 'relative',
@@ -120,6 +127,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "text",
       ...theme.typography.body2,
     },
+  },
+  searchHelp: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  infoIcon: {
+    fontSize: 20,
+    fill: theme.palette.grey[800],
   },
   tabs: {
     margin: '0 auto 20px',
@@ -205,10 +221,29 @@ const Stats = ({ nbHits, className }: {
 }
 const CustomStats = connectStats(Stats)
 
+const ScrollTo: FC<{
+  targetRef: RefObject<HTMLDivElement>,
+  value: string,
+  hasNotChanged: boolean,
+  children: ReactElement,
+}> = ({targetRef, value, hasNotChanged, children}) => {
+  const prevValue = useRef(value);
+  useEffect(() => {
+    if (value !== prevValue.current && hasNotChanged) {
+      targetRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+    prevValue.current = value;
+  }, [targetRef, value, hasNotChanged]);
+  return children;
+}
+const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
+  const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
   
@@ -228,8 +263,10 @@ const SearchPageTabbed = ({classes}:{
   )
   const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
 
-  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
+  const {
+    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
+  } = Components
     
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
@@ -245,7 +282,7 @@ const SearchPageTabbed = ({classes}:{
     })
   }
     
-  const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     setSearchState({...searchState, contentType: value, page: 1})
   }
@@ -325,8 +362,8 @@ const SearchPageTabbed = ({classes}:{
           defaultRefinement={true}
         />}
         {tab === 'Tags' && <ToggleRefinement
-          attribute="isSubforum"
-          label="Has subforum"
+          attribute="core"
+          label="Core topic"
           value={true}
         />}
         <ClearRefinements />
@@ -337,14 +374,24 @@ const SearchPageTabbed = ({classes}:{
       </div>
 
       <div className={classes.resultsColumn}>
-        <div className={classes.searchInputArea}>
-          <SearchIcon className={classes.searchIcon}/>
-          {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-            * null is the only option that actually suppresses the extra X button.
-          // @ts-ignore */}
-          <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <div className={classes.searchBoxRow}>
+          <div className={classes.searchInputArea}>
+            <SearchIcon className={classes.searchIcon}/>
+            {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+              * null is the only option that actually suppresses the extra X button.
+            // @ts-ignore */}
+            <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+          </div>
+          <LWTooltip
+            title={`"Quotes" and -minus signs are supported.`}
+            className={classes.searchHelp}
+          >
+            <InfoIcon className={classes.infoIcon}/>
+          </LWTooltip>
         </div>
-        
+
+        <div ref={scrollToRef} />
+
         <Tabs
           value={tab}
           onChange={handleChangeTab}
@@ -364,7 +411,9 @@ const SearchPageTabbed = ({classes}:{
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
-          <Hits hitComponent={(props) => <HitComponent {...props} />} />
+          <CustomScrollTo targetRef={scrollToRef}>
+            <Hits hitComponent={(props) => <HitComponent {...props} />} />
+          </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
       </div>

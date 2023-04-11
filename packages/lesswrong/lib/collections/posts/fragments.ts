@@ -13,8 +13,12 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -36,8 +40,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount
@@ -54,6 +56,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -129,6 +132,8 @@ registerFragment(`
       name
       organizerIds
     }
+
+    podcastEpisodeId
 
     # deprecated
     nominationCount2018
@@ -207,12 +212,15 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
   }
 `);
 
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    tagRelevance
     deletedDraft
     contents {
       _id
@@ -227,7 +235,15 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
-    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsListTagWithVotes on Post {
+    ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -246,8 +262,9 @@ registerFragment(`
     # Tags
     tagRelevance
     
-    # Sort settings
+    # Posts-page display options
     commentSortOrder
+    sideCommentVisibility
     
     # Sequence navigation
     collectionTitle
@@ -288,15 +305,19 @@ registerFragment(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    
+    # RSS metadata
     feedLink
     feed {
       ...RSSFeedMinimumInfo
     }
+    
+    # Related Questions
     sourcePostRelations {
       _id
       sourcePostId
       sourcePost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -305,16 +326,17 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
+    
+    # Events
     rsvps
     activateRSVPs
 
     # Crossposting
     fmCrosspost
-    podcastEpisodeId
   }
 `);
 
@@ -400,6 +422,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
@@ -410,6 +433,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
@@ -448,6 +472,8 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
+    socialPreviewImageId
   }
 `);
 
@@ -558,7 +584,22 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
+  }
+`);
+
+registerFragment(`
+  fragment PostSideComments on Post {
+    _id
+    sideComments
+  }
+`);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
   }
 `);

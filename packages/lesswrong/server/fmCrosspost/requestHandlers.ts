@@ -7,6 +7,7 @@ import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
+import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { signToken, verifyToken } from "./tokens";
 import {
@@ -19,7 +20,10 @@ export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req:
     throw new UnauthorizedError();
   }
 
-  const token = await signToken<ConnectCrossposterPayload>({userId: user._id});
+  // Throws an error if user doesn't have enough karma on the source forum (which is the current execution environment)
+  validateCrosspostingKarmaThreshold(user);
+
+  const token = await signToken<ConnectCrossposterPayload>({ userId: user._id });
   return {token};
 };
 
@@ -73,10 +77,13 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     collection: Posts,
     validate: false,
     currentUser: user,
+    // This is a hack - we have only a fraction of the necessary information for
+    // a context. But it appears to be working.
     context: {
       currentUser: user,
+      isFMCrosspostRequest: true,
       Users,
-    },
+    } as Partial<ResolverContext> as  ResolverContext,
   });
 
   return {
@@ -102,7 +109,6 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
     collection,
     fragmentName,
     fragment: undefined,
-    extraQueries: undefined,
   });
   const resolverName = getResolverNameFromOptions(collection);
 

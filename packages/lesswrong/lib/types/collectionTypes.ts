@@ -20,13 +20,13 @@ interface CollectionBase<
   N extends CollectionNameString = CollectionNameString
 > {
   collectionName: N
+  postProcess?: (data: T) => T;
   typeName: string,
   options: CollectionOptions
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
-  getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any
@@ -97,6 +97,7 @@ type ViewQueryAndOptions<
     limit?: number
     skip?: number
     projection?: MongoProjection<T>
+    hint?: string
   }
 }
 
@@ -109,10 +110,11 @@ interface MergedViewQueryAndOptions<
     sort: MongoSort<T>
     limit: number
     skip?: number
+    hint?: string
   }
 }
 
-type MongoSelector<T extends DbObject> = any; //TODO
+export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
@@ -129,9 +131,24 @@ type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
-type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
-type MongoIndexSpec = Record<string, number | string> | string;
-type MongoEnsureIndexOptions = Record<string, any>;
+export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+
+type FieldOrDottedPath<T> = keyof T | `${keyof T&string}.${string}`
+type MongoIndexKeyObj<T> = Partial<Record<FieldOrDottedPath<T>,1|-1|"2dsphere">>;
+type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
+type MongoEnsureIndexOptions<T> = {
+  partialFilterExpression?: Record<string, any>,
+  unique?: boolean,
+  name?: string,
+  collation?: {
+    locale: string,
+    strength: number,
+  },
+}
+type MongoIndexSpecification<T> = MongoEnsureIndexOptions<T> & {
+  key: MongoIndexKeyObj<T>
+}
+
 type MongoDropIndexOptions = {};
 
 type MongoBulkInsert<T extends DbObject> = {document: T};
@@ -170,7 +187,7 @@ interface HasUserIdType {
   userId: string
 }
 
-interface VoteableType extends HasIdType, HasUserIdType {
+interface VoteableType extends HasIdType {
   score: number
   baseScore: number
   extendedScore: any,
@@ -186,7 +203,7 @@ interface VoteableTypeClient extends VoteableType {
   currentUserExtendedVote?: any,
 }
 
-interface DbVoteableType extends VoteableType, DbObject {
+interface DbVoteableType extends VoteableType, DbObject, HasUserIdType {
 }
 
 // Common base type for results of database lookups.
@@ -211,15 +228,24 @@ export type AlgoliaDocument = {
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
+  clientId: string|null,
   currentUser: DbUser|null,
+  visitorActivity: DbUserActivity|null,
   locale: string,
   isGreaterWrong: boolean,
+  /**
+   * This means that the request originated from the other FM instance's servers
+   *
+   * Do not set to true unless you have verified the authenticity of the request
+   */
+  isFMCrosspostRequest?: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: Response
+  res?: Response,
+  repos: Repos,
 }
 
 type FragmentName = keyof FragmentTypes;
@@ -250,5 +276,56 @@ interface SpotlightFirstPost {
   title: string;
   url: string;
 }
+
+// Sorry for declaring these so far from their function definitions. The
+// functions are defined in /server, and import cycles, etc.
+
+type CreateMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  document: Partial<DbInsertion<T>>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+};
+type CreateMutator = <T extends DbObject>(args: CreateMutatorParams<T>) => Promise<{data: T}>;
+
+type UpdateMutatorParamsBase<T extends DbObject> = {
+  collection: CollectionBase<T>;
+  data?: Partial<DbInsertion<T>>;
+  set?: Partial<DbInsertion<T>>;
+  unset?: any;
+  currentUser?: DbUser | null;
+  validate?: boolean;
+  context?: ResolverContext;
+  document?: T | null;
+};
+type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId: string,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector?: never
+};
+type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+  documentId?: never,
+  /** You should probably use documentId instead. If using selector, make sure
+   * it only returns a single row. */
+  selector: MongoSelector<T>
+};
+type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> |
+  UpdateMutatorParamsWithSelector<T>;
+
+type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
+
+type DeleteMutatorParams<T extends DbObject> = {
+  collection: CollectionBase<T>,
+  documentId: string,
+  selector?: MongoSelector<T>,
+  currentUser?: DbUser|null,
+  validate?: boolean,
+  context?: ResolverContext,
+  document?: T|null,
+};
+type DeleteMutator = <T extends DbObject>(args: DeleteMutatorParams<T>) => Promise<{data: T}>
+
 
 }

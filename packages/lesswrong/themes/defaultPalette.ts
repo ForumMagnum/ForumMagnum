@@ -198,6 +198,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
+    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
 
     eventMaybe: "#d59c00",
     
@@ -248,6 +249,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
+    sprout: '#69886e',
     
     commentsBubble: {
       commentCount: "#fff",
@@ -282,6 +284,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
+    primaryTranslucent: 'rgba(12,134,155,.7)',
+    debateComment: '#1c912766',
+    debateComment2: '#df1d4566',
+    debateComment3: '#2671ff66',
+    debateComment4: '#eb26ff66',
+    debateComment5: '#efdc0066',
   },
   background: {
     default: shades.grey[60],
@@ -291,8 +299,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2',
-    primaryDim2: '#e2f1f4',
+    primaryDim: '#e2f1f4',
+    // this is used to address a specific iOS Safari-related issue with linear-gradient:
+    // https://stackoverflow.com/questions/70446857/safari-linear-gradient
+    transparent: shades.inverseGreyAlpha(0),
+    imageOverlay: 'rgba(0,0,0,0.4)',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -391,16 +402,24 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
     },
+    imageUpload2: {
+      // Because this displays over an image, make it the same in both light and dark mode
+      background: 'rgba(0,0,0,0.6)',
+      hoverBackground: 'rgba(0,0,0,0.8)',
+    },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
   },
   tag: {
+    text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
+    coreTagText: shades.grey[600],
+    coreTagBackground: "transparent",
     coreTagBorder: shades.greyBorder("1px", .15),
-    text: shades.greyAlpha(.9),
-    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     hollowTagBackground: shades.grey[0],
+    hollowTagBorder: shades.greyBorder("1px", .15),
+    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {
@@ -428,6 +447,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sideCommentEditorBackground: "#f3f7fb",
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
+  },
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
   },
   embeddedPlayer: {
     opacity: 1,
@@ -463,4 +487,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     light: "#cb5e3c",
     contrastText: shades.grey[0],
   },
+  warning: {
+    main: "#ff9800",
+  }
 })
