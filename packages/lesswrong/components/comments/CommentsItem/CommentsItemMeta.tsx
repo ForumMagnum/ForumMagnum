@@ -12,7 +12,6 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useUpdate } from "../../../lib/crud/withUpdate";
-import { useDialog } from "../../common/withDialog";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { useHover } from "../../common/withHover";
 
@@ -171,7 +170,6 @@ export const CommentsItemMeta = ({
     fragmentName: 'CommentsListWithParentMetadata',
   });
 
-  const { openDialog } = useDialog();
   const { eventHandlers, anchorEl } = useHover();
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
 
@@ -241,9 +239,6 @@ export const CommentsItemMeta = ({
       data: { rejected: false }
     });
   }
-
-  // const setCommentRejectedStatus = (rejected: boolean, reason: string) => () => {
-  // };
 
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
