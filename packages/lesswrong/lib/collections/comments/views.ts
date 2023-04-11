@@ -86,7 +86,8 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
       ...validFields,
-      debateResponse: { $ne: true }
+      debateResponse: { $ne: true },
+      rejected: { $ne: true }
     },
     options: {
       sort: {postedAt: -1},
@@ -99,6 +100,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
 const dontHideDeletedAndUnreviewed = {
   $or: null,
   $and: null,
+  rejected: null
 };
 
 

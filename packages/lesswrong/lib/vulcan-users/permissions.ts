@@ -40,7 +40,7 @@ export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<strin
   if (!user) { // guests user
     return ['guests'];
   }
-  if (user.banned > moment().toDate()) { // banned users have no membership permissions
+  if (user.banned && user.banned > moment().toDate()) { // banned users have no membership permissions
     return ['guests'];
   }
   let userGroups: Array<string> = ['members'];

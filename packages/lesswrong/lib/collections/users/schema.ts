@@ -1992,7 +1992,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && !post.rejected && post.status===postStatuses.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },
@@ -2031,7 +2031,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },

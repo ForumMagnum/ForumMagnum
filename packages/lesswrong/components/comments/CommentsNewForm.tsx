@@ -17,6 +17,8 @@ import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
+import { isLW } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -135,7 +137,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, ContentStyles } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -263,9 +265,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
             Please wait awhile before commenting again.
           </div>}
-          {commentWillBeHidden && <div className={classes.modNote}><em>
-            A moderator will need to review your account before your comments will show up.
-          </em></div>}
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <ContentStyles contentType="comment">
+              <em>
+                {isLW ? <>
+                  LessWrong is raising our moderation standards for new comments.<br/>
+                  See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your comments are approved.
+                </>
+                : <>A moderator will need to review your account before your comments will show up.</>
+                }
+              </em>
+            </ContentStyles>
+          </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()

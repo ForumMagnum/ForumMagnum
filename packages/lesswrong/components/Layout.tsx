@@ -24,6 +24,9 @@ import moment from 'moment';
 import { useOnNavigate } from './hooks/useOnNavigate';
 import { AbstractThemeOptions, getDefaultThemeOptions, isValidSerializedThemeOptions } from '../themes/themeNames';
 import { CS_END, CS_START } from '../lib/collections/users/schema';
+// enable during ACX Everywhere
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
+import { useCookies } from 'react-cookie';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -161,6 +164,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0,
     width: "100%",
   },
+  // enable during ACX Everywhere
+  hideHomepageMapOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
 })
 
 const Layout = ({currentUser, children, classes}: {
@@ -177,6 +186,7 @@ const Layout = ({currentUser, children, classes}: {
   const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
+  const [cookies] = useCookies()
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -256,7 +266,7 @@ const Layout = ({currentUser, children, classes}: {
   }
   
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper, HomepageCommunityMap } = Components
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -264,9 +274,9 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -287,7 +297,10 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-    
+
+    // enable during ACX Everywhere
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -323,7 +336,8 @@ const Layout = ({currentUser, children, classes}: {
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
-              
+              {/* enable during ACX Everywhere */}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {
