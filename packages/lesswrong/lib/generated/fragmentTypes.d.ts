@@ -1331,6 +1331,7 @@ interface CommentsList { // fragment on Comments
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
+  readonly modGPTRecommendation: string,
 }
 
 interface CommentsList_tag { // fragment on Tags

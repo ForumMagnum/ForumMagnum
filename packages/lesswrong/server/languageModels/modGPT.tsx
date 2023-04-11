@@ -1,3 +1,4 @@
+import React from 'react';
 import { getOpenAI } from './languageModelIntegration';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -11,6 +12,10 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collecti
 import { dataToHTML } from '../editor/conversionUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import Users from '../../lib/collections/users/collection';
+import { wrapAndSendEmail } from '../emails/renderEmail';
+import { Components } from '../../lib/vulcan-lib/components';
+import './../emailComponents/ModGPTFlagEmail';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 
 
 export const modGPTPrompt = `
@@ -49,6 +54,16 @@ export const modGPTPrompt = `
   Misgendering deliberately and/or deadnaming gratuitously
   `
 
+const getModGPTAnalysis = async (api, text) => {
+  return await api.createChatCompletion({
+    model: 'gpt-4',
+    messages: [
+      {role: 'system', content: modGPTPrompt},
+      {role: 'user', content: text},
+    ],
+  })
+}
+
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
@@ -69,13 +84,27 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   })
   const text = htmlToText(html)
   
-  const response = await api.createChatCompletion({
-    model: 'gpt-4',
-    messages: [
-      {role: 'system', content: modGPTPrompt},
-      {role: 'user', content: text},
-    ],
-  })
+  let response = await getModGPTAnalysis(api, text)
+  console.log(response.status)
+  
+  // If it fails with "Too Many Requests", we try one more time.
+  // We seem to hit this occasionally, even when we're nowhere near the rate limit.
+  if (response.status === 429) {
+    response = await getModGPTAnalysis(api, text)
+  }
+  
+  // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
+  if (response.status !== 200) {
+    await updateMutator({
+      collection: Comments,
+      documentId: comment._id,
+      unset: {
+        modGPTAnalysis: 1,
+        modGPTRecommendation: 1
+      },
+      validate: false,
+    })
+  }
   
   const topResult = response.data.choices[0].message?.content
   if (topResult) {
@@ -90,7 +119,6 @@ async function checkModGPT(comment: DbComment): Promise<void> {
         modGPTAnalysis: topResult,
         modGPTRecommendation: rec
       },
-      unset: {},
       validate: false,
     })
     
@@ -98,7 +126,22 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     if (rec === 'Intervene') {
       const user = await Users.findOne(comment.userId)
       if (!user) throw new Error(`Could not find ${comment.userId}`)
-      // TODO: send email
+
+      const commentLink = commentGetPageUrlFromIds({
+        postId: comment.postId,
+        commentId: comment._id,
+        permalink: true,
+        isAbsolute: true
+      })
+      const flagMatches = topResult.match(/^Flag: (.+)/m)
+      const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
+      console.log('flag', flag)
+      
+      await wrapAndSendEmail({
+        user,
+        subject: 'Your comment was flagged',
+        body: <Components.ModGPTFlagEmail commentLink={commentLink} flag={flag} />
+      })
     }
   }
 }
