@@ -12,6 +12,8 @@ import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import { loadByIds } from '../lib/loaders';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
@@ -466,8 +468,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
-  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+  const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 

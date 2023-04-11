@@ -47,13 +47,13 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
+  if (currentDate < reviewStart) return "UNSTARTED"
 
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < votingEnd) return "VOTING"

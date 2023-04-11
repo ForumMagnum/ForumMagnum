@@ -160,8 +160,13 @@
     "timestamp": "2023-04-04T17:05:23.000Z"
   },
   {
-    "acceptsSchemaHash": "01e0671c67b7b095e6aeb446d33d7d88",
-    "acceptedByMigration": "20230411T003252.add_modGPTAnalysis.ts",
-    "timestamp": "2023-04-11T00:32:52.000Z"
+    "acceptsSchemaHash": "380d30e2ea28cacb71bbc6d29e540a6e",
+    "acceptedByMigration": "20230407T214751.add_rejection_fields.ts",
+    "timestamp": "2023-04-07T21:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c5ccc671021bb4cd474dee04fe90578d",
+    "acceptedByMigration": "20230411T155655.add_modGPTAnalysis.ts",
+    "timestamp": "2023-04-11T15:56:55.000Z"
   }
 ]

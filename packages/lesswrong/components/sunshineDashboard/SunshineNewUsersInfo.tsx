@@ -4,6 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users';
+import { CONTENT_LIMIT } from './UsersReviewInfoCard';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -91,7 +92,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 40
+    limit: CONTENT_LIMIT
   });
 
   const { results: comments = [], loading: commentsLoading } = useMulti({
@@ -99,7 +100,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 40
+    limit: CONTENT_LIMIT
   });
 
   const {

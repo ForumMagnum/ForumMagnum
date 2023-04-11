@@ -166,8 +166,10 @@ interface DbComment extends DbObject {
   title: string
   relevantTagIds: Array<string>
   debateResponse: boolean | null
+  rejected: boolean
   modGPTAnalysis: string
   modGPTRecommendation: string
+  rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -412,7 +414,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -637,6 +639,8 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
+  rejected: boolean
+  rejectedByUserId: string
   subforumTagId: string
   af: boolean
   afDate: Date

@@ -67,6 +67,7 @@ registerFragment(`
     votingSystem
     isPinnedOnProfile
     debateResponse
+    rejected
     modGPTRecommendation
   }
 `);

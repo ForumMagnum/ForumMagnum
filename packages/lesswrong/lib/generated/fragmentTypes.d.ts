@@ -391,8 +391,10 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly title: string,
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
   readonly modGPTAnalysis: string,
   readonly modGPTRecommendation: string,
+  readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -648,6 +650,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly commentCount: number,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly rejected: boolean,
+  readonly rejectedByUserId: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -790,7 +794,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly endedAt: Date | null,
 }
 
@@ -809,6 +813,7 @@ interface PostsMinimumInfo { // fragment on Posts
     requested: boolean,
   }>,
   readonly hasCoauthorPermission: boolean,
+  readonly rejected: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -1331,6 +1336,7 @@ interface CommentsList { // fragment on Comments
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
+  readonly rejected: boolean,
   readonly modGPTRecommendation: string,
 }
 
@@ -2908,7 +2914,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,

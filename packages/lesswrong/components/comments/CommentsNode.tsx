@@ -209,6 +209,7 @@ const CommentsNode = ({
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
+  
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}

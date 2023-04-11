@@ -7,13 +7,14 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isLW } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
+import { Link } from '../../lib/reactRouterWrapper';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -99,6 +100,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
+  },
+  modNote: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 20,
+    },
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20
   }
 })
 
@@ -162,7 +171,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, ContentStyles } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -183,7 +192,7 @@ const PostsNewForm = ({classes}: {
   }
   const eventForm = query && query.eventForm
   
-  if (query.subforumTagId) {
+  if (query?.subforumTagId) {
     prefilledProps = {
       ...prefilledProps,
       subforumTagId: query.subforumTagId,
@@ -214,10 +223,19 @@ const PostsNewForm = ({classes}: {
     </div>
   }
 
+  // on LW, show a moderation message to users who haven't been approved yet
+  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
+
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
+        {postWillBeHidden && <ContentStyles contentType="comment" className={classes.modNote}>
+          <em>
+            LessWrong is raising our moderation standards for new posts.<br/>
+            See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your post is approved.
+          </em>
+        </ContentStyles>}
         <NoSSR>
           <WrappedSmartForm
             collection={Posts}

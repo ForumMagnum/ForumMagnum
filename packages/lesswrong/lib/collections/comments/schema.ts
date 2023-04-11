@@ -221,7 +221,7 @@ const schema: SchemaType<DbComment> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: (comment: DbComment) => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -692,7 +692,17 @@ const schema: SchemaType<DbComment> = {
       
       const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
-    }
+    },
+  },
+
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
   
   // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
@@ -713,6 +723,27 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['admins'],
     hidden: true
   },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
 
   /* Alignment Forum fields */
   af: {
