@@ -1,7 +1,11 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
+import {
+  RefinementListExposed,
+  RefinementListProvided,
+  SearchState,
+} from 'react-instantsearch/connectors';
 import {
   Hits,
   Configure,
@@ -28,7 +32,6 @@ import {
 } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import {
-  isEAForum,
   forumTypeSetting,
   taggingNameIsSet,
   taggingNamePluralCapitalSetting,
@@ -306,7 +309,7 @@ const SearchPageTabbed = ({classes}:{
   )
 
   const {sort: initialSorting, ...initialSearchState} = qs.parse(location.search.slice(1));
-  const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState)
+  const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState);
   const [sorting, setSorting] = useState<AlgoliaSorting>(
     isValidAlgoliaSorting(initialSorting) ? initialSorting : defaultAlgoliaSorting,
   );
@@ -435,20 +438,18 @@ const SearchPageTabbed = ({classes}:{
           <Link to="/community#individuals">View community map</Link>
         </div>}
 
-        {isEAForum && <>
-          <Typography variant="headline" className={classes.filtersHeadline}>Sort</Typography>
-          <Select
-            value={sorting}
-            onChange={(e) => onSortingChange(e.target.value)}
-            className={classes.sort}
-          >
-            {Array.from(algoliaSortings).map((name, i) =>
-              <MenuItem key={i} value={name}>
-                {formatSorting(name)}
-              </MenuItem>
-            )}
-          </Select>
-        </>}
+        <Typography variant="headline" className={classes.filtersHeadline}>Sort</Typography>
+        <Select
+          value={sorting}
+          onChange={(e) => onSortingChange(e.target.value)}
+          className={classes.sort}
+        >
+          {Array.from(algoliaSortings).map((name, i) =>
+            <MenuItem key={i} value={name}>
+              {formatSorting(name)}
+            </MenuItem>
+          )}
+        </Select>
       </div>
 
       <div className={classes.resultsColumn}>
