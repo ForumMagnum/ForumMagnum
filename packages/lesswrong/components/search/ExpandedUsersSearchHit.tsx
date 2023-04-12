@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   displayName: {
     fontSize: 18,
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
   },

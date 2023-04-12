@@ -77,6 +77,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
@@ -2364,6 +2365,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly nullifyVotes: boolean,
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
+  readonly hideCommunitySection: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
@@ -2487,7 +2489,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
-  readonly noComicSans: boolean,
 }
 
 interface UsersCurrentRateLimit { // fragment on Users
@@ -2595,13 +2596,13 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
-  readonly noComicSans: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,

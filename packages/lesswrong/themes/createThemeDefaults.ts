@@ -83,6 +83,7 @@ export const baseTheme: BaseThemeSpecification = {
       spacing: {
         unit: spacingUnit,
         titleDividerSpacing,
+        mainLayoutPaddingTop: 50
       },
       borderRadius: {
         default: 0,
