@@ -15,8 +15,6 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-import { isLW } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -123,7 +121,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, ContentStyles, NewCommentModerationWarning } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
