@@ -2,8 +2,20 @@ import algoliasearch from "algoliasearch/lite";
 import { algoliaAppIdSetting, algoliaSearchKeySetting, algoliaPrefixSetting } from './publicSettings';
 import { TupleSet, UnionOf } from "./utils/typeGuardUtils";
 
-export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
-export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
+export const algoliaIndexedCollectionNames = new TupleSet([
+  "Comments",
+  "Posts",
+  "Users",
+  "Sequences",
+  "Tags",
+] as const);
+
+export type AlgoliaIndexCollectionName = UnionOf<typeof algoliaIndexedCollectionNames>;
+
+export const collectionIsAlgoliaIndexed = (
+  collectionName: CollectionNameString,
+): collectionName is AlgoliaIndexCollectionName =>
+  algoliaIndexedCollectionNames.has(collectionName);
 
 export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName): string => {
   const ALGOLIA_PREFIX = algoliaPrefixSetting.get()
@@ -42,12 +54,6 @@ export const getAlgoliaIndexNameWithSorting = (
 ): string => {
   const baseIndex = getAlgoliaIndexName(collectionName);
   return baseIndex + algoliaReplicaSuffixes[sorting];
-}
-
-export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString): collectionName is AlgoliaIndexCollectionName => {
-  // .includes is frustratingly typed to only accept variables with the type of
-  // the array contents, and this plays badly with const arrays
-  return (algoliaIndexedCollectionNames as unknown as string[]).includes(collectionName)
 }
 
 export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();
