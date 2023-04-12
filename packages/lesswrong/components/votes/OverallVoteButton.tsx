@@ -8,7 +8,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
-  enabled = true,
+  enabled,
   solidArrow,
   classes,
 }: {
@@ -19,14 +19,14 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
-  enabled?: boolean,
+  enabled: boolean,
   solidArrow?: boolean
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
-  
+
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     const voteType = strength+upOrDown;
     if(!currentUser){

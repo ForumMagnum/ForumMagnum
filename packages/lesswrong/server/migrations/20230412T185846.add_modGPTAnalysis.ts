@@ -1,24 +1,20 @@
 /**
- * Generated on 2023-04-11T15:56:55.928Z by `yarn makemigrations`
+ * Generated on 2023-04-12T18:58:46.157Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
- * index c6e379aecd..7c35984cc6 100644
+ * index 4b69c19307..89191c2cc3 100644
  * --- a/Users/sarah/EAForum/schema/accepted_schema.sql
  * +++ b/Users/sarah/EAForum/schema/schema_to_accept.sql
- * @@ -4,5 +4,3 @@
+ * @@ -4,6 +4,3 @@
  *  --
- * --- Overall schema hash: 380d30e2ea28cacb71bbc6d29e540a6e
  * -
- * --- Accepted on 2023-04-07T21:47:51.000Z by 20230407T214751.add_rejection_fields.ts
- * +-- Overall schema hash: c5ccc671021bb4cd474dee04fe90578d
+ * --- Overall schema hash: 1728cb3d532414ce56d22566ab53c3be
+ * -
+ * --- Accepted on 2023-04-11T17:26:12.000Z by 20230411T172612.add_hideCommunitySection_to_users.ts
+ * +-- Overall schema hash: 64c57945e3105d8daf5be8d51a1ee559
  *  
- * @@ -108,3 +106,3 @@ CREATE TABLE "CommentModeratorActions" (
- *  
- * --- Schema for "Comments", hash: 1c77433ee8754e841a073c882ee2f7ef
- * +-- Schema for "Comments", hash: aff61766f86b6129215dc4cd710aa12a
- *  CREATE TABLE "Comments" (
- * @@ -159,2 +157,4 @@ CREATE TABLE "Comments" (
+ * @@ -160,2 +157,4 @@ CREATE TABLE "Comments" (
  *      "rejected" bool DEFAULT false,
  * +    "modGPTAnalysis" text,
  * +    "modGPTRecommendation" text,
@@ -32,7 +28,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "c5ccc671021bb4cd474dee04fe90578d";
+export const acceptsSchemaHash = "64c57945e3105d8daf5be8d51a1ee559";
 
 import Comments from "../../lib/collections/comments/collection";
 import { addField, dropField } from "./meta/utils";
