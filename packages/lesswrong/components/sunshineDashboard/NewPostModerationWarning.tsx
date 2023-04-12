@@ -16,11 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const NewPostModerationWarning = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
+  const { ContentStyles, ContentItemBody, Loading } = Components
 
-  const documentId = "" //postModerationWarningCommentIdSetting.get() 
+  const documentId = postModerationWarningCommentIdSetting.get() 
   
-  const {document} = useSingle({
+  const {document, loading} = useSingle({
     documentId,
     collectionName: "Comments",
     fragmentName: "CommentsList",
@@ -31,13 +31,9 @@ export const NewPostModerationWarning = ({classes}: {
 
   return <div className={classes.root}>
     <ContentStyles contentType="comment" className={classes.modNote}>
-      {html ? 
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: html }}
-        />
-        :
-        <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>
-      }
+      {loading && <Loading/>}
+      {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
+      {!html && !loading && <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>}
     </ContentStyles>
   </div>;
 }

@@ -232,9 +232,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {commentWillBeHidden && <div className={classes.modNote}>
-            <NewCommentModerationWarning />
-          </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -267,6 +264,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <NewCommentModerationWarning />
+          </div>}
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>

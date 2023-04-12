@@ -8,20 +8,19 @@ const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<strin
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderBottom: theme.palette.border.commentBorder,
-    paddingLeft: 4,
-    paddingBottom: 4,
-    marginBottom: 16,
+    padding: 12,
+    paddingRight: 28
   }
 });
 
 export const NewCommentModerationWarning = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
+  const { ContentStyles, ContentItemBody, Loading } = Components
   
   const documentId = commentModerationWarningCommentIdSetting.get() 
   
-  const {document} = useSingle({
+  const {document, loading } = useSingle({
     documentId,
     collectionName: "Comments",
     fragmentName: "CommentsList",
@@ -32,13 +31,9 @@ export const NewCommentModerationWarning = ({classes}: {
 
   return <div className={classes.root}>
     <ContentStyles contentType="comment" className={classes.modNote}>
-      {html ? 
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: html }}
-        />
-        :
-        <div><em>A moderator will need to review your account before your posts will appear publicly.</em></div>
-      }
+      {loading && <Loading/>}
+      {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
+      {!html && !loading && <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>}
     </ContentStyles>
   </div>;
 }
