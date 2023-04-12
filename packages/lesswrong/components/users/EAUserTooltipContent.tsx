@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { htmlToText } from "html-to-text";
 import moment from "moment";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -73,20 +74,7 @@ const formatRole = (jobTitle?: string, organization?: string): string =>
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
 
-const formatBio = (bio?: string): string => {
-  if (!bio) {
-    return "";
-  }
-  // Note that this only works because we don't SSR tooltips
-  const span = document.createElement("span");
-  span.innerHTML = bio;
-  if (span.children.length > 1) {
-    return Array.from(span.children).map((node: HTMLSpanElement) =>
-      node.textContent ?? node.innerText ?? "",
-    ).join(" ");
-  }
-  return span.textContent ?? span.innerText ?? "";
-}
+const formatBio = (bio?: string): string => htmlToText(bio ?? "");
 
 const formatStat = (value?: number): string => {
   value ??= 0;
