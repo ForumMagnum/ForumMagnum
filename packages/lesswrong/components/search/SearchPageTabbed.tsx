@@ -190,7 +190,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-
+  sort: {
+    borderRadius: theme.borderRadius.small,
+    width: "100%",
+  },
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -431,6 +434,7 @@ const SearchPageTabbed = ({classes}:{
           <Select
             value={sorting}
             onChange={(e) => onSortingChange(e.target.value)}
+            className={classes.sort}
           >
             {Array.from(algoliaSortings).map((name, i) =>
               <MenuItem key={i} value={name}>{startCase(name)}</MenuItem>
