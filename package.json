@@ -245,7 +245,7 @@
     "nodemailer": "^6.6.1",
     "openai": "^3.2.0",
     "papaparse": "^5.2.0",
-    "passport": "^0.5.2",
+    "passport": "^0.6.0",
     "passport-auth0": "^1.4.0",
     "passport-custom": "^1.1.1",
     "passport-facebook": "^3.0.0",
