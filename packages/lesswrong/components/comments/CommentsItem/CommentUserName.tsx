@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { userHasCommentProfileImages } from '../../../lib/betas';
+import { useCurrentUser } from '../../common/withUser';
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -52,6 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  profileImagePlaceholder: {
+    marginRight: 4,
+  },
 });
 
 const CommentUserName = ({
@@ -65,6 +70,7 @@ const CommentUserName = ({
   simple?: boolean,
   className?: string
 }) => {
+  const currentUser = useCurrentUser();
   const {UserNameDeleted, UsersName, UsersProfileImage, UserTooltip} = Components
   const author = comment.user;
 
@@ -99,12 +105,15 @@ const CommentUserName = ({
       );
     return (
       <Wrapper>
-        <UsersProfileImage
-          user={author}
-          size={PROFILE_IMAGE_SIZE}
-          fallback="initials"
-          className={classes.profileImage}
-        />
+        {userHasCommentProfileImages(currentUser)
+          ? <UsersProfileImage
+            user={author}
+            size={PROFILE_IMAGE_SIZE}
+            fallback="initials"
+            className={classes.profileImage}
+          />
+          : <div className={classes.profileImagePlaceholder} />
+        }
         <UsersName
           user={author}
           className={classes.author}
