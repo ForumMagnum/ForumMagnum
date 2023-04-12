@@ -3,16 +3,15 @@ import {Components, registerComponent} from '../../lib/vulcan-lib';
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { useHover } from "../common/withHover";
-import {useUpdate} from "../../lib/crud/withUpdate";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {}
 });
 
-export const RejectContentButton = ({contentWrapper, classes}: {
-  contentWrapper: RejectContentParams
-  classes: ClassesType,
+export const RejectContentButton = ({contentWrapper, classNames}: {
+  contentWrapper: RejectContentParams,
+  classNames: ClassesType,
 }) => {
   
   const { eventHandlers, anchorEl } = useHover();
@@ -20,30 +19,35 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
   const { LWPopper, ContentRejectionDialog } = Components;
   const { content } = contentWrapper;
+
+  const handleRejectContent = (reason: string) => {
+    setShowRejectionDialog(false);
+    rejectContent(reason);
+  };
   
-  return <span className={classes.rejectedIcon} {...eventHandlers}>
-    {content.rejected && <span className={classes.rejectedLabel} onClick={unrejectContent}>
+  return <span className={classNames.rejectedIcon} {...eventHandlers}>
+    {content.rejected && <span className={classNames.rejectedLabel} onClick={unrejectContent}>
       [Rejected]
     </span>}
-    {!content.rejected && content.authorIsUnreviewed && <span className={classes.rejectedIcon}>
+    {!content.rejected && content.authorIsUnreviewed && <span className={classNames.rejectedIcon}>
       <RejectedIcon onClick={() => setShowRejectionDialog(true)}/>
     </span>}
     {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
       <LWPopper
         open={showRejectionDialog}
         anchorEl={anchorEl}
-        className={classes.popper}
+        className={classNames.popper}
         clickable={true}
         allowOverflow={true}
         placement={"bottom-start"}
       >
-        <ContentRejectionDialog rejectContent={rejectContent}/>
+        <ContentRejectionDialog rejectContent={handleRejectContent}/>
       </LWPopper>
     </ClickAwayListener>}
   </span>
 }
 
-const RejectContentButtonComponent = registerComponent('RejectContentButton', RejectContentButton, {styles});
+const RejectContentButtonComponent = registerComponent('RejectContentButton', RejectContentButton);
 
 declare global {
   interface ComponentTypes {

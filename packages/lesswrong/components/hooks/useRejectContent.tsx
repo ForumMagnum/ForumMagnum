@@ -7,7 +7,7 @@ export type RejectContentParams = {
   content: SunshinePostsList
 } | {
   collectionName: "Comments",
-  content: CommentsListWithParentMetadata
+  content: CommentsList | CommentsListWithParentMetadata
 }
 
 export function useRejectContent ({collectionName, content}: RejectContentParams) {

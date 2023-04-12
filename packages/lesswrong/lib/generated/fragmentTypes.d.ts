@@ -651,6 +651,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly subforumTagId: string,
   readonly af: boolean,

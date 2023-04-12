@@ -244,7 +244,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, LWPopper, ContentRejectionDialog
+    ForumIcon, CommentsMenu, LWPopper, ContentRejectionDialog, RejectContentButton
   } = Components;
 
   return (
@@ -329,26 +329,9 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {isLW && userIsAdmin(currentUser) && <span className={classes.rejectedIcon} {...eventHandlers}>
-        {comment.rejected && <span className={classes.rejectedLabel} onClick={unrejectComment}>
-          [Rejected]
-        </span>}
-        {!comment.rejected && comment.authorIsUnreviewed && <span className={classes.rejectedIcon}>
-          <RejectedIcon onClick={() => setShowRejectionDialog(true)} />
-        </span>}
-        {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
-          <LWPopper
-            open={showRejectionDialog}
-            anchorEl={anchorEl}
-            className={classes.popper}
-            clickable={true}
-            allowOverflow={true}
-            placement={"bottom-start"}
-          >
-            <ContentRejectionDialog rejectContent={rejectComment}/>
-          </LWPopper>
-        </ClickAwayListener>}
-      </span>}
+      {isLW && userIsAdmin(currentUser) &&
+        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
+      }
 
       <span className={classes.rightSection}>
         {isEAForum &&

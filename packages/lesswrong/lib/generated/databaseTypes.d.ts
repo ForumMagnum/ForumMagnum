@@ -639,6 +639,7 @@ interface DbPost extends DbObject {
   commentCount: number
   debate: boolean | null
   rejected: boolean
+  rejectedReason: string | null
   rejectedByUserId: string
   subforumTagId: string
   af: boolean
