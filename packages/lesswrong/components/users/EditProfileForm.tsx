@@ -1,4 +1,3 @@
-
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';

@@ -1,4 +1,4 @@
-import { capitalize } from "lodash/fp";
+import capitalize from "lodash/fp/capitalize";
 import { forumTypeSetting, ForumTypeString } from "./instanceSettings"
 
 //Partial Type adds "undefined" erroneously to T, so we need to explicitly tell TS that it can't be undefined.

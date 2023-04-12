@@ -15,9 +15,26 @@ const pathToKey = (path: ThemePath): string => path.join(separator);
 const keyToPath = (key: string): ThemePath => key.split(separator).map(parsePathItem);
 const keyToVar = (key: string): string => "--" + key.replace(new RegExp(separator, "g"), "-");
 const keyToVarRef = (key: string): string => `var(${keyToVar(key)})`;
+
+/**
+ * Given an arbitrary object and a path into that object, where the result is presumed to exist and
+ * be a string, recurse through that object getting the value at the given path. Eg
+ *
+ *     getAtPath({
+ *       x: {
+ *         y: {
+ *           z: "asdf"
+ *         },
+ *       }
+ *     }, ["x","y","z"])
+ *
+ * is "asdf". This is not as strong a typecheck as would be ideal; it might be possible to make
+ * something stronger by replacing ThemePath with a type that manipulates T to assert that the path
+ * exists as a string, but I (Jim) gave it a shot and didn't find a way to do that that worked.
+ */
 const getAtPath = <T extends {}>(data: T, path: ThemePath): string => path.length < 2
-  ? data[path[0]]
-  : getAtPath(data[path[0]], path.slice(1));
+  ? ""+data[path[0] as keyof T]
+  : getAtPath(data[path[0] as keyof T] as any, path.slice(1));
 
 /**
  * During SSR, we may not know which theme is currently being used if the user has their theme

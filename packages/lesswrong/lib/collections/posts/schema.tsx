@@ -7,7 +7,7 @@ import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, post
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
-import { getWithLoader } from '../../loaders';
+import { loadByIds, getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
@@ -106,15 +106,16 @@ async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   return readStatus[0];
 }
 
-function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>) {
-  if (document.isEvent || !document.submitToFrontpage) {
-    return undefined
+const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
   }
-  return new Date()
+  return new Date();
 }
-const frontpageDefault = isEAForum ?
-  eaFrontpageDate :
-  undefined
 
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
@@ -877,7 +878,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await context.loaders.Tags.loadMany(tagIds)
+      const tags = await loadByIds(context, "Tags", tagIds);
       return await accessFilterMultiple(currentUser, context.Tags, tags, context)
     }
   }),
@@ -1245,9 +1246,25 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    onInsert: frontpageDefault, //TODO-JM: FIXME
     optional: true,
     hidden: true,
+    ...(isEAForum && {
+      onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
+        isEvent,
+        submitToFrontpage,
+        draft,
+      ),
+      onUpdate: ({data, oldDocument}) => {
+        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
+          return eaFrontpageDateDefault(
+            data.isEvent ?? oldDocument.isEvent,
+            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+            false,
+          );
+        }
+        return data.frontpageDate ?? oldDocument.frontpageDate;
+      },
+    }),
   },
 
   collectionTitle: {
@@ -1265,8 +1282,7 @@ const schema: SchemaType<DbPost> = {
       fieldName: 'coauthors',
       type: '[User!]!',
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
-        const loader = context.loaders['Users'];
-        const resolvedDocs = await loader.loadMany(
+        const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
         return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
@@ -2336,7 +2352,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -2414,11 +2430,40 @@ const schema: SchemaType<DbPost> = {
 
       return count;
     }
-  })
-};
+  }),
 
-/* subforum-related fields */
-Object.assign(schema, {
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
+  /* subforum-related fields */
+
   // If this post is associated with a subforum, the _id of the tag
   subforumTagId: {
     ...foreignKeyField({
@@ -2434,10 +2479,9 @@ Object.assign(schema, {
     canUpdate: ['admins'],
     hidden: true,
   },
-})
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
+
   af: {
     order:10,
     type: Boolean,
@@ -2501,7 +2545,7 @@ Object.assign(schema, {
         return false;
       }
     },
-    onEdit: (modifier, post: DbPost) => {
+    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }
@@ -2545,9 +2589,9 @@ Object.assign(schema, {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

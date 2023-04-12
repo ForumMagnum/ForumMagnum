@@ -58,7 +58,7 @@ export const updateFieldType = async <T extends DbObject>(
 export const dropIndex = async <T extends DbObject>(
   db: SqlClient,
   collection: PgCollection<T>,
-  index: TableIndex,
+  index: TableIndex<T>,
 ): Promise<void> => {
   const {sql, args} = new DropIndexQuery(collection.getTable(), index).compile();
   await db.none(sql, args);
@@ -67,7 +67,7 @@ export const dropIndex = async <T extends DbObject>(
 export const createIndex = async <T extends DbObject>(
   db: SqlClient,
   collection: PgCollection<T>,
-  index: TableIndex,
+  index: TableIndex<T>,
   ifNotExists = true,
 ): Promise<void> => {
   const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();
