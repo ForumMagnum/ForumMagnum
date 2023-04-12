@@ -53,10 +53,41 @@ export const defaultAlgoliaSorting: AlgoliaSorting = "relevance";
 export const isValidAlgoliaSorting = (sorting: string): sorting is AlgoliaSorting =>
   algoliaSortings.has(sorting);
 
-export const algoliaReplicaSuffixes: Record<AlgoliaSorting, string> = {
-  relevance: "",
-  newest_first: "_date_desc",
-  oldest_first: "_date_asc",
+class SortReplica {
+  constructor(
+    private name?: string,
+    private direction?: "asc" | "desc",
+  ) {}
+
+  getIndexName(baseIndex: string): string {
+    let suffix = "";
+    if (this.name) {
+      suffix += `_${this.name}`;
+    }
+    if (this.direction) {
+      suffix += `_${this.direction}`;
+    }
+    return baseIndex + suffix;
+  }
+
+  private getRankingFields(): string[] {
+    switch (this.name) {
+    case "date":
+      return ["publicDateMs", "createdAt"];
+    default:
+      throw new Error(`Can't convert sort name '${this.name}' to ranking field`);
+    }
+  }
+
+  getRanking(): string[] {
+    return this.getRankingFields().map((field) => `${this.direction}(${field})`);
+  }
+}
+
+const algoliaReplicas: Record<AlgoliaSorting, SortReplica> = {
+  relevance: new SortReplica(),
+  newest_first: new SortReplica("date", "desc"),
+  oldest_first: new SortReplica("date", "asc"),
 };
 
 export const algoliaCollectionIsCustomSortable = (
@@ -71,7 +102,26 @@ export const getAlgoliaIndexNameWithSorting = (
   if (!algoliaCollectionIsCustomSortable(collectionName)) {
     return baseIndex;
   }
-  return baseIndex + algoliaReplicaSuffixes[sorting];
+  return algoliaReplicas[sorting].getIndexName(baseIndex);
+}
+
+export const getAlgoliaReplicasForCollection = (
+  collectionName: AlgoliaIndexCollectionName,
+): {indexName: string, rankings: string[]}[] => {
+  if (!algoliaCollectionIsCustomSortable(collectionName)) {
+    return [];
+  }
+
+  const result: ReturnType<typeof getAlgoliaReplicasForCollection> = [];
+  for (const sorting of algoliaSortings) {
+    if (sorting !== defaultAlgoliaSorting) {
+      result.push({
+        indexName: getAlgoliaIndexNameWithSorting(collectionName, sorting),
+        rankings: algoliaReplicas[sorting].getRanking(),
+      });
+    }
+  }
+  return result;
 }
 
 export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();

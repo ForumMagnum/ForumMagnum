@@ -1,26 +1,17 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import {
+  algoliaCollectionIsCustomSortable,
+  AlgoliaIndexCollectionName,
+  algoliaIndexedCollectionNames,
+  getAlgoliaIndexName,
+  getAlgoliaReplicasForCollection,
+} from '../../lib/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
+import type { Index, IndexSettings } from 'algoliasearch';
 
-export const algoliaConfigureIndexes = async () => {
-  let client = getAlgoliaAdminClient();
-  if (!client) {
-    console.error("Could not get Algolia admin client."); //eslint-disable-line no-console
-    return;
-  }
-  
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
-  console.log("Configuring Algolia indexes"); //eslint-disable-line no-console
-  
-  let commentsIndex = client.initIndex(getAlgoliaIndexName("Comments"));
-  let postsIndex = client.initIndex(getAlgoliaIndexName("Posts"));
-  let usersIndex = client.initIndex(getAlgoliaIndexName("Users"));
-  let sequencesIndex = client.initIndex(getAlgoliaIndexName("Sequences"));
-  let tagsIndex = client.initIndex(getAlgoliaIndexName("Tags"));
-  
-  await algoliaSetIndexSettingsAndWait(commentsIndex, {
+const algoliaIndexSettings: Record<AlgoliaIndexCollectionName, IndexSettings> = {
+  Comments: {
     searchableAttributes: [
       'body',
       'unordered(authorDisplayName)',
@@ -40,26 +31,28 @@ export const algoliaConfigureIndexes = async () => {
     attributesToSnippet: isEAForum ? ['body:30'] : ['body:20'],
     unretrievableAttributes: ['authorUserName'],
     advancedSyntax: true
-  });
-  
-  const eaForumPostsSearchableAttrs = [
-    'title',
-    'unordered(authorDisplayName)',
-    'body',
-    'unordered(_id)',
-  ]
-  await algoliaSetIndexSettingsAndWait(postsIndex, {
-    searchableAttributes: isEAForum ? eaForumPostsSearchableAttrs : [
-      'title',
-      'body',
-      'unordered(authorDisplayName)',
-      'unordered(_id)',
+  },
+  Posts: {
+    searchableAttributes: isEAForum
+      ? [
+        'title',
+        'unordered(authorDisplayName)',
+        'body',
+        'unordered(_id)',
+      ]
+      : [
+        'title',
+        'body',
+        'unordered(authorDisplayName)',
+        'unordered(_id)',
+      ],
+    ranking: [
+      'typo', 'geo', 'words', 'filters', 'proximity', 'attribute', 'exact', 'custom',
     ],
-    ranking: ['typo','geo','words','filters','proximity','attribute','exact','custom'],
     customRanking: [
       'asc(order)',
       'desc(baseScore)',
-      'desc(score)'
+      'desc(score)',
     ],
     attributesForFaceting: [
       'af',
@@ -69,7 +62,7 @@ export const algoliaConfigureIndexes = async () => {
       'publicDateMs',
       'searchable(tags)',
       'curated',
-      'isEvent'
+      'isEvent',
     ],
     attributesToHighlight: ['title'],
     attributesToSnippet: isEAForum ? ['body:20'] : ['body:10'],
@@ -80,33 +73,33 @@ export const algoliaConfigureIndexes = async () => {
     distinct: true,
     attributeForDistinct: '_id',
     advancedSyntax: true,
-  });
-  
-  const eaForumUsersSearchableAttrs = [
-    'unordered(displayName)',
-    'unordered(_id)',
-    'bio',
-    'unordered(mapLocationAddress)',
-    'jobTitle',
-    'organization',
-    'howICanHelpOthers',
-    'howOthersCanHelpMe'
-  ]
-  const eaForumUsersRanking = [
-    'typo','geo','words','filters','proximity','attribute','exact',
-    'desc(karma)',
-    'desc(createdAt)'
-  ]
-  await algoliaSetIndexSettingsAndWait(usersIndex, {
-    searchableAttributes: isEAForum ? eaForumUsersSearchableAttrs : [
+  },
+  Users: {
+    searchableAttributes: isEAForum
+    ? [
       'unordered(displayName)',
       'unordered(_id)',
-    ],
-    ranking: isEAForum ? eaForumUsersRanking : [
-      'desc(karma)',
-      'typo','geo','words','filters','proximity','attribute','exact',
-      'desc(createdAt)'
-    ],
+      'bio',
+      'unordered(mapLocationAddress)',
+      'jobTitle',
+      'organization',
+      'howICanHelpOthers',
+      'howOthersCanHelpMe',
+    ]
+    : [
+        'unordered(displayName)',
+        'unordered(_id)',
+      ],
+    ranking: isEAForum
+      ? [
+        'typo','geo','words','filters','proximity','attribute','exact',
+        'desc(karma)',
+        'desc(createdAt)',
+      ] : [
+        'desc(karma)',
+        'typo','geo','words','filters','proximity','attribute','exact',
+        'desc(createdAt)',
+      ],
     attributesForFaceting: [
       'filterOnly(af)',
       'searchable(tags)',
@@ -114,8 +107,8 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesToSnippet: ['bio:20'],
     advancedSyntax: true
-  });
-  await algoliaSetIndexSettingsAndWait(sequencesIndex, {
+  },
+  Sequences: {
     searchableAttributes: [
       'title',
       'plaintextDescription',
@@ -128,9 +121,8 @@ export const algoliaConfigureIndexes = async () => {
     ],
     advancedSyntax: true,
     attributesToSnippet: ['plaintextDescription:20'],
-
-  });
-  await algoliaSetIndexSettingsAndWait(tagsIndex, {
+  },
+  Tags: {
     searchableAttributes: [
       'name',
       'description',
@@ -148,9 +140,45 @@ export const algoliaConfigureIndexes = async () => {
     ],
     distinct: false,
     attributesToSnippet: isEAForum ? ['description:20'] : ['description:10'],
-    advancedSyntax: true
-  });
-  
+    advancedSyntax: true,
+  },
+};
+
+export const algoliaConfigureIndexes = async () => {
+  let client = getAlgoliaAdminClient();
+  if (!client) {
+    console.error("Could not get Algolia admin client."); //eslint-disable-line no-console
+    return;
+  }
+
+  console.log("Configuring Algolia indexes"); //eslint-disable-line no-console
+
+  for (const collectionName of algoliaIndexedCollectionNames) {
+    console.log(`...Configuring ${collectionName}`); //eslint-disable-line no-console
+    const index = client.initIndex(getAlgoliaIndexName(collectionName));
+
+    const replicas = isEAForum
+      ? getAlgoliaReplicasForCollection(collectionName)
+      : [];
+    const settings = algoliaIndexSettings[collectionName];
+    await algoliaSetIndexSettingsAndWait(index, {
+      ...settings,
+      replicas: replicas.map((replica) => replica.indexName),
+    });
+
+    for (const {indexName, rankings} of replicas) {
+      console.log(`......Replica ${indexName}`); //eslint-disable-line no-console
+      const replica = client.initIndex(indexName);
+      await algoliaSetIndexSettingsAndWait(replica, {
+        ...settings,
+        ranking: [
+          ...rankings,
+          ...settings.ranking ?? [],
+        ],
+      });
+    }
+  }
+
   console.log("Done"); //eslint-disable-line no-console
 };
 
