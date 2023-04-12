@@ -33,7 +33,7 @@ export const NewPostModerationWarning = ({classes}: {
     <ContentStyles contentType="comment" className={classes.modNote}>
       {loading && <Loading/>}
       {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
-      {!html && !loading && <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>}
+      {!html && !loading && <div><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
     </ContentStyles>
   </div>;
 }
