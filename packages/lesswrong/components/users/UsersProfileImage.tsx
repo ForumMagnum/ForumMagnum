@@ -29,8 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     animation: "profile-image-loader 1s infinite",
   },
   initalText: {
-    color: "#222", // For both light and dark mode
-    fill: "#222",
+    color: "#fff", // For both light and dark mode
+    fill: "#fff",
     lineHeight: 1,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -38,8 +38,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const MIN_SATURATION = 30;
 const MAX_SATURATION = 98;
-const MIN_LIGHTNESS = 75;
-const MAX_LIGHTNESS = 92;
+const MIN_LIGHTNESS = 38;
+const MAX_LIGHTNESS = 40;
 
 const randPercent = (rand: ReturnType<typeof rng>, min = 0, max = 100) =>
   (Math.abs(rand.int32()) % (max - min)) + min;
