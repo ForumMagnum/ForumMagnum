@@ -116,13 +116,19 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     commentId: comment._id
   }
   if (response.status === 429) {
-    captureEvent("modGPTError", analyticsData)
+    captureEvent("modGPTError", {
+      ...analyticsData,
+      status: response.status
+    })
     response = await getModGPTAnalysis(api, text)
   }
   
   // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
   if (response.status !== 200) {
-    captureEvent("modGPTError", analyticsData)
+    captureEvent("modGPTError", {
+      ...analyticsData,
+      status: response.status
+    })
     await updateMutator({
       collection: Comments,
       documentId: comment._id,
