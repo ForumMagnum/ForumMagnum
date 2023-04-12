@@ -14,6 +14,7 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
+  showParentOf: (commentId: string)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
   addComment: (comment: CommentsList)=>Promise<void>
 }
@@ -103,6 +104,12 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     stateRef.current = revealChildren(stateRef.current, commentId, 10);
     forceRerender();
   }, [forceRerender, loadAll]);
+  
+  const showParentOf = useCallback(async (commentId: string) => {
+    await loadAll();
+    stateRef.current = revealParent(stateRef.current, commentId);
+    forceRerender();
+  }, [forceRerender, loadAll]);
 
   const invalidateComment = useCallback(async (commentId: string): Promise<void> => {
     const updatedComment = await loadSingle({
@@ -126,7 +133,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   }, [forceRerender]);
 
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf, invalidateComment, addComment
+    showMoreChildrenOf, showParentOf, invalidateComment, addComment
   }), [showMoreChildrenOf, invalidateComment, addComment]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
@@ -239,6 +246,12 @@ function revealChildren(state: CommentPoolState, parentCommentId: string, n: num
 
   const commentIdsToReveal = take(byDescendingKarma, n);
   return revealCommentIds(state, commentIdsToReveal);
+}
+
+function revealParent(state: CommentPoolState, commentId: string): CommentPoolState {
+  const parentCommentId = state.commentsById[commentId]?.comment.parentCommentId;
+  if (!parentCommentId) return state;
+  return revealCommentIds(state, [parentCommentId]);
 }
 
 function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolState {

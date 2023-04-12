@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -17,6 +17,7 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
+import { CommentPoolContext } from '../CommentPool';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -160,6 +161,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
+  const commentPoolContext = useContext(CommentPoolContext);
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
@@ -202,7 +204,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
 
   const toggleShowParent = () => {
-    setShowParentState(!showParentState);
+    if (commentPoolContext) {
+      commentPoolContext.showParentOf(comment._id);
+    } else {
+      setShowParentState(!showParentState);
+    }
   }
 
   const renderBodyOrEditor = () => {
