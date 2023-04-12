@@ -17,7 +17,11 @@ export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName):
   }
 }
 
-export const algoliaSortings = new TupleSet(["relevance", "date"]);
+export const algoliaSortings = new TupleSet([
+  "relevance",
+  "newest_first",
+  "oldest_first",
+] as const);
 
 export type AlgoliaSorting = UnionOf<typeof algoliaSortings>;
 
@@ -28,7 +32,8 @@ export const isValidAlgoliaSorting = (sorting: string): sorting is AlgoliaSortin
 
 export const algoliaReplicaSuffixes: Record<AlgoliaSorting, string> = {
   relevance: "",
-  date: "_date",
+  newest_first: "_date_desc",
+  oldest_first: "_date_asc",
 };
 
 export const getAlgoliaIndexNameWithSorting = (

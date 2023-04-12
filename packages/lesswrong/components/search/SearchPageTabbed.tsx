@@ -41,7 +41,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
 import Select from '@material-ui/core/Select';
-import startCase from 'lodash/startCase';
 
 const hitsPerPage = 10
 
@@ -280,6 +279,9 @@ const CustomScrollTo = connectScrollTo(ScrollTo);
 const sortingToUrlParam = (sorting: AlgoliaSorting): string|undefined =>
   sorting === defaultAlgoliaSorting ? undefined : sorting;
 
+const formatSorting = (sorting: AlgoliaSorting): string =>
+  sorting[0].toUpperCase() + sorting.slice(1).replace(/_/g, " ");
+
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
@@ -304,7 +306,9 @@ const SearchPageTabbed = ({classes}:{
 
   const {sort: initialSorting, ...initialSearchState} = qs.parse(location.search.slice(1));
   const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState)
-  const [sorting, setSorting] = useState<AlgoliaSorting>(initialSorting ?? defaultAlgoliaSorting);
+  const [sorting, setSorting] = useState<AlgoliaSorting>(
+    isValidAlgoliaSorting(initialSorting) ? initialSorting : defaultAlgoliaSorting,
+  );
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
@@ -431,14 +435,16 @@ const SearchPageTabbed = ({classes}:{
         </div>}
 
         {isEAForum && <>
-          <Typography variant="headline" className={classes.filtersHeadline}>Sort by</Typography>
+          <Typography variant="headline" className={classes.filtersHeadline}>Sort</Typography>
           <Select
             value={sorting}
             onChange={(e) => onSortingChange(e.target.value)}
             className={classes.sort}
           >
             {Array.from(algoliaSortings).map((name, i) =>
-              <MenuItem key={i} value={name}>{startCase(name)}</MenuItem>
+              <MenuItem key={i} value={name}>
+                {formatSorting(name)}
+              </MenuItem>
             )}
           </Select>
         </>}
