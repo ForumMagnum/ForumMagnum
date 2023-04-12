@@ -62,7 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   filtersHeadline: {
-    marginBottom: 18
+    marginBottom: 18,
+    fontWeight: 500,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   filterLabel: {
     fontSize: 14,
