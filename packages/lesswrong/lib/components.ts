@@ -506,6 +506,7 @@ importComponent("AdminMetadata", () => require('../components/admin/AdminMetadat
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
 importComponent("ModerationTemplateItem", () => require('../components/moderationTemplates/ModerationTemplateItem'));
+importComponent("ModGPTDashboard", () => require('../components/sunshineDashboard/ModGPTDashboard'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));

@@ -115,7 +115,7 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const commentPoolContext = useContext(CommentPoolContext);
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
+  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene');
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
 
@@ -215,6 +215,7 @@ const CommentsNode = ({
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
+  
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}

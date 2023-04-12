@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { useSetTheme, useTheme, useThemeOptions } from './themes/useTheme';
+import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -13,17 +13,16 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, ForumTypeString, isEAForum } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
-import moment from 'moment';
-import { useOnNavigate } from './hooks/useOnNavigate';
-import { AbstractThemeOptions, getDefaultThemeOptions, isValidSerializedThemeOptions } from '../themes/themeNames';
-import { CS_END, CS_START } from '../lib/collections/users/schema';
+// enable during ACX Everywhere
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
+import { useCookies } from 'react-cookie';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -51,7 +50,7 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    paddingTop: isEAForum ? 20 : 50,
+    paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
@@ -161,6 +160,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0,
     width: "100%",
   },
+  // enable during ACX Everywhere
+  hideHomepageMapOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
 })
 
 const Layout = ({currentUser, children, classes}: {
@@ -173,10 +178,9 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const currentThemeOptions = useThemeOptions()
-  const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
+  const [cookies] = useCookies()
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -217,46 +221,13 @@ const Layout = ({currentUser, children, classes}: {
       }
     }
   }, [useWhiteBackground, classes.whiteBackground]);
-  
-  const checkThemeChange = () => {
-    if (isEAForum) {
-      const now = moment()
-      if (now.isSameOrAfter(moment(new Date(CS_END))) || currentUser?.noComicSans) {
-        let newTheme: AbstractThemeOptions = getDefaultThemeOptions()
-        // if the user record has a theme, add that to the theme cookie
-        if (currentUser?.theme?.name && isValidSerializedThemeOptions(currentUser.theme)) {
-          // @ts-ignore Why does it still think currentUser.theme.name might be null?
-          newTheme = currentUser.theme
-        }
-        setTheme(newTheme)
-      } else if (
-        now.isAfter(moment(new Date(CS_START))) &&
-        now.isBefore(moment(new Date(CS_END))) &&
-        currentThemeOptions.siteThemeOverride?.EAForum !== 'EAForumCS'
-      ) {
-        const newThemeOptions = {
-          ...currentThemeOptions,
-          siteThemeOverride: {
-            ...currentThemeOptions.siteThemeOverride,
-            EAForum: "EAForumCS" as ForumTypeString
-          },
-        };
-        setTheme(newThemeOptions)
-      }
-    }
-  }
-
-  // We just need to check this on page load and navigation.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(checkThemeChange, [])
-  useOnNavigate(checkThemeChange)
 
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
   
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper, HomepageCommunityMap } = Components
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -264,9 +235,9 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -287,7 +258,10 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-    
+
+    // enable during ACX Everywhere
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -323,7 +297,8 @@ const Layout = ({currentUser, children, classes}: {
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
-              
+              {/* enable during ACX Everywhere */}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {

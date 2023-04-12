@@ -86,7 +86,8 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
       ...validFields,
-      debateResponse: { $ne: true }
+      debateResponse: { $ne: true },
+      rejected: { $ne: true }
     },
     options: {
       sort: {postedAt: -1},
@@ -99,6 +100,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
 const dontHideDeletedAndUnreviewed = {
   $or: null,
   $and: null,
+  rejected: null
 };
 
 
@@ -161,6 +163,15 @@ Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
       deleted: true,
     },
     options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
+  };
+});
+
+Comments.addView("checkedByModGPT", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      modGPTAnalysis: {$exists: true}
+    },
+    options: {sort: {postedAt: -1}}
   };
 });
 
