@@ -393,6 +393,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly modGPTAnalysis: string | null,
+  readonly modGPTRecommendation: string | null,
   readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1336,6 +1338,7 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly modGPTRecommendation: string | null,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -1419,6 +1422,11 @@ interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment 
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
   readonly voteType: string,
+}
+
+interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly modGPTAnalysis: string | null,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -2489,7 +2497,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
   readonly allowDatadogSessionReplay: boolean | null,
-  readonly noComicSans: boolean,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2600,7 +2607,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
-  readonly noComicSans: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
@@ -3033,6 +3039,7 @@ interface FragmentTypes {
   StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
+  CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
@@ -3217,6 +3224,7 @@ interface CollectionNamesByFragmentName {
   StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
+  CommentsListWithModGPTAnalysis: "Comments"
   RevisionDisplay: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"
