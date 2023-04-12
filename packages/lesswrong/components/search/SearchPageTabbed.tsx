@@ -301,8 +301,10 @@ const SearchPageTabbed = ({classes}:{
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
   )
-  const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
-  const [sorting, setSorting] = useState<AlgoliaSorting>(searchState.sort ?? defaultAlgoliaSorting);
+
+  const {sort: initialSorting, ...initialSearchState} = qs.parse(location.search.slice(1));
+  const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState)
+  const [sorting, setSorting] = useState<AlgoliaSorting>(initialSorting ?? defaultAlgoliaSorting);
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
@@ -352,10 +354,10 @@ const SearchPageTabbed = ({classes}:{
     setSorting(newSorting);
     history.replace({
       ...location,
-      search: {
+      search: qs.stringify({
         ...searchState,
         sort: sortingToUrlParam(sorting),
-      },
+      }),
     });
   }
 
@@ -375,7 +377,6 @@ const SearchPageTabbed = ({classes}:{
   }
   const HitComponent = hitComponents[tab]
 
-  console.log("index", getAlgoliaIndexNameWithSorting(tab, sorting));
   return <div className={classes.root}>
     <InstantSearch
       indexName={getAlgoliaIndexNameWithSorting(tab, sorting)}
