@@ -108,12 +108,12 @@ export type CommentsNewFormProps = {
   removeFields?: any,
   fragment?: FragmentName,
   formProps?: any,
-  enableGuidelines?: boolean,
+  disableGuidelines?: boolean,
   padding?: boolean
   replyFormStyle?: CommentFormDisplayMode
 }
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, disableGuidelines=false, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   const commentPoolContext = useContext(CommentPoolContext);
@@ -278,7 +278,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             />
           </div>
         </div>
-        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+        {parentDocumentId && !disableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>

@@ -106,7 +106,7 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
     },
     startThreadTruncated: true,
     isChild: false,
-    enableGuidelines: false,
+    disableGuidelines: true,
     displayMode: "minimalist" as const,
     shortform: false
   }

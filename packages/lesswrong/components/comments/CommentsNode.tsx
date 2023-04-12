@@ -51,7 +51,7 @@ export interface CommentsNodeProps {
    * expanded state to child comments
    */
   expandByDefault?: boolean,
-  expandNewComments?: boolean,
+  dontExpandNewComments?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -61,7 +61,7 @@ export interface CommentsNodeProps {
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
-  enableGuidelines?: boolean,
+  disableGuidelines?: boolean,
   /**
    * Determines the karma threshold used to decide whether to collapse a comment.
    * 
@@ -94,7 +94,7 @@ const CommentsNode = ({
   nestingLevel=1,
   expandAllThreads,
   expandByDefault,
-  expandNewComments=true,
+  dontExpandNewComments=false,
   isChild,
   parentAnswerId,
   parentCommentId,
@@ -104,7 +104,7 @@ const CommentsNode = ({
   loadChildrenSeparately,
   loadDirectReplies=false,
   showPinnedOnProfile=false,
-  enableGuidelines=true,
+  disableGuidelines=false,
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
@@ -206,14 +206,14 @@ const CommentsNode = ({
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated && !(expandNewComments && isNewComment);
+    return isTruncated && !(!dontExpandNewComments && isNewComment);
   })();
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, disableGuidelines, showParentDefault }
 
   
   return <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -279,8 +279,8 @@ const CommentsNode = ({
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
-            expandNewComments={expandNewComments}
-            enableGuidelines={enableGuidelines}
+            dontExpandNewComments={dontExpandNewComments}
+            disableGuidelines={disableGuidelines}
           />)}
       </div>}
 

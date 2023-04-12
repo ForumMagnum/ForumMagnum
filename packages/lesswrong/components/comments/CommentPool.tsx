@@ -38,7 +38,7 @@ interface CommentPoolState {
  * managing load-mores and truncation. The intention is that all of these
  * eventually route through CommentPool.
  */
-const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, expandNewComments=true, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
+const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, dontExpandNewComments=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
   /**
    * Initial set of comments to show. If this changes, will show at least the
    * union of every set of comments that has been passed as initialComments. May
@@ -75,7 +75,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   treeOptions: CommentTreeOptions,
   startThreadTruncated?: boolean,
   expandAllThreads?: boolean,
-  expandNewComments?: boolean,
+  dontExpandNewComments?: boolean,
   defaultNestingLevel?: number,
   parentCommentId?: string,
   parentAnswerId?: string,
@@ -152,7 +152,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
         treeOptions={treeOptions}
         startThreadTruncated={startThreadTruncated}
         expandAllThreads={expandAllThreads}
-        expandNewComments={expandNewComments}
+        dontExpandNewComments={dontExpandNewComments}
         comment={comment.item}
         childComments={comment.children}
         key={comment.item._id}
