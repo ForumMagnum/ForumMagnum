@@ -92,6 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   filtersHeadline: {
     marginBottom: 18,
+    fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
     "&:not(:first-child)": {
       marginTop: 35,
