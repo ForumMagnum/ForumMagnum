@@ -29,6 +29,7 @@ import {
   collectionIsAlgoliaIndexed,
   isValidAlgoliaSorting,
   defaultAlgoliaSorting,
+  algoliaCollectionIsCustomSortable,
 } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import {
@@ -438,18 +439,22 @@ const SearchPageTabbed = ({classes}:{
           <Link to="/community#individuals">View community map</Link>
         </div>}
 
-        <Typography variant="headline" className={classes.filtersHeadline}>Sort</Typography>
-        <Select
-          value={sorting}
-          onChange={(e) => onSortingChange(e.target.value)}
-          className={classes.sort}
-        >
-          {Array.from(algoliaSortings).map((name, i) =>
-            <MenuItem key={i} value={name}>
-              {formatSorting(name)}
-            </MenuItem>
-          )}
-        </Select>
+        {algoliaCollectionIsCustomSortable(tab) && <>
+          <Typography variant="headline" className={classes.filtersHeadline}>
+            Sort
+          </Typography>
+          <Select
+            value={sorting}
+            onChange={(e) => onSortingChange(e.target.value)}
+            className={classes.sort}
+          >
+            {Array.from(algoliaSortings).map((name, i) =>
+              <MenuItem key={i} value={name}>
+                {formatSorting(name)}
+              </MenuItem>
+            )}
+          </Select>
+        </>}
       </div>
 
       <div className={classes.resultsColumn}>

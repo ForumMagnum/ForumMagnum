@@ -59,11 +59,18 @@ export const algoliaReplicaSuffixes: Record<AlgoliaSorting, string> = {
   oldest_first: "_date_asc",
 };
 
+export const algoliaCollectionIsCustomSortable = (
+  collectionName: AlgoliaIndexCollectionName,
+): boolean => collectionName !== "Tags";
+
 export const getAlgoliaIndexNameWithSorting = (
   collectionName: AlgoliaIndexCollectionName,
   sorting: AlgoliaSorting,
 ): string => {
   const baseIndex = getAlgoliaIndexName(collectionName);
+  if (!algoliaCollectionIsCustomSortable(collectionName)) {
+    return baseIndex;
+  }
   return baseIndex + algoliaReplicaSuffixes[sorting];
 }
 
