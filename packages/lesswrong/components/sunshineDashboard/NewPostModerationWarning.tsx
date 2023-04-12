@@ -1,8 +1,6 @@
-import { ContentBlock } from 'draft-js';
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
@@ -38,7 +36,7 @@ export const NewPostModerationWarning = ({classes}: {
           dangerouslySetInnerHTML={{__html: html }}
         />
         :
-        <div><em>Note: A moderator will need to review your account before your comments will show up.</em></div>
+        <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>
       }
     </ContentStyles>
   </div>;
