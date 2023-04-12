@@ -16,6 +16,7 @@ import type { OpenAIApi } from 'openai';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 
 export const modGPTPrompt = `
@@ -110,12 +111,18 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   let response = await getModGPTAnalysis(api, text)
   // If it fails with "Too Many Requests", we try one more time.
   // We seem to hit this occasionally, even when we're nowhere near the rate limit.
+  const analyticsData = {
+    userId: comment.userId,
+    commentId: comment._id
+  }
   if (response.status === 429) {
+    captureEvent("modGPTError", analyticsData)
     response = await getModGPTAnalysis(api, text)
   }
   
   // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
   if (response.status !== 200) {
+    captureEvent("modGPTError", analyticsData)
     await updateMutator({
       collection: Comments,
       documentId: comment._id,
@@ -140,6 +147,12 @@ async function checkModGPT(comment: DbComment): Promise<void> {
         modGPTRecommendation: rec
       },
       validate: false,
+    })
+    captureEvent("modGPTResponse", {
+      ...analyticsData,
+      comment: text,
+      analysis: topResult,
+      recommendation: rec
     })
     
     // if ModGPT recommends intervening, we collapse the comment and PM the comment author
