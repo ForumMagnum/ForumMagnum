@@ -709,6 +709,7 @@ const schema: SchemaType<DbComment> = {
   modGPTAnalysis: {
     type: String,
     optional: true,
+    nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -718,6 +719,7 @@ const schema: SchemaType<DbComment> = {
   modGPTRecommendation: {
     type: String,
     optional: true,
+    nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
     canCreate: ['admins'],
     canUpdate: ['admins'],

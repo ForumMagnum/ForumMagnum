@@ -392,8 +392,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
-  readonly modGPTAnalysis: string,
-  readonly modGPTRecommendation: string,
+  readonly modGPTAnalysis: string | null,
+  readonly modGPTRecommendation: string | null,
   readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1337,7 +1337,7 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
-  readonly modGPTRecommendation: string,
+  readonly modGPTRecommendation: string | null,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -1425,7 +1425,7 @@ interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
-  readonly modGPTAnalysis: string,
+  readonly modGPTAnalysis: string | null,
 }
 
 interface RevisionDisplay { // fragment on Revisions
