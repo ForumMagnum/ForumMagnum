@@ -12,7 +12,8 @@ type PermissionGroups = typeof permissionGroups[number];
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
-type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
+type FieldPermissions = Readonly<SingleFieldPermissions|Array<SingleFieldPermissions>>
+
 
 interface CollectionFieldPermissions {
   canRead?: FieldPermissions,

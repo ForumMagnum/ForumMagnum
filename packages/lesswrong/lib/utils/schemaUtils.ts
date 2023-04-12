@@ -307,6 +307,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
       async (newDoc, {oldDocument, currentUser, collection}) => {
         denormalizedLogger(`about to test updating ${foreignTypeName}`, newDoc, oldDocument)
+        console.log("MARK", oldDocument, newDoc);
         const countingCollection = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.

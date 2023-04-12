@@ -30,16 +30,19 @@ voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: Vote
   }
 });
 
-
+/*
+// For grep: smallUpvoteCount bigUpvoteCount bigDownvoteCount smallDownvoteCount
 voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   if (vote.voteType === "neutral") {
     return;
   }
 
-  const field = vote.voteType + "Count"
+  const field = `${vote.voteType}Count`;
+  const receivedField = `${vote.voteType}ReceivedCount`;
 
   if (newDocument.userId !== vote.userId) {
     void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
+    // void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {[field]: 1, voteCount: 1}});
   }
 });
 
@@ -54,6 +57,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
     void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
   }
 });
+*/
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
   return triggerReviewIfNeeded(document.vote.userId)

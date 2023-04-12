@@ -144,6 +144,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   // quickly could lead to votes getting double-cancelled; this doesn't affect
   // the score of the document (which is recomputed from scratch each time) but
   // does affect the user's karma. We used to have a bug like that.
+  // TODO: Sarah - make this use updateMutator pls
   const voteCancellations = await Promise.all(
     votesToCancel.map((vote) => Votes.rawCollection().findOneAndUpdate({
       _id: vote._id,

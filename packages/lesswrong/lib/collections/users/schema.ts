@@ -31,6 +31,25 @@ import { postsLayouts } from '../posts/dropdownOptions';
 // Anything else..
 ///////////////////////////////////////
 
+const voteCountSchemaField = (voteType?: string) => ({
+  type: Number,
+  denormalized: true,
+  optional: true,
+  canRead: ['admins', 'sunshineRegiment'] as const,
+  ...denormalizedCountOfReferences({
+    fieldName: `${voteType}Count`,
+    collectionName: "Users",
+    foreignCollectionName: "Votes",
+    foreignTypeName: "vote",
+    foreignFieldName: "userId",
+    filterFn: (vote: DbVote) => (
+      vote.voteType === voteType &&
+      !vote.authorIds.includes(vote.userId) &&
+      !vote.cancelled
+    ),
+  }),
+});
+
 const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
@@ -1794,37 +1813,53 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     denormalized: true,
     optional: true,
-    label: "Small Upvote Count",
-    canRead: ['admins', 'sunshineRegiment'],
+    canRead: ['admins', 'sunshineRegiment'] as const,
+    ...denormalizedCountOfReferences({
+      fieldName: "voteCount",
+      collectionName: "Users",
+      foreignCollectionName: "Votes",
+      foreignTypeName: "vote",
+      foreignFieldName: "userId",
+      filterFn: (vote: DbVote) => (
+        vote.voteType !== "neutral" &&
+        !vote.authorIds.includes(vote.userId) &&
+        !vote.cancelled
+      ),
+    }),
   },
 
-  smallUpvoteCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
-    canRead: ['admins', 'sunshineRegiment'],
-  },
+  smallUpvoteCount: voteCountSchemaField("smallUpvote"),
+  smallDownvoteCount: voteCountSchemaField("smallDownvote"),
+  bigUpvoteCount: voteCountSchemaField("bigUpvote"),
+  bigDownvoteCount: voteCountSchemaField("bigDownvote"),
 
-  smallDownvoteCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
-    canRead: ['admins', 'sunshineRegiment'],
-  },
+  // smallUpvoteReceivedCount: {
+    // type: Number,
+    // denormalized: true,
+    // optional: true,
+    // canRead: ['admins', 'sunshineRegiment'],
+  // },
 
-  bigUpvoteCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
-    canRead: ['admins', 'sunshineRegiment'],
-  },
+  // smallDownvoteReceivedCount: {
+    // type: Number,
+    // denormalized: true,
+    // optional: true,
+    // canRead: ['admins', 'sunshineRegiment'],
+  // },
 
-  bigDownvoteCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
-    canRead: ['admins', 'sunshineRegiment'],
-  },
+  // bigUpvoteReceivedCount: {
+    // type: Number,
+    // denormalized: true,
+    // optional: true,
+    // canRead: ['admins', 'sunshineRegiment'],
+  // },
+
+  // bigDownvoteReceivedCount: {
+    // type: Number,
+    // denormalized: true,
+    // optional: true,
+    // canRead: ['admins', 'sunshineRegiment'],
+  // },
 
   usersContactedBeforeReview: {
     type: Array,

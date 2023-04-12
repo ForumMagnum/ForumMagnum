@@ -140,6 +140,10 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
   return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
 };
 
+const isStringFieldPermission = (permission: unknown): permission is FieldPermissions & string => {
+  return typeof permission === "string";
+}
+
 // Check if a user can view a field
 export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
   const canRead = field.canRead;
@@ -147,7 +151,7 @@ export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|n
     if (typeof canRead === 'function') {
       // if canRead is a function, execute it with user and document passed. it must return a boolean
       return canRead(user, document);
-    } else if (typeof canRead === 'string') {
+    } else if (isStringFieldPermission(canRead)) {
       // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
       return canRead === 'guests' || userIsMemberOf(user, canRead);
     } else if (Array.isArray(canRead) && canRead.length > 0) {
@@ -226,7 +230,7 @@ export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent
     if (typeof canUpdate === 'function') {
       // if canUpdate is a function, execute it with user and document passed. it must return a boolean
       return canUpdate(user, document);
-    } else if (typeof canUpdate === 'string') {
+    } else if (isStringFieldPermission(canUpdate)) {
       // if canUpdate is just a string, we assume it's the name of a group and pass it to isMemberOf
       // note: if canUpdate is 'guests' then anybody can create it
       return canUpdate === 'guests' || userIsMemberOf(user, canUpdate);
