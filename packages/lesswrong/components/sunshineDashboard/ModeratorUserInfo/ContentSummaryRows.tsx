@@ -35,6 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  average: {
+    color: theme.palette.grey[500],
+    fontSize: ".9rem",
+    marginLeft: 7
+  }
 });
 
 export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
@@ -53,6 +58,26 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
+  const getAverageBaseScore = (list: Array<SunshinePostsList|CommentsListWithParentMetadata>) => { 
+    const average = list.reduce((sum, item) => item.baseScore + sum, 0) / list.length
+    return average.toFixed(1) 
+  }
+
+  const averagePostKarma = posts?.length ? 
+    <LWTooltip title="average karma">
+      <span className={classes.average}>
+        {getAverageBaseScore(posts)}
+      </span>
+    </LWTooltip>
+  : null
+  const averageCommentKarma = comments?.length ? 
+    <LWTooltip title="average karma">
+      <span className={classes.average}>
+        {getAverageBaseScore(comments)}
+      </span>
+    </LWTooltip>
+  : null
 
   return <div>
     <Row>
@@ -86,16 +111,20 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
         </span>
       </LWTooltip>
       {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt} displayTitle={contentDisplay === "titles"}/>)}
-      { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
+      { hiddenPostCount ? <span> ({hiddenPostCount} drafted or rejected)</span> : null}
+      {averagePostKarma}
     </div>
 
     <div className={classNames(classes.contentSummaryRow, {[classes.displayTitles]:contentDisplay === "titles"})}>
       <LWTooltip title="Comment count">
-        { user.commentCount || 0 }
+        <span>
+          { user.commentCount || 0 }
+          <MessageIcon className={classes.icon}/>
+        </span>
       </LWTooltip>
-      <MessageIcon className={classes.icon}/>
       {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
-      { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+      { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
+      {averageCommentKarma}
       </div>
   </div>;
 }

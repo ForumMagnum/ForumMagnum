@@ -29,7 +29,7 @@ export const up = async ({db}: MigrationContext) => {
   }
 
   if (newChapters.length) {
-    const query = new InsertQuery(Chapters.table, newChapters as DbObject[]);
+    const query = new InsertQuery(Chapters.table, newChapters as DbChapter[]);
     const {sql, args} = query.compile();
     await db.none(sql, args);
   }

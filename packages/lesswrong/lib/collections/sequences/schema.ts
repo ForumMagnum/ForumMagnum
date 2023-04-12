@@ -159,10 +159,9 @@ const schema: SchemaType<DbSequence> = {
     canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
-};
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
+
   af: {
     type: Boolean,
     optional: true,
@@ -172,6 +171,6 @@ Object.assign(schema, {
     canUpdate: ['alignmentVoters'],
     canCreate: ['alignmentVoters'],
   },
-});
+};
 
 export default schema;

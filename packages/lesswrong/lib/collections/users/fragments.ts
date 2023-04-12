@@ -110,6 +110,7 @@ registerFragment(`
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -202,7 +203,6 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
-    noComicSans
   }
 `);
 
@@ -363,10 +363,10 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
     showCommunityInRecentDiscussion
     beta
     theme
-    noComicSans
 
     # Emails
     email

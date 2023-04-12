@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -108,7 +108,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerImageContainer: {
     paddingBottom: 15,
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,
@@ -191,7 +191,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
 
-  const sortBy = query.answersSorting || "top";
+  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({
     terms: {
       view: "questionAnswers",

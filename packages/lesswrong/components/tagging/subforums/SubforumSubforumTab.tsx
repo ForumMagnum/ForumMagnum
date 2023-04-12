@@ -9,7 +9,7 @@ import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName,
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
-import { difference } from 'lodash/fp';
+import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -96,11 +96,6 @@ const SubforumSubforumTab = ({
   }, [refetchRef]);
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
-  
-  const clickNewShortform = useCallback(() => {
-    setNewShortformOpen(true)
-    captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
-  }, [captureEvent, setNewShortformOpen, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
     collectionName: 'UserTagRels',
@@ -115,7 +110,11 @@ const SubforumSubforumTab = ({
   const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
   const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  const sortBy = (sortByOptions.includes(query.sortedBy) && query.sortedBy) || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
+  const sortBy: CommentSortingMode = (
+    (sortByOptions.includes(query.sortedBy) && query.sortedBy)
+    || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder)
+    || defaultSubforumSorting
+  ) as CommentSortingMode;
   
   const commentNodeProps = {
     treeOptions: {
@@ -225,7 +224,7 @@ const SubforumSubforumTab = ({
   </>;
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag, {...query, sortedBy: sortBy}),
     limit: 10
   }
   const listLayoutComponent = (

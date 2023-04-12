@@ -1,5 +1,5 @@
-import { inspect } from "util"
 import { mergeSelectors } from "../lib/utils/viewUtils"
+import { postStatuses } from '../lib/collections/posts/constants';
 
 describe("mergeSelectors", () => {
   it("Regression test: correctly merges selectors to display user posts with community hidden", () => {
@@ -13,7 +13,7 @@ describe("mergeSelectors", () => {
         },
       ],
       $or: undefined,
-      status: 2,
+      status: postStatuses.STATUS_APPROVED,
       draft: false,
     };
     const newSelector = {
@@ -36,7 +36,7 @@ describe("mergeSelectors", () => {
           ]
         }
       ],
-      status: 2,
+      status: postStatuses.STATUS_APPROVED,
       draft: false,
       groupId: null,
       userId: { allowAny: true },
