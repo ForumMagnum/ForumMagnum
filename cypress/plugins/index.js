@@ -37,6 +37,10 @@ let pgConnection = null;
  * @type {Cypress.PluginConfig}
  */
 const dropAndSeedMongo = async (url) => {
+  if (!url) {
+    console.warn("No mongo URL provided");
+    return;
+  }
   if (!dbConnection) {
     dbConnection = new MongoClient(url);
     await dbConnection.connect();
@@ -145,7 +149,7 @@ module.exports = (on, config) => {
     },
     async associateLoginToken(data) {
       await Promise.all([
-        associateLoginTokenMongo(config, data),
+        // associateLoginTokenMongo(config, data),
         associateLoginTokenPostgres(config, data),
       ]);
       return null;

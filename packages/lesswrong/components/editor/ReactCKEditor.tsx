@@ -45,8 +45,12 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
       this.editor.setData( nextProps.data );
     }
     
-    if ( 'disabled' in nextProps ) {
-      this.editor.isReadOnly = nextProps.disabled;
+    if ('disabled' in nextProps) {
+      if (nextProps.disabled) {
+        this.editor.enableReadOnlyMode("disabled");
+      } else {
+        this.editor.disableReadOnlyMode("disabled");
+      }
     }
     
     return false;
@@ -79,8 +83,12 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
         .then((editor: any) => {
           this.editor = editor;
           
-          if ( 'disabled' in this.props ) {
-            editor.isReadOnly = this.props.disabled;
+          if ('disabled' in this.props) {
+            if (this.props.disabled) {
+              this.editor.enableReadOnlyMode("disabled");
+            } else {
+              this.editor.disableReadOnlyMode("disabled");
+            }
           }
           
           if ( this.props.onInit ) {

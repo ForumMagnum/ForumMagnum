@@ -23,7 +23,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
-import CloudServicesPlugin from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
+import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
@@ -32,7 +32,7 @@ import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
 import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
-import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
+import ListProperties from '@ckeditor/ckeditor5-list/src/listproperties';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
@@ -40,6 +40,8 @@ import Mention from './ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
+import TrackChanges from '@ckeditor/ckeditor5-track-changes/src/trackchanges';
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
 import TrackChangesData from '@ckeditor/ckeditor5-track-changes/src/trackchangesdata';
 
@@ -91,12 +93,12 @@ const sharedPlugins = [
 	ImageToolbar,
 	EasyImage,
 	ImageUpload,
-	CloudServicesPlugin,
+	CloudServices,
 	ImageResize,
 	Italic,
 	Link,
 	List,
-	ListStyle,
+	ListProperties,
 	Code,
 	CodeBlock,
 	Subscript,
@@ -135,7 +137,9 @@ const collaborativeEditorPlugins = [
 	...postEditorPlugins,
 	RestyledCommentButton,
 	RealTimeCollaborativeEditing,
+	Comments,
 	RealTimeCollaborativeComments,
+	TrackChanges,
 	RealTimeCollaborativeTrackChanges,
 	TrackChangesData,
 	PresenceList
@@ -147,4 +151,3 @@ PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
 PostEditorCollaboration.defaultConfig = {...postEditorConfig};
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
-
