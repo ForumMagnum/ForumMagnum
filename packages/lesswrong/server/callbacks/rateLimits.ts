@@ -3,10 +3,10 @@ import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions'
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
+import moment from 'moment';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -78,6 +78,23 @@ async function enforcePostRateLimit (user: DbUser) {
 
 }
 
+
+export const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
+  const mNow = moment();
+  const comments = await Comments.find({
+    userId: user._id,
+    createdAt: {
+      $gte: mNow.subtract(hours, 'hours').toDate(),
+    },
+  }).fetch();
+  const postIds = comments.map(comment => comment.postId)
+  const postsNotAuthoredByCommenter = await Posts.find({_id: {$in: postIds}, userId: {$ne:user._id}}).fetch()
+  const postsNotAuthoredByCommenterIds = postsNotAuthoredByCommenter.map(post => post._id)
+  const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
+  return commentsOnNonauthorPosts.length
+}
+
+
 async function enforceCommentRateLimit(user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return;
@@ -87,12 +104,12 @@ async function enforceCommentRateLimit(user: DbUser) {
   if (moderatorRateLimit) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-    const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
-  
+    // moderatorRateLimits should only apply to comments on posts by people other than the comment author
+    const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+
     if (commentsInPastTimeframe > 0) {
       throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
     }
-  
   }
 
   const timeSinceLastComment = await userTimeSinceLast(user, Comments);

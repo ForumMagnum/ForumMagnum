@@ -2,6 +2,9 @@ import { checkNested } from '../vulcan-lib/utils';
 import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
+import { Comments } from '../collections/comments';
+import { post } from 'request';
+import { Posts } from '../collections/posts';
 
 // Get a user
 export const getUser = async function(userOrUserId: DbUser|string|undefined): Promise<DbUser|null> {
@@ -71,4 +74,3 @@ export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(use
   });
   return items.count();
 };
-
