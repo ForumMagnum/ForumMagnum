@@ -130,6 +130,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
     collection: TagRels,
     user: tagCreator,
     skipRateLimits: true,
+    selfVote: true
   })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
