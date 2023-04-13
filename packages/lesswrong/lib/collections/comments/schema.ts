@@ -704,6 +704,27 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+  
+  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  modGPTAnalysis: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
+  // This should be one of: Intervene, Consider reviewing, Don't intervene
+  modGPTRecommendation: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
 
   rejectedReason: {
     type: String,

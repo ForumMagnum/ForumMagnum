@@ -46,6 +46,7 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/rebaseMigration';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -62,6 +63,7 @@ import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
 import "./server/scripts/languageModels/generateTaggingPostSets";
+import "./server/scripts/languageModels/testModGPTOnComments";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 

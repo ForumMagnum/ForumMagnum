@@ -286,11 +286,11 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      <SmallSideVote
+      {!comment.debateResponse && <SmallSideVote
         document={comment}
         collection={Comments}
         hideKarma={post?.hideCommentKarma}
-      />
+      />}
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 

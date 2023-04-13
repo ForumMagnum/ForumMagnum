@@ -432,6 +432,7 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
     },
     borderRadius: {
       default: number,

@@ -5,6 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 
 export type PermissionResult = {
   fail: false,
+  reason?: never
 } | {
   fail: true,
   reason: string
