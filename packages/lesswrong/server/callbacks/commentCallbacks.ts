@@ -371,6 +371,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
     collection: Comments,
     user: commentAuthor,
     skipRateLimits: true,
+    selfVote: true
   })
   return {...comment, ...votedComment} as DbComment;
 });
