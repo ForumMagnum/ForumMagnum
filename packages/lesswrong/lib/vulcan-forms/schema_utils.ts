@@ -14,17 +14,17 @@ export const getValidFields = <T extends DbObject>(schema: SchemaType<T>) => {
 
 export const getReadableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canRead || schema[fieldName].viewableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canRead);
 };
 
 export const getCreateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate || schema[fieldName].insertableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate);
 };
 
 export const getUpdateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate || schema[fieldName].editableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate);
 };
 
 /* permissions */
@@ -183,9 +183,6 @@ export const schemaProperties = [
   'canRead',
   'canCreate',
   'canUpdate',
-  'viewableBy', // OpenCRUD backwards compatibility
-  'insertableBy', // OpenCRUD backwards compatibility
-  'editableBy', // OpenCRUD backwards compatibility
   'resolveAs',
   'description',
   'beforeComponent',

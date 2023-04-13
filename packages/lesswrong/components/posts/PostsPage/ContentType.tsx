@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
@@ -6,7 +6,7 @@ import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
@@ -29,12 +29,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipTitle: {
     marginBottom: 8,
   },
+  sectionTitle: {
+    fontSize: 14,
+  },
 })
 
 const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
 const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
-export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"frontpageSubforumDiscussion"|"subforumDiscussion";
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
 interface ContentTypeSettings {
   tooltipTitle?: string,
   tooltipBody?: React.ReactNode,
@@ -47,7 +50,6 @@ type ContentTypeRecord = {
   curated: ContentTypeSettings,
   shortform: ContentTypeSettings,
   tags: ContentTypeSettings,
-  frontpageSubforumDiscussion?: ContentTypeSettings,
   subforumDiscussion?: ContentTypeSettings,
 }
 
@@ -222,12 +224,6 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       Icon: TagIcon,
       linkTarget: '/tags/all',
     },
-    frontpageSubforumDiscussion: {
-      tooltipTitle: 'Subforum Discussion',
-      tooltipBody: 'Discussion comments on subforums that you are a member of',
-      Icon: QuestionAnswerIcon,
-      linkTarget: null,
-    },
     subforumDiscussion: {
       Icon: QuestionAnswerIcon,
       linkTarget: null,
@@ -295,6 +291,21 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
+const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
+  classes,
+  className,
+  children,
+}) =>
+  isEAForum
+    ? <>{children}</>
+    : <Components.Typography
+      variant="body1"
+      component="span"
+      className={classNames(classes.root, className)}
+    >
+        {children}
+    </Components.Typography>;
+
 const ContentType = ({classes, className, type, label}: {
   classes: ClassesType,
   className?: string,
@@ -304,16 +315,21 @@ const ContentType = ({classes, className, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const { LWTooltip, Typography } = Components
+  const { LWTooltip, SectionTitle } = Components
 
   const contentData = forumSelect(contentTypes)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
+  const innerComponent = isEAForum
+    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
+    : <span>
+      <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
+    </span>;
+
   return (
-    <Typography variant="body1" component="span" className={classNames(classes.root, className)}>
+    <ContentTypeWrapper className={className} classes={classes}>
       {contentData.tooltipTitle ? (
         <LWTooltip
           title={
@@ -326,11 +342,11 @@ const ContentType = ({classes, className, type, label}: {
           {innerComponent}
         </LWTooltip>
       ) : innerComponent}
-    </Typography>
+    </ContentTypeWrapper>
   );
 }
 
-const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles, stylePriority: -1});
+const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles});
 
 declare global {
   interface ComponentTypes {

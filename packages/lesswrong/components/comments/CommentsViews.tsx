@@ -6,10 +6,11 @@ import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { Option } from '../common/InlineSelect';
 
 export const viewNames: Partial<Record<CommentsViewName,string>> = {
+  'postCommentsMagic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
   'postCommentsTop': 'top scoring',
   'afPostCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
@@ -39,7 +40,7 @@ const CommentsViews = ({post, classes}: {
   };
 
   const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-  let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
+  let views: Array<CommentsViewName> = ["postCommentsMagic", commentsTopView, "postCommentsNew", "postCommentsOld"]
   const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
   const afViews: Array<CommentsViewName> = ["postLWComments"]
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)

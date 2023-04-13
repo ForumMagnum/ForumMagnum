@@ -28,7 +28,7 @@ class Arg {
  * string of SQL, an argument, a sub-query, or a table (which will be compiled
  * to its name).
  */
-export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
+export type Atom<T extends DbObject> = string | Arg | Query<T> | Table<T>;
 
 const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
 
@@ -104,7 +104,7 @@ abstract class Query<T extends DbObject> {
   protected isCaseInsensitive = false;
 
   protected constructor(
-    protected table: Table | Query<T>,
+    protected table: Table<T> | Query<T>,
     protected atoms: Atom<T>[] = [],
   ) {}
 
@@ -422,7 +422,7 @@ abstract class Query<T extends DbObject> {
             this.createArg(lng),
             ",",
             this.createArg(lat),
-            ")) * 0.000621371) <", // Convert metres to miles
+            ")) / 6378000) <", // Convert meters to radians, for mongo compat, 6378000 is the radius of the earth in meters
             this.createArg(distance),
           ];
 
@@ -572,6 +572,10 @@ abstract class Query<T extends DbObject> {
 
     if (op === "$abs") {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
+    }
+    
+    if (op === "$exp") {
+      return ["EXP(", ...this.compileExpression(expr[op]), ")"];
     }
 
     if (op === "$sum") {

@@ -115,6 +115,9 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
+ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
+ensureIndex(Users, {bannedUserIds:1, createdAt:1});
+
 Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
@@ -128,6 +131,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
         sunshineFlagged: -1,
         reviewedByUserId: 1,
         postCount: -1,
+        commentCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }
@@ -199,7 +203,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   return {
     selector: {
       banned: viewFieldNullOrMissing,
-      deleted: false,
+      deleted: {$ne:true},
       $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
     },
     options: {

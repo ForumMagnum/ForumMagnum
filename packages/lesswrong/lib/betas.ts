@@ -36,7 +36,7 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
-export const userHasSideComments = isEAForum ? optInOnly : shippedFeature;
+export const userHasSideComments = isEAForum ? disabled : shippedFeature;
 
 export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 

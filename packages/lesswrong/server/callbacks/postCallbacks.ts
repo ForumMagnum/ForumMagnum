@@ -7,7 +7,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import cheerio from 'cheerio'
+import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
@@ -15,7 +15,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
@@ -38,6 +38,14 @@ if (forumTypeSetting.get() === "EAForum") {
     (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
   );
 }
+
+getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+  if (document.debate && !document.coauthorStatuses?.length) {
+    throw new Error('Debate must have at least one co-author!');
+  }
+
+  return validationErrors;
+});
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -104,6 +112,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
    collection: Posts,
    user: postAuthor,
    skipRateLimits: true,
+   selfVote: true
  })
  return {...post, ...votedPost} as DbPost;
 });
@@ -191,7 +200,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft) return
+  if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
   
@@ -222,6 +231,21 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
   }
 });
 
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_POST,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
@@ -229,7 +253,7 @@ async function extractSocialPreviewImage (post: DbPost) {
 
   let socialPreviewImageAutoUrl = ''
   if (post.contents?.html) {
-    const $ = cheerio.load(post.contents.html)
+    const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
     if (firstImg) {
       socialPreviewImageAutoUrl = firstImg.attr('src') || ''

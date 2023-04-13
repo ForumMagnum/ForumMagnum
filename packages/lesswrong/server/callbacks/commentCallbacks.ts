@@ -15,6 +15,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
+import { isAnyTest } from '../../lib/executionEnvironment';
+import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -43,6 +45,10 @@ export const getAdminTeamAccount = async () => {
   return account;
 }
 
+/**
+ * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
+ */
+export const noDeletionPmReason = 'Requested account deletion';
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
   if (comment.shortform && !comment.postId) {
@@ -170,12 +176,17 @@ ensureIndex(Comments, { userId: 1, createdAt: 1 });
 //////////////////////////////////////////////////////
 
 getCollectionHooks("Comments").editAsync.add(async function CommentsEditSoftDeleteCallback (comment: DbComment, oldComment: DbComment, currentUser: DbUser) {
-  if (comment.deleted && !oldComment.deleted) {
-    await moderateCommentsPostUpdate(comment, currentUser);
+  const commentDeleted = comment.deleted && !oldComment.deleted;
+  const commentRejected = comment.rejected && !oldComment.rejected;
+  if (commentDeleted) {
+    await moderateCommentsPostUpdate(comment, currentUser, 'deleted');
+    // this is an else-if because we don't want to do both, even if we do both reject and delete a comment
+  } else if (commentRejected) {
+    await moderateCommentsPostUpdate(comment, currentUser, 'rejected');
   }
 });
 
-export async function moderateCommentsPostUpdate (comment: DbComment, currentUser: DbUser) {
+export async function moderateCommentsPostUpdate (comment: DbComment, currentUser: DbUser, action: 'deleted' | 'rejected') {
   await recalculateAFCommentMetadata(comment.postId)
   
   if (comment.postId) {
@@ -194,8 +205,11 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
       validate: false,
     })
   }
-  
-  void commentsDeleteSendPMAsync(comment, currentUser);
+  if (action === 'deleted') {
+    void commentsDeleteSendPMAsync(comment, currentUser);
+  } else {
+    void commentsRejectSendPMAsync(comment, currentUser);
+  }
 }
 
 getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
@@ -206,8 +220,105 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
   return comment;
 });
 
+interface SendModerationPMParams {
+  action: 'deleted' | 'rejected',
+  firstMessageContents: string,
+  lwAccount: DbUser,
+  comment: DbComment,
+  noEmail: boolean,
+  onWhat?: string | null
+}
+
+async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action }: SendModerationPMParams) {
+  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+    participantIds: [comment.userId, lwAccount._id],
+    title: `Comment ${action} on ${onWhat}`,
+    ...(action === 'rejected' ? { moderator: true } : {})
+  };
+
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  const firstMessageData = {
+    userId: lwAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: firstMessageContents
+      }
+    },
+    conversationId: conversation.data._id,
+    noEmail: noEmail
+  };
+
+  const secondMessageData = {
+    userId: lwAccount._id,
+    contents: comment.contents,
+    conversationId: conversation.data._id,
+    noEmail: noEmail
+  };
+
+  await createMutator({
+    collection: Messages,
+    document: firstMessageData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  await createMutator({
+    collection: Messages,
+    document: secondMessageData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log("Sent moderation messages for comment", comment._id);
+  }
+}
+
+async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUser) {
+  const onWhat = comment.tagId
+    ? (await Tags.findOne(comment.tagId))?.name
+    : (comment.postId
+      ? (await Posts.findOne(comment.postId))?.title
+      : null
+    );
+
+  const commentUser = await Users.findOne({_id: comment.userId})
+
+  let firstMessageContents =
+      // TODO: make link conditional on forum, or something
+      `Your comments on "${onWhat}" has been rejected by the moderator team (LessWrong is generally raising their moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details). We've sent you another PM with the content.`
+
+  // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
+  const noEmail = forumTypeSetting.get() === "EAForum" 
+  ? false 
+  : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+
+  await sendModerationPM({
+    action: 'rejected',
+    comment,
+    firstMessageContents,
+    lwAccount: currentUser,
+    noEmail,
+    onWhat
+  });
+}
+
 export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
-  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
+  const commentDeletedByAnotherUser =
+    (!comment.deletedByUserId || comment.deletedByUserId !== comment.userId)
+    && comment.deleted
+    && comment.contents?.html;
+
+  const noPmDeletionReason = comment.deletedReason === noDeletionPmReason;
+  if (commentDeletedByAnotherUser && !noPmDeletionReason) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
@@ -217,17 +328,6 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
     const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
-
-    const conversationData = {
-      participantIds: [comment.userId, lwAccount._id],
-      title: `Comment deleted on ${onWhat}`
-    }
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false
-    });
 
     let firstMessageContents =
         `One of your comments on "${onWhat}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
@@ -240,41 +340,15 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 
-    const firstMessageData = {
-      userId: lwAccount._id,
-      contents: {
-        originalContents: {
-          type: "html",
-          data: firstMessageContents
-        }
-      },
-      conversationId: conversation.data._id,
-      noEmail: noEmail
-    }
-
-    const secondMessageData = {
-      userId: lwAccount._id,
-      contents: comment.contents,
-      conversationId: conversation.data._id,
-      noEmail: noEmail
-    }
-
-    await createMutator({
-      collection: Messages,
-      document: firstMessageData,
-      currentUser: lwAccount,
-      validate: false
-    })
-
-    await createMutator({
-      collection: Messages,
-      document: secondMessageData,
-      currentUser: lwAccount,
-      validate: false
-    })
-
-    // eslint-disable-next-line no-console
-    console.log("Sent moderation messages for comment", comment)
+    await sendModerationPM({
+      action: 'deleted',
+      comment,
+      firstMessageContents,
+      lwAccount,
+      noEmail,
+      onWhat
+    });
+  
   }
 }
 
@@ -297,6 +371,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
     collection: Comments,
     user: commentAuthor,
     skipRateLimits: true,
+    selfVote: true
   })
   return {...comment, ...votedComment} as DbComment;
 });
@@ -409,9 +484,15 @@ getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCo
 });
 
 getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {
+  let changedField: 'deleted' | 'rejected' | undefined;
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
+    changedField = 'deleted';
+  } else if (context.oldDocument.rejected !== context.newDocument.rejected) {
+    changedField = 'rejected';
+  }
+  if (changedField) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
-    const increment = context.oldDocument.deleted ? 1 : -1;
+    const increment = context.oldDocument[changedField] ? 1 : -1;
     await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
@@ -441,4 +522,19 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
     validate: false,
   })
   await triggerReviewIfNeeded(currentUser._id)
+});
+
+getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbComment>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_COMMENT,
+        endedAt: new Date()
+      }
+    });
+  }
 });

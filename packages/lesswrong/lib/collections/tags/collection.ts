@@ -17,6 +17,8 @@ interface ExtendedTagsCollection extends TagsCollection {
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
+
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
@@ -74,9 +76,9 @@ makeEditable({
     },
     revisionsHaveCommitMessages: true,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     order: 10
   }
@@ -88,9 +90,9 @@ makeEditable({
     formGroup: formGroups.subforumWelcomeMessage,
     fieldName: "subforumWelcomeText",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 });
@@ -103,12 +105,13 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 })

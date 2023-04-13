@@ -5,6 +5,7 @@ import {
   userUpdateFieldFails,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
+  withNoLogs,
 } from '../utils';
 
 describe('updateUser – ', () => {
@@ -104,32 +105,38 @@ describe('updateUser succeeds – ', () => {
   });
   it("succeeds when sunshineRegiment user updates their nullifyVotes", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    return userUpdateFieldSucceeds({
-      user:user,
-      document:user,
-      fieldName:'nullifyVotes',
-      collectionType:'User',
-      newValue: true,
-    })
+    await withNoLogs(async () => {
+      await userUpdateFieldSucceeds({
+        user:user,
+        document:user,
+        fieldName:'nullifyVotes',
+        collectionType:'User',
+        newValue: true,
+      });
+    });
   });
   it("succeeds when user updates their voteBanned", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    return userUpdateFieldSucceeds({
-      user:user,
-      document:user,
-      fieldName:'voteBanned',
-      collectionType:'User',
-      newValue: true,
-    })
+    await withNoLogs(async () => {
+      await userUpdateFieldSucceeds({
+        user:user,
+        document:user,
+        fieldName:'voteBanned',
+        collectionType:'User',
+        newValue: true,
+      });
+    });
   });
   it("succeeds when user updates their deleteContent", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    return userUpdateFieldSucceeds({
-      user:user,
-      document:user,
-      fieldName:'deleteContent',
-      collectionType:'User',
-      newValue: true,
-    })
+    await withNoLogs(async () => {
+      await userUpdateFieldSucceeds({
+        user:user,
+        document:user,
+        fieldName:'deleteContent',
+        collectionType:'User',
+        newValue: true,
+      })
+    });
   });
 })

@@ -10,8 +10,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { subforumGuidelines } from './EAModerationGuidelinesContent';
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -59,7 +59,7 @@ const truncateGuidelines = (guidelines: string) => {
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
-    Suffix: "... <a>(Read More)</a>",
+    Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
     Strict: false
   }
   return truncatise(guidelines, truncatiseOptions)
@@ -90,7 +90,7 @@ const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {
 
 const getSubforumModerationGuidelines = (tag: TagFragment) => {
   const { html = "" } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html || subforumGuidelines
+  const combinedGuidelines = html
   const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }
@@ -112,14 +112,25 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
     fetchPolicy: "cache-first",
     fragmentName: isPost ? "PostsList" : "TagFragment",
   });
-  const isPostType = (document): document is PostsList => isPost && !!document
+  const isPostType = (document: PostsList|TagFragment): document is PostsList => isPost && !!document
   
   if (!document || loading) return null
 
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    // On click, toggle moderation-guidelines expansion. Event handler is only
+    // attached if they're long enough for expand/collapse to be a thing. Note
+    // that if the moderation guidelines contain a link, this could also be a
+    // link-click, in which case it's important not to preventDefault or
+    // stopPropagation.
+    
+    // Only toggle moderation-guidelines expansion on an unmodified left-click
+    // (ie not if this is an open-new-tab on a link)
+    if(e.altKey || e.shiftKey || e.ctrlKey || e.metaKey || e.button!==0) {
+      return;
+    }
+    
     setExpanded(!expanded)
+    
     if (currentUser) {
       const eventProperties = {
         userId: currentUser._id,

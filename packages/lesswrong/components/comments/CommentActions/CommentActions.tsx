@@ -24,7 +24,9 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
   });
-  
+
+  const showDeleteCommentItem = !!(postDetails||tag);
+
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
@@ -60,7 +62,9 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
-    {(postDetails||tag) && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
+    {/** DeleteCommentMenuItem will still be hidden under some circumstances.
+     * It returns null if the user can't moderate their own comment (i.e. because it has children) */}
+    {showDeleteCommentItem && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
     <RetractCommentMenuItem comment={comment}/>
     {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}

@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -11,7 +11,7 @@ import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, g
 
 export const communityPath = '/community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
@@ -379,7 +379,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
-      componentName: 'AllTagsPage',
+      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
@@ -493,7 +493,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'allTags',
       path: '/tags/all',
-      componentName: 'AllTagsPage',
+      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
       title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
     },
     {
@@ -1269,6 +1269,12 @@ addRoute(
     title: "Moderation Message Templates"
   },
   {
+    name: 'ModGPTDashboard',
+    path: '/admin/modgpt',
+    componentName: 'ModGPTDashboard',
+    title: "ModGPT Dashboard"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -1279,6 +1285,11 @@ addRoute(
     name: 'moderatorComments',
     path: '/moderatorComments',
     componentName: 'ModeratorComments',
+  },
+  {
+    name: 'moderatorViewAltAccounts',
+    path: '/moderation/altAccounts',
+    componentName: 'ModerationAltAccounts',
   },
   {
     name: 'emailHistory',

@@ -1,35 +1,30 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ContentTypeString } from '../posts/PostsPage/ContentType';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_: ThemeType): JssStyles => ({
   subheader: {
-    '& svg': {
-      color: theme.palette.grey[600],
-    },
-    marginTop: -4,
-    marginBottom: 2,
+    fontSize: 14,
   },
 });
 
-const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPerPage, showTotal=false, classes}: {
+const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, classes}: {
   label: string,
-  contentType: ContentTypeString,
   terms: CommentsViewTerms
   initialLimit?: number,
   itemsPerPage?: number,
   showTotal?: boolean,
+  hideTag?: boolean,
   classes: ClassesType,
 }) => {
-  const { Loading, ContentType, CommentsNode, LoadMore } = Components;
+  const { Loading, SectionTitle, ShortformListItem, LoadMore } = Components;
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
     terms: terms,
     limit: initialLimit,
     itemsPerPage,
     enableTotal: true,
     collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
+    fragmentName: 'ShortformComments',
   });
 
   if (loading && !results?.length) {
@@ -41,18 +36,12 @@ const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPe
 
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
   return <>
-    <ContentType type={contentType} label={label} className={classes.subheader} />
+    <SectionTitle title={label} className={classes.subheader} />
     {results.map((comment) => {
-      return <CommentsNode
-        treeOptions={{
-          // F7U12
-          tag: comment.tag ?? undefined,
-          forceSingleLine: true
-        }}
+      return <ShortformListItem
         comment={comment}
         key={comment._id}
-        loadChildrenSeparately
-        displayTagIcon
+        hideTag={hideTag}
       />
     })}
     {loading && <Loading/>}
@@ -66,7 +55,7 @@ const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPe
 const CommentsListCondensedComponent = registerComponent(
   'CommentsListCondensed',
   CommentsListCondensed,
-  {styles}
+  {styles, stylePriority: 1},
 );
 
 declare global {

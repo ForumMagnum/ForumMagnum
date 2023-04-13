@@ -9,24 +9,28 @@ import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  formSubmit: {
-    display: "flex",
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-  },
   formButton: {
-    paddingBottom: 4,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
+    fontSize: isEAForum ? 14 : 16,
     marginLeft: 5,
-    fontWeight: 500,
-    "&:hover": {
-      background: theme.palette.buttons.hoverGrayHighlight,
-    }
+    ...(isEAForum ? {
+      textTransform: 'none',
+    } : {
+      paddingBottom: 4,
+      fontWeight: 500,
+      "&:hover": {
+        background: theme.palette.buttons.hoverGrayHighlight,
+      }
+    })
   },
 
   secondaryButton: {
-    color: theme.palette.text.dim40,
+    ...(isEAForum ? {
+      color: theme.palette.grey[680],
+      padding: '8px 12px'
+    } : {
+      color: theme.palette.text.dim40,
+    })
   },
 
   submitButtons: {
@@ -34,13 +38,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   submitButton: {
-    color: theme.palette.secondary.main,
+    ...(isEAForum ? {
+      boxShadow: 'none',
+      marginLeft: 10,
+    } : {
+      color: theme.palette.secondary.main
+    })
   },
   cancelButton: {
-    flexGrow:1,
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
   },
   draft: {
   },
@@ -125,7 +130,10 @@ const PostSubmit = ({
           type="submit"
           onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          variant={collectionName=="users" ? "outlined" : undefined}
+          {...(isEAForum ? {
+            variant: "contained",
+            color: "primary",
+          } : {})}
         >
           {submitLabel}
         </Button>

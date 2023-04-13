@@ -25,7 +25,8 @@ import moment from 'moment';
 import fs from 'mz/fs';
 import Papa from 'papaparse';
 import path from 'path';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import Users from '../../lib/collections/users/collection';
 import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
@@ -37,7 +38,7 @@ function getPosts (selector: any) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
-    status: { $in: [1, 2] },
+    status: { $in: [postStatuses.STATUS_PENDING, postStatuses.STATUS_APPROVED] },
     authorIsUnreviewed: false,
   }
 

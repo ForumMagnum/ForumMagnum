@@ -12,11 +12,14 @@ import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import { loadByIds } from '../lib/loaders';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import { userCanVote } from '../lib/collections/users/helpers';
 
 
 // Test if a user has voted on the server
@@ -74,7 +77,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 
 // Create new vote object
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
-  document: VoteableType,
+  document: DbVoteableType,
   collectionName: CollectionNameString,
   voteType: string,
   extendedVote: any,
@@ -196,7 +199,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
@@ -207,6 +210,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   toggleIfAlreadyVoted?: boolean,
   skipRateLimits: boolean,
   context?: ResolverContext,
+  selfVote?: boolean,
 }): Promise<{
   modifiedDocument: DbVoteableType,
   showVotingPatternWarning: boolean,
@@ -222,6 +226,13 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+
+  // Check whether the user is allowed to vote at all, in full generality
+  const { fail: cannotVote } = userCanVote(user);
+  if (!selfVote && cannotVote) {
+    throw new Error('User does not meet the requirements to vote.');
+  }
+
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
@@ -466,8 +477,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
-  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+  const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 

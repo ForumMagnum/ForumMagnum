@@ -138,9 +138,9 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
-  const [username, setUsername] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string | undefined>(undefined)
-  const [email, setEmail] = useState<string | undefined>(undefined)
+  const [username, setUsername] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(!['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()))

@@ -31,7 +31,7 @@ type ConcreteConnectMongoOptions = RequiredConnectMongoOptions & OptionalConnect
 export type ConnectMongoOptions = RequiredConnectMongoOptions & Partial<OptionalConnectMongoOptions>;
 
 const noop = () => {}
-const identity = (x) => x;
+const identity = <T>(x: T) => x;
 
 export default class MongoStore extends session.Store {
   private collection: ConnectMongoCollection;
@@ -324,10 +324,7 @@ export default class MongoStore extends session.Store {
     debug('MongoStore#clear()');
     void (async () => {
       try {
-        await this.collection.rawRemove(
-          {},
-          {noSafetyHarness: true},
-        );
+        await this.collection.rawRemove({});
         callback(null);
       } catch (e) {
         callback(e);

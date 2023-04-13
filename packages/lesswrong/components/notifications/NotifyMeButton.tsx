@@ -1,7 +1,4 @@
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import MenuItem from '@material-ui/core/MenuItem';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import classNames from 'classnames';
 import React from 'react';
 import * as _ from 'underscore';
@@ -73,6 +70,7 @@ const NotifyMeButton = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog()
   const { flash } = useMessages();
+  const { MenuItem } = Components;
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
@@ -155,8 +153,8 @@ const NotifyMeButton = ({
     {loading
       ? <Components.Loading/>
       : (isSubscribed()
-        ? <NotificationsIcon />
-        : <NotificationsNoneIcon />
+        ? <Components.ForumIcon icon="Bell" />
+        : <Components.ForumIcon icon="BellBorder" />
       )
     }
   </ListItemIcon>

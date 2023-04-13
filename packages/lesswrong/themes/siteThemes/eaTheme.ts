@@ -2,7 +2,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'Raleway',
+  'Inter',
   'Helvetica Neue',
   'Helvetica',
   'Arial',
@@ -20,8 +20,7 @@ const serifStack = [
 // TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'Merriweather Sans',
-  'Lato',
+  'Inter',
   'Helvetica Neue',
   'Helvetica',
   'Arial',
@@ -66,6 +65,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     individual: '#BF577D',
     icon: {
       navigationSidebarIcon: shadePalette.greyAlpha(0.5),
+      sprout: '#5EB25C'
     },
     border: {
       primaryHighlight: '#88c9d4',
@@ -78,23 +78,42 @@ export const eaForumTheme: SiteThemeSpecification = {
       individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
     },
+    tag: {
+      text: shadePalette.grey[1000],
+      background: shadePalette.grey[0],
+      backgroundHover: shadePalette.greyAlpha(0.03),
+      border: shadePalette.greyBorder("1px", .15),
+      coreTagText: shadePalette.grey[1000],
+      coreTagBackground: shadePalette.grey[250],
+      coreTagBackgroundHover: shadePalette.grey[340],
+      coreTagBorder: `1px solid ${shadePalette.grey[250]}`,
+      hollowTagBorder: shadePalette.greyBorder("1px", .15),
+      hollowTagBackground: shadePalette.grey[0],
+      hollowTagBackgroundHover: shadePalette.greyAlpha(0.03),
+      boxShadow: `1px 2px 5px ${shadePalette.boxShadowColor(.2)}`,
+      addTagButtonBackground: shadePalette.grey[300],
+    },
   }),
   make: (palette: ThemePalette) => {
     const basicText = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
       lineHeight: '1.75em',
-      fontWeight: 400,
+      fontWeight: 450,
       fontFamily: serifStack
     }
     return {
+      spacing: {
+        mainLayoutPaddingTop: 20
+      },
+      borderRadius: {
+        default: 6,
+        small: 4,
+      },
       typography: {
         fontDownloads: [
           "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
-          "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
-          // TODO we use these?
-          "https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700",
-          "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
+          "https://fonts.googleapis.com/css?family=Inter:300,400,450,500,600,700",
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
@@ -106,7 +125,19 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         body2: {
           fontSize: "1.1rem",
-          lineHeight: "1.5em"
+          lineHeight: "1.5em",
+          fontWeight: 450,
+        },
+        smallText: {
+          fontFamily: palette.fonts.sansSerifStack,
+          fontWeight: 450,
+          fontSize: "1rem",
+          lineHeight: '1.4rem'
+        },
+        tinyText: {
+          fontWeight: 450,
+          fontSize: ".75rem",
+          lineHeight: '1.4rem'
         },
         postStyle: {
           ...basicText,
@@ -116,6 +147,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         commentStyle: {
           fontFamily: sansSerifStack,
+          fontWeight: 450
         },
         errorStyle: {
           color: palette.error.main,
@@ -137,7 +169,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display0: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '1.6rem',
           lineHeight: '1.25em',
         },
@@ -145,7 +177,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display1: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 650,
           fontSize: '2rem',
           lineHeight: '1.25em',
         },
@@ -153,7 +185,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         display2: {
           color: palette.grey[800],
           fontFamily: titleStack,
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '2.4rem',
           lineHeight: '1.25em',
         },
@@ -177,7 +209,13 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         largeChapterTitle: {
           fontSize: "2.2rem"
-        }
+        },
+        italic: {
+          fontStyle: "normal",
+        },
+        smallCaps: {
+          fontVariant: "normal",
+        },
       },
       overrides: {
         MuiTooltip: {
@@ -211,11 +249,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             fontFamily: sansSerifStack
           }
         },
-        SectionTitle: {
-          title: {
-            fontSize: 25
-          }
-        },
         PostsVote: {
           voteScore: {
             paddingTop:4,
@@ -223,6 +256,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             paddingLeft:1,
             paddingRight:0,
             fontSize: '50%',
+            fontFamily: sansSerifStack,
           },
         },
         PostsTopSequencesNav: {
@@ -249,12 +283,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             backgroundColor: palette.grey[200],
           }
         },
-        TabNavigationMenu: {
-          divider: {
-            marginTop: 10,
-            marginBottom: 20,
-          }
-        },
         TabNavigationItem: {
           navButton: {
             paddingTop: 10,
@@ -263,9 +291,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           icon: {
             opacity: 1,
           },
-          navText: {
-            color: palette.grey[800]
-          }
         },
         TabNavigationFooterItem: {
           selected: {
@@ -277,14 +302,10 @@ export const eaForumTheme: SiteThemeSpecification = {
             opacity: 1
           }
         },
-        TabNavigationMenuSubItem: {
-          root: {
-            color: palette.grey[800]
-          }
-        },
         PostsPageTitle: {
           root: {
-            lineHeight: 1.25
+            lineHeight: 1.25,
+            fontWeight: 700
           }
         },
         PostsTimeBlock: {
@@ -300,7 +321,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             top: 77,
           },
         },
-        AllTagsPage: {
+        EAAllTagsPage: {
           portal: {
             background: palette.grey[0],
             marginTop: 'unset',
@@ -335,5 +356,5 @@ export const eaForumTheme: SiteThemeSpecification = {
         }
       }
     }
-  },
+  }
 };
