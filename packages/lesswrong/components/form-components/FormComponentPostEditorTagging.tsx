@@ -6,24 +6,17 @@ import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/ins
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { shouldHideTag } from '../../lib/collections/tags/permissions';
+import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 8,
-    paddingRight: 8,
   },
   header: {
     marginTop: 6,
   },
-  subforumHeader: {
-    marginBottom: 0,
+  coreTagHeader: {
+    marginBottom: 10,
   },
-  subforumExplanation: {
-    marginTop: 4,
-    fontStyle: "italic",
-    color: theme.palette.grey[700],
-  }
 });
 
 /**
@@ -44,12 +37,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
-  const showSubforumSection = forumTypeSetting.get() === "EAForum";
+  const showCoreTopicSection = forumTypeSetting.get() === "EAForum";
   const currentUser = useCurrentUser();
   
-  const { results, loading } = useMulti({
+  const { results: coreTags, loading } = useMulti({
     terms: {
-      view: "coreAndSubforumTags",
+      view: "coreTags",
     },
     collectionName: "Tags",
     fragmentName: "TagFragment",
@@ -57,18 +50,16 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   });
 
   if (loading) return <Loading/>
-  if (!results) return null
-  
-  const subforumTags = results.filter(tag =>
-    tag.isSubforum && !shouldHideTag(currentUser, tag)
+  if (!coreTags) return null
+
+  const post = {userId: currentUser?._id};
+  const coreTagsToDisplay = coreTags.filter(
+    tag => tag.isSubforum && !shouldHideTagForVoting(currentUser, tag, post),
   );
-  const coreTags = results.filter(tag =>
-    (!tag.isSubforum || !showSubforumSection) && tag.core && !shouldHideTag(currentUser, tag)
-  );
-  
+
   const selectedTagIds = Object.keys(value||{})
-  const selectedSubforumTagIds = showSubforumSection ? selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) : [] // inefficient but we don't expect many subforums
-  
+  const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTagsToDisplay.find(tag => tag._id === tagId)) : []
+
   /**
    * post tagRelevance field needs to look like {string: number}
    */
@@ -84,7 +75,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   }
   
   const onMultiselectUpdate = (changes: { tagRelevance: string[] }) => {
-    updateValuesWithArray([...changes.tagRelevance, ...selectedSubforumTagIds]);
+    updateValuesWithArray([...changes.tagRelevance, ...selectedCoreTagIds]);
   };
   
   /**
@@ -118,15 +109,11 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   } else {
     return (
       <div className={classes.root}>
-        {showSubforumSection && (
+        {showCoreTopicSection && (
           <>
-            <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
-            <p className={classes.subforumExplanation}>
-              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums
-              are broad topics with a dedicated community and space for general discussion.
-            </p>
+            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
             <TagsChecklist
-              tags={subforumTags}
+              tags={coreTagsToDisplay}
               selectedTagIds={selectedTagIds}
               onTagSelected={onTagSelected}
               onTagRemoved={onTagRemoved}
@@ -135,12 +122,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
             <h3 className={classes.header}>Other topics</h3>
           </>
         )}
-        <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
         <TagMultiselect
           path={path}
           placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-          value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
+          value={selectedTagIds.filter((tagId) => !selectedCoreTagIds.includes(tagId))}
           updateCurrentValues={onMultiselectUpdate}
+          isVotingContext
         />
       </div>
     );

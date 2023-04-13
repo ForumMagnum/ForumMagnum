@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   setting: {
@@ -29,14 +28,14 @@ const Reviews2019 = ({classes}: {
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
-  const [sortReviews, setSortReviews] = useState("new")
-  const [sortNominations, setSortNominations] = useState("top")
+  const [sortReviews, setSortReviews] = useState<CommentSortingMode>("new")
+  const [sortNominations, setSortNominations] = useState<CommentSortingMode>("top")
 
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
 
   const handleSetExpandUnread = () => {
     if (currentUser) {
@@ -87,7 +86,7 @@ const Reviews2019 = ({classes}: {
         <SectionTitle title="Reviews">
           <Select
             value={sortReviews}
-            onChange={(e)=>setSortReviews(e.target.value)}
+            onChange={(e)=>setSortReviews(e.target.value as CommentSortingMode)}
             disableUnderline
             >
             <MenuItem value={'top'}>Sorted by Top</MenuItem>
@@ -101,7 +100,7 @@ const Reviews2019 = ({classes}: {
         <SectionTitle title="Nominations">
           <Select
             value={sortNominations}
-            onChange={(e)=>setSortNominations(e.target.value)}
+            onChange={(e)=>setSortNominations(e.target.value as CommentSortingMode)}
             disableUnderline
             >
             <MenuItem value={'top'}>Sorted by Top</MenuItem>

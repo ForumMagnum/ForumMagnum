@@ -3,7 +3,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -101,7 +100,7 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
   setCollaborationMode: (mode: CollaborationMode)=>void,
   classes: ClassesType
 }) => {
-  const { LWTooltip } = Components
+  const { LWTooltip, MenuItem } = Components
   const currentUser = useCurrentUser();
 
   /**

@@ -3,6 +3,7 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { isEAForum } from '../../instanceSettings';
 
 const options: MutationOptions<DbLWEvent> = {
   newCheck: (user: DbUser|null, document: DbLWEvent|null) => {
@@ -25,6 +26,7 @@ const options: MutationOptions<DbLWEvent> = {
 export const LWEvents: LWEventsCollection = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
+  collectionType: isEAForum ? "pg" : "mongo",
   schema,
   resolvers: getDefaultResolvers('LWEvents'),
   mutations: getDefaultMutations('LWEvents', options),
@@ -32,7 +34,7 @@ export const LWEvents: LWEventsCollection = createCollection({
 
 addUniversalFields({
   collection: LWEvents,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 });
 
 export default LWEvents;

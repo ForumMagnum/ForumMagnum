@@ -1,9 +1,6 @@
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Bookmark from '@material-ui/icons/Bookmark'
-import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -11,19 +8,23 @@ import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  icon: {
+  container: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
-  }
+  },
+  icon: isEAForum ? {fontSize: 22} : {},
 })
 
-const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
+const BookmarkButton = ({classes, post, menuItem, placement="right", className}: {
   classes: ClassesType,
   post: PostsBase,
   menuItem?: boolean,
   placement?: TooltipProps["placement"],
+  className?: string,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -45,7 +46,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
     });
   };
 
-  const { LWTooltip } = Components
+  const { LWTooltip, MenuItem, ForumIcon } = Components;
 
   const toggleBookmark = (event: React.MouseEvent) => {
     if (!currentUser) {
@@ -61,14 +62,14 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
     captureEvent("bookmarkToggle", {"postId": post._id, "bookmarked": !bookmarked})
   }
 
-  const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
-  const title = bookmarked ? "Un-bookmark" : "Bookmark"
+  const icon = bookmarked ? "Bookmark" : "BookmarkBorder";
+  const title = bookmarked ? "Un-bookmark" : "Bookmark";
 
   if (menuItem) {
     return (
       <MenuItem onClick={toggleBookmark}>
         <ListItemIcon>
-          { icon }
+          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
         </ListItemIcon>
         {title}
       </MenuItem>
@@ -76,8 +77,8 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   } else {
     return (
       <LWTooltip title={title} placement={placement}>
-        <span onClick={toggleBookmark} className={classes.icon}>
-        { icon }
+        <span onClick={toggleBookmark} className={classes.container}>
+          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
         </span>
       </LWTooltip>
     )

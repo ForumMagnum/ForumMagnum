@@ -61,7 +61,7 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 
 addUniversalFields({
   collection: Posts,
-  createdAtOptions: {viewableBy: ['admins']},
+  createdAtOptions: {canRead: ['admins']},
 });
 
 makeEditable({
@@ -71,10 +71,10 @@ makeEditable({
     order: 25,
     pingbacks: true,
     permissions: {
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: ['members']
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
     },
   }
 })
@@ -90,9 +90,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: [userHasModerationGuidelines]
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
     },
   }
 })
@@ -103,9 +103,9 @@ makeEditable({
     formGroup: formGroups.highlight,
     fieldName: "customHighlight",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }
 })

@@ -1,8 +1,17 @@
 import Conversations from '../../lib/collections/conversations/collection'
 import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/schema';
 import { userIsAdmin } from '../../lib/vulcan-users';
+import { loadByIds } from '../../lib/loaders';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator } from '../vulcan-lib';
+
+getCollectionHooks("Messages").newValidate.add(function NewMessageEmptyCheck (message: DbMessage) {
+  const { data } = (message.contents && message.contents.originalContents) || {}
+  if (!data) {
+    throw new Error("You cannot send an empty message");
+  }
+  return message;
+});
 
 getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {
   void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
@@ -17,7 +26,7 @@ getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnM
   const conversation = await context.loaders.Conversations.load(conversationId);
   if (conversation.moderator) {
     const [conversationParticipants, conversationMessageCount] = await Promise.all([
-      context.loaders.Users.loadMany(conversation.participantIds),
+      loadByIds(context, "Users", conversation.participantIds),
       // No need to fetch more than 2, we only care if this is the first message in the conversation
       context.Messages.find({ conversationId }, { limit: 2 }).count()
     ]);

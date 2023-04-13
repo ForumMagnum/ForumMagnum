@@ -108,6 +108,7 @@ registerFragment(`
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -116,6 +117,7 @@ registerFragment(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -158,6 +160,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -287,15 +290,28 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }
     usersContactedBeforeReview
-    associatedClientId {
+    associatedClientIds {
+      clientId
       firstSeenReferrer
       firstSeenLandingPage
       userIds
     }
+    altAccountsDetected
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -347,6 +363,8 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
+    showCommunityInRecentDiscussion
     beta
     theme
 

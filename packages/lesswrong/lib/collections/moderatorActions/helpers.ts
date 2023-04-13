@@ -1,5 +1,5 @@
 import moment from "moment";
-import { forumTypeSetting } from "../../instanceSettings";
+import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
 import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
 
@@ -87,8 +87,9 @@ export interface UserContentCountPartial {
 }
 
 export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount ?? 0
-  const commentCount = user.commentCount ?? 0
+  // Note: there's a bug somewhere that sometimes makes postCount or commentCount negative, which breaks things. Math.max ensures minimum of 0.
+  const postCount = Math.max(user.postCount ?? 0, 0)
+  const commentCount = Math.max(user.commentCount ?? 0, 0)
   return postCount + commentCount
 }
 
@@ -102,8 +103,7 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
   if (fullyReviewed) return 'alreadyApproved';
 
   if (neverReviewed) {
-    if (user.voteCount > 20) return 'voteCount';
-    if (user.mapLocation) return 'mapLocation';
+    if (user.mapLocation && isEAForum) return 'mapLocation';
     if (user.postCount) return 'firstPost';
     if (user.commentCount) return 'firstComment';
     if (user.usersContactedBeforeReview?.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) return 'contactedTooManyUsers';

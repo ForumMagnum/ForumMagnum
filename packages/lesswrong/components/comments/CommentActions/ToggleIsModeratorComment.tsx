@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
-import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 
 const ToggleIsModeratorComment = ({comment}: {
@@ -13,6 +12,7 @@ const ToggleIsModeratorComment = ({comment}: {
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
+  const { MenuItem } = Components;
   
   if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) {
     return null;

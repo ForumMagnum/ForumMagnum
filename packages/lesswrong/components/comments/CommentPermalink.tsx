@@ -1,4 +1,5 @@
 import React from 'react';
+import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -57,6 +58,9 @@ const CommentPermalink = ({ documentId, post, classes }: {
   if (!comment) {return null}
 
   if (!documentId) return null
+  
+  // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
+  if (commentIsHidden(comment)) return null
 
   const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
   const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined

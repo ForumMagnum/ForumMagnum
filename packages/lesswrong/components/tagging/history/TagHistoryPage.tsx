@@ -4,8 +4,12 @@ import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  title: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   feed: {
     ...theme.typography.body2,
   },
@@ -27,7 +31,7 @@ const TagHistoryPage = ({classes}: {
   }
   
   return <SingleColumnSection>
-    <Link to={tagGetUrl(tag)}><h1>{tag.name}</h1></Link>
+    <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>
     <div className={classes.feed}>
     <MixedTypeFeed
       pageSize={50}
@@ -67,8 +71,8 @@ const TagHistoryPage = ({classes}: {
             
             return <SingleLineFeedEvent>
               Applied to <LinkToPost post={application.post}/>
-              {" by "}
-              <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
+              {application.user && <> by <UsersName user={application.user}/></>}
+              {" "}<FormatDate date={application.createdAt}/> ago
             </SingleLineFeedEvent>
           }
         },

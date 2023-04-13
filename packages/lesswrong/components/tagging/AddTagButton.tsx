@@ -19,8 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, classes, children}: {
+const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  isVotingContext?: boolean,
   classes: ClassesType,
   children?: ReactNode,
 }) => {
@@ -47,7 +48,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
     <LWPopper
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement="bottom"
+      placement="bottom-start"
       allowOverflow
     >
       <LWClickAwayListener
@@ -59,6 +60,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
               setIsOpen(false);
               onTagSelected({tagId, tagName});
             }}
+            isVotingContext={isVotingContext}
           />
         </Paper>
       </LWClickAwayListener>

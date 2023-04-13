@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { tagStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import { tagStyle, coreTagStyle } from './FooterTag';
+import { isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,21 +24,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
-    }
+    },
+    ...(isEAForum
+      ? {
+        ...coreTagStyle(theme),
+        opacity: 0.6,
+      }
+      : {}),
   },
   selectedTag: {
     display: 'inline-flex',
     alignItems: 'baseline',
+    position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
+    ...(isEAForum ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
   removeTag: {
     background: 'transparent',
     color: 'inherit',
+    width: 15,
     '&:hover': {
       opacity: 0.5
-    }
+    },
+    '& svg': {
+      position: 'absolute',
+      top: 7,
+      right: 6,
+      width: 13,
+      height: 13,
+    },
   },
   loadMore: {
     marginLeft: 8,
@@ -73,7 +89,7 @@ const TagsChecklist = ({
   tooltips?: boolean;
   truncate?: boolean;
 }) => {
-  const { LWTooltip, LoadMore } = Components;
+  const { LWTooltip, LoadMore, ForumIcon } = Components;
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
@@ -111,7 +127,9 @@ const TagsChecklist = ({
         tagChecklistItem.selected ? (
           <div className={classes.selectedTag} key={tagChecklistItem.tag._id}>
             {tagChecklistItem.tag.name}
-            <button className={classes.removeTag} onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}>x</button>
+            <button className={classes.removeTag} onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}>
+              <ForumIcon icon="Close" />
+            </button>
           </div>
         ) : (
           <LWTooltip

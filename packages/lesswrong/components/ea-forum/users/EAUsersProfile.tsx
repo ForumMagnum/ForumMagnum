@@ -13,12 +13,11 @@ import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
-import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
@@ -30,10 +29,17 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { useMessages } from '../../common/withMessages';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
+  },
+  mainSection: {
+    [theme.breakpoints.down('sm')]: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
   },
   sunshineSection: {
     marginBottom: 24
@@ -48,9 +54,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
     fontSize: 20,
     lineHeight: '30px',
-    fontWeight: '700',
+    fontWeight: '600',
     paddingBottom: 3,
     borderBottom: `3px solid ${theme.palette.primary.main}`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       columnGap: 8,
       fontSize: 18,
@@ -58,9 +65,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sectionHeadingCount: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '450',
     color: theme.palette.grey[600],
+    fontSize: 13,
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
     }
@@ -73,7 +80,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionSubHeading: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   inactiveGroup: {
     color: theme.palette.grey[500],
@@ -82,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-  
+
   profileImage: {
     'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
@@ -93,7 +101,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   username: {
     fontSize: 32,
     lineHeight: '42px',
-    marginBottom: 16
+    marginBottom: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+  },
+  deletedUsername: {
+    textDecoration: 'line-through'
+  },
+  accountDeletedText: {
+    display: 'inline-block',
+    fontSize: 16,
+    lineHeight: '22px',
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: '500',
+    marginLeft: 10
   },
   roleAndOrg: {
     fontSize: 16,
@@ -102,7 +123,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.grey[600],
-    fontSize: 12,
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
@@ -304,20 +324,20 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform,
+    ProfileShortform, ForumIcon,
   } = Components
 
   if (loading) {
     return <Loading/>
   }
 
-  if (!user || !user._id || user.deleted) {
+  if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
     //eslint-disable-next-line no-console
     console.error(`// missing user (_id/slug: ${slug})`);
     return <Error404/>
   }
 
-  if (user.oldSlugs?.includes(slug)) {
+  if (user.oldSlugs?.includes(slug) && !user.deleted) {
     return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
   }
 
@@ -340,12 +360,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
   // posts list sort settings
-  const currentSorting = query.sortedBy || query.view ||  "new"
+  const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
   const currentFilter = query.filter ||  "all"
   const ownPage = currentUser?._id === user._id
   const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
   const currentIncludeEvents = (query.includeEvents === 'true')
+  const currentHideCommunity = (query.hideCommunity === 'true')
   postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+  postTerms.hideCommunity = currentHideCommunity
 
   const username = userGetDisplayName(user)
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -364,7 +386,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
         {ownPage && <Link to="/newPost">
           <SectionButton>
-            <DescriptionIcon /> New Post
+            <DescriptionIcon /> New post
           </SectionButton>
         </Link>}
       </div>
@@ -377,7 +399,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
-            <LibraryAddIcon /> New Sequence
+            <LibraryAddIcon /> New sequence
           </SectionButton>
         </Link>}
       </div>
@@ -504,7 +526,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     />
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.mainSection)}>
           {user.profileImageId && <Components.CloudinaryImage2
             height={96}
             width={96}
@@ -512,7 +534,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             publicId={user.profileImageId}
             className={classes.profileImage}
           />}
-          <Typography variant="headline" className={classes.username}>{username}</Typography>
+          <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
+            {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+          </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}
@@ -526,7 +550,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentStyles contentType="comment" className={classes.iconsRow}>
             <Tooltip title={`${userKarma} karma`}>
               <span className={classes.userMetaInfo}>
-                <StarIcon className={classes.userMetaInfoIcon} />
+                <ForumIcon icon="Star" className={classes.userMetaInfoIcon} />
                 {userKarma}
               </span>
             </Tooltip>
@@ -593,13 +617,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
               Edit Profile
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage Subscriptions
+              Manage subscriptions
             </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-              Account Settings
+              Account settings
             </Link>}
             {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log Out
+              Log out
             </a>}
           </Typography>
         </div>
@@ -634,6 +658,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             currentIncludeEvents={currentIncludeEvents}
+            currentHideCommunity={currentHideCommunity}
           />}
           <AnalyticsContext listContext="userPagePosts">
             <ProfileShortform user={user} />

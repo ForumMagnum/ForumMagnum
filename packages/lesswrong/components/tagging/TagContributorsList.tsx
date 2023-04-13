@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -94,7 +95,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
-      Load More
+      {preferredHeadingCase("Load More")}
     </a></div>}
   </div>
 }

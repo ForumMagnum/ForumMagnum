@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -11,6 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: theme.palette.border.commentBorder,
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsNodeRoot: {
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
   },
   child: {
     marginLeft: theme.spacing.unit,
@@ -27,7 +28,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: "2px 0 0 2px"
+    borderRadius: isEAForum
+      ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
+      : "2px 0 0 2px",
   },
   new: {
     '&&': {
@@ -104,16 +107,50 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
   },
   isPinnedOnProfile: {
-    borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
-    borderImageSlice: '1',
+    // What we _really_ want to do here is apply a 1px border with the given linear
+    // gradient, however, the `border-image` property isn't compatible with
+    // `border-radius`. Using the `::before` selector is a hack to get around this.
+    "&::before": {
+      content: "''",
+      position: "absolute",
+      zIndex: -1,
+      top: 1,
+      right: 1,
+      bottom: 1,
+      left: 1,
+      boxSizing: "border-box",
+      backgroundColor: theme.palette.panelBackground.default,
+      borderRadius: isEAForum ? theme.borderRadius.small : 0,
+    },
+    position: "relative",
+    backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
+    border: "none",
+    zIndex: 0,
     '&.CommentFrame-isAnswer': {
-      borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
-      borderImageSlice: '1',
-    }
+      backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
+    },
   },
 });
 
-const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, showPinnedOnProfile, children, classes}: {
+const CommentFrame = ({
+  comment,
+  treeOptions,
+  onClick,
+  id,
+  nestingLevel,
+  hasChildren,
+  highlighted,
+  isSingleLine,
+  isChild,
+  isNewComment,
+  isReplyToAnswer,
+  hoverPreview,
+  shortform,
+  showPinnedOnProfile,
+  children,
+  className,
+  classes
+}: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
@@ -131,6 +168,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
   showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
+  className?: string,
   classes: ClassesType,
 }) => {
   const { condensed, postPage } = treeOptions;
@@ -139,13 +177,14 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
     "comments-node",
     nestingLevelToClass(nestingLevel, classes),
     classes.node,
+    className,
     {
       "af":comment.af,
       [classes.highlightAnimation]: highlighted,
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
-      [classes.isPinnedOnProfile]: forumTypeSetting.get() === 'EAForum' && showPinnedOnProfile && comment.isPinnedOnProfile,
+      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
@@ -184,7 +223,7 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string
 }
 
 
-const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles});
+const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

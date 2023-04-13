@@ -62,6 +62,14 @@ const cloudinaryArgsByImageType = {
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
+  squareImageId: {
+    minImageHeight: 300,
+    minImageWidth: 300,
+    croppingAspectRatio: 1,
+    croppingDefaultSelectionRatio: 1,
+    // Reuse the banner upload preset, since they are basically different versions of the same image
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
+  },
   profileImageId: {
     minImageHeight: 170,
     minImageWidth: 170,
@@ -105,6 +113,10 @@ const formPreviewSizeByImageType = {
   bannerImageId: {
     width: "auto",
     height: 280
+  },
+  squareImageId: {
+    width: 90,
+    height: 90
   },
   profileImageId: {
     width: 90,
