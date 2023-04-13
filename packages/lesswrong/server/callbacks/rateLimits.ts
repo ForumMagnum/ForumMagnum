@@ -39,8 +39,8 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-
-  await enforceCommentRateLimit(currentUser);
+  const post = await Posts.findOne({_id:comment.postId})
+  await enforceCommentRateLimit({user: currentUser, postAuthorId: post?.userId});
 
   return validationErrors;
 });
@@ -79,7 +79,7 @@ async function enforcePostRateLimit (user: DbUser) {
 }
 
 
-export const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
+const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
   const mNow = moment();
   const comments = await Comments.find({
     userId: user._id,
@@ -95,13 +95,13 @@ export const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbU
 }
 
 
-async function enforceCommentRateLimit(user: DbUser) {
+async function enforceCommentRateLimit({user, postAuthorId}:{user: DbUser, postAuthorId: string}) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return;
   }
 
   const moderatorRateLimit = await getModeratorRateLimit(user)
-  if (moderatorRateLimit) {
+  if (moderatorRateLimit && user._id !== postAuthorId) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
     // moderatorRateLimits should only apply to comments on posts by people other than the comment author
