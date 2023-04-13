@@ -37,6 +37,10 @@ let pgConnection = null;
  * @type {Cypress.PluginConfig}
  */
 const dropAndSeedMongo = async (url) => {
+  if (!url) {
+    console.warn("No mongo URL provided");
+    return;
+  }
   if (!dbConnection) {
     dbConnection = new MongoClient(url);
     await dbConnection.connect();
