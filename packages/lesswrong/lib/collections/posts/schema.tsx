@@ -2442,6 +2442,16 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
+  },
+
   rejectedByUserId: {
     ...foreignKeyField({
       idFieldName: "rejectedByUserId",

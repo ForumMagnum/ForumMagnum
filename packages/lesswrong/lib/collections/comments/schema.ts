@@ -726,6 +726,16 @@ const schema: SchemaType<DbComment> = {
     hidden: true
   },
 
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
+  },
+
   rejectedByUserId: {
     ...foreignKeyField({
       idFieldName: "rejectedByUserId",
