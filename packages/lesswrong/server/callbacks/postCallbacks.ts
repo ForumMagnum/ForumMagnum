@@ -112,6 +112,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
    collection: Posts,
    user: postAuthor,
    skipRateLimits: true,
+   selfVote: true
  })
  return {...post, ...votedPost} as DbPost;
 });
