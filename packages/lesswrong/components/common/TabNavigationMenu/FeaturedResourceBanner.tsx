@@ -11,6 +11,14 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { registerCookie } from '../../../lib/cookies/utils';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+
+const HIDE_FEATURED_RESOURCE_COOKIE = registerCookie({
+  name: "hide_featured_resource",
+  type: "functional",
+  description: "Controls whether the featured resource banner in the left sidebar is hidden",
+});
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -82,8 +90,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
-  const HIDE_FEATURED_RESOURCE_COOKIE = 'hide_featured_resource';
-  const [cookies, setCookie] = useCookies([HIDE_FEATURED_RESOURCE_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
   const { results, loading } = useMulti({
     terms,
