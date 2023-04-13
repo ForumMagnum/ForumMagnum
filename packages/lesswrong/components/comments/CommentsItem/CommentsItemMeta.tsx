@@ -10,10 +10,6 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
-import RejectedIcon from "@material-ui/icons/NotInterested";
-import { useUpdate } from "../../../lib/crud/withUpdate";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import { useHover } from "../../common/withHover";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -165,14 +161,6 @@ export const CommentsItemMeta = ({
 }) => {
   const currentUser = useCurrentUser();
   
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
-
-  const { eventHandlers, anchorEl } = useHover();
-  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -226,25 +214,10 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-  const rejectComment = (reason: string) => {
-    void updateComment({
-      selector: { _id: comment._id },
-      data: { rejected: true, rejectedReason: reason }
-    });
-    setShowRejectionDialog(false);
-  };
-  
-  const unrejectComment = () => {
-    void updateComment({
-      selector: { _id: comment._id },
-      data: { rejected: false }
-    });
-  }
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, LWPopper, ContentRejectionDialog, RejectContentButton
+    ForumIcon, CommentsMenu, RejectContentButton
   } = Components;
 
   return (
