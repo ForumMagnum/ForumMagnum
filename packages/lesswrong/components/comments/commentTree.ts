@@ -158,4 +158,16 @@ export interface CommentTreeOptions {
    * Used for displaying inline replies to debate comments
    */
   hideParentCommentToggle?: boolean,
+  
+  /**
+   * If set, moderation guidelines will not be shown on new-comment boxes.
+   */
+  disableGuidelines?: boolean,
+  
+  /**
+   * Disables behavior where if a comment-tree has a highlightDate provided,
+   * comments newer than the highlight date will be exempt from being collapsed
+   * to single-line.
+   */
+  dontExpandNewComments?: boolean
 }

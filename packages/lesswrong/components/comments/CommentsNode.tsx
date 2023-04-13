@@ -51,7 +51,6 @@ export interface CommentsNodeProps {
    * expanded state to child comments
    */
   expandByDefault?: boolean,
-  dontExpandNewComments?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -61,7 +60,6 @@ export interface CommentsNodeProps {
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
-  disableGuidelines?: boolean,
   /**
    * Determines the karma threshold used to decide whether to collapse a comment.
    * 
@@ -94,7 +92,6 @@ const CommentsNode = ({
   nestingLevel=1,
   expandAllThreads,
   expandByDefault,
-  dontExpandNewComments=false,
   isChild,
   parentAnswerId,
   parentCommentId,
@@ -104,7 +101,6 @@ const CommentsNode = ({
   loadChildrenSeparately,
   loadDirectReplies=false,
   showPinnedOnProfile=false,
-  disableGuidelines=false,
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
@@ -117,7 +113,7 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene');
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -213,7 +209,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, disableGuidelines, showParentDefault }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, showParentDefault }
 
   
   return <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -260,7 +256,7 @@ const CommentsNode = ({
               scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
               displayTagIcon={displayTagIcon}
-              { ...passedThroughItemProps}
+              {...passedThroughItemProps}
             />
         }
       </div>}
@@ -279,8 +275,6 @@ const CommentsNode = ({
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
-            dontExpandNewComments={dontExpandNewComments}
-            disableGuidelines={disableGuidelines}
           />)}
       </div>}
 

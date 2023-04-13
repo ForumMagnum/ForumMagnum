@@ -121,10 +121,10 @@ const SubforumSubforumTab = ({
       postPage: true,
       refetch,
       tag,
+      disableGuidelines: true,
     },
     startThreadTruncated: true,
     isChild: false,
-    disableGuidelines: true,
     displayMode: "minimalist" as const,
   };
   const maxAgeHours = 18;

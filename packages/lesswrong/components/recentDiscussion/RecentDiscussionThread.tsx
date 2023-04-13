@@ -228,6 +228,7 @@ const RecentDiscussionThread = ({
     refetch: refetch,
     condensed: true,
     post: post,
+    dontExpandNewComments: true,
     ...commentTreeOptions
   };
 
@@ -278,7 +279,6 @@ const RecentDiscussionThread = ({
               treeOptions={treeOptions}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}
-              dontExpandNewComments={true}
               loadMoreTopLevel={loadMoreComments}
             />
           </div>
