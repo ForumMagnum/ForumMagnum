@@ -274,8 +274,8 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
     if (post.rejectedReason) {
       firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
     }
-      
-    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
+
+    // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
     const noEmail = forumTypeSetting.get() === "EAForum" 
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
