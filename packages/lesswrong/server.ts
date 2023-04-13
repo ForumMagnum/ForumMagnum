@@ -46,7 +46,6 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
-import './server/scripts/rebaseMigration';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';

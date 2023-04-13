@@ -22,7 +22,7 @@ const migrationTemplateHeader = `/**
  * -------------------------------------------
 `
 
-const migrationTemplateEndComments = `
+const migrationTemplateFooter = `
  * -------------------------------------------
  * (run \`git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql\` to see this more clearly)
  *
@@ -32,9 +32,7 @@ const migrationTemplateEndComments = `
  * - [ ] Run \`yarn acceptmigrations\` to update the accepted schema hash (running makemigrations again will also do this)
  */
 // export const acceptsSchemaHash = "%HASH%";
-`
 
-const migrationTemplateFooter = `${migrationTemplateEndComments}
 export const up = async ({db}: MigrationContext) => {
   // TODO
 }
@@ -50,21 +48,14 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 --
 `
 
-interface RebasedContents {
-  importLines: string[];
-  logicLines: string[];
-  migrationName: string;
-}
-
 const generateMigration = async ({
-  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath, forumType, rebasedMigration
+  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath, forumType,
 }: {
   acceptedSchemaFile: string,
   toAcceptSchemaFile: string,
   toAcceptHash: string,
   rootPath: string,
   forumType?: ForumTypeString,
-  rebasedMigration?: RebasedContents,
 }) => {
   const execRun = (cmd) => {
     return new Promise((resolve, reject) => {
@@ -78,21 +69,12 @@ const generateMigration = async ({
   const paddedDiff = diff.replace(/^/gm, ' * ');
 
   let contents = "";
-  if (rebasedMigration) {
-    contents += rebasedMigration.importLines.join('\n');
-  }
   contents += migrationTemplateHeader.replace("%TIMESTAMP%", new Date().toISOString());
   contents += paddedDiff.length < 1500 ? paddedDiff : ` * ***Diff too large to display***`;
-  if (rebasedMigration) {
-    contents += migrationTemplateEndComments.replace("%HASH%", toAcceptHash);
-    contents += rebasedMigration.logicLines.join('\n');
-  } else {
-    contents += migrationTemplateFooter.replace("%HASH%", toAcceptHash);
-  }
+  contents += migrationTemplateFooter.replace("%HASH%", toAcceptHash);
 
   const fileTimestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-  const migrationName = rebasedMigration?.migrationName ?? 'auto';
-  const fileName = `${fileTimestamp}.${migrationName}.ts`;
+  const fileName = `${fileTimestamp}.auto.ts`;
 
   await writeFile(path.join(migrationsPath(rootPath), fileName), contents);
 }
@@ -143,15 +125,13 @@ export const makeMigrations = async ({
   rootPath=ROOT_PATH,
   forumType,
   silent=false,
-  rebasedMigration
 }: {
-  writeSchemaChangelog?: boolean,
-  writeAcceptedSchema?: boolean,
-  generateMigrations?: boolean,
-  rootPath?: string,
+  writeSchemaChangelog: boolean,
+  writeAcceptedSchema: boolean,
+  generateMigrations: boolean,
+  rootPath: string,
   forumType?: ForumTypeString,
   silent?: boolean,
-  rebasedMigration?: RebasedContents,
 }) => {
   const log = silent ? (...args: any[]) => {} : console.log;
   log(`=== Checking for schema changes ===`);
@@ -196,7 +176,7 @@ export const makeMigrations = async ({
       await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath, forumType, rebasedMigration});
+      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath, forumType});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }
