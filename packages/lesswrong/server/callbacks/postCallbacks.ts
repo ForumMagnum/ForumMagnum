@@ -262,29 +262,31 @@ async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }
   }
 }
 
-getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ document: post, currentUser }) {
-  const postUser = await Users.findOne({_id: post.userId});
+getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser }) {
+  const postRejected = post.rejected && !oldPost.rejected;
+  if (postRejected) {
+    const postUser = await Users.findOne({_id: post.userId});
 
-  let firstMessageContents =
-      // TODO: make link conditional on forum, or something
-      `Unfortunately, I rejected your post "${post.title}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
-
-  if (post.rejectedReason) {
-    firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
+    let firstMessageContents =
+        // TODO: make link conditional on forum, or something
+        `Unfortunately, I rejected your post "${post.title}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+  
+    if (post.rejectedReason) {
+      firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
+    }
+      
+    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
+    const noEmail = forumTypeSetting.get() === "EAForum" 
+    ? false 
+    : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  
+    await sendPostRejectionPM({
+      post,
+      messageContents: firstMessageContents,
+      lwAccount: currentUser ?? await getAdminTeamAccount(),
+      noEmail,
+    });  
   }
-    
-  // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-  const noEmail = forumTypeSetting.get() === "EAForum" 
-  ? false 
-  : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
-
-  await sendPostRejectionPM({
-    post,
-    messageContents: firstMessageContents,
-    lwAccount: currentUser ?? await getAdminTeamAccount(),
-    noEmail,
-  });
-
 });
 
 /**
