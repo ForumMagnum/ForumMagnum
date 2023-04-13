@@ -77,6 +77,9 @@ export interface CommentsNodeProps {
   className?: string,
   classes: ClassesType,
 }
+
+type CommentExpansionState = "expanded"|"truncated"|"singleLine"
+
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
  * recurses to handle reply comments in the tree
@@ -115,7 +118,12 @@ const CommentsNode = ({
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments, singleLineCollapse } = treeOptions;
 
+  const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
+
   const beginSingleLine = (): boolean => {
+    if (currentUser?.noSingleLineComments)
+      return false;
+
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
@@ -124,22 +132,24 @@ const CommentsNode = ({
 
     if (forceSingleLine)
       return true;
+    if (forceNotSingleLine)
+      return false;
     if (treeOptions.isSideComment && nestingLevel>1)
       return true;
 
-    return (
-      !expandAllThreads &&
-      !!(truncated || startThreadTruncated) &&
-      lowKarmaOrCondensed &&
-      !(mostRecent && condensed) &&
-      !shortformAndTop &&
-      !postPageAndTop &&
-      !forceNotSingleLine
-    )
+    if (expandAllThreads) return false;
+    if (!truncated && !startThreadTruncated) return false;
+    if (!lowKarmaOrCondensed) return false;
+    if (mostRecent && condensed) return false;
+    if (shortformAndTop) return false;
+    if (postPageAndTop) return false;
+    if (isNewComment && !dontExpandNewComments) return false;
+
+    return true;
   }
   
   const [singleLine, setSingleLine] = useState(beginSingleLine());
-  const [truncatedStateSet, setTruncatedStateSet] = useState(false);
+  const [hasClickedToExpand, setHasClickedToExpand] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
 
   const isInViewport = (): boolean => {
@@ -164,7 +174,7 @@ const CommentsNode = ({
     if (isTruncated || isSingleLine) {
       setTruncated(false);
       setSingleLine(false);
-      setTruncatedStateSet(true);
+      setHasClickedToExpand(true);
       if (scrollOnExpand) {
         scrollIntoView("auto") // should scroll instantly
       }
@@ -194,18 +204,16 @@ const CommentsNode = ({
   const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
     if (truncatedState) return true;
-    if (truncatedStateSet) return false;
+    if (hasClickedToExpand) return false;
     return truncated || !!startThreadTruncated
   })();
 
-  const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
-
   const isSingleLine = ((): boolean => {
-    if (!singleLine || currentUser?.noSingleLineComments) return false;
+    if (!singleLine) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated && !(!dontExpandNewComments && isNewComment);
+    return isTruncated
   })();
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
@@ -214,7 +222,6 @@ const CommentsNode = ({
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, showParentDefault }
 
-  
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}
