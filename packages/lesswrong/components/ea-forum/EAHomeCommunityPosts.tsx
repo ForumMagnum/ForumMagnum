@@ -3,9 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { useCookies } from 'react-cookie';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { registerCookie } from '../../lib/cookies/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -41,10 +42,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = 'show_community_posts_section'
+const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
+  name: 'show_community_posts_section',
+  type: "functional",
+  description: "Whether to show the community posts section on the EA Forum home page",
+})
 
 const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
-  const [cookies, setCookie, removeCookie] = useCookies([SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
+  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
   // default to collapsing the section
   const [sectionExpanded, setSectionExpanded] = useState(cookies[SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
   const { captureEvent } = useTracking()

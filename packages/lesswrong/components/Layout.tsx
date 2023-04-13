@@ -25,8 +25,8 @@ import { useOnNavigate } from './hooks/useOnNavigate';
 import { AbstractThemeOptions, getDefaultThemeOptions, isValidSerializedThemeOptions } from '../themes/themeNames';
 import { CS_END, CS_START } from '../lib/collections/users/schema';
 // enable during ACX Everywhere
-import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
-import { useCookies } from 'react-cookie';
+import { HIDE_MAP_COOKIE } from './seasonal/HomepageMap/HomepageMapFilter';
+import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -186,7 +186,7 @@ const Layout = ({currentUser, children, classes}: {
   const setTheme = useSetTheme()
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const [cookies] = useCookies()
+  const [cookies] = useCookiesWithConsent()
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -299,7 +299,7 @@ const Layout = ({currentUser, children, classes}: {
     }
 
     // enable during ACX Everywhere
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
 
     return (
       <AnalyticsContext path={pathname}>

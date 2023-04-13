@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { hookToHoc } from '../../lib/hocUtils';
 import moment from '../../lib/moment-timezone';
-import { useCookies } from 'react-cookie';
 import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const TimezoneContext = React.createContext<string|null>(null);
 
@@ -30,8 +31,8 @@ export const withTimezone = hookToHoc(useTimezone);
 export const TimezoneWrapper = ({children}: {
   children: React.ReactNode
 }) => {
-  const [cookies, setCookie] = useCookies();
-  const savedTimezone = cookies['timezone'];
+  const [cookies, setCookie] = useCookiesWithConsent([TIMEZONE_COOKIE]);
+  const savedTimezone = cookies[TIMEZONE_COOKIE];
   const [timezone,setTimezone] = useState(savedTimezone);
   const currentUser = useCurrentUser();
   const updateUser = useUpdateCurrentUser();
@@ -39,7 +40,7 @@ export const TimezoneWrapper = ({children}: {
   useEffect(() => {
     const newTimezone = moment.tz.guess();
     if(timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
-      setCookie('timezone', newTimezone, {path: "/"});
+      setCookie(TIMEZONE_COOKIE, newTimezone, {path: "/"});
       if (currentUser) {
         void updateUser({ lastUsedTimezone: newTimezone, })
       }

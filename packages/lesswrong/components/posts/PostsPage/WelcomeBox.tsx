@@ -7,6 +7,8 @@ import { ForumOptions } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { HashLinkProps } from '../../common/HashLink';
+import { registerCookie } from '../../../lib/cookies/utils';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType): JssStyles => ({
   welcomeBox: {
@@ -52,14 +54,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const HIDE_WELCOME_BOX_COOKIE = 'hide_welcome_box';
+const HIDE_WELCOME_BOX_COOKIE = registerCookie({
+  name: "hide_welcome_box",
+  type: "functional",
+  description: "Controls whether the welcome box on a post page is hidden",
+});
 
 const WelcomeBox = ({ title, contents, classes }: {
   title: string,
   contents: HashLinkProps[],
   classes: ClassesType
 }) => {
-  const [cookies, setCookie] = useCookies([HIDE_WELCOME_BOX_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_WELCOME_BOX_COOKIE]);
 
   if (cookies[HIDE_WELCOME_BOX_COOKIE]) {
     return null;

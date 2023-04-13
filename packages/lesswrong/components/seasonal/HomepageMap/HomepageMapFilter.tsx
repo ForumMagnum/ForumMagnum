@@ -10,8 +10,9 @@ import { CloseableComponents, OpenDialogContextType, useDialog } from '../../com
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
-import { useCookies } from 'react-cookie';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { registerCookie } from '../../../lib/cookies/utils';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const hideMapCookieName = `hideMapFromFrontpage`;
+export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "TODO"});
 
 const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
@@ -79,11 +80,11 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
   const { flash } = useMessages()
   const updateCurrentUser = useUpdateCurrentUser();
   
-  const [_, setCookie, removeCookie] = useCookies([hideMapCookieName]);
+  const [_, setCookie, removeCookie] = useCookiesWithConsent([HIDE_MAP_COOKIE]);
 
   const handleHideMap = () => {
     let undoAction
-    captureEvent(`${hideMapCookieName}Clicked`)
+    captureEvent(`${HIDE_MAP_COOKIE}Clicked`)
     if (currentUser) { 
       void updateCurrentUser({
         hideFrontpageMap: true
@@ -92,12 +93,12 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
         void updateCurrentUser({hideFrontpageMap: false})
       }
     } else {
-      setCookie( hideMapCookieName, "true", {
+      setCookie( HIDE_MAP_COOKIE, "true", {
         expires: moment().add(30, 'days').toDate(), 
         path: "/"
       });
       undoAction = () => {
-        removeCookie( hideMapCookieName, { path: "/"});
+        removeCookie( HIDE_MAP_COOKIE, { path: "/"});
       }
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})

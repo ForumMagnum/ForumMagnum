@@ -7,8 +7,8 @@ import { useCookies } from 'react-cookie'
 import moment from 'moment';
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import { CS_END } from '../../lib/collections/users/schema';
-
-const THEME_COOKIE_NAME = "theme";
+import { THEME_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -92,7 +92,7 @@ export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const [_cookies, setCookie, removeCookie] = useCookies([THEME_COOKIE_NAME]);
+  const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
@@ -104,12 +104,12 @@ export const ThemeContextProvider = ({options, children}: {
       if (forumTypeSetting.get() === "EAForum") {
         // TODO: revert later
         // removeCookie(THEME_COOKIE_NAME, {path: "/"});
-        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+        setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
           path: "/",
           expires: moment(new Date(CS_END)).toDate(),
         });
       } else {
-        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+        setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
           path: "/",
           expires: moment().add(9999, 'days').toDate(),
         });

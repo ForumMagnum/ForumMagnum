@@ -9,9 +9,11 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { registerCookie } from '../../../lib/cookies/utils';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 
 const SECONDARY_SPACING = 20
-const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "TODO"})
 const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -161,7 +163,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton,
     NewFeaturePulse, ForumIcon} = Components;
-  const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
 

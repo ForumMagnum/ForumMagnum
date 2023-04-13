@@ -28,6 +28,7 @@ export function isCookieAllowed(name: string): boolean {
   return getCookieTypesAllowed().includes(cookie.type);
 }
 
+// TODO add forum type setting
 export function registerCookie(cookie: CookieSignature): string {
   if (cookie.name in CookiesTable && CookiesTable[cookie.name] !== cookie) {
     throw new Error(`Two cookies with the same name: ${cookie.name}`);
