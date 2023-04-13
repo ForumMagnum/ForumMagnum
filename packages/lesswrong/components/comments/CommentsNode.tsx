@@ -113,7 +113,7 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene');
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments, singleLineCollapse } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -183,10 +183,13 @@ const CommentsNode = ({
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentHash]);
 
-  const toggleCollapse = useCallback(
-    () => setCollapsed(!collapsed),
-    [collapsed]
-  );
+  const toggleCollapse = useCallback(() => {
+    if (singleLineCollapse && !collapsed) {
+      setSingleLine(true);
+    } else {
+      setCollapsed(!collapsed);
+    }
+  }, [singleLineCollapse, collapsed]);
 
   const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
@@ -254,7 +257,6 @@ const CommentsNode = ({
               toggleCollapse={toggleCollapse}
               key={comment._id}
               scrollIntoView={scrollIntoView}
-              setSingleLine={setSingleLine}
               displayTagIcon={displayTagIcon}
               {...passedThroughItemProps}
             />

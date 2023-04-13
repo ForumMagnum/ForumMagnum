@@ -138,7 +138,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, showPinnedOnProfile, parentAnswerId, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -148,7 +148,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
-  setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string,
@@ -204,7 +203,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const toggleShowParent = () => {
     if (commentPoolContext) {
-      commentPoolContext.showParentOf(comment._id);
+      void commentPoolContext.showParentOf(comment._id);
     } else {
       setShowParentState(!showParentState);
     }
@@ -355,7 +354,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               toggleShowParent,
               scrollIntoView,
               parentAnswerId,
-              setSingleLine,
               collapsed,
               toggleCollapse,
               setShowEdit,

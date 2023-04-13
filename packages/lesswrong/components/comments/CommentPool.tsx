@@ -133,7 +133,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
 
   const context: CommentPoolContextType = useMemo(() => ({
     showMoreChildrenOf, showParentOf, invalidateComment, addComment
-  }), [showMoreChildrenOf, invalidateComment, addComment]);
+  }), [showMoreChildrenOf, showParentOf, invalidateComment, addComment]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();
