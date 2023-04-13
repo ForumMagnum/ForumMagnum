@@ -124,7 +124,7 @@ export const ThemeContextProvider = ({options, children}: {
             // eslint-disable-next-line no-console
             console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
           } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
+            oldStyles.parentElement?.removeChild(oldStyles);
           }
         }
         if (themeOptions.name === "auto") {

@@ -92,6 +92,7 @@ export type TestingSqlClient = {
   dbName: string,
 }
 
+// TODO; JP disagrees with this name
 export const createTestingSqlClient = async (
   id: string | undefined = undefined,
   dropExisting = false,

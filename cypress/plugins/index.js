@@ -149,7 +149,7 @@ module.exports = (on, config) => {
     },
     async associateLoginToken(data) {
       await Promise.all([
-        associateLoginTokenMongo(config, data),
+        // associateLoginTokenMongo(config, data),
         associateLoginTokenPostgres(config, data),
       ]);
       return null;
