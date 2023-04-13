@@ -7,6 +7,8 @@
     "lint": "scripts/lint_and_checktypes.sh",
     "acceptmigrations": "ts-node scripts/acceptmigrations || git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql",
     "makemigrations": "ts-node scripts/makemigrations",
+    "unstagemigration": "ts-node scripts/unstagemigration",
+    "rebasemigration": "ts-node scripts/rebasemigration",
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "./build.js",
