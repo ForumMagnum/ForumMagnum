@@ -16,9 +16,12 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+<<<<<<< HEAD
 import { isInFuture } from '../../lib/utils/timeUtil';
 import { isLW } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+=======
+>>>>>>> 10dfd4f51db097729be542a67a2184c5e2ebdb29
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -137,7 +140,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, ContentStyles } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -265,18 +268,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
             Please wait awhile before commenting again.
           </div>}
-          {commentWillBeHidden && <div className={classes.modNote}>
-            <ContentStyles contentType="comment">
-              <em>
-                {isLW ? <>
-                  LessWrong is raising our moderation standards for new comments.<br/>
-                  See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your comments are approved.
-                </>
-                : <>A moderator will need to review your account before your comments will show up.</>
-                }
-              </em>
-            </ContentStyles>
-          </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -311,6 +302,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <NewCommentModerationWarning />
+          </div>}
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>

@@ -200,7 +200,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
@@ -211,6 +211,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   toggleIfAlreadyVoted?: boolean,
   skipRateLimits: boolean,
   context?: ResolverContext,
+  selfVote?: boolean,
 }): Promise<{
   modifiedDocument: DbVoteableType,
   showVotingPatternWarning: boolean,
@@ -229,7 +230,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
   // Check whether the user is allowed to vote at all, in full generality
   const { fail: cannotVote } = userCanVote(user);
-  if (cannotVote) {
+  if (!selfVote && cannotVote) {
     throw new Error('User does not meet the requirements to vote.');
   }
 

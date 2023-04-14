@@ -25,6 +25,7 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
     voteType: 'smallUpvote',
     user,
     skipRateLimits: true,
+    selfVote: true
   })
 });
 
