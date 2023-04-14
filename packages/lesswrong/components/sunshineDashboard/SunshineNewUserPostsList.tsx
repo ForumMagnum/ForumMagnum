@@ -52,7 +52,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton } = Components
 
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
@@ -96,14 +96,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             </div>
           </div>
           
-          {isLW && <>
-            {post.rejected && <span className={classes.rejectedLabel} onClick={setPostRejectedStatus(post, false)}>
-              [Rejected]
-            </span>}
-            {!post.rejected && post.authorIsUnreviewed && <span className={classes.rejectedIcon}>
-              <RejectedIcon onClick={setPostRejectedStatus(post, true)} />
-            </span>}
-          </>}
+          {isLW && <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} classNames={classes} />}
           
           <PostActionsButton post={post} />
         </div>
