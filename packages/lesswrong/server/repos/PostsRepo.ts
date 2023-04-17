@@ -59,4 +59,12 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `);
     return result?.meanKarma ?? 0;
   }
+  
+  async getReadHistoryForUser(userId: string): Promise<DbPost[]> {
+    const results = await this.many(`
+      SELECT p.*
+      FROM "Posts" p
+    `)
+    return results
+  }
 }
