@@ -160,6 +160,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
     ...PostsListBase
     currentUserVote

@@ -934,6 +934,10 @@ interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserExtendedVote: any,
 }
 
+interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
+  readonly canonicalSequence: SequencesPageFragment|null,
+}
+
 interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
@@ -3014,6 +3018,7 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
+  PostsListWithVotesAndSequence: PostsListWithVotesAndSequence
   PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
@@ -3200,6 +3205,7 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
+  PostsListWithVotesAndSequence: "Posts"
   PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"

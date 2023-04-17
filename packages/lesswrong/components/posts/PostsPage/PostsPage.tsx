@@ -240,7 +240,7 @@ const PostsPage = ({post, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    RecommendationsList,
+    RecommendationsList, PostsItemIntroSequence,
   } = Components
 
   useEffect(() => {
@@ -395,7 +395,22 @@ const PostsPage = ({post, refetch, classes}: {
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
 
-        {isEAForum && <RecommendationsList algorithm={recommendationsAlgorithm} />}
+        {isEAForum &&
+          <RecommendationsList
+            algorithm={recommendationsAlgorithm}
+            ListItem={({post, translucentBackground}: {
+              post: PostsListWithVotesAndSequence,
+              translucentBackground?: boolean,
+            }) =>
+              <PostsItemIntroSequence
+                post={post}
+                sequence={post.canonicalSequence ?? undefined}
+                withImage={!!post.canonicalSequence?.gridImageId}
+                translucentBackground={translucentBackground}
+              />
+            }
+          />
+        }
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >

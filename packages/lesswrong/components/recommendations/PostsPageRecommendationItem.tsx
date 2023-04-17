@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { KARMA_WIDTH } from './LWPostsItem';
+import { KARMA_WIDTH } from '../posts/LWPostsItem';
 
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
@@ -120,7 +120,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const PostsItemIntroSequence = ({
+const PostsPageRecommendationItem = ({
   post,
   sequence,
   showBottomBorder=true,
@@ -132,7 +132,7 @@ const PostsItemIntroSequence = ({
 }: {
   post: PostsList,
   chapter?: any,
-  sequence?: SequencesPageFragment,
+  sequence: SequencesPageFragment,
   showBottomBorder?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -147,7 +147,7 @@ const PostsItemIntroSequence = ({
 
   const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
-  const postLink = postGetPageUrl(post, false, sequence?._id);
+  const postLink = postGetPageUrl(post, false, sequence._id);
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>
@@ -192,7 +192,7 @@ const PostsItemIntroSequence = ({
 
           <div className={classes.mobileSecondRowSpacer}/>
 
-          {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
+          {withImage && sequence.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
               src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                 sequence.gridImageId
@@ -203,16 +203,17 @@ const PostsItemIntroSequence = ({
 
       </div>
     </AnalyticsContext>
-  )
+  );
 };
 
-const PostsItemIntroSequenceComponent = registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
-  styles,
-  hocs: [withErrorBoundary],
-});
+const PostsPageRecommendationItemComponent = registerComponent(
+  "PostsPageRecommendationItem",
+  PostsPageRecommendationItem,
+  {styles, hocs: [withErrorBoundary]},
+);
 
 declare global {
   interface ComponentTypes {
-    PostsItemIntroSequence: typeof PostsItemIntroSequenceComponent
+    PostsPageRecommendationItem: typeof PostsPageRecommendationItemComponent
   }
 }

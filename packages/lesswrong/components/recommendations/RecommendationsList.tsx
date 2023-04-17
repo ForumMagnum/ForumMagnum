@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const RecommendationsList = ({algorithm, translucentBackground}: {
+export type RecommendationsListItem = ComponentType<{
+  post: PostsListWithVotes|PostsListWithVotesAndSequence,
+  translucentBackground?: boolean,
+}>;
+
+const RecommendationsList = ({
+  algorithm,
+  translucentBackground,
+  ListItem = Components.PostsItem,
+}: {
   algorithm: RecommendationsAlgorithm,
-  translucentBackground?: boolean
+  translucentBackground?: boolean,
+  ListItem?: RecommendationsListItem,
 }) => {
-  const { PostsItem, PostsLoading, Typography } = Components;
+  const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
@@ -15,7 +25,12 @@ const RecommendationsList = ({algorithm, translucentBackground}: {
 
   return <div>
     {recommendations.map(post =>
-      <PostsItem post={post} key={post._id} translucentBackground={translucentBackground}/>)}
+      <ListItem
+        key={post._id}
+        post={post}
+        translucentBackground={translucentBackground}
+      />
+    )}
     {recommendations.length===0 &&
       <Typography variant="body1"><small>There are no more recommendations left.</small></Typography>}
   </div>
