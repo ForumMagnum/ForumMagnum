@@ -178,5 +178,10 @@
     "acceptsSchemaHash": "64c57945e3105d8daf5be8d51a1ee559",
     "acceptedByMigration": "20230412T185846.add_modGPTAnalysis.ts",
     "timestamp": "2023-04-12T18:58:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1058503cdf3522b15f94b3499566433a",
+    "acceptedByMigration": "20230413T184626.add_rejected_reasons_fields.ts",
+    "timestamp": "2023-04-13T18:46:26.000Z"
   }
 ]

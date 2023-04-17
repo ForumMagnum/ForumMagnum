@@ -25,24 +25,20 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const PostsListEditor = ({value, path, label, classes}: {
-  value: string[],
-  path: string,
-  label: string,
+const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
   classes: ClassesType,
-}, context: any) => {
-  const { updateCurrentValues } = context;
+}) => {
   return <div className={classes.editor}>
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        updateCurrentValues({[path]: newValue});
+        void updateCurrentValues({[path]: newValue});
       }}
       classes={classes}
     />
     <Components.PostsSearchAutoComplete
       clickAction={(postId: string) => {
-        updateCurrentValues({ [path]: [...value, postId] });
+        void updateCurrentValues({ [path]: [...value, postId] });
       }}
     />
   </div>

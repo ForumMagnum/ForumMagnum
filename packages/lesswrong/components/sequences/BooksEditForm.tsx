@@ -11,7 +11,7 @@ const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledPr
   return (
     <div className="books-edit-form">
       <Components.WrappedSmartForm
-        collection={Books}
+        collectionName="Books"
         documentId={documentId}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

@@ -42,7 +42,7 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
       // find the right login token corresponding, the current user may have
       // several sessions logged on different browsers / computers
       const tokenInformation = user.services.resume.loginTokens.find(
-        tokenInfo => tokenInfo.hashedToken === hashedToken
+        (tokenInfo: AnyBecauseTodo) => tokenInfo.hashedToken === hashedToken
       )
 
       const expiresAt = tokenExpiration(tokenInformation.when)
@@ -166,7 +166,7 @@ export const getCollectionsByName = (): CollectionsByName => {
   return result as CollectionsByName;
 }
 
-export const getUserFromReq = async (req): Promise<DbUser|null> => {
+export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {
   return req.user
   // return getUser(getAuthToken(req));
 }

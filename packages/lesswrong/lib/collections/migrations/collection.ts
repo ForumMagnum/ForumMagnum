@@ -1,6 +1,5 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
-import { forumTypeSetting } from '../../instanceSettings';
 
 /*
  * NOTE: This collection only tracks the use of migrations located in
@@ -34,7 +33,7 @@ const schema: SchemaType<DbMigration> = {
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),

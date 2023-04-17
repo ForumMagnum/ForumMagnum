@@ -395,6 +395,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly rejected: boolean,
   readonly modGPTAnalysis: string | null,
   readonly modGPTRecommendation: string | null,
+  readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -653,6 +654,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly subforumTagId: string,
   readonly af: boolean,
@@ -2941,7 +2943,7 @@ interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
 
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
   readonly name: string,
-  readonly collectionName: "Messages" | "Comments",
+  readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
   readonly deleted: boolean,
 }
@@ -2949,7 +2951,7 @@ interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplate
 interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly _id: string,
   readonly name: string,
-  readonly collectionName: "Messages" | "Comments",
+  readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,

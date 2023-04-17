@@ -2,11 +2,11 @@ export const hasBooleanParam = (payload: unknown, param: string) =>
   payload &&
   typeof payload === "object" &&
   param in payload &&
-  typeof payload[param] === "boolean";
+  typeof (payload as any)[param] === "boolean";
 
 export const hasStringParam = (payload: unknown, param: string) =>
   payload &&
   typeof payload === "object" &&
   param in payload &&
-  typeof payload[param] === "string" &&
-  payload[param].length;
+  typeof (payload as any)[param] === "string" &&
+  (payload as any)[param].length;

@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const voteMap = {
+const voteMap: AnyBecauseTodo = {
   'bigDownvote': 'a strong (karma) downvote',
   'smallDownvote': 'a (karma) downvote',
   'smallUpvote': 'a (karma) upvote',

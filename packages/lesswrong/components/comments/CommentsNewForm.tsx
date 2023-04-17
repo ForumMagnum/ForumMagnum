@@ -125,7 +125,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, ContentStyles } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
   
   const { openDialog } = useDialog();
   const updateComment = useUpdateComment('SuggestAlignmentComment')
@@ -235,25 +235,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {commentWillBeHidden && <div className={classes.modNote}>
-            <ContentStyles contentType="comment">
-              <em>
-                {isLW ? <>
-                  LessWrong is raising our moderation standards for new comments.<br/>
-                  See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your comments are approved.
-                </>
-                : <>A moderator will need to review your account before your comments will show up.</>
-                }          
-              </em>
-            </ContentStyles>
-          </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
           }}>
             <WrappedSmartForm
               id="new-comment-form"
-              collection={Comments}
+              collectionName="Comments"
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
@@ -279,6 +267,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           </div>
         </div>
         {parentDocumentId && !disableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <NewCommentModerationWarning />
+          </div>}
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>
