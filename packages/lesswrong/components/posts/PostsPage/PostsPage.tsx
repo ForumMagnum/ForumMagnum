@@ -345,7 +345,13 @@ const PostsPage = ({post, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
-  const recommendationsAlgorithm = {strategy: {name: ""}};
+  const recommendationsAlgorithm = {
+    strategy: {
+      name: "moreFromAuthor",
+      authorId: post.userId,
+    },
+    count: 3,
+  };
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>

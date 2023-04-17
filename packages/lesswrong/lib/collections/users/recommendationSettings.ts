@@ -6,6 +6,7 @@ import { ReviewYear } from '../../reviewUtils';
 
 export interface StrategySpecification {
   name: string,
+  authorId?: string,
 }
 
 export interface RecommendationsAlgorithmWithStrategy {
