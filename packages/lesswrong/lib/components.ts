@@ -772,6 +772,7 @@ importComponent("ConfigurableRecommendationsList", () => require('../components/
 importComponent("ContinueReadingList", () => require('../components/recommendations/ContinueReadingList'));
 importComponent("RecommendationsAlgorithmPicker", () => require('../components/recommendations/RecommendationsAlgorithmPicker'));
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
+importComponent("PostsPageRecommendationsList", () => require('../components/recommendations/PostsPageRecommendationsList'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
