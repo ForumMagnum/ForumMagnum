@@ -14,6 +14,7 @@ import { ObjectId } from "mongodb";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { LWEvents } from "../../lib/collections/lwevents";
 import { inspect } from "util";
+import { CollectionFilters } from './collectionMigrationFilters';
 
 type Transaction = ITask<{}>;
 
@@ -170,9 +171,18 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
 }
 
 const makeCollectionFilter = (collectionName: string) => {
-  return collectionName === "DatabaseMetadata"
-    ? { name: { $ne: "databaseId" } }
-    : {};
+  switch (collectionName) {
+    case "DatabaseMetadata":
+      return { name: { $ne: "databaseId" } };
+    case "Books":
+      return CollectionFilters['Books'];
+    case "Sequences":
+      return CollectionFilters['Sequences'];
+    case "Collections":
+      return { deleted: { $ne: true } };
+    default:
+      return {};
+  }
 }
 
 const copyDatabaseId = async (sql: Transaction) => {
