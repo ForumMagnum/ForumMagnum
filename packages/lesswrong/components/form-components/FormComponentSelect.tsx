@@ -11,7 +11,7 @@ const FormComponentSelect = (props: FormComponentProps<string> & {
   const selectOptions = options || (form && form.options)
 
   return <MuiTextField select {...props}>
-    {selectOptions.map(option => (
+    {selectOptions.map((option: AnyBecauseTodo) => (
       <MenuItem key={option.value} value={option.value}>
         {option.label}
       </MenuItem>

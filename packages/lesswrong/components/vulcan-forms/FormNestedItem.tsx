@@ -36,7 +36,7 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
   const isArray = typeof itemIndex !== 'undefined';
   return (
     <FormComponents.FormNestedItemLayout
-      content={nestedFields.map((field, i) => {
+      content={nestedFields.map((field: AnyBecauseTodo, i: number) => {
         return (
           <FormComponents.FormComponent
             key={i}

@@ -19,7 +19,7 @@ const ThemeSelect = (props: any) => {
   const themeOptions = useThemeOptions();
   const options = themeMetadata.map(({name, label}) => ({value: name, label}));
 
-  const updateCurrentValues = ({theme, ...rest}) => {
+  const updateCurrentValues = ({theme, ...rest}: AnyBecauseTodo) => {
     props.updateCurrentValues({
       ...rest,
       theme: {...themeOptions, name: theme},

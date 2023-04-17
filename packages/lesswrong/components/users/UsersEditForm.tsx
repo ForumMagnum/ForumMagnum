@@ -107,7 +107,7 @@ const UsersEditForm = ({terms, classes}: {
         collectionName="Users"
         {...terms}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
-        successCallback={async (user) => {
+        successCallback={async (user: AnyBecauseTodo) => {
           if (user?.theme) {
             const theme = {...currentThemeOptions, ...user.theme};
             setTheme(theme);

@@ -35,8 +35,8 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const path = this.getPath(this.props);
 
     // when checking for deleted values, both current path ('foo') and child path ('foo.0.bar') should trigger updates
-    const includesPathOrChildren = deletedValues =>
-      deletedValues.some(deletedPath => deletedPath.includes(path));
+    const includesPathOrChildren = (deletedValues: AnyBecauseTodo) =>
+      deletedValues.some((deletedPath: AnyBecauseTodo) => deletedPath.includes(path));
 
     const valueChanged =
       !isEqual(get(currentValues, path), get(this.props.currentValues, path)); 
@@ -94,7 +94,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   Function passed to form controls (always controlled) to update their value
   
   */
-  handleChange = value => {
+  handleChange = (value: AnyBecauseTodo) => {
 
     // if value is an empty string, delete the field
     if (value === '') {
@@ -121,7 +121,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   Updates the state of charsCount and charsRemaining as the users types
   
   */
-  updateCharacterCount = value => {
+  updateCharacterCount = (value: AnyBecauseTodo) => {
     const characterCount = value ? value.length : 0;
     this.setState({
       charsRemaining: (this.props.max||0) - characterCount,
@@ -176,7 +176,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   getErrors = (errors?: any) => {
     errors = errors || this.props.errors;
     const fieldErrors = errors.filter(
-      error => error.path && error.path.includes(this.props.path)
+      (error: AnyBecauseTodo) => error.path && error.path.includes(this.props.path)
     );
     return fieldErrors;
   };
@@ -205,7 +205,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   Function passed to form controls to clear their contents (set their value to null)
   
   */
-  clearField = event => {
+  clearField = (event: AnyBecauseTodo) => {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -267,8 +267,8 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
           return FormComponents.FormComponentDate;
 
         default:
-          if (this.props.input && FormComponents[this.props.input]) {
-            return FormComponents[this.props.input];
+          if (this.props.input && (FormComponents as AnyBecauseTodo)[this.props.input]) {
+            return (FormComponents as AnyBecauseTodo)[this.props.input];
           } else if (this.isArrayField()) {
             return Components.FormNestedArray;
           } else if (this.isObjectField()) {

@@ -62,7 +62,7 @@ const getFragments = (formType: "edit"|"new", props: WrappedSmartFormProps) => {
     mutationFields = mutationFields.concat(props.addFields);
   }
 
-  const convertFields = field => {
+  const convertFields = (field: AnyBecauseTodo) => {
     return field.slice(-5) === intlSuffix ? `${field}{ locale value }` : field;
   };
 

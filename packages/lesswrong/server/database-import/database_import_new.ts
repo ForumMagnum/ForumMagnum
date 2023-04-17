@@ -129,7 +129,7 @@ Vulcan.postgresImport = async () => {
   console.log("Finished comment data import");
 }
 
-const addParentCommentId = (comment, parentComment) => {
+const addParentCommentId = (comment: DbComment, parentComment: DbComment) => {
   if (parentComment) {
     return {...comment, parentCommentId: parentComment._id, topLevelCommentId: parentComment._id};
   } else {
@@ -144,7 +144,7 @@ Vulcan.syncUserPostCount = async () => {
   //eslint-disable-next-line no-console
   console.log("Started updating post counts:", postCounters);
   const postCounterArray = await postCounters.toArray();
-  const userUpdates = postCounterArray.map((counter) => ({
+  const userUpdates = postCounterArray.map((counter: AnyBecauseObsolete) => ({
     updateOne :
     {
       filter : {_id: counter.userId},
@@ -156,7 +156,7 @@ Vulcan.syncUserPostCount = async () => {
   console.log("Finished updating users:", userUpdateCursor);
 }
 
-const deepObjectExtend = (target, source) => {
+const deepObjectExtend = (target: AnyBecauseObsolete, source: AnyBecauseObsolete) => {
     for (var prop in source)
         if (prop in target)
             deepObjectExtend(target[prop], source[prop]);
@@ -165,8 +165,8 @@ const deepObjectExtend = (target, source) => {
     return target;
 }
 
-const upsertProcessedPosts = async (posts, postMap) => {
-  const postUpdates = _.map(posts, (post: any) => {
+const upsertProcessedPosts = async (posts: AnyBecauseObsolete, postMap: AnyBecauseObsolete) => {
+  const postUpdates = _.map(posts, (post: AnyBecauseObsolete) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
       let set: any = {legacyData: post.legacyData};
@@ -191,7 +191,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
   // console.log("Upserted posts: ", postUpdateCursor);
 }
 
-const upsertProcessedUsers = async (users, userMap) => {
+const upsertProcessedUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObsolete) => {
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user: any) => userMap.get(user.legacyId))
@@ -213,8 +213,8 @@ const upsertProcessedUsers = async (users, userMap) => {
   }
 }
 
-const bulkUpdateUsers = async (users, userMap) => {
-  const userUpdates = users.map((newUser) => {
+const bulkUpdateUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObsolete) => {
+  const userUpdates = users.map((newUser: AnyBecauseObsolete) => {
     const oldUser = userMap.get(newUser.legacyId);
     let set: any = {legacyData: newUser.legacyData, deleted: newUser.deleted};
     if (newUser.legacyData.email !== oldUser.legacyData.email && oldUser.email === oldUser.legacyData.email) {
@@ -237,7 +237,7 @@ const bulkUpdateUsers = async (users, userMap) => {
   console.log("userUpdateCursor: ", userUpdateCursor);
 }
 
-const insertUser = async (user) => {
+const insertUser = async (user: DbUser) => {
   // console.log("insertUser", user);
   try {
     await createMutator({
@@ -265,7 +265,7 @@ const insertUser = async (user) => {
   }
 }
 
-const upsertProcessedComments = async (comments, commentMap) => {
+const upsertProcessedComments = async (comments: AnyBecauseObsolete, commentMap: AnyBecauseObsolete) => {
   let postUpdates: Array<any> = [];
   let userUpdates: Array<any> = [];
   let commentUpdates: Array<any> = [];
@@ -327,9 +327,9 @@ const upsertProcessedComments = async (comments, commentMap) => {
   }
 }
 
-const keyValueArraytoObject = (keyValueArray) => {
+const keyValueArraytoObject = (keyValueArray: AnyBecauseObsolete) => {
   return keyValueArray.reduce(
-    (prev,curr) => {
+    (prev: AnyBecauseObsolete,curr: AnyBecauseObsolete) => {
       prev[curr.key]=curr.value;
       return prev;
     },
@@ -337,7 +337,7 @@ const keyValueArraytoObject = (keyValueArray) => {
   )
 }
 
-const legacyUserToNewUser = (user, legacyId) => {
+const legacyUserToNewUser = (user: AnyBecauseObsolete, legacyId: string) => {
   return {
     legacy: true,
     legacyId: legacyId,
@@ -351,7 +351,7 @@ const legacyUserToNewUser = (user, legacyId) => {
   }
 }
 
-const legacyPostToNewPost = (post, legacyId, user) => {
+const legacyPostToNewPost = (post: AnyBecauseObsolete, legacyId: string, user: AnyBecauseObsolete) => {
   const body = htmlToText(post.article);
   const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
@@ -381,7 +381,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   };
 }
 
-const legacyCommentToNewComment = async (comment, legacyId, author, parentPost) => {
+const legacyCommentToNewComment = async (comment: AnyBecauseObsolete, legacyId: string, author: AnyBecauseObsolete, parentPost: AnyBecauseObsolete) => {
   //eslint-disable-next-line no-console
   if (!author) {console.warn("Missing author for comment:", comment)}
   //eslint-disable-next-line no-console

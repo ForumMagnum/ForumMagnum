@@ -28,9 +28,9 @@ const extractObjectId = (value: Record<string, any>): Record<string, any> => {
 // A place for nasty hacks to live...
 const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject>> = {
   Posts: (post: DbPost): DbPost => {
-    const scoreThresholds = [2, 30, 45, 75, 125, 200];
+    const scoreThresholds = [2, 30, 45, 75, 125, 200] as const;
     for (const threshold of scoreThresholds) {
-      const prop = `scoreExceeded${threshold}Date`;
+      const prop: keyof DbPost = `scoreExceeded${threshold}Date`;
       if (typeof post[prop] === "boolean") {
         post[prop] = null;
       }
