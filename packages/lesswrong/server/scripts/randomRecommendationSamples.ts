@@ -1,6 +1,7 @@
 import { Globals } from "../vulcan-lib";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import RecommendationService from "../recommendations/RecommendationService";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 
 const randomRecommendationSamples = async () => {
   let cutoff = new Date();
@@ -8,7 +9,7 @@ const randomRecommendationSamples = async () => {
 
   const db = getSqlClientOrThrow();
   const posts = await db.many(`
-    SELECT "_id", "title"
+    SELECT "_id", "title", "slug"
     FROM "Posts"
     WHERE "createdAt" > $1 AND
       "status" = 2 AND
@@ -36,10 +37,13 @@ const randomRecommendationSamples = async () => {
   let result = "";
 
   for (let i = 0; i < posts.length; i++) {
-    const {_id, title} = posts[i];
+    const post = posts[i];
+    const {title} = post;
     for (let j = 0; j < count; j++) {
       const rec = recommendations[i][j];
-      result += `${_id},"${title}",${rec._id},"${rec.title}"\n`;
+      const srcLink = "https://forum.effectivealtruism.org" + postGetPageUrl(post);
+      const targetLink = "https://forum.effectivealtruism.org" + postGetPageUrl(rec);
+      result += `"${title}",${srcLink},"${rec.title}",${targetLink}\n`;
     }
   }
 
