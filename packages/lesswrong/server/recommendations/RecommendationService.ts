@@ -1,4 +1,6 @@
 import { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
+import { randomId } from "../../lib/random";
+import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { MoreFromAuthorStrategy } from "./MoreFromAuthorStrategy";
 import RecommendationStrategy from "./RecommendationStrategy";
 
@@ -21,7 +23,35 @@ class RecommendationService {
       throw new Error("Invalid recommendation strategy name: " + strategy.name);
     }
     const source = new Provider();
-    return source.recommend(currentUser, count, strategy);
+    const posts = await source.recommend(currentUser, count, strategy);
+    if (currentUser) {
+      void this.recordRecommendations(currentUser, strategy, posts);
+    }
+    return posts;
+  }
+
+  protected async recordRecommendations(
+    currentUser: DbUser,
+    strategy: StrategySpecification,
+    posts: DbPost[],
+  ): Promise<void> {
+    const db = getSqlClientOrThrow();
+    await Promise.all(posts.map(({_id}) => db.none(`
+      INSERT INTO "PostRecommendations" (
+        "_id",
+        "userId",
+        "postId",
+        "strategyName",
+        "recommendationCount",
+        "lastRecommendedAt",
+        "createdAt"
+      ) VALUES (
+        $1, $2, $3, $4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+      ) ON CONFLICT ("userId", "postId") DO UPDATE SET
+        "strategyName" = $4,
+        "recommendationCount" = "PostRecommendations"."recommendationCount" + 1,
+        "lastRecommendedAt" = CURRENT_TIMESTAMP
+    `, [randomId(), currentUser._id, _id, strategy.name])));
   }
 }
 
