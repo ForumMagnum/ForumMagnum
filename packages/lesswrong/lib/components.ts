@@ -135,6 +135,7 @@ importComponent("ContentItemBody", () => require('../components/common/ContentIt
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
+importComponent("StrawPollLoggedOut", () => require('../components/common/StrawPollLoggedOut'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -559,6 +560,8 @@ importComponent("CommentsReviewInfoCard", () => require('../components/sunshineD
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
+importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
+importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
