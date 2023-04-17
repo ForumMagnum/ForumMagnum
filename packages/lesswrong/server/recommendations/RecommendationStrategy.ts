@@ -3,6 +3,8 @@ import { StrategySpecification } from "../../lib/collections/users/recommendatio
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
 abstract class RecommendationStrategy {
+  private readonly maxRecommendationCount = 3;
+
   abstract recommend(
     currentUser: DbUser|null,
     count: number,
@@ -22,11 +24,15 @@ abstract class RecommendationStrategy {
         LEFT JOIN "ReadStatuses" rs
           ON rs."userId" = $(userId)
           AND rs."postId" = p."_id"
+        LEFT JOIN "PostRecommendations" pr
+          ON pr."userId" = $(userId)
+          AND pr."postId" = p."_id"
       `
       : "";
     const userFilter = currentUser
       ? `
         rs."isRead" IS NOT TRUE AND
+        COALESCE(pr."recommendationCount", 0) < $(maxRecommendationCount) AND
       `
       : "";
     return db.any(`
@@ -51,6 +57,7 @@ abstract class RecommendationStrategy {
       userId: currentUser?._id,
       postStatus: postStatuses.STATUS_APPROVED,
       count,
+      maxRecommendationCount: this.maxRecommendationCount,
       ...args,
     });
   }
