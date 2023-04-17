@@ -21,6 +21,7 @@ import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import { RecommendationsAlgorithmWithStrategy } from '../../../lib/collections/users/recommendationSettings';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -345,9 +346,10 @@ const PostsPage = ({post, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
-  const recommendationsAlgorithm = {
+  const recommendationsAlgorithm: RecommendationsAlgorithmWithStrategy = {
     strategy: {
       name: "moreFromAuthor",
+      postId: post._id,
       authorId: post.userId,
     },
     count: 3,
