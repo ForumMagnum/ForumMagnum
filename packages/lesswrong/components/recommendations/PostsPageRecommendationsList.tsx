@@ -17,22 +17,25 @@ const PostsPageRecommendationsList = () => {
     count: 3,
   };
 
-  const {RecommendationsList, PostsItemIntroSequence} = Components;
+  const {SectionTitle, RecommendationsList, PostsItemIntroSequence} = Components;
   return (
-    <RecommendationsList
-      algorithm={recommendationsAlgorithm}
-      ListItem={({post, translucentBackground}: {
-        post: PostsListWithVotesAndSequence,
-        translucentBackground?: boolean,
-      }) =>
-        <PostsItemIntroSequence
-          post={post}
-          sequence={post.canonicalSequence ?? undefined}
-          withImage={!!post.canonicalSequence?.gridImageId}
-          translucentBackground={translucentBackground}
-        />
-      }
-    />
+    <div>
+      <SectionTitle title="More posts like this" />
+      <RecommendationsList
+        algorithm={recommendationsAlgorithm}
+        ListItem={({post, translucentBackground}: {
+          post: PostsListWithVotesAndSequence,
+          translucentBackground?: boolean,
+        }) =>
+          <PostsItemIntroSequence
+            post={post}
+            sequence={post.canonicalSequence ?? undefined}
+            withImage={!!post.canonicalSequence?.gridImageId}
+            translucentBackground={translucentBackground}
+          />
+        }
+      />
+    </div>
   );
 }
 
