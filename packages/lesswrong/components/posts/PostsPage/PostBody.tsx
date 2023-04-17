@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -6,6 +6,26 @@ import { useCurrentUser } from '../../common/withUser';
 import mapValues from 'lodash/mapValues';
 import type { SideCommentMode } from '../PostActions/SetSideCommentVisibility';
 
+const replaceStrawPollEmbed = (htmlString, isLoggedIn) => {
+  if (!isLoggedIn) {
+    const parser = new DOMParser();
+    const htmlDoc = parser.parseFromString(htmlString, "text/html");
+    const strawpollEmbeds = htmlDoc.getElementsByClassName("strawpoll-embed");
+
+    for (const embed of Array.from(strawpollEmbeds)) {
+      if (embed && embed.parentNode) {
+        const replacementDiv = htmlDoc.createElement("div");
+        replacementDiv.className = "login-required";
+        replacementDiv.innerHTML = '<p>Please <a href="/login">log in</a> to vote in this poll.</p>';
+        embed.parentNode.replaceChild(replacementDiv, embed);
+      }
+    }
+
+    return htmlDoc.documentElement.outerHTML;
+  }
+
+  return htmlString;
+};
 
 const PostBody = ({post, html, sideCommentMode}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -24,9 +44,12 @@ const PostBody = ({post, html, sideCommentMode}: {
   
   const { ContentItemBody, SideCommentIcon } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
+
+  const cleanedHtml = useMemo(() => replaceStrawPollEmbed(html, !!currentUser), [currentUser, html]);
+  const cleanedSideCommentHtml = useMemo(() => replaceStrawPollEmbed(document?.sideComments?.html || "", !!currentUser), [currentUser, document?.sideComments?.html]);
   
   if (includeSideComments && document?.sideComments) {
-    const htmlWithIDs = document.sideComments.html;
+    const htmlWithIDs = cleanedSideCommentHtml;
     const sideComments = sideCommentMode==="highKarma"
       ? document.sideComments.highKarmaCommentsByBlock
       : document.sideComments.commentsByBlock;
@@ -42,7 +65,7 @@ const PostBody = ({post, html, sideCommentMode}: {
   }
   
   return <ContentItemBody
-    dangerouslySetInnerHTML={{__html: html}}
+    dangerouslySetInnerHTML={{__html: cleanedHtml}}
     description={`post ${post._id}`}
     nofollow={nofollow}
   />
