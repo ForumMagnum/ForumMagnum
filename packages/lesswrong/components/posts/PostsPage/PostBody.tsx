@@ -52,7 +52,7 @@ const PostBody = ({post, html, sideCommentMode}: {
   }, [StrawPollLoggedOut]);
 
   const cleanedHtml = useMemo(() => replaceStrawPollEmbed(html, !!currentUser, pathname), [currentUser, html, pathname, replaceStrawPollEmbed]);
-  const cleanedSideCommentHtml = useMemo(() => replaceStrawPollEmbed(document?.sideComments?.html || "", !!currentUser, pathname), [currentUser, document?.sideComments?.html]);
+  const cleanedSideCommentHtml = useMemo(() => replaceStrawPollEmbed(document?.sideComments?.html || "", !!currentUser, pathname), [currentUser, document?.sideComments?.html, pathname, replaceStrawPollEmbed]);
   
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = cleanedSideCommentHtml;
