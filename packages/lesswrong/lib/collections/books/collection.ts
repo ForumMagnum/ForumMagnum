@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const Books: BooksCollection = createCollection({
   collectionName: 'Books',
   typeName: 'Book',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('Books'),
   mutations: getDefaultMutations('Books'),
