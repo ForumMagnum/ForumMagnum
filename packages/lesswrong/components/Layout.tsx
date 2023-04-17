@@ -266,7 +266,23 @@ const Layout = ({currentUser, children, classes}: {
   }
   
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper, HomepageCommunityMap } = Components
+    const {
+      NavigationStandalone,
+      ErrorBoundary,
+      Footer,
+      Header,
+      FlashMessages,
+      AnalyticsClient,
+      AnalyticsPageInitializer,
+      NavigationEventSender,
+      PetrovDayWrapper,
+      NewUserCompleteProfile,
+      CommentOnSelectionPageWrapper,
+      SidebarsWrapper,
+      IntercomWrapper,
+      HomepageCommunityMap,
+      CookieBanner,
+    } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -301,6 +317,9 @@ const Layout = ({currentUser, children, classes}: {
     // enable during ACX Everywhere
     const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
 
+    // TODO make this actually depend on the consent cookie
+    const showCookieBanner = true
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -324,7 +343,9 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
-              <IntercomWrapper/>
+              {/* Only show intercom after they have accepted cookies */}
+              {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+              
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}

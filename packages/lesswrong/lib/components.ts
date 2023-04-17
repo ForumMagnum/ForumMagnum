@@ -848,3 +848,5 @@ importComponent("Book2019FrontpageWidget", () => require('../components/books/Bo
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
+
+importComponent("CookieBanner", () => require('../components/common/CookieBanner/CookieBanner'));
