@@ -4,6 +4,7 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -47,11 +48,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    {!post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && <AnalyticsContext pageSectionContext="tagFooter">
-      <div className={classes.footerTagList}>
-        <FooterTagList post={post}/>
-      </div>
-    </AnalyticsContext>}
+    {!isEAForum && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+      <AnalyticsContext pageSectionContext="tagFooter">
+        <div className={classes.footerTagList}>
+          <FooterTagList post={post}/>
+        </div>
+      </AnalyticsContext>
+    }
     {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
