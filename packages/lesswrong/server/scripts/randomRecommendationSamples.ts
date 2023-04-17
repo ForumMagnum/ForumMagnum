@@ -47,6 +47,7 @@ const randomRecommendationSamples = async () => {
     }
   }
 
+  // eslint-disable-next-line no-console
   console.log(result);
 }
 
