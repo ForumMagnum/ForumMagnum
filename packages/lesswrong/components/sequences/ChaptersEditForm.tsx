@@ -61,7 +61,7 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
     <div className={classes.root}>
       <h3 className={classes.title}>Add/Remove Posts</h3>
       <Components.WrappedSmartForm
-        collection={Chapters}
+        collectionName="Chapters"
         documentId={documentId}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

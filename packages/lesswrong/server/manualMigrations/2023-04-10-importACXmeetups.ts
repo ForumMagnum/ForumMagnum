@@ -175,8 +175,23 @@ registerMigration({
   }
 })
 
+interface ACXMeetup {
+  Region: string
+  "Name/initials/handle": string
+  "Email address": string
+  "City": string
+  "Location description": string
+  "Plus.Code Coordinates": string
+  "Date": string
+  "Time": string
+  "GPS Coordinates": string
+  "Event Link"?: string
+  Notes?: string
+  "Additional contact info"?: string
+}
+
 //Updated 2023-04-09 19:15 Eastern Time
-const acxData = [
+const acxData: ACXMeetup[] = [
   {
     "Region": "Africa",
     "Name/initials/handle": "Damola",

@@ -96,7 +96,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   }
 }
 
-export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences) => {
+export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences: AnyBecauseTodo) => {
   await updateMutator({
     collection: Users,
     documentId: userId,

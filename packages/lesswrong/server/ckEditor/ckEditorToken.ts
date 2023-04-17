@@ -16,7 +16,7 @@ function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel)
   }
 }
 
-export async function ckEditorTokenHandler (req, res, next) {
+export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) {
   const environmentId = getCkEditorEnvironmentId();
   const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
 

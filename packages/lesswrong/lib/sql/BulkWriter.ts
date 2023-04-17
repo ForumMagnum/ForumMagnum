@@ -31,7 +31,7 @@ class BulkWriter<T extends DbObject> {
 
     for (const op of operations) {
       const opName = Object.keys(op)[0];
-      const opValue = op[opName];
+      const opValue = (op as AnyBecauseTodo)[opName];
       switch (opName) {
         case "insertOne":
           inserts.push(opValue);

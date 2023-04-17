@@ -65,9 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   karma: {
     display:"inline-block",
     textAlign: "center",
-    width: 30,
     paddingTop: SINGLE_LINE_PADDING_TOP,
     paddingRight: SINGLE_LINE_PADDING_TOP,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   date: {
     display:"inline-block",

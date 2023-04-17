@@ -165,7 +165,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
               return await checkAccess(currentUser, revision, context) ? revision : null
             }
           }
-          const docField = doc[field];
+          const docField = (doc as AnyBecauseTodo)[field];
           if (!docField) return null
 
           const result: DbRevision = {
@@ -231,7 +231,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'String',
         resolver: (post: T): string => {
-          return post[fieldName || "contents"]?.version
+          return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
         }
       }
     }

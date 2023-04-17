@@ -151,7 +151,7 @@ const SubscribeButton = ({
     return notifSubscriptions[0].state === "subscribed";
   }, [notifSubscriptions, currentUser, tag]);
 
-  const togglePostNotifsSubscribed = async (e) => {
+  const togglePostNotifsSubscribed = async (e: AnyBecauseTodo) => {
     try {
       e.preventDefault();
       const subscriptionState = isSubscribedToPostNotifs ? 'suppressed' : 'subscribed'

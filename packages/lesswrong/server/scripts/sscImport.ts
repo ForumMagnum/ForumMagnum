@@ -6,7 +6,7 @@ import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
-async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedName = "", feedLink = "") {
+async function rssImport(userId: string, rssURL: string, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports: Array<any> = [];
     let maybeRSSFeed = await RSSFeeds.findOne({nickname: feedName});
