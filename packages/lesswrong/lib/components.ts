@@ -545,6 +545,8 @@ importComponent("SunshineUserMessages", () => require('../components/sunshineDas
 importComponent("SunshineSendMessageWithDefaults", () => require('../components/sunshineDashboard/SunshineSendMessageWithDefaults'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
 importComponent("SunshineListItem", () => require('../components/sunshineDashboard/SunshineListItem'));
+importComponent("NewPostModerationWarning", () => require('../components/sunshineDashboard/NewPostModerationWarning'));
+importComponent("NewCommentModerationWarning", () => require('../components/sunshineDashboard/NewCommentModerationWarning'));
 importComponent("SidebarHoverOver", () => require('../components/sunshineDashboard/SidebarHoverOver'));
 importComponent("SidebarInfo", () => require('../components/sunshineDashboard/SidebarInfo'));
 importComponent("SidebarActionMenu", () => require('../components/sunshineDashboard/SidebarActionMenu'));
@@ -557,6 +559,8 @@ importComponent("CommentsReviewInfoCard", () => require('../components/sunshineD
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
+importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
+importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
