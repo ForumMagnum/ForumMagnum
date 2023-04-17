@@ -61,6 +61,7 @@ import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
+import "./server/scripts/randomRecommendationSamples";
 import "./server/scripts/languageModels/generateTaggingPostSets";
 import "./server/scripts/languageModels/testModGPTOnComments";
 import './server/manualMigrations';
