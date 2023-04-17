@@ -75,6 +75,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.strawpoll-embed": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.metaforecast-preview": {
     "& iframe": {
@@ -297,6 +307,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
