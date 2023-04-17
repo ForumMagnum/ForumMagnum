@@ -1,7 +1,8 @@
 import { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { randomId } from "../../lib/random";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { MoreFromAuthorStrategy } from "./MoreFromAuthorStrategy";
+import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
+import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import RecommendationStrategy from "./RecommendationStrategy";
 
 type ConstructableStrategy = {
@@ -11,6 +12,7 @@ type ConstructableStrategy = {
 class RecommendationService {
   private strategies: Record<string, ConstructableStrategy> = {
     moreFromAuthor: MoreFromAuthorStrategy,
+    moreFromTag: MoreFromTagStrategy,
   };
 
   async recommend(

@@ -348,9 +348,13 @@ const PostsPage = ({post, refetch, classes}: {
 
   const recommendationsAlgorithm: RecommendationsAlgorithmWithStrategy = {
     strategy: {
-      name: "moreFromAuthor",
+      // name: "moreFromAuthor",
+      // postId: post._id,
+      // authorId: post.userId,
+
+      name: "moreFromTag",
       postId: post._id,
-      authorId: post.userId,
+      tagId: Object.keys(post.tagRelevance)[0],
     },
     count: 3,
   };
