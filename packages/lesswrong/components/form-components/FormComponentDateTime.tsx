@@ -227,15 +227,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const FormComponentDateTime = ({ path, value, name, label, classes }: {
-  path: string;
-  value: string | Date;
-  name: string;
-  label: string;
+const FormComponentDateTime = ({ path, value, name, label, classes }: FormComponentProps<string|Date> & {
   classes: ClassesType;
-}, context: any) => {
+}, context: FormComponentContext<string|Date>) => {
   const updateDate = (date: Date | undefined) => {
-    if (date) context.updateCurrentValues({[path]: date})
+    if (date) {
+      void context.updateCurrentValues({[path]: date})
+    }
   }
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;

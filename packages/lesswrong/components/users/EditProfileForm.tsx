@@ -96,7 +96,7 @@ const EditProfileForm = ({classes}: {
       </div>
       
       <WrappedSmartForm
-        collection={Users}
+        collectionName="Users"
         {...terms}
         fields={[
           'profileImageId',

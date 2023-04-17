@@ -5,10 +5,14 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
-import Tooltip from '@material-ui/core/Tooltip';
 
-class FormComponent extends Component<any,any> {
-  constructor(props) {
+interface FormComponentState {
+  charsRemaining?: number
+  charsCount?: number
+}
+
+class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>,FormComponentState> {
+  constructor(props: FormComponentWrapperProps<T>) {
     super(props);
 
     this.state = {};
@@ -21,7 +25,7 @@ class FormComponent extends Component<any,any> {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>, nextState: FormComponentState) {
     // allow custom controls to determine if they should update
     if (this.isCustomInput(this.getInputType(nextProps))) {
       return true;
@@ -58,7 +62,7 @@ class FormComponent extends Component<any,any> {
   If this is an intl input, get _intl field instead
 
   */
-  getPath = (props?: any) => {
+  getPath = (props?: FormComponentWrapperProps<T>) => {
     const p = props || this.props;
     return p.path;
   };
@@ -68,7 +72,7 @@ class FormComponent extends Component<any,any> {
   Returns true if the passed input type is a custom 
   
   */
-  isCustomInput = inputType => {
+  isCustomInput = (inputType: FormInputType) => {
     const isStandardInput = [
       'nested',
       'number',
@@ -104,7 +108,7 @@ class FormComponent extends Component<any,any> {
     const updateValue = this.props.locale
       ? { locale: this.props.locale, value }
       : value;
-    this.props.updateCurrentValues({ [this.getPath()]: updateValue });
+    void this.props.updateCurrentValues({ [this.getPath()]: updateValue });
 
     // for text fields, update character count on change
     if (this.showCharsRemaining()) {
@@ -120,7 +124,7 @@ class FormComponent extends Component<any,any> {
   updateCharacterCount = value => {
     const characterCount = value ? value.length : 0;
     this.setState({
-      charsRemaining: this.props.max - characterCount,
+      charsRemaining: (this.props.max||0) - characterCount,
       charsCount: characterCount
     });
   };
@@ -206,7 +210,7 @@ class FormComponent extends Component<any,any> {
       event.preventDefault();
       event.stopPropagation();
     }
-    this.props.updateCurrentValues({ [this.props.path]: null });
+    void this.props.updateCurrentValues({ [this.props.path]: null });
     if (this.showCharsRemaining()) {
       this.updateCharacterCount(null);
     }
@@ -342,30 +346,6 @@ class FormComponent extends Component<any,any> {
     }
   }
 }
-
-(FormComponent as any).propTypes = {
-  document: PropTypes.object,
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string,
-  value: PropTypes.any,
-  placeholder: PropTypes.string,
-  prefilledValue: PropTypes.any,
-  options: PropTypes.any,
-  input: PropTypes.any,
-  datatype: PropTypes.any,
-  path: PropTypes.string.isRequired,
-  disabled: PropTypes.bool,
-  nestedSchema: PropTypes.object,
-  currentValues: PropTypes.object.isRequired,
-  deletedValues: PropTypes.array.isRequired,
-  throwError: PropTypes.func.isRequired,
-  updateCurrentValues: PropTypes.func.isRequired,
-  errors: PropTypes.array.isRequired,
-  addToDeletedValues: PropTypes.func,
-  clearFieldErrors: PropTypes.func.isRequired,
-  currentUser: PropTypes.object,
-  tooltip: PropTypes.string,
-};
 
 (FormComponent as any).contextTypes = {
   getDocument: PropTypes.func.isRequired

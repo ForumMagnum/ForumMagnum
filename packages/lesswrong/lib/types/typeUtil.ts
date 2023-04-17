@@ -40,4 +40,8 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
     : never;
 
 type FromPartial<T> = T extends Partial<infer U> ? U : never;
+
+/** Either T, or a function taking P and returning T. */
+export type MaybeFunction<T,P> = T|((props:P)=>T)
+
 }

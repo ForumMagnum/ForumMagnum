@@ -124,7 +124,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
       : <div>
           <p>Invite codes are valid for 12 hours from start time.</p>
           <Components.WrappedSmartForm
-            collection={GardenCodes}
+            collectionName="GardenCodes"
             fields={fields}
             mutationFragment={getFragment("GardenCodeFragment")}
             queryFragment={getFragment("GardenCodeFragment")}

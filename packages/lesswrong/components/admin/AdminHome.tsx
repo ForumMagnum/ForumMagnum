@@ -233,7 +233,7 @@ const AdminHome = ({ classes }: {
           <div className={classes.adminLogGroup}>
             <h3>New IP Bans</h3>
             <Components.WrappedSmartForm
-              collection={Bans}
+              collectionName="Bans"
             />
           </div>
           <div className={classes.adminLogGroup}>
