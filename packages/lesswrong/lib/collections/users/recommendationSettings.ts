@@ -3,11 +3,19 @@ import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
-export type RecommendationStrategyName =
-  "moreFromAuthor" |
-  "moreFromTag" |
-  "bestOf";
+export const recommendationStrategyNames = new TupleSet([
+  "moreFromAuthor",
+  "moreFromTag",
+  "bestOf",
+] as const);
+
+export const isRecommendationStrategyName =
+  (name: string): name is RecommendationStrategyName =>
+    recommendationStrategyNames.has(name);
+
+export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNames>;
 
 export interface StrategySpecification {
   name: RecommendationStrategyName,

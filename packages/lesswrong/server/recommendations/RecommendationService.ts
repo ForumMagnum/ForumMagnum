@@ -15,8 +15,8 @@ type ConstructableStrategy = {
 
 class RecommendationService {
   private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
-    moreFromAuthor: MoreFromAuthorStrategy,
     moreFromTag: MoreFromTagStrategy,
+    moreFromAuthor: MoreFromAuthorStrategy,
     bestOf: BestOfStrategy,
   };
 
@@ -25,21 +25,59 @@ class RecommendationService {
     count: number,
     strategy: StrategySpecification,
   ): Promise<DbPost[]> {
-    const Provider = this.strategies[strategy.name];
-    if (!Provider) {
-      throw new Error("Invalid recommendation strategy name: " + strategy.name);
+    const strategies = this.getStrategyStack(strategy.name);
+    let posts: DbPost[] = [];
+
+    while (count > 0 && strategies.length) {
+      const newPosts = (await this.recommendWithStrategyName(
+        currentUser,
+        count,
+        strategy,
+        strategies[0],
+      )).filter(
+        ({_id}) => !posts.some((post) => post._id === _id),
+      );
+
+      if (currentUser) {
+        void this.recordRecommendations(currentUser, strategies[0], newPosts);
+      }
+
+      posts = posts.concat(newPosts);
+      count -= newPosts.length;
+
+      strategies.shift();
     }
-    const source = new Provider();
-    const posts = await source.recommend(currentUser, count, strategy);
-    if (currentUser) {
-      void this.recordRecommendations(currentUser, strategy, posts);
-    }
+
     return posts;
   }
 
-  protected async recordRecommendations(
-    currentUser: DbUser,
+  private getStrategyStack(
+    primaryStrategy: RecommendationStrategyName,
+  ): RecommendationStrategyName[] {
+    const strategies = Object.keys(this.strategies) as RecommendationStrategyName[];
+    return [
+      primaryStrategy,
+      ...strategies.filter((s) => s !== primaryStrategy),
+    ];
+  }
+
+  private recommendWithStrategyName(
+    currentUser: DbUser|null,
+    count: number,
     strategy: StrategySpecification,
+    strategyName: RecommendationStrategyName,
+  ): Promise<DbPost[]> {
+    const Provider = this.strategies[strategyName];
+    if (!Provider) {
+      throw new Error("Invalid recommendation strategy name: " + strategyName);
+    }
+    const source = new Provider();
+    return source.recommend(currentUser, count, strategy);
+  }
+
+  private async recordRecommendations(
+    currentUser: DbUser,
+    strategyName: RecommendationStrategyName,
     posts: DbPost[],
   ): Promise<void> {
     const db = getSqlClientOrThrow();
@@ -58,7 +96,7 @@ class RecommendationService {
         "strategyName" = $4,
         "recommendationCount" = "PostRecommendations"."recommendationCount" + 1,
         "lastRecommendedAt" = CURRENT_TIMESTAMP
-    `, [randomId(), currentUser._id, _id, strategy.name])));
+    `, [randomId(), currentUser._id, _id, strategyName])));
   }
 }
 
