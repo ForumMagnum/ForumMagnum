@@ -28,7 +28,7 @@ class Unit<T extends DbObject> {
     return this.empty;
   }
 
-  toQuery() {
+  toQuery(): AnyBecauseTodo {
     if (this.empty) {
       if (this.table instanceof Table) {
         throw new Error("Can't convert empty pipeline to query");
@@ -54,13 +54,13 @@ class Unit<T extends DbObject> {
   }
 
   private addSimpleStage(name: string, data: any): Unit<T> {
-    if (this[name] || this.group) {
+    if ((this as AnyBecauseTodo)[name] || this.group) {
       const unit = new Unit(this);
-      unit[name] = data;
+      (unit as AnyBecauseTodo)[name] = data;
       unit.empty = false;
       return unit;
     } else {
-      this[name] = data;
+      (this as AnyBecauseTodo)[name] = data;
       this.empty = false;
       return this;
     }

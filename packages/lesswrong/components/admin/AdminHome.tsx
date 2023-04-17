@@ -49,24 +49,29 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const UserIPsDisplay = ({column, document}) => {
+type AdminColumnProps = {
+  column: AnyBecauseTodo
+  document: AnyBecauseTodo
+}
+
+const UserIPsDisplay = ({column, document}: AdminColumnProps) => {
   return <div>
-    {document.IPs && document.IPs.map(ip => <div key={ip}>{ip}</div>)}
+    {document.IPs && document.IPs.map((ip: string) => <div key={ip}>{ip}</div>)}
   </div>
 }
 
-const DateDisplay = ({column, document}) => {
+const DateDisplay = ({column, document}: AdminColumnProps) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
-const EventPropertiesDisplay = ({column, document}) => {
+const EventPropertiesDisplay = ({column, document}: AdminColumnProps) => {
   return <div>
     {document[column.name] && document[column.name].ip},
     {document[column.name] && document[column.name].type}
   </div>
 }
 
-const UserDisplay = ({column, document}) => {
+const UserDisplay = ({column, document}: AdminColumnProps) => {
   return <div>
     <Components.UsersName user={document['user'] || document} />
   </div>
@@ -233,7 +238,7 @@ const AdminHome = ({ classes }: {
           <div className={classes.adminLogGroup}>
             <h3>New IP Bans</h3>
             <Components.WrappedSmartForm
-              collection={Bans}
+              collectionName="Bans"
             />
           </div>
           <div className={classes.adminLogGroup}>

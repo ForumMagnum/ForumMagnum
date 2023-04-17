@@ -49,7 +49,7 @@ registerVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
   getCommentVotingComponent: () => Components.VoteOnComment,
-  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     return null;
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
@@ -67,7 +67,7 @@ registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
-  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
+  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const newVoteIncludesApproval = (voteType&&voteType!=="neutral");

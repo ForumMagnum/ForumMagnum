@@ -28,7 +28,7 @@ const initCreatedAt = <T extends DbObject>(
           filter: {_id: document._id},
           update: {
             $set: {
-              createdAt: new Date(document[existingField] ?? 0),
+              createdAt: new Date((document as AnyBecauseObsolete)[existingField] ?? 0),
             },
           },
         },

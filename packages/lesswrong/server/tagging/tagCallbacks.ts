@@ -140,7 +140,7 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   let postId: string;
   if ("postId" in newDocument) { // is a tagRel
     // Applying human knowledge here
-    postId = newDocument["postId"] as string;
+    postId = (newDocument as DbTagRel)["postId"];
   } else if ("tagRelevance" in newDocument) { // is a post
     postId = newDocument["_id"];
   } else {
