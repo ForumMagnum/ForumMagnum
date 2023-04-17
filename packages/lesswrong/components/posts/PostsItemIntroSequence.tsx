@@ -7,10 +7,12 @@ import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
