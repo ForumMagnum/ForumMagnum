@@ -15,6 +15,7 @@ import keyBy from 'lodash/keyBy';
 import mapValues from 'lodash/mapValues';
 import filter from 'lodash/filter';
 import fs from 'fs';
+import { getSiteUrl } from '../../vulcan-lib';
 
 const postEndMarker  = "===TAGS===";
 
@@ -50,8 +51,8 @@ function weightedPartition<T>(list: T[], weights: number[]): T[][]
 }
 
 async function generateCandidateSetsForTagClassification(): Promise<void> {
-  const startDate = new Date("2021-01-01");
-  const endDate = new Date("2022-11-01");
+  const startDate = new Date("2020-05-01");
+  const endDate = new Date("2021-05-01");
   
   console.log(`Finding posts from ${startDate} to ${endDate}`); //eslint-disable-line no-console
   const posts = await Posts.find({
@@ -219,20 +220,23 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
   for (let post of shuffle(posts)) {
     const tagsByHumans = filter(tags, t=>post.tagRelevance?.[t._id] > 0).map(t=>t.name);
     
-    try {
+    // try {
       const tagsPredicted = await checkTags(post, tags, openAIApi);
       
       writeResult(`${post.title}\n`
-        + `    https://www.lesswrong.com/posts/${post._id}/${post.slug}\n`
+        + `    ${getSiteUrl()}/posts/${post._id}/${post.slug}\n`
         + `    Language model: ${filter(tags, t=>!!tagsPredicted[t.slug]).map(t=>t.name).join(", ")}\n`
         + `    Human: ${tagsByHumans.join(", ")}\n`
       );
-    } catch(e) {
-      writeResult(`${post._id} ${post.title}\n`
-        + `    Language model: ERROR\n`
-        + `    Human: ${tagsByHumans.join(", ")}\n`
-      );
-    }
+    // } catch(e) {
+    //   // writeResult(`${post._id} ${post.title}\n`
+    //   //   + `    Language model: ERROR: ${(""+e).substring(0,100)}\n`
+    //   //   + `    Human: ${tagsByHumans.join(", ")}\n`
+    //   // );
+    //   // break;
+    //   throw e;
+    //   break;
+    // }
   }
   
   fs.writeFileSync(outputFilename, sb.join(''));

@@ -9,6 +9,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { omit } from 'lodash';
 
 /**
  * To set up automatic tagging:
@@ -73,7 +74,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
    7. Install the OpenAI command-line API (if it isn't already installed.) with:
            pip install --upgrade openai
       (Depending on your system this might be `pip3` instead. If this succeeds
-      you should be able to run `openai` from the command ine in any directory.)
+      you should be able to run `openai` from the command line in any directory.)
  *
  * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job using the OpenAI CLI.
           export OPENAI_API_KEY=YOURAPIKEYHERE
@@ -162,17 +163,20 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
 
 export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
+  console.log('🚀 ~ file: autoTagCallbacks.ts:165 ~ checkTags ~ template:', template)
   
   let tagsApplied: Record<string,boolean> = {};
   
   for (let tag of tags) {
     if (!tag.autoTagPrompt || !tag.autoTagModel)
       continue;
+    console.log('tag', omit(tag, ['description', 'description_latest']))
     const languageModelResult = await openAIApi.createCompletion({
       model: tag.autoTagModel,
       prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
       max_tokens: 1,
     });
+    console.log('got past call to openai')
     const completion = languageModelResult.data.choices[0].text!;
     const hasTag = (completion.trim().toLowerCase() === "yes");
     tagsApplied[tag.slug] = hasTag;
@@ -205,7 +209,8 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
   return await Tags.find({ autoTagPrompt: {$exists: true, $ne: ""} }).fetch();
 }
 
-async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
+// TODO; docstring
+export async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
