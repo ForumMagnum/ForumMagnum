@@ -8,8 +8,8 @@ import {
   postGetLastCommentedAt,
   postGetLastCommentPromotedAt,
   postGetPageUrl,
+  postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
-import { max } from "underscore";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
 
@@ -17,19 +17,6 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
     ? post.sticky || (terms.af && post.afSticky) || (terms.meta && post.metaSticky)
     : false;
-
-const mostRelevantTag = (
-  tags: TagPreviewFragment[],
-  tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
-
-const getPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
-  const {tags, tagRelevance} = post;
-  const core = tags.filter(({core}) => core);
-  const potentialTags = core.length < 1 && includeNonCore ? tags : core;
-  const result = mostRelevantTag(potentialTags, tagRelevance);
-  return typeof result === "object" ? result : null;
-}
 
 export type PostsItemConfig = {
   /** post: The post displayed.*/
@@ -182,7 +169,7 @@ export const usePostsItem = ({
     postLink,
     commentsLink: postLink + "#comments",
     commentCount: postGetCommentCount(post),
-    primaryTag: hideTag ? null : getPrimaryTag(post),
+    primaryTag: hideTag ? null : postGetPrimaryTag(post),
     hasAudio: !!post.podcastEpisodeId,
     tagRel,
     resumeReading,
