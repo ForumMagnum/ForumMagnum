@@ -6,7 +6,7 @@ import { ReviewYear } from '../../reviewUtils';
 
 export interface StrategySpecification {
   name: string,
-  postId?: string,
+  postId: string,
   authorId?: string,
 }
 
