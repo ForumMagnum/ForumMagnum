@@ -64,6 +64,10 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const results = await this.many(`
       SELECT p.*
       FROM "Posts" p
+      JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
+      WHERE rs."userId" = ${userId}
+      ORDER BY rs."lastUpdated" desc
+      LIMIT 10
     `)
     return results
   }

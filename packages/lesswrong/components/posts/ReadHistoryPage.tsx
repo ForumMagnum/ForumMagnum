@@ -3,9 +3,18 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
+import { gql, useQuery } from '@apollo/client';
 
 const ReadHistoryPage = () => {
   const currentUser = useCurrentUser()
+  const { data, loading } = useQuery(gql`
+    query getReadHistory() {
+      UserReadHistory() {}
+    }
+    `,
+    {skip: !currentUser}
+  )
+  console.log(data)
   
   const {SingleColumnSection, SectionTitle, BookmarksList} = Components
 
