@@ -328,6 +328,12 @@ addRoute(
     componentName: 'BookmarksPage',
     title: 'Bookmarks',
   },
+  {
+    name: 'readHistory',
+    path: '/history',
+    componentName: 'ReadHistoryPage',
+    title: 'Read History',
+  },
 
   // Tags redirects
   {
