@@ -4,7 +4,16 @@ import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 
-export interface RecommendationsAlgorithm {
+export interface StrategySpecification {
+  name: string,
+}
+
+export interface RecommendationsAlgorithmWithStrategy {
+  strategy: StrategySpecification,
+  count?: number,
+}
+
+export interface DefaultRecommendationsAlgorithm {
   method: "top"|"sample"
   count?: number
   scoreOffset: number
@@ -23,14 +32,23 @@ export interface RecommendationsAlgorithm {
   curatedModifier?: number
   frontpageModifier?: number
   personalBlogpostModifier?: number
-  
+
   hideFrontpage?: boolean,
   hideContinueReading?: boolean,
   hideBookmarks?: boolean,
   hideReview?: boolean,
 }
 
-export const defaultAlgorithmSettings: RecommendationsAlgorithm = {
+export type RecommendationsAlgorithm =
+  RecommendationsAlgorithmWithStrategy |
+  DefaultRecommendationsAlgorithm;
+
+export const recommendationsAlgorithmHasStrategy = (
+  algorithm: RecommendationsAlgorithm,
+): algorithm is RecommendationsAlgorithmWithStrategy =>
+  "strategy" in algorithm;
+
+export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   method: "top",
   count: 10,
   scoreOffset: 0,

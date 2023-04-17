@@ -235,7 +235,8 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
+    RecommendationsList,
   } = Components
 
   useEffect(() => {
@@ -344,6 +345,8 @@ const PostsPage = ({post, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
+  const recommendationsAlgorithm = {strategy: {name: ""}};
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
@@ -377,6 +380,8 @@ const PostsPage = ({post, refetch, classes}: {
           />}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+
+        {isEAForum && <RecommendationsList algorithm={recommendationsAlgorithm} />}
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >

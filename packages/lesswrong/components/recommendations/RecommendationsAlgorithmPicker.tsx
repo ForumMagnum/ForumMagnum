@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
@@ -42,10 +42,10 @@ const recommendationAlgorithms = [
 ] as const;
 
 export function getRecommendationSettings({settings, currentUser, configName}: {
-  settings: Partial<RecommendationsAlgorithm>|null,
+  settings: Partial<DefaultRecommendationsAlgorithm>|null,
   currentUser: UsersCurrent|null,
   configName: string,
-}): RecommendationsAlgorithm {
+}): DefaultRecommendationsAlgorithm {
   if (settings) {
     return {
       ...defaultAlgorithmSettings,
@@ -70,16 +70,16 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 const includeExtra = forumSelect(forumIncludeExtra)
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
-  settings: RecommendationsAlgorithm,
+  settings: DefaultRecommendationsAlgorithm,
   configName: string,
-  onChange: (newSettings: RecommendationsAlgorithm)=>void,
+  onChange: (newSettings: DefaultRecommendationsAlgorithm)=>void,
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-  function applyChange(newSettings: RecommendationsAlgorithm) {
+  function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
     if (currentUser) {
       const mergedSettings = {
         ...currentUser.recommendationSettings,
@@ -163,7 +163,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
-          onChange={(ev) => applyChange({ ...settings, method: ev.target.value as RecommendationsAlgorithm['method'] })}
+          onChange={(ev) => applyChange({ ...settings, method: ev.target.value as DefaultRecommendationsAlgorithm['method'] })}
           value={settings.method}
         >
           {recommendationAlgorithms.map(method =>
