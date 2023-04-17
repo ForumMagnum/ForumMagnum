@@ -3,7 +3,11 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type { RecommendationsAlgorithmWithStrategy } from "../../lib/collections/users/recommendationSettings";
 
-const PostsPageRecommendationsList = () => {
+const PostsPageRecommendationsList = ({
+  title = "More posts like this",
+}: {
+  title?: string,
+}) => {
   const post = usePostsPageContext();
   if (!post) {
     return null;
@@ -20,7 +24,7 @@ const PostsPageRecommendationsList = () => {
   const {SectionTitle, RecommendationsList, PostsItemIntroSequence} = Components;
   return (
     <div>
-      <SectionTitle title="More posts like this" />
+      {title && <SectionTitle title={title} />}
       <RecommendationsList
         algorithm={recommendationsAlgorithm}
         ListItem={({post, translucentBackground}: {
