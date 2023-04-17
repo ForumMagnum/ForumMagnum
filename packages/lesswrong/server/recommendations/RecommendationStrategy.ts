@@ -4,6 +4,7 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
 abstract class RecommendationStrategy {
   private readonly maxRecommendationCount = 3;
+  private readonly minimumBaseScore = 30;
 
   abstract recommend(
     currentUser: DbUser|null,
@@ -48,7 +49,8 @@ abstract class RecommendationStrategy {
         p."isFuture" IS NOT TRUE AND
         p."shortform" IS NOT TRUE AND
         p."hiddenRelatedQuestion" IS NOT TRUE AND
-        p."groupId" IS NULL
+        p."groupId" IS NULL AND
+        p."baseScore" >= $(minimumBaseScore)
         ${filter}
       ORDER BY p."score" DESC
       LIMIT $(count)
@@ -58,6 +60,7 @@ abstract class RecommendationStrategy {
       postStatus: postStatuses.STATUS_APPROVED,
       count,
       maxRecommendationCount: this.maxRecommendationCount,
+      minimumBaseScore: this.minimumBaseScore,
       ...args,
     });
   }

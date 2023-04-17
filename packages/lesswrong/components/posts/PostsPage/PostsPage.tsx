@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { postCoauthorIsPending, postGetPageUrl, postGetPrimaryTag } from '../../../lib/collections/posts/helpers';
+import {
+  postCoauthorIsPending,
+  postGetPageUrl,
+} from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -354,7 +357,6 @@ const PostsPage = ({post, refetch, classes}: {
 
       name: "moreFromTag",
       postId: post._id,
-      tagId: postGetPrimaryTag(post, true)?._id ?? undefined,
     },
     count: 3,
   };

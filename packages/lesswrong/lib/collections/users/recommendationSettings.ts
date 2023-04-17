@@ -8,7 +8,6 @@ export interface StrategySpecification {
   name: string,
   postId?: string,
   authorId?: string,
-  tagId?: string,
 }
 
 export interface RecommendationsAlgorithmWithStrategy {
