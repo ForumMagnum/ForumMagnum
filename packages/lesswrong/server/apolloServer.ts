@@ -44,6 +44,7 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
+import CrosspostController from './fmCrosspost2/CrosspostController';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -244,6 +245,7 @@ export function startWebserver() {
     res.send(eagApp)
   })
 
+  new CrosspostController(app);
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
