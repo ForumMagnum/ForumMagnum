@@ -4,8 +4,13 @@ import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 
+export type RecommendationStrategyName =
+  "moreFromAuthor" |
+  "moreFromTag" |
+  "bestOf";
+
 export interface StrategySpecification {
-  name: string,
+  name: RecommendationStrategyName,
   postId: string,
   authorId?: string,
 }

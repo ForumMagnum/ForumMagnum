@@ -6,12 +6,8 @@ class MoreFromTagStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    strategy: StrategySpecification,
+    {postId}: StrategySpecification,
   ): Promise<DbPost[]> {
-    const {postId} = strategy;
-    if (!postId) {
-      throw new Error("No post specified in recommendation strategy");
-    }
     const tag = await this.chooseTagForPost(postId);
     if (!tag) {
       throw new Error("Couldn't choose a relevant tag for post " + postId);

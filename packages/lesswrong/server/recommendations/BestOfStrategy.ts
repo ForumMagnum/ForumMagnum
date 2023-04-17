@@ -1,7 +1,8 @@
 import RecommendationStrategy from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
-class MoreFromAuthorStrategy extends RecommendationStrategy {
+class BestOfStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
@@ -11,9 +12,11 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       currentUser,
       count,
       postId,
-      `AND p."userId" = (SELECT "userId" FROM "Posts" WHERE "_id" = $(postId))`,
+      `AND COALESCE((p."tagRelevance"->>$(communityId))::INTEGER, 0) < 1`,
+      {communityId: EA_FORUM_COMMUNITY_TOPIC_ID},
+      "baseScore",
     );
   };
 }
 
-export default MoreFromAuthorStrategy;
+export default BestOfStrategy;

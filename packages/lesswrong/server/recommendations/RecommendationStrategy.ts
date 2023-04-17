@@ -18,6 +18,7 @@ abstract class RecommendationStrategy {
     postId: string,
     filter: string,
     args: Record<string, unknown> = {},
+    sort: keyof DbPost = "score",
   ): Promise<DbPost[]> {
     const db = getSqlClientOrThrow();
     const userJoin = currentUser
@@ -52,7 +53,7 @@ abstract class RecommendationStrategy {
         p."groupId" IS NULL AND
         p."baseScore" >= $(minimumBaseScore)
         ${filter}
-      ORDER BY p."score" DESC
+      ORDER BY p."${sort}" DESC
       LIMIT $(count)
     `, {
       postId,
