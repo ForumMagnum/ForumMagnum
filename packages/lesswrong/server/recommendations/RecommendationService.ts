@@ -8,12 +8,15 @@ import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
 import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import BestOfStrategy from "./BestOfStrategy";
 import RecommendationStrategy from "./RecommendationStrategy";
+import { loggerConstructor } from "../../lib/utils/logging";
 
 type ConstructableStrategy = {
   new (): RecommendationStrategy,
 }
 
 class RecommendationService {
+  private logger = loggerConstructor("recommendation-service");
+
   private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
     moreFromTag: MoreFromTagStrategy,
     moreFromAuthor: MoreFromAuthorStrategy,
@@ -29,6 +32,7 @@ class RecommendationService {
     let posts: DbPost[] = [];
 
     while (count > 0 && strategies.length) {
+      this.logger("Recommending for", strategy.postId, "with", strategies[0]);
       const newPosts = (await this.recommendWithStrategyName(
         currentUser,
         count,
