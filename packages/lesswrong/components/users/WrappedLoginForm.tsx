@@ -147,7 +147,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   const [ mutate, { error } ] = useMutation(currentActionToMutation[currentAction], { errorPolicy: 'all' })
   const clientId = useClientId();
 
-  const submitFunction = async (e) => {
+  const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
     const signupAbTestKey = getUserABTestKey(null, clientId);
     const variables = 
@@ -204,7 +204,7 @@ const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: Wrapped
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
 
-  const urls = {
+  const urls: AnyBecauseTodo = {
     login: `/auth/auth0?returnTo=${returnTo}`,
     signup: `/auth/auth0?screen_hint=signup&returnTo=${returnTo}`,
   };

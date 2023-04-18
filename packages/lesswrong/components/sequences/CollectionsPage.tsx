@@ -103,6 +103,14 @@ const CollectionsPage = ({ documentId, classes }: {
     // props
     const ButtonUntyped = Button as any;
     
+    // hidden wordcount logged for admin convenience 
+    // we don't show to users because it'd be too intimidating
+    // (more info in BooksProgressBar for users)
+    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
+    // eslint-disable-next-line no-console
+    console.log(`${wordCount.toLocaleString()} words`)
+
     return (<ErrorBoundary><div className={classes.root}>
       <ToCColumn 
         tableOfContents={<CollectionTableOfContents collection={document}/>}

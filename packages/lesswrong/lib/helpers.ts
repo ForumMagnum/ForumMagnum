@@ -20,7 +20,7 @@ export function constantTimeCompare({ correctValue, unknownValue }: { correctVal
 
     // Iterate over the array of correct characters, which has a known (constant) length, to mitigate certain timing attacks
     for (const [idx, char] of Object.entries(correctValueChars)) {
-      const matchedIndexCharsEqual = char === unknownValueChars[idx];
+      const matchedIndexCharsEqual = char === unknownValueChars[idx as AnyBecauseTodo];
       allCharsEqual = matchedIndexCharsEqual && allCharsEqual;
     }
 

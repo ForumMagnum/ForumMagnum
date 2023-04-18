@@ -156,7 +156,7 @@ export const getBasePath = (path: string) => {
 /////////////////////////////
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
-export const checkNested: any = function(obj /*, level1, level2, ... levelN*/) {
+export const checkNested: any = function(obj: AnyBecauseTodo /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
   obj = args.shift();
 
@@ -185,9 +185,9 @@ export const getLogoUrl = (): string|undefined => {
   }
 };
 
-export const encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
+export const encodeIntlError = (error: AnyBecauseTodo) => typeof error !== 'object' ? error : JSON.stringify(error);
 
-export const decodeIntlError = (error, options = {stripped: false}) => {
+export const decodeIntlError = (error: AnyBecauseTodo, options = {stripped: false}) => {
   try {
     // do we get the error as a string or as an error object?
     let strippedError = typeof error === 'string' ? error : error.message;
