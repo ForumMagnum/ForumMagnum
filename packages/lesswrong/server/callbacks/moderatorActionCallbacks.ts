@@ -25,4 +25,6 @@ getCollectionHooks('ModeratorActions').createAsync.add(async function updateNote
   const updatedNotes = `${newNote}${oldNotes}`;
 
   void context.Users.rawUpdateOne({ _id: moderatedUserId }, { $set: { sunshineNotes: updatedNotes } });
+  console.log("notes", updatedNotes)
+
 });

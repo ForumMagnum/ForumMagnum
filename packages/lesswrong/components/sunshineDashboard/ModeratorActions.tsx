@@ -65,6 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
+    minHeight: 250,
     ...hideScrollBars,
     '& *': {
       ...hideScrollBars
@@ -110,6 +111,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
+      console.log(notes, user.sunshineNotes)
+      console.log("handleNotes")
       void updateUser({
         selector: {_id: user._id},
         data: {
@@ -315,7 +318,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         endedAt: endDate
       }
     });
-
+    
     const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
     for (const rateLimit of existingRateLimits) {
       void endRateLimit(rateLimit._id)

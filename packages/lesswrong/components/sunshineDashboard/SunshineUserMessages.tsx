@@ -5,6 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
+import uniq from 'lodash/uniq'
 
 const styles = (theme: JssStyles) => ({
   row: {
@@ -50,8 +51,10 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
         <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
         <span className={classes.title}>
           Conversation with{" "} 
-          {conversation.participants?.map(participant => {
-            if (participant._id !== user._id) return <UsersName simple user={participant} key={`${conversation._id}${user._id}`}/>
+          {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
+            return <MetaInfo key={`${conversation._id}${user._id}`}>
+              <UsersName simple user={participant}/>
+            </MetaInfo>
           })}
         </span>
       </Link>

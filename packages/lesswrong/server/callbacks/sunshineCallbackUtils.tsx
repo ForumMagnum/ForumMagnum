@@ -4,7 +4,7 @@ import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorA
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
-import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
+import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, rateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { Posts } from "../../lib/collections/posts";
 import Users from "../../lib/collections/users/collection";
 import Votes from "../../lib/collections/votes/collection";
@@ -68,7 +68,7 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
 
 function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbPost)[]) {
     // Not enough engagement to make a judgment
-    if (voteableItems.length < 5) return false;
+    // if (voteableItems.length < 3) return false;
 
     const oneMonthAgo = moment().subtract(1, 'month').toDate();
   
@@ -172,6 +172,11 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
 
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
 
+  if (userModeratorActions.filter(isActionActive).some(action => rateLimitSet.has(action.type) )) {
+    // if a mod has already given them a rate limit, they don't need to have any new actions applied to them
+    // TODO: if we build any more complicated mod action rules, this will need to be updated
+    return
+  }
   const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
   handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT);
 
