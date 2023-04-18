@@ -88,6 +88,13 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     extractObjectId(metadata);
     return metadata;
   },
+  Spotlights: (spotlight: DbSpotlight): DbSpotlight => {
+    extractObjectId(spotlight);
+    if (!spotlight.hasOwnProperty('showAuthor')) {
+      spotlight.showAuthor = false;
+    }
+    return spotlight;
+  }
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
@@ -208,6 +215,7 @@ const copyData = async (
   if (createdSince) {
     console.log(`...(using createdSince = ${createdSince})`);
   }
+  console.log(`...Copying data for collections ${collections.join(', ')}`);
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
@@ -218,7 +226,7 @@ const copyData = async (
     }).count();
 
     if (totalCount < 1) {
-      return;
+      continue;
     }
 
     const formatter = getCollectionFormatter(collection);
