@@ -97,7 +97,7 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
   if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
-  const neverReviewed = !user.reviewedByUserId;
+  const neverReviewed = !user.reviewedByUserId && !user.reviewedAt;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
 
   if (fullyReviewed) return 'alreadyApproved';
