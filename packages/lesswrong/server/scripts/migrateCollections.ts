@@ -215,7 +215,6 @@ const copyData = async (
   if (createdSince) {
     console.log(`...(using createdSince = ${createdSince})`);
   }
-  console.log(`...Copying data for collections ${collections.join(', ')}`);
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
