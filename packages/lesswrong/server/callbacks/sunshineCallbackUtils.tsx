@@ -175,6 +175,7 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
   if (userModeratorActions.filter(isActionActive).some(action => rateLimitSet.has(action.type) )) {
     // if a mod has already given them a rate limit, they don't need to have any new actions applied to them
     // TODO: if we build any more complicated mod action rules, this will need to be updated
+    // eaforum-look-here
     return
   }
   const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
