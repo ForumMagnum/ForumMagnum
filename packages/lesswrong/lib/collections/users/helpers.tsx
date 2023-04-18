@@ -10,6 +10,7 @@ import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import moment from 'moment';
+import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -525,6 +526,13 @@ export const getSignature = (name: string) => {
 export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
+
+export function getNewModActionNotes(responsibleAdminName: string, modActionType: DbModeratorAction["type"], sunshineNotes: string) {
+  const modActionDescription = MODERATOR_ACTION_TYPES[modActionType];
+  const newNote = getSignatureWithNote(responsibleAdminName, ` "${modActionDescription}"`);
+  const oldNotes = sunshineNotes ?? '';
+  return `${newNote}${oldNotes}`;
+}
 
 export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   // If the user is null, then returning true from this function is still valid;

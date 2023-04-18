@@ -5,10 +5,15 @@ import { Link } from '../../../lib/reactRouterWrapper'
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 16,
-    fontStyle: "italic"
+    fontStyle: "italic",
+    wordBreak: "break-all"
   },
   accountFlag: {
   },
+  qualitySignalRow: {
+    maxHeight: 20,
+    overflow: "hidden"
+  }
 });
 
 export const UserReviewStatus = ({classes, user}: {
@@ -40,8 +45,8 @@ export const UserReviewStatus = ({classes, user}: {
     {user.nullifyVotes && <div className={classes.accountFlag}>Previous votes deleted</div>}
     {user.deleteContent && <div className={classes.accountFlag}>Content purged</div>}
 
-    {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
-    {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
+    {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: <a href={firstClientId?.firstSeenReferrer}>{firstClientId?.firstSeenReferrer}</a></div>}
+    {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: <Link to={firstClientId?.firstSeenLandingPage}>{firstClientId?.firstSeenLandingPage}</Link></div>}
     {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
       <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link></em>
     </div>}

@@ -88,6 +88,13 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     extractObjectId(metadata);
     return metadata;
   },
+  Spotlights: (spotlight: DbSpotlight): DbSpotlight => {
+    extractObjectId(spotlight);
+    if (!spotlight.hasOwnProperty('showAuthor')) {
+      spotlight.showAuthor = false;
+    }
+    return spotlight;
+  }
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
@@ -218,7 +225,7 @@ const copyData = async (
     }).count();
 
     if (totalCount < 1) {
-      return;
+      continue;
     }
 
     const formatter = getCollectionFormatter(collection);
