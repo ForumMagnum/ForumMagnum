@@ -53,6 +53,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const WORDS_PER_MINUTE = 300;
+const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
+const WORDS_PER_PAGE = 500;
+
 const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
@@ -68,9 +72,9 @@ const BooksProgressBar = ({ book, classes }: {
 
   const postsReadText = `${readPosts.length} / ${totalPosts} posts read`;
   const totalWordCount = bookPosts.reduce((i, post) => i + (post.contents?.wordCount || 0), 0)
-  const readTime = totalWordCount > 18000 ? `${(totalWordCount/18000).toFixed(1)} hour` : `${Math.round(totalWordCount/300)} min`
+  const readTime = totalWordCount > WORDS_PER_HOUR ? `${(totalWordCount/WORDS_PER_HOUR).toFixed(1)} hour` : `${Math.round(totalWordCount/WORDS_PER_MINUTE)} min`
   const postsReadTooltip = <div>
-    <div>{totalWordCount.toLocaleString()} words, {Math.round(totalWordCount / 500)} pages</div>
+    <div>{totalWordCount.toLocaleString()} words, {Math.round(totalWordCount / WORDS_PER_PAGE)} pages</div>
     <div>Approximately {readTime} read</div>
   </div>
 
