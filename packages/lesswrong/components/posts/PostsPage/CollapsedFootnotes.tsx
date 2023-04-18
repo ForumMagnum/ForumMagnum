@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, useEffect } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
-import { Collapse } from "@material-ui/core";
-import { useLocation } from "react-router";
+import { useLocation } from "../../../lib/routeUtil";
+import Collapse from "@material-ui/core/Collapse";
 
 export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
