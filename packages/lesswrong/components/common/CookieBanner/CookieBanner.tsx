@@ -1,48 +1,75 @@
-import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button';
-import classNames from 'classnames';
-import Typography from '@material-ui/core/Typography/Typography';
+import React from "react";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import Button from "@material-ui/core/Button";
+import classNames from "classnames";
+import { useDialog } from "../withDialog";
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType) => ({
   bannerContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    position: 'fixed',
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "fixed",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: theme.palette.primary.main,
-    padding: 4,
+    backgroundColor: "rgb(69, 69, 69)", // TODO use theme color
+    padding: "14px 25px 14px 40px",
     zIndex: 1001, // Appear above sunshine sidebar
+    [theme.breakpoints.up("sm")]: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
   },
   text: {
-    color: theme.palette.common.white,
+    color: theme.palette.text.alwaysWhite,
+    fontWeight: 400,
+    fontSize: 13,
+    marginLeft: 12,
+    marginRight: 12,
   },
   buttonGroup: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
+    marginTop: 8,
+    [theme.breakpoints.up("sm")]: {
+      marginTop: 0,
+    },
   },
   button: {
+    textTransform: "none",
+    fontSize: 14,
     marginLeft: 4,
-    color: theme.palette.common.white,
+    marginBottom: 4,
+    [theme.breakpoints.up("sm")]: {
+      marginBottom: 0,
+    },
   },
 });
 
-const CookieBanner = ({ classes }) => {
+const CookieBanner = ({ classes }: { classes: ClassesType }) => {
+  // TODO decide what to do about hiding some text on mobile
+  const { openDialog } = useDialog();
+  
+  const { Typography } = Components;
   return (
     <div className={classNames(classes.bannerContainer)}>
-      <Typography className={classes.text}>
-        We use cookies to enhance your experience on our website. By clicking
-        'Accept all', you agree to our use of cookies.
+      <Typography variant="body2" className={classes.text}>
+        We use cookies to improve your experience. By clicking “Accept All”, you consent to their use.{" "}
+        <span className={classes.fullText}>Please see our cookie policy here.</span>
       </Typography>
       <div className={classes.buttonGroup}>
-        <Button className={classes.button}>Cookie settings</Button>
-        <Button className={classes.button} color="secondary">
+        {/* TODO styling */}
+        <Button className={classes.button} variant="contained" color="primary" onClick={() => {
+          openDialog({ componentName: "CookieDialog", componentProps: {}});
+        }}>
+          Cookie settings
+        </Button>
+        <Button className={classes.button} variant="contained" color="primary">
           Reject
         </Button>
-        <Button className={classes.button} variant="contained" color="secondary">
+        <Button className={classes.button} variant="contained" color="primary">
           Accept all
         </Button>
       </div>
@@ -50,7 +77,7 @@ const CookieBanner = ({ classes }) => {
   );
 };
 
-const CookieBannerComponent = registerComponent('CookieBanner', CookieBanner, {
+const CookieBannerComponent = registerComponent("CookieBanner", CookieBanner, {
   styles,
 });
 

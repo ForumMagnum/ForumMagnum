@@ -850,3 +850,4 @@ importComponent("AdminPaymentsPage", () => require('../components/payments/Admin
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
 
 importComponent("CookieBanner", () => require('../components/common/CookieBanner/CookieBanner'));
+importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
