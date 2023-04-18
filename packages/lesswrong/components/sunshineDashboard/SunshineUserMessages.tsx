@@ -5,7 +5,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
-import uniq from 'lodash/uniq'
 
 const styles = (theme: JssStyles) => ({
   row: {

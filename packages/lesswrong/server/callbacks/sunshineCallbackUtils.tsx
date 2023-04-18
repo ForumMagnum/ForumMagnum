@@ -68,7 +68,7 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
 
 function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbPost)[]) {
     // Not enough engagement to make a judgment
-    // if (voteableItems.length < 3) return false;
+    if (voteableItems.length < 5) return false;
 
     const oneMonthAgo = moment().subtract(1, 'month').toDate();
   

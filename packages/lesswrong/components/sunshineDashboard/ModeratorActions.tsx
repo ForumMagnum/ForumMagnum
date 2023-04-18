@@ -111,8 +111,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
-      console.log(notes, user.sunshineNotes)
-      console.log("handleNotes")
       void updateUser({
         selector: {_id: user._id},
         data: {
