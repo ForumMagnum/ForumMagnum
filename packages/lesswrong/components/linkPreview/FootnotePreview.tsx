@@ -2,7 +2,7 @@ import React from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
-
+import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -78,7 +78,13 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
         </Card>
       </LWPopper>}
 
-      <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+      <a
+        href={href}
+        dangerouslySetInnerHTML={{__html: innerHTML}}
+        id={id}
+        rel={rel}
+        onClick={() => window.dispatchEvent(new Event(EXPAND_FOOTNOTES_EVENT))}
+      />
     </span>
   );
 }

@@ -1,6 +1,12 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { Collapse } from "@material-ui/core";
+import { useLocation } from "react-router";
+
+export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
+
+export const locationHashIsFootnote = (hash: string) =>
+  hash.startsWith("#fn") && !hash.startsWith("#fnref");
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -19,7 +25,14 @@ const CollapsedFootnotes = ({children, classes}: {
   children: ReactElement,
   classes: ClassesType,
 }) => {
-  const [collapsed, setCollapsed] = useState(true);
+  const {hash} = useLocation();
+  const [collapsed, setCollapsed] = useState(!locationHashIsFootnote(hash ?? ""));
+
+  useEffect(() => {
+    const handler = () => setCollapsed(false);
+    window.addEventListener(EXPAND_FOOTNOTES_EVENT, handler);
+    return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
+  }, []);
 
   return (
     <div>
