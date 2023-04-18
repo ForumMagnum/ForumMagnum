@@ -104,10 +104,10 @@ const UsersEditForm = ({terms, classes}: {
       </Button>}
 
       <Components.WrappedSmartForm
-        collection={Users}
+        collectionName="Users"
         {...terms}
-        hideFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
-        successCallback={async (user) => {
+        removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
+        successCallback={async (user: AnyBecauseTodo) => {
           if (user?.theme) {
             const theme = {...currentThemeOptions, ...user.theme};
             setTheme(theme);

@@ -371,7 +371,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                       Your favorite authors
                     </div>
                       <div>
-                        {results.mostReadAuthors.map(author => {
+                        {results.mostReadAuthors.map((author: AnyBecauseTodo) => {
                           return <div key={author.slug} className={classes.summaryDataVal}>
                             <Link to={`/users/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
                             <span className={classes.count}>{author.count} post{author.count === 1 ? '' : 's'} read</span>
@@ -389,7 +389,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                       </LWTooltip>
                     </div>
                     <div>
-                      {results.mostReadTopics.map(topic => {
+                      {results.mostReadTopics.map((topic: AnyBecauseTodo) => {
                         return <div key={topic.slug} className={classes.summaryDataVal}>
                           <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
                           <span className={classes.count}>{topic.count} post{topic.count === 1 ? '' : 's'} read</span>

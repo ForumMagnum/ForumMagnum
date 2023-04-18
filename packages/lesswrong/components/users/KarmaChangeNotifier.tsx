@@ -85,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const karmaNotificationTimingChoices = {
+export const karmaNotificationTimingChoices: AnyBecauseTodo = {
   disabled: {
     label: "Disabled",
     infoText: "Karma changes are disabled",
@@ -146,7 +146,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
         <div>
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
-            {karmaChanges.posts && karmaChanges.posts.map(postChange => (
+            {karmaChanges.posts && karmaChanges.posts.map((postChange: AnyBecauseTodo) => (
               <MenuItemLink
                 className={classes.votedItemRow}
                 to={postGetPageUrl(postChange)}
@@ -160,7 +160,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 </div>
               </MenuItemLink>
             ))}
-            {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
+            {karmaChanges.comments && karmaChanges.comments.map((commentChange: AnyBecauseTodo) => (
               <MenuItemLink
                 className={classes.votedItemRow}
                 // tagCommentType is given a String type in packages/lesswrong/lib/collections/users/karmaChangesGraphQL.ts because we couldn't get an inline union of literal types to work,
@@ -175,7 +175,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 </div>
               </MenuItemLink>
             ))}
-            {karmaChanges.tagRevisions.map(tagChange => (
+            {karmaChanges.tagRevisions.map((tagChange: AnyBecauseTodo) => (
               <MenuItemLink
                 className={classes.votedItemRow}
                 key={tagChange._id}

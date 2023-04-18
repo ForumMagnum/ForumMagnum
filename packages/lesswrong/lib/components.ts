@@ -27,7 +27,7 @@ import '../components/posts/PostActions';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
 import '../components/vulcan-core/vulcan-core-components';
-import './vulcan-forms/components';
+import '../components/vulcan-forms/components';
 
 importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 
@@ -135,6 +135,7 @@ importComponent("ContentItemBody", () => require('../components/common/ContentIt
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
+importComponent("StrawPollLoggedOut", () => require('../components/common/StrawPollLoggedOut'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -559,6 +560,8 @@ importComponent("CommentsReviewInfoCard", () => require('../components/sunshineD
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
+importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
+importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
@@ -706,7 +709,6 @@ importComponent("SubmitButton", () => require('../components/form-components/Sub
 importComponent("FormSubmit", () => require('../components/form-components/FormSubmit'));
 importComponent("BasicFormStyles", () => require('../components/form-components/BasicFormStyles'));
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
-importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("SingleTagItem", () => require('../components/form-components/SingleTagItem'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
 importComponent("SearchSingleUser", () => require('../components/form-components/SearchSingleUser'));
@@ -714,7 +716,7 @@ importComponent("TagMultiselect", () => require('../components/form-components/T
 importComponent("TagSelect", () => require('../components/form-components/TagSelect'));
 importComponent("CoauthorsListEditor", () => require('../components/form-components/CoauthorsListEditor'));
 importComponent("MuiInput", () => require('../components/form-components/MuiInput'));
-importComponent("LocationFormComponent", () => require('../components/form-components/LocationFormComponent'));
+importComponent(["LocationPicker","LocationFormComponent"], () => require('../components/form-components/LocationFormComponent'));
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
@@ -722,7 +724,7 @@ importComponent("FormComponentRadioGroup", () => require('../components/form-com
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));
 importComponent("FormComponentSelect", () => require('../components/form-components/FormComponentSelect'));
-importComponent("FormComponentMultiSelect", () => require('../components/form-components/FormComponentMultiSelect'));
+importComponent(["MultiSelect","FormComponentMultiSelect"], () => require('../components/form-components/FormComponentMultiSelect'));
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent("FormComponentDateTime", () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));

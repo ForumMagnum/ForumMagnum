@@ -17,6 +17,7 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 
 
 export const modGPTPrompt = `
@@ -81,7 +82,7 @@ const getMessageToCommenter = (user: DbUser, commentLink: string, flag?: string)
   }
   
   return `
-  <p>Hi ${user.displayName},</p>
+  <p>Hi,</p>
   ${intro}
   <p>Your comment will be collapsed by default. We encourage you to improve the comment, after which the bot will re-evaluate it.</p>
   <p>This system is new. If you believe the bot made a mistake, please report this to the EA Forum Team by replying to this message or contacting us <a href="https://forum.effectivealtruism.org/contact">here</a>. Please also reach out if you'd like any help editing your comment to better follow the Forum's norms.</p>
@@ -109,8 +110,8 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   const text = htmlToText(html)
 
   let response = await getModGPTAnalysis(api, text)
-  // If it fails with "Too Many Requests", we try one more time.
-  // We seem to hit this occasionally, even when we're nowhere near the rate limit.
+  // If the API is too busy the first time, we try one more time.
+  // See https://platform.openai.com/docs/guides/error-codes/api-errors
   const analyticsData = {
     userId: comment.userId,
     commentId: comment._id
@@ -202,6 +203,16 @@ async function checkModGPT(comment: DbComment): Promise<void> {
         collection: Messages,
         document: messageDocument,
         currentUser: adminsAccount,
+        validate: false
+      })
+      
+      // also add a note for mods
+      await updateMutator({
+        collection: Users,
+        documentId: comment.userId,
+        set: {
+          sunshineNotes: getSignatureWithNote('ModGPT', `Intervened on comment ID=${comment._id}`) + user.sunshineNotes
+        },
         validate: false
       })
     }

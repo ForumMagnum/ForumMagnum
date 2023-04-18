@@ -34,7 +34,7 @@ const linkPrefix = getSiteUrl()
 const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
   const searchClient = getSearchClient()
   const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  const search = (...args) => index.search(...args)
+  const search = (...args: AnyBecauseTodo[]) => index.search(...args)
   return promisify(search)
 }
 

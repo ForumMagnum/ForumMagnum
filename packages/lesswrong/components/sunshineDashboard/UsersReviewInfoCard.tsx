@@ -236,7 +236,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>

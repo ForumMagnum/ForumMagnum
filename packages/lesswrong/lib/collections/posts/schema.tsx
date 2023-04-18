@@ -191,7 +191,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
-    inputProperties: {
+    form: {
       labels: {
         inactive: 'Link-post?',
         active: 'Add a linkpost URL',
@@ -2149,7 +2149,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
-    hidden: (props) => props.debateForm
+    hidden: (props) => !!props.debateForm
   },
   
   shareWithUsers: {
@@ -2440,6 +2440,16 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     hidden: true,
     ...schemaDefaultValue(false),
+  },
+
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
   },
 
   rejectedByUserId: {
