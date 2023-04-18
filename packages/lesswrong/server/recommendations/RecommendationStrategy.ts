@@ -38,6 +38,7 @@ abstract class RecommendationStrategy {
         filter: `
           rs."isRead" IS NOT TRUE AND
           COALESCE(pr."recommendationCount", 0) < $(maxRecommendationCount) AND
+          pr."clickedAt" IS NULL AND
         `,
         args: {
           userId: currentUser._id,

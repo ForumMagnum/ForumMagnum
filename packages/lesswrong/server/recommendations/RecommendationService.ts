@@ -108,6 +108,19 @@ class RecommendationService {
         "lastRecommendedAt" = CURRENT_TIMESTAMP
     `, [randomId(), currentUser._id, _id, strategyName])));
   }
+
+  async markRecommendationAsClicked(
+    {_id: userId}: DbUser,
+    postId: string,
+  ): Promise<void> {
+    this.logger("Marking recommendation as clicked:", {userId, postId});
+    const db = getSqlClientOrThrow();
+    await db.none(`
+      UPDATE "PostRecommendations"
+      SET "clickedAt" = CURRENT_TIMESTAMP
+      WHERE "userId" = $1 AND "postId" = $2
+    `, [userId, postId]);
+  }
 }
 
 export default RecommendationService;
