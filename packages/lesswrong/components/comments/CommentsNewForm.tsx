@@ -16,12 +16,7 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-<<<<<<< HEAD
 import { isInFuture } from '../../lib/utils/timeUtil';
-import { isLW } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
-=======
->>>>>>> 10dfd4f51db097729be542a67a2184c5e2ebdb29
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
