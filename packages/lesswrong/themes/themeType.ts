@@ -197,6 +197,7 @@ declare global {
       inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
+      sprout: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -232,6 +233,11 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
+      debateComment: string,
+      debateComment2: string,
+      debateComment3: string,
+      debateComment4: string,
+      debateComment5: string,
     },
     panelBackground: {
       default: ColorString,
@@ -336,12 +342,18 @@ declare global {
       eventCardTag: ColorString,
     },
     tag: {
-      background: ColorString,
-      border: string,
-      coreTagBorder: string,
       text: ColorString,
-      boxShadow: string,
+      background: ColorString,
+      backgroundHover?: ColorString,
+      border: string,
+      coreTagText: ColorString,
+      coreTagBackground: ColorString,
+      coreTagBackgroundHover?: ColorString,
+      coreTagBorder: string,
       hollowTagBackground: ColorString,
+      hollowTagBackgroundHover?: ColorString,
+      hollowTagBorder: string,
+      boxShadow: string,
       addTagButtonBackground: ColorString,
     },
     geosuggest: {
@@ -366,6 +378,8 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -418,6 +432,11 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
+    },
+    borderRadius: {
+      default: number,
+      small: number,
     },
     palette: ThemePalette,
     typography: {
@@ -456,6 +475,8 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
+      smallCaps: JssStyles,
     },
     zIndexes: any,
     overrides: any,

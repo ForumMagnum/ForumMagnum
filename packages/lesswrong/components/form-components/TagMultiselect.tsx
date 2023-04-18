@@ -42,7 +42,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
   hidePostCount?: boolean,
   startWithBorder?: boolean,
   isVotingContext?: boolean,
-  updateCurrentValues(values): void,
+  updateCurrentValues(values: AnyBecauseTodo): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
 

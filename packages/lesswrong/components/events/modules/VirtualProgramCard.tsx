@@ -12,7 +12,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 373,
     height: 374,
-    borderRadius: 0,
+    borderRadius: theme.borderRadius.default,
     overflow: 'visible',
     boxShadow: theme.palette.boxShadow.eventCard,
     [theme.breakpoints.down('xs')]: {
@@ -48,7 +48,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   inDepthSection: {
     background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
-    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)',
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
   },
   precipiceSection: {
     background: "linear-gradient(rgb(168, 114, 51, 0.5), rgb(168, 114, 51, 0.5)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
@@ -56,7 +57,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'absolute',
     bottom: 0,
     alignItems: 'flex-end',
-    textAlign: 'right'
+    textAlign: 'right',
+    borderRadius: `0 0 ${theme.borderRadius.default}px ${theme.borderRadius.default}px`,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,

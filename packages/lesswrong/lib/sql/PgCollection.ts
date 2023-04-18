@@ -1,5 +1,6 @@
 import { MongoCollection } from "../mongoCollection";
 import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
+import { isAnyTest } from "../executionEnvironment";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -23,7 +24,7 @@ type ExecuteQueryData<T extends DbObject> = {
   projection: MongoProjection<T>;
   data: T;
   modifier: MongoModifier<T>;
-  fieldOrSpec: MongoIndexSpec;
+  fieldOrSpec: MongoIndexFieldOrKey<T>;
   pipeline: MongoAggregationPipeline<T>;
   operations: MongoBulkWriteOperations<T>;
   indexName: string;
@@ -31,7 +32,7 @@ type ExecuteQueryData<T extends DbObject> = {
     | MongoUpdateOptions<T>
     | MongoUpdateOptions<T>
     | MongoRemoveOptions<T>
-    | MongoEnsureIndexOptions
+    | MongoEnsureIndexOptions<T>
     | MongoAggregationOptions
     | MongoBulkWriteOptions
     | MongoDropIndexOptions;
@@ -47,7 +48,7 @@ type ExecuteQueryData<T extends DbObject> = {
  * to instead implement CollectionBase.
  */
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
-  table: Table;
+  table: Table<T>;
 
   constructor(tableName: string, options?: { _suppressSameNameError?: boolean }) {
     super(tableName, options);
@@ -62,7 +63,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   buildPostgresTable() {
-    this.table = Table.fromCollection(this as unknown as CollectionBase<T>);
+    this.table = Table.fromCollection<T>(this as unknown as CollectionBase<T>);
   }
 
   /**
@@ -85,7 +86,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       result = await client.any(sql, args);
       const endTime = new Date().getTime();
       const milliseconds = endTime - startTime;
-      if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet) {
+      if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
         // eslint-disable-next-line no-console
         console.trace(`Slow Postgres query detected (${milliseconds} ms): ${sql}: ${JSON.stringify(args)}`);
       }
@@ -214,8 +215,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {deletedCount: result.length};
   }
 
-  _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
-    const key: Record<string, 1 | -1> = typeof fieldOrSpec === "string" ? {[fieldOrSpec]: 1} : fieldOrSpec;
+  _ensureIndex = async (fieldOrSpec: MongoIndexFieldOrKey<T>, options?: MongoEnsureIndexOptions<T>) => {
+    const key: MongoIndexKeyObj<T> = typeof fieldOrSpec === "string"
+      ? {[fieldOrSpec as keyof T]: 1 as const} as MongoIndexKeyObj<T>
+      : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeQuery(query, {fieldOrSpec, options})

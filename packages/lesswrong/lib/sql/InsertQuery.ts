@@ -55,7 +55,7 @@ type UpsertOperator = keyof typeof UPSERT_OPERATORS;
  */
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
+    table: Table<T>,
     data: InsertQueryData<T> | InsertQueryData<T>[],
     _options: MongoInsertOptions<T> = {}, // TODO: What can options be?
     sqlOptions?: InsertSqlOptions<T>,
@@ -113,21 +113,21 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   private appendItem(fields: Record<string, Type>, item: T): void {
     const usedOperators: Partial<Record<keyof T, UpsertOperator>> = {};
     for (const operator in UPSERT_OPERATORS) {
-      if (item[operator]) {
-        const keys = Object.keys(item[operator]);
+      if ((item as AnyBecauseTodo)[operator]) {
+        const keys = Object.keys((item as AnyBecauseTodo)[operator]);
         if (keys.length !== 1) {
           throw new Error(`Invalid upsert operator data: ${operator}: ${item}`);
         }
-        usedOperators[keys[0]] = operator;
+        (usedOperators as AnyBecauseTodo)[keys[0]] = operator;
       }
     }
 
     let prefix = "(";
     for (const key in fields) {
       this.atoms.push(prefix);
-      const operator = usedOperators[key];
+      const operator = (usedOperators as AnyBecauseTodo)[key];
       if (operator) {
-        let value = item[operator][key];
+        let value = (item as AnyBecauseTodo)[operator][key];
         if (operator === "$push") {
           value = [value];
         }
@@ -135,10 +135,10 @@ class InsertQuery<T extends DbObject> extends Query<T> {
       } else {
         if (key === "_id" && !item[key]) {
           item[key] = randomId();
-        } else if (key === "createdAt" && !item[key]) {
-          item[key] = new Date();
+        } else if (key === "createdAt" && !(item as AnyBecauseTodo)[key]) {
+          (item as AnyBecauseTodo)[key] = new Date();
         }
-        this.atoms.push(this.createArg(item[key] ?? null, fields[key]));
+        this.atoms.push(this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]));
       }
       prefix = ", ";
     }
@@ -157,7 +157,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     result.push(") DO UPDATE SET");
 
     const values = Object.keys(data).flatMap((key) => {
-      const compiled = this.compileUpsertValue(key, data[key]);
+      const compiled = this.compileUpsertValue(key, (data as AnyBecauseTodo)[key]);
       return compiled.length ? [",", ...compiled] : [];
     }).slice(1);
     result = result.concat(values);
@@ -176,7 +176,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   }
 
   private compileUpsertOperator(key: string, value: any): Atom<T>[] {
-    const op = UPSERT_OPERATORS[key];
+    const op = (UPSERT_OPERATORS as AnyBecauseTodo)[key];
     if (!op) {
       throw new Error(`Unknown upsert operator: ${key}: ${value}`);
     }

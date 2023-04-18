@@ -3,6 +3,7 @@ import { Components, registerComponent, getFragment } from "../../lib/vulcan-lib
 import Conversations from '../../lib/collections/conversations/collection';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 /**
  * Form for editing the title of a private messages conversation and also for
@@ -13,10 +14,10 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>
-      <DialogTitle>Conversation Options</DialogTitle>
+      <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm
-          collection={Conversations}
+          collectionName="Conversations"
           documentId={documentId}
           fragment={getFragment('conversationsListFragment')}
           queryFragment={getFragment('conversationsListFragment')}

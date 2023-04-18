@@ -462,7 +462,7 @@ const EAGApplicationImportForm = ({classes}: {
     })
   }
   
-  const { Typography, FormComponentMultiSelect, EditorFormComponent, SelectLocalgroup, LocationFormComponent,
+  const { Typography, MultiSelect, EditorFormComponent, SelectLocalgroup, LocationPicker,
     PrefixedInput, ContentStyles, Loading } = Components
 
   if (!currentUser) {
@@ -548,13 +548,16 @@ const EAGApplicationImportForm = ({classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Career stage</label>
-        <FormComponentMultiSelect
+        <MultiSelect
           options={CAREER_STAGES}
           value={formValues.careerStage || []}
           placeholder="Select all that apply"
           separator={'\r\n'}
-          path="careerStage"
-          updateCurrentValues={handleUpdateValue}
+          setValue={(value) => {
+            handleUpdateValue({
+              careerStage: value
+            });
+          }}
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'careerStage')}>
@@ -664,7 +667,7 @@ const EAGApplicationImportForm = ({classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Public map location</label>
-        <LocationFormComponent
+        <LocationPicker
           document={currentUser}
           value={formValues.mapLocation}
           path="mapLocation"

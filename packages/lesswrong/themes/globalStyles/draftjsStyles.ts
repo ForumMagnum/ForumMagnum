@@ -1,3 +1,7 @@
+import { isEAForum } from "../../lib/instanceSettings";
+
+const draftJsButtonFontWeight = isEAForum ? 600 : "inherit";
+
 //
 // Styles used by DraftJS and its plugins. It's unclear which of these are
 // actually in use.
@@ -236,5 +240,8 @@ export default (theme: ThemeType): string => `
   letter-spacing: 48px; /* increase space between dots */
   content: '\u2022\u2022\u2022';
 }
-`;
 
+:root {
+  --draftjs-button-font-weight: ${draftJsButtonFontWeight};
+}
+`;

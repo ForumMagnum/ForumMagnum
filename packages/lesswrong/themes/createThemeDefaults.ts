@@ -83,6 +83,11 @@ export const baseTheme: BaseThemeSpecification = {
       spacing: {
         unit: spacingUnit,
         titleDividerSpacing,
+        mainLayoutPaddingTop: 50
+      },
+      borderRadius: {
+        default: 0,
+        small: 3,
       },
       typography: {
         postStyle: {
@@ -224,6 +229,12 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: 16,
           fontWeight: 600,
           marginBottom: ".5rem"
+        },
+        italic: {
+          fontStyle: "italic",
+        },
+        smallCaps: {
+          fontVariant: "small-caps",
         },
       },
       zIndexes: {

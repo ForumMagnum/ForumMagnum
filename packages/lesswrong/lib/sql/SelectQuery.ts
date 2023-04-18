@@ -104,7 +104,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
 
   constructor(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
@@ -174,9 +174,9 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   private appendGroup<U extends {}>(group: U) {
     this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, false));
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
-    const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression(group[key]));
+    const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression((group as AnyBecauseTodo)[key]));
     const fields = keys.map((key) =>
-      `"${typeof group[key] === "string" && group[key][0] === "$" ? group[key].slice(1) : key}"`
+      `"${typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key}"`
     );
     this.atoms.push(fields.join(", "));
   }
@@ -224,7 +224,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
           if (!projection) {
             projection = {};
           }
-          projection[field] = 0;
+          (projection as AnyBecauseTodo)[field] = 0;
         }
       }
     }
@@ -232,7 +232,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private getProjectedFields(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
     autoIncludeId = true,
@@ -250,9 +250,9 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     const addFields: Record<string, any> = {};
 
     for (const key of Object.keys(projection)) {
-      if (projection[key]) {
-        if (["object", "string"].includes(typeof projection[key])) {
-          addFields[key] = projection[key];
+      if ((projection as AnyBecauseTodo)[key]) {
+        if (["object", "string"].includes(typeof (projection as AnyBecauseTodo)[key])) {
+          addFields[key] = (projection as AnyBecauseTodo)[key];
         } else {
           include.push(key);
         }

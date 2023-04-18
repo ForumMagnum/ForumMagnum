@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostActions = ({post, closeMenu, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   closeMenu: ()=>void,
   classes: ClassesType,
 }) => {
@@ -259,6 +259,18 @@ const PostActions = ({post, closeMenu, classes}: {
           <NotifyMeButton asMenuItem document={postAuthor} showIcon
             subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}
+          />
+        }
+
+        {currentUser && post.debate &&
+          <NotifyMeButton
+            asMenuItem
+            showIcon
+            document={post}
+            subscriptionType={subscriptionTypes.newDebateComments}
+            subscribeMessage="Subscribe to debate"
+            unsubscribeMessage="Unsubscribe from debate"
+            tooltip="Notifies you when there is new activity in the debate"
           />
         }
 

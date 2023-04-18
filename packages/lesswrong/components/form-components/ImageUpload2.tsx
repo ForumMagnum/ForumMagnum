@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const cloudinaryArgsByImageType = {
+const cloudinaryArgsByImageType: AnyBecauseTodo = {
   socialPreviewImageId: {
     minImageHeight: 400,
     minImageWidth: 700,
@@ -51,7 +51,7 @@ const cloudinaryArgsByImageType = {
   },
 }
 
-const formPreviewSizeByImageType = {
+const formPreviewSizeByImageType: AnyBecauseTodo = {
   socialPreviewImageId: {
     width: 306,
     height: 160
@@ -60,7 +60,7 @@ const formPreviewSizeByImageType = {
 
 const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
-  document: Object,
+  document: AnyBecauseTodo,
   updateCurrentValues: Function,
   clearField: Function,
   label: string,
@@ -70,7 +70,7 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
 }) => {
   const theme = useTheme();
 
-  const setImageInfo = (error, result) => {
+  const setImageInfo = (error: AnyBecauseTodo, result: AnyBecauseTodo) => {
     if (error) {
       throw new Error(error.statusText)
     }

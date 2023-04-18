@@ -87,8 +87,9 @@ export interface UserContentCountPartial {
 }
 
 export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount ?? 0
-  const commentCount = user.commentCount ?? 0
+  // Note: there's a bug somewhere that sometimes makes postCount or commentCount negative, which breaks things. Math.max ensures minimum of 0.
+  const postCount = Math.max(user.postCount ?? 0, 0)
+  const commentCount = Math.max(user.commentCount ?? 0, 0)
   return postCount + commentCount
 }
 
@@ -96,7 +97,7 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
   if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
-  const neverReviewed = !user.reviewedByUserId;
+  const neverReviewed = !user.reviewedByUserId && !user.reviewedAt;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
 
   if (fullyReviewed) return 'alreadyApproved';

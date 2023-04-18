@@ -1,17 +1,20 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Comments } from "../../lib/collections/comments";
+import classNames from 'classnames';
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
-  comment: any,
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {
+  comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
+  className?: string,
+  formProps?: Record<string, any>
 }) => {
   return (
-    <div className="comments-edit-form">
+    <div className={classNames("comments-edit-form", className)}>
       <Components.WrappedSmartForm
         layout="elementOnly"
-        collection={Comments}
+        collectionName="Comments"
         documentId={comment._id}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
@@ -19,6 +22,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
         queryFragment={getFragment('CommentEdit')}
         mutationFragment={getFragment('CommentsList')}
         submitLabel="Save"
+        formProps={formProps}
       />
     </div>
   )

@@ -153,4 +153,9 @@ export interface CommentTreeOptions {
    * space is tight.
    */
   hideActionsMenu?: boolean,
+  /**
+   * If set, hide the `ShowParentComment` toggle
+   * Used for displaying inline replies to debate comments
+   */
+  hideParentCommentToggle?: boolean,
 }

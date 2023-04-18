@@ -19,7 +19,7 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups: Partial<Record<string,FormGroup>> = {
+const formGroups: Partial<Record<string,FormGroupType>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
@@ -31,9 +31,9 @@ const formGroups: Partial<Record<string,FormGroup>> = {
 const schema: SchemaType<DbLocalgroup> = {
   name: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     order: 10,
     control: "MuiTextField",
     label: isEAForum ? "Group name" : "Group Name"
@@ -41,9 +41,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   nameInAnotherLanguage: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     order: 11,
     control: "MuiTextField",
     tooltip: 'Useful for multilingual groups - this will help people find your group in search',
@@ -58,9 +58,9 @@ const schema: SchemaType<DbLocalgroup> = {
       collectionName: "Users",
       type: "User"
     }),
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     order: 20,
     control: "UsersListEditor",
     label: isEAForum ? "Add organizers" : "Add Organizers",
@@ -76,18 +76,18 @@ const schema: SchemaType<DbLocalgroup> = {
     type: Date,
     denormalized: true,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     onInsert: () => new Date(),
     hidden: true,
   },
 
   types: {
     type: Array,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     control: 'MultiSelectButtons',
     label: "Group Type:",
     defaultValue: ["LW"],
@@ -106,9 +106,9 @@ const schema: SchemaType<DbLocalgroup> = {
   categories: {
     type: Array,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     control: 'FormComponentMultiSelect',
     placeholder: 'Select all that apply',
     form: {
@@ -125,9 +125,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   isOnline: {
     type: Boolean,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: "This is an online group",
     optional: true,
     ...schemaDefaultValue(false),
@@ -135,7 +135,7 @@ const schema: SchemaType<DbLocalgroup> = {
 
   mongoLocation: {
     type: Object,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     hidden: true,
     optional: true,
     blackbox: true,
@@ -153,9 +153,9 @@ const schema: SchemaType<DbLocalgroup> = {
     form: {
       stringVersionFieldName: "location",
     },
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Group location" : "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -165,18 +165,18 @@ const schema: SchemaType<DbLocalgroup> = {
 
   location: {
     type: String,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     hidden: true,
     optional: true,
   },
 
   contactInfo: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Contact info" : "Contact Info",
     control: "MuiTextField",
     optional: true,
@@ -184,9 +184,9 @@ const schema: SchemaType<DbLocalgroup> = {
 
   facebookLink: { // FB Group link
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Facebook group" : "Facebook Group",
     control: "MuiTextField",
     optional: true,
@@ -196,9 +196,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   facebookPageLink: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Facebook page" : "Facebook Page",
     control: "MuiTextField",
     optional: true,
@@ -208,9 +208,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   meetupLink: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Meetup.com group" : "Meetup.com Group",
     control: "MuiTextField",
     optional: true,
@@ -220,9 +220,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   slackLink: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     label: isEAForum ? "Slack workspace" : "Slack Workspace",
     control: "MuiTextField",
     optional: true,
@@ -232,9 +232,9 @@ const schema: SchemaType<DbLocalgroup> = {
 
   website: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -245,9 +245,9 @@ const schema: SchemaType<DbLocalgroup> = {
   bannerImageId: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     label: isEAForum ? "Banner image" : "Banner Image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
@@ -258,9 +258,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   inactive: {
     type: Boolean,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -268,9 +268,9 @@ const schema: SchemaType<DbLocalgroup> = {
   
   deleted: {
     type: Boolean,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
     tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",

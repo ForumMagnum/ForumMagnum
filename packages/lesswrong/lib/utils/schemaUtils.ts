@@ -1,7 +1,7 @@
 import { addCallback, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
-import { getWithLoader } from "../loaders";
+import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
@@ -54,9 +54,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as unknown as CollectionBase<DbType>
 
-    const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
-    const resolvedDocs: Array<DbType> = await loader.loadMany(keys)
-
+    const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
 }
@@ -276,7 +274,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   fieldName: string,
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
-  foreignFieldName: string,
+  foreignFieldName: string&keyof ObjectsByCollectionName[TargetCollectionName],
   filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
 }): CollectionFieldSpecification<SourceType> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
@@ -289,7 +287,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   {
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.
-    const createCallback = async (newDoc, {currentUser, collection, context}) => {
+    const createCallback = async (newDoc: AnyBecauseTodo, {currentUser, collection, context}: AnyBecauseTodo) => {
       denormalizedLogger(`about to test new ${foreignTypeName}`, newDoc)
       if (newDoc[foreignFieldName] && filter(newDoc)) {
         denormalizedLogger(`new ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`)
@@ -307,7 +305,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     // need to increment a count, we may need to do both with them cancelling
     // out, or we may need to both but on different documents.
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
-      async (newDoc, {oldDocument, currentUser, collection}) => {
+      async (newDoc: AnyBecauseTodo, {oldDocument, currentUser, collection}: AnyBecauseTodo) => {
         denormalizedLogger(`about to test updating ${foreignTypeName}`, newDoc, oldDocument)
         const countingCollection = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
@@ -347,7 +345,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       }
     );
     addCallback(`${foreignCollectionCallbackPrefix}.delete.async`,
-      async ({document, currentUser, collection}) => {
+      async ({document, currentUser, collection}: AnyBecauseTodo) => {
         denormalizedLogger(`about to test deleting ${foreignTypeName}`, document)
         if (document[foreignFieldName] && filter(document)) {
           denormalizedLogger(`deleting ${foreignTypeName} should decrement ${document[foreignFieldName]}`)
@@ -384,7 +382,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   }
 }
 
-export function googleLocationToMongoLocation(gmaps) {
+export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
   return {
     type: "Point",
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]

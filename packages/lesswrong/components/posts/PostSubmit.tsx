@@ -15,7 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 5,
     ...(isEAForum ? {
       textTransform: 'none',
-      fontWeight: 400,
     } : {
       paddingBottom: 4,
       fontWeight: 500,
@@ -57,14 +56,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
-export interface PostSubmitProps {
-  submitLabel?: string,
-  cancelLabel?: string,
+export type PostSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
   feedbackLabel?: string,
-  cancelCallback: any,
   document: PostsPage,
-  collectionName: string,
   classes: ClassesType
 }
 
@@ -74,9 +69,12 @@ const requestFeedbackKarmaLevel = forumSelect({
 })
 
 const PostSubmit = ({
-  submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
+  submitLabel = "Submit",
+  cancelLabel = "Cancel",
+  saveDraftLabel = "Save as draft",
+  feedbackLabel = "Request Feedback",
+  cancelCallback, document, collectionName, classes
 }: PostSubmitProps, { updateCurrentValues }: any) => {
-  
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")

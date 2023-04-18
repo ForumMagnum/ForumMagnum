@@ -27,7 +27,7 @@ const schema: SchemaType<DbTagFlag> = {
   slug: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: async (tagFlag) => {
       return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
@@ -40,7 +40,7 @@ const schema: SchemaType<DbTagFlag> = {
   order: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'], 
   }

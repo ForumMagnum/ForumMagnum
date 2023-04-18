@@ -22,7 +22,7 @@ const styles = ((theme: ThemeType): JssStyles => ({
     paddingLeft: 62,
     paddingBottom: 5,
     ...theme.typography.body2,
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[isEAForum ? 600 : 800],
   },
   subItem: {
     textTransform: 'capitalize',
@@ -35,7 +35,10 @@ const styles = ((theme: ThemeType): JssStyles => ({
 
 const INITIAL_LIMIT = 3
 
-const SubforumsList = ({ onClick, classes }) => {
+const SubforumsList = ({ onClick, classes }: {
+  onClick: ()=>void
+  classes: ClassesType
+}) => {
   const { results } = useMulti({
     terms: {view: 'coreTags', limit: 100},
     collectionName: "Tags",
@@ -74,7 +77,6 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Core topics</div>
           {initialResults.map((subforum) => getListItem(subforum))}
           {showAll && maybeHiddenResults.map((subforum) => getListItem(subforum))}
           {displayShowMoreOrLess && (

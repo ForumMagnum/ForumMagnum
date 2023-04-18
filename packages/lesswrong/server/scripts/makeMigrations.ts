@@ -10,7 +10,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
-import { forumTypeSetting, ForumTypeString } from '../../lib/instanceSettings';
+import { ForumTypeString } from '../../lib/instanceSettings';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -57,7 +57,7 @@ const generateMigration = async ({
   rootPath: string,
   forumType?: ForumTypeString,
 }) => {
-  const execRun = (cmd) => {
+  const execRun = (cmd: string) => {
     return new Promise((resolve, reject) => {
       // git diff exits with an error code if there are differences, ignore that and just always return stdout
       exec(cmd, (error, stdout, stderr) => resolve(stdout))
@@ -124,17 +124,20 @@ export const makeMigrations = async ({
   generateMigrations=true,
   rootPath=ROOT_PATH,
   forumType,
+  silent=false,
 }: {
   writeSchemaChangelog: boolean,
   writeAcceptedSchema: boolean,
   generateMigrations: boolean,
   rootPath: string,
   forumType?: ForumTypeString,
+  silent?: boolean,
 }) => {
-  console.log(`=== Checking for schema changes ===`);
+  const log = silent ? (...args: any[]) => {} : console.log;
+  log(`=== Checking for schema changes ===`);
   // Get the most recent accepted schema hash from `schema_changelog.json`
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
-  console.log(`-- Using accepted hash ${acceptedHash}`);
+  log(`-- Using accepted hash ${acceptedHash}`);
 
   const currentHashes: Partial<Record<CollectionNameString, string>> = {};
   let schemaFileContents = "";
@@ -186,7 +189,7 @@ export const makeMigrations = async ({
     }
   }
 
-  console.log("=== Done ===");
+  log("=== Done ===");
 }
 
 Vulcan.makeMigrations = makeMigrations;

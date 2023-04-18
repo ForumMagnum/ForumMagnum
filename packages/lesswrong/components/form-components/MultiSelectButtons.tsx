@@ -4,14 +4,15 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
-    fontWeight: 500,
+    fontWeight: isEAForum ? 600 : 500,
     fontSize: "16px",
-    fontFamily: "Roboto, sans-serif",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
   },
 
   selected: {
@@ -36,12 +37,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const MultiSelectButtons = ({ value, classes, label, options, path }: {
-  classes: ClassesType;
-  value: string;
-  label: string;
+const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
   options: Array<{ value: string; label?: string }>;
-  path: string;
+  classes: ClassesType;
 }, context: any) => {
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {

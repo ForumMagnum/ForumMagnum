@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LatestReview = ({classes}) => {
+const LatestReview = ({classes}: { classes: ClassesType }) => {
   const { PostsPreviewTooltipSingleWithComment, LWPopper, ErrorBoundary } = Components
 
   const { results: commentResults } = useMulti({

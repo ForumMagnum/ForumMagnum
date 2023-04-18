@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipInfo: {
     marginLeft: 2,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",

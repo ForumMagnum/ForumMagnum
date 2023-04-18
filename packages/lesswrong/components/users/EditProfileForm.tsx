@@ -1,4 +1,3 @@
-
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
@@ -97,7 +96,7 @@ const EditProfileForm = ({classes}: {
       </div>
       
       <WrappedSmartForm
-        collection={Users}
+        collectionName="Users"
         {...terms}
         fields={[
           'profileImageId',
@@ -120,7 +119,7 @@ const EditProfileForm = ({classes}: {
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
-        successCallback={async (user) => {
+        successCallback={async (user: AnyBecauseTodo) => {
           history.push(userGetProfileUrl(user))
         }}
       />

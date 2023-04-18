@@ -6,7 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const FeaturedResources: FeaturedResourcesCollection = createCollection({
   collectionName: 'FeaturedResources',
   typeName: 'FeaturedResource',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('FeaturedResources'),
 });
