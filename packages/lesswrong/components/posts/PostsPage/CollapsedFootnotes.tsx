@@ -18,6 +18,9 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[140],
+    },
   },
 });
 
