@@ -4,7 +4,8 @@ import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
-import { SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
+import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   selectionList: {
@@ -19,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
-      fontStyle: "italic",
+      fontStyle: isEAForum ? undefined : "italic",
+      fontWeight: isEAForum ? undefined : 600,
       marginBottom: theme.spacing.unit/2
     },
   },

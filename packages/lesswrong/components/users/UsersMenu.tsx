@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -14,7 +14,6 @@ import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
 import EditIcon from '@material-ui/icons/Edit'
 import ExtensionIcon from '@material-ui/icons/Extension';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
@@ -24,10 +23,12 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
+import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -45,9 +46,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: 400,
+    fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
+    ...(isEAForum && {
+      lineHeight: '18px',
+      display: '-webkit-box',
+      "-webkit-box-orient": "vertical",
+      "-webkit-line-clamp": 2,
+      overflow: 'hidden'
+    })
   },
   notAMember: {
     marginLeft: 5,
@@ -72,14 +80,14 @@ const UsersMenu = ({classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
-  const { LWPopper, LWTooltip, ThemePickerMenu } = Components
+  const { LWPopper, LWTooltip, ThemePickerMenu, MenuItem } = Components
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          LOG OUT
+          {isEAForum ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
@@ -87,8 +95,7 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
+
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -125,6 +132,9 @@ const UsersMenu = ({classes}: {
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>}
+              {userCanPost(currentUser) && !isEAForum && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
+                <MenuItem>New Debate</MenuItem>
+              </Link>}
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                New Shortform
@@ -142,7 +152,7 @@ const UsersMenu = ({classes}: {
             }
             <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
-              Apply for Membership
+              {preferredHeadingCase("Apply for Membership")}
             </MenuItem> }
             {currentUser.noKibitz && <div>
               <MenuItem onClick={() => {
@@ -173,7 +183,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
-                User Profile
+                {preferredHeadingCase("User Profile")}
               </MenuItem>
             </Link>}
             {userHasThemePicker(currentUser) && <ThemePickerMenu>
@@ -189,7 +199,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Account Settings
+                {preferredHeadingCase("Account Settings")}
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>
@@ -197,7 +207,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <EmailIcon className={classes.icon}/>
                 </ListItemIcon>
-                Private Messages
+                {preferredHeadingCase("Private Messages")}
               </MenuItem>
             </Link>
             {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
@@ -214,14 +224,16 @@ const UsersMenu = ({classes}: {
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />
                   </ListItemIcon>
-                  Shortform Page
+                  {preferredHeadingCase("Shortform Page")}
                 </MenuItem>
               </Link>
             }
             <Divider/>
-            <MenuItem component="a" href="/logout">
-              Log Out
-            </MenuItem>
+            <a href="/logout">
+              <MenuItem>
+                {preferredHeadingCase("Log Out")}
+              </MenuItem>
+            </a>
           </Paper>
         </LWPopper>
     </div>

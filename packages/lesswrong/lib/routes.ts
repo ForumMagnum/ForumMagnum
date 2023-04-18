@@ -1269,6 +1269,12 @@ addRoute(
     title: "Moderation Message Templates"
   },
   {
+    name: 'ModGPTDashboard',
+    path: '/admin/modgpt',
+    componentName: 'ModGPTDashboard',
+    title: "ModGPT Dashboard"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -1279,6 +1285,11 @@ addRoute(
     name: 'moderatorComments',
     path: '/moderatorComments',
     componentName: 'ModeratorComments',
+  },
+  {
+    name: 'moderatorViewAltAccounts',
+    path: '/moderation/altAccounts',
+    componentName: 'ModerationAltAccounts',
   },
   {
     name: 'emailHistory',

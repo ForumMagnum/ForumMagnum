@@ -14,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 600
   },
   deleted: {
-    color: theme.palette.grey[400]
+    opacity: .6,
+    '&&': {
+      fontWeight: 400
+    }
   },
   default: {
     color: theme.palette.grey[900],
@@ -57,7 +60,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment}/>
+        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} expandByDefault/>
       </div>
     </LWPopper>
   </span>

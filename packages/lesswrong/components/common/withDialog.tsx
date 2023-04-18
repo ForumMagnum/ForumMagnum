@@ -8,14 +8,14 @@ export type CloseableComponents = {
   [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
 }[keyof ComponentTypes];
 
-export interface OpenDialogContextType {
-  openDialog: <T extends CloseableComponents>({componentName, componentProps, noClickawayCancel}: {
+export interface OpenDialogContextType<T extends CloseableComponents = CloseableComponents> {
+  openDialog: ({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
     componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
     closeOnNavigate?: boolean,
   }) => void,
-  closeDialog: ()=>void,
+  closeDialog: () => void,
 }
 export const OpenDialogContext = React.createContext<OpenDialogContextType|null>(null);
 

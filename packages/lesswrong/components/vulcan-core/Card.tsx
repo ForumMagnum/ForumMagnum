@@ -55,7 +55,7 @@ export const getFieldValue = (value?: any, typeName?: any) => {
       return <code>{value.toString()}</code>;
 
     case 'Array':
-      return <ol>{value.map((item, index) => <li key={index}>{getFieldValue(item, typeof item)}</li>)}</ol>;
+      return <ol>{value.map((item: AnyBecauseTodo, index: number) => <li key={index}>{getFieldValue(item, typeof item)}</li>)}</ol>;
 
     case 'Object':
     case 'object':

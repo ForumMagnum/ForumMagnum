@@ -42,7 +42,7 @@ export const ModerationTemplatesPage = ({classes}: {
     <div className={classes.form}>
       <BasicFormStyles>
         <WrappedSmartForm
-          collection={ModerationTemplates}
+          collectionName="ModerationTemplates"
           mutationFragment={getFragment('ModerationTemplateFragment')}
         />
       </BasicFormStyles>

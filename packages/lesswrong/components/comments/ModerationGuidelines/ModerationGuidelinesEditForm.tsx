@@ -1,11 +1,9 @@
 import React from 'react';
 import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
-import { Posts } from '../../../lib/collections/posts'
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import Tags from '../../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -52,7 +50,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           Edit the moderation guidelines specific to this {commentType}:
         </Components.Typography>
         <Components.WrappedSmartForm
-          collection={isPost ? Posts : Tags}
+          collectionName={isPost ? "Posts" : "Tags"}
           documentId={documentId}
           fields={['moderationGuidelines', ...(isPost ? ['moderationStyle'] : [])]}
           queryFragment={getFragment(isPost ? "PostsEditQueryFragment" : "TagEditFragment")}

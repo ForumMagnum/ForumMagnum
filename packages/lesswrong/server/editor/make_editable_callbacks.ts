@@ -13,7 +13,7 @@ import {
 } from '../../lib/editor/make_editable'
 import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
-import {createMutator} from '../vulcan-lib/mutators'
+import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import * as _ from 'underscore'
 import cheerio from 'cheerio'
 import {onStartup} from '../../lib/executionEnvironment'
@@ -21,6 +21,8 @@ import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import { Comments } from '../../lib/collections/comments'
+import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -96,7 +98,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -126,7 +128,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc, { currentUser })
+    async function editorSerializationBeforeCreate (doc: AnyBecauseTodo, { currentUser, context }: AnyBecauseTodo)
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -138,9 +140,32 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
+      const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
+        ? (!!doc.debate && fieldName === 'contents')
+        : false;
+
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
+
+      if (isFirstDebatePostComment) {
+        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+          collection: Comments,
+          document: {
+            userId,
+            contents: doc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        };
+
+        // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
+        // If we can't, we'll be stuck with a malformed debate post with no comments
+        await validateCreateMutation(createFirstCommentParams);
+      }
+
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
-          originalContents: doc[fieldName].originalContents,
+          originalContents,
           currentUser,
         })),
         fieldName,
@@ -175,7 +200,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).updateBefore.add(
-    async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser })
+    async function editorSerializationEdit (docData: AnyBecauseTodo, { oldDocument: document, newDocument, currentUser }: AnyBecauseTodo)
   {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -252,7 +277,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: DbRevision)
+    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -274,6 +299,30 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
     return newDocument
   })
+
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).createAfter.add(
+      async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
+    {
+      const isFirstDebatePostComment = 'debate' in newDoc
+          ? (!!newDoc.debate && fieldName === 'contents')
+          : false;
+      if (currentUser && isFirstDebatePostComment) {
+        await createMutator({
+          collection: Comments,
+          document: {
+            userId: currentUser._id,
+            postId: newDoc._id,
+            contents: newDoc[fieldName as keyof DbPost],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        });
+      }
+      return newDoc;
+    });
+  }
 
   getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {
@@ -318,8 +367,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");

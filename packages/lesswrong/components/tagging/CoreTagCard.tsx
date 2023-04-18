@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '../vulcan-core/App';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,10 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography.headline,
+    ...theme.typography[isEAForum ? "headerStyle" : "headline"],
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: 700,
+    fontWeight: isEAForum ? 600 : 700,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },
@@ -81,7 +82,6 @@ const CoreTagCard = ({tag, classes}: {
             subscribeMessage={"Subscribe"}
             unsubscribeMessage={"Subscribed"}
             tag={tag}
-            showNotificationBell={false}
           />
         </div>
       </div>

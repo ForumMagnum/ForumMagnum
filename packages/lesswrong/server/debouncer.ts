@@ -5,6 +5,7 @@ import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
 import { DebouncerEventsRepo } from './repos';
+import { isAnyTest } from '../lib/executionEnvironment';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
@@ -188,16 +189,12 @@ export class EventDebouncer<KeyType = string>
     }
   }
   
-  _dispatchEvent = async (key: KeyType, events: string[]) => {
-    try {
+  _dispatchEvent = async (key: KeyType, events: string[]|null) => {
+    if (!isAnyTest) {
       //eslint-disable-next-line no-console
-      console.log(`Handling ${events.length} grouped ${this.name} events`);
-      
-      await this.callback(key, events);
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.error(e);
+      console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
+    await this.callback(key, events||[]);
   };
 }
 

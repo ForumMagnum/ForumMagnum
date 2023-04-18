@@ -108,6 +108,7 @@ registerFragment(`
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -289,15 +290,28 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }
     usersContactedBeforeReview
-    associatedClientId {
+    associatedClientIds {
+      clientId
       firstSeenReferrer
       firstSeenLandingPage
       userIds
     }
+    altAccountsDetected
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -349,6 +363,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
     showCommunityInRecentDiscussion
     beta
     theme

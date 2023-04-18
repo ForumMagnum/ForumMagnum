@@ -72,8 +72,8 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
  * be switched.
  */
 const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", ...siteThemeOverride});
-  const dark = makeStylesheetUrl({name: "dark", ...siteThemeOverride});
+  const light = makeStylesheetUrl({name: "default", siteThemeOverride})
+  const dark = makeStylesheetUrl({name: "dark", siteThemeOverride})
   const styleNode = document.createElement("style");
   styleNode.setAttribute("id", id);
   styleNode.innerHTML = `

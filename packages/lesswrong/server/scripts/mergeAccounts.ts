@@ -9,8 +9,14 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
+import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 
-const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
+const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
+  documentId: string
+  targetUserId: string
+  collection: CollectionBase<any>
+  fieldName: string
+}) => {
   await updateMutator({
     collection,
     documentId,
@@ -451,20 +457,15 @@ async function recomputeKarma(userId: string) {
   const selector: Record<string, any> = {
     authorIds: user._id,
     userId: {$ne: user._id},
-    cancelled: false
+    cancelled: false,
+    collectionName: {$in: collectionsThatAffectKarma}
   };
-  if (Votes.isPostgres()) {
-    selector["legacyData.legacy"] = {$ne: true};
-  } else {
-    selector.legacy = {$ne: true};
-  }
   const allTargetVotes = await Votes.find(selector).fetch()
-  const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
-    return vote.power
+  const karma = sumBy(allTargetVotes, vote => {
+    // a doc author cannot give karma to themselves or any other authors for that doc
+    return vote.authorIds.includes(vote.userId) ? 0 : vote.power
   })
-  // @ts-ignore FIXME legacyKarma isn't in the schema, figure out whether it's real
-  const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
-  return totalKarma
+  return karma
 }
 
 Vulcan.getTotalKarmaForUser = recomputeKarma

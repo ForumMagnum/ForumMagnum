@@ -15,14 +15,13 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
+import { isEAForum } from '../../lib/instanceSettings';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -40,11 +39,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       flexDirection: 'column',
       marginTop: 30,
     },
+    [theme.breakpoints.up('sm')]: {
+      marginTop: isEAForum ? 20 : undefined,
+    },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0
+    margin: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -149,7 +154,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: 12
+    fontSize: isEAForum ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -181,7 +186,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: 13,
+    fontSize: isEAForum ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10
@@ -338,7 +343,8 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
+          DistanceUnitToggle, ForumIcon } = Components
   
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
@@ -426,8 +432,8 @@ const Community = ({classes}: {
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ?
-                  <NotificationsIcon className={classes.notificationsIcon} /> :
-                  <NotificationsNoneIcon className={classes.notificationsIcon} />
+                  <ForumIcon icon="Bell" className={classes.notificationsIcon} /> :
+                  <ForumIcon icon="BellBorder" className={classes.notificationsIcon} />
                 } Notify me
               </Button>
             </div>

@@ -7,9 +7,9 @@ import HtmlLexer from 'html-lexer';
  * config options, and works around a Typescript annotation problem (which
  * should go away when we version-upgrade Cheerio at some point).
  */
-export function cheerioParse(html: string) {
+export function cheerioParse(html: string|null) {
   //@ts-ignore (cheerio type annotations sadly don't quite match the actual imported library)
-  return cheerio.load(html, null, false);
+  return cheerio.load(html ?? "", null, false);
 }
 
 /**
@@ -19,7 +19,7 @@ export function cheerioParse(html: string) {
 export function tokenizeHtml(html: string): [string,string][] {
   const result: [string,string][] = [];
   const lexer = new HtmlLexer({
-    write: (token) => result.push(token),
+    write: (token: [string,string]) => result.push(token),
     end: () => null
   })
   lexer.write(html);

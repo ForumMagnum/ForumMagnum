@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
-import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
-import { topTagIconMap } from '../tagging/TopTagIcon';
+import { coreTagIconMap } from '../tagging/CoreTagIcon';
+import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -65,9 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   karma: {
     display:"inline-block",
     textAlign: "center",
-    width: 30,
     paddingTop: SINGLE_LINE_PADDING_TOP,
     paddingRight: SINGLE_LINE_PADDING_TOP,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   date: {
     display:"inline-block",
@@ -132,11 +133,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   metaNotice: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     marginRight: theme.spacing.unit
   },
   postTitle: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     marginRight: 20
   },
   preview: {
@@ -158,14 +159,14 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, TopTagIcon } = Components
+  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
-  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && topTagIconMap[comment.tag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -178,16 +179,16 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
-          <TopTagIcon tag={comment.tag} />
+          <CoreTagIcon tag={comment.tag} />
         </div>}
 
-        {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
+        {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
-        <CommentUserName comment={comment} simple={true} className={classes.username} />
+        <CommentUserName comment={comment} simple={true} hideSprout className={classes.username} />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}

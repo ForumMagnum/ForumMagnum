@@ -5,11 +5,16 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
+    ...(isEAForum && {
+      fontWeight: 700,
+      fontSize: 32,
+    }),
     width: "100%",
     resize: "none",
     textAlign: "left",

@@ -26,7 +26,7 @@ class SwitchingCollection<T extends DbObject> {
     "findOne",
     "findOneArbitrary",
     "aggregate",
-  ];
+  ] as const;
 
   static readonly writeOperations = [
     "rawInsert",
@@ -34,11 +34,11 @@ class SwitchingCollection<T extends DbObject> {
     "rawUpdateMany",
     "rawRemove",
     "_ensureIndex",
-  ];
+  ] as const;
 
   static readonly rawReadOperations = [
     "indexes",
-  ];
+  ] as const;
 
   static readonly rawWriteOperations = [
     "bulkWrite",
@@ -46,7 +46,7 @@ class SwitchingCollection<T extends DbObject> {
     "dropIndex",
     "updateOne",
     "updateMany",
-  ];
+  ] as const;
 
   private mongoCollection: MongoCollection<T>;
   private pgCollection: PgCollection<T>;
@@ -63,14 +63,14 @@ class SwitchingCollection<T extends DbObject> {
     return new Proxy(this, {
       get: (target: SwitchingCollection<T>, property: string): any => {
         if (property in target) {
-          return target[property];
+          return (target as AnyBecauseTodo)[property];
         }
 
-        if (SwitchingCollection.readOperations.includes(property)) {
-          return this.getReadCollection()[property];
+        if (SwitchingCollection.readOperations.includes(property as AnyBecauseTodo)) {
+          return (this.getReadCollection() as AnyBecauseTodo)[property];
         }
 
-        if (SwitchingCollection.writeOperations.includes(property)) {
+        if (SwitchingCollection.writeOperations.includes(property as AnyBecauseTodo)) {
           return this.proxiedWrite(this.getWriteCollections(), property);
         }
 
@@ -78,7 +78,7 @@ class SwitchingCollection<T extends DbObject> {
           const targets = this.getWriteCollections().map(
             (collection) => collection.rawCollection(),
           );
-          const result = {};
+          const result: AnyBecauseTodo = {};
           const rawRead = this.getReadCollection().rawCollection();
           for (const op of SwitchingCollection.rawReadOperations) {
             result[op] = rawRead[op];
@@ -93,27 +93,27 @@ class SwitchingCollection<T extends DbObject> {
           return new Proxy(this, {
             get: (target: SwitchingCollection<T>, property: string) => {
               const base = target.getReadCollection() as unknown as CollectionBase<T>;
-              return base.options[property];
+              return (base.options as AnyBecauseTodo)[property];
             },
 
             set: (object: SwitchingCollection<T>, key: string, value: any): boolean => {
-              object.mongoCollection.options[key] = value;
-              object.pgCollection.options[key] = value;
+              (object.mongoCollection.options as AnyBecauseTodo)[key] = value;
+              (object.pgCollection.options as AnyBecauseTodo)[key] = value;
               return true;
             },
           });
         }
 
         const base = target.getReadCollection() as unknown as CollectionBase<T>;
-        return base[property];
+        return (base as AnyBecauseTodo)[property];
       },
 
       set: (object: SwitchingCollection<T>, key: string, value: any): boolean => {
         if (key in object) {
-          object[key] = value;
+          (object as AnyBecauseTodo)[key] = value;
         } else {
-          object.mongoCollection[key] = value;
-          object.pgCollection[key] = value;
+          (object.mongoCollection as AnyBecauseTodo)[key] = value;
+          (object.pgCollection as AnyBecauseTodo)[key] = value;
         }
         return true;
       },

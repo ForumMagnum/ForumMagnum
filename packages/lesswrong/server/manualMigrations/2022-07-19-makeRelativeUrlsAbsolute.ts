@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
 import Comments from '../../lib/collections/comments/collection';
-import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 
 const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   try {
@@ -16,7 +16,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 const prependMailTo = (url: string) => tryToFixUrl(url, `mailto:${url}`);
 const prependHttps = (url: string) => tryToFixUrl(url, `https://${url}`);
 
-const validateUrl = (url) => {
+const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the protocol is missing
     new URL(url);
@@ -36,7 +36,7 @@ const validateUrl = (url) => {
   return url;
 }
 
-const updateCollection = async (collection) => {
+const updateCollection = async (collection: AnyBecauseObsolete) => {
   await forEachDocumentBatchInCollection({
     collection,
     batchSize: 500,
@@ -51,8 +51,7 @@ const updateCollection = async (collection) => {
       for (const document of documents) {
         const { html } = document.contents;
 
-        // @ts-ignore cheerio's type annotations are incorrect
-        const $ = cheerio.load(html, null, false);
+        const $ = cheerioParse(html);
         let edited = false;
 
         $('a').each((i, link) => {

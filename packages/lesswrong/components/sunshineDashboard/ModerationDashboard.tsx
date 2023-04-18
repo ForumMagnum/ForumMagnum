@@ -5,7 +5,6 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-import DescriptionIcon from '@material-ui/icons/Description'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -14,6 +13,7 @@ import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 const styles = (theme: ThemeType): JssStyles => ({
   page: {
     width: '90%',
+    maxWidth: 1800,
     margin: 'auto',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
@@ -117,7 +117,7 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, CommentsReviewTab, LoadMore, Loading } = Components;
+  const { UsersReviewInfoCard, CommentsReviewTab, LoadMore, Loading, FirstContentIcons } = Components;
     
   const currentUser = useCurrentUser();
 
@@ -172,7 +172,7 @@ const ModerationDashboard = ({ classes }: {
               return <div key={user._id} className={classNames(classes.tocListing, {[classes.flagged]: user.sunshineFlagged})}>
                 <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
                   {user.displayName} 
-                  {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
+                  <FirstContentIcons user={user}/>
                 </a>
               </div>
             })}

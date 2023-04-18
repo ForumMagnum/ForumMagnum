@@ -16,6 +16,9 @@ registerFragment(`
       quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -37,8 +40,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount
@@ -55,6 +56,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -210,12 +212,15 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
   }
 `);
 
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    tagRelevance
     deletedDraft
     contents {
       _id
@@ -230,7 +235,15 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
-    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsListTagWithVotes on Post {
+    ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -304,7 +317,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -313,7 +326,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -571,6 +584,7 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
   }

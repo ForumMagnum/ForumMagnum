@@ -8,12 +8,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   btn: {
     fontFamily: theme.typography.fontFamily,
     background: 'none',
-    color: theme.palette.grey[500],
-    fontSize: 12,
+    color: theme.palette.grey[600],
+    fontSize: 13,
     padding: 0,
     marginLeft: 5,
+    fontWeight: 450,
     '&:hover': {
-      opacity: 0.5
+      color: theme.palette.grey[900],
     },
   }
 })

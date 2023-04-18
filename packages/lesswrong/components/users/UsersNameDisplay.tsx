@@ -1,16 +1,34 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useContext, createContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { isNewUser, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  userName: {
+  color: {
+    color: theme.palette.primary.main,
+  },
+  noColor: {
     color: "inherit !important"
+  },
+  iconWrapper: {
+    marginLeft: 6,
+  },
+  postAuthorIcon: {
+    verticalAlign: 'text-bottom',
+    color: theme.palette.grey[500],
+    fontSize: 16,
+  },
+  sproutIcon: {
+    position: 'relative',
+    bottom: -2,
+    color: theme.palette.icon.sprout,
+    fontSize: 16,
   }
 })
 
@@ -21,10 +39,13 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
+const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, showAuthorIcon=false, allowNewUserIcon=false, classes, tooltipPlacement = "left", className}: {
   user: UsersMinimumInfo|null|undefined,
+  color?: boolean,
   nofollow?: boolean,
   simple?: boolean,
+  showAuthorIcon?: boolean,
+  allowNewUserIcon?: boolean,
   classes: ClassesType,
   tooltipPlacement?: PopperPlacementType,
   className?: string,
@@ -41,28 +62,48 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   );
 
   if (!user || user.deleted) {
-    return <Components.UserNameDeleted/>
+    return <Components.UserNameDeleted userShownToAdmins={user}/>
   }
-  const { UserTooltip, LWTooltip } = Components
+  const { UserTooltip, LWTooltip, ForumIcon } = Components
   
   const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
+  const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {
-    return <span {...eventHandlers} className={classNames(classes.userName, className)}>
+    return <span {...eventHandlers} className={classNames(colorClass, className)}>
       {displayName}
     </span>
   }
 
-  return <span {...eventHandlers} className={className}>
-    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-    <LWTooltip title={<UserTooltip user={user}/>} placement={tooltipPlacement} inlineBlock={false}>
-      <Link to={userGetProfileUrl(user)} className={classes.userName}
-        {...(nofollow ? {rel:"nofollow"} : {})}
+  const showNewUserIcon = allowNewUserIcon && isNewUser(user);
+  return <span className={className}>
+    <span {...eventHandlers}>
+      <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+      <LWTooltip title={<UserTooltip user={user}/>} placement={tooltipPlacement} inlineBlock={false}>
+        <Link to={userGetProfileUrl(user)} className={colorClass}
+          {...(nofollow ? {rel:"nofollow"} : {})}
+        >
+          {displayName}
+        </Link>
+      </LWTooltip>
+      </AnalyticsContext>
+    </span>
+    {showAuthorIcon && <LWTooltip
+        placement="bottom-start"
+        title="Post author"
+        className={classes.iconWrapper}
       >
-        {displayName}
-      </Link>
-    </LWTooltip>
-    </AnalyticsContext>
+        <ForumIcon icon="Author" className={classes.postAuthorIcon} />
+      </LWTooltip>
+    }
+    {showNewUserIcon && <LWTooltip
+        placement="bottom-start"
+        title={`${user.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
+        className={classes.iconWrapper}
+      >
+        <ForumIcon icon="Sprout" className={classes.sproutIcon} />
+      </LWTooltip>
+    }
   </span>
 }
 

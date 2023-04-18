@@ -1,14 +1,19 @@
 import React from 'react';
+import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    marginBottom: 24,
-    [theme.breakpoints.down("md")]: {
-      marginTop: 12,
-      marginBottom: 8,
+  root: isEAForum
+    ? {
+      margin: "8px 0",
     }
-  }
+    : {
+      marginBottom: 24,
+      [theme.breakpoints.down("md")]: {
+        marginTop: 12,
+        marginBottom: 8,
+      }
+    },
 });
 
 const StickiedPosts = ({

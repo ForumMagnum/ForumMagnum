@@ -10,6 +10,7 @@ import { FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings'
 import Users from '../../lib/collections/users/collection'
 import Tags from '../../lib/collections/tags/collection'
 import Posts from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 
@@ -35,7 +36,7 @@ registerMigration({
   dateWritten: '2020-08-11',
   idempotent: true,
   action: async () => {
-    const communityTagId = Tags.find({slug: 'community'}).fetch()[0]._id
+    const communityTagId = (await Tags.find({slug: 'community'}).fetch())[0]._id
 
     await forEachDocumentBatchInCollection({
       collection: Users,
@@ -97,13 +98,13 @@ registerMigration({
   dateWritten: '2020-08-12',
   idempotent: true,
   action: async () => {
-    const communityTagId = Tags.find({slug: 'community'}).fetch()[0]._id
-    const defaultAdminUserId = Users.find({ slug: DEFAULT_ADMIN_USER_SLUG }).fetch()[0]._id
+    const communityTagId = (await Tags.find({slug: 'community'}).fetch())[0]._id
+    const defaultAdminUserId = (await Users.find({ slug: DEFAULT_ADMIN_USER_SLUG }).fetch())[0]._id
 
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      filter: {meta: true, status: 2},
+      filter: {meta: true, status: postStatuses.STATUS_APPROVED},
       callback: async (posts: Array<DbPost>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");
@@ -142,7 +143,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      filter: {meta: true, status: 2},
+      filter: {meta: true, status: postStatuses.STATUS_APPROVED},
       callback: async (posts: Array<DbPost>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");

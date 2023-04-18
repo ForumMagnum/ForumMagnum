@@ -25,7 +25,8 @@ import moment from 'moment';
 import fs from 'mz/fs';
 import Papa from 'papaparse';
 import path from 'path';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import Users from '../../lib/collections/users/collection';
 import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
@@ -33,15 +34,15 @@ import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
-function getPosts (selector: any) {
+function getPosts (selector: MongoSelector<DbPost>) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
-    status: { $in: [1, 2] },
+    status: { $in: [postStatuses.STATUS_PENDING, postStatuses.STATUS_APPROVED] },
     authorIsUnreviewed: false,
   }
 
-  const projection = {
+  const projection: MongoProjection<DbPost> = {
     _id: 1,
     userId: 1,
     title: 1,
@@ -66,7 +67,9 @@ function getPosts (selector: any) {
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
-  async ({selector, outputDir, outputFile = 'post_details.csv'}) => {
+  async ({selector, outputDir, outputFile = 'post_details.csv'}: {
+    selector: MongoSelector<DbPost>, outputDir: string, outputFile?: string
+  }) => {
     if (!outputDir) throw new Error('you must specify an output directory (hint: {outputDir})')
     const documents = getPosts(selector)
     let c = 0
@@ -122,7 +125,7 @@ Vulcan.exportLowKarma = (
   })
 }
 
-Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
+Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}: AnyBecauseTodo) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console

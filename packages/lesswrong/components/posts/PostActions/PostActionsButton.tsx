@@ -4,6 +4,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostActionsButton = ({post, vertical, classes}: {
-  post: PostsList,
+  post: PostsList|SunshinePostsList,
   vertical?: boolean,
   classes: ClassesType,
 }) => {

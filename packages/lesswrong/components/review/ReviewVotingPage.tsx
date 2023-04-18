@@ -12,7 +12,6 @@ import seedrandom from '../../lib/seedrandom';
 import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { randomId } from '../../lib/random';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
@@ -20,6 +19,7 @@ import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -241,7 +241,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles, PostsTagsList } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles, MenuItem, PostsTagsList } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -330,7 +330,7 @@ const ReviewVotingPage = ({classes}: {
   const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
-  const updatePostSort = (sort) => {
+  const updatePostSort = (sort: AnyBecauseTodo) => {
     setSortPosts(sort)
     const newQuery = {...location.query, sort}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
@@ -476,6 +476,8 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
+  const accountSettings = preferredHeadingCase("Account Settings");
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -494,7 +496,7 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
-            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account Settings</Link>
+            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
             </ContentStyles>}
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
@@ -541,7 +543,7 @@ const ReviewVotingPage = ({classes}: {
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
-                  <span className={classes.sortBy}>Sort by</span> Last Commented
+                  <span className={classes.sortBy}>Sort by</span> {preferredHeadingCase("Last Commented")}
                 </MenuItem>
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)

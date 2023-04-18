@@ -4,6 +4,7 @@ import { ContentType, getOriginalContents } from '../collections/revisions/schem
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
+import { isEAForum } from '../instanceSettings';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -27,9 +28,9 @@ export interface MakeEditableOptions {
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
   formGroup?: any,
   permissions?: {
-    viewableBy?: any,
-    editableBy?: any,
-    insertableBy?: any,
+    canRead?: any,
+    canUpdate?: any,
+    canCreate?: any,
   },
   fieldName?: string,
   label?: string,
@@ -41,7 +42,9 @@ export interface MakeEditableOptions {
   hidden?: boolean,
 }
 
-export const defaultEditorPlaceholder = `Write here. Select text for formatting options.
+export const defaultEditorPlaceholder = isEAForum ?
+`Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
+`Write here. Select text for formatting options.
 We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
 You can switch between rich text and markdown in your user settings.`
 
@@ -61,9 +64,9 @@ const defaultOptions: MakeEditableOptions = {
   // }
   getLocalStorageId: null,
   permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: ['members']
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members']
   },
   fieldName: "",
   order: 0,
@@ -162,7 +165,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
               return await checkAccess(currentUser, revision, context) ? revision : null
             }
           }
-          const docField = doc[field];
+          const docField = (doc as AnyBecauseTodo)[field];
           if (!docField) return null
 
           const result: DbRevision = {
@@ -196,13 +199,13 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
 
     [`${fieldName || "contents"}_latest`]: {
       type: String,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
     },
 
     [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
       resolveAs: {
         type: '[Revision]',
@@ -223,12 +226,12 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     
     [camelCaseify(`${fieldName}Version`)]: {
       type: String,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       optional: true,
       resolveAs: {
         type: 'String',
         resolver: (post: T): string => {
-          return post[fieldName || "contents"]?.version
+          return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
         }
       }
     }
@@ -240,7 +243,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       // document IDs in that collection, in order of appearance
       pingbacks: {
         type: Object,
-        viewableBy: 'guests',
+        canRead: 'guests',
         optional: true,
         hidden: true,
         denormalized: true,

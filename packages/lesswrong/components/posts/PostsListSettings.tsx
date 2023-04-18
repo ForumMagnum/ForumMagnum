@@ -10,8 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
+import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
@@ -51,7 +51,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   },
   "EAForum": {
     all: {
-      label: "All Posts",
+      label: "All posts",
       tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
     },
     frontpage: {
@@ -98,17 +98,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    marginTop: isEAForum ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: "12px 24px 8px 12px"
+    padding: isEAForum ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: "column",
+      flexWrap: "nowrap",
+    },
   },
   hidden: {
     display: "none", // Uses CSS to show/hide
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0"
+    padding: "1px 12px 0 0",
+    paddingRight: isEAForum ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",
@@ -134,7 +141,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
-  currentSorting: any,
+  currentSorting: PostSortingMode,
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
@@ -197,11 +204,11 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show Low Karma
+                {preferredHeadingCase("Show Low Karma")}
               </MetaInfo>
             </QueryLink>
           </Tooltip>
-          
+
           <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
             <QueryLink
               className={classes.checkboxGroup}
@@ -213,12 +220,12 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
 
               <MetaInfo className={classes.checkboxLabel}>
-                Show Events
+                {preferredHeadingCase("Show Events")}
               </MetaInfo>
             </QueryLink>
           </Tooltip>
 
-          {isEAForum && <Tooltip title={<div><div>By default, Community posts are hidden from the Frontpage list</div><div>Toggle to hide them here too.</div></div>} placement="left-start">
+          {isEAForum && <Tooltip title={<div><div>By default, Community posts are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
             <QueryLink
               className={classes.checkboxGroup}
               onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
@@ -226,9 +233,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentHideCommunity}/>
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
               <MetaInfo className={classes.checkboxLabel}>
-                Hide Community
+                Show community
               </MetaInfo>
             </QueryLink>
           </Tooltip>}
