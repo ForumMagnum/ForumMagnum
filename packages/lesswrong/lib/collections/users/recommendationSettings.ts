@@ -21,7 +21,7 @@ export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNa
 export interface StrategySpecification {
   name: RecommendationStrategyName,
   postId: string,
-  authorId?: string,
+  forceLoggedOutView?: boolean,
 }
 
 export interface RecommendationsAlgorithmWithStrategy {

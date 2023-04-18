@@ -1,12 +1,19 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
-import type { RecommendationsAlgorithmWithStrategy } from "../../lib/collections/users/recommendationSettings";
+import type {
+  RecommendationsAlgorithmWithStrategy,
+  RecommendationStrategyName,
+} from "../../lib/collections/users/recommendationSettings";
 
 const PostsPageRecommendationsList = ({
   title = "More posts like this",
+  strategy = "moreFromTag",
+  forceLoggedOutView,
 }: {
   title?: string,
+  strategy?: RecommendationStrategyName,
+  forceLoggedOutView?: boolean,
 }) => {
   const post = usePostsPageContext();
   if (!post) {
@@ -15,8 +22,9 @@ const PostsPageRecommendationsList = ({
 
   const recommendationsAlgorithm: RecommendationsAlgorithmWithStrategy = {
     strategy: {
-      name: "moreFromTag",
+      name: strategy,
       postId: post._id,
+      forceLoggedOutView,
     },
     count: 3,
   };

@@ -30,6 +30,10 @@ class RecommendationService {
     count: number,
     strategy: StrategySpecification,
   ): Promise<DbPost[]> {
+    if (strategy.forceLoggedOutView) {
+      currentUser = null;
+    }
+
     const strategies = this.getStrategyStack(strategy.name);
     let posts: DbPost[] = [];
 
