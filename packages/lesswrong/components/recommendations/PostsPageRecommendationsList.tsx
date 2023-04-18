@@ -15,7 +15,7 @@ const PostsPageRecommendationsList = ({
 
   const recommendationsAlgorithm: RecommendationsAlgorithmWithStrategy = {
     strategy: {
-      name: "collabFilter",
+      name: "moreFromTag",
       postId: post._id,
     },
     count: 3,

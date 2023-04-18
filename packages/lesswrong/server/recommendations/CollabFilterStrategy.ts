@@ -3,6 +3,12 @@ import type { StrategySpecification } from "../../lib/collections/users/recommen
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
 class CollabFilterStrategy extends RecommendationStrategy {
+  constructor() {
+    super({
+      minimumBaseScore: 10,
+    });
+  }
+
   async recommend(
     currentUser: DbUser|null,
     count: number,

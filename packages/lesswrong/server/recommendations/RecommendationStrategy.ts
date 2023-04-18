@@ -3,9 +3,20 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
+export type RecommendationStrategyConfig = {
+  maxRecommendationCount: number,
+  minimumBaseScore: number,
+}
+
 abstract class RecommendationStrategy {
-  private readonly maxRecommendationCount = 3;
-  private readonly minimumBaseScore = 30;
+  private readonly config: RecommendationStrategyConfig;
+
+  constructor(config: Partial<RecommendationStrategyConfig> = {}) {
+    this.config = {
+      maxRecommendationCount: config.maxRecommendationCount ?? 3,
+      minimumBaseScore: config.minimumBaseScore ?? 30,
+    };
+  }
 
   abstract recommend(
     currentUser: DbUser|null,
@@ -30,7 +41,7 @@ abstract class RecommendationStrategy {
         `,
         args: {
           userId: currentUser._id,
-          maxRecommendationCount: this.maxRecommendationCount,
+          maxRecommendationCount: this.config.maxRecommendationCount,
         },
       }
       : {
@@ -50,9 +61,12 @@ abstract class RecommendationStrategy {
         p."shortform" IS NOT TRUE AND
         p."hiddenRelatedQuestion" IS NOT TRUE AND
         p."groupId" IS NULL AND
+        p."isEvent" IS NOT TRUE AND
+        p."baseScore" >= $(minimumBaseScore) AND
       `,
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
+        minimumBaseScore: this.config.minimumBaseScore,
       },
     };
   }
@@ -82,10 +96,9 @@ abstract class RecommendationStrategy {
       FROM "Posts" p
       ${userFilter.join}
       WHERE
+        p."_id" <> $(postId) AND
         ${userFilter.filter}
         ${postFilter.filter}
-        p."_id" <> $(postId) AND
-        p."baseScore" >= $(minimumBaseScore)
         ${filter}
       ORDER BY p."${sort}" DESC
       LIMIT $(count)
@@ -93,8 +106,6 @@ abstract class RecommendationStrategy {
       postId,
       userId: currentUser?._id,
       count,
-      maxRecommendationCount: this.maxRecommendationCount,
-      minimumBaseScore: this.minimumBaseScore,
       ...userFilter.args,
       ...postFilter.args,
       ...args,

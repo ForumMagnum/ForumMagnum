@@ -11,7 +11,7 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       currentUser,
       count,
       postId,
-      `AND p."userId" = (SELECT "userId" FROM "Posts" WHERE "_id" = $(postId))`,
+      `p."userId" = (SELECT "userId" FROM "Posts" WHERE "_id" = $(postId))`,
     );
   };
 }

@@ -12,7 +12,7 @@ class BestOfStrategy extends RecommendationStrategy {
       currentUser,
       count,
       postId,
-      `AND ${filter}`,
+      filter,
       args,
       "baseScore",
     );

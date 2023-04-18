@@ -16,7 +16,7 @@ class MoreFromTagStrategy extends RecommendationStrategy {
       currentUser,
       count,
       postId,
-      `AND ("p"."tagRelevance"->$(tagId))::INTEGER >= 1`,
+      `("p"."tagRelevance"->$(tagId))::INTEGER >= 1`,
       {tagId: tag._id},
     );
   };
