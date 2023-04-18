@@ -16,9 +16,8 @@ import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from 
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { getNewModActionNotes, getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -308,7 +307,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 60);
-    
+
     await createModeratorAction({
       data: {
         type,
@@ -316,7 +315,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         endedAt: endDate
       }
     });
-    
+
+    setNotes( getNewModActionNotes(currentUser.displayName, type, notes) )
     const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
     for (const rateLimit of existingRateLimits) {
       void endRateLimit(rateLimit._id)
