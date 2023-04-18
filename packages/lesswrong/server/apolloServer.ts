@@ -93,7 +93,7 @@ class ApolloServerLogging {
     logGraphqlQueryStarted(operationName, query, variables);
     
     return {
-      willSendResponse(props) {
+      willSendResponse(props: AnyBecauseTodo) {
         logGraphqlQueryFinished(operationName, query);
       }
     };
@@ -173,7 +173,7 @@ export function startWebserver() {
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
-    let headers = {}
+    let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
     if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {

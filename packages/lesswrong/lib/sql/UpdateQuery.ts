@@ -40,7 +40,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
           break;
         case "$unset":
           for (const field of Object.keys(modifier.$unset)) {
-            set[field] = null;
+            (set as AnyBecauseTodo)[field] = null;
           }
           break;
         default:
@@ -118,9 +118,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const column = dot > 0 ? update.substring(0, dot) : update;
       const columnType = this.getField(column);
       if (columnType?.toConcrete() instanceof JsonType) {
-        jsonArrays[update] = addToSets[update];
+        (jsonArrays as AnyBecauseTodo)[update] = (addToSets as AnyBecauseTodo)[update];
       } else {
-        nativeArrays[update] = addToSets[update];
+        (nativeArrays as AnyBecauseTodo)[update] = (addToSets as AnyBecauseTodo)[update];
       }
     }
 
@@ -128,7 +128,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     for (const jsonUpdate of Object.keys(jsonArrays)) {
       const {column, path} = this.buildJsonUpdatePath(jsonUpdate);
-      const updateValue = this.compileUpdateExpression(jsonArrays[jsonUpdate]);
+      const updateValue = this.compileUpdateExpression((jsonArrays as AnyBecauseTodo)[jsonUpdate]);
       jsonUpdates = jsonUpdates.concat(
         ",",
         column,
@@ -154,7 +154,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     updates: Partial<Record<keyof T, any>>,
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
-    return Object.keys(updates).flatMap((field) => this.compileUpdateField(field, updates[field], format));
+    return Object.keys(updates).flatMap((field) => this.compileUpdateField(field, (updates as AnyBecauseTodo)[field], format));
   }
 
   private compileUpdateField(
