@@ -9,6 +9,7 @@ export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
   "moreFromTag",
   "bestOf",
+  "collabFilter",
 ] as const);
 
 export const isRecommendationStrategyName =

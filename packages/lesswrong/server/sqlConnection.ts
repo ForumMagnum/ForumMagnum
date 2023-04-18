@@ -51,6 +51,8 @@ const onConnectQueries: string[] = [
   `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
   // Enable the earthdistance extension - this is used for finding nearby events
   `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
+  // Enable the intarray extension - this is used for collab filtering recommendations
+  `CREATE EXTENSION IF NOT EXISTS "intarray" CASCADE`,
   // Build a nested JSON object from a path and a value - this is a dependency of
   // fm_add_to_set below
   `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(

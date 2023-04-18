@@ -7,6 +7,7 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
 import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import BestOfStrategy from "./BestOfStrategy";
+import CollabFilterStrategy from "./CollabFilterStrategy";
 import RecommendationStrategy from "./RecommendationStrategy";
 import { loggerConstructor } from "../../lib/utils/logging";
 
@@ -21,6 +22,7 @@ class RecommendationService {
     moreFromTag: MoreFromTagStrategy,
     moreFromAuthor: MoreFromAuthorStrategy,
     bestOf: BestOfStrategy,
+    collabFilter: CollabFilterStrategy,
   };
 
   async recommend(
