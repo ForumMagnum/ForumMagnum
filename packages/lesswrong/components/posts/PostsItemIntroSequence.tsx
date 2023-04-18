@@ -88,8 +88,12 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     flexGrow: 1,
   },
   sequenceImage: {
+    // In an ideal world, this would be `height: "100%"`. This works fine in Chrome, but
+    // a bug in Firefox means that this breaks the `width: "auto"` on the image
+    // resulting in a bad mis-positioning. Hard-coding the height is a hack, but it's a
+    // hack that works. See https://stackoverflow.com/questions/46480358
+    height: 76,
     position: "absolute",
-    height: "100%",
     marginTop: 0,
     marginBottom: 0,
     overflow: 'hidden',
