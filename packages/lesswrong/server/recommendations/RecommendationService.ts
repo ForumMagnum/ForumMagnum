@@ -15,6 +15,12 @@ type ConstructableStrategy = {
   new (): RecommendationStrategy,
 }
 
+/**
+ * The `RecommendationService` is the external interface to the recommendation system.
+ *
+ * New algorithms should be implemented by extending the `RecommendationStrategy`
+ * abstract class.
+ */
 class RecommendationService {
   private logger = loggerConstructor("recommendation-service");
 

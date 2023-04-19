@@ -8,6 +8,13 @@ export type RecommendationStrategyConfig = {
   minimumBaseScore: number,
 }
 
+/**
+ * The recommendation system is built on smaller, self-contained, modular "strategies"
+ * which are all descended from this base class.
+ *
+ * External code should access this functionality through the `RecommendationService`
+ * rather than using this directly.
+ */
 abstract class RecommendationStrategy {
   private readonly config: RecommendationStrategyConfig;
 

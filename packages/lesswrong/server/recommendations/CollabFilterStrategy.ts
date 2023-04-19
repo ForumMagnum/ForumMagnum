@@ -2,6 +2,13 @@ import RecommendationStrategy from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
+/**
+ * This class implements a simple item-item collaborative filtering algorithm for
+ * post recommendations. It works by storing the set of unique upvoters for each
+ * post in a materialized view called `UniquePostUpvoters`. We then compute the
+ * Jaccard index between the source post and each recommendable target post,
+ * returning the posts with the highest indices.
+ */
 class CollabFilterStrategy extends RecommendationStrategy {
   constructor() {
     super({

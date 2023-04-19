@@ -1,6 +1,9 @@
 import RecommendationStrategy from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 
+/**
+ * A recommendation strategy that returns more posts by the same author.
+ */
 class MoreFromAuthorStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
