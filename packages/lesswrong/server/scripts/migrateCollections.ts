@@ -250,7 +250,6 @@ const copyData = async (
     const batchSize = pickBatchSize(collection);
     const nonIdSortField = isNonIdSortField(collectionName);
     const sortField = getCollectionSortField(collectionName);
-    console.log({ collectionName, sortField });
     let count = 0;
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
