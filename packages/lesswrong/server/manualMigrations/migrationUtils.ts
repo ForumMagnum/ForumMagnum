@@ -289,11 +289,6 @@ export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: str
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
-// const getBatchSort = <T extends DbObject>(useCreatedAt: boolean) =>
-//   (useCreatedAt
-//     ? {createdAt: 1}
-//     : {_id: 1}) as Record<keyof T, 1>; // It's the callers responsibility to ensure the sort field actally exists
-
 const getBatchSort = <T extends DbObject>(field: string = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
 
 const getFirstBatchById = async <T extends DbObject>({
@@ -355,7 +350,7 @@ const getFirstBatchByCreatedAt = async <T extends DbObject>({
   overrideCreatedAt?: keyof T & string
 }): Promise<T[]> => {
   const sortField = overrideCreatedAt ?? 'createdAt';
-  console.log({ getFirstBatchFilter: filter, getFirstBatchOpts: { sort: getBatchSort(sortField), limit: batchSize } });
+
   return collection.find(
     { ...filter },
     {
@@ -412,8 +407,6 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     limit: batchSize
   };
 
-  console.log({ selector, opts, collectionName: collection.collectionName, sortField });
-
   return collection.find(selector, opts).fetch();
 }
 
@@ -457,19 +450,13 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   overrideCreatedAt?: keyof T & string
 }): Promise<void> {
   const {getFirst, getNext} = getBatchProviders(useCreatedAt);
-  console.log({ firstFilter: filter });
   let rows = await getFirst({collection, batchSize, filter, overrideCreatedAt});
   let batch = 0;
   while (rows.length > 0) {
-    console.log({ batch, numRows: rows.length });
     batch++;
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
-      if (collection.collectionName === 'EmailTokens') {
-        console.log({ nextFilter: filter, lastRow: rows.at(-1) })
-      }
       rows = await getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt});
-      console.log({ batch, nextRowsLength: rows.length });
     });
   }
 }
