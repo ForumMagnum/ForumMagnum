@@ -39,6 +39,7 @@ class RecommendationService {
 
     while (count > 0 && strategies.length) {
       this.logger("Recommending for", strategy.postId, "with", strategies[0]);
+      const start = Date.now();
       const newPosts = (await this.recommendWithStrategyName(
         currentUser,
         count,
@@ -47,6 +48,8 @@ class RecommendationService {
       )).filter(
         ({_id}) => !posts.some((post) => post._id === _id),
       );
+      const time = Date.now() - start;
+      this.logger("...found", newPosts.length, "posts in", time, "milliseconds");
 
       if (currentUser) {
         void this.recordRecommendations(currentUser, strategies[0], newPosts);
