@@ -384,12 +384,12 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     throw new Error(`Invalid greaterThan cursor; expected a date, got ${greaterThan} for field ${sortField}`);
   }
   if (filter && sortField in filter) {
-    if (filter.createdAt.$gt) {
-      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.createdAt.$gt.getTime()));
-    } else if (filter.createdAt.$gte) {
-      const gt = Math.max(filter.createdAt.$gte.getTime() - 1, 0);
+    if (filter[sortField].$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter[sortField].$gt.getTime()));
+    } else if (filter[sortField].$gte) {
+      const gt = Math.max(filter[sortField].$gte.getTime() - 1, 0);
       greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
-      delete filter.createdAt.$gte;
+      delete filter[sortField].$gte;
     } else {
       throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
     }
@@ -397,7 +397,7 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   const selector = {
     ...filter,
     [sortField]: {
-      ...filter?.createdAt,
+      ...filter?.[sortField],
       $gt: greaterThan,
     },
   };
