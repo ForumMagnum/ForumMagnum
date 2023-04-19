@@ -1,5 +1,5 @@
 import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
-import { queryWithLock } from "./sqlConnection";
+import { queryWithLock } from "./queryWithLock";
 import { addCronJob } from "./cronUtil";
 
 class PostgresView {

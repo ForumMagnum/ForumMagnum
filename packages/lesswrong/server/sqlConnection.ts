@@ -1,8 +1,8 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
-import md5 from "md5";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { ensurePostgresViewsExist } from "./postgresView";
+import { queryWithLock } from "./queryWithLock";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -115,25 +115,6 @@ const onConnectQueries: string[] = [
   `,
 ];
 
-/**
- * pg_advisory_xact_lock takes a 64-bit integer as an argument. Generate this from the query
- * string to ensure that each query gets a unique lock key.
- */
-const getLockKey = (query: string) => parseInt(md5(query), 16) / 1e20;
-
-export const queryWithLock = (
-  db: RawSqlClient,
-  query: string,
-  timeoutSeconds = 10,
-) => {
-  return db.tx(async (transaction) => {
-    // Set advisory lock to ensure only one server runs each query at a time
-    await transaction.any(`SET LOCAL lock_timeout = '${timeoutSeconds}s';`);
-    await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
-    await transaction.any(query)
-  })
-}
-
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
@@ -155,6 +136,8 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   try {
     await ensurePostgresViewsExist(db);
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
   }
 
   return {
