@@ -17,6 +17,7 @@ import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
+import moment from 'moment';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -141,6 +142,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [_,setForceRefreshState] = useState(0);
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
   
   const { openDialog } = useDialog();
@@ -246,10 +248,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
-  const formDisabledDueToRateLimit =
-    !!(userNextAbleToComment && isInFuture(new Date(userNextAbleToComment)))
-    || (postNextAbleToComment && isInFuture(new Date(postNextAbleToComment)));
-  const [_,setForceRefreshState] = useState(0);
+  const lastRateLimitExpiry: Date|null =
+    (userNextAbleToComment && new Date(userNextAbleToComment))
+    ?? (postNextAbleToComment && new Date(postNextAbleToComment))
+    ?? null;
+  
+  // Disable the form if there's a rate limit and it's more than 1 minute until it
+  // expires. (If the user is rate limited but it will expire sooner than that,
+  // don't disable the form; it'll probably expire before they finish typing their
+  // comment anyways, and this avoids an awkward interaction with the 15-second
+  // rate limit that's only supposed to be there to prevent accidental double posts.
+  // TODO
+  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
