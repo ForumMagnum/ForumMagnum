@@ -8,6 +8,7 @@ import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
 import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
+import { createUniquePostUpvotersIndexQuery, createUniquePostUpvotersQuery } from "../../../server/recommendations/UniquePostUpvoters";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -65,6 +66,9 @@ const buildTables = async (client: SqlClient) => {
       }
     }
   }
+
+  await client.any(createUniquePostUpvotersQuery);
+  await client.any(createUniquePostUpvotersIndexQuery);
 }
 
 const makeDbName = (id?: string) => {
