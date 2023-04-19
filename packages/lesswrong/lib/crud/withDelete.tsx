@@ -1,9 +1,10 @@
-import React from 'react';
-import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import React, { useCallback } from 'react';
+import { getCollection, getFragment, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { getExtraVariables } from './utils'
-import { gql } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import type { MutationResult } from '@apollo/client/react';
 
@@ -78,3 +79,37 @@ export const withDelete = (options: any) => {
     })
   )
 };
+
+export const useDelete = <CollectionName extends CollectionNameString>(options: {
+  collectionName: CollectionName,
+  fragmentName?: FragmentName,
+  fragment?: any,
+}): {
+  deleteDocument: (props: {selector: any})=>Promise<any>,
+  loading: boolean,
+  error: ApolloError|undefined,
+  called: boolean,
+  data: ObjectsByCollectionName[CollectionName],
+} => {
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
+
+  const typeName = collection.options.typeName;
+  const query = gql`
+    ${deleteClientTemplate({ typeName, fragmentName })}
+    ${fragment}
+  `;
+
+  const [mutate, {loading, error, called, data}] = useMutation(query);
+  const wrappedDelete = useCallback(({selector, extraVariables}: {
+    selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
+    data: Partial<ObjectsByCollectionName[CollectionName]>,
+    extraVariables?: any,
+  }) => {
+    return mutate({
+      variables: { selector, ...extraVariables },
+      update: updateCacheAfterDelete(typeName)
+    })
+  }, [mutate, typeName]);
+  return {deleteDocument: wrappedDelete, loading, error, called, data};
+}

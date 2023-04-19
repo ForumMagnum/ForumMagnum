@@ -57,7 +57,7 @@ const generateMigration = async ({
   rootPath: string,
   forumType?: ForumTypeString,
 }) => {
-  const execRun = (cmd) => {
+  const execRun = (cmd: string) => {
     return new Promise((resolve, reject) => {
       // git diff exits with an error code if there are differences, ignore that and just always return stdout
       exec(cmd, (error, stdout, stderr) => resolve(stdout))

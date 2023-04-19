@@ -106,15 +106,16 @@ async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   return readStatus[0];
 }
 
-function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>) {
-  if (document.isEvent || !document.submitToFrontpage) {
-    return undefined
+const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
   }
-  return new Date()
+  return new Date();
 }
-const frontpageDefault = isEAForum ?
-  eaFrontpageDate :
-  undefined
 
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
@@ -190,7 +191,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
-    inputProperties: {
+    form: {
       labels: {
         inactive: 'Link-post?',
         active: 'Add a linkpost URL',
@@ -1245,9 +1246,25 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    onInsert: frontpageDefault, //TODO-JM: FIXME
     optional: true,
     hidden: true,
+    ...(isEAForum && {
+      onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
+        isEvent,
+        submitToFrontpage,
+        draft,
+      ),
+      onUpdate: ({data, oldDocument}) => {
+        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
+          return eaFrontpageDateDefault(
+            data.isEvent ?? oldDocument.isEvent,
+            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+            false,
+          );
+        }
+        return data.frontpageDate ?? oldDocument.frontpageDate;
+      },
+    }),
   },
 
   collectionTitle: {
@@ -2132,7 +2149,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
-    hidden: (props) => props.debateForm
+    hidden: (props) => !!props.debateForm
   },
   
   shareWithUsers: {
@@ -2423,6 +2440,16 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     hidden: true,
     ...schemaDefaultValue(false),
+  },
+
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
   },
 
   rejectedByUserId: {

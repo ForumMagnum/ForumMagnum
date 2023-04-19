@@ -5,7 +5,7 @@ import { ThemeContextProvider } from '../../components/themes/useTheme';
 import { AbstractThemeOptions } from '../../themes/themeNames';
 import { createGenerateClassName } from '@material-ui/core/styles';
 
-export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: SheetsRegistry}>(
+export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: typeof SheetsRegistry}>(
   app: React.ReactNode,
   context: Context,
   themeOptions: AbstractThemeOptions,

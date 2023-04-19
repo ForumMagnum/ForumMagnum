@@ -144,7 +144,7 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
 const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
   document: PostsEditWithLocalData,
-  updateCurrentValues: Function,
+  updateCurrentValues: UpdateCurrentValues,
   clearField: Function,
   label: string,
   croppingAspectRatio?: number,
