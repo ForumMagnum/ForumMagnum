@@ -74,7 +74,7 @@ class RecommendationService {
     ];
   }
 
-  private recommendWithStrategyName(
+  private async recommendWithStrategyName(
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
@@ -85,7 +85,12 @@ class RecommendationService {
       throw new Error("Invalid recommendation strategy name: " + strategyName);
     }
     const source = new Provider();
-    return source.recommend(currentUser, count, strategy);
+    try {
+      return await source.recommend(currentUser, count, strategy);
+    } catch (e) {
+      this.logger("Recommendation error:", e.message);
+      return [];
+    }
   }
 
   private async recordRecommendations(
