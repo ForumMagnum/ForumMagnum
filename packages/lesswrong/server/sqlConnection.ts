@@ -5,6 +5,13 @@ import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
+  error: (err, ctx) => {
+    // If it's a syntax error, print the bad query for debugging
+    if (typeof err.code === "string" && err.code.startsWith("42")) {
+      // eslint-disable-next-line no-console
+      console.error("SQL syntax error:", ctx.query);
+    }
+  },
   // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);

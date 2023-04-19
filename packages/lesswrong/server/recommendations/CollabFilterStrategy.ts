@@ -18,35 +18,40 @@ class CollabFilterStrategy extends RecommendationStrategy {
     const userFilter = this.getUserFilter(currentUser);
     const postFilter = this.getDefaultPostFilter();
     const communityFilter = this.getCommunityFilter();
+    const hash = `('x' || SUBSTR(MD5("Votes"."userId"), 1, 8))::BIT(32)::INTEGER`;
+    const voteFilter = `
+      "Votes"."collectionName" = 'Posts' AND
+      "Votes"."cancelled" IS NOT TRUE AND
+      "Votes"."isUnvote" IS NOT TRUE AND
+      "Votes"."voteType" IN ('smallUpvote', 'bigUpvote')
+    `;
     return db.any(`
-      WITH target AS (
+      SELECT p.*
+      FROM (
         SELECT
           "Votes"."documentId" AS "postId",
-          ARRAY_AGG(DISTINCT hashtext("Votes"."userId")) AS "voters"
+          ARRAY_AGG(DISTINCT ${hash}) AS "voters",
+          (
+            SELECT ARRAY_AGG(DISTINCT ${hash}) AS "src_voters"
+            FROM "Votes"
+            WHERE
+              "Votes"."documentId" = $(postId) AND
+              ${voteFilter}
+            GROUP BY "Votes"."documentId"
+          ) as "src_voters"
         FROM "Votes"
-        WHERE "Votes"."collectionName" = 'Posts'
-          AND "Votes"."documentId" <> $(postId)
+        JOIN "Posts" p ON p."_id" = "Votes"."documentId"
+        ${userFilter.join}
+        WHERE
+          "Votes"."documentId" <> $(postId) AND
+          ${postFilter.filter}
+          ${communityFilter.filter} AND
+          ${userFilter.filter}
+          ${voteFilter}
         GROUP BY "Votes"."documentId"
-      ), src AS (
-        SELECT ARRAY_AGG(DISTINCT hashtext("Votes"."userId")) AS "src_voters"
-        FROM "Votes"
-        WHERE "Votes"."collectionName" = 'Posts'
-          AND "Votes"."documentId" = $(postId)
-        GROUP BY "Votes"."documentId"
-      )
-      SELECT
-        p.*,
-        (# (voters & src_voters))::FLOAT / (# (voters | src_voters))::FLOAT
-          AS similarity
-      FROM target
-      CROSS JOIN src
+      ) target
       JOIN "Posts" p ON p."_id" = target."postId"
-      ${userFilter.join}
-      WHERE
-        ${userFilter.filter}
-        ${postFilter.filter}
-        ${communityFilter.filter}
-      ORDER BY similarity DESC
+      ORDER BY (# (voters & src_voters))::FLOAT / (# (voters | src_voters))::FLOAT DESC
       LIMIT $(count)
     `, {
       ...userFilter.args,
