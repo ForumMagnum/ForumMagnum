@@ -192,7 +192,7 @@ const makeCollectionFilter = (collectionName: string) => {
   }
 }
 
-const useNonIdSortField = (collectionName: string) => {
+const isNonIdSortField = (collectionName: string) => {
   switch (collectionName) {
     case 'EmailTokens': return false;
     default: return true;
@@ -248,7 +248,7 @@ const copyData = async (
 
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
-    const nonIdSortField = useNonIdSortField(collectionName);
+    const nonIdSortField = isNonIdSortField(collectionName);
     const sortField = getCollectionSortField(collectionName);
     console.log({ collectionName, sortField });
     let count = 0;

@@ -289,7 +289,7 @@ export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: str
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
-const getBatchSort = <T extends DbObject>(field: string = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
+const getBatchSort = <T extends DbObject>(field = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
 
 const getFirstBatchById = async <T extends DbObject>({
   collection,
