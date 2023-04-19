@@ -202,7 +202,6 @@ const useNonIdSortField = (collectionName: string) => {
 const getCollectionSortField = (collectionName: string) => {
   switch (collectionName) {
     case 'DebouncerEvents': return 'delayTime';
-    case 'EmailTokens': return 'usedAt';
     case 'Migrations': return 'started';
     case 'ReadStatuses': return 'lastUpdated';
     case 'Revisions': return 'editedAt';
