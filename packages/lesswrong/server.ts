@@ -94,6 +94,7 @@ import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
+import './server/recommendations/cronJobs';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';

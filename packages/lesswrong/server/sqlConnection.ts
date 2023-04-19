@@ -111,6 +111,27 @@ const onConnectQueries: string[] = [
     )
     END;'
   `,
+  // Materialized view for efficiently tracking unique upvoters on posts - this is
+  // used for collaborative filtering recommendations and if periodically refreshed
+  // by a cron job
+  `CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
+    SELECT
+      p."_id" AS "postId",
+      ARRAY_AGG(DISTINCT ('x' || SUBSTR(MD5(v."userId"), 1, 8))::BIT(32)::INTEGER)
+       AS "voters"
+    FROM "Posts" p
+    INNER JOIN "Votes" v ON
+      p."_id" = v."documentId" AND
+      v."collectionName" = 'Posts' AND
+      v."cancelled" IS NOT TRUE AND
+      v."isUnvote" IS NOT TRUE AND
+      v."voteType" IN ('smallUpvote', 'bigUpvote')
+    GROUP BY p."_id"
+  `,
+  // Default index for the above view
+  `CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId"
+    ON "UniquePostUpvoters" ("postId")
+  `,
 ];
 
 /**
