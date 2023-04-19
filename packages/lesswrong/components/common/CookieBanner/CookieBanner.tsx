@@ -15,11 +15,12 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     right: 0,
     backgroundColor: "rgb(69, 69, 69)", // TODO use theme color
-    padding: "14px 25px 14px 40px",
+    padding: "14px 25px 14px 25px",
     zIndex: 1001, // Appear above sunshine sidebar
     [theme.breakpoints.up("sm")]: {
       flexDirection: "row",
       justifyContent: "space-between",
+      padding: "14px 25px 14px 40px",
     },
   },
   text: {
@@ -31,10 +32,10 @@ const styles = (theme: ThemeType) => ({
   },
   buttonGroup: {
     display: "flex",
-    alignItems: "center",
-    marginTop: 8,
-    [theme.breakpoints.up("sm")]: {
-      marginTop: 0,
+    marginTop: 0,
+    alignItems: "flex-end",
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 8,
     },
   },
   button: {
