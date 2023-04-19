@@ -10,6 +10,7 @@ import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
+import { rateLimitGetPostSpecificCommentLimit } from '../callbacks/rateLimits';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -68,6 +69,17 @@ augmentFieldsDict(Posts, {
         }
       },
     }
+  },
+  postSpecificRateLimit: {
+    resolveAs: {
+      type: "Date",
+      resolver: async (document: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
+        const { currentUser } = context;
+        if (!currentUser) return null;
+        const rateLimit = await rateLimitGetPostSpecificCommentLimit(currentUser, document, context);
+        return rateLimit?.nextEligible ?? null;
+      },
+    },
   },
   sideComments: {
     resolveAs: {

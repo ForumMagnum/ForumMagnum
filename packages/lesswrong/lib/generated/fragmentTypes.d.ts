@@ -342,6 +342,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly reviewForAlignmentForumUserId: string,
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
+  readonly rateLimitNextAbleToComment: Date,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -640,6 +641,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
+  readonly postSpecificRateLimit: Date,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
   readonly tableOfContents: any,
@@ -1284,6 +1286,11 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
+}
+
+interface PostWithRateLimit { // fragment on Posts
+  readonly _id: string,
+  readonly postSpecificRateLimit: Date,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2502,6 +2509,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
 }
 
 interface UsersCurrentRateLimit { // fragment on Users
+  readonly _id: string,
   readonly rateLimitNextAbleToComment: Date,
 }
 
@@ -3035,6 +3043,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostWithRateLimit: PostWithRateLimit
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3221,6 +3230,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostWithRateLimit: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
