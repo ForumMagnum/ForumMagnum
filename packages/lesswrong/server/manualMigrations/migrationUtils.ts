@@ -451,9 +451,7 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
 }): Promise<void> {
   const {getFirst, getNext} = getBatchProviders(useCreatedAt);
   let rows = await getFirst({collection, batchSize, filter, overrideCreatedAt});
-  let batch = 0;
   while (rows.length > 0) {
-    batch++;
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
       rows = await getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt});
