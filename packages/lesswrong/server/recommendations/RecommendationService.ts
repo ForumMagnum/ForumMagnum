@@ -101,12 +101,24 @@ class RecommendationService {
         "lastRecommendedAt",
         "createdAt"
       ) VALUES (
-        $1, $2, $3, $4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+        $1, $2, $3, $4, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
       ) ON CONFLICT ("userId", "postId") DO UPDATE SET
         "strategyName" = $4,
-        "recommendationCount" = "PostRecommendations"."recommendationCount" + 1,
         "lastRecommendedAt" = CURRENT_TIMESTAMP
     `, [randomId(), currentUser._id, _id, strategyName])));
+  }
+
+  async markRecommendationAsObserved(
+    {_id: userId}: DbUser,
+    postId: string,
+  ): Promise<void> {
+    this.logger("Marking recommendation as observed:", {userId, postId});
+    const db = getSqlClientOrThrow();
+    await db.none(`
+      UPDATE "PostRecommendations"
+      SET "recommendationCount" = "recommendationCount" + 1
+      WHERE "userId" = $1 AND "postId" = $2
+    `, [userId, postId]);
   }
 
   async markRecommendationAsClicked(

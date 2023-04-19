@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { gql, useMutation } from "@apollo/client";
+import { useObserver } from "../hooks/useObserver";
+
+const observeRecommendationMutation = gql`
+  mutation observeRecommendation($postId: String!) {
+    observeRecommendation(postId: $postId)
+  }
+`;
 
 const clickRecommendationMutation = gql`
   mutation clickRecommendation($postId: String!) {
@@ -14,24 +21,43 @@ const PostsPageRecommendationItem = ({post, translucentBackground}: {
   translucentBackground?: boolean,
 }) => {
   const currentUser = useCurrentUser();
+  const [observeRecommendation] = useMutation(
+    observeRecommendationMutation,
+    {errorPolicy: "all"},
+  );
   const [clickRecommendation] = useMutation(
     clickRecommendationMutation,
     {errorPolicy: "all"},
   );
 
-  const onRecommendationClicked = (postId: string) => {
+  const onObserve = useCallback(() => {
     if (currentUser) {
-      void clickRecommendation({
+      void observeRecommendation({
         variables: {
-          postId,
+          postId: post._id,
         },
       });
     }
-  }
+  }, [currentUser, post._id, observeRecommendation]);
+
+  const ref = useObserver<HTMLDivElement>({
+    onEnter: onObserve,
+    maxTriggers: 1,
+  });
+
+  const onClicked = useCallback(() => {
+    if (currentUser) {
+      void clickRecommendation({
+        variables: {
+          postId: post._id,
+        },
+      });
+    }
+  }, [currentUser, post._id, clickRecommendation]);
 
   const {PostsItemIntroSequence} = Components;
   return (
-    <div onClick={() => onRecommendationClicked(post._id)}>
+    <div onClick={onClicked} ref={ref}>
       <PostsItemIntroSequence
         post={post}
         sequence={post.canonicalSequence ?? undefined}
