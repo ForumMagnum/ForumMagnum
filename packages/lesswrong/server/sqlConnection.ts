@@ -113,7 +113,7 @@ const onConnectQueries: string[] = [
     END;'
   `,
   // Materialized view for efficiently tracking unique upvoters on posts - this is
-  // used for collaborative filtering recommendations and if periodically refreshed
+  // used for collaborative filtering recommendations and is periodically refreshed
   // by a cron job
   createUniquePostUpvotersQuery,
 ];
