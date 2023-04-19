@@ -43,7 +43,7 @@ const PostsPageRecommendationItem = ({
         },
       });
     }
-  }, [currentUser, post._id, observeRecommendation]);
+  }, [currentUser, post._id, observeRecommendation, disableAnalytics]);
 
   const ref = useObserver<HTMLDivElement>({
     onEnter: onObserve,
@@ -58,7 +58,7 @@ const PostsPageRecommendationItem = ({
         },
       });
     }
-  }, [currentUser, post._id, clickRecommendation]);
+  }, [currentUser, post._id, clickRecommendation, disableAnalytics]);
 
   const {PostsItemIntroSequence} = Components;
   return (
