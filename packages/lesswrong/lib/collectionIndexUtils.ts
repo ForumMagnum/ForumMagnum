@@ -100,7 +100,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
   }
 }
 
-export const ensureCustomPgIndex = async (sql: string) => {
+export const ensureCustomPgIndex = (sql: string) => {
   if (expectedCustomPgIndexes.includes(sql)) {
     return;
   }
@@ -110,7 +110,7 @@ export const ensureCustomPgIndex = async (sql: string) => {
       const db = getSqlClientOrThrow();
       await db.any(sql);
     }
-    await commitIndex(buildIndex);
+    void commitIndex(buildIndex);
   }
 }
 

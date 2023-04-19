@@ -1,4 +1,6 @@
-export const createUniquePostUpvotersQuery = `
+import { createPostgresView } from "../postgresView";
+
+const createUniquePostUpvotersQuery = `
   CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
     SELECT
       p."_id" AS "postId",
@@ -14,11 +16,17 @@ export const createUniquePostUpvotersQuery = `
     GROUP BY p."_id"
 `;
 
-export const refreshUniquePostUpvotersQuery = `
+const refreshUniquePostUpvotersQuery = `
   REFRESH MATERIALIZED VIEW "UniquePostUpvoters"
 `;
 
-export const createUniquePostUpvotersIndexQuery = `
+const createUniquePostUpvotersIndexQuery = `
   CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId"
     ON "UniquePostUpvoters" ("postId")
 `;
+
+createPostgresView(
+  createUniquePostUpvotersQuery,
+  [refreshUniquePostUpvotersQuery],
+  createUniquePostUpvotersIndexQuery,
+);

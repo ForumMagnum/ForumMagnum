@@ -2,7 +2,7 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import md5 from "md5";
 import { isAnyTest } from "../lib/executionEnvironment";
-import { createUniquePostUpvotersQuery } from "./recommendations/UniquePostUpvoters";
+import { ensurePostgresViewsExist } from "./postgresView";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -37,7 +37,8 @@ const pgPromiseLib = pgp({
 const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
-  type SqlClient = IDatabase<{}> & {
+  type RawSqlClient = IDatabase<{}>;
+  type SqlClient = RawSqlClient & {
     // We can't use `T extends DbObject` here because DbObject isn't available to the
     // migration bootstrapping code - `any` will do for now
     concat: (queries: Query<any>[]) => string;
@@ -112,17 +113,26 @@ const onConnectQueries: string[] = [
     )
     END;'
   `,
-  // Materialized view for efficiently tracking unique upvoters on posts - this is
-  // used for collaborative filtering recommendations and is periodically refreshed
-  // by a cron job
-  createUniquePostUpvotersQuery,
 ];
 
 /**
  * pg_advisory_xact_lock takes a 64-bit integer as an argument. Generate this from the query
  * string to ensure that each query gets a unique lock key.
  */
-const getLockKey = (query: string) => parseInt(md5(query), 16) / 1e20
+const getLockKey = (query: string) => parseInt(md5(query), 16) / 1e20;
+
+export const queryWithLock = (
+  db: RawSqlClient,
+  query: string,
+  timeoutSeconds = 10,
+) => {
+  return db.tx(async (transaction) => {
+    // Set advisory lock to ensure only one server runs each query at a time
+    await transaction.any(`SET LOCAL lock_timeout = '${timeoutSeconds}s';`);
+    await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
+    await transaction.any(query)
+  })
+}
 
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
@@ -136,17 +146,15 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   });
 
   try {
-    await Promise.all(onConnectQueries.map((query) => {
-      return db.tx(async (transaction) => {
-        // Set advisory lock to ensure only one server runs each query at a time
-        await transaction.any(`SET LOCAL lock_timeout = '10s';`);
-        await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
-        await transaction.any(query)
-      })
-    }));
+    await Promise.all(onConnectQueries.map((query) => queryWithLock(db, query)));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Failed to run Postgres onConnectQuery:", e);
+  }
+
+  try {
+    await ensurePostgresViewsExist(db);
+  } catch (e) {
   }
 
   return {
