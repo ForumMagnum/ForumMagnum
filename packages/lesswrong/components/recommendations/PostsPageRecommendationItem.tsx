@@ -16,9 +16,14 @@ const clickRecommendationMutation = gql`
   }
 `;
 
-const PostsPageRecommendationItem = ({post, translucentBackground}: {
+const PostsPageRecommendationItem = ({
+  post,
+  translucentBackground,
+  disableAnalytics,
+}: {
   post: PostsListWithVotesAndSequence,
   translucentBackground?: boolean,
+  disableAnalytics?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const [observeRecommendation] = useMutation(
@@ -31,7 +36,7 @@ const PostsPageRecommendationItem = ({post, translucentBackground}: {
   );
 
   const onObserve = useCallback(() => {
-    if (currentUser) {
+    if (currentUser && !disableAnalytics) {
       void observeRecommendation({
         variables: {
           postId: post._id,
@@ -46,7 +51,7 @@ const PostsPageRecommendationItem = ({post, translucentBackground}: {
   });
 
   const onClicked = useCallback(() => {
-    if (currentUser) {
+    if (currentUser && !disableAnalytics) {
       void clickRecommendation({
         variables: {
           postId: post._id,

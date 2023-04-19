@@ -35,7 +35,17 @@ const PostsPageRecommendationsList = ({
       {title && <SectionTitle title={title} />}
       <RecommendationsList
         algorithm={recommendationsAlgorithm}
-        ListItem={PostsPageRecommendationItem}
+        ListItem={
+          (props: {
+            post: PostsListWithVotesAndSequence,
+            translucentBackground?: boolean,
+          }) => (
+            <PostsPageRecommendationItem
+              {...props}
+              disableAnalytics={forceLoggedOutView}
+            />
+          )
+        }
       />
     </div>
   );
