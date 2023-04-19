@@ -2194,6 +2194,14 @@ const schema: SchemaType<DbPost> = {
     optional: true
   },
   
+  postSpecificRateLimit: {
+    type: Date,
+    nullable: true,
+    canRead: [userOwns, 'admins'],
+    optional: true, hidden: true,
+    // Implementation in postResolvers.ts
+  },
+  
   
   commentSortOrder: {
     type: String,

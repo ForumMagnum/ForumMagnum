@@ -125,6 +125,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     fragmentName: "UsersCurrentRateLimit",
     skip: !currentUser,
   });
+  const postWithRateLimit = useSingle({
+    documentId: post?._id,
+    collectionName: "Posts",
+    fragmentName: "PostWithRateLimit",
+    skip: !post,
+  });
   
   const {flash} = useMessages();
   prefilledProps = {
@@ -172,6 +178,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     }
     setLoading(false)
     userWithRateLimit.refetch();
+    postWithRateLimit.refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {
@@ -231,31 +238,42 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     </div>
   };
 
-  // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
-  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {
-    return <span>Sorry, you do not have permission to comment at this time.</span>
-  }
-
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
     currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
   
-  const nextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
-  const formDisabledDueToRateLimit = !!(nextAbleToComment && isInFuture(new Date(nextAbleToComment)));
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
+  const formDisabledDueToRateLimit =
+    !!(userNextAbleToComment && isInFuture(new Date(userNextAbleToComment)))
+    || (postNextAbleToComment && isInFuture(new Date(postNextAbleToComment)));
   const [_,setForceRefreshState] = useState(0);
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
-    if (nextAbleToComment && formDisabledDueToRateLimit) {
-      const timeLeftMS = new Date(nextAbleToComment).getTime() - new Date().getTime();
-      setTimeout(() => {
+    if (formDisabledDueToRateLimit && (userNextAbleToComment || postNextAbleToComment)) {
+      const timeLeftOnUserRateLimitMS = userNextAbleToComment
+        ? new Date(userNextAbleToComment).getTime() - new Date().getTime()
+        : 0;
+      const timeLeftOnPostRateLimitMS = postNextAbleToComment
+        ? new Date(postNextAbleToComment).getTime() - new Date().getTime()
+        : 0;
+      const timeLeftMS = Math.max(timeLeftOnUserRateLimitMS, timeLeftOnPostRateLimitMS);
+      const timer = setTimeout(() => {
         setForceRefreshState((n) => (n+1));
       }, timeLeftMS);
+      
+      return () => clearTimeout(timer);
     }
-  }, [nextAbleToComment, formDisabledDueToRateLimit]);
+  }, [userNextAbleToComment, postNextAbleToComment, formDisabledDueToRateLimit]);
   
+  // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {
+    return <span>Sorry, you do not have permission to comment at this time.</span>
+  }
+
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>

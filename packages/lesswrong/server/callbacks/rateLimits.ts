@@ -5,7 +5,7 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getNthMostRecentItemDate } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -90,13 +90,15 @@ async function enforceCommentRateLimit(user: DbUser) {
   }
 }
 
+type RateLimitReason = "moderator"|"lowKarma"|"universal"
+
 /**
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
  */
 export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Promise<{
   nextEligible: Date,
-  rateLimitType: "moderator"|"lowKarma"|"universal"
+  rateLimitType: RateLimitReason
 }|null> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return null;
@@ -148,14 +150,20 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
     n: 1,
     cutoffHours: commentInterval/(60.0*60.0)
   });
-  console.log(`mostRecentCommentDate = ${mostRecentCommentDate}`);
   if (mostRecentCommentDate) {
-    console.log(`nextEligible = ${moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate()}`);
     return {
       nextEligible: moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate(),
       rateLimitType: "universal",
     };
   }
   
+  return null;
+}
+
+export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, post: DbPost, context: ResolverContext): Promise<{
+  nextEligible: Date,
+  rateLimitType: RateLimitReason,
+}|null> {
+  // TODO
   return null;
 }
