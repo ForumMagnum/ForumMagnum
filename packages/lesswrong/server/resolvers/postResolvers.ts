@@ -73,10 +73,10 @@ augmentFieldsDict(Posts, {
   postSpecificRateLimit: {
     resolveAs: {
       type: "Date",
-      resolver: async (document: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
         const { currentUser } = context;
         if (!currentUser) return null;
-        const rateLimit = await rateLimitGetPostSpecificCommentLimit(currentUser, document, context);
+        const rateLimit = await rateLimitGetPostSpecificCommentLimit(currentUser, post._id);
         return rateLimit?.nextEligible ?? null;
       },
     },

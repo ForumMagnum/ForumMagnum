@@ -7,6 +7,7 @@ export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
 export const RATE_LIMIT_ONE_PER_WEEK = 'rateLimitOnePerWeek';
 export const RATE_LIMIT_ONE_PER_FORTNIGHT = 'rateLimitOnePerFortnight';
 export const RATE_LIMIT_ONE_PER_MONTH = 'rateLimitOnePerMonth';
+export const RATE_LIMIT_THREE_COMMENTS_PER_POST = 'rateLimitThreeCommentsPerPost';
 export const RECENTLY_DOWNVOTED_CONTENT_ALERT = 'recentlyDownvotedContentAlert';
 export const LOW_AVERAGE_KARMA_COMMENT_ALERT = 'lowAverageKarmaCommentAlert';
 export const LOW_AVERAGE_KARMA_POST_ALERT = 'lowAverageKarmaPostAlert';
@@ -22,10 +23,16 @@ export const REJECTED_COMMENT = 'rejectedComment';
 
 export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
 
+export const manuallyAppliedModeratorActions = [
+  ...rateLimits,
+  RATE_LIMIT_THREE_COMMENTS_PER_POST
+] as const;
+
 export const rateLimitSet = new TupleSet(rateLimits);
 export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 
 export type RateLimitType = typeof rateLimits[number]
+export type ManuallyAppliedModeratorActionType = typeof manuallyAppliedModeratorActions[number];
 
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 per day)',
@@ -33,6 +40,7 @@ export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_WEEK]: 'Rate Limit (1 per week)',
   [RATE_LIMIT_ONE_PER_FORTNIGHT]: 'Rate Limit (1 per fortnight)',
   [RATE_LIMIT_ONE_PER_MONTH]: 'Rate Limit (1 per month)',
+  [RATE_LIMIT_THREE_COMMENTS_PER_POST]: 'Rate Limit (3 comments per post)',
   [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
   [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
   [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',

@@ -5,8 +5,8 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getNthMostRecentItemDate } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
-import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
+import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
+import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 
@@ -42,7 +42,7 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
     throw new Error(`Can't comment while logged out.`);
   }
 
-  await enforceCommentRateLimit(currentUser);
+  await enforceCommentRateLimit(currentUser, comment);
 
   return validationErrors;
 });
@@ -80,12 +80,22 @@ async function enforcePostRateLimit (user: DbUser) {
 
 }
 
-async function enforceCommentRateLimit(user: DbUser) {
+async function enforceCommentRateLimit(user: DbUser, comment: DbComment) {
   const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
       throw new Error(`Rate limit: You cannot comment until ${nextEligible}`);
+    }
+  }
+  
+  if (comment.postId) {
+    const postSpecificRateLimit = await rateLimitGetPostSpecificCommentLimit(user, comment.postId);
+    if (postSpecificRateLimit) {
+      const {nextEligible, rateLimitType:_} = postSpecificRateLimit;
+      if (nextEligible > new Date()) {
+        throw new Error(`Rate limit: You cannot comment on this post until ${nextEligible}`);
+      }
     }
   }
 }
@@ -160,10 +170,23 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
   return null;
 }
 
-export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, post: DbPost, context: ResolverContext): Promise<{
+export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<{
   nextEligible: Date,
   rateLimitType: RateLimitReason,
 }|null> {
-  // TODO
+  if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST)) {
+    const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
+      user, collection: Comments,
+      n: 3,
+      cutoffHours: 24,
+      filter: { postId },
+    });
+    if (thirdMostRecentCommentDate) {
+      return {
+        nextEligible: moment(thirdMostRecentCommentDate).add(24, 'hours').toDate(),
+        rateLimitType: "moderator",
+      };
+    }
+  }
   return null;
 }
