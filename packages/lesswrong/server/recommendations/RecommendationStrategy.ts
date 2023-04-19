@@ -64,6 +64,7 @@ abstract class RecommendationStrategy {
         p."groupId" IS NULL AND
         p."isEvent" IS NOT TRUE AND
         p."baseScore" >= $(minimumBaseScore) AND
+        p."disableRecommendation" IS NOT TRUE AND
       `,
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
