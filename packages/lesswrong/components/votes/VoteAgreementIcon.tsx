@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -121,13 +121,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     /* pointerEvents: none prevents elements under the IconButton from interfering with mouse
        events during a bigVote transition. */
     pointerEvents: 'none'
-  }
+  },
+  disabled: {
+    cursor: 'not-allowed',
+  },
 })
 
 export interface VoteArrowIconProps {
   solidArrow?: boolean,
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
+  enabled?: boolean,
   color: VoteColor,
   voted: boolean,
   eventHandlers: {
@@ -142,9 +146,11 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
+  const { LWTooltip } = Components;
+
   const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
@@ -156,9 +162,13 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
   const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
   const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
 
+  if (!enabled) {
+    eventHandlers = {};
+  }
+
   return (
     <IconButton
-      className={classNames(classes.root)}
+      className={classNames(classes.root, {[classes.disabled]: !enabled})}
       onMouseDown={eventHandlers.handleMouseDown}
       onMouseUp={eventHandlers.handleMouseUp}
       onMouseOut={eventHandlers.clearState}

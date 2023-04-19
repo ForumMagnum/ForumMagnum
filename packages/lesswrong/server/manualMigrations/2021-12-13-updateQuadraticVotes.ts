@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 
 
-const voteMap = {
+const voteMap: AnyBecauseObsolete = {
   1: { 
     cost: 45,
     value: -9 
@@ -37,8 +37,8 @@ const voteMap = {
   },
 }
 
-const getCost = (vote) => voteMap[vote.qualitativeScore].cost
-const getValue = (vote) => voteMap[vote.qualitativeScore].value
+const getCost = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].cost
+const getValue = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].value
 
 // TODO: Write a better version of this migration which properly normalizes vote strength
 registerMigration({
@@ -51,11 +51,11 @@ registerMigration({
     const users = await Users.find({_id: {$in: Object.keys(votesByUserId)}}).fetch()
     const usersByUserId = groupBy(users, user => user._id)
 
-    let postsAllUsers = {}
-    let postsHighKarmaUsers = {}
-    let postsAFUsers = {}
+    let postsAllUsers: AnyBecauseObsolete = {}
+    let postsHighKarmaUsers: AnyBecauseObsolete = {}
+    let postsAFUsers: AnyBecauseObsolete = {}
 
-    function updatePost(postList, vote) {
+    function updatePost(postList: AnyBecauseObsolete, vote: AnyBecauseObsolete) {
       if (postList[vote.postId] === undefined) { 
         postList[vote.postId] = [getValue(vote)]
       } else {
@@ -87,20 +87,20 @@ registerMigration({
 
     for (let postId in postsAllUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
-        reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+        reviewVotesAllKarma: postsAllUsers[postId].sort((a:number,b:number) => b - a), 
+        reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x:number, y:number) => x + y, 0) 
       }})
     }
     for (let postId in postsHighKarmaUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
-        reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
+        reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a:number,b:number) => b - a),
+        reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x:number, y:number) => x + y, 0),
       }})
     }
     for (let postId in postsAFUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
-        reviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
+        reviewVotesAF: postsAFUsers[postId].sort((a:number,b:number) => b - a),
+        reviewVoteScoreAF: postsAFUsers[postId].reduce((x:number, y:number) => x + y, 0),
        }})
     }
   },

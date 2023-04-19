@@ -1,21 +1,26 @@
 import React from 'react';
+import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 16,
-    fontStyle: "italic"
+    fontStyle: "italic",
+    wordBreak: "break-all"
   },
   accountFlag: {
   },
+  qualitySignalRow: {
+    maxHeight: 20,
+    overflow: "hidden"
+  }
 });
 
 export const UserReviewStatus = ({classes, user}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { FormatDate, UsersNameWrapper } = Components
+  const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components
 
   const approvalStatus = user.banned 
     ? "Banned"
@@ -23,12 +28,12 @@ export const UserReviewStatus = ({classes, user}: {
 
   const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
-    {user.reviewedAt
+    {(user.reviewedByUserId && user.reviewedAt)
       ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
       : null 
     }
     {user.banned
-      ? <p><em>Banned until <FormatDate format="yyyy-mm-DD" date={user.banned}/></em></p>
+      ? <p><em>Banned until <FormatDate format="YYYY-MM-DD" date={user.banned}/></em></p>
       : null 
     }
 
@@ -40,11 +45,9 @@ export const UserReviewStatus = ({classes, user}: {
     {user.nullifyVotes && <div className={classes.accountFlag}>Previous votes deleted</div>}
     {user.deleteContent && <div className={classes.accountFlag}>Content purged</div>}
 
-    {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {firstClientId?.firstSeenReferrer}</div>}
-    {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {firstClientId?.firstSeenLandingPage}</div>}
-    {(firstClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
-      <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link></em>
-    </div>}
+    {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: <a href={firstClientId?.firstSeenReferrer}>{firstClientId?.firstSeenReferrer}</a></div>}
+    {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: <Link to={firstClientId?.firstSeenLandingPage}>{firstClientId?.firstSeenLandingPage}</Link></div>}
+    {(firstClientId?.userIds?.length??0) > 1 && <AltAccountInfo user={user}/>}
     <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
 }

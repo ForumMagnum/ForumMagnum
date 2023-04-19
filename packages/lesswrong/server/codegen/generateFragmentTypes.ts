@@ -89,7 +89,7 @@ function generateCollectionNamesIndexType(): string {
   return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
-function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection): string {
+function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection: AnyBecauseTodo): string {
   const sb: Array<string> = [];
   
   const spreadFragments = getSpreadFragments(parsedFragment);
@@ -120,7 +120,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragme
   return sb.join('');
 }
 
-function getSpreadFragments(parsedFragment): Array<string> {
+function getSpreadFragments(parsedFragment: AnyBecauseTodo): Array<string> {
   const spreadFragmentNames: Array<string> = [];
   for (let selection of parsedFragment.selectionSet.selections) {
     if(selection.kind == "FragmentSpread") {
@@ -130,7 +130,7 @@ function getSpreadFragments(parsedFragment): Array<string> {
   return spreadFragmentNames;
 }
 
-function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
+function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBecauseTodo, collection: AnyBecauseTodo):
   { fieldType: string, subfragment: string|null }
 {
   const fieldName: string = parsedFragmentField.name.value;

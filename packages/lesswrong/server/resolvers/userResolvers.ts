@@ -300,7 +300,7 @@ addGraphQLResolvers({
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
       }
       
-      const results = {
+      const results: AnyBecauseTodo = {
         ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
@@ -333,7 +333,7 @@ addGraphQLResolvers({
   },
 })
 
-function getAlignment(results) {
+function getAlignment(results: AnyBecauseTodo) {
   let goodEvil = 'neutral', lawfulChaotic = 'Neutral';
   if (results.engagementPercentile < 0.33) {
     goodEvil = 'evil'

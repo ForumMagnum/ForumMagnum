@@ -330,7 +330,7 @@ const ReviewVotingPage = ({classes}: {
   const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
-  const updatePostSort = (sort) => {
+  const updatePostSort = (sort: AnyBecauseTodo) => {
     setSortPosts(sort)
     const newQuery = {...location.query, sort}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})

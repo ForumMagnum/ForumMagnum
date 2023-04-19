@@ -16,9 +16,8 @@ import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from 
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { getNewModActionNotes, getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -65,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
+    minHeight: 250,
     ...hideScrollBars,
     '& *': {
       ...hideScrollBars
@@ -188,6 +188,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       selector: {_id: user._id},
       data: {
         needsReview: false,
+        reviewedByUserId: null, // this is necessary so that their next post/comment won't appear without being approved by a moderator
+        reviewedAt: new Date(), // this is necessary so it shows up that they appear in the "recently reviewed" list
         sunshineNotes: newNotes
       }
     })    
@@ -305,7 +307,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 60);
-    
+
     await createModeratorAction({
       data: {
         type,
@@ -314,6 +316,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       }
     });
 
+    setNotes( getNewModActionNotes(currentUser.displayName, type, notes) )
     const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
     for (const rateLimit of existingRateLimits) {
       void endRateLimit(rateLimit._id)

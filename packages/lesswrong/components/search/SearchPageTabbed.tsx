@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -62,7 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   filtersHeadline: {
-    marginBottom: 18
+    marginBottom: 18,
+    fontWeight: 500,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   filterLabel: {
     fontSize: 14,
@@ -221,10 +223,29 @@ const Stats = ({ nbHits, className }: {
 }
 const CustomStats = connectStats(Stats)
 
+const ScrollTo: FC<{
+  targetRef: RefObject<HTMLDivElement>,
+  value: string,
+  hasNotChanged: boolean,
+  children: ReactElement,
+}> = ({targetRef, value, hasNotChanged, children}) => {
+  const prevValue = useRef(value);
+  useEffect(() => {
+    if (value !== prevValue.current && hasNotChanged) {
+      targetRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+    prevValue.current = value;
+  }, [targetRef, value, hasNotChanged]);
+  return children;
+}
+const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
+  const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
   
@@ -370,7 +391,9 @@ const SearchPageTabbed = ({classes}:{
             <InfoIcon className={classes.infoIcon}/>
           </LWTooltip>
         </div>
-        
+
+        <div ref={scrollToRef} />
+
         <Tabs
           value={tab}
           onChange={handleChangeTab}
@@ -390,7 +413,9 @@ const SearchPageTabbed = ({classes}:{
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
-          <Hits hitComponent={(props) => <HitComponent {...props} />} />
+          <CustomScrollTo targetRef={scrollToRef}>
+            <Hits hitComponent={(props) => <HitComponent {...props} />} />
+          </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
       </div>

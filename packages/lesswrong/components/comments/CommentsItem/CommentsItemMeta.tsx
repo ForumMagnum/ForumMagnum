@@ -2,7 +2,7 @@ import React, { useState }  from "react";
 import classNames from "classnames";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { isEAForum, isLW } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink } from "./useCommentLink";
 import { Comments } from "../../../lib/collections/comments";
@@ -114,6 +114,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     : {
       opacity: 0.35,
     },
+  rejectedIcon: {
+    marginLeft: 'auto',
+    marginBottom: 2,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
+  },
+  rejectedLabel: {
+    marginLeft: 'auto',
+    marginBottom: 2,
+    color: theme.palette.grey[500],
+    cursor: "pointer",
+  }
 });
 
 export const CommentsItemMeta = ({
@@ -148,7 +160,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-
+  
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -205,7 +217,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu,
+    ForumIcon, CommentsMenu, RejectContentButton
   } = Components;
 
   return (
@@ -247,11 +259,11 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      <SmallSideVote
+      {!comment.debateResponse && <SmallSideVote
         document={comment}
         collection={Comments}
         hideKarma={post?.hideCommentKarma}
-      />
+      />}
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 
@@ -289,6 +301,10 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+
+      {isLW && userIsAdmin(currentUser) &&
+        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
+      }
 
       <span className={classes.rightSection}>
         {isEAForum &&

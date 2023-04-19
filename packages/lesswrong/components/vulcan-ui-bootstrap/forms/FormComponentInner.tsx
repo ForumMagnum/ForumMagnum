@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
   scrollRef: React.RefObject<HTMLDivElement>;
 
-  constructor(props) {
+  constructor(props: AnyBecauseTodo) {
     super(props);
 
     this.state = {highlight: false};
@@ -81,7 +81,7 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       path,
       options,
       label,
-      onChange: event => {
+      onChange: (event: AnyBecauseTodo) => {
         // FormComponent's handleChange expects value as argument; look in target.checked or target.value
         const inputValue = inputType === 'checkbox' ? event.target.checked : event.target.value;
         onChange(inputValue);

@@ -135,7 +135,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -263,9 +263,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
             Please wait awhile before commenting again.
           </div>}
-          {commentWillBeHidden && <div className={classes.modNote}><em>
-            A moderator will need to review your account before your comments will show up.
-          </em></div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -273,11 +270,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             {!formDisabledDueToRateLimit &&
               <WrappedSmartForm
                 id="new-comment-form"
-                collection={Comments}
+                collectionName="Comments"
                 mutationFragment={getFragment(fragment)}
                 successCallback={wrappedSuccessCallback}
                 cancelCallback={wrappedCancelCallback}
-                submitCallback={(data: unknown) => {
+                submitCallback={(data: unknown) => { 
                   setLoading(true);
                   return data
                 }}
@@ -300,6 +297,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <NewCommentModerationWarning />
+          </div>}
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>

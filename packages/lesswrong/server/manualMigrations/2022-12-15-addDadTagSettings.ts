@@ -23,7 +23,7 @@ registerMigration({
         console.log("Migrating user batch");
         const changes = users.map(({ _id, frontpageFilterSettings: { tags } }) => {
           const newTags = [
-            ...tags.filter((tag) => tag.tagId !== dadTag._id),
+            ...tags.filter((tag: AnyBecauseObsolete) => tag.tagId !== dadTag._id),
             {
               tagId: dadTag._id,
               tagName: dadTag.name,

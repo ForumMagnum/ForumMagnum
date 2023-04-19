@@ -10,8 +10,9 @@ import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import { userHasShortformTags } from '../../betas';
+import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 
-export const moderationOptionsGroup: FormGroup = {
+export const moderationOptionsGroup: FormGroupType = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -221,7 +222,7 @@ const schema: SchemaType<DbComment> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: (comment: DbComment) => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -666,8 +667,7 @@ const schema: SchemaType<DbComment> = {
     label: `Shortform ${taggingNameSetting.get()}`,
     tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
     control: "FormComponentTagsChecklist",
-    hidden: (
-      {currentUser, document}: {currentUser: UsersCurrent|DbUser|null, document: CommentsList}): boolean => {
+    hidden: ({currentUser, document}: SmartFormProps): boolean => {
         if (!userHasShortformTags(currentUser)) return true;
         return !document.shortform
     },
@@ -692,8 +692,70 @@ const schema: SchemaType<DbComment> = {
       
       const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
-    }
+    },
   },
+
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  modGPTAnalysis: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
+  // This should be one of: Intervene, Consider reviewing, Don't intervene
+  modGPTRecommendation: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
+
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
 
   /* Alignment Forum fields */
   af: {
@@ -704,7 +766,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props) => alignmentForum || !props.alignmentForumPost
+    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

@@ -186,6 +186,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       unlisted: false,
       shortform: false,
       authorIsUnreviewed: false,
+      rejected: { $ne: true },
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
@@ -234,8 +235,8 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
     }
 
-    if (sortings[terms.sortedBy]) {
-      params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
+    if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
+      params.options = {sort: {...params.options.sort, ...(sortings as AnyBecauseTodo)[terms.sortedBy]}}
     } else {
       // eslint-disable-next-line no-console
       console.warn(
@@ -422,7 +423,7 @@ export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1},
     suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
@@ -441,6 +442,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
+      rejected: null
     },
     options: {
       limit: 5,
@@ -1216,7 +1218,8 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny
+      draft: viewFieldAllowAny,
+      rejected: null
     },
     options: {
       sort: {

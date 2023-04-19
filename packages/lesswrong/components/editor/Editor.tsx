@@ -8,12 +8,12 @@ import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@material-ui/core/Select';
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
 
-const postEditorHeight = 250;
+const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
@@ -550,7 +550,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  validateCkEditor = (document) => {
+  validateCkEditor = (document: AnyBecauseTodo) => {
     const result = checkEditorValid(document, this.props.currentUser)
     this.setState({editorWarning: result.message})
   }

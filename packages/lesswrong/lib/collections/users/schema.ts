@@ -6,14 +6,13 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
-import moment from 'moment';
 import { postsLayouts } from '../posts/dropdownOptions';
 
 ///////////////////////////////////////
@@ -238,9 +237,6 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   githubProfileURL: 'github.com/'
 }
 
-export const CS_START = '2023/04/01'
-export const CS_END = '2023/04/02'
-
 /**
  * @summary Users schema
  * @type {Object}
@@ -401,7 +397,7 @@ const schema: SchemaType<DbUser> = {
     },
     form: {
       // Will always be disabled for mods, because they cannot read hasAuth0Id
-      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
+      disabled: ({document}: AnyBecauseTodo) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
@@ -751,7 +747,21 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-  
+
+  hideCommunitySection: {
+    order: 93,
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    control: "checkbox",
+    label: "Hide community section from the frontpage",
+  },
+
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
   showCommunityInRecentDiscussion: {
     order: 94,
@@ -772,9 +782,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
-    hidden: () => forumTypeSetting.get() !== 'EAForum' ||
-      moment().isBefore(moment(new Date(CS_START))) ||
-      moment().isAfter(moment(new Date(CS_END))),
+    hidden: true,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -1992,7 +2000,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && !post.rejected && post.status===postStatuses.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },
@@ -2031,7 +2039,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
