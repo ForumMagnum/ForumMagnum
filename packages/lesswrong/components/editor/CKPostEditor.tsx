@@ -96,8 +96,6 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   if (isDebatePost && placeholder === defaultEditorPlaceholder) {
     placeholder = debateEditorPlaceholder;
   }
-
-  console.log({ placeholder });
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
