@@ -42,6 +42,7 @@ declare global {
     // We can't use `T extends DbObject` here because DbObject isn't available to the
     // migration bootstrapping code - `any` will do for now
     concat: (queries: Query<any>[]) => string;
+    isTestingClient: boolean;
   };
 }
 
@@ -138,7 +139,10 @@ const onConnectQueries: string[] = [
   `,
 ];
 
-export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
+export const createSqlConnection = async (
+  url?: string,
+  isTestingClient = false,
+): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
     throw new Error("PG_URL not configured");
@@ -149,21 +153,7 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     max: MAX_CONNECTIONS,
   });
 
-  try {
-    await Promise.all(onConnectQueries.map((query) => queryWithLock(db, query)));
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to run Postgres onConnectQuery:", e);
-  }
-
-  try {
-    await ensurePostgresViewsExist(db);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to ensure Postgres views exist:", e);
-  }
-
-  return {
+  const client: SqlClient = {
     ...db,
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
     concat: (queries: Query<any>[]): string => {
@@ -173,5 +163,22 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
       });
       return pgPromiseLib.helpers.concat(compiled);
     },
+    isTestingClient,
   };
+
+  try {
+    await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to run Postgres onConnectQuery:", e);
+  }
+
+  try {
+    await ensurePostgresViewsExist(client);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
+  }
+
+  return client;
 }

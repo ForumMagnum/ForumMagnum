@@ -14,17 +14,17 @@ class PostgresView {
     return this.createViewQuery;
   }
 
-  async createView(db: RawSqlClient) {
+  async createView(db: SqlClient) {
     await queryWithLock(db, this.createViewQuery, this.queryTimeout);
   }
 
-  async createIndexes(db: RawSqlClient) {
+  async createIndexes(db: SqlClient) {
     await Promise.all(this.createIndexQueries.map((index) =>
       queryWithLock(db, index, this.queryTimeout),
     ));
   }
 
-  async refresh(db: RawSqlClient) {
+  async refresh(db: SqlClient) {
     if (this.refreshQuery) {
       await queryWithLock(db, this.refreshQuery, this.queryTimeout);
     }
@@ -51,9 +51,7 @@ export const createPostgresView = (
   postgresViews.push(view);
 }
 
-export const ensurePostgresViewsExist = async (
-  db: RawSqlClient = getSqlClientOrThrow(),
-) => {
+export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
   await Promise.all(postgresViews.map((view) => view.createView(db)));
   await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
 }
