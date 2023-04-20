@@ -45,8 +45,8 @@ class CollabFilterStrategy extends RecommendationStrategy {
         ${userFilter.filter}
         ${communityFilter.filter}
       ORDER BY
-        (# (${srcVoters} & rec.voters))::FLOAT /
-          (# (${srcVoters} | rec.voters))::FLOAT ${tagWeighting} DESC,
+        COALESCE((# (${srcVoters} & rec.voters))::FLOAT /
+          NULLIF((# (${srcVoters} | rec.voters))::FLOAT, 0), 0) ${tagWeighting} DESC,
         p."baseScore" DESC
       LIMIT $(count)
     `, {
