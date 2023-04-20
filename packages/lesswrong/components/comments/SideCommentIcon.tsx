@@ -117,7 +117,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
     if (pinned==="closed")
       setPinned("auto");
   }
-  const onClickAway = (ev) => {
+  const onClickAway = (ev: AnyBecauseTodo) => {
     // FIXME: ev.path is somehow browser specific
     const isClickOnIcon = some(ev.composedPath(), e=>e.hasClass(classes.sideCommentIcon));
     if (!isClickOnIcon) {

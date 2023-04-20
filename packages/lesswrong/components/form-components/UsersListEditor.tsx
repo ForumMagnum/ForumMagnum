@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItemWrapper documentId={contents} removeItem={removeItem} />
+      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });

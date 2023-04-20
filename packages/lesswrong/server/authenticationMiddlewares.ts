@@ -224,7 +224,7 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
 /**
  * Creates a custom strategy which allows third-party API clients to log in via Auth0
  */
-function createAccessTokenStrategy(auth0Strategy) {
+function createAccessTokenStrategy(auth0Strategy: AnyBecauseTodo) {
   const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
 
   return new CustomStrategy((req, done) => {
@@ -233,7 +233,7 @@ function createAccessTokenStrategy(auth0Strategy) {
     if (typeof(accessToken) !== 'string') {
       return done("Invalid token")
     } else {
-      auth0Strategy.userProfile(accessToken, (err, profile) => {
+      auth0Strategy.userProfile(accessToken, (err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
         if (profile) {
           void accessTokenUserHandler(accessToken, resumeToken, profile, done)
         } else {
@@ -244,7 +244,7 @@ function createAccessTokenStrategy(auth0Strategy) {
   })
 }
 
-async function deserializeUserPassport(id, done) {
+async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
   done(null, user)
@@ -253,22 +253,22 @@ async function deserializeUserPassport(id, done) {
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-export const addAuthMiddlewares = (addConnectHandler) => {
+export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
   addConnectHandler(passport.initialize())
   passport.use(cookieAuthStrategy)
   
-  addConnectHandler('/', (req, res, next) => {
+  addConnectHandler('/', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
       if (!user) return next()
-      req.logIn(user, (err) => {
+      req.logIn(user, (err: AnyBecauseTodo) => {
         if (err) return next(err)
         next()
       })
     })(req, res, next) 
   })
 
-  addConnectHandler('/logout', (req, res, next) => {
+  addConnectHandler('/logout', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
       req.logOut()
@@ -375,7 +375,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     ));
   }
   
-  const handleAuthenticate = (req, res, next, err, user, info) => {
+  const handleAuthenticate = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo, err: AnyBecauseTodo, user: AnyBecauseTodo, info: AnyBecauseTodo) => {
     if (err) {
       if (err.message === "banned") {
         res.redirect(301, '/banNotice');
@@ -389,7 +389,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       return next(new Error(`${error}: ${error_description}`))
     }
     if (!user) return next()
-    req.logIn(user, async (err) => {
+    req.logIn(user, async (err: AnyBecauseTodo) => {
       if (err) return next(err)
       await createAndSetToken(req, res, user)
       
@@ -420,20 +420,20 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
     passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
 
-    addConnectHandler('/auth/useAccessToken', (req, res, next) => {
+    addConnectHandler('/auth/useAccessToken', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
       passport.authenticate('access_token', {}, (err, user, info) => {
         handleAuthenticate(req, res, next, err, user, info)
       })(req, res, next)
     })
   }
 
-  addConnectHandler('/auth/google/callback', (req, res, next) => {
+  addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/google', (req, res, next) => {
+  addConnectHandler('/auth/google', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('google', {
       scope: [
@@ -443,24 +443,24 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook/callback', (req, res, next) => {
+  addConnectHandler('/auth/facebook/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('facebook', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook', (req, res, next) => {
+  addConnectHandler('/auth/facebook', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('facebook')(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0/callback', (req, res, next) => {
+  addConnectHandler('/auth/auth0/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('auth0', (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info)
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0', (req, res, next) => {
+  addConnectHandler('/auth/auth0', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     const extraParams = pick(req.query, ['screen_hint', 'prompt'])
     saveReturnTo(req)
     
@@ -470,13 +470,13 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     } as AuthenticateOptions)(req, res, next)
   })
 
-  addConnectHandler('/auth/github/callback', (req, res, next) => {
+  addConnectHandler('/auth/github/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('github', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/github', (req, res, next) => {
+  addConnectHandler('/auth/github', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })

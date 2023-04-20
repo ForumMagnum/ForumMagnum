@@ -15,11 +15,11 @@ export const addStrings = (language: string, strings: Record<string,string>) => 
   };
 };
 
-function replaceAll(target, search, replacement) {
+function replaceAll(target: AnyBecauseTodo, search: AnyBecauseTodo, replacement: AnyBecauseTodo) {
   return target.replace(new RegExp(search, 'g'), replacement);
 }
 
-export const getString = ({id, values, defaultMessage, locale}) => {
+export const getString = ({id, values, defaultMessage, locale}: AnyBecauseTodo) => {
   const messages = Strings[locale] || {};
   let message = messages[id];
   const defaultLocale = localeSetting.get()
