@@ -10,6 +10,8 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
  * returning the posts with the highest indices.
  */
 class CollabFilterStrategy extends RecommendationStrategy {
+  protected weightByTagSimilarity = false;
+
   constructor() {
     super({
       minimumBaseScore: 10,
@@ -30,6 +32,9 @@ class CollabFilterStrategy extends RecommendationStrategy {
       FROM "UniquePostUpvoters"
       WHERE "postId" = $(postId)
     )`;
+    const tagWeighting = this.weightByTagSimilarity
+      ? `+ fm_post_tag_similarity($(postId), p."_id")`
+      : "";
     return db.any(`
       SELECT p.*
       FROM "Posts" p
@@ -41,7 +46,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
         ${communityFilter.filter}
       ORDER BY
         (# (${srcVoters} & rec.voters))::FLOAT /
-          (# (${srcVoters} | rec.voters))::FLOAT DESC,
+          (# (${srcVoters} | rec.voters))::FLOAT ${tagWeighting} DESC,
         p."baseScore" DESC
       LIMIT $(count)
     `, {

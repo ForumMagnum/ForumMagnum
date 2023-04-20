@@ -113,6 +113,29 @@ const onConnectQueries: string[] = [
     )
     END;'
   `,
+  // Calculate the similarity between the tags on two posts from 0 to 1, where 0 is
+  // totally dissimilar and 1 is identical. The algorithm used here is a weighted
+  // Jaccard index.
+  `CREATE OR REPLACE FUNCTION fm_post_tag_similarity(
+    post_id_a TEXT,
+    post_id_b TEXT
+  )
+    RETURNS FLOAT LANGUAGE sql IMMUTABLE AS
+   'SELECT
+      COALESCE(SUM(LEAST(a, b))::FLOAT / SUM(GREATEST(a, b))::FLOAT, 0) AS similarity
+    FROM (
+      SELECT
+        GREATEST((a."tagRelevance"->"tagId")::INTEGER, 0) AS a,
+        GREATEST((b."tagRelevance"->"tagId")::INTEGER, 0) AS b
+      FROM (
+        SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+        FROM "Posts"
+        WHERE "_id" IN (post_id_a, post_id_b)
+      ) "allTags"
+      JOIN "Posts" a ON a."_id" = post_id_a
+      JOIN "Posts" b ON b."_id" = post_id_b
+    ) "tagRelevance";'
+  `,
 ];
 
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
