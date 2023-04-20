@@ -8,7 +8,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -94,7 +94,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
 
   const isDebatePost = !!debate;
   if (isDebatePost && placeholder === defaultEditorPlaceholder) {
-    placeholder = 'Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.\n\nOther participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.';
+    placeholder = debateEditorPlaceholder;
   }
 
   console.log({ placeholder });
