@@ -268,9 +268,9 @@ const PostActions = ({post, closeMenu, classes}: {
             showIcon
             document={post}
             subscriptionType={subscriptionTypes.newDebateComments}
-            subscribeMessage="Subscribe to debate"
-            unsubscribeMessage="Unsubscribe from debate"
-            tooltip="Notifies you when there is new activity in the debate"
+            subscribeMessage="Subscribe to dialogue"
+            unsubscribeMessage="Unsubscribe from dialogue"
+            tooltip="Notifies you when there is new activity in the dialogue"
           />
         }
 
