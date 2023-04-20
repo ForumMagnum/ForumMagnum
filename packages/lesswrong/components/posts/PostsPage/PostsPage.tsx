@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import {
-  postCoauthorIsPending,
-  postGetPageUrl,
-} from '../../../lib/collections/posts/helpers';
+import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -24,7 +21,6 @@ import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
-import { RecommendationsAlgorithmWithStrategy } from '../../../lib/collections/users/recommendationSettings';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -348,14 +344,6 @@ const PostsPage = ({post, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
-
-  const recommendationsAlgorithm: RecommendationsAlgorithmWithStrategy = {
-    strategy: {
-      name: "moreFromTag",
-      postId: post._id,
-    },
-    count: 3,
-  };
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>

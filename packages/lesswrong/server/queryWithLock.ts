@@ -20,8 +20,8 @@ export const queryWithLock = (
       await transaction.none("SET LOCAL check_function_bodies TO FALSE;");
     }
     // Set advisory lock to ensure only one server runs each query at a time
-    await transaction.any(`SET LOCAL lock_timeout = '${timeoutSeconds}s';`);
-    await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
-    await transaction.any(query)
+    await transaction.none(`SET LOCAL lock_timeout = '${timeoutSeconds}s';`);
+    await transaction.one(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
+    await transaction.any(query);
   })
 }
