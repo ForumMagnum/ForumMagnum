@@ -90,7 +90,14 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
 
   // Get the linkSharingKey, if it exists
-  const { query : { key } } = useLocation();
+  const { query : { key, debate } } = useLocation();
+
+  const isDebatePost = !!debate;
+  if (isDebatePost && placeholder === defaultEditorPlaceholder) {
+    placeholder = 'Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.\n\nOther participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.';
+  }
+
+  console.log({ placeholder });
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
