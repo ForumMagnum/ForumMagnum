@@ -2,18 +2,17 @@ import {
   StrategySpecification,
   RecommendationStrategyName,
 } from "../../lib/collections/users/recommendationSettings";
-import { randomId } from "../../lib/random";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
 import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import BestOfStrategy from "./BestOfStrategy";
 import CollabFilterStrategy from "./CollabFilterStrategy";
 import TagWeightedCollabFilterStrategy from "./TagWeightedCollabFilter";
 import RecommendationStrategy from "./RecommendationStrategy";
+import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
 
 type ConstructableStrategy = {
-  new (): RecommendationStrategy,
+  new(): RecommendationStrategy,
 }
 
 /**
@@ -23,7 +22,10 @@ type ConstructableStrategy = {
  * abstract class.
  */
 class RecommendationService {
-  private logger = loggerConstructor("recommendation-service");
+  constructor(
+    private logger = loggerConstructor("recommendation-service"),
+    private repo = new PostRecommendationsRepo(),
+  ) {}
 
   private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
     moreFromTag: MoreFromTagStrategy,
@@ -60,7 +62,7 @@ class RecommendationService {
       this.logger("...found", newPosts.length, "posts in", time, "milliseconds");
 
       if (currentUser) {
-        void this.recordRecommendations(currentUser, strategies[0], newPosts);
+        void this.repo.recordRecommendations(currentUser, strategies[0], newPosts);
       }
 
       posts = posts.concat(newPosts);
@@ -101,40 +103,12 @@ class RecommendationService {
     }
   }
 
-  private async recordRecommendations(
-    currentUser: DbUser,
-    strategyName: RecommendationStrategyName,
-    posts: DbPost[],
-  ): Promise<void> {
-    const db = getSqlClientOrThrow();
-    await Promise.all(posts.map(({_id}) => db.none(`
-      INSERT INTO "PostRecommendations" (
-        "_id",
-        "userId",
-        "postId",
-        "strategyName",
-        "recommendationCount",
-        "lastRecommendedAt",
-        "createdAt"
-      ) VALUES (
-        $1, $2, $3, $4, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-      ) ON CONFLICT ("userId", "postId") DO UPDATE SET
-        "strategyName" = $4,
-        "lastRecommendedAt" = CURRENT_TIMESTAMP
-    `, [randomId(), currentUser._id, _id, strategyName])));
-  }
-
   async markRecommendationAsObserved(
     {_id: userId}: DbUser,
     postId: string,
   ): Promise<void> {
     this.logger("Marking recommendation as observed:", {userId, postId});
-    const db = getSqlClientOrThrow();
-    await db.none(`
-      UPDATE "PostRecommendations"
-      SET "recommendationCount" = "recommendationCount" + 1
-      WHERE "userId" = $1 AND "postId" = $2
-    `, [userId, postId]);
+    await this.repo.markRecommendationAsObserved(userId, postId);
   }
 
   async markRecommendationAsClicked(
@@ -142,12 +116,7 @@ class RecommendationService {
     postId: string,
   ): Promise<void> {
     this.logger("Marking recommendation as clicked:", {userId, postId});
-    const db = getSqlClientOrThrow();
-    await db.none(`
-      UPDATE "PostRecommendations"
-      SET "clickedAt" = CURRENT_TIMESTAMP
-      WHERE "userId" = $1 AND "postId" = $2
-    `, [userId, postId]);
+    await this.repo.markRecommendationAsClicked(userId, postId);
   }
 }
 
