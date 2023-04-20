@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
@@ -87,7 +87,7 @@ const CommentUserName = ({
       </span>
     );
   } else if (isEAForum) {
-    const Wrapper = ({children}) => simple
+    const Wrapper = ({children}: {children: ReactElement|ReactElement[]}) => simple
       ? (
         <div className={classes.mainWrapper}>
           {children}
