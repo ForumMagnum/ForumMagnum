@@ -31,6 +31,10 @@ abstract class RecommendationStrategy {
     strategy: StrategySpecification,
   ): Promise<DbPost[]>;
 
+  /**
+   * Create SQL query fragments that filter out posts that the user has already
+   * viewed, or that have already been recommended.
+   */
   protected getUserFilter(currentUser: DbUser|null) {
     return currentUser
       ? {
@@ -59,6 +63,12 @@ abstract class RecommendationStrategy {
       };
   }
 
+  /**
+   * Create SQL query fragments that filter out non-recommendable posts. This includes
+   * applying a base score, excluding posts that are explicitly marked as not
+   * suitable for recommendations, and all of the filters from the default view of the
+   * Posts collection.
+   */
   protected getDefaultPostFilter() {
     return {
       filter: `
@@ -80,6 +90,9 @@ abstract class RecommendationStrategy {
     };
   }
 
+  /**
+   * Create SQL query fragments to exclude posts tagged with community.
+   */
   protected getCommunityFilter() {
     return {
       filter: `COALESCE((p."tagRelevance"->>$(communityId))::INTEGER, 0) < 1`,
@@ -89,6 +102,10 @@ abstract class RecommendationStrategy {
     };
   }
 
+  /**
+   * Find posts in the database using a particular SQL filter, whilst applying
+   * the default filters for users, posts and tags.
+   */
   protected recommendDefaultWithPostFilter(
     currentUser: DbUser|null,
     count: number,
