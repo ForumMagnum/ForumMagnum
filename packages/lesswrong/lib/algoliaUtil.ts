@@ -32,13 +32,8 @@ export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName):
 /**
  * Adding a new sorting is done by adding a new index in Algolia. In
  * general, you want to create a replica of an existing index rather
- * than an entire new index. To do this, add a new replica from the
- * "Replicas" tab of the existing index in Algolia (it should have
- * the same prefix and name as the existing index, with a suffix to
- * match the value in `algoliaReplicaSuffixes` below). Then edit the
- * new replica by going to "Configuration"->"Ranking and Sorting"
- * and click "Add sort-by attribute". Be sure to select the correct
- * sort direction on the new attribute as well.
+ * than an entire new index. This can be done by updating the config
+ * in algoliaConfigureIndexes.ts.
  */
 export const algoliaSortings = new TupleSet([
   "relevance",
