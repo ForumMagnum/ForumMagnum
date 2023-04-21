@@ -225,9 +225,6 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
               const { currentUser } = context;
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);
-              if (resolverName === "postSpecificRateLimit") {
-                console.log(canReadField, field)
-              }
               return canReadField
                 ? field.resolveAs!.resolver(document, args, context, info)
                 : null;
