@@ -14,6 +14,7 @@ import { ObjectId } from "mongodb";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { LWEvents } from "../../lib/collections/lwevents";
 import { inspect } from "util";
+import { CollectionFilters } from './collectionMigrationFilters';
 
 type Transaction = ITask<{}>;
 
@@ -28,9 +29,9 @@ const extractObjectId = (value: Record<string, any>): Record<string, any> => {
 // A place for nasty hacks to live...
 const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject>> = {
   Posts: (post: DbPost): DbPost => {
-    const scoreThresholds = [2, 30, 45, 75, 125, 200];
+    const scoreThresholds = [2, 30, 45, 75, 125, 200] as const;
     for (const threshold of scoreThresholds) {
-      const prop = `scoreExceeded${threshold}Date`;
+      const prop: keyof DbPost = `scoreExceeded${threshold}Date`;
       if (typeof post[prop] === "boolean") {
         post[prop] = null;
       }
@@ -87,6 +88,13 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     extractObjectId(metadata);
     return metadata;
   },
+  Spotlights: (spotlight: DbSpotlight): DbSpotlight => {
+    extractObjectId(spotlight);
+    if (!spotlight.hasOwnProperty('showAuthor')) {
+      spotlight.showAuthor = false;
+    }
+    return spotlight;
+  }
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
@@ -170,10 +178,37 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
 }
 
 const makeCollectionFilter = (collectionName: string) => {
-  return collectionName === "DatabaseMetadata"
-    ? { name: { $ne: "databaseId" } }
-    : {};
+  switch (collectionName) {
+    case "DatabaseMetadata":
+      return { name: { $ne: "databaseId" } };
+    case "Books":
+      return CollectionFilters['Books'];
+    case "Sequences":
+      return CollectionFilters['Sequences'];
+    case "Collections":
+      return { deleted: { $ne: true } };
+    default:
+      return {};
+  }
 }
+
+const isNonIdSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'EmailTokens': return false;
+    default: return true;
+  }
+};
+
+const getCollectionSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'DebouncerEvents': return 'delayTime';
+    case 'Migrations': return 'started';
+    case 'ReadStatuses': return 'lastUpdated';
+    case 'Revisions': return 'editedAt';
+    case 'Votes': return 'votedAt';
+    default: return 'createdAt';
+  }
+};
 
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
@@ -208,16 +243,19 @@ const copyData = async (
     }).count();
 
     if (totalCount < 1) {
-      return;
+      continue;
     }
 
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
+    const nonIdSortField = isNonIdSortField(collectionName);
+    const sortField = getCollectionSortField(collectionName);
     let count = 0;
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      useCreatedAt: true,
+      useCreatedAt: nonIdSortField,
+      overrideCreatedAt: sortField as keyof DbObject,
       filter: {
         ...makeBatchFilter(collectionName, createdSince),
         ...makeCollectionFilter(collectionName),

@@ -42,7 +42,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
   hidePostCount?: boolean,
   startWithBorder?: boolean,
   isVotingContext?: boolean,
-  updateCurrentValues(values): void,
+  updateCurrentValues(values: AnyBecauseTodo): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
 
@@ -80,6 +80,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
             clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
+            filters="wikiOnly:false"
             isVotingContext={isVotingContext}
           />
         </div>

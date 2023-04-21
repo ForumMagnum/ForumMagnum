@@ -255,7 +255,7 @@ const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
   const items = await getBatchItems(collection, inactive);
   let updatedDocumentsCounter = 0;
-  const itemUpdates = _.compact(items.map(i => {
+  const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
       return {

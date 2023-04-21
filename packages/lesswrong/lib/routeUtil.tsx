@@ -59,7 +59,7 @@ export const useNavigation = (): any => {
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent: any) => {
-  return (props) => (
+  return (props: AnyBecauseTodo) => (
     <LocationContext.Consumer>
       {location =>
         <WrappedComponent
@@ -75,7 +75,7 @@ export const withLocation = (WrappedComponent: any) => {
 // as doumented on https://github.com/ReactTraining/history .
 // This HoC will never trigger rerenders.
 export const withNavigation = (WrappedComponent: any) => {
-  return (props) => (
+  return (props: AnyBecauseTodo) => (
     <NavigationContext.Consumer>
       {navigation =>
         <WrappedComponent
@@ -103,7 +103,7 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   const [query, hash] = queryAndHash.split("#");
   
   const parsedQuery = qs.parse(query);
-  let filteredQuery = {};
+  let filteredQuery: AnyBecauseTodo = {};
   for (let key of _.keys(parsedQuery)) {
     if (_.indexOf(queryParameterBlacklist, key) < 0) {
       filteredQuery[key] = parsedQuery[key];

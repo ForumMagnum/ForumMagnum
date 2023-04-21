@@ -34,7 +34,7 @@ import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
-function getPosts (selector: any) {
+function getPosts (selector: MongoSelector<DbPost>) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
@@ -42,7 +42,7 @@ function getPosts (selector: any) {
     authorIsUnreviewed: false,
   }
 
-  const projection = {
+  const projection: MongoProjection<DbPost> = {
     _id: 1,
     userId: 1,
     title: 1,
@@ -67,7 +67,9 @@ function getPosts (selector: any) {
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
-  async ({selector, outputDir, outputFile = 'post_details.csv'}) => {
+  async ({selector, outputDir, outputFile = 'post_details.csv'}: {
+    selector: MongoSelector<DbPost>, outputDir: string, outputFile?: string
+  }) => {
     if (!outputDir) throw new Error('you must specify an output directory (hint: {outputDir})')
     const documents = getPosts(selector)
     let c = 0
@@ -123,7 +125,7 @@ Vulcan.exportLowKarma = (
   })
 }
 
-Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
+Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}: AnyBecauseTodo) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console

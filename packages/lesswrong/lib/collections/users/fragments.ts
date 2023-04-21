@@ -201,7 +201,6 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
-    noComicSans
   }
 `);
 
@@ -368,7 +367,6 @@ registerFragment(`
     showCommunityInRecentDiscussion
     beta
     theme
-    noComicSans
 
     # Emails
     email
