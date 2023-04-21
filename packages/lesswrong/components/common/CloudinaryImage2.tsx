@@ -37,7 +37,6 @@ const CloudinaryImage2 = ({
   publicId,
   imgProps,
   fullWidthHeader,
-  highDPI,
   className,
   wrapperClassName,
 }: {
@@ -50,7 +49,6 @@ const CloudinaryImage2 = ({
   imgProps?: CloudinaryPropsType,
   /** Overrides width */
   fullWidthHeader?: boolean,
-  highDPI?: boolean,
   className?: string,
   wrapperClassName?: string,
 }) => {
@@ -65,13 +63,12 @@ const CloudinaryImage2 = ({
   };
   let imageStyle: CSSProperties = {};
 
-  const multiplier = highDPI ? 2 : 1;
   if (width) {
-    cloudinaryProps.w = (Number(width) * multiplier).toString()
+    cloudinaryProps.w = width.toString()
     imageStyle.width = width
   }
   if (height) {
-    cloudinaryProps.h = (Number(height) * multiplier).toString()
+    cloudinaryProps.h = height.toString()
     imageStyle.height = height+"px";
   }
   // ignore input width if we're told we have a fullWidthHeader

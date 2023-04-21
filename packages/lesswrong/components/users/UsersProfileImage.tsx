@@ -107,7 +107,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
       <Components.CloudinaryImage2
         width={size}
         height={size}
-        imgProps={{q: "100"}}
+        imgProps={{q: "100", dpr: "2"}}
         publicId={user.profileImageId}
         className={classNames(
           classes.root,
@@ -115,7 +115,6 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
           className,
         )}
         wrapperClassName={classes.wrapper}
-        highDPI
       />
     );
   }
