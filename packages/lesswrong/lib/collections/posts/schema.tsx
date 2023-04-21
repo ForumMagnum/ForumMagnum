@@ -2197,7 +2197,7 @@ const schema: SchemaType<DbPost> = {
   postSpecificRateLimit: {
     type: Date,
     nullable: true,
-    canRead: [userOwns, 'admins'],
+    canRead: ['members'],
     optional: true, hidden: true,
     // Implementation in postResolvers.ts
   },

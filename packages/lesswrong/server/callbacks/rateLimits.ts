@@ -132,25 +132,26 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
     }
   }
   
+  // commented out for now until EA Forum reviews
   // If less than 30 karma, you are also limited to no more than 3 comments per
   // 0.5 hours.
-  if (!(user.karma >= 30)) {
-    const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
-      user, collection: Comments,
-      n: 3,
-      cutoffHours: 0.5,
-    });
+  // if (!(user.karma >= 30)) {
+  //   const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
+  //     user, collection: Comments,
+  //     n: 3,
+  //     cutoffHours: 0.5,
+  //   });
     
-    if (thirdMostRecentCommentDate) {
-      const nextEligible = moment(thirdMostRecentCommentDate).add(0.5, 'hours').toDate();
-      if (isInFuture(nextEligible)) {
-        return {
-          nextEligible,
-          rateLimitType: "lowKarma",
-        };
-      }
-    }
-  }
+  //   if (thirdMostRecentCommentDate) {
+  //     const nextEligible = moment(thirdMostRecentCommentDate).add(0.5, 'hours').toDate();
+  //     if (isInFuture(nextEligible)) {
+  //       return {
+  //         nextEligible,
+  //         rateLimitType: "lowKarma",
+  //       };
+  //     }
+  //   }
+  // }
 
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
@@ -174,6 +175,7 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
   nextEligible: Date,
   rateLimitType: RateLimitReason,
 }|null> {
+  console.log("asdf")
   if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST)) {
     const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
       user, collection: Comments,
@@ -181,6 +183,7 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
       cutoffHours: 24,
       filter: { postId },
     });
+    console.log({thirdMostRecentCommentDate})
     if (thirdMostRecentCommentDate) {
       return {
         nextEligible: moment(thirdMostRecentCommentDate).add(24, 'hours').toDate(),
