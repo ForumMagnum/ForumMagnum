@@ -22,6 +22,7 @@ export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNa
 export interface StrategySpecification {
   name: RecommendationStrategyName,
   postId: string,
+  bias?: number,
   forceLoggedOutView?: boolean,
 }
 

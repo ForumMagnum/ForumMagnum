@@ -21,7 +21,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
+    {postId, bias}: StrategySpecification,
   ): Promise<DbPost[]> {
     const db = getSqlClientOrThrow();
     const userFilter = this.getUserFilter(currentUser);
@@ -33,7 +33,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
       WHERE "postId" = $(postId)
     )`;
     const tagWeighting = this.weightByTagSimilarity
-      ? `+ fm_post_tag_similarity($(postId), p."_id")`
+      ? `+ (fm_post_tag_similarity($(postId), p."_id") * $(bias))`
       : "";
     return db.any(`
       SELECT p.*
@@ -55,6 +55,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
       ...communityFilter.args,
       postId,
       count,
+      bias: bias ?? 1,
     });
   };
 }

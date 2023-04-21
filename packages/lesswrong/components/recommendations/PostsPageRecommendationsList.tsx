@@ -9,10 +9,12 @@ import type {
 const PostsPageRecommendationsList = ({
   title = "More posts like this",
   strategy = "moreFromTag",
+  bias = 1,
   forceLoggedOutView,
 }: {
   title?: string,
   strategy?: RecommendationStrategyName,
+  bias?: number,
   forceLoggedOutView?: boolean,
 }) => {
   const post = usePostsPageContext();
@@ -24,6 +26,7 @@ const PostsPageRecommendationsList = ({
     strategy: {
       name: strategy,
       postId: post._id,
+      bias,
       forceLoggedOutView,
     },
     count: 3,
