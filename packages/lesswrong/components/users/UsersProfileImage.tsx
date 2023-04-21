@@ -52,6 +52,14 @@ const userBackground = (displayName: string): string => {
   return `hsl(${h}deg ${s}% ${l}%)`;
 }
 
+const getTextSizeMultiplier = (text: string) => {
+  switch (text.length) {
+  case 1:  return 0.5;
+  case 2:  return 0.45;
+  default: return 0.34;
+  }
+}
+
 const InitialFallback: FC<{
   displayName: string,
   size: number,
@@ -84,7 +92,7 @@ const InitialFallback: FC<{
         y="50%"
         alignmentBaseline="middle"
         textAnchor="middle"
-        fontSize={size * 0.45}
+        fontSize={size * getTextSizeMultiplier(text)}
         fontWeight="600"
         dy=".1em"
         dominantBaseline="middle"
