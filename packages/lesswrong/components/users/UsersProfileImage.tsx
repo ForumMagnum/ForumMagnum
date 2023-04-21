@@ -36,8 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const MIN_HUE = 100;
+const MAX_HUE = 360;
 const MIN_SATURATION = 30;
-const MAX_SATURATION = 98;
+const MAX_SATURATION = 65;
 const MIN_LIGHTNESS = 38;
 const MAX_LIGHTNESS = 40;
 
@@ -46,7 +48,7 @@ const randPercent = (rand: ReturnType<typeof rng>, min = 0, max = 100) =>
 
 const userBackground = (displayName: string): string => {
   const rand = rng(displayName);
-  const h = Math.abs(rand.int32()) % 360;
+  const h = randPercent(rand, MIN_HUE, MAX_HUE);
   const s = randPercent(rand, MIN_SATURATION, MAX_SATURATION);
   const l = randPercent(rand, MIN_LIGHTNESS, MAX_LIGHTNESS);
   return `hsl(${h}deg ${s}% ${l}%)`;
