@@ -1,6 +1,5 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
 import {
-  algoliaCollectionIsCustomSortable,
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
   getAlgoliaIndexName,
@@ -8,7 +7,7 @@ import {
 } from '../../lib/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
-import type { Index, IndexSettings } from 'algoliasearch';
+import type { IndexSettings } from 'algoliasearch';
 
 const algoliaIndexSettings: Record<AlgoliaIndexCollectionName, IndexSettings> = {
   Comments: {
