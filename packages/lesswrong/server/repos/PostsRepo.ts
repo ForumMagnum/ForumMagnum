@@ -61,11 +61,11 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
   
   async getReadHistoryForUser(userId: string): Promise<DbPost[]> {
-    const results = await this.many(`
+    const results = await this.any(`
       SELECT p.*
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
-      WHERE rs."userId" = ${userId}
+      WHERE rs."userId" = '${userId}'
       ORDER BY rs."lastUpdated" desc
       LIMIT 10
     `)

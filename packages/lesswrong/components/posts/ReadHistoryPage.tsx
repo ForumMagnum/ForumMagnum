@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -8,22 +8,29 @@ import { gql, useQuery } from '@apollo/client';
 const ReadHistoryPage = () => {
   const currentUser = useCurrentUser()
   const { data, loading } = useQuery(gql`
-    query getReadHistory() {
-      UserReadHistory() {}
+    query getReadHistory {
+      UserReadHistory {
+        ...PostsList
+      }
     }
+    ${fragmentTextForQuery("PostsList")}
     `,
-    {skip: !currentUser}
+    {ssr: true, skip: !currentUser}
   )
   console.log(data)
   
-  const {SingleColumnSection, SectionTitle, BookmarksList} = Components
+  const {SingleColumnSection, SectionTitle, Loading, PostsItem} = Components
 
   if (!currentUser) return <span>You must sign in to view your read history.</span>
+  
+  const posts = data?.UserReadHistory
 
   return <SingleColumnSection>
       <AnalyticsContext listContext={"ReadHistoryPage"} capturePostItemOnMount>
         <SectionTitle title="Read history"/>
-        <BookmarksList/>
+        {loading || !posts ? <Loading /> : posts.map(post => <PostsItem
+          key={post._id} post={post}
+        />)}
       </AnalyticsContext>
     </SingleColumnSection>
 }
