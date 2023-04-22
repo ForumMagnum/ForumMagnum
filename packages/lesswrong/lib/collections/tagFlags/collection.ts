@@ -1,5 +1,4 @@
 import { createCollection } from '../../vulcan-lib';
-import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
@@ -28,14 +27,7 @@ const schema: SchemaType<DbTagFlag> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: async (tagFlag) => {
-      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
-    },
-    onEdit: async (modifier, tagFlag) => {
-      if (modifier.$set.name) {
-        return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
-      }
-    }
+    hasServerSide: true,
   },
   order: {
     type: Number,

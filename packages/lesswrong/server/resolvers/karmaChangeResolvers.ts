@@ -1,6 +1,6 @@
 import Users from "../../lib/collections/users/collection";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict } from '../utils/serverSchemaUtils';
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
 
 augmentFieldsDict(Users, {

@@ -67,7 +67,7 @@ const schema: SchemaType<DbTagRel> = {
     type: Boolean,
     canRead: ['guests'],
     optional: true, hidden: true,
-    // Implementation in tagResolvers.ts
+    hasServerSide: true, // Implementation in tagResolvers.ts
   },
   // Indicates that a tagRel was applied via the script backfillParentTags.ts
   backfilled: {

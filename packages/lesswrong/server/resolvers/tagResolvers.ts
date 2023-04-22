@@ -7,7 +7,8 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict } from '../utils/serverSchemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { loadByIds } from '../../lib/loaders';
@@ -31,6 +32,8 @@ import { VotesRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '../utils/slugUtils';
+import { slugify } from '../../lib/vulcan-lib/utils';
 
 // DEPRECATED: here for backwards compatibility
 export async function recordSubforumView(userId: string, tagId: string) {
@@ -300,6 +303,22 @@ type ContributorStats = {
 type ContributorStatsList = Partial<Record<string,ContributorStats>>;
 
 augmentFieldsDict(Tags, {
+  slug: {
+    onInsert: async (tag) => {
+      const basicSlug = slugify(tag.name);
+      return await getUnusedSlugByCollectionName('Tags', basicSlug, true);
+    },
+    onUpdate: async ({data, oldDocument}) => {
+      if (data.slug && data.slug !== oldDocument.slug) {
+        const isUsed = await slugIsUsed("Tags", data.slug)
+        if (isUsed) {
+          throw Error(`Specified slug is already used: ${data.slug}`)
+        }
+      } else if (data.name && data.name !== oldDocument.name) {
+        return await getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
+      }
+    }
+  },
   contributors: {
     resolveAs: {
       arguments: 'limit: Int, version: String',

@@ -196,23 +196,6 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
   }
 }
 
-// Given a collection and a fieldName=>fieldSchema dictionary, add properties
-// to existing fields on the collection schema, by shallow merging them. If any
-// of the fields named don't already exist, throws an error. This is used for
-// making parts of the schema (in particular, resolvers, onCreate callbacks,
-// etc) specific to server-side code.
-export const augmentFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
-  collection._simpleSchema = null;
-  
-  for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
-    } else {
-      throw new Error("Field does not exist: "+key);
-    }
-  }
-}
-
 // For auto-generated database type definitions, provides a (string) definition
 // of this field's type. Useful for fields that would otherwise be black-box types.
 SimpleSchema.extendOptions(['typescriptType'])

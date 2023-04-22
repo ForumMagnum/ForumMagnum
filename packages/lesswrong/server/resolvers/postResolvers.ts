@@ -2,7 +2,8 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict } from '../utils/serverSchemaUtils';
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { getDefaultPostLocationFields } from '../posts/utils'
@@ -10,10 +11,23 @@ import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtils';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 
 augmentFieldsDict(Posts, {
+  slug: {
+    onInsert: async (post) => {
+      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
+    },
+    onEdit: async (modifier, post) => {
+      if (modifier.$set.title) {
+        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
+      }
+    }
+  },
+
   // Compute a denormalized start/end time for events, accounting for the
   // timezone the event's location is in. This is subtly wrong: it computes a
   // correct timestamp, but then the timezone part of that timezone gets lost

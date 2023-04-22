@@ -1,5 +1,4 @@
 import { createCollection } from '../../vulcan-lib';
-import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import './fragments';
@@ -72,9 +71,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: async (gardenCode) => {
-      return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
-    },
+    hasServerSide: true,
   },
   startTime: {
     type: Date,

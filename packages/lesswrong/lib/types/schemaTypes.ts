@@ -30,6 +30,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
+
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
   resolveAs?: {
@@ -40,6 +41,18 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     arguments?: string|null,
     resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
   },
+
+  /**
+   * If hasServerSide is true, a unit test will enforce that, if the server
+   * code is imported, then something was added using augmentFieldsDict. The use
+   * case is for when you have a schema-field with a resolveAs, or some
+   * callbacks like onUpdate, or a denormalized-field computation. In the schema
+   * that lives in lib/, you set hasServerSide to flag that there's more in
+   * another file that isn't shown.
+   */
+  hasServerSide?: boolean
+  
+  
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,

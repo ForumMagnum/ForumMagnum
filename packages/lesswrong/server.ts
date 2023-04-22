@@ -143,6 +143,7 @@ import './server/resolvers/mozillaHubsData';
 import './server/resolvers/arbitalPageData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/tagResolvers';
+import './server/resolvers/tagFlagResolvers';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
@@ -150,6 +151,7 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
+import './server/resolvers/gardenCodeResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

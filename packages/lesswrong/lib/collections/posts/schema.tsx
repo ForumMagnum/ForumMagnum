@@ -1,4 +1,4 @@
-import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -219,14 +219,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: async (post) => {
-      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onEdit: async (modifier, post) => {
-      if (modifier.$set.title) {
-        return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
+    hasServerSide: true,
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -1916,6 +1909,7 @@ const schema: SchemaType<DbPost> = {
   localStartTime: {
     type: Date,
     canRead: ['guests'],
+    hasServerSide: true,
   },
 
   endTime: {
@@ -1934,6 +1928,7 @@ const schema: SchemaType<DbPost> = {
   localEndTime: {
     type: Date,
     canRead: ['guests'],
+    hasServerSide: true,
   },
   
   eventRegistrationLink: {
@@ -2221,7 +2216,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
 
   tableOfContentsRevision: {
@@ -2229,7 +2224,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
   
   sideComments: {
@@ -2237,7 +2232,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    // Implementation in postResolvers.ts
+    hasServerSide: true, // Implementation in postResolvers.ts
   },
   
   // sideCommentsCache: Stores the matching between comments on a post,
@@ -2390,7 +2385,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['admins'],
-    // Implementation in postSummaryResolver.ts
+    hasServerSide: true, // Implementation in postSummaryResolver.ts
   },
 
   debate: {

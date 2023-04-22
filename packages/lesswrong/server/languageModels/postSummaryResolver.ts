@@ -1,5 +1,5 @@
 import { Posts } from '../../lib/collections/posts/collection';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict } from '../utils/serverSchemaUtils'
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { languageModelGenerateText } from './languageModelIntegration';
 

@@ -11,7 +11,8 @@ import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationPa
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
-import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
+import { combineUrls, getSiteUrl, slugify } from '../lib/vulcan-lib/utils';
+import { getUnusedSlugByCollectionName } from './utils/slugUtils';
 import pick from 'lodash/pick';
 import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
@@ -318,7 +319,7 @@ export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
         },
         email: profile.emails?.[0].value,
         emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
-        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        username: await getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
         displayName: profile.displayName,
         emailSubscribedToCurated: true
         // Type assertion here is because @types/passport-google-oauth20 doesn't
@@ -346,7 +347,7 @@ export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
         services: {
           facebook: profile
         },
-        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        username: await getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
         displayName: profile.displayName,
         emailSubscribedToCurated: true
       }))
@@ -368,7 +369,7 @@ export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
         services: {
           github: profile
         },
-        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.username || profile.displayName)),
+        username: await getUnusedSlugByCollectionName("Users", slugify(profile.username || profile.displayName)),
         displayName: profile.username || profile.displayName,
         emailSubscribedToCurated: true
       }))
