@@ -5,7 +5,7 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getNthMostRecentItemDate } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -175,16 +175,18 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
   nextEligible: Date,
   rateLimitType: RateLimitReason,
 }|null> {
-  if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST)) {
+  if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
+    const HOURS = 24 * 7
+    const NUMBER_OF_COMMENTS = 3
     const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
       user, collection: Comments,
-      n: 3,
-      cutoffHours: 24,
+      n: NUMBER_OF_COMMENTS,
+      cutoffHours: HOURS,
       filter: { postId },
     });
     if (thirdMostRecentCommentDate) {
       return {
-        nextEligible: moment(thirdMostRecentCommentDate).add(24, 'hours').toDate(),
+        nextEligible: moment(thirdMostRecentCommentDate).add(HOURS, 'hours').toDate(),
         rateLimitType: "moderator",
       };
     }
