@@ -176,17 +176,17 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
   rateLimitType: RateLimitReason,
 }|null> {
   if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
-    const HOURS = 24 * 7
-    const NUMBER_OF_COMMENTS = 3
+    const hours = 24 * 7
+    const num_comments = 3
     const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
       user, collection: Comments,
-      n: NUMBER_OF_COMMENTS,
-      cutoffHours: HOURS,
+      n: num_comments,
+      cutoffHours: hours,
       filter: { postId },
     });
     if (thirdMostRecentCommentDate) {
       return {
-        nextEligible: moment(thirdMostRecentCommentDate).add(HOURS, 'hours').toDate(),
+        nextEligible: moment(thirdMostRecentCommentDate).add(hours, 'hours').toDate(),
         rateLimitType: "moderator",
       };
     }
