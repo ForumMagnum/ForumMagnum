@@ -2621,6 +2621,13 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     hidden: true,
   },
+  
+  rateLimitNextAbleToComment: {
+    type: Date,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
+  },
 };
 
 export default schema;
