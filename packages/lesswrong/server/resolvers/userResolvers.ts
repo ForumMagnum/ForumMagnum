@@ -18,6 +18,7 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
+import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -47,6 +48,19 @@ augmentFieldsDict(Users, {
         return bio?.html || "";
       }
     }
+  },
+  rateLimitNextAbleToComment: {
+    nullable: true,
+    resolveAs: {
+      type: "Date",
+      resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<Date|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
+        if (rateLimit) {
+          return rateLimit.nextEligible;
+        }
+        return null;
+      }
+    },
   },
 });
 
