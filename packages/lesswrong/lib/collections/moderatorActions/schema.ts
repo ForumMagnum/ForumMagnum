@@ -40,7 +40,7 @@ export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_WEEK]: 'Rate Limit (1 per week)',
   [RATE_LIMIT_ONE_PER_FORTNIGHT]: 'Rate Limit (1 per fortnight)',
   [RATE_LIMIT_ONE_PER_MONTH]: 'Rate Limit (1 per month)',
-  [RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK]: 'Rate Limit (3 comments per post)',
+  [RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK]: 'Rate Limit (3 comments per post per week)',
   [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
   [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
   [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',
