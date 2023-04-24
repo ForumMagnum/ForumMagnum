@@ -2346,8 +2346,8 @@ const schema: SchemaType<DbPost> = {
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
-    canCreate: ["members"],
-    canUpdate: [canUserEditPostMetadata],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
     order: 60
   },
   
