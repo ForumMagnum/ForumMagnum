@@ -1262,6 +1262,8 @@ const schema: SchemaType<DbPost> = {
             false,
           );
         }
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
         return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
