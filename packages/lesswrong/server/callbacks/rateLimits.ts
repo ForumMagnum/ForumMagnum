@@ -40,7 +40,6 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  const post = await Posts.findOne({_id:comment.postId})
   await enforceCommentRateLimit({user: currentUser, comment});
 
   return validationErrors;
