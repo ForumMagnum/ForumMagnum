@@ -895,6 +895,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly afSticky: boolean,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
+  readonly ignoreRateLimits: boolean | null,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly onlyVisibleToLoggedIn: boolean,

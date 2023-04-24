@@ -289,7 +289,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
-            Please wait awhile before commenting again.
+            Please wait {moment(lastRateLimitExpiry).fromNow()} before commenting again.
           </div>}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
