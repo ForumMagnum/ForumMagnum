@@ -81,9 +81,11 @@ async function enforcePostRateLimit (user: DbUser) {
 }
 
 async function enforceCommentRateLimit(user: DbUser, comment: DbComment) {
-  const post = await Posts.findOne({_id:comment.postId})
-  if (post?.ignoreRateLimits) {
-    return
+  if (comment.postId) {
+    const post = await Posts.findOne({_id:comment.postId})
+    if (post?.ignoreRateLimits) {
+      return
+    }
   }
 
   const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
