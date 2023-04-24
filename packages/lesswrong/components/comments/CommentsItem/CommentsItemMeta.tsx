@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
+      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -48,20 +48,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: 5,
+    marginRight: isEAForum ? 0 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
     paddingBottom: 4,
     display: "inline-block",
     verticalAlign: "middle",
+    transform: isEAForum ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
     },
   },
+  collapseChevron: {
+    width: 15,
+    transition: "transform 0.2s",
+  },
+  collapseChevronOpen: {
+    transform: "rotate(90deg)",
+  },
   username: {
-    marginRight: 10,
+    marginRight: isEAForum ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -71,6 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       overflowX: "hidden",
     },
+  },
+  userMarkers: {
+    marginRight: 6,
   },
   moderatorHat: {
     marginRight: 8,
@@ -217,7 +228,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, RejectContentButton
+    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers,
   } = Components;
 
   return (
@@ -240,7 +251,13 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          [<span>{collapsed ? "+" : "-"}</span>]
+          {isEAForum
+            ? <ForumIcon icon="ThickChevronRight" className={classNames(
+                classes.collapseChevron,
+                {[classes.collapseChevronOpen]: !collapsed},
+              )} />
+            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+          }
         </a>
       }
       {singleLineCollapse && <a className={classes.collapse} onClick={() =>
@@ -251,7 +268,11 @@ export const CommentsItemMeta = ({
       <CommentUserName
         comment={comment}
         className={classes.username}
+      />
+      <UserCommentMarkers
+        user={comment.user}
         isPostAuthor={authorIsPostAuthor}
+        className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&

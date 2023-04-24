@@ -105,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -608,6 +610,5 @@ registerFragment(`
   fragment PostWithRateLimit on Post {
     _id
     postSpecificRateLimit
-    sideComments
   }
 `);
