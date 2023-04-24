@@ -5,6 +5,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';
 
 /**
@@ -14,13 +15,13 @@ import * as _ from 'underscore';
  * query type, and so we have to make sure to not resubmit any data that we
  * queried
  */
-function WrappedSmartForm(props) {
-  const { collection } = props
-  const collectionName = collection && collection.options && collection.options.collectionName
+function WrappedSmartForm(props: WrappedSmartFormProps) {
+  const { collectionName } = props
+
   if (editableCollections.has(collectionName)) {
     return <Components.FormWrapper
       {...props}
-      submitCallback={(data) => {
+      submitCallback={(data: AnyBecauseTodo) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape

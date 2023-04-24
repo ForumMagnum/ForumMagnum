@@ -612,3 +612,11 @@ registerFragment(`
     languageModelSummary
   }
 `);
+
+registerFragment(`
+  fragment PostWithRateLimit on Post {
+    _id
+    postSpecificRateLimit
+    sideComments
+  }
+`);

@@ -15,7 +15,7 @@ export const getIpFromRequest = (req: Request): string => {
  * - Attach user info and IP address to the root span
  * - Allow the headers required for Real User Monitoring
  */
-export const datadogMiddleware = (req, res, next) => {
+export const datadogMiddleware = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
   const span = tracer.scope().active()
   if (span !== null) {
     // @ts-ignore - there is currently no public API for getting the root span, this is the accepted way (see https://github.com/DataDog/dd-trace-js/issues/725#issuecomment-805277510)

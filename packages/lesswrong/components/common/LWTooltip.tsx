@@ -27,6 +27,7 @@ const LWTooltip = ({
   classes,
   className,
   titleClassName,
+  popperClassName,
 }: {
   children?: ReactNode,
   title?: ReactNode,
@@ -40,6 +41,7 @@ const LWTooltip = ({
   classes: ClassesType,
   className?: string,
   titleClassName?: string
+  popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -61,6 +63,7 @@ const LWTooltip = ({
       allowOverflow={!flip}
       clickable={clickable}
       hideOnTouchScreens={hideOnTouchScreens}
+      className={popperClassName}
     >
       <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}

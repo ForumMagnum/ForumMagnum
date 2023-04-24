@@ -1,26 +1,3 @@
-/*
-
-Main form component.
-
-This component expects:
-
-### All Forms:
-
-- collection
-- currentUser
-
-### New Form:
-
-- newMutation
-
-### Edit Form:
-
-- editMutation
-- removeMutation
-- document
-
-*/
-
 import cloneDeep from 'lodash/cloneDeep';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
@@ -48,11 +25,7 @@ import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
-import { callbackProps } from './propTypes';
-import withCollectionProps from './withCollectionProps';
-
-
-
+import { callbackProps, SmartFormProps } from './propTypes';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
@@ -64,16 +37,16 @@ const RESET_PROPS = [
   'prefilledProps' // TODO: prefilledProps should be merged instead?
 ] as const;
 
-const compactParent = (object, path) => {
+const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
   const parentPath = getParentPath(path);
 
   // note: we only want to compact arrays, not objects
-  const compactIfArray = x => (Array.isArray(x) ? compact(x) : x);
+  const compactIfArray = (x: AnyBecauseTodo) => (Array.isArray(x) ? compact(x) : x);
 
   update(object, parentPath, compactIfArray);
 };
 
-const getDefaultValues = convertedSchema => {
+const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
   // TODO: make this work with nested schemas, too
   return pickBy(
     mapValues(convertedSchema, field => field.defaultValue),
@@ -81,7 +54,7 @@ const getDefaultValues = convertedSchema => {
   );
 };
 
-const getInitialStateFromProps = nextProps => {
+const getInitialStateFromProps = (nextProps: SmartFormProps): FormState => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
@@ -94,7 +67,7 @@ const getInitialStateFromProps = nextProps => {
   const initialDocument = merge(
     {},
     defaultValues,
-    nextProps.prefilledProps,
+    nextProps.prefilledProps||{},
     nextProps.document
   );
 
@@ -128,22 +101,28 @@ const getInitialStateFromProps = nextProps => {
   };
 };
 
-/*
-
-1. Constructor
-2. Helpers
-3. Errors
-4. Context
-4. Method & Callback
-5. Render
-
-*/
+interface FormState {
+  disabled: boolean,
+  errors: any[],
+  deletedValues: any[],
+  currentValues: any,
+  schema: any,
+  flatSchema: any
+  initialDocument: any,
+  currentDocument: any
+}
 
 /**
- * Note: Only use this through WrappedSmartForm
+ * Main form component. Should not be used directly; use only through
+ * WrappedSmartForm. Depending whether this is a new form or an edit form,
+ * FormWrapper will have provided a create mutator, document and/or update
+ * mutator.
+ *
+ * This is not in the Components table and is not registered with
+ * registerComponent because you aren't supposed to use it without FormWrapper.
  */
-class Form<T extends DbObject> extends Component<any,any> {
-  constructor(props) {
+export class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
+  constructor(props: SmartFormProps) {
     super(props);
 
     this.state = {
@@ -164,63 +143,47 @@ class Form<T extends DbObject> extends Component<any,any> {
   // ------------------------------- Helpers ----------------------------- //
   // --------------------------------------------------------------------- //
 
-  /*
-  If a document is being passed, this is an edit form
-  */
+  /** If a document is being passed, this is an edit form */
   getFormType = () => {
     return this.props.document ? 'edit' : 'new';
   };
 
-  /*
-  Get a list of all insertable fields
-  */
-  getInsertableFields = schema => {
+  /** Get a list of all insertable fields */
+  getInsertableFields = (schema: SchemaType<T>) => {
     return getInsertableFields(
       schema || this.state.schema,
-      this.props.currentUser
+      this.props.currentUser??null
     );
   };
 
-  /*
-  Get a list of all editable fields
-  */
-  getEditableFields = schema => {
+  /** Get a list of all editable fields */
+  getEditableFields = (schema: SchemaType<T>) => {
     return getEditableFields(
       schema || this.state.schema,
-      this.props.currentUser,
+      this.props.currentUser??null,
       this.state.initialDocument
     );
   };
 
-  /*
-
-  Get a list of all mutable (insertable/editable depending on current form type) fields
-
-  */
-  getMutableFields = schema => {
+  /** Get a list of all mutable (insertable/editable depending on current form type) fields */
+  getMutableFields = (schema: SchemaType<T>) => {
     return this.getFormType() === 'edit'
       ? this.getEditableFields(schema)
       : this.getInsertableFields(schema);
   };
 
-  /*
-
-  Get the current document
-
-  */
+  /** Get the current document */
   getDocument = () => {
     return this.state.currentDocument;
   };
 
-  /*
-
-  Like getDocument, but cross-reference with getFieldNames()
-  to only return fields that actually need to be submitted
-
-  Also remove any deleted values.
-
-  */
-  getData = async customArgs => {
+  /**
+   * Like getDocument, but cross-reference with getFieldNames()
+   * to only return fields that actually need to be submitted
+   *
+   * Also remove any deleted values.
+   */
+  getData = async (customArgs: AnyBecauseTodo) => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
       excludeRemovedFields: false,
@@ -259,20 +222,13 @@ class Form<T extends DbObject> extends Component<any,any> {
     return data;
   };
 
-  /*
-
-  Get form components, in case any has been overwritten for this specific form
-
-  */
   // --------------------------------------------------------------------- //
   // -------------------------------- Fields ----------------------------- //
   // --------------------------------------------------------------------- //
 
-  /*
-
-  Get all field groups
-
-  */
+  /**
+   * Get all field groups
+   */
   getFieldGroups = () => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
@@ -288,8 +244,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     // for each group, add relevant fields
     groups = groups.map(group => {
-      group.label =
-        group.label || this.context.intl.formatMessage({ id: group.name });
+      group.label = group.label || this.context.intl.formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
       })
@@ -337,10 +292,9 @@ class Form<T extends DbObject> extends Component<any,any> {
       relevantFields = _.intersection(relevantFields, fields);
     }
 
-    // if "hideFields" prop is specified, remove its fields
+    // if "removeFields" prop is specified, remove its fields
     if (excludeRemovedFields) {
-      // OpenCRUD backwards compatibility
-      const removeFields = this.props.removeFields || this.props.hideFields;
+      const removeFields = this.props.removeFields;
       if (typeof removeFields !== 'undefined' && removeFields.length > 0) {
         relevantFields = _.difference(relevantFields, removeFields);
       }
@@ -382,7 +336,7 @@ class Form<T extends DbObject> extends Component<any,any> {
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
-      layout: this.props.layout,
+      layout: this.props.layout || "horizontal",
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
@@ -394,11 +348,10 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     // add any properties specified in fieldSchema.form as extra props passed on
     // to the form component, calling them if they are functions
-    const inputProperties =
-      fieldSchema.form || fieldSchema.inputProperties || {};
+    const inputProperties = fieldSchema.form || {};
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
-      field[prop] =
+      (field as AnyBecauseTodo)[prop] =
         typeof property === 'function'
           ? property.call(fieldSchema, this.props)
           : property;
@@ -482,7 +435,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     // Now that it's done being constructed, all the required fields will be set
     return field as FormField<T>;
   };
-  createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
+  createArraySubField = (fieldName: AnyBecauseTodo, subFieldSchema: AnyBecauseTodo, mutableFields: AnyBecauseTodo) => {
     const subFieldName = `${fieldName}.$`;
     let subField = this.initField(subFieldName, subFieldSchema);
     // array subfield has the same path and permissions as its parent
@@ -532,7 +485,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     - message: if id cannot be used as i81n key, message will be used
 
   */
-  throwError = error => {
+  throwError = (error: AnyBecauseTodo) => {
     let formErrors = getErrors(error);
 
     // eslint-disable-next-line no-console
@@ -549,7 +502,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   Clear errors for a field
 
   */
-  clearFieldErrors = path => {
+  clearFieldErrors = (path: string) => {
     const errors = this.state.errors.filter(error => error.path !== path);
     this.setState({ errors });
   };
@@ -559,7 +512,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   // --------------------------------------------------------------------- //
 
   // add something to deleted values
-  addToDeletedValues = name => {
+  addToDeletedValues = (name: string) => {
     this.setState(prevState => ({
       deletedValues: [...prevState.deletedValues, name]
     }));
@@ -567,7 +520,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   // Add a callback to the form submission. Return a cleanup function which,
   // when run, removes that callback.
-  addToSubmitForm = callback => {
+  addToSubmitForm = (callback: AnyBecauseTodo) => {
     this.submitFormCallbacks.push(callback);
     return () => {
       const index = this.submitFormCallbacks.indexOf(callback);
@@ -578,7 +531,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   // Add a callback to form submission success. Return a cleanup function which,
   // when run, removes that callback.
-  addToSuccessForm = callback => {
+  addToSuccessForm = (callback: AnyBecauseTodo) => {
     this.successFormCallbacks.push(callback);
     return () => {
       const index = this.successFormCallbacks.indexOf(callback);
@@ -589,7 +542,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   // Add a callback to form submission failure. Return a cleanup function which,
   // when run, removes that callback.
-  addToFailureForm = callback => {
+  addToFailureForm = (callback: AnyBecauseTodo) => {
     this.failureFormCallbacks.push(callback);
     return () => {
       const index = this.failureFormCallbacks.indexOf(callback);
@@ -598,7 +551,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     };
   };
 
-  setFormState = fn => {
+  setFormState = (fn: AnyBecauseTodo) => {
     this.setState(fn);
   };
 
@@ -639,7 +592,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
 
   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
     const needReset = !!RESET_PROPS.find(prop => !isEqual(this.props[prop], nextProps[prop]));
     if (needReset) {
       this.setState(getInitialStateFromProps(nextProps));
@@ -649,7 +602,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   // Manually update the current values of one or more fields(i.e. on change or blur).
   // Return a promise that resolves when the change is fully applied. Since this is
   // a React state update, this is not immediate.
-  updateCurrentValues = async (newValues, options: any = {}) => {
+  updateCurrentValues = async (newValues: AnyBecauseTodo, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { autoSubmit, changeCallback } = this.props;
@@ -740,7 +693,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
-      this.unblock = this.props.history.block((location, action) => {
+      this.unblock = this.props.history.block((location: AnyBecauseTodo, action: AnyBecauseTodo) => {
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
@@ -779,7 +732,7 @@ class Form<T extends DbObject> extends Component<any,any> {
    * see https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
    * the message returned is actually ignored by most browsers and a default message 'Are you sure you want to leave this page? You might have unsaved changes' is displayed. See the Notes section on the mozilla docs above
    */
-  handlePageLeave = (event) => {
+  handlePageLeave = (event: AnyBecauseTodo) => {
     if (this.isChanged()) {
       const message = "Discard changes?"
       if (event) {
@@ -842,7 +795,7 @@ class Form<T extends DbObject> extends Component<any,any> {
    *  the existing one. Note that prefilled props will be merged
    */
   clearForm = ({ document=null }) => {
-    document = document ? merge({}, this.props.prefilledProps, document) : null;
+    document = document ? merge({}, this.props.prefilledProps||{}, document) : null;
     this.setState(prevState => ({
       errors: [],
       currentValues: {},
@@ -853,12 +806,8 @@ class Form<T extends DbObject> extends Component<any,any> {
     }));
   };
 
-  /*
-
-  Key down handler
-
-  */
-  formKeyDown = event => {
+  /** Key down handler */
+  formKeyDown = (event: KeyboardEvent) => {
     //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       if (!this.props.noSubmitOnCmdEnter) {
@@ -867,15 +816,15 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
   };
 
-  newMutationSuccessCallback = (result, submitOptions) => {
+  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = (result, submitOptions) => {
+  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result, mutationType, submitOptions) => {
+  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -907,7 +856,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   };
 
   // catch graphql errors
-  mutationErrorCallback = (document, error) => {
+  mutationErrorCallback = (document: AnyBecauseTodo, error: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
 
     // eslint-disable-next-line no-console
@@ -916,10 +865,10 @@ class Form<T extends DbObject> extends Component<any,any> {
     // error, and displaying this is surprisingly hard. See this:
     // https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(error, (key, value) => 
+    console.log(JSON.stringify(error, (key: AnyBecauseTodo, value) =>
       (value instanceof Error) ?
-        Object.getOwnPropertyNames(value).reduce((ac, propName) => {
-          ac[propName] = value[propName];
+        Object.getOwnPropertyNames(value).reduce((ac: AnyBecauseTodo, propName: AnyBecauseTodo) => {
+          ac[propName] = (value as AnyBecauseTodo)[propName];
           return ac;
         }, {})
         : value
@@ -976,7 +925,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     if (this.getFormType() === 'new') {
       // create document form
       try {
-        const result = await this.props[`create${this.props.typeName}`]({ data });
+        const result = await this.props.createMutation({ data });
         this.newMutationSuccessCallback(result, submitOptions);
       } catch(error) {
         this.mutationErrorCallback(document, error);
@@ -985,7 +934,7 @@ class Form<T extends DbObject> extends Component<any,any> {
       // update document form
       const documentId = this.getDocument()._id;
       try {
-        const result = await this.props[`update${this.props.typeName}`]({
+        const result = await this.props.updateMutation({
           selector: { documentId },
           data
         });
@@ -1011,75 +960,19 @@ class Form<T extends DbObject> extends Component<any,any> {
     if (window.confirm(deleteDocumentConfirm)) {
       this.props
         .removeMutation({ documentId })
-        .then(mutationResult => {
+        .then((mutationResult: AnyBecauseTodo) => {
           // the mutation result looks like {data:{collectionRemove: null}} if succeeded
           if (this.props.removeSuccessCallback)
             this.props.removeSuccessCallback({ documentId, documentTitle });
           if (this.props.refetch) this.props.refetch();
         })
-        .catch(error => {
+        .catch((error: AnyBecauseTodo) => {
           // eslint-disable-next-line no-console
           console.log(error);
         });
     }
   };
 
-
-  // --------------------------------------------------------------------- //
-  // ------------------------- Props to Pass ----------------------------- //
-  // --------------------------------------------------------------------- //
-
-  getFormProps = () => ({
-    className: 'vulcan-form document-' + this.getFormType(),
-    id: this.props.id,
-    onSubmit: this.submitForm,
-    onKeyDown: this.formKeyDown,
-    ref: e => {
-      this.form = e;
-    },
-  });
-
-  getFormErrorsProps = () => ({
-    errors: this.state.errors
-  });
-
-  getFormGroupProps = (group: FormGroup<T>) => ({
-    key: group.name,
-    ...group,
-    errors: this.state.errors,
-    throwError: this.throwError,
-    currentValues: this.state.currentValues,
-    updateCurrentValues: this.updateCurrentValues,
-    deletedValues: this.state.deletedValues,
-    addToDeletedValues: this.addToDeletedValues,
-    clearFieldErrors: this.clearFieldErrors,
-    formType: this.getFormType(),
-    currentUser: this.props.currentUser,
-    disabled: this.state.disabled,
-    formComponents: mergeWithComponents(this.props.formComponents),
-    formProps: this.props.formProps
-  });
-
-  getFormSubmitProps = () => ({
-    submitLabel: this.props.submitLabel,
-    cancelLabel: this.props.cancelLabel,
-    revertLabel: this.props.revertLabel,
-    cancelCallback: this.props.cancelCallback,
-    revertCallback: this.props.revertCallback,
-    submitForm: this.submitForm,
-    updateCurrentValues: this.updateCurrentValues,
-    formType: this.getFormType(),
-    document: this.getDocument(),
-    deleteDocument:
-      (this.getFormType() === 'edit' &&
-        this.props.showRemove &&
-        this.deleteDocument) ||
-      null,
-    collectionName: this.props.collectionName,
-    currentValues: this.state.currentValues,
-    deletedValues: this.state.deletedValues,
-    errors: this.state.errors,
-  });
 
   // --------------------------------------------------------------------- //
   // ----------------------------- Render -------------------------------- //
@@ -1089,16 +982,62 @@ class Form<T extends DbObject> extends Component<any,any> {
     const FormComponents = mergeWithComponents(this.props.formComponents);
 
     return (
-      <FormComponents.FormElement {...this.getFormProps()}>
-        <FormComponents.FormErrors {...this.getFormErrorsProps()} />
+      <FormComponents.FormElement
+        className={'vulcan-form document-' + this.getFormType()}
+        id={this.props.id}
+        onSubmit={this.submitForm}
+        onKeyDown={this.formKeyDown}
+        ref={(e: AnyBecauseTodo) => { this.form = e; }}
+      >
+        <FormComponents.FormErrors
+          errors={this.state.errors}
+        />
 
         {this.getFieldGroups().map((group, i) => (
-          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={`${i}-${group.name}`} />
+          <FormComponents.FormGroup
+            {...group}
+            fields={group.fields as FormField<any>[]}
+            errors={this.state.errors}
+            throwError={this.throwError}
+            currentValues={this.state.currentValues}
+            updateCurrentValues={this.updateCurrentValues}
+            deletedValues={this.state.deletedValues}
+            addToDeletedValues={this.addToDeletedValues}
+            clearFieldErrors={this.clearFieldErrors}
+            formType={this.getFormType()}
+            currentUser={this.props.currentUser}
+            disabled={this.state.disabled}
+            formComponents={mergeWithComponents(this.props.formComponents)}
+            formProps={this.props.formProps}
+            key={`${i}-${group.name}`}
+          />
         ))}
 
-        {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}
+        {this.props.repeatErrors && <FormComponents.FormErrors
+          errors={this.state.errors}
+        />}
 
-        {!this.props.autoSubmit && <FormComponents.FormSubmit {...this.getFormSubmitProps()} />}
+        {!this.props.autoSubmit && <FormComponents.FormSubmit
+          submitLabel={this.props.submitLabel}
+          cancelLabel={this.props.cancelLabel}
+          revertLabel={this.props.revertLabel}
+          cancelCallback={this.props.cancelCallback}
+          revertCallback={this.props.revertCallback}
+          submitForm={this.submitForm}
+          updateCurrentValues={this.updateCurrentValues}
+          formType={this.getFormType()}
+          document={this.getDocument()}
+          deleteDocument={
+            (this.getFormType() === 'edit' &&
+              this.props.showRemove &&
+              this.deleteDocument) ||
+            null
+          }
+          collectionName={this.props.collectionName}
+          currentValues={this.state.currentValues}
+          deletedValues={this.state.deletedValues}
+          errors={this.state.errors}
+        />}
       </FormComponents.FormElement>
     );
   }
@@ -1122,7 +1061,6 @@ class Form<T extends DbObject> extends Component<any,any> {
   fields: PropTypes.arrayOf(PropTypes.string),
   addFields: PropTypes.arrayOf(PropTypes.string),
   removeFields: PropTypes.arrayOf(PropTypes.string),
-  hideFields: PropTypes.arrayOf(PropTypes.string), // OpenCRUD backwards compatibility
   showRemove: PropTypes.bool,
   submitLabel: PropTypes.node,
   cancelLabel: PropTypes.node,
@@ -1136,14 +1074,6 @@ class Form<T extends DbObject> extends Component<any,any> {
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).defaultProps = {
-  layout: 'horizontal',
-  prefilledProps: {},
-  repeatErrors: false,
-  noSubmitOnCmdEnter: false,
-  showRemove: true
 };
 
 (Form as any).contextTypes = {
@@ -1169,13 +1099,3 @@ class Form<T extends DbObject> extends Component<any,any> {
   errors: PropTypes.array,
   currentValues: PropTypes.object
 };
-
-const FormComponent = registerComponent("Form", Form, {
-  hocs: [withCollectionProps]
-});
-
-declare global {
-  interface ComponentTypes {
-    Form: typeof FormComponent
-  }
-}

@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const AdvisorRequests: AdvisorRequestsCollection = createCollection({
   collectionName: 'AdvisorRequests',
   typeName: 'AdvisorRequest',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('AdvisorRequests'),
   mutations: getDefaultMutations('AdvisorRequests'),

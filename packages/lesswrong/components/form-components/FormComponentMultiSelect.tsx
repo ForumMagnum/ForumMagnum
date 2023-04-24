@@ -29,14 +29,18 @@ type MultiselectOption = {
   label: string
 }
 
-const FormComponentMultiSelect = ({ value, label, placeholder, separator, options, path, updateCurrentValues, classes }: {
-  value: Array<string>,
+/**
+ * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
+ * so that it can be used outside of vulcan-forms.
+ */
+const MultiSelect = ({ value, setValue, label, placeholder, separator, options, classes }: {
+  value: string[],
+  setValue: (newValue: any)=>void,
+  
   label?: string,
   placeholder?: string,
   separator?: string,
   options: Array<MultiselectOption>,
-  path: string,
-  updateCurrentValues<T extends {}>(values: T): void,
   classes: ClassesType
 }) => {
   const { MenuItem } = Components;
@@ -50,9 +54,7 @@ const FormComponentMultiSelect = ({ value, label, placeholder, separator, option
       onChange={e => {
         // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
         // @ts-ignore
-        updateCurrentValues({
-          [path]: e.target.value
-        })
+        setValue(e.target.value)
       }}
       multiple
       displayEmpty
@@ -74,10 +76,37 @@ const FormComponentMultiSelect = ({ value, label, placeholder, separator, option
   </FormControl>
 }
 
-const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect, {styles});
+
+/**
+ * FormComponentMultiSelect: Wrapper around MultiSelect for use with
+ * vulcan-forms.
+ */
+const FormComponentMultiSelect = ({ value, label, placeholder, separator, options, path, updateCurrentValues }: FormComponentProps<string[]> & {
+  separator?: string,
+  options: Array<MultiselectOption>,
+  classes: ClassesType
+}) => {
+  return <Components.MultiSelect
+    label={label}
+    placeholder={placeholder}
+    separator={separator}
+    options={options}
+
+    value={value}
+    setValue={(value) => {
+      void updateCurrentValues({
+        [path]: value
+      });
+    }}
+  />
+}
+
+const MultiSelectComponent = registerComponent("MultiSelect", MultiSelect, {styles});
+const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect);
 
 declare global {
   interface ComponentTypes {
+    MultiSelect: typeof MultiSelectComponent
     FormComponentMultiSelect: typeof FormComponentMultiSelectComponent
   }
 }

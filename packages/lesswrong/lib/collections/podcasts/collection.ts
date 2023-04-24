@@ -6,7 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const Podcasts: PodcastsCollection = createCollection({
   collectionName: 'Podcasts',
   typeName: 'Podcast',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Podcasts')
 });

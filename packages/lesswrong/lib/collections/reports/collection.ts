@@ -8,7 +8,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),

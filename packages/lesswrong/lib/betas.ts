@@ -40,6 +40,8 @@ export const userHasSideComments = isEAForum ? disabled : shippedFeature;
 
 export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 
+export const userHasCommentProfileImages = disabled;
+
 export const userHasPingbacks = isEAForum ? disabled : shippedFeature;
 
 // Shipped Features

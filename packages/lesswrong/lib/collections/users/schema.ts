@@ -397,7 +397,7 @@ const schema: SchemaType<DbUser> = {
     },
     form: {
       // Will always be disabled for mods, because they cannot read hasAuth0Id
-      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
+      disabled: ({document}: AnyBecauseTodo) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
@@ -1316,11 +1316,11 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationDebateCommentsOnSubscribedPost: {
-    label: "New debate content in a debate I'm subscribed to",
+    label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New debate content in a debate I'm participating in",
+    label: "New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField()
   },
 
@@ -2620,6 +2620,13 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canCreate: ['admins'],
     hidden: true,
+  },
+  
+  rateLimitNextAbleToComment: {
+    type: Date,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
   },
 };
 
