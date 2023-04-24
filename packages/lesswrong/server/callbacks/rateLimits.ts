@@ -173,26 +173,29 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
 
   // If moderators have imposed a rate limit on this user, enforce that
   const moderatorRateLimit = await getModeratorRateLimit(user)
-  const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-  // moderatorRateLimits should only apply to comments on posts by people other than the comment author
-  const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+    // moderatorRateLimits should only apply to comments on posts by people other than the comment author
+    const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+  
+    if (commentsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
 
-  if (commentsInPastTimeframe > 0) {
-    throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
-  }
-  const mostRecentInTimeframe = await getNthMostRecentItemDate({
-    user, collection: Comments,
-    n: 1,
-    cutoffHours: hours,
-  });
-  if (mostRecentInTimeframe) {
-    return {
-      nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
-      rateLimitType: "moderator",
+    const mostRecentInTimeframe = await getNthMostRecentItemDate({
+      user, collection: Comments,
+      n: 1,
+      cutoffHours: hours,
+    });
+    if (mostRecentInTimeframe) {
+      return {
+        nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
+        rateLimitType: "moderator",
+      }
     }
   }
-  
+
   // commented out for now until EA Forum reviews
   // If less than 30 karma, you are also limited to no more than 3 comments per
   // 0.5 hours.
