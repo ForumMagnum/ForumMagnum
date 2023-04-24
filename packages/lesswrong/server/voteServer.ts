@@ -238,7 +238,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
-  if (collectionName === "Comments" && (document as DbComment).debateResponse) {
+  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     throw new Error("Cannot vote on dialogue responses");
   }
 
