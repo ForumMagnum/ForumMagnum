@@ -39,6 +39,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
       SELECT p.*
       FROM "Posts" p
       INNER JOIN "UniquePostUpvoters" rec ON rec."postId" = p."_id"
+      ${userFilter.join}
       WHERE
         p."_id" <> $(postId) AND
         ${postFilter.filter}
