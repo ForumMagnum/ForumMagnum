@@ -1262,7 +1262,7 @@ const schema: SchemaType<DbPost> = {
             false,
           );
         }
-        return data.frontpageDate ?? oldDocument.frontpageDate;
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
   },
