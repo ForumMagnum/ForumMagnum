@@ -1293,7 +1293,6 @@ interface PostWithGeneratedSummary { // fragment on Posts
 interface PostWithRateLimit { // fragment on Posts
   readonly _id: string,
   readonly postSpecificRateLimit: Date,
-  readonly sideComments: any,
 }
 
 interface CommentsList { // fragment on Comments
