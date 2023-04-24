@@ -192,6 +192,24 @@ const makeCollectionFilter = (collectionName: string) => {
   }
 }
 
+const isNonIdSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'EmailTokens': return false;
+    default: return true;
+  }
+};
+
+const getCollectionSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'DebouncerEvents': return 'delayTime';
+    case 'Migrations': return 'started';
+    case 'ReadStatuses': return 'lastUpdated';
+    case 'Revisions': return 'editedAt';
+    case 'Votes': return 'votedAt';
+    default: return 'createdAt';
+  }
+};
+
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
   if (databaseId) {
@@ -230,11 +248,14 @@ const copyData = async (
 
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
+    const nonIdSortField = isNonIdSortField(collectionName);
+    const sortField = getCollectionSortField(collectionName);
     let count = 0;
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      useCreatedAt: true,
+      useCreatedAt: nonIdSortField,
+      overrideCreatedAt: sortField as keyof DbObject,
       filter: {
         ...makeBatchFilter(collectionName, createdSince),
         ...makeCollectionFilter(collectionName),

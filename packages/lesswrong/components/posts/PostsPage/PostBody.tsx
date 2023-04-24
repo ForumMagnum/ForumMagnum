@@ -12,7 +12,7 @@ const PostBody = ({post, html, sideCommentMode}: {
 }) => {
   const includeSideComments = sideCommentMode && sideCommentMode!=="hidden";
 
-  const { document, loading } = useSingle({
+  const { document } = useSingle({
     documentId: post._id,
     collectionName: "Posts",
     fragmentName: 'PostSideComments',
