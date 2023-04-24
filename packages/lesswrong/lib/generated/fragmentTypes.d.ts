@@ -650,6 +650,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
   readonly sideCommentVisibility: string,
   readonly moderationStyle: string,
+  readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly languageModelSummary: string,
@@ -894,6 +895,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly afSticky: boolean,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
+  readonly ignoreRateLimits: boolean | null,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
@@ -1291,6 +1293,7 @@ interface PostWithGeneratedSummary { // fragment on Posts
 interface PostWithRateLimit { // fragment on Posts
   readonly _id: string,
   readonly postSpecificRateLimit: Date,
+  readonly sideComments: any,
 }
 
 interface CommentsList { // fragment on Comments
