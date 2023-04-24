@@ -2342,6 +2342,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
+    hidden: isEAForum,
     tooltip: "Allow users that moderators have rate-limited to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
