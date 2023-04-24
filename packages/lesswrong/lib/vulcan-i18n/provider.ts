@@ -4,7 +4,7 @@ import { camelToSpaces } from '../vulcan-lib/utils';
 import { intlShape } from './shape';
 
 export default class IntlProvider extends Component<any> {
-  formatMessage = ({ id, defaultMessage }: { id: string, defaultMessage?: string }, values) => {
+  formatMessage = ({ id, defaultMessage }: { id: string, defaultMessage?: string }, values: AnyBecauseTodo) => {
     return getString({ id, defaultMessage, values, locale: this.props.locale });
   };
 
@@ -19,7 +19,7 @@ export default class IntlProvider extends Component<any> {
    * @return {string}                            The translated label
    */
 
-  formatLabel = ({ fieldName, collectionName, schema }, values) => {
+  formatLabel = ({ fieldName, collectionName, schema }: AnyBecauseTodo, values: AnyBecauseTodo) => {
     if (!fieldName) {
       throw new Error('fieldName option passed to formatLabel cannot be empty or undefined');
     }
@@ -49,7 +49,7 @@ export default class IntlProvider extends Component<any> {
     return schemaLabel || camelToSpaces(fieldName);
   };
 
-  formatStuff = something => {
+  formatStuff = (something: AnyBecauseTodo) => {
     return something;
   };
 

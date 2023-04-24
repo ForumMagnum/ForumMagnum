@@ -133,7 +133,7 @@ const UsersMenu = ({classes}: {
                 <MenuItem>New Post</MenuItem>
               </Link>}
               {userCanPost(currentUser) && !isEAForum && userCanCreateField(currentUser, postSchema['debate']) && <Link to={`/newPost?debate=true`}>
-                <MenuItem>New Debate</MenuItem>
+                <MenuItem>New Dialogue</MenuItem>
               </Link>}
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>

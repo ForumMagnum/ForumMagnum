@@ -53,7 +53,7 @@ export const getSubforumScoreBoost = (): SubforumCommentBonus => {
  * This implements the same formula as commentScoreModifiers below
  */
 const getSubforumCommentBonus = (item: VoteableType) => {
-  if ("tagCommentType" in item && item["tagCommentType"] === "SUBFORUM") {
+  if ("tagCommentType" in item && (item as AnyBecauseTodo)["tagCommentType"] === "SUBFORUM") {
     const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
     const createdAt = (item as any).createdAt ?? new Date();
     const ageHours = (Date.now() - createdAt.getTime()) / 3600000;

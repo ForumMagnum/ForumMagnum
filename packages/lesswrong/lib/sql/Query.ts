@@ -447,7 +447,7 @@ abstract class Query<T extends DbObject> {
           break;
       }
 
-      const op = comparisonOps[comparer];
+      const op = (comparisonOps as AnyBecauseTodo)[comparer];
       if (op) {
         return this.arrayify(fieldName, field, op, value[comparer]);
       } else {
@@ -544,7 +544,7 @@ abstract class Query<T extends DbObject> {
       return [new Arg({[op]: expr[op]})]
     }
 
-    if (arithmeticOps[op]) {
+    if ((arithmeticOps as AnyBecauseTodo)[op]) {
       const isMagnitude = isMagnitudeOp(op);
       const operands = expr[op].map((arg: any) => this.compileExpression(arg, isMagnitude ? 0 : undefined));
       const isDateDiff = op === "$subtract" && operands.length === 2 && operands.some(
@@ -553,7 +553,7 @@ abstract class Query<T extends DbObject> {
       let result: Atom<T>[] = [isDateDiff ? "(1000 * EXTRACT(EPOCH FROM" : "("];
       for (let i = 0; i < operands.length; i++) {
         if (i > 0) {
-          result.push(arithmeticOps[op]);
+          result.push((arithmeticOps as AnyBecauseTodo)[op]);
         }
         result = result.concat(operands[i]);
       }
@@ -582,8 +582,8 @@ abstract class Query<T extends DbObject> {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
-    if (variadicFunctions[op]) {
-      const func = variadicFunctions[op];
+    if ((variadicFunctions as AnyBecauseTodo)[op]) {
+      const func = (variadicFunctions as AnyBecauseTodo)[op];
       const args = expr[op].map((value: any) => this.compileExpression(value));
       let prefix = `${func}(`;
       let result: Atom<T>[] = [];

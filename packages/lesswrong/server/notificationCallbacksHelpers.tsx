@@ -101,7 +101,7 @@ export async function getUsersWhereLocationIsInNotificationRadius(location: Mong
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-const getNotificationTiming = (typeSettings): DebouncerTiming => {
+const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };

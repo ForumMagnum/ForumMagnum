@@ -61,7 +61,7 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
   return (
     <div className={classes.root}>
       <Components.WrappedSmartForm
-        collection={Posts}
+        collectionName="Posts"
         fields={['title', 'contents', 'question', 'draft', 'submitToFrontpage', 'hiddenRelatedQuestion', 'originalPostRelationSourceId']}
         mutationFragment={getFragment('PostsList')}
         prefilledProps={{

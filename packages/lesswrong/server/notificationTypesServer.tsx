@@ -214,13 +214,13 @@ export const NewDebateCommentNotification = serverRegisterNotificationType({
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     if (notifications.length > 1) {
-      return `${notifications.length} debate replies on debates you subscribed to`;
+      return `${notifications.length} dialogue replies on dialogues you subscribed to`;
     } else {
       const comment = await Comments.findOne(notifications[0].documentId);
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
-      if (!author) throw Error(`Can't find author for new debate comment notification: ${notifications[0]}`)
-      return `${author.displayName} replied in a debate you subscribed to`;
+      if (!author) throw Error(`Can't find author for new dialogue comment notification: ${notifications[0]}`)
+      return `${author.displayName} replied in a dialogue you subscribed to`;
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -237,13 +237,13 @@ export const NewDebateReplyNotification = serverRegisterNotificationType({
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     if (notifications.length > 1) {
-      return `${notifications.length} replies on debates you're participanting in'`;
+      return `${notifications.length} replies on dialogues you're participanting in'`;
     } else {
       const comment = await Comments.findOne(notifications[0].documentId);
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
-      if (!author) throw Error(`Can't find author for new debate comment notification: ${notifications[0]}`)
-      return `${author.displayName} replied in a debate you're participanting in`;
+      if (!author) throw Error(`Can't find author for new dialogue comment notification: ${notifications[0]}`)
+      return `${author.displayName} replied in a dialogue you're participanting in`;
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {

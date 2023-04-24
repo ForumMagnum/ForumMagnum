@@ -106,7 +106,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   >
     <DialogContent className={classes.localGroupForm}>
       <WrappedSmartForm
-        collection={Localgroups}
+        collectionName="Localgroups"
         documentId={documentId}
         queryFragment={getFragment('localGroupsEdit')}
         mutationFragment={getFragment('localGroupsHomeFragment')}
