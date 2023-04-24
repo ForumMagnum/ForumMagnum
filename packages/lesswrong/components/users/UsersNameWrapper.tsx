@@ -13,8 +13,6 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className, 
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
-  showAuthorIcon?: boolean,
-  allowNewUserIcon?: boolean,
   className?: string,
 }) => {
   const { document, loading } = useSingle({
