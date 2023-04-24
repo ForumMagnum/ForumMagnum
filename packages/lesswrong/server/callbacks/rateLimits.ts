@@ -2,11 +2,13 @@ import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getNthMostRecentItemDate } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
-import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
+import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
+import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
+import { isInFuture } from '../../lib/utils/timeUtil';
+import moment from 'moment';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -40,7 +42,7 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
     throw new Error(`Can't comment while logged out.`);
   }
 
-  await enforceCommentRateLimit(currentUser);
+  await enforceCommentRateLimit(currentUser, comment);
 
   return validationErrors;
 });
@@ -78,29 +80,116 @@ async function enforcePostRateLimit (user: DbUser) {
 
 }
 
-async function enforceCommentRateLimit(user: DbUser) {
+async function enforceCommentRateLimit(user: DbUser, comment: DbComment) {
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
+  if (rateLimit) {
+    const {nextEligible, rateLimitType:_} = rateLimit;
+    if (nextEligible > new Date()) {
+      throw new Error(`Rate limit: You cannot comment until ${nextEligible}`);
+    }
+  }
+  
+  if (comment.postId) {
+    const postSpecificRateLimit = await rateLimitGetPostSpecificCommentLimit(user, comment.postId);
+    if (postSpecificRateLimit) {
+      const {nextEligible, rateLimitType:_} = postSpecificRateLimit;
+      if (nextEligible > new Date()) {
+        throw new Error(`Rate limit: You cannot comment on this post until ${nextEligible}`);
+      }
+    }
+  }
+}
+
+type RateLimitReason = "moderator"|"lowKarma"|"universal"
+
+/**
+ * If the user is rate-limited, return the date/time they will next be able to
+ * comment. If they can comment now, returns null.
+ */
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Promise<{
+  nextEligible: Date,
+  rateLimitType: RateLimitReason
+}|null> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
-    return;
+    return null;
   }
 
+  // If moderators have imposed a rate limit on this user, enforce that
   const moderatorRateLimit = await getModeratorRateLimit(user)
   if (moderatorRateLimit) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-    const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
-  
-    if (commentsInPastTimeframe > 0) {
-      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    const mostRecentInTimeframe = await getNthMostRecentItemDate({
+      user, collection: Comments,
+      n: 1,
+      cutoffHours: hours,
+    });
+    if (mostRecentInTimeframe) {
+      return {
+        nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
+        rateLimitType: "moderator",
+      }
     }
-  
   }
+  
+  // commented out for now until EA Forum reviews
+  // If less than 30 karma, you are also limited to no more than 3 comments per
+  // 0.5 hours.
+  // if (!(user.karma >= 30)) {
+  //   const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
+  //     user, collection: Comments,
+  //     n: 3,
+  //     cutoffHours: 0.5,
+  //   });
+    
+  //   if (thirdMostRecentCommentDate) {
+  //     const nextEligible = moment(thirdMostRecentCommentDate).add(0.5, 'hours').toDate();
+  //     if (isInFuture(nextEligible)) {
+  //       return {
+  //         nextEligible,
+  //         rateLimitType: "lowKarma",
+  //       };
+  //     }
+  //   }
+  // }
 
-  const timeSinceLastComment = await userTimeSinceLast(user, Comments);
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
   // check that user waits more than 15 seconds between comments
-  if((timeSinceLastComment < commentInterval)) {
-    throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
+  const mostRecentCommentDate = await getNthMostRecentItemDate({
+    user, collection: Comments,
+    n: 1,
+    cutoffHours: commentInterval/(60.0*60.0)
+  });
+  if (mostRecentCommentDate) {
+    return {
+      nextEligible: moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate(),
+      rateLimitType: "universal",
+    };
   }
+  
+  return null;
+}
 
+export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<{
+  nextEligible: Date,
+  rateLimitType: RateLimitReason,
+}|null> {
+  if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
+    const hours = 24 * 7
+    const num_comments = 3
+    const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
+      user, collection: Comments,
+      n: num_comments,
+      cutoffHours: hours,
+      filter: { postId },
+    });
+    if (thirdMostRecentCommentDate) {
+      return {
+        nextEligible: moment(thirdMostRecentCommentDate).add(hours, 'hours').toDate(),
+        rateLimitType: "moderator",
+      };
+    }
+  }
+  return null;
 }

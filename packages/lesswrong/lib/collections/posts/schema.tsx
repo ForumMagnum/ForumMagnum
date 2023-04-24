@@ -1262,7 +1262,9 @@ const schema: SchemaType<DbPost> = {
             false,
           );
         }
-        return data.frontpageDate ?? oldDocument.frontpageDate;
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
   },
@@ -2192,6 +2194,14 @@ const schema: SchemaType<DbPost> = {
     type: String,
     foreignKey: "Users",
     optional: true
+  },
+  
+  postSpecificRateLimit: {
+    type: Date,
+    nullable: true,
+    canRead: ['members'],
+    optional: true, hidden: true,
+    // Implementation in postResolvers.ts
   },
   
   
