@@ -60,7 +60,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} expandByDefault/>
+        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>
