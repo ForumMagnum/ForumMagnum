@@ -125,19 +125,27 @@ const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, ho
   return commentsOnNonauthorPosts.length
 }
 
-
-async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
+async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
-    return;
+    return true
   }
-  if (comment.postId) {
-    const post = await Posts.findOne({_id:comment.postId})
-    const commenterIsPostAuthor = post && comment.userId === post.userId
+  if (postId) {
+    const post = await Posts.findOne({_id: postId})
+    const commenterIsPostAuthor = post && user._id === post.userId
+    console.log(commenterIsPostAuthor, user._id, post?.userId)
     if (post?.ignoreRateLimits || commenterIsPostAuthor) {
-      return
+      return true
     }
   }
+  return false
+}
 
+
+async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
+  if (await shouldIgnoreCommentRateLimit(user, comment.postId)) {
+    return
+  }
+ 
   const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
@@ -163,14 +171,13 @@ type RateLimitReason = "moderator"|"lowKarma"|"universal"
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
  */
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Promise<{
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<{
   nextEligible: Date,
   rateLimitType: RateLimitReason
 }|null> {
-  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
-    return null;
+  if (await shouldIgnoreCommentRateLimit(user, postId)) {
+    return null
   }
-
   // If moderators have imposed a rate limit on this user, enforce that
   const moderatorRateLimit = await getModeratorRateLimit(user)
   if (moderatorRateLimit) {
@@ -239,6 +246,10 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
   nextEligible: Date,
   rateLimitType: RateLimitReason,
 }|null> {
+  if (await shouldIgnoreCommentRateLimit(user, postId)) {
+    return null
+  }
+
   if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
     const hours = 24 * 7
     const num_comments = 3
