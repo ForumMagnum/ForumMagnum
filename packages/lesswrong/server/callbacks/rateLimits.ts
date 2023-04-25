@@ -10,6 +10,7 @@ import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModerator
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -53,16 +54,17 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
 
 getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbComment}) => {
   const user = await Users.findOne(document.userId)
-  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
-  if (user && karmaThreshold && user.karma < karmaThreshold) {
-    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-      user,
-      collection: Comments,
-      n: 4,
-      cutoffHours: 0.5,
-    })
-    if (fourthMostRecentCommentDate) {
-      // TODO: analytics event
+  
+  if (user) {
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user)
+    // if the user has created a comment that makes them hit the rate limit, record an event
+    // (ignore the universal 15 sec rate limit)
+    if (rateLimit && rateLimit.rateLimitType !== 'universal') {
+      captureEvent("commentRateLimitHit", {
+        rateLimitType: rateLimit.rateLimitType,
+        userId: document.userId,
+        commentId: document._id
+      })
     }
   }
 })
@@ -127,6 +129,28 @@ async function enforceCommentRateLimit(user: DbUser, comment: DbComment) {
   }
 }
 
+/**
+ * Check if the user has hit the commenting rate limit for low karma users.
+ * (Currently, this is 4 comments every 30 min.)
+ * If so, then return the date at which the rate limit will expire.
+ */
+const checkLowKarmaCommentRateLimit = async (user: DbUser): Promise<Date|null> => {
+  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
+  if (karmaThreshold !== null && user.karma < karmaThreshold) {
+    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+      user,
+      collection: Comments,
+      n: 4,
+      cutoffHours: 0.5,
+    })
+    if (!fourthMostRecentCommentDate) return null
+    // if the user has hit the limit, then they are eligible to comment again
+    // 30 min after their fourth most recent comment
+    return moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
+  }
+  return null
+}
+
 type RateLimitReason = "moderator"|"lowKarma"|"universal"
 
 /**
@@ -161,24 +185,12 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
   
   // If less than 30 karma, you are also limited to no more than 4 comments per
   // 0.5 hours.
-  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
-  if (karmaThreshold && user.karma < karmaThreshold) {
-    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-      user,
-      collection: Comments,
-      n: 4,
-      cutoffHours: 0.5,
-    });
-    
-    if (fourthMostRecentCommentDate) {
-      const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate();
-      if (isInFuture(nextEligible)) {
-        return {
-          nextEligible,
-          rateLimitType: "lowKarma",
-        };
-      }
-    }
+  const nextEligible = await checkLowKarmaCommentRateLimit(user)
+  if (nextEligible && isInFuture(nextEligible)) {
+    return {
+      nextEligible,
+      rateLimitType: "lowKarma",
+    };
   }
 
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
