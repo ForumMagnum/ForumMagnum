@@ -93,7 +93,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    {['frontpage', 'frontpageEA'].includes(configName) && <span className={classes.settingGroup}>
+    {(configName === "frontpage") && <span className={classes.settingGroup}>
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideContinueReading}

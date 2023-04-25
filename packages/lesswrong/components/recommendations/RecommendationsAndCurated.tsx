@@ -136,17 +136,19 @@ const RecommendationsAndCurated = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
-    const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+    const renderBookmarks = !isEAForum && ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderContinueReading = !isEAForum && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
 
-    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
     return <SingleColumnSection className={classes.section}>
       <AnalyticsContext pageSectionContext="recommendations">
         <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-          <Link to={"/recommendations"}>Recommendations</Link>
+          <Link to={"/recommendations"}>
+            {isEAForum ? 'Classic posts' : 'Recommendations'}
+          </Link>
         </LWTooltip>}>
           {currentUser &&
             <LWTooltip title="Customize your recommendations">
