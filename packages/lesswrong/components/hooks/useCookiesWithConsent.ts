@@ -18,7 +18,7 @@ export function useCheckCookieConsent(type: CookieType) {
     [cookies]
   );
 
-  return isCookieAllowed(type, cookiePreferences);
+  return cookiePreferences.includes(type);
 }
 
 export function useCookiesWithConsent(dependencies?: string[]): [

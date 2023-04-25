@@ -306,7 +306,6 @@ const Layout = ({currentUser, children, classes}: {
               <NavigationEventSender/>
               {/* Only show intercom after they have accepted cookies */}
               {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}

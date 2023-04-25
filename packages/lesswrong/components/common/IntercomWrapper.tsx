@@ -6,6 +6,7 @@ import { getUserEmail } from "../../lib/collections/users/helpers";
 import { useLocation } from '../../lib/routeUtil';
 import withErrorBoundary from './withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
+import { useCheckCookieConsent } from '../hooks/useCookiesWithConsent';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 
@@ -27,8 +28,15 @@ const IntercomWrapper = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { currentRoute } = useLocation();
+
+  const functionalCookiesAllowed = useCheckCookieConsent('functional')
   
   if (currentRoute?.standalone) {
+    return null;
+  }
+  if (!functionalCookiesAllowed) {
+    // eslint-disable-next-line no-console
+    console.warn("Not showing Intercom because functional cookies are not allowed")
     return null;
   }
   
