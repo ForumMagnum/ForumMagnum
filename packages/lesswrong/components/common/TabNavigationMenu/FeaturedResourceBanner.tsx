@@ -7,7 +7,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";

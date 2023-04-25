@@ -857,3 +857,4 @@ importComponent("EditPaymentInfoPage", () => require('../components/payments/Edi
 
 importComponent("CookieBanner", () => require('../components/common/CookieBanner/CookieBanner'));
 importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
+importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));

@@ -1,57 +1,190 @@
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-// TODO use forum components
 import Checkbox from "@material-ui/core/Checkbox";
+import classNames from "classnames";
+import Button from "@material-ui/core/Button";
+import { CookieType, isValidCookieTypeArray, registerCookie } from "../../../lib/cookies/utils";
+import { useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
+
+const COOKIE_PREFERENCES_COOKIE = registerCookie({
+  name: "cookie_preferences",
+  type: "necessary",
+  description: "Stores the users cookie preferences",
+});
 
 const styles = (theme: ThemeType) => ({
-  content: {
-    minWidth: 300,
+  title: {
+    marginLeft: 4,
+    padding: "24px 24px 10px",
   },
-  categoryTitle: {
-    fontWeight: 500,
+  content: {
+    minWidth: 280,
+  },
+  blurb: {
+    marginLeft: 4,
+    marginRight: 4,
+    marginBottom: 12,
+    "& a": {
+      textDecoration: "underline",
+      fontWeight: 600,
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    },
+  },
+  categoryWrapper: {
+    marginBottom: 8,
   },
   category: {
+    height: 48,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: theme.borderRadius.default,
+  },
+  categoryLabel: {
+    paddingLeft: 6,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    cursor: "pointer",
+  },
+  checkboxOrLabel: {
+    padding: 12,
+  },
+  explanation: {
+    maxHeight: 0,
+    overflow: "hidden",
+    transition: "max-height 0.3s ease-in-out",
+  },
+  open: {
+    maxHeight: "200px",
+    overflow: "auto",
+  },
+  button: {
+    marginTop: 12,
+    marginLeft: "auto",
+    textTransform: "none",
+    whiteSpace: "nowrap",
+    fontSize: 14,
+    display: "block",
   },
 });
 
-const CookieDialog = ({ onClose, classes }: {
-  onClose?: ()=>void,
-  classes: ClassesType,
+const CookieCategory = ({
+  title,
+  cookieType,
+  allowedCookies,
+  setAllowedCookies,
+  alwaysEnabled = false,
+  className,
+  classes,
+}: {
+  title: string;
+  cookieType: CookieType;
+  allowedCookies: CookieType[];
+  setAllowedCookies: (cookies: CookieType[]) => void;
+  alwaysEnabled?: boolean;
+  className?: string;
+  classes: ClassesType;
 }) => {
+  const { Typography, ForumIcon } = Components;
+  const [open, setOpen] = useState(false);
+
+  const checked = useMemo(() => allowedCookies.includes(cookieType), [allowedCookies, cookieType]);
+  const toggleCookie = useCallback(() => {
+    if (alwaysEnabled) return;
+    if (checked) {
+      setAllowedCookies(allowedCookies.filter((c) => c !== cookieType));
+    } else {
+      setAllowedCookies([...allowedCookies, cookieType]);
+    }
+  }, [alwaysEnabled, checked, setAllowedCookies, allowedCookies, cookieType]);
+
+  return (
+    <div className={className}>
+      <div className={classes.category}>
+        <div className={classes.categoryLabel} onClick={() => setOpen(!open)}>
+          <ForumIcon icon={open ? "ThickChevronDown" : "ThickChevronRight"} />
+          <Typography variant="body2" className={classes.categoryTitle}>
+            {title}
+          </Typography>
+        </div>
+        {alwaysEnabled ? (
+          <Typography variant="body2" className={classes.checkboxOrLabel}>
+            <i>always enabled</i>
+          </Typography>
+        ) : (
+          <Checkbox className={classes.checkboxOrLabel} checked={checked} onChange={toggleCookie} />
+        )}
+      </div>
+      <Typography
+        variant="body2"
+        className={classNames(classes.explanation, {
+          [classes.open]: open,
+        })}
+      >
+        {title} cookies explanation...
+      </Typography>
+    </div>
+  );
+};
+
+const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType }) => {
   const { LWDialog, Typography } = Components;
+
+  const [cookies, setCookie] = useCookiesWithConsent([COOKIE_PREFERENCES_COOKIE])
+  const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"];
+  const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(existingCookiePreferences);
+
+  // FIXME this is just a temporary solution until I work out how to handle third party cookies properly
+  const saveAndClose = useCallback(() => {
+    setCookie(COOKIE_PREFERENCES_COOKIE, allowedCookies);
+    onClose?.();
+  }, [allowedCookies, onClose, setCookie]);
 
   return (
     <LWDialog open onClose={onClose}>
-      <DialogTitle>Cookie Settings</DialogTitle>
+      <DialogTitle className={classes.title}>Cookie Settings</DialogTitle>
       <DialogContent className={classes.content}>
-        <Typography variant="body2">
-          We use cookies on our website to give you the most relevant experience by remembering your preferences and
-          repeat visits. By clicking “Accept All”, you consent to the use of ALL the cookies. Please see our cookie policy
-          here
+        <Typography variant="body2" className={classes.blurb}>
+          We use cookies to improve your experience while you navigate through the website. Necessary cookies are always
+          stored in your browser as they are essential for the basic functionality of the website. We also use cookies
+          for non-essential purposes such as remembering your preferences between visits, or for analytics. These
+          cookies will be stored in your browser only with your consent. Read our full cookie policy{" "}
+          <a href="/cookiePolicy">here</a>.
         </Typography>
-        <div className={classes.category}>
-          <Typography variant="body2" className={classes.categoryTitle}>
-            Necessary
-          </Typography>
-          <Typography variant="body2">Always enabled</Typography>
-        </div>
-        <div className={classes.category}>
-          <Typography variant="body2" className={classes.categoryTitle}>
-            Functional
-          </Typography>
-          <Checkbox />
-        </div>
-        <div className={classes.category}>
-          <Typography variant="body2" className={classes.categoryTitle}>
-            Analytics
-          </Typography>
-          <Checkbox />
-        </div>
+        <CookieCategory
+          title="Necessary"
+          cookieType="necessary"
+          allowedCookies={allowedCookies}
+          setAllowedCookies={setAllowedCookies}
+          alwaysEnabled
+          classes={classes}
+          className={classes.categoryWrapper}
+        />
+        <CookieCategory
+          title="Functional"
+          cookieType="functional"
+          allowedCookies={allowedCookies}
+          setAllowedCookies={setAllowedCookies}
+          classes={classes}
+          className={classes.categoryWrapper}
+        />
+        <CookieCategory
+          title="Analytics"
+          cookieType="analytics"
+          allowedCookies={allowedCookies}
+          setAllowedCookies={setAllowedCookies}
+          classes={classes}
+          className={classes.categoryWrapper}
+        />
+        <Button className={classes.button} variant="contained" color="primary" onClick={saveAndClose}>
+          Save preferences
+        </Button>
       </DialogContent>
     </LWDialog>
   );

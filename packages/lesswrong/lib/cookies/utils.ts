@@ -1,10 +1,7 @@
+import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 
-export type CookieType = "necessary" | "functional" | "analytics";
-export const CookieConsentLevel: Record<CookieType, CookieType[]> = {
-  necessary: ["necessary"],
-  functional: ["necessary", "functional"],
-  analytics: ["necessary", "functional", "analytics"],
-};
+const CookieTypes = new TupleSet(["necessary", "functional", "analytics"] as const)
+export type CookieType = UnionOf<typeof CookieTypes>;
 
 export type CookieSignature = {
   name: string;
@@ -15,9 +12,14 @@ export type CookieSignature = {
 
 export const CookiesTable: Record<string, CookieSignature> = {};
 
+export const isValidCookieTypeArray = (types?: string[] | null): types is CookieType[] => {
+  if (!types) return false;
+  return types.every(type => CookieTypes.has(type));
+}
+
 export function getCookieTypesAllowed(): CookieType[] {
   // TODO implement cookie consent
-  return CookieConsentLevel.necessary;
+  return ["necessary", "functional", "analytics"];
 }
 
 export function isCookieAllowed(name: string): boolean {
