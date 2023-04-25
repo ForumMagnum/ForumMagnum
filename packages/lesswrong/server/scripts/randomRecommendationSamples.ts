@@ -2,6 +2,7 @@ import { Globals } from "../vulcan-lib";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import RecommendationService from "../recommendations/RecommendationService";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 
 const randomRecommendationSamples = async () => {
   let cutoff = new Date();
@@ -19,36 +20,46 @@ const randomRecommendationSamples = async () => {
       "shortform" IS NOT TRUE AND
       "hiddenRelatedQuestion" IS NOT TRUE AND
       "groupId" IS NULL AND
-      "baseScore" >= 5
+      "baseScore" >= 5 AND
+      "isEvent" IS NOT TRUE
     ORDER BY RANDOM()
-    LIMIT 20
+    LIMIT 50
   `, cutoff);
 
   const service = new RecommendationService();
   const count = 3;
 
-  const recommendations = await Promise.all(posts.map(({_id}) => {
-    return service.recommend(null, count, {
-      name: "moreFromTag",
-      postId: _id,
-    });
-  }));
+  const algorithms: ((postId: string) => StrategySpecification)[] = [
+    (postId: string) => ({postId, name: "moreFromTag"}),
+    (postId: string) => ({postId, name: "tagWeightedCollabFilter", bias: 0.5}),
+    (postId: string) => ({postId, name: "tagWeightedCollabFilter", bias: 1.5}),
+  ];
 
-  let result = "";
+  for (const algorithm of algorithms) {
+    const recommendations = await Promise.all(posts.map(({_id}) =>
+      service.recommend(null, count, algorithm(_id)),
+    ));
 
-  for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const {title} = post;
-    for (let j = 0; j < count; j++) {
-      const rec = recommendations[i][j];
-      const srcLink = "https://forum.effectivealtruism.org" + postGetPageUrl(post);
-      const targetLink = "https://forum.effectivealtruism.org" + postGetPageUrl(rec);
-      result += `"${title}",${srcLink},"${rec.title}",${targetLink}\n`;
+    let result = "";
+
+    for (let i = 0; i < posts.length; i++) {
+      const post = posts[i];
+      const title = post.title.replace(/,/g, " ");
+      for (let j = 0; j < count; j++) {
+        const rec = recommendations[i][j];
+        const recTitle = rec.title.replace(/,/g, " ");
+        const srcLink = "https://forum.effectivealtruism.org" + postGetPageUrl(post);
+        const targetLink = "https://forum.effectivealtruism.org" + postGetPageUrl(rec);
+        result += `"${title}",${srcLink},"${recTitle}",${targetLink}\n`;
+      }
     }
-  }
 
-  // eslint-disable-next-line no-console
-  console.log(result);
+    // eslint-disable-next-line no-console
+    console.log("\n\n", algorithm);
+
+    // eslint-disable-next-line no-console
+    console.log(result, "\n\n");
+  }
 }
 
 Globals.randomRecommendationSamples = randomRecommendationSamples;
