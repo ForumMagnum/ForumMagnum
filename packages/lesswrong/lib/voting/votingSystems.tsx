@@ -8,6 +8,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
+import mapValues from 'lodash/mapValues';
 
 export type CommentVotingComponentProps = {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
@@ -242,6 +243,114 @@ registerVotingSystem({
     return false;
   },
 });
+
+registerVotingSystem({
+  name: "namesAttachedReactions",
+  description: "Names-attached reactions",
+  getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
+  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
+    const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
+    const newReacts = addReactsVote(oldExtendedScore?.reacts, extendedVote?.reacts, currentUser);
+    
+    return {
+      approvalVoteCount: oldApprovalVoteCount + (newVoteIncludesApproval?1:0),
+      agreement: (oldExtendedScore?.agreement||0) + newAgreementPower,
+      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) + 1,
+      reacts: newReacts,
+    };
+  },
+  cancelVoteClient: ({voteType, document, oldExtendedScore, cancelledExtendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
+    const oldVoteAgreement: string | undefined = cancelledExtendedVote?.agreement;
+    const oldVoteIncludesAgreement = (oldVoteAgreement && oldVoteAgreement!=="neutral");
+    const oldAgreementPower = oldVoteIncludesAgreement ? calculateVotePower(currentUser.karma, oldVoteAgreement) : 0;
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldVoteIncludesApproval = (voteType&&voteType!=="neutral");
+    const newReacts = removeReactsVote(oldExtendedScore?.reacts, currentUser);
+    
+    return {
+      approvalVoteCount: oldApprovalVoteCount - (oldVoteIncludesApproval?1:0),
+      agreement: (oldExtendedScore?.agreement||0) - (oldVoteIncludesAgreement?oldAgreementPower:0),
+      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) - (oldVoteIncludesAgreement?1:0),
+      reacts: newReacts,
+    };
+  },
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
+    const userIdsThatVoted = uniq(votes.map(v=>v.userId));
+    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
+    
+    let mergedReacts: NamesAttachedReactionsList = {};
+    for (let vote of votes) {
+      const userInfo: UserReactInfo = {
+        userId: vote.userId,
+        displayName: usersById[vote.userId].displayName,
+        karma: usersById[vote.userId].karma,
+      };
+      if (vote.extendedVoteType?.reacts) {
+        for (let reaction of vote.extendedVoteType?.reacts) {
+          if (mergedReacts[reaction]) {
+            mergedReacts[reaction]!.push(userInfo);
+          } else {
+            mergedReacts[reaction] = [userInfo];
+          }
+        }
+      }
+    }
+    
+    const result = {
+      approvalVoteCount: votes.filter(v=>(v.voteType && v.voteType!=="neutral")).length,
+      agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
+      agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0).length,
+      reacts: mergedReacts,
+    };
+    return result;
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    return (vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral")
+      || (vote?.extendedVoteType?.reacts && vote.extendedVoteType.reacts.length>0);
+  },
+});
+
+type EmojiReactName = string;
+export type NamesAttachedReactionsVote = EmojiReactName[];
+type UserReactInfo = {
+  userId: string
+  displayName: string
+  karma: number
+}
+export type NamesAttachedReactionsList = {
+  [reactionType: EmojiReactName]: UserReactInfo[]|undefined
+};
+
+function addReactsVote(old: NamesAttachedReactionsList|undefined, voteReacts: NamesAttachedReactionsVote|undefined, currentUser: UsersCurrent): NamesAttachedReactionsList {
+  let updatedReactions = removeReactsVote(old, currentUser);
+  const userInfo = {
+    userId: currentUser._id,
+    displayName: currentUser.displayName,
+    karma: currentUser.karma,
+  };
+  if (voteReacts) {
+    for (let reaction of voteReacts) {
+      if (updatedReactions[reaction])
+        updatedReactions[reaction] = [...updatedReactions[reaction]!, userInfo];
+      else
+        updatedReactions[reaction] = [userInfo];
+    }
+  }
+  return updatedReactions;
+}
+
+function removeReactsVote(old: NamesAttachedReactionsList|undefined, currentUser: UsersCurrent): NamesAttachedReactionsList {
+  let updatedReactions: NamesAttachedReactionsList = old ? mapValues(old,
+    (reactionsByType: UserReactInfo[]) => (
+      reactionsByType.filter(userIdAndName => userIdAndName.userId !== currentUser._id)
+    )
+  ) : {};
+  return updatedReactions;
+}
+
 
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);

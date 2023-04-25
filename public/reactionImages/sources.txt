@@ -1,0 +1,10 @@
+
+splat.svg: https://openclipart.org/detail/211412/splat
+key.svg: https://openclipart.org/download/191744/Key-yellow.svg
+pillar.svg: https://openclipart.org/download/29053/mandooza-capitello.svg
+target.svg: https://openclipart.org/download/3255/urwald-Zielscheibe-target-aim.svg
+gem.svg: https://openclipart.org/download/179430/diamondbleu.svg
+binoculars.svg: https://openclipart.org/download/170639/binoculars.svg
+swords.svg: https://openclipart.org/download/211404/swords.svg
+check.svg: https://openclipart.org/download/253846/1467299975.svg
+x.svg: https://openclipart.org/download/196797/mono-checkmark.svg
