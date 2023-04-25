@@ -1,13 +1,39 @@
 import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
-import { CookieType, isCookieAllowed, isValidCookieTypeArray, registerCookie } from "../../lib/cookies/utils";
+import { CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useMemo } from "react";
+import { CallbackChainHook } from "../../lib/vulcan-lib";
+import { initDatadog } from "../../client/datadogRum";
+import { COOKIE_PREFERENCES_COOKIE } from "../../lib/cookies/cookies";
 
-export const COOKIE_PREFERENCES_COOKIE = registerCookie({
-  name: "cookie_preferences",
-  type: "necessary",
-  description: "Stores the users cookie preferences",
+// TODO move these to a better place
+export const cookiePreferencesChangedCallbacks = new CallbackChainHook<CookieType[],[]>("cookiePreferencesChanged");
+cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
+  initDatadog()
 });
+cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
+  // @ts-ignore
+  window.dataLayer.push({ event: 'cookie_preferences_changed' }); // Must match event name in Google Tag Manager
+});
+// TODO clear disallowed cookies
+
+export function useUpdateCookiePreferences(): [
+  {
+    [name: string]: any;
+  },
+  (newPreferences: CookieType[]) => void,
+] {
+  const [cookies, setCookie] = useCookies([COOKIE_PREFERENCES_COOKIE]);
+  
+  const updateCookiePreferences = useCallback(
+    (newPreferences: CookieType[]) => {
+      setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/" });
+      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: newPreferences, properties: []});
+    },
+    [setCookie]
+  );
+  return [cookies, updateCookiePreferences];
+}
 
 // TODO maybe refactor
 export function useCheckCookieConsent(type: CookieType) {

@@ -5,8 +5,9 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
-import { CookieType, isValidCookieTypeArray, registerCookie } from "../../../lib/cookies/utils";
-import { COOKIE_PREFERENCES_COOKIE, useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
+import { CookieType, isValidCookieTypeArray } from "../../../lib/cookies/utils";
+import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
+import { COOKIE_PREFERENCES_COOKIE } from "../../../lib/cookies/cookies";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -130,15 +131,15 @@ const CookieCategory = ({
 const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType }) => {
   const { LWDialog, Typography } = Components;
 
-  const [cookies, setCookie] = useCookiesWithConsent([COOKIE_PREFERENCES_COOKIE])
+  const [cookies, updateCookiePreferences] = useUpdateCookiePreferences();
   const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"];
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(existingCookiePreferences);
 
   // FIXME this is just a temporary solution until I work out how to handle third party cookies properly
   const saveAndClose = useCallback(() => {
-    setCookie(COOKIE_PREFERENCES_COOKIE, allowedCookies);
+    updateCookiePreferences(allowedCookies);
     onClose?.();
-  }, [allowedCookies, onClose, setCookie]);
+  }, [allowedCookies, onClose, updateCookiePreferences]);
 
   return (
     <LWDialog open onClose={onClose}>

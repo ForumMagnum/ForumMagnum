@@ -13,4 +13,12 @@ export const TIMEZONE_COOKIE = registerCookie({
   description: "TODO",
 });
 
+export const COOKIE_PREFERENCES_COOKIE = registerCookie({
+  name: "cookie_preferences", // Must match variable in Google Tag Manager
+  type: "necessary",
+  description: "Stores the users cookie preferences",
+});
+
 export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", description: "TODO" });
+
+// TODO add third party cookies here?

@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
+import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {
@@ -59,6 +60,14 @@ const styles = (theme: ThemeType) => ({
 
 const CookieBanner = ({ classes }: { classes: ClassesType }) => {
   const { openDialog } = useDialog();
+  const [_, updateCookiePreferences] = useUpdateCookiePreferences();
+  
+  const handleAcceptAll = () => {
+    updateCookiePreferences(["necessary", "functional", "analytics"]);
+  }
+  const handleReject = () => {
+    updateCookiePreferences(["necessary"]);
+  }
 
   const { Typography } = Components;
   return (
@@ -75,10 +84,10 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
         for more control, or review our cookie policy <a href='/cookiePolicy'>here</a>
       </Typography>
       <div className={classes.buttonGroup}>
-        <Button className={classes.button} variant="contained" color="primary">
+        <Button className={classes.button} variant="contained" color="primary" onClick={handleReject}>
           Reject
         </Button>
-        <Button className={classes.button} variant="contained" color="primary">
+        <Button className={classes.button} variant="contained" color="primary" onClick={handleAcceptAll}>
           Accept all
         </Button>
       </div>

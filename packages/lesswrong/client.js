@@ -7,7 +7,7 @@ import './client/publicSettings'
 
 // Then import google analytics and datadog
 import './client/ga';
-import './client/datadogRum';
+import './client/datadogStart';
 
 // Then import google reCaptcha v3
 import './client/reCaptcha'

@@ -2,9 +2,27 @@ import { datadogRum } from '@datadog/browser-rum';
 import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
+import { Cookies } from 'react-cookie';
+import { COOKIE_PREFERENCES_COOKIE } from '../lib/cookies/cookies';
 
-function initDatadog() {
+let datadogInitialized = false;
+
+export function initDatadog() {
+  const cookies = new Cookies();
+
+  const allowedCookies = cookies.get(COOKIE_PREFERENCES_COOKIE) || ["necessary"];
+  // TODO maybe refactor
+  const analyticsCookiesAllowed = allowedCookies.includes("analytics");
+
   if (forumTypeSetting.get() !== 'EAForum') return
+  if (!analyticsCookiesAllowed) {
+    // eslint-disable-next-line no-console
+    console.warn("Not initializing datadog because analytics cookies are not allowed")
+    return
+  } else {
+    // FIXME debug
+    console.log("Initializing datadog")
+  }
 
   datadogRum.init({
     applicationId: '2e902643-baff-466d-8882-db60acbdf13b',
@@ -27,14 +45,13 @@ function initDatadog() {
       // TODO add LW domains here if they want to use datadog
     ]
   });
+  datadogInitialized = true;
 }
 
-initDatadog();
-
 export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
-  if (forumTypeSetting.get() !== 'EAForum') return
+  if (forumTypeSetting.get() !== 'EAForum' || !datadogInitialized) return
 
-  // Set the user which will appear in traces. This info should match what
+  // Set the user which will appear in traces
   datadogRum.setUser(user ? getDatadogUser(user) : {});
 
   if (user && !user.allowDatadogSessionReplay) {
