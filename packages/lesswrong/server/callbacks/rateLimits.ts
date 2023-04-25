@@ -145,7 +145,7 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
     return
   }
  
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
