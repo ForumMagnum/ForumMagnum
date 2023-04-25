@@ -93,6 +93,7 @@ export async function timedFunc<O>(label: string, func: () => O) {
   } finally {
     const endTime = new Date();
     const runtime = endTime.valueOf() - startTime.valueOf();
+    // eslint-disable-next-line no-console
     console.log(`${label} took ${runtime} ms`);
   }
   return result;
