@@ -70,6 +70,7 @@ importComponent("Editor", () => require('../components/editor/Editor'));
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
 importComponent("LastEditedInWarning", () => require('../components/editor/LastEditedInWarning'));
 importComponent("LocalStorageCheck", () => require('../components/editor/LocalStorageCheck'));
+importComponent("RateLimitWarning", () => require('../components/editor/RateLimitWarning'));
 importComponent("EditorTypeSelect", () => require('../components/editor/EditorTypeSelect'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditCommentTitle", () => require('../components/editor/EditCommentTitle'));

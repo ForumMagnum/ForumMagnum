@@ -18,6 +18,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -55,18 +56,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
-  formButton: {
+  formButton: isEAForum ? {
+    fontSize: 14,
+    textTransform: 'none',
+    padding: '6px 12px',
+    borderRadius: 6,
+    boxShadow: 'none',
+    marginLeft: 8,
+  } : {
     paddingBottom: "2px",
     fontSize: "16px",
+    color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
     "&:hover": {
       opacity: .5,
       backgroundColor: "none",
     },
-    color: theme.palette.lwTertiary.main,
   },
   cancelButton: {
-    color: theme.palette.grey[400],
+    color: isEAForum ? undefined : theme.palette.grey[400],
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -98,6 +106,12 @@ const shouldOpenNewUserGuidelinesDialog = (
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
+
+type BtnProps = {
+  variant?: 'contained',
+  color?: 'primary',
+  disabled?: boolean
+}
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
@@ -143,7 +157,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -214,10 +228,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
+    // by default, the EA Forum uses MUI contained buttons here
+    const cancelBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained'} : {}
+    const submitBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
+    if (formDisabledDueToRateLimit) {
+      submitBtnProps.disabled = true
+    }
+    
     return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
+        {...cancelBtnProps}
       >
         Cancel
       </Button>}
@@ -234,6 +256,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             ev.preventDefault();
           }
         }}
+        {...submitBtnProps}
       >
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
@@ -288,40 +311,37 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {formDisabledDueToRateLimit && <div className={classes.rateLimitNote}>
-            Please wait {moment(lastRateLimitExpiry).fromNow()} before commenting again.
-          </div>}
+          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
           }}>
-            {!formDisabledDueToRateLimit &&
-              <WrappedSmartForm
-                id="new-comment-form"
-                collectionName="Comments"
-                mutationFragment={getFragment(fragment)}
-                successCallback={wrappedSuccessCallback}
-                cancelCallback={wrappedCancelCallback}
-                submitCallback={(data: unknown) => { 
-                  setLoading(true);
-                  return data
-                }}
-                errorCallback={() => setLoading(false)}
-                prefilledProps={prefilledProps}
-                layout="elementOnly"
-                formComponents={{
-                  FormSubmit: SubmitComponent,
-                  FormGroupLayout: Components.DefaultStyleFormGroup
-                }}
-                alignmentForumPost={post?.af}
-                addFields={currentUser ? [] : ["title", "contents"]}
-                removeFields={removeFields}
-                formProps={{
-                  ...extraFormProps,
-                  ...formProps,
-                }}
-              />
-            }
+            <WrappedSmartForm
+              id="new-comment-form"
+              collectionName="Comments"
+              mutationFragment={getFragment(fragment)}
+              successCallback={wrappedSuccessCallback}
+              cancelCallback={wrappedCancelCallback}
+              submitCallback={(data: unknown) => {
+                setLoading(true);
+                return data
+              }}
+              errorCallback={() => setLoading(false)}
+              prefilledProps={prefilledProps}
+              layout="elementOnly"
+              formComponents={{
+                FormSubmit: SubmitComponent,
+                FormGroupLayout: Components.DefaultStyleFormGroup
+              }}
+              alignmentForumPost={post?.af}
+              addFields={currentUser ? [] : ["title", "contents"]}
+              removeFields={removeFields}
+              formProps={{
+                ...extraFormProps,
+                ...formProps,
+              }}
+              submitLabel={isEAForum ? 'Add comment' : 'Submit'}
+            />
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>

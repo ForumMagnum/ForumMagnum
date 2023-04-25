@@ -52,9 +52,14 @@ export const eaForumTheme: SiteThemeSpecification = {
     error: {
       main: "#bf360c",
     },
+    warning: {
+      main: "#ffad08"
+    },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
       primaryDim: '#e2f1f4',
+      primaryTranslucent: "rgba(12, 134, 155, 0.05)",
+      warningTranslucent: "rgba(255, 173, 8, 0.1)",
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
