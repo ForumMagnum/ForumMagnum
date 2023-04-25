@@ -188,7 +188,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
+          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
