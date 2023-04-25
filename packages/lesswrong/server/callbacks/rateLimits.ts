@@ -132,7 +132,6 @@ async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null
   if (postId) {
     const post = await Posts.findOne({_id: postId})
     const commenterIsPostAuthor = post && user._id === post.userId
-    console.log(commenterIsPostAuthor, user._id, post?.userId)
     if (post?.ignoreRateLimits || commenterIsPostAuthor) {
       return true
     }
