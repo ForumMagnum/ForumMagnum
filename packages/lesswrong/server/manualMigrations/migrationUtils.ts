@@ -2,7 +2,7 @@ import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
-import { sleep } from '../../lib/helpers';
+import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
@@ -453,8 +453,8 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   let rows = await getFirst({collection, batchSize, filter, overrideCreatedAt});
   while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
-      await callback(rows);
-      rows = await getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt});
+      await timedFunc('migrationCallback', () => callback(rows));
+      rows = await timedFunc('getNext', () => getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt}));
     });
   }
 }

@@ -75,7 +75,7 @@ const options: MutationOptions<DbTagFlag> = {
 export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),
