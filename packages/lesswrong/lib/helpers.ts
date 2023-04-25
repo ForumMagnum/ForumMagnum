@@ -85,6 +85,17 @@ export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Logs how long it takes for a function to execute.  See usage example below.
+ * 
+ * Original:
+ * 
+ * `await sql.none(compiled.sql, compiled.args));`
+ * 
+ * Wrapped:
+ * 
+ * `await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));`
+ */
 export async function timedFunc<O>(label: string, func: () => O) {
   const startTime = new Date();
   let result: O;
