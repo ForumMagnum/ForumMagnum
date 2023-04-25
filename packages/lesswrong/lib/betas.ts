@@ -42,10 +42,9 @@ export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 
 export const userHasCommentProfileImages = disabled;
 
-export const userHasPingbacks = isEAForum ? disabled : shippedFeature;
-
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
+export const userHasPingbacks = shippedFeature;
