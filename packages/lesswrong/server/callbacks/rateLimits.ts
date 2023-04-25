@@ -119,7 +119,7 @@ const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, ho
     },
   }).fetch();
   const postIds = comments.map(comment => comment.postId)
-  const postsNotAuthoredByCommenter = await Posts.find({_id: {$in: postIds}, userId: {$ne:user._id}}).fetch()
+  const postsNotAuthoredByCommenter = await Posts.find({_id: {$in: postIds}, $or: [{userId: {$ne:user._id}}]}, {projection: {_id:1}}).fetch()
   const postsNotAuthoredByCommenterIds = postsNotAuthoredByCommenter.map(post => post._id)
   const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts.length
