@@ -71,6 +71,9 @@ abstract class RecommendationStrategy {
    */
   protected getDefaultPostFilter() {
     return {
+      join: `
+        JOIN "Users" author ON author."_id" = p."userId"
+      `,
       filter: `
         p."status" = $(postStatus) AND
         p."draft" IS NOT TRUE AND
@@ -82,6 +85,7 @@ abstract class RecommendationStrategy {
         p."isEvent" IS NOT TRUE AND
         p."baseScore" >= $(minimumBaseScore) AND
         p."disableRecommendation" IS NOT TRUE AND
+        author."deleted" IS NOT TRUE AND
       `,
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
@@ -121,6 +125,7 @@ abstract class RecommendationStrategy {
       SELECT p.*
       FROM "Posts" p
       ${userFilter.join}
+      ${postFilter.join}
       WHERE
         p."_id" <> $(postId) AND
         ${userFilter.filter}
