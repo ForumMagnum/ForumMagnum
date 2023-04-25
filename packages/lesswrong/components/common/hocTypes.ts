@@ -1,5 +1,6 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib';
+import { CookieType } from '../../lib/cookies/utils';
 
 declare global {
 
@@ -82,6 +83,10 @@ interface WithUpdateCommentProps {
 }
 interface WithUpdatePostProps {
   updatePost: WithUpdateFunction<PostsCollection>
+}
+
+interface WithCheckCookieConsentProps {
+  checkCookieConsent: (types: CookieType[]) => boolean,
 }
 
 }

@@ -7,6 +7,7 @@ import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
+import { withCheckCookieConsent } from '../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
@@ -81,7 +82,7 @@ interface ExternalProps {
   nofollow?: boolean;
   idInsertions?: Record<string, React.ReactNode>;
 }
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
+interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithCheckCookieConsentProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
 }
@@ -131,6 +132,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
       this.setState({updatedElements: true})
+      this.hideIFramesIfNoCookieConsent();
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -309,6 +311,22 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       }
     }
   }
+
+  hideIFramesIfNoCookieConsent = () => {
+    const { checkCookieConsent } = this.props;
+
+    // There are a lot of potential iframes, and it's hard to know what sorts of
+    // cookies they might set, so be conservative and only allow them if the
+    // user has given consent to all cookies.
+    const allCookiesAllowed = checkCookieConsent(['functional', 'analytics']);
+    if(this.bodyRef?.current && !allCookiesAllowed) {
+      const iFrameTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("iframe"));
+      for (let iFrameTag of iFrameTags) {
+        const replacementElement = <Components.NoCookiesIFrame />
+        this.replaceElement(iFrameTag, replacementElement);
+      }
+    }
+  }
   
   applyIdInsertions = () => {
     if (!this.props.idInsertions) return;
@@ -349,7 +367,8 @@ const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBo
   styles,
   hocs: [
     withUser,
-    withLocation
+    withLocation,
+    withCheckCookieConsent
   ],
 });
 

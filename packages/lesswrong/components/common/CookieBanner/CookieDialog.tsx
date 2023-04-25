@@ -135,7 +135,6 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"];
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(existingCookiePreferences);
 
-  // FIXME this is just a temporary solution until I work out how to handle third party cookies properly
   const saveAndClose = useCallback(() => {
     updateCookiePreferences(allowedCookies);
     onClose?.();

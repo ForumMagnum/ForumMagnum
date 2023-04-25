@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { CallbackChainHook } from "../../lib/vulcan-lib";
 import { initDatadog } from "../../client/datadogRum";
 import { COOKIE_PREFERENCES_COOKIE } from "../../lib/cookies/cookies";
+import { hookToHoc } from "../../lib/hocUtils";
 
 // TODO move these to a better place
 export const cookiePreferencesChangedCallbacks = new CallbackChainHook<CookieType[],[]>("cookiePreferencesChanged");
@@ -36,7 +37,7 @@ export function useUpdateCookiePreferences(): [
 }
 
 // TODO maybe refactor
-export function useCheckCookieConsent(type: CookieType) {
+export function useCheckCookieConsent() {
   const [cookies] = useCookies([COOKIE_PREFERENCES_COOKIE]);
   const cookiePreferences: CookieType[] = useMemo(
     () =>
@@ -44,8 +45,12 @@ export function useCheckCookieConsent(type: CookieType) {
     [cookies]
   );
 
-  return cookiePreferences.includes(type);
+  const checkCookieConsent = useCallback((types: CookieType[]) => {
+    return types.every((type) => cookiePreferences.includes(type));
+  }, [cookiePreferences]);
+  return { checkCookieConsent };
 }
+export const withCheckCookieConsent = hookToHoc(useCheckCookieConsent)
 
 export function useCookiesWithConsent(dependencies?: string[]): [
   {

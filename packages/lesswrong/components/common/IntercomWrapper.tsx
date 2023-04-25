@@ -29,7 +29,8 @@ const IntercomWrapper = ({classes}: {
   const currentUser = useCurrentUser();
   const { currentRoute } = useLocation();
 
-  const functionalCookiesAllowed = useCheckCookieConsent('functional')
+  const { checkCookieConsent } = useCheckCookieConsent()
+  const functionalCookiesAllowed = checkCookieConsent(['functional'])
   
   if (currentRoute?.standalone) {
     return null;
