@@ -6,13 +6,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
 import { CookieType, isValidCookieTypeArray, registerCookie } from "../../../lib/cookies/utils";
-import { useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
-
-const COOKIE_PREFERENCES_COOKIE = registerCookie({
-  name: "cookie_preferences",
-  type: "necessary",
-  description: "Stores the users cookie preferences",
-});
+import { COOKIE_PREFERENCES_COOKIE, useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   title: {

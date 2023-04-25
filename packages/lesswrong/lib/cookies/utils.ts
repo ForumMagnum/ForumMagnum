@@ -17,17 +17,12 @@ export const isValidCookieTypeArray = (types?: string[] | null): types is Cookie
   return types.every(type => CookieTypes.has(type));
 }
 
-export function getCookieTypesAllowed(): CookieType[] {
-  // TODO implement cookie consent
-  return ["necessary", "functional", "analytics"];
-}
-
-export function isCookieAllowed(name: string): boolean {
+export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]): boolean {
   const cookie = CookiesTable[name];
   if (!cookie) {
     throw new Error(`Unknown cookie: ${name}, you must register it with registerCookie`);
   }
-  return getCookieTypesAllowed().includes(cookie.type);
+  return cookieTypesAllowed.includes(cookie.type);
 }
 
 // TODO add forum type setting
