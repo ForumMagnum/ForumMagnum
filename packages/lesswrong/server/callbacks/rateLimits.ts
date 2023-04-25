@@ -110,8 +110,6 @@ async function enforcePostRateLimit (user: DbUser) {
 
 }
 
-
-
 const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
   const mNow = moment();
   const comments = await Comments.find({
