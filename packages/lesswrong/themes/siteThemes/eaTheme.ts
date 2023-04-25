@@ -55,6 +55,9 @@ export const eaForumTheme: SiteThemeSpecification = {
     warning: {
       main: "#ffad08"
     },
+    text: {
+      primaryAlert: "#137283"
+    },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
       primaryDim: '#e2f1f4',

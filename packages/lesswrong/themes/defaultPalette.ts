@@ -192,6 +192,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
     invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
     invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
+    primaryAlert: "#69886e",
     error: "#9b5e5e",
     error2: "#E04E4B",
     warning: "#832013",
@@ -301,8 +302,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
-    primaryTranslucent: "rgba(95,155,101,0.05)",
-    warningTranslucent: "rgba(255, 152, 0, 0.1)",
+    primaryTranslucent: "rgba(95,155,101,0.1)",
+    warningTranslucent: "rgba(255,152,0,0.1)",
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),

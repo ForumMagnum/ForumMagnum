@@ -131,9 +131,15 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      text: {
+        primaryAlert: '#F3F9FA'
+      },
       panelBackground: {
         default: shadePalette.grey[20],
       },
+      background: {
+        primaryTranslucent: "rgba(12,134,155,0.4)"
+      }
     },
     default: {},
   });
@@ -161,6 +167,8 @@ export const darkModeTheme: UserThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      primaryAlert: '#b2c5b5',
+      warning: '#FFF7E6',
       alwaysWhite: '#fff',
       primaryDarkOnDim: '#a8cad7',
       aprilFools: {
@@ -185,6 +193,8 @@ export const darkModeTheme: UserThemeSpecification = {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primaryTranslucent: "rgba(99,141,103,0.3)",
+      warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent'
     },
     border: {

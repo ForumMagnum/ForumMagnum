@@ -19,8 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   icon: {
-    transform: "translateY(2px)",
+    transform: "translateY(1px)",
     fontSize: 16,
+  },
+  message: {
+    flexGrow: 1
   }
 });
 
@@ -40,7 +43,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, classes}: {
   
   return <div className={classes.root}>
     <Components.ForumIcon icon="Warning" className={classes.icon} />
-    <div>
+    <div className={classes.message}>
       {message}
     </div>
   </div>

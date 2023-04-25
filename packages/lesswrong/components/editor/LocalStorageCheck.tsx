@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     columnGap: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.primaryAlert,
     fontSize: 14,
     lineHeight: '18px',
     fontWeight: '500',
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   restoreLink: {
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.primaryAlert,
   },
   closeIcon: {
     fontSize: 16,
@@ -97,9 +97,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
         }
       }}>Restore</a>
     </div>
-    <div>
-      <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
-    </div>
+    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
 

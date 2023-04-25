@@ -141,6 +141,7 @@ declare global {
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
       invertedBackgroundText4: ColorString,
+      primaryAlert: ColorString,
       error: ColorString,
       error2: ColorString,
       warning: ColorString,
