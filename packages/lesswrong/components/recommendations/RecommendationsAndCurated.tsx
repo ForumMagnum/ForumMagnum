@@ -150,7 +150,7 @@ const RecommendationsAndCurated = ({
             {isEAForum ? 'Classic posts' : 'Recommendations'}
           </Link>
         </LWTooltip>}>
-          {currentUser &&
+          {!isEAForum && currentUser &&
             <LWTooltip title="Customize your recommendations">
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
             </LWTooltip>
