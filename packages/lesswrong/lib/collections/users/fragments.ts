@@ -215,7 +215,7 @@ registerFragment(`
 registerFragment(`
   fragment UsersCurrentRateLimit on User {
     _id
-    rateLimitNextAbleToComment
+    rateLimitNextAbleToComment(postId: $postId)
   }
 `);
 
