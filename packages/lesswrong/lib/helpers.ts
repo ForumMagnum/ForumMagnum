@@ -84,3 +84,16 @@ Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): P
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export async function timedFunc<O>(label: string, func: () => O) {
+  const startTime = new Date();
+  let result: O;
+  try {
+    result = await func();
+  } finally {
+    const endTime = new Date();
+    const runtime = endTime.valueOf() - startTime.valueOf();
+    console.log(`${label} took ${runtime} ms`);
+  }
+  return result;
+}

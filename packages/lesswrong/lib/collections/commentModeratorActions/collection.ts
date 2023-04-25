@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const CommentModeratorActions: CommentModeratorActionsCollection = createCollection({
   collectionName: 'CommentModeratorActions',
   typeName: 'CommentModeratorAction',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('CommentModeratorActions'),
   mutations: getDefaultMutations('CommentModeratorActions'),
