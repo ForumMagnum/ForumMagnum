@@ -9,6 +9,7 @@ import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, ra
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
+import Users from '../../lib/collections/users/collection';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -17,6 +18,9 @@ const countsTowardsRateLimitFilter = {
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
 const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
+
+// Rate limit the number of comments a user can post per 30 min if they have under this much karma
+const commentRateLimitKarmaThresholdSetting = new DatabasePublicSetting<number|null>('commentRateLimitKarmaThreshold', null)
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -47,6 +51,22 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
   return validationErrors;
 });
 
+getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbComment}) => {
+  const user = await Users.findOne(document.userId)
+  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
+  if (user && karmaThreshold && user.karma < karmaThreshold) {
+    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+      user,
+      collection: Comments,
+      n: 4,
+      cutoffHours: 0.5,
+    })
+    if (fourthMostRecentCommentDate) {
+      // TODO: analytics event
+    }
+  }
+})
+
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
 async function enforcePostRateLimit (user: DbUser) {
@@ -62,7 +82,7 @@ async function enforcePostRateLimit (user: DbUser) {
   
     if (postsInPastTimeframe > 0) {
       throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
-    }  
+    }
   }
 
   const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
@@ -139,26 +159,27 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
     }
   }
   
-  // commented out for now until EA Forum reviews
-  // If less than 30 karma, you are also limited to no more than 3 comments per
+  // If less than 30 karma, you are also limited to no more than 4 comments per
   // 0.5 hours.
-  // if (!(user.karma >= 30)) {
-  //   const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
-  //     user, collection: Comments,
-  //     n: 3,
-  //     cutoffHours: 0.5,
-  //   });
+  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
+  if (karmaThreshold && user.karma < karmaThreshold) {
+    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+      user,
+      collection: Comments,
+      n: 4,
+      cutoffHours: 0.5,
+    });
     
-  //   if (thirdMostRecentCommentDate) {
-  //     const nextEligible = moment(thirdMostRecentCommentDate).add(0.5, 'hours').toDate();
-  //     if (isInFuture(nextEligible)) {
-  //       return {
-  //         nextEligible,
-  //         rateLimitType: "lowKarma",
-  //       };
-  //     }
-  //   }
-  // }
+    if (fourthMostRecentCommentDate) {
+      const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate();
+      if (isInFuture(nextEligible)) {
+        return {
+          nextEligible,
+          rateLimitType: "lowKarma",
+        };
+      }
+    }
+  }
 
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
