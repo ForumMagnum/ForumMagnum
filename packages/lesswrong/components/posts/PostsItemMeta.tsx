@@ -73,7 +73,7 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       <span className={classes.info}>
-        <PostsUserAndCoauthors post={post}/>
+        <PostsUserAndCoauthors post={post} showMarkers />
       </span>
 
       { afBaseScore && <span className={classes.info}>

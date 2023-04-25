@@ -52,7 +52,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       subscribeMessage="Subscribe to comment replies"
       unsubscribeMessage="Unsubscribe from comment replies"
     />
-    {comment.user?._id && (comment.user._id !== currentUser._id) &&
+    {comment.user?._id && (comment.user._id !== currentUser._id) && !comment.deleted &&
       <NotifyMeButton asMenuItem document={comment.user} showIcon
         subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
         unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}

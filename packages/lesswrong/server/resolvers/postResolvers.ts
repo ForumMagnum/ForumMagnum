@@ -70,6 +70,7 @@ augmentFieldsDict(Posts, {
       },
     }
   },
+  // TODO: probably refactor this + rateLimitNextAbleToComment to only use one resolver, since we don't really need two
   postSpecificRateLimit: {
     resolveAs: {
       type: "Date",
