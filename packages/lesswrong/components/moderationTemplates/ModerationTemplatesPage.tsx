@@ -4,6 +4,8 @@ import { ModerationTemplates } from "../../lib/collections/moderationTemplates";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
+import { ALLOWABLE_COLLECTIONS } from '../../lib/collections/moderationTemplates/schema';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   form: {
@@ -11,6 +13,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 12,
     paddingLeft: 16,
     background: theme.palette.panelBackground.default,
+  },
+  filter: {
+    ...theme.typography.body2,
+    padding: 8,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 2,
+    cursor: "pointer",
+    marginRight: 8,
+    background: theme.palette.panelBackground
+  },
+  filterSelected: {
+    backgroundColor: theme.palette.grey[200]
   }
 });
 
@@ -18,10 +32,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading } = Components
+  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row } = Components
   
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
+  const [filter, setFilter] = useState<string|null>(null);
   
   const { results: moderationTemplates = [], loading } = useMulti({
     collectionName: 'ModerationTemplates',
@@ -37,6 +52,14 @@ export const ModerationTemplatesPage = ({classes}: {
   const nonDeletedTemplates = moderationTemplates.filter(template => !template.deleted)
   const deletedTemplates = moderationTemplates.filter(template => template.deleted)
 
+  const handleFilter = (type:string) => {
+    if (filter === type) {
+      setFilter(null)
+    } else {
+      setFilter(type)
+    }
+  }
+
   return <SingleColumnSection>
     <SectionTitle title={'New Moderation Template'} />
     <div className={classes.form}>
@@ -47,13 +70,32 @@ export const ModerationTemplatesPage = ({classes}: {
         />
       </BasicFormStyles>
     </div>
-    <SectionTitle title="Moderation Templates"/>
+    <SectionTitle title="Moderation Templates">
+      <Row justifyContent='flex-start'>
+        {ALLOWABLE_COLLECTIONS.map(type => 
+        <div 
+          key={type} 
+          onClick={() => handleFilter(type)} 
+          className={classNames(classes.filter, {[classes.filterSelected]: type === filter})}
+        >
+          {type}
+        </div>)}
+      </Row>
+    </SectionTitle>
     {loading && <Loading/>}
-    {nonDeletedTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}
+    {nonDeletedTemplates.map(template => {
+      if (template.collectionName === filter || !filter) {
+        return <ModerationTemplateItem key={template._id} template={template}/>
+      }
+    })}
     
     <a aria-role="button" onClick={() => setShowDeleted(!showDeleted)}>Show Deleted</a>
     
-    {showDeleted && deletedTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}
+    {showDeleted && deletedTemplates.map(template => {
+      if (template.collectionName === filter || !filter) {
+        return <ModerationTemplateItem key={template._id} template={template}/>
+      }
+    })}
   </SingleColumnSection>
 }
   
