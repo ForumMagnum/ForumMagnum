@@ -5,6 +5,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,9 +21,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, classes}: {
+const PostActionsButton = ({post, vertical, placement = "right-start", classes}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
+  placement?: PopperPlacementType,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -46,7 +48,7 @@ const PostActionsButton = ({post, vertical, classes}: {
     <PopperCard
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement="right-start"
+      placement={placement}
       allowOverflow
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}

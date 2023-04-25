@@ -5,17 +5,39 @@ import type {
   RecommendationsAlgorithmWithStrategy,
   RecommendationStrategyName,
 } from "../../lib/collections/users/recommendationSettings";
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+
+const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
+
+const styles = (theme: ThemeType) => ({
+  root: {
+    background: theme.palette.grey[55],
+    borderRadius: theme.borderRadius.default,
+    padding: `0 ${PADDING}px 16px ${PADDING}px`,
+    maxWidth: "100%",
+  },
+  title: {
+    paddingTop: 24,
+    paddingLeft: PADDING,
+  },
+  item: {
+    paddingLeft: PADDING,
+    paddingRight: PADDING,
+  },
+});
 
 const PostsPageRecommendationsList = ({
   title = "More posts like this",
   strategy = "moreFromTag",
   bias = 1,
   forceLoggedOutView,
+  classes,
 }: {
   title?: string,
   strategy?: RecommendationStrategyName,
   bias?: number,
   forceLoggedOutView?: boolean,
+  classes: ClassesType,
 }) => {
   const post = usePostsPageContext();
   if (!post) {
@@ -34,8 +56,8 @@ const PostsPageRecommendationsList = ({
 
   const {SectionTitle, RecommendationsList, PostsPageRecommendationItem} = Components;
   return (
-    <div>
-      {title && <SectionTitle title={title} />}
+    <div className={classes.root}>
+      {title && <SectionTitle title={title} className={classes.title} />}
       <RecommendationsList
         algorithm={recommendationsAlgorithm}
         ListItem={
@@ -45,6 +67,8 @@ const PostsPageRecommendationsList = ({
           }) => (
             <PostsPageRecommendationItem
               {...props}
+              translucentBackground
+              className={classes.item}
               disableAnalytics={forceLoggedOutView}
             />
           )
@@ -57,6 +81,7 @@ const PostsPageRecommendationsList = ({
 const PostsPageRecommendationsListComponent = registerComponent(
   "PostsPageRecommendationsList",
   PostsPageRecommendationsList,
+  {styles},
 );
 
 declare global {

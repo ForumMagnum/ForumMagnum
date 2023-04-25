@@ -93,6 +93,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit *3
   },
   postContent: {}, //Used by a Cypress test
+  recommendations: {
+    maxWidth: MAX_COLUMN_WIDTH,
+    margin: "0 auto 40px",
+  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -378,9 +382,13 @@ const PostsPage = ({post, refetch, classes}: {
           />}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-
-        {isEAForum && <PostsPageRecommendationsList />}
       </div>
+
+      {isEAForum &&
+        <div className={classes.recommendations}>
+          <PostsPageRecommendationsList />
+        </div>
+      }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
         {/* Answers Section */}

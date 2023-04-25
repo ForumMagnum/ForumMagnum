@@ -7,7 +7,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
-import { useClickableCell } from "../common/useClickableCell";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -173,22 +173,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-/**
- * By default, clicking anywhere on the post item will navigate to
- * the posts page. If an element needs to be clickable without doing
- * this it should be wrapped in an InteractionWrapper.
- */
-const InteractionWrapper: FC<{
-  children: ReactNode,
-  classes: ClassesType,
-}> = ({children, classes}) => (
-  <a
-    onClick={(e) => e.stopPropagation()}
-    className={classes.interactionWrapper}
-  >
-    {children}
-  </a>
-);
 
 export type EAPostsItemProps = PostsItemConfig & {
   classes: ClassesType,
@@ -248,7 +232,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         {commentCount}
       </a>
       <div className={classes.bookmark}>
-        <InteractionWrapper classes={classes}>
+        <InteractionWrapper className={classes.interactionWrapper}>
           <BookmarkButton post={post} className={classes.bookmarkIcon} />
         </InteractionWrapper>
       </div>
@@ -274,7 +258,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
             <div className={classes.karma}>
               {tagRel
                 ? <div className={classes.tagRelWrapper}>
-                  <InteractionWrapper classes={classes}>
+                  <InteractionWrapper className={classes.interactionWrapper}>
                     <PostsItemTagRelevance tagRel={tagRel} post={post} />
                   </InteractionWrapper>
                 </div>
@@ -338,7 +322,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 */}
               <SecondaryInfo />
             </div>
-            <InteractionWrapper classes={classes}>
+            <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
                 {...{
                   post,
