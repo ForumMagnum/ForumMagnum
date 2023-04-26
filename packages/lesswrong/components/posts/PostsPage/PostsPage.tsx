@@ -386,7 +386,10 @@ const PostsPage = ({post, refetch, classes}: {
 
       {isEAForum && !post.question && !sequenceId &&
         <div className={classes.recommendations}>
-          <PostsPageRecommendationsList />
+          <PostsPageRecommendationsList
+            strategy="tagWeightedCollabFilter"
+            bias={1.5}
+          />
         </div>
       }
 
