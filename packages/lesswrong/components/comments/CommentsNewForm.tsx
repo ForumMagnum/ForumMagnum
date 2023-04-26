@@ -23,8 +23,11 @@ import { isEAForum } from '../../lib/instanceSettings';
 export type CommentFormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
+  root: isEAForum ? {
+    '& .form-component-EditorFormComponent': {
+      marginTop: 0
+    }
+  } : {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -107,7 +110,7 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-type BtnProps = {
+export type BtnProps = {
   variant?: 'contained',
   color?: 'primary',
   disabled?: boolean
