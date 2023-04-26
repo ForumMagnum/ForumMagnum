@@ -51,7 +51,7 @@ const settingsFileName = (mode, forum) => {
     }
     return 'settings-local-dev-devdb.json'
   }
-  return `settings-${mode}.txt`;  
+  return `settings-${mode}.json`;  
 };
 
 (async () => {
