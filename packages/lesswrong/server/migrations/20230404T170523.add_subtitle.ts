@@ -34,17 +34,18 @@
 export const acceptsSchemaHash = "cc99890ebfba1e45ded25456d68f852b";
 
 import Tags from "../../lib/collections/tags/collection";
+import Users from "../../lib/vulcan-users";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Tags.isPostgres()) return
+  if (!Tags.isPostgres() || !Users.isPostgres()) return
 
   await addField(db, Tags, "subtitle");
   await db.any(`UPDATE "Users" SET "subforumPreferredLayout" = 'card' WHERE "subforumPreferredLayout" = 'feed';`)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Tags.isPostgres()) return
+  if (!Tags.isPostgres() || !Users.isPostgres()) return
 
   await dropField(db, Tags, "subtitle");
   await db.any(`UPDATE "Users" SET "subforumPreferredLayout" = 'feed' WHERE "subforumPreferredLayout" = 'card';`)
