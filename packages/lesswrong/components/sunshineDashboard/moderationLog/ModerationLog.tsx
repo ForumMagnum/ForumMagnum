@@ -1,15 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Comments } from '../../lib/collections/comments'
-import Users from '../../lib/collections/users/collection';
-import { Link } from '../../lib/reactRouterWrapper'
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Posts } from '../../../lib/collections/posts';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { Comments } from '../../../lib/collections/comments'
+import Users from '../../../lib/collections/users/collection';
+import { Link } from '../../../lib/reactRouterWrapper'
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
-import { isMod } from '../../lib/collections/users/helpers';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import type { Column } from '../vulcan-core/Datatable';
+import { useCurrentUser } from '../../common/withUser';
+import { isMod } from '../../../lib/collections/users/helpers';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import type { Column } from '../../vulcan-core/Datatable';
+import { ModeratorActions } from '../../../lib/collections/moderatorActions'
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -94,6 +95,13 @@ const BannedUsersDisplay = ({column, document}: {
   </div>
 }
 
+const ModeratorTypeDisplay = ({column, document}: {
+  column: Column;
+  document: any;
+}) => {
+  return <div>{document[column.name]}</div>
+}
+
 
 const deletedCommentColumns: Column[] = [
   {
@@ -121,6 +129,21 @@ const deletedCommentColumns: Column[] = [
     name:'deletedReason',
     label:'Reason'
   },
+]
+
+const moderatorActionColumns: Column[] = [
+  {
+    name: 'user',
+    component: UserDisplay
+  },
+  {
+    name: 'endedAt',
+    component: DateDisplay,
+  },
+  {
+    name: 'type',
+    component: ModeratorTypeDisplay
+  }
 ]
 
 const usersBannedFromPostsColumns: Column[] = [
@@ -164,7 +187,7 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, ModeratedUsersLog } = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <h2>Moderation Log</h2>
@@ -206,6 +229,21 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
+              limit: 20,
+              enableTotal: true
+            }}
+            showEdit={false}
+            showNew={false}
+          />
+        </div>
+        <div className={classes.section}>
+          <h3>Moderated Users</h3>
+          <Components.Datatable
+            collection={ModeratorActions}
+            columns={moderatorActionColumns}
+            options={{
+              terms: {view: "restrictionModerationActions"},
+              fragmentName: 'ModeratorActionDisplay',
               limit: 20,
               enableTotal: true
             }}

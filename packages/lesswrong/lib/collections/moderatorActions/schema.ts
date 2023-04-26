@@ -34,6 +34,11 @@ export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 export type RateLimitType = typeof rateLimits[number]
 export type ManuallyAppliedModeratorActionType = typeof manuallyAppliedModeratorActions[number];
 
+// moderation actions that restrict the user's permissions in some way
+export const restrictionModeratorActions = [
+  ...rateLimits
+] as const;
+
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 per day)',
   [RATE_LIMIT_ONE_PER_THREE_DAYS]: 'Rate Limit (1 per 3 days)',
