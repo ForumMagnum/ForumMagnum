@@ -56,7 +56,6 @@ const CookieTable = ({
           <thead>
             <tr>
               <th className={classes.th}>Name</th>
-              <th className={classes.th}>Duration</th>
               <th className={classes.th}>Description</th>
             </tr>
           </thead>
@@ -64,7 +63,6 @@ const CookieTable = ({
             {filteredCookies.map((cookie) => (
               <tr key={cookie.name}>
                 <td className={classes.td}>{cookie.name}</td>
-                <td className={classes.td}>{cookie.maxExpires}</td>
                 <td className={classes.td}>{cookie.description}</td>
               </tr>
             ))}

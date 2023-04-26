@@ -23,6 +23,7 @@ import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from './seasonal/HomepageMap/HomepageMapFilter';
 import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+import { COOKIE_PREFERENCES_COOKIE } from '../lib/cookies/cookies';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -277,9 +278,8 @@ const Layout = ({currentUser, children, classes}: {
 
     // enable during ACX Everywhere
     const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
-
-    // TODO make this actually depend on the consent cookie
-    const showCookieBanner = true
+    // cookies[COOKIE_PREFERENCES_COOKIE] list of allowed cookie types, if it doesn't exist, that means the user has not yet made a choice
+    const showCookieBanner = !cookies[COOKIE_PREFERENCES_COOKIE]
 
     return (
       <AnalyticsContext path={pathname}>
