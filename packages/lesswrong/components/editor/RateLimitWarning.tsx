@@ -38,7 +38,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, classes}: {
   if (!isEAForum && !lastRateLimitExpiry) return null
 
   const message = isEAForum ?
-    `You've written more than 4 comments in the last 30 min. Wait 30 min to post another. The amount of comments you can post goes up as you get more karma.` :
+    `You've written more than 3 comments in the last 30 min. Wait 30 min to post another. The amount of comments you can post goes up as you get more karma.` :
     `Please wait ${moment(lastRateLimitExpiry).fromNow()} before commenting again.`
   
   return <div className={classes.root}>
