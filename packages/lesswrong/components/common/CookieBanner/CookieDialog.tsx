@@ -136,9 +136,7 @@ const CookieCategory = ({
         <Typography variant="body2" className={classes.explanation}>
           {explanation}
         </Typography>
-        {uniqueThirdPartyNames.map((name) => <>
-          <CookieTable type={cookieType} thirdPartyName={name}/>
-        </>)}
+        {uniqueThirdPartyNames.map((name) => <CookieTable type={cookieType} thirdPartyName={name} key={`${cookieType}_${name}`}/>)}
       </div>
     </div>
   );
