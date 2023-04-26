@@ -12,12 +12,6 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 class CollabFilterStrategy extends RecommendationStrategy {
   protected weightByTagSimilarity = false;
 
-  constructor() {
-    super({
-      minimumBaseScore: 10,
-    });
-  }
-
   async recommend(
     currentUser: DbUser|null,
     count: number,
