@@ -4,7 +4,7 @@ import { ModerationTemplates } from "../../lib/collections/moderationTemplates";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
-import { ALLOWABLE_COLLECTIONS } from '../../lib/collections/moderationTemplates/schema';
+import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -36,7 +36,7 @@ export const ModerationTemplatesPage = ({classes}: {
   
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
-  const [filter, setFilter] = useState<string|null>(null);
+  const [filter, setFilter] = useState<TemplateType|null>(null);
   
   const { results: moderationTemplates = [], loading } = useMulti({
     collectionName: 'ModerationTemplates',
@@ -55,7 +55,7 @@ export const ModerationTemplatesPage = ({classes}: {
   const nonDeletedTemplates = filteredTemplates.filter(template => !template.deleted)
   const deletedTemplates = filteredTemplates.filter(template => template.deleted)
 
-  const handleFilter = (type:string) => {
+  const handleFilter = (type:TemplateType) => {
     if (filter === type) {
       setFilter(null)
     } else {

@@ -2,7 +2,7 @@ import {schemaDefaultValue} from "../../collectionUtils";
 
 export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 
-type TemplateType = 'Messages' | 'Comments' | 'Rejections';
+export type TemplateType = 'Messages' | 'Comments' | 'Rejections';
 
 const schema: SchemaType<DbModerationTemplate> = {
   name: {
