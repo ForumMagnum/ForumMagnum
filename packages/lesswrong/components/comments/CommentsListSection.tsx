@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 24,
     lineHeight: '36px',
     fontWeight: 600,
-    marginBottom: 18
+    marginBottom: 16
   },
   commentCount: {
     color: theme.palette.grey[600],
