@@ -195,12 +195,6 @@ addGraphQLResolvers({
       
       const postsRepo = new PostsRepo()
       return postsRepo.getReadHistoryForUser(currentUser._id)
-      // const postIds = recentPosts.map(post => post._id)
-      // const posts = await Posts.find({
-      //   _id: {$in: postIds}
-      // }).fetch()
-      
-      // return postIds.map(postId => posts.find(p => p._id === postId))
     }
   }
 })

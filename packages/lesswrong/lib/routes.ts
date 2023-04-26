@@ -328,12 +328,6 @@ addRoute(
     componentName: 'BookmarksPage',
     title: 'Bookmarks',
   },
-  {
-    name: 'readHistory',
-    path: '/history',
-    componentName: 'ReadHistoryPage',
-    title: 'Read History',
-  },
 
   // Tags redirects
   {
@@ -737,6 +731,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped',
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
+    },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
     },
   ],
   LessWrong: [

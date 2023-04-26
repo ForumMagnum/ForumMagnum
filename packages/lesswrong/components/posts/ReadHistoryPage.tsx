@@ -10,20 +10,19 @@ const ReadHistoryPage = () => {
   const { data, loading } = useQuery(gql`
     query getReadHistory {
       UserReadHistory {
-        ...PostsList
+        ...PostsListWithVotes
       }
     }
-    ${fragmentTextForQuery("PostsList")}
+    ${fragmentTextForQuery("PostsListWithVotes")}
     `,
     {ssr: true, skip: !currentUser}
   )
-  console.log(data)
   
   const {SingleColumnSection, SectionTitle, Loading, PostsItem} = Components
 
   if (!currentUser) return <span>You must sign in to view your read history.</span>
   
-  const posts = data?.UserReadHistory
+  const posts: PostsListWithVotes[] = data?.UserReadHistory
 
   return <SingleColumnSection>
       <AnalyticsContext listContext={"ReadHistoryPage"} capturePostItemOnMount>
