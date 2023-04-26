@@ -20,7 +20,7 @@ export function constantTimeCompare({ correctValue, unknownValue }: { correctVal
 
     // Iterate over the array of correct characters, which has a known (constant) length, to mitigate certain timing attacks
     for (const [idx, char] of Object.entries(correctValueChars)) {
-      const matchedIndexCharsEqual = char === unknownValueChars[idx];
+      const matchedIndexCharsEqual = char === unknownValueChars[idx as AnyBecauseTodo];
       allCharsEqual = matchedIndexCharsEqual && allCharsEqual;
     }
 
@@ -83,4 +83,29 @@ Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): P
 
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Logs how long it takes for a function to execute.  See usage example below.
+ * 
+ * Original:
+ * 
+ * `await sql.none(compiled.sql, compiled.args));`
+ * 
+ * Wrapped:
+ * 
+ * `await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));`
+ */
+export async function timedFunc<O>(label: string, func: () => O) {
+  const startTime = new Date();
+  let result: O;
+  try {
+    result = await func();
+  } finally {
+    const endTime = new Date();
+    const runtime = endTime.valueOf() - startTime.valueOf();
+    // eslint-disable-next-line no-console
+    console.log(`${label} took ${runtime} ms`);
+  }
+  return result;
 }

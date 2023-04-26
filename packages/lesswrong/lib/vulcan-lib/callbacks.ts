@@ -67,7 +67,7 @@ const Callbacks: Record<string,any> = {};
  * @param {String} hook - The name of the hook
  * @param {Function} callback - The callback function
  */
-export const addCallback = function (hook: string, callback) {
+export const addCallback = function (hook: string, callback: AnyBecauseTodo) {
 
   const formattedHook = formatHookName(hook);
 
@@ -92,7 +92,7 @@ export const addCallback = function (hook: string, callback) {
  * @param {Function} callback - A reference to the function which was previously
  *   passed to addCallback.
  */
-const removeCallback = function (hookName: string, callback) {
+const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
   const formattedHook = formatHookName(hookName);
   Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
     c => c === callback
@@ -136,7 +136,7 @@ export const runCallbacks = function <T extends DbObject> (this: any, options: {
   
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
-    const runCallback = (accumulator, callback) => {
+    const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
       logger(`\x1b[32m[${formattedHook}] [${callback.name || 'noname callback'}]\x1b[0m`);
       try {
         const result = callback.apply(this, [accumulator].concat(args));
@@ -162,7 +162,7 @@ export const runCallbacks = function <T extends DbObject> (this: any, options: {
       }
     };
 
-    const result = callbacks.reduce(function (accumulator, callback, index) {
+    const result = callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
           logger(`\x1b[32m[${formattedHook}] Started async context for [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
@@ -219,7 +219,7 @@ export const runCallbacksList = function (this: any, options: {
   
   if (typeof callbacks !== 'undefined' && !!callbacks.length) {
 
-    const runCallback = (accumulator, callback) => {
+    const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
       logger(`running callback ${callback.name}`)
       try {
         const result = callback.apply(this, [accumulator].concat(args));
@@ -245,7 +245,7 @@ export const runCallbacksList = function (this: any, options: {
     };
 
     logger("Running callbacks list")
-    return callbacks.reduce(function (accumulator, callback, index) {
+    return callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
           asyncContext = true;
@@ -295,7 +295,7 @@ export const runCallbacksAsync = function <T extends DbObject> (options: {
     // use defer to avoid holding up client
     setTimeout(function () {
       // run all post submit server callbacks on post object successively
-      callbacks.forEach(function (this: any, callback) {
+      callbacks.forEach(function (this: any, callback: AnyBecauseTodo) {
         logger(`\x1b[32m[${hook}]: [${callback.name || 'noname callback'}]\x1b[0m`);
         
         let pendingAsyncCallback = markCallbackStarted(hook);
@@ -365,7 +365,7 @@ export const waitUntilCallbacksFinished = () => {
 
 // Dictionary of all outstanding callbacks (key is an ID, value is `true`). If
 // there are no outstanding callbacks, this should be an empty dictionary.
-let pendingCallbackKeys = {};
+let pendingCallbackKeys: Partial<Record<string,true>> = {};
 
 let pendingCallbackDescriptions: Record<string,number> = {};
 

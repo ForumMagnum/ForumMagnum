@@ -28,7 +28,7 @@ registerMigration({
           // Update users who either have no custom tag filter settings, or have the covid filter we put there, or only default tags
           if (frontpageFilterSettings.tags.length === 0) {
             return true;
-          } else if (frontpageFilterSettings.tags.every(tag => tag.filterMode === 'Default')) {
+          } else if (frontpageFilterSettings.tags.every((tag: AnyBecauseObsolete) => tag.filterMode === 'Default')) {
             return true;
           }
 
@@ -45,7 +45,7 @@ registerMigration({
               tagName: 'World Modeling',
               filterMode: 10
             },
-            ...tags.filter(tag => !EXCLUDE_TAG_IDS.includes(tag.tagId))
+            ...tags.filter((tag: AnyBecauseObsolete) => !EXCLUDE_TAG_IDS.includes(tag.tagId))
           ];
 
           return {

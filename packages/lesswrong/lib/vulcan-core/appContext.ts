@@ -5,7 +5,7 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation } from '../vulcan-lib/routes';
+import type { RouterLocation, Route } from '../vulcan-lib/routes';
 
 export interface ServerRequestStatusContextType {
   status?: number
@@ -53,7 +53,7 @@ export const parsePath = function parsePath(path: string): SegmentedUrl {
  * Given the props of a component which has withRouter, return the parsed query
  * from the URL.
  */
-export function parseQuery(location): Record<string,string> {
+export function parseQuery(location: AnyBecauseTodo): Record<string,string> {
   let query = location?.search;
   if (!query) return {};
 
@@ -75,7 +75,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   onError?: null|((err: string)=>void),
 }): RouterLocation {
   const routeNames = Object.keys(Routes);
-  let currentRoute: any = null;
+  let currentRoute: Route|null = null;
   let params={};
   for (let routeName of routeNames) {
     const route = Routes[routeName];
@@ -108,7 +108,8 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   
   const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result: RouterLocation = {
-    currentRoute, RouteComponent, location, params,
+    currentRoute: currentRoute!, //TODO: Better null handling than this
+    RouteComponent, location, params,
     pathname: location.pathname,
     url: location.pathname + location.search + location.hash,
     hash: location.hash,

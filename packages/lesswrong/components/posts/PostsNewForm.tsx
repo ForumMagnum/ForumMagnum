@@ -234,7 +234,7 @@ const PostsNewForm = ({classes}: {
         {postWillBeHidden && <NewPostModerationWarning />}
         <NoSSR>
           <WrappedSmartForm
-            collection={Posts}
+            collectionName="Posts"
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {

@@ -235,8 +235,8 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
     }
 
-    if (sortings[terms.sortedBy]) {
-      params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
+    if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
+      params.options = {sort: {...params.options.sort, ...(sortings as AnyBecauseTodo)[terms.sortedBy]}}
     } else {
       // eslint-disable-next-line no-console
       console.warn(

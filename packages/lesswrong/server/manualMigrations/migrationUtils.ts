@@ -2,7 +2,7 @@ import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
-import { sleep } from '../../lib/helpers';
+import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
@@ -212,7 +212,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
     return
   }
 
-  let previousDocumentIds = {};
+  let previousDocumentIds: AnyBecauseTodo = {};
   let documentsAffected = 0;
   let done = false;
 
@@ -260,7 +260,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
 
-export async function dropUnusedField(collection, fieldName) {
+export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: string) {
   const loadFactor = 0.5;
   let nMatched = 0;
   
@@ -289,10 +289,7 @@ export async function dropUnusedField(collection, fieldName) {
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
-const getBatchSort = <T extends DbObject>(useCreatedAt: boolean) =>
-  (useCreatedAt
-    ? {createdAt: 1}
-    : {_id: 1}) as Record<keyof T, 1>; // It's the callers responsibility to ensure the sort field actally exists
+const getBatchSort = <T extends DbObject>(field = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
 
 const getFirstBatchById = async <T extends DbObject>({
   collection,
@@ -312,7 +309,7 @@ const getFirstBatchById = async <T extends DbObject>({
   return collection.find(
     { ...filter },
     {
-      sort: getBatchSort(false),
+      sort: getBatchSort(),
       limit: batchSize,
     }
   ).fetch();
@@ -335,7 +332,7 @@ const getNextBatchById = <T extends DbObject>({
       ...filter,
     },
     {
-      sort: getBatchSort(false),
+      sort: getBatchSort(),
       limit: batchSize
     }
   ).fetch();
@@ -345,18 +342,26 @@ const getFirstBatchByCreatedAt = async <T extends DbObject>({
   collection,
   batchSize,
   filter,
+  overrideCreatedAt
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
+  overrideCreatedAt?: keyof T & string
 }): Promise<T[]> => {
+  const sortField = overrideCreatedAt ?? 'createdAt';
+
   return collection.find(
     { ...filter },
     {
-      sort: getBatchSort(true),
+      sort: getBatchSort(sortField),
       limit: batchSize,
     }
   ).fetch();
+}
+
+const isValidDateCursor = (cursor: unknown): cursor is Date => {
+  return cursor instanceof Date;
 }
 
 const getNextBatchByCreatedAt = <T extends DbObject>({
@@ -364,38 +369,45 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   batchSize,
   filter,
   lastRows,
+  overrideCreatedAt
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
   lastRows: T[],
+  overrideCreatedAt?: keyof T & string
 }): Promise<T[]> => {
-  const lastRow = lastRows[lastRows.length - 1] as unknown as HasCreatedAtType;
-  let greaterThan = lastRow.createdAt;
-  if (filter && "createdAt" in filter) {
-    if (filter.createdAt.$gt) {
-      greaterThan = new Date(Math.max(greaterThan.getTime(), filter.createdAt.$gt.getTime()));
-    } else if (filter.createdAt.$gte) {
-      const gt = Math.max(filter.createdAt.$gte.getTime() - 1, 0);
+  const sortField = overrideCreatedAt ?? 'createdAt';
+  const lastRow = lastRows[lastRows.length - 1] as unknown as T & HasCreatedAtType;
+  let greaterThan: unknown = lastRow[sortField] ?? new Date(0);
+  if (!isValidDateCursor(greaterThan)) {
+    throw new Error(`Invalid greaterThan cursor; expected a date, got ${greaterThan} for field ${sortField}`);
+  }
+  if (filter && sortField in filter) {
+    if (filter[sortField].$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter[sortField].$gt.getTime()));
+    } else if (filter[sortField].$gte) {
+      const gt = Math.max(filter[sortField].$gte.getTime() - 1, 0);
       greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
-      delete filter.createdAt.$gte;
+      delete filter[sortField].$gte;
     } else {
       throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
     }
   }
-  return collection.find(
-    {
-      ...filter,
-      createdAt: {
-        ...filter?.createdAt,
-        $gt: greaterThan,
-      },
+  const selector = {
+    ...filter,
+    [sortField]: {
+      ...filter?.[sortField],
+      $gt: greaterThan,
     },
-    {
-      sort: getBatchSort(true),
-      limit: batchSize
-    }
-  ).fetch();
+  };
+
+  const opts = {
+    sort: getBatchSort<T>(sortField),
+    limit: batchSize
+  };
+
+  return collection.find(selector, opts).fetch();
 }
 
 const getBatchProviders = (useCreatedAt: boolean) =>
@@ -427,6 +439,7 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   callback,
   loadFactor=1.0,
   useCreatedAt=false,
+  overrideCreatedAt,
 }: {
   collection: CollectionBase<T>,
   batchSize?: number,
@@ -434,13 +447,14 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   callback: (batch: T[]) => void | Promise<void>,
   loadFactor?: number,
   useCreatedAt?: boolean,
+  overrideCreatedAt?: keyof T & string
 }): Promise<void> {
   const {getFirst, getNext} = getBatchProviders(useCreatedAt);
-  let rows = await getFirst({collection, batchSize, filter});
+  let rows = await getFirst({collection, batchSize, filter, overrideCreatedAt});
   while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
-      await callback(rows);
-      rows = await getNext({collection, batchSize, filter, lastRows: rows});
+      await timedFunc('migrationCallback', () => callback(rows));
+      rows = await timedFunc('getNext', () => getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt}));
     });
   }
 }
@@ -477,7 +491,12 @@ export async function forEachDocumentInCollection({collection, batchSize=1000, f
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection({collection, filter, bucketSize=1000, fn})
+export async function forEachBucketRangeInCollection<T extends DbObject>({collection, filter, bucketSize=1000, fn}: {
+  collection: CollectionBase<T>
+  filter?: MongoSelector<T>
+  bucketSize?: number
+  fn: (selector: MongoSelector<T>)=>Promise<void>
+})
 {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();

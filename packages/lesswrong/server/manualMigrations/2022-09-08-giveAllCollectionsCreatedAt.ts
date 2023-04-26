@@ -28,13 +28,14 @@ const initCreatedAt = <T extends DbObject>(
           filter: {_id: document._id},
           update: {
             $set: {
-              createdAt: new Date(document[existingField] ?? 0),
+              createdAt: new Date((document as AnyBecauseObsolete)[existingField] ?? 0),
             },
           },
         },
       }));
       await collection.rawCollection().bulkWrite(updates, {ordered: false});
     },
+    loadFactor: 0.8
   });
 
 /**
@@ -47,11 +48,11 @@ const initCreatedAt = <T extends DbObject>(
  *  - LegacyData
  *  - PodcastEpisodes
  *  - Podcasts
+ *  - EmailTokens
+ *  - ReadStatus
  * For these collection we copy an existing field:
  *  - DebouncerEvents (delayTime)
- *  - EmailTokens (usedAt)
  *  - Migrations (started)
- *  - ReadStatus (lastUpdated)
  *  - Revisions (editedAt)
  *  - Votes (votedAt)
  */
@@ -66,9 +67,9 @@ registerMigration({
     await initCreatedAt(PodcastEpisodes);
     await initCreatedAt(Podcasts);
     await initCreatedAt(DebouncerEvents, "delayTime");
-    await initCreatedAt(EmailTokens, "usedAt");
+    await initCreatedAt(EmailTokens);
     await initCreatedAt(Migrations, "started");
-    await initCreatedAt(ReadStatuses, "lastUpdated");
+    await initCreatedAt(ReadStatuses);
     await initCreatedAt(Revisions, "editedAt");
     await initCreatedAt(Votes, "votedAt");
   },
