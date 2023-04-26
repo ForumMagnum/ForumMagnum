@@ -49,14 +49,14 @@ const styles = (theme: JssStyles) => ({
 
 const DateDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
 const PostDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const post = document.post || document
   return <Link rel="nofollow" to={postGetPageUrl(post) + "#" + document._id }>{ post.title }</Link>
@@ -64,7 +64,7 @@ const PostDisplay = ({column, document}: {
 
 const UserDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const user = document.user || document
   return <div>
@@ -74,7 +74,7 @@ const UserDisplay = ({column, document}: {
 
 const DeletedByUserDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const user = document.deletedByUser || document.user || document
   return <span>
@@ -85,7 +85,7 @@ const DeletedByUserDisplay = ({column, document}: {
 
 const BannedUsersDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const bannedUsers = document[column.name] ?? []
   return <div>
@@ -97,7 +97,7 @@ const BannedUsersDisplay = ({column, document}: {
 
 const ModeratorTypeDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   return <div>{document[column.name]}</div>
 }
