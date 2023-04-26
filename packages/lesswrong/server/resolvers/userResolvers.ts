@@ -52,6 +52,7 @@ augmentFieldsDict(Users, {
   // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
   rateLimitNextAbleToComment: {
     nullable: true,
+    arguments: 'postId: String',
     resolveAs: {
       type: "Date",
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
