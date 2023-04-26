@@ -7,6 +7,7 @@ import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   headline: {
+    color: theme.palette.grey[1000],
     marginTop: 15
   },
 })
