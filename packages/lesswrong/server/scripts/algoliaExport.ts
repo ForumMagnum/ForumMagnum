@@ -63,26 +63,27 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   }
 }
 
-async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
+export const getAlgoliaFilter = (collectionName: AlgoliaIndexCollectionName) => {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
-      break
+     return {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED};
     case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
-      break
+      return {baseScore: {$gt: 0}, deleted: {$ne: true}};
     case 'Users':
-      await algoliaExport(Users, {deleted: {$ne: true}, deleteContent: {$ne: true}})
-      break
+      return {deleted: {$ne: true}, deleteContent: {$ne: true}};
     case 'Sequences':
-      await algoliaExport(Sequences, {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}})
-      break
+      return {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}};
     case 'Tags':
-      await algoliaExport(Tags, {deleted: {$ne: true}, adminOnly: {$ne: true}});
-      break;
+      return {deleted: {$ne: true}, adminOnly: {$ne: true}};
     default:
-      throw new Error(`Did not recognize collectionName: ${collectionName}`)
+      throw new Error(`Did not recognize collectionName: ${collectionName}`);
   }
+}
+
+async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
+  const collection = getCollection(collectionName) as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+  const filter = getAlgoliaFilter(collectionName);
+  await algoliaExport(collection, filter);
 }
 
 export async function algoliaExportAll() {

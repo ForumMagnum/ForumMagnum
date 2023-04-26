@@ -44,6 +44,7 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
+import ElasticSearchService from './search/ElasticSearchService';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -246,6 +247,8 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
+
+  new ElasticSearchService();
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
