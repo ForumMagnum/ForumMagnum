@@ -6,7 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const PostRelations: PostRelationsCollection = createCollection({
   collectionName: 'PostRelations',
   typeName: 'PostRelation',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('PostRelations'),
   logChanges: true,

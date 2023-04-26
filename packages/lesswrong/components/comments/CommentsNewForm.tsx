@@ -124,6 +124,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UsersCurrentRateLimit",
+    extraVariables: { postId: 'String' },
+    extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
   });
   const postWithRateLimit = useSingle({
@@ -246,6 +248,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
   
+  // TODO: probably include postSpecificRateLimit in rateLimitNextAbleToComment so we don't need both
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
   const lastRateLimitExpiry: Date|null =
