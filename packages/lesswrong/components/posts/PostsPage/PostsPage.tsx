@@ -384,7 +384,7 @@ const PostsPage = ({post, refetch, classes}: {
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
-      {isEAForum &&
+      {isEAForum && !post.question && !sequenceId &&
         <div className={classes.recommendations}>
           <PostsPageRecommendationsList />
         </div>
