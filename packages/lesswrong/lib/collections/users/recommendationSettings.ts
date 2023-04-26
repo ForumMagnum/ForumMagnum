@@ -11,6 +11,7 @@ export const recommendationStrategyNames = new TupleSet([
   "bestOf",
   "tagWeightedCollabFilter",
   "collabFilter",
+  "feature",
 ] as const);
 
 export const isRecommendationStrategyName =
@@ -19,10 +20,29 @@ export const isRecommendationStrategyName =
 
 export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNames>;
 
+export const recommendationFeatureNames = new TupleSet([
+  "karma",
+  "curated",
+  "tagSimilarity",
+  "collabFilter",
+] as const);
+
+export const isRecommendationFeatureName =
+  (name: string): name is RecommendationFeatureName =>
+    recommendationFeatureNames.has(name);
+
+export type RecommendationFeatureName = UnionOf<typeof recommendationFeatureNames>;
+
+export type WeightedFeature = {
+  feature: RecommendationFeatureName,
+  weight: number,
+}
+
 export interface StrategySpecification {
   name: RecommendationStrategyName,
   postId: string,
   bias?: number,
+  features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
 }
 

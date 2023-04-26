@@ -10,6 +10,7 @@ import TagWeightedCollabFilterStrategy from "./TagWeightedCollabFilter";
 import RecommendationStrategy from "./RecommendationStrategy";
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
+import FeatureStrategy from "./FeatureStrategy";
 
 type ConstructableStrategy = {
   new(): RecommendationStrategy,
@@ -33,6 +34,7 @@ class RecommendationService {
     bestOf: BestOfStrategy,
     tagWeightedCollabFilter: TagWeightedCollabFilterStrategy,
     collabFilter: CollabFilterStrategy,
+    feature: FeatureStrategy,
   };
 
   async recommend(

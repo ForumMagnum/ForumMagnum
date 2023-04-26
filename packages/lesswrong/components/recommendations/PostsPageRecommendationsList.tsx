@@ -4,6 +4,7 @@ import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type {
   RecommendationsAlgorithmWithStrategy,
   RecommendationStrategyName,
+  WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 
@@ -30,12 +31,14 @@ const PostsPageRecommendationsList = ({
   title = "More posts like this",
   strategy = "moreFromTag",
   bias = 1,
+  features,
   forceLoggedOutView,
   classes,
 }: {
   title?: string,
   strategy?: RecommendationStrategyName,
   bias?: number,
+  features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
   classes: ClassesType,
 }) => {
@@ -49,6 +52,7 @@ const PostsPageRecommendationsList = ({
       name: strategy,
       postId: post._id,
       bias,
+      features,
       forceLoggedOutView,
     },
     count: 3,
