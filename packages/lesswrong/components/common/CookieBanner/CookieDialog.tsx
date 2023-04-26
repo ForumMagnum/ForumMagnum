@@ -10,6 +10,9 @@ import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { COOKIE_PREFERENCES_COOKIE } from "../../../lib/cookies/cookies";
 
 const styles = (theme: ThemeType) => ({
+  dialog: {
+    margin: 24,
+  },
   title: {
     marginLeft: 4,
     padding: "24px 24px 10px",
@@ -57,6 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
   explanation: {
     padding: '8px 0px',
+    fontWeight: 400,
   },
   open: {
     maxHeight: "200px",
@@ -157,7 +161,9 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   }, [allowedCookies, onClose, updateCookiePreferences]);
 
   return (
-    <LWDialog open onClose={onClose}>
+    <LWDialog open onClose={onClose} dialogClasses={{
+      paper: classes.dialog,
+    }}>
       <DialogTitle className={classes.title}>Cookie Settings</DialogTitle>
       <DialogContent className={classes.content}>
         <Typography variant="body2" className={classes.blurb}>

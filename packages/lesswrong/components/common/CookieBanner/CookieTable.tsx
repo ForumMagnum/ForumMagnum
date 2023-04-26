@@ -8,11 +8,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     marginTop: 8,
     fontWeight: 600,
+    fontSize: "1.4rem",
   },
   tableContainer: {
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
     overflow: 'hidden',
+    marginBottom: 8,
   },
   table: {
     width: "100%",
@@ -24,10 +26,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.contrastText,
     padding: 4,
     borderBottom: `1px solid ${theme.palette.grey[800]}`,
+    fontSize: "1rem",
   },
   td: {
     padding: 4,
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    fontSize: "1rem",
+  },
+  tdName: {
+    width: "40%",
+    wordBreak: "break-all",
+  },
+  tdDescription: {
+    width: "60%",
   },
 });
 
@@ -48,7 +59,7 @@ const CookieTable = ({
 
   return (
     <>
-      <Typography variant="display1" className={classes.heading}>
+      <Typography variant="body2" className={classes.heading}>
         Set by {thirdPartyName ?? "us"}
       </Typography>
       <div className={classes.tableContainer}>
@@ -62,8 +73,8 @@ const CookieTable = ({
           <tbody>
             {filteredCookies.map((cookie) => (
               <tr key={cookie.name}>
-                <td className={classes.td}>{cookie.name}</td>
-                <td className={classes.td}>{cookie.description}</td>
+                <td className={`${classes.td} ${classes.tdName}`}>{cookie.name}</td>
+                <td className={`${classes.td} ${classes.tdDescription}`}>{cookie.description}</td>
               </tr>
             ))}
           </tbody>

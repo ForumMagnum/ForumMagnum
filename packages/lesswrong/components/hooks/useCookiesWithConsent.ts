@@ -16,7 +16,6 @@ cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
   // @ts-ignore
   window.dataLayer.push({ event: 'cookie_preferences_changed' }); // Must match event name in Google Tag Manager
 });
-// TODO clear disallowed cookies
 
 export function useUpdateCookiePreferences(): [
   {

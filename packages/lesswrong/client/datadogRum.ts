@@ -19,9 +19,6 @@ export function initDatadog() {
     // eslint-disable-next-line no-console
     console.warn("Not initializing datadog because analytics cookies are not allowed")
     return
-  } else {
-    // FIXME debug
-    console.log("Initializing datadog")
   }
 
   datadogRum.init({
