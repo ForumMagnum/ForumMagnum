@@ -6,8 +6,17 @@ export type CookieType = UnionOf<typeof CookieTypes>;
 export type CookieSignature = {
   name: string;
   type: CookieType;
-  /** User readable description of what the cookie does (shown in cookie banner) */
+  /** User readable description of what the cookie does (shown in cookie policy) */
   description: string;
+  thirdPartyName?: string;
+  /** String description of the longest possible expiry date. Can be e.g. "12 months" or "Session" */
+  maxExpires: string;
+  matches: (name: string) => boolean;
+}
+// maxExpires and matches are filled in by registerCookie if not provided
+export type CookieSignatureMinimum = Omit<CookieSignature, 'maxExpires' | 'matches'> & {
+  matches?: (name: string) => boolean;
+  maxExpires?: string;
 }
 
 export const CookiesTable: Record<string, CookieSignature> = {};
@@ -26,11 +35,15 @@ export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]):
 }
 
 // TODO add forum type setting
-export function registerCookie(cookie: CookieSignature): string {
+export function registerCookie(cookie: CookieSignatureMinimum): string {
   if (cookie.name in CookiesTable && CookiesTable[cookie.name] !== cookie) {
     throw new Error(`Two cookies with the same name: ${cookie.name}`);
   }
 
-  CookiesTable[cookie.name] = cookie;
+  CookiesTable[cookie.name] = {
+    maxExpires: '24 months',
+    matches: (name) => name === cookie.name,
+    ...cookie
+  };
   return cookie.name
 }

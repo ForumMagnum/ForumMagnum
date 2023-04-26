@@ -50,10 +50,13 @@ const styles = (theme: ThemeType) => ({
   checkboxOrLabel: {
     padding: 12,
   },
-  explanation: {
+  explanationContainer: {
     maxHeight: 0,
     overflow: "hidden",
     transition: "max-height 0.3s ease-in-out",
+  },
+  explanation: {
+    padding: '8px 0px',
   },
   open: {
     maxHeight: "200px",
@@ -86,7 +89,7 @@ const CookieCategory = ({
   className?: string;
   classes: ClassesType;
 }) => {
-  const { Typography, ForumIcon } = Components;
+  const { Typography, ForumIcon, CookieTable } = Components;
   const [open, setOpen] = useState(false);
 
   const checked = useMemo(() => allowedCookies.includes(cookieType), [allowedCookies, cookieType]);
@@ -98,6 +101,13 @@ const CookieCategory = ({
       setAllowedCookies([...allowedCookies, cookieType]);
     }
   }, [alwaysEnabled, checked, setAllowedCookies, allowedCookies, cookieType]);
+
+  const cookieTypeExplanations: Record<CookieType, string> = {
+    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. Below are the necessary cookies set by third parties",
+    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. Below are the functional cookies set by third parties",
+    analytics: "Analytical cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. Below are the analytics cookies we set",
+  }
+  const explanation = cookieTypeExplanations[cookieType];
 
   return (
     <div className={className}>
@@ -116,14 +126,16 @@ const CookieCategory = ({
           <Checkbox className={classes.checkboxOrLabel} checked={checked} onChange={toggleCookie} />
         )}
       </div>
-      <Typography
-        variant="body2"
-        className={classNames(classes.explanation, {
+      <div
+        className={classNames(classes.explanationContainer, {
           [classes.open]: open,
         })}
       >
-        {title} cookies explanation...
-      </Typography>
+        <Typography variant="body2" className={classes.explanation}>
+          {explanation}
+        </Typography>
+        <CookieTable type={cookieType}/>
+      </div>
     </div>
   );
 };
@@ -132,7 +144,9 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   const { LWDialog, Typography } = Components;
 
   const [cookies, updateCookiePreferences] = useUpdateCookiePreferences();
-  const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"];
+  const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE])
+    ? cookies[COOKIE_PREFERENCES_COOKIE]
+    : ["necessary"];
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(existingCookiePreferences);
 
   const saveAndClose = useCallback(() => {
