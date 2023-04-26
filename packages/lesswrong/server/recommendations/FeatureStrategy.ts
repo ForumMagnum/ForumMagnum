@@ -68,7 +68,7 @@ type ConstructableFeature = {
 }
 
 /**
- * The feature strategy can be used to combine multiple compasable "features" that
+ * The feature strategy can be used to combine multiple composable "features" that
  * contribute to a score. Features should extend the `Feature` abstract class and
  * should return a score between 0 and 1 that can then be multiplied by a weight
  * when sorting results.
