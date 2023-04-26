@@ -5,7 +5,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
-import { CookieType, isValidCookieTypeArray } from "../../../lib/cookies/utils";
+import { CookieType, CookiesTable, isValidCookieTypeArray } from "../../../lib/cookies/utils";
 import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { COOKIE_PREFERENCES_COOKIE } from "../../../lib/cookies/cookies";
 
@@ -103,11 +103,13 @@ const CookieCategory = ({
   }, [alwaysEnabled, checked, setAllowedCookies, allowedCookies, cookieType]);
 
   const cookieTypeExplanations: Record<CookieType, string> = {
-    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. Below are the necessary cookies set by third parties",
-    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. Below are the functional cookies set by third parties",
-    analytics: "Analytical cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. Below are the analytics cookies we set",
+    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously.",
+    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom.",
+    analytics: "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc.",
   }
   const explanation = cookieTypeExplanations[cookieType];
+
+  const uniqueThirdPartyNames = [...new Set(Object.values(CookiesTable).filter(cookie => cookie.type === cookieType).map(cookie => cookie.thirdPartyName))].sort().reverse();
 
   return (
     <div className={className}>
@@ -134,7 +136,9 @@ const CookieCategory = ({
         <Typography variant="body2" className={classes.explanation}>
           {explanation}
         </Typography>
-        <CookieTable type={cookieType}/>
+        {uniqueThirdPartyNames.map((name) => <>
+          <CookieTable type={cookieType} thirdPartyName={name}/>
+        </>)}
       </div>
     </div>
   );
