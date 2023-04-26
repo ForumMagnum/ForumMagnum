@@ -71,8 +71,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: 4,
-    ...theme.typography.italic,
+    marginTop: isEAForum ? 8 : 4,
+    fontStyle: "italic",
   }
 })
 

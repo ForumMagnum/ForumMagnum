@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   groupName: {
     fontSize: 14,
-    ...theme.typography.italic,
+    fontStyle: "italic",
     marginTop: 12,
   },
   label: {
