@@ -1,16 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Posts } from '../../../lib/collections/posts';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { Comments } from '../../../lib/collections/comments'
-import Users from '../../../lib/collections/users/collection';
-import { Link } from '../../../lib/reactRouterWrapper'
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Comments } from '../../lib/collections/comments'
+import Users from '../../lib/collections/users/collection';
+import { Link } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames';
-import { useCurrentUser } from '../../common/withUser';
-import { isMod } from '../../../lib/collections/users/helpers';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import type { Column } from '../../vulcan-core/Datatable';
-import { ModeratorActions } from '../../../lib/collections/moderatorActions'
+import { useCurrentUser } from '../common/withUser';
+import { isMod } from '../../lib/collections/users/helpers';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import type { Column } from '../vulcan-core/Datatable';
+import { ModeratorActions } from '../../lib/collections/moderatorActions'
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -187,7 +187,7 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection, ModeratedUsersLog } = Components;
+  const { SingleColumnSection } = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <h2>Moderation Log</h2>
