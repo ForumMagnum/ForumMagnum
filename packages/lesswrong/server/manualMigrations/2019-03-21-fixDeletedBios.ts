@@ -6,6 +6,6 @@ registerMigration({
   dateWritten: "2019-03-21",
   idempotent: true,
   action: async () => {
-    await recomputeDenormalizedValues({collectionName: "Users", fieldName: "htmlBio"});
+    await recomputeDenormalizedValues({collectionName: "Users", fieldName: "htmlBio" as keyof ObjectsByCollectionName['Users']});
   }
 });

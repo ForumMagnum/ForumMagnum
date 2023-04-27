@@ -1,8 +1,10 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|prod]
+ * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [lw]
  *
  * If no environment is specified, you can use the environment variables PG_URL,
  * MONGO_URL and SETTINGS_FILE
+ * 
+ * Runs for the EA Forum by default.  Add `lw` as the last argument to run for LW.  Requires that you provide an environment explicitly.
  */
 require("ts-node/register");
 const { readFile } = require("fs").promises;
@@ -34,7 +36,7 @@ const credentialsFile = (fileName, forum) => {
   return `${base}/${repoName}/${fileName}`;
 }
 
-const settingsFile = (fileName, forum) => {
+const settingsFilePath = (fileName, forum) => {
   const base = process.env.GITHUB_WORKSPACE ?? "..";
   const repoName = forum === 'lw' ? 'LessWrong-Credentials' : 'ForumCredentials';
   return `${base}/${repoName}/${fileName}`;
@@ -85,7 +87,7 @@ const settingsFileName = (mode, forum) => {
     console.log('Running migrations in mode', mode);
     args.mongoUrl = await readUrlFile(mongoFileName(mode, forum), forum);
     args.postgresUrl = await readUrlFile(postgresFileName(mode, forum), forum);
-    args.settingsFileName = settingsFile(settingsFileName(mode, forum), forum);
+    args.settingsFileName = settingsFilePath(settingsFileName(mode, forum), forum);
     if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(isLW ? 5 : 4));
     }
