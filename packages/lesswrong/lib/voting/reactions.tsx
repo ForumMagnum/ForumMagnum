@@ -5,85 +5,114 @@ export type NamesAttachedReactionType = {
   label: string,
   svg?: string,
   emoji?: string,
+  description?: string|((contentType:string)=>string),
 }
+
+/**
+ * Reactions available.
+ *
+ * A reaction image should either be an image file (SVG preferred,
+ * PNG is acceptable) in /public/reactionImages, or a Unicode emoji. Note
+ * that Unicode emojis are provided by the font-stack, and are much-more-likely
+ * than normal text to be falling back on system fonts; so if you use a Unicode
+ * emoji, you need to separately test that it displays correctly on every major
+ * platform: MacOS, Windows, Android Chrome, iOS, Ubuntu. So if you've found
+ * a Unicode emoji you like, you probably want to get an image version from one
+ * of these sources:
+ *     Noto Emoji: https://fonts.google.com/noto/specimen/Noto+Emoji
+ *     OpenMoji: https://openmoji.org/library/
+ * When you add a downloaded image, record where you got it in
+ * `public/reactionImages/sources.txt`. This is required to be able to meet the
+ * attribution requirement of the licenses. If you get an image from a source
+ * that hasn't been used before, you have to check its license and make sure
+ * it's suitable.
+ */
 export const namesAttachedReactions: NamesAttachedReactionType[] = [
   // Positive
   {
     name: "verified",
     label: "I checked this",
-    svg: "/public/check.svg", //checkmark
+    svg: "/reactionImages/check.svg", //checkmark
+    description: "I read this carefully and verified its core claims.",
   },
   {
     name: "hitsTheMark",
     label: "On Point",
-    svg: "/public/target.svg", //picture of a target
+    svg: "/reactionImages/target.svg", //picture of a target
     emoji: "🎯",
+    description: (contentType) => `This ${contentType} gets to the core of the issue, and is particularly on point.`,
   },
   {
     name: "clear",
     label: "Clear",
-    svg: "/public/gem.svg", //picture of a gem
+    svg: "/reactionImages/gem.svg", //picture of a gem
     emoji: "💎",
+    description: (contentType) => `This ${contentType} clarifies things.`
   },
   {
     name: "scout",
     label: "Scout Mindset",
-    svg: "/public/binoculars.svg", //picture of binoculars
+    svg: "/reactionImages/binoculars.svg", //picture of binoculars
   },
   {
     name: "support",
     label: "Support",
-    svg: "/public/pillar.svg", //picture of a pillar
+    svg: "/reactionImages/pillar.svg", //picture of a pillar
   },
   {
     name: "key",
     label: "Key insight",
-    svg: "/public/key.svg", //picture of a key
+    svg: "/reactionImages/key.svg", //picture of a key
     emoji: "🔑",
   },
-
-  // Negative
   {
     name: "error",
     label: "I spotted an error",
-    svg: "/public/x.svg", //X
+    svg: "/reactionImages/x.svg", //X
   },
   {
     name: "muddled",
     label: "Muddled",
-    svg: "/public/reactionImages/splat.svg", //a splat of mud
+    svg: "/reactionImages/splat.svg", //a splat of mud
   },
   {
     name: "combative",
     label: "Combative",
-    svg: "/public/swords.svg", //picture of crossed swords
+    svg: "/reactionImages/swords.svg", //picture of crossed swords
     emoji: "⚔️",
   },
+  {
+    name: "excitement",
+    label: "Exciting",
+    emoji: "🎉",
+  },
 
-  // Neutral
-  // Make it concrete: picture of bricks ("make concrete")
-  // I hear you: picture of an ear
-  // {name: "skepticism", label: "Skepticism", icon: "🤨"},
-  // {name: "enthusiasm", label: "Enthusiasm", icon: "🎉"},
-  // {name: "empathy",    label: "Empathy",    icon: "❤️"},
-  // {name: "surprise",   label: "Surprise",   icon: "😮"},
+  {
+    name: "skeptical",
+    label: "Skeptical",
+    emoji: "🤨"
+  },
+  {
+    name: "empathy",
+    label: "Empathy",
+    emoji: "❤️"
+  },
+  {
+    name: "surprise",
+    label: "Surprise",
+    emoji: "😮"
+  },
   {
     name: "seen",
     label: "I saw this",
     emoji: "👀",
   },
   
-  // TODO find icons
-  // {
-  //   name: "thanks",
-  //   label: "Thanks",
-  //   icon: null, //TY
-  // },
-  // {
-  //   name: "missesThePoint",
-  //   label: "Missed the Point",
-  //   icon: null, //gust of wind over a smiley face's head
-  // },
+  // TODO pick icons for:
+  //   Thanks
+  //   Missed the Point (gust of wind over smiley's head)
+  //   Make it concrete: picture of bricks ("make concrete")
+  //   I hear you (picture of an ear)
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
 
