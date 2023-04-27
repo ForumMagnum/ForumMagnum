@@ -1035,6 +1035,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
             }
           }
         },
+        {$and: [{mongoLocation: {$exists: false}}, {onlineEvent: true}]},
         {globalEvent: true} // also include events that are open to everyone around the world
       ]
     },
