@@ -1335,11 +1335,11 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationDebateCommentsOnSubscribedPost: {
-    label: "New debate content in a debate I'm subscribed to",
+    label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New debate content in a debate I'm participating in",
+    label: "New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField()
   },
 

@@ -103,13 +103,13 @@ export const AdminPaymentsPage = ({classes}: {
           return <TableRow key={user._id}>
             <TableCell className={classes.smallCell}>{i+1}</TableCell>
             <TableCell className={classes.smallCell}>
-              <LWTooltip title={<UserTooltip user={user}/>}>
+              <UserTooltip user={user}>
                 <Link to={userGetProfileUrl(user)}>
                   <ForumIcon icon="Link" className={classes.icon}/>
                 </Link>
-              </LWTooltip>
+              </UserTooltip>
             </TableCell>
-            <TableCell>  
+            <TableCell>
               {user.fullName ?? user.displayName}
             </TableCell>
             <TableCell>{user.paymentEmail ?? getUserEmail(user)}</TableCell>

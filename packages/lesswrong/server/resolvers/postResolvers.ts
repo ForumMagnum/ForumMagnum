@@ -13,6 +13,8 @@ import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { rateLimitGetPostSpecificCommentLimit } from '../callbacks/rateLimits';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import PostsRepo from '../repos/PostsRepo';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -70,6 +72,7 @@ augmentFieldsDict(Posts, {
       },
     }
   },
+  // TODO: probably refactor this + rateLimitNextAbleToComment to only use one resolver, since we don't really need two
   postSpecificRateLimit: {
     resolveAs: {
       type: "Date",
@@ -180,3 +183,28 @@ augmentFieldsDict(Posts, {
     },
   },
 })
+
+addGraphQLSchema(`
+  type PostWithLastRead {
+    post: Post,
+    lastRead: Date
+  }
+`)
+addGraphQLResolvers({
+  Query: {
+    async UserReadHistory(root: void, args: {}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read history')
+      }
+      
+      const postsRepo = new PostsRepo()
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id)
+      
+      return posts.map(post => {
+        return {post: post, lastRead: post.lastUpdated}
+      })
+    }
+  }
+})
+addGraphQLQuery('UserReadHistory: [PostWithLastRead]')

@@ -7,7 +7,7 @@ import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });

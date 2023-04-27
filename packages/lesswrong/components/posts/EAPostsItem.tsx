@@ -142,16 +142,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     color: theme.palette.grey[1000],
   },
-  bookmark: {
+  postActions: {
     minWidth: 20,
-    "&:hover": {
-      opacity: 0.5,
+    "&:hover .PostActionsButton-icon": {
+      color: theme.palette.grey[800],
     },
-  },
-  bookmarkIcon: {
-    fontSize: 18,
-    marginTop: 2,
-    color: theme.palette.grey[600],
   },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
@@ -233,7 +228,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
+    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
@@ -247,9 +242,9 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <ForumIcon icon="Comment" />
         {commentCount}
       </a>
-      <div className={classes.bookmark}>
+      <div className={classes.postActions}>
         <InteractionWrapper classes={classes}>
-          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+          <PostActionsButton post={post} popperPlacement="left-start" />
         </InteractionWrapper>
       </div>
     </>
