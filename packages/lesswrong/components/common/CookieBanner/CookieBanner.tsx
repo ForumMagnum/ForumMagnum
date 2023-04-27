@@ -18,6 +18,9 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: "14px 60px",
+    [theme.breakpoints.down("md")]: {
+      padding: "14px 40px",
+    },
     [theme.breakpoints.down("xs")]: {
       padding: 14,
       flexDirection: "column",

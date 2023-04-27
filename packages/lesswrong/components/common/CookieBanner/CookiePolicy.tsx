@@ -150,7 +150,6 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         <CookieTable type={"necessary"} thirdPartyName={name} key={`necessary_${name}`} />
       ))}
       <Typography variant="body1">
-        {/* TODO maybe kill the functional/necessary distinction */}
         <b>Functional cookies:</b> these cookies enable functionalities that are not strictly necessary for the website
         to be usable. This includes remembering whether certain banners are hidden, or allowing you to contact us for
         support via Intercom. These cookies expire after 24 months.

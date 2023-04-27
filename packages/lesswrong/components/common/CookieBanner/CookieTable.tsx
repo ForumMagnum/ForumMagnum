@@ -17,20 +17,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   table: {
+    ...theme.typography.commentStyle,
     width: "100%",
     borderCollapse: "collapse",
-    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
   },
   th: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
-    padding: 4,
+    padding: 8,
     borderBottom: `1px solid ${theme.palette.grey[800]}`,
+    borderRight: `1px solid ${theme.palette.primary.main}`, // hack to make borders line up
+    borderLeft: `1px solid ${theme.palette.primary.main}`, // hack to make borders line up
     fontSize: "1rem",
+    textAlign: "left",
+  },
+  tr: {
+    border: `1px solid ${theme.palette.grey[300]}`,
   },
   td: {
-    padding: 4,
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    padding: 8,
     fontSize: "1rem",
   },
   tdName: {
@@ -72,7 +78,7 @@ const CookieTable = ({
           </thead>
           <tbody>
             {filteredCookies.map((cookie) => (
-              <tr key={cookie.name}>
+              <tr key={cookie.name} className={classes.tr}>
                 <td className={`${classes.td} ${classes.tdName}`}>{cookie.name}</td>
                 <td className={`${classes.td} ${classes.tdDescription}`}>{cookie.description}</td>
               </tr>

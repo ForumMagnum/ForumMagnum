@@ -107,9 +107,9 @@ const CookieCategory = ({
   }, [alwaysEnabled, checked, setAllowedCookies, allowedCookies, cookieType]);
 
   const cookieTypeExplanations: Record<CookieType, string> = {
-    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously.",
-    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom.",
-    analytics: "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc.",
+    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. In general these cookies expire after 24 months.",
+    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. In general these cookies expire after 24 months.",
+    analytics: "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. In general these cookies expire after 24 months.",
   }
   const explanation = cookieTypeExplanations[cookieType];
 
