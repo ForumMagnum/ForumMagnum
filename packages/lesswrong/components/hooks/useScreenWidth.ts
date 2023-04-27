@@ -5,14 +5,11 @@ import { useTheme } from "../themes/useTheme";
 /**
  * WARNING: This hook is not SSR safe!
  *
- * It assumes your on the desktop and can cause layout shift on load for mobile
+ * It assumes you're on the desktop and can cause layout shift on load for mobile
  * users if you're not careful.
  */
 export const useIsAboveScreenWidth = (targetScreenWidth: number) => {
-  if (!isClient) {
-    return true;
-  }
-  const initialScreenWidth = window.innerWidth;
+  const initialScreenWidth = isClient ? window.innerWidth : 4000;
   const [actualScreenWidth, setActualScreenWidth] = useState(initialScreenWidth);
   
   useEffect(() => {
@@ -23,13 +20,18 @@ export const useIsAboveScreenWidth = (targetScreenWidth: number) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [])
   
+  if (!isClient) {
+    return true;
+  }
+  
+  
   return actualScreenWidth > targetScreenWidth;
 }
 
 /**
  * WARNING: This hook is not SSR safe!
  *
- * It assumes your on the desktop and can cause layout shift on load for mobile
+ * It assumes you're on the desktop and can cause layout shift on load for mobile
  * users if you're not careful.
  */
 export const useIsAboveBreakpoint = (breakpoint: BreakpointName) => {
@@ -41,7 +43,7 @@ export const useIsAboveBreakpoint = (breakpoint: BreakpointName) => {
 /**
  * WARNING: This hook is not SSR safe!
  *
- * It assumes your on the desktop and can cause layout shift on load for mobile
+ * It assumes you're on the desktop and can cause layout shift on load for mobile
  * users if you're not careful.
  */
 export const useIsDesktop = () => {
@@ -51,7 +53,7 @@ export const useIsDesktop = () => {
 /**
  * WARNING: This hook is not SSR safe!
  *
- * It assumes your on the desktop and can cause layout shift on load for mobile
+ * It assumes you're on the desktop and can cause layout shift on load for mobile
  * users if you're not careful.
  */
 export const useIsMobile = () => {
