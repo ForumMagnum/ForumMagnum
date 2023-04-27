@@ -58,7 +58,7 @@ export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
 
 addCronJob({
   name: "refreshPostgresViews",
-  interval: "every 10 minutes",
+  interval: "every 1 hour",
   job: async () => {
     // Run these in series as they're potentially expensive
     for (const view of postgresViews) {
