@@ -1,7 +1,6 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
-import { ensurePostgresViewsExist } from "./postgresView";
 import { queryWithLock } from "./queryWithLock";
 
 const pgPromiseLib = pgp({
@@ -10,7 +9,7 @@ const pgPromiseLib = pgp({
     // If it's a syntax error, print the bad query for debugging
     if (typeof err.code === "string" && err.code.startsWith("42")) {
       // eslint-disable-next-line no-console
-      console.error("SQL syntax error:", ctx.query);
+      console.error("SQL syntax error:", err.message, ctx.query);
     }
   },
   // Uncomment to log executed queries for debugging, etc.
@@ -171,13 +170,6 @@ export const createSqlConnection = async (
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Failed to run Postgres onConnectQuery:", e);
-  }
-
-  try {
-    await ensurePostgresViewsExist(client);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to ensure Postgres views exist:", e);
   }
 
   return client;

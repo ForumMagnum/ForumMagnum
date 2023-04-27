@@ -23,6 +23,7 @@ import fs from 'fs';
 import { basename, join } from 'path';
 import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
+import { ensurePostgresViewsExist } from './postgresView';
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
@@ -126,6 +127,13 @@ const initPostgres = async () => {
     }
   }
   await Promise.all(polls);
+
+  try {
+    await ensurePostgresViewsExist(getSqlClientOrThrow());
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
+  }
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
