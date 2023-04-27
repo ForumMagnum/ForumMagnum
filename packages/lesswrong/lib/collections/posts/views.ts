@@ -970,7 +970,13 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   
   let query = {
     selector: {
-      globalEvent: true,
+      $or: [
+        {globalEvent: true},
+        {$and: [
+          {onlineEvent: true},
+          {mongoLocation: {$exists: false}},
+        ]},
+      ],
       isEvent: true,
       groupId: null,
       eventType: terms.eventType ? {$in: terms.eventType} : null,
