@@ -26,4 +26,4 @@ ModeratorActions.addView('restrictionModerationActions', function (terms: Modera
     options: { sort: { createdAt: -1 } }
   };
 })
-ensureIndex(ModeratorActions, { type: 1, createdAt: -1 })
+ensureIndex(ModeratorActions, { type: 1, createdAt: -1, endedAt: -1 })
