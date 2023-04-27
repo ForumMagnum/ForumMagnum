@@ -1,3 +1,4 @@
+// TODO delete or repurpose this whole file
 import { useMemo, useCallback } from 'react';
 import { useCookiesWithConsent } from './useCookiesWithConsent';
 

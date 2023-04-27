@@ -1,23 +1,24 @@
 import moment from 'moment';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { registerCookie } from '../../lib/cookies/utils';
-import { useHideWithCookie } from '../hooks/useHideWithCookie';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
-const HIDE_SPOTLIGHT_ITEM_PREFIX = 'hide_spotlight_item_';
-const HIDDEN_SPOTLIGHT_ITEMS = registerCookie({
-  name: "hidden_spotlight_items",
+const HIDE_SPOTLIGHT_ITEM_PREFIX = "hide_spotlight_item_";
+registerCookie({
+  name: `${HIDE_SPOTLIGHT_ITEM_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_SPOTLIGHT_ITEM_PREFIX),
   type: "functional",
-  description: "TODO",
+  description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
 export const CurrentSpotlightItem = ({classes}: {
   classes: ClassesType,
 }) => {
   const { SpotlightItem } = Components
-  const { captureEvent } = useTracking()  
+  const { captureEvent } = useTracking()
 
   const { results: [spotlight] = [] } = useMulti({
     collectionName: 'Spotlights',
@@ -28,29 +29,20 @@ export const CurrentSpotlightItem = ({classes}: {
     }
   });
 
-  // TODO migrate old values to new cookie
-  // const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlight?.document._id}`, [spotlight]); //hiding in one place, hides everywhere
-  // const [cookies, setCookie] = useCookies([cookieName]);
+  const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlight?.document._id}`, [spotlight]); //hiding in one place, hides everywhere
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
-  // const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
+  const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
 
-  // const hideBanner = useCallback(() => {
-  //   setCookie(
-  //     cookieName,
-  //     "true", {
-  //       expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
-  //       path: "/"
-  //     });
-  //   captureEvent("spotlightItemHideItemClicked", { document: spotlight.document })
-  // }, [setCookie, cookieName, spotlight, captureEvent]);
-
-  // TODO test
-  const [isHidden, hideUntil] = useHideWithCookie(HIDDEN_SPOTLIGHT_ITEMS, spotlight?._id)
-  
   const hideBanner = useCallback(() => {
-    hideUntil(moment().add(30, 'days').toDate()), //TODO: Figure out actual correct hiding behavior
+    setCookie(
+      cookieName,
+      "true", {
+        expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
+        path: "/"
+      });
     captureEvent("spotlightItemHideItemClicked", { document: spotlight.document })
-  }, [hideUntil, captureEvent, spotlight.document]);
+  }, [setCookie, cookieName, spotlight, captureEvent]);
 
   if (spotlight && !isHidden) {
     return <SpotlightItem key={spotlight._id} spotlight={spotlight} hideBanner={hideBanner}/>

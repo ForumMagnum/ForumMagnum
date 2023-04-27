@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -8,9 +8,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { useHideWithCookie } from '../hooks/useHideWithCookie';
 import { registerCookie } from '../../lib/cookies/utils';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -96,10 +95,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
-const HIDDEN_COLLECTIONS_COOKIE = registerCookie({
-  name: "hidden_collections",
+registerCookie({
+  name: `${HIDE_COLLECTION_ITEM_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_COLLECTION_ITEM_PREFIX),
   type: "functional",
-  description: "TODO",
+  description: "Stores whether a collection item has been hidden (for a specific collection item id)",
 });
 
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {
@@ -110,70 +110,20 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
 
   const { firstPost } = collection;
-
-  // BEGIN MIGRATION CODE
-  // TODO do this separate from this component as part of a general migration when we deploy the cookie banner
-  const [cookies, setCookie, removeCookie] = useCookiesWithConsent();
-
-  useEffect(() => {
-    migrateLegacyCookies();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const removeExpiredCollections = (collections: Record<string, string>) => {
-    const now = new Date().getTime();
-    return Object.fromEntries(
-      Object.entries(collections).filter(
-        ([, expiryDate]) => new Date(expiryDate).getTime() > now
-      )
-    );
-  };
-
-  const migrateLegacyCookies = useCallback(() => {
-    const legacyCookies = Object.keys(cookies).filter((key) =>
-      key.startsWith(HIDE_COLLECTION_ITEM_PREFIX)
-    );
   
-    if (legacyCookies.length > 0) {
-      const hiddenCollections = legacyCookies.reduce((acc, key) => {
-        const collectionId = key.replace(HIDE_COLLECTION_ITEM_PREFIX, '');
-        const expiryDate = cookies[key].expires
-          ? new Date(cookies[key].expires).toISOString()
-          : moment().add(30, 'days').toISOString();
-        return { ...acc, [collectionId]: expiryDate };
-      }, {});
-  
-      const currentHiddenCollections = cookies[HIDDEN_COLLECTIONS_COOKIE]
-        ? JSON.parse(cookies[HIDDEN_COLLECTIONS_COOKIE])
-        : {};
-      const updatedHiddenCollections = {
-        ...removeExpiredCollections(currentHiddenCollections),
-        ...hiddenCollections,
-      };
-  
-      setCookie(
-        HIDDEN_COLLECTIONS_COOKIE,
-        JSON.stringify(updatedHiddenCollections),
-        {
-          expires: moment().add(30, 'days').toDate(),
-          path: '/',
-        }
-      );
-  
-      legacyCookies.forEach((legacyCookie) => removeCookie(legacyCookie));
-    }
-  }, [cookies, setCookie, removeCookie]);
-  // END MIGRATION CODE
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
-  const [isHidden, hideUntil] = useHideWithCookie(HIDDEN_COLLECTIONS_COOKIE, collection.id)
-
-  if (isHidden) {
+  if (cookies[cookieName]) {
     return null;
   }
 
-  const hideBanner = () => {
-    hideUntil(moment().add(30, 'days').toDate());
-  };
+  const hideBanner = () => setCookie(
+    cookieName,
+    "true", {
+    expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
+    path: "/"
+  });
 
   const description = <ContentItemBody
     dangerouslySetInnerHTML={{__html: collection.summary}}

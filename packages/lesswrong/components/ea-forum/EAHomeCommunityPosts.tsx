@@ -62,7 +62,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
       removeCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE)
       captureEvent('communityPostsSectionCollapsed')
     } else {
-      setCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE, "true", {expires: moment().add(10, 'years').toDate()})
+      setCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE, "true", {expires: moment().add(2, 'years').toDate()})
       captureEvent('communityPostsSectionExpanded')
     }
   }

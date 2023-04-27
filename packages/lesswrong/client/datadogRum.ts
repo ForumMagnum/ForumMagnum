@@ -11,7 +11,6 @@ export function initDatadog() {
   const cookies = new Cookies();
 
   const allowedCookies = cookies.get(COOKIE_PREFERENCES_COOKIE) || ["necessary"];
-  // TODO maybe refactor
   const analyticsCookiesAllowed = allowedCookies.includes("analytics");
 
   if (forumTypeSetting.get() !== 'EAForum') return

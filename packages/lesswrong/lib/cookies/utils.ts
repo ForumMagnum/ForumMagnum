@@ -29,10 +29,17 @@ export const isValidCookieTypeArray = (types?: string[] | null): types is Cookie
 
 export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]): boolean {
   const cookie = CookiesTable[name];
-  if (!cookie) {
-    throw new Error(`Unknown cookie: ${name}, you must register it with registerCookie`);
+  if (cookie) {
+    return cookieTypesAllowed.includes(cookie.type);
   }
-  return cookieTypesAllowed.includes(cookie.type);
+
+  // call the `matches` function of all cookies to see if it matches
+  for (const cookieName in CookiesTable) {
+    if (CookiesTable[cookieName].matches(name)) {
+      return cookieTypesAllowed.includes(CookiesTable[cookieName].type);
+    }
+  }
+  throw new Error(`Unknown cookie: ${name}, you must register it with registerCookie`);
 }
 
 // TODO add forum gating (here and everywhere)

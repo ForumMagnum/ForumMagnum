@@ -864,4 +864,3 @@ importComponent("CookieBanner", () => require('../components/common/CookieBanner
 importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
 importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
-importComponent("NoCookiesIFrame", () => require('../components/common/CookieBanner/NoCookiesIFrame'));

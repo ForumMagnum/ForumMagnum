@@ -104,7 +104,7 @@ export const ThemeContextProvider = ({options, children}: {
       } else {
         setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
           path: "/",
-          expires: moment().add(9999, 'days').toDate(),
+          expires: moment().add(2, 'years').toDate(),
         });
       }
       const stylesId = "main-styles";

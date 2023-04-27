@@ -83,7 +83,7 @@ registerCookie({
 });
 
 registerCookie({
-  name: "_hjSessionUser_xxxxxx",
+  name: "_hjSessionUser_[*]",
   type: "functional",
   thirdPartyName: "Hotjar",
   description:
