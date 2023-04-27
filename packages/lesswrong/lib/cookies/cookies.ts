@@ -12,16 +12,16 @@ export const CLIENT_ID_COOKIE = registerCookie({
 export const TIMEZONE_COOKIE = registerCookie({
   name: "timezone",
   type: "necessary",
-  description: "TODO",
+  description: "Stores the user's timezone",
 });
 
 export const COOKIE_PREFERENCES_COOKIE = registerCookie({
   name: "cookie_preferences", // Must match variable in Google Tag Manager
   type: "necessary",
-  description: "Stores the users cookie preferences",
+  description: "Stores the user's cookie preferences",
 });
 
-export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", description: "TODO" });
+export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", description: "Stores the user's theme preferences" });
 
 // Third party cookies
 

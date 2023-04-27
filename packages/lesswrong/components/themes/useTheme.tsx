@@ -100,7 +100,6 @@ export const ThemeContextProvider = ({options, children}: {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (forumTypeSetting.get() === "EAForum") {
-        // TODO look at the diff to match up with what Sarah's change was supposed to do
         removeCookie(THEME_COOKIE, {path: "/"});
       } else {
         setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {

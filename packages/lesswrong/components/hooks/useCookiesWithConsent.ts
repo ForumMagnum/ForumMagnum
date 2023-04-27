@@ -2,20 +2,9 @@ import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
 import { CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useMemo } from "react";
-import { CallbackChainHook } from "../../lib/vulcan-lib";
-import { initDatadog } from "../../client/datadogRum";
 import { COOKIE_PREFERENCES_COOKIE } from "../../lib/cookies/cookies";
 import { hookToHoc } from "../../lib/hocUtils";
-
-// TODO move these to a better place
-export const cookiePreferencesChangedCallbacks = new CallbackChainHook<CookieType[],[]>("cookiePreferencesChanged");
-cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
-  initDatadog()
-});
-cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
-  // @ts-ignore
-  window.dataLayer.push({ event: 'cookie_preferences_changed' }); // Must match event name in Google Tag Manager
-});
+import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 
 export function useUpdateCookiePreferences(): [
   {
@@ -35,7 +24,6 @@ export function useUpdateCookiePreferences(): [
   return [cookies, updateCookiePreferences];
 }
 
-// TODO maybe refactor
 export function useCheckCookieConsent() {
   const [cookies] = useCookies([COOKIE_PREFERENCES_COOKIE]);
   const cookiePreferences: CookieType[] = useMemo(

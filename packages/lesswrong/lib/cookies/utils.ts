@@ -1,4 +1,5 @@
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
+import { CallbackChainHook } from "../vulcan-lib";
 
 const CookieTypes = new TupleSet(["necessary", "functional", "analytics"] as const)
 export type CookieType = UnionOf<typeof CookieTypes>;
@@ -34,7 +35,7 @@ export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]):
   return cookieTypesAllowed.includes(cookie.type);
 }
 
-// TODO add forum type setting
+// TODO add forum gating (here and everywhere)
 export function registerCookie(cookie: CookieSignatureMinimum): string {
   if (cookie.name in CookiesTable && CookiesTable[cookie.name] !== cookie) {
     throw new Error(`Two cookies with the same name: ${cookie.name}`);

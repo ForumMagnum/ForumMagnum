@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "TODO"});
+export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "Stores whether the user has hidden the map from the frontpage."});
 
 const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],

@@ -13,7 +13,7 @@ import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 
 const SECONDARY_SPACING = 20
-const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "TODO"})
+const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
 const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -164,13 +164,13 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     PostsPageEventData, FooterTagList, AddToCalendarButton,
     NewFeaturePulse, ForumIcon} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
 
   useEffect(() => {
     if(!cachedTooltipSeen) {
       setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
-        expires: moment().add(10, 'years').toDate(),
+        expires: moment().add(2, 'years').toDate(),
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps 

@@ -1,7 +1,6 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { CENTRAL_COLUMN_WIDTH } from "../../posts/PostsPage/PostsPage";
-import { Link } from "../../../lib/reactRouterWrapper";
 import { useDialog } from "../withDialog";
 import { CookiesTable } from "../../../lib/cookies/utils";
 
