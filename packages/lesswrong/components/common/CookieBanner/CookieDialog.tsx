@@ -16,7 +16,6 @@ const styles = (theme: ThemeType) => ({
   title: {
     marginLeft: 4,
     padding: "24px 24px 10px",
-    color: "white",
   },
   content: {
     minWidth: 280,
