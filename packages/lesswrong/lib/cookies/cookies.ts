@@ -2,7 +2,6 @@ import { registerCookie } from "./utils";
 
 // First party cookies that are used in multiple places (others are defined inline)
 
-// TODO go through all descriptions and make sure they are good
 export const CLIENT_ID_COOKIE = registerCookie({
   name: "clientId",
   type: "necessary",
