@@ -47,6 +47,16 @@ const styles = (theme: ThemeType) => ({
   subbullet: {
     margin: "0 15px 0 25px",
   },
+  cookiePreamble: {
+    paddingBottom: '0px !important',
+  },
+  cookieTable: {
+    '& .CookieTable-heading': {
+      paddingBottom: '0 !important',
+      marginTop: 10,
+      marginBottom: 10,
+    }
+  }
 });
 
 const ExternalLink: FC<{ href: string }> = ({ href, children }) => (
@@ -145,19 +155,21 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         irregular site behaviour, prevent fraudulent activity and improve security; or that allow you to make use of our
         functions such as making donations, saved search or similar functions. These cookies expire after 24 months.
       </Typography>
-      <Typography variant="body1">The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
       {uniqueNecessaryThirdParties.map((name) => (
-        <CookieTable type={"necessary"} thirdPartyName={name} key={`necessary_${name}`} />
+        <CookieTable type={"necessary"} thirdPartyName={name} key={`necessary_${name}`} className={classes.cookieTable}/>
       ))}
+      <br/>
       <Typography variant="body1">
         <b>Functional cookies:</b> these cookies enable functionalities that are not strictly necessary for the website
         to be usable. This includes remembering whether certain banners are hidden, or allowing you to contact us for
         support via Intercom. These cookies expire after 24 months.
       </Typography>
-      <Typography variant="body1">The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
       {uniqueFunctionalThirdParties.map((name) => (
-        <CookieTable type={"functional"} thirdPartyName={name} key={`functional_${name}`} />
+        <CookieTable type={"functional"} thirdPartyName={name} key={`functional_${name}`} className={classes.cookieTable}/>
       ))}
+      <br/>
       <Typography variant="body1">
         <b>Analytics and performance cookies:</b> these cookies help us improve or optimise the experience we provide.
         They allow us to measure how visitors interact with our Platforms and we use this information to improve the
@@ -168,9 +180,9 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         language preference), your interests and the presentation of the website (such as the font size). These
         cookies expire after 24 months.
       </Typography>
-      <Typography variant="body1">The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
       {uniqueAnalyticsThirdParties.map((name) => (
-        <CookieTable type={"analytics"} thirdPartyName={name} key={`analytics_${name}`} />
+        <CookieTable type={"analytics"} thirdPartyName={name} key={`analytics_${name}`}  className={classes.cookieTable}/>
       ))}
     </div>
   );

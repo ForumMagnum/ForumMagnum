@@ -5,10 +5,11 @@ import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/
 const styles = (theme: ThemeType): JssStyles => ({
   root: {},
   heading: {
+    padding: 0,
     marginBottom: 8,
     marginTop: 8,
     fontWeight: 600,
-    fontSize: "1.4rem",
+    fontSize: "1.2rem",
   },
   tableContainer: {
     borderTopLeftRadius: theme.borderRadius.default,
@@ -49,13 +50,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const CookieTable = ({
-  classes,
   type,
   thirdPartyName,
+  className,
+  classes,
 }: {
-  classes: ClassesType;
   type: CookieType;
   thirdPartyName?: string;
+  className?: string;
+  classes: ClassesType;
 }) => {
   const { Typography } = Components;
 
@@ -64,8 +67,8 @@ const CookieTable = ({
   );
 
   return (
-    <>
-      <Typography variant="body2" className={classes.heading}>
+    <div className={className}>
+      <Typography variant="body1" className={classes.heading}>
         Set by {thirdPartyName ?? "us"}
       </Typography>
       <div className={classes.tableContainer}>
@@ -86,7 +89,7 @@ const CookieTable = ({
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 };
 
