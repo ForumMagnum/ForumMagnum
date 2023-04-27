@@ -244,7 +244,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
       </a>
       <div className={classes.postActions}>
         <InteractionWrapper classes={classes}>
-          <PostActionsButton post={post} popperPlacement="left-start" />
+          <PostActionsButton post={post} popperGap={16} />
         </InteractionWrapper>
       </div>
     </>
