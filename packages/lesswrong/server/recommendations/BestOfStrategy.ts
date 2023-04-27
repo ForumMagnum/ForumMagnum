@@ -12,7 +12,7 @@ class BestOfStrategy extends RecommendationStrategy {
     count: number,
     {postId}: StrategySpecification,
   ): Promise<DbPost[]> {
-    const {filter, args} = this.getCommunityFilter();
+    const {filter, args} = this.getTagFilter();
     return this.recommendDefaultWithPostFilter(
       currentUser,
       count,

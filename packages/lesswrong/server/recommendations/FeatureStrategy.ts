@@ -2,7 +2,6 @@ import RecommendationStrategy from "./RecommendationStrategy";
 import type {
   StrategySpecification,
   RecommendationFeatureName,
-  WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
@@ -97,7 +96,7 @@ class FeatureStrategy extends RecommendationStrategy {
 
     const userFilter = this.getUserFilter(currentUser);
     const postFilter = this.getDefaultPostFilter();
-    const communityFilter = this.getCommunityFilter();
+    const tagFilter = this.getTagFilter();
 
     let joins = "";
     let filters = "";
@@ -124,13 +123,13 @@ class FeatureStrategy extends RecommendationStrategy {
         ${filters}
         ${userFilter.filter}
         ${postFilter.filter}
-        ${communityFilter.filter}
+        ${tagFilter.filter}
       ORDER BY 0 ${score} DESC
       LIMIT $(count)
     `, {
       ...userFilter.args,
       ...postFilter.args,
-      ...communityFilter.args,
+      ...tagFilter.args,
       ...args,
       postId,
       count,

@@ -20,7 +20,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
     const db = getSqlClientOrThrow();
     const userFilter = this.getUserFilter(currentUser);
     const postFilter = this.getDefaultPostFilter();
-    const communityFilter = this.getCommunityFilter();
+    const tagFilter = this.getTagFilter();
     const srcVoters = `(
       SELECT voters
       FROM "UniquePostUpvoters"
@@ -39,7 +39,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
         p."_id" <> $(postId) AND
         ${postFilter.filter}
         ${userFilter.filter}
-        ${communityFilter.filter}
+        ${tagFilter.filter}
       ORDER BY
         COALESCE((# (${srcVoters} & rec.voters))::FLOAT /
           NULLIF((# (${srcVoters} | rec.voters))::FLOAT, 0), 0) ${tagWeighting} DESC,
@@ -48,7 +48,7 @@ class CollabFilterStrategy extends RecommendationStrategy {
     `, {
       ...userFilter.args,
       ...postFilter.args,
-      ...communityFilter.args,
+      ...tagFilter.args,
       postId,
       count,
       bias: bias ?? 1,
