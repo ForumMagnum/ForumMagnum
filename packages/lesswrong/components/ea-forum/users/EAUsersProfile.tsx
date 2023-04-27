@@ -619,6 +619,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
               Manage subscriptions
             </Link>}
+            {currentUser && currentUser._id === user._id && <Link to="/history">
+              Read history
+            </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account settings
             </Link>}
