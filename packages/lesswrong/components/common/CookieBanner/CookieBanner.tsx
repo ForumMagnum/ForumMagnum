@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgb(69, 69, 69)", // TODO use theme color
+    backgroundColor: theme.palette.panelBackground.cookieBanner,
     zIndex: 1001, // Appear above sunshine sidebar
     flexDirection: "row",
     justifyContent: "space-between",

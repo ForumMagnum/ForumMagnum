@@ -289,6 +289,7 @@ declare global {
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
       restoreSavedContentNotice: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
