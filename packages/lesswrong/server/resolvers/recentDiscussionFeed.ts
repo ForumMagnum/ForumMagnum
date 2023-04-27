@@ -33,12 +33,14 @@ defineFeedResolver<Date>({
     // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
     const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
-    // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
+    // On the EA Forum, we default to hiding posts tagged with "Community" from
+    // Recent Discussion if they have at least 10 comments
     const postCommentedExcludeCommunity = {$or: [
       {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
       {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
-    ]}
-    
+      {commentCount: {$lt: 10}},
+    ]};
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
