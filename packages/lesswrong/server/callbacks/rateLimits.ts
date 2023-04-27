@@ -21,7 +21,7 @@ const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPo
 
 // Rate limit the number of comments a user can post per 30 min if they have under this much karma
 const commentRateLimitKarmaThresholdSetting = new DatabasePublicSetting<number|null>('commentRateLimitKarmaThreshold', null)
-const commentRateLimitDownvoteRatioSetting = new DatabasePublicSetting<number|null>('commentRateLimitDownvoteRatio', 0.3)
+const commentRateLimitDownvoteRatioSetting = new DatabasePublicSetting<number|null>('commentRateLimitDownvoteRatio', null)
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
