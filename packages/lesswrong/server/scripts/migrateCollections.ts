@@ -255,7 +255,6 @@ const isNonIdSortField = (collectionName: string) => {
   switch (collectionName) {
     case 'EmailTokens': return false;
     case 'Posts': return false;
-    case 'ReadStatuses': return false;
     default: return true;
   }
 };
@@ -265,6 +264,7 @@ const getCollectionSortField = (collectionName: string) => {
     case 'DebouncerEvents': return 'delayTime';
     case 'Migrations': return 'started';
     case 'Votes': return 'votedAt';
+    case 'ReadStatuses': return 'lastUpdated';
     default: return 'createdAt';
   }
 };
