@@ -7,6 +7,17 @@ on:
   push:
     branches: [ deployLessestWrong, master ]
 jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Migrations
+      if: github.ref == 'refs/heads/lw-deploy'
+      uses: ./.github/actions/runLWMigrations
+      with:
+        mode: dev
+        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.CREDENTIALS_REPO_TOKEN }}
   deploy: 
     runs-on: ubuntu-latest
     strategy:
