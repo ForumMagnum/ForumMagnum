@@ -50,7 +50,7 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
     clearTimeout(timeoutId); // Clear the timeout when an error occurs
 
     if (e.name === 'AbortError') {
-      throw new Error('Request timed out');
+      throw new ApiError(500, "Crosspost request timed out");
     }
 
     if (e.cause?.code === 'ECONNREFUSED' && e.cause?.port === 4000) {
