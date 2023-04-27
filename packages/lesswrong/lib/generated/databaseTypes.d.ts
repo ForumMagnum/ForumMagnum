@@ -652,6 +652,7 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null

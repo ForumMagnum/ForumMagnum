@@ -196,11 +196,7 @@ const PostsPageRecommendationItem = ({
       </div>
       <div className={classes.actions}>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton
-            post={post}
-            placement="left-start"
-            vertical
-          />
+          <PostActionsButton post={post} vertical />
         </InteractionWrapper>
       </div>
     </div>

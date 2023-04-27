@@ -9,18 +9,16 @@ import { userCanVote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
-    marginBottom: -22
+    marginBottom: -21
   },
   downvote: {
-    marginTop: isEAForum ? -27 : -25,
+    marginTop: -28
   },
   voteScores: {
     margin:"15%",
   },
   voteScore: {
     color: theme.palette.grey[500],
-    paddingLeft: 1, // For some weird reason having this padding here makes it look more centered
-    lineHeight: isEAForum ? 1.2 : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',

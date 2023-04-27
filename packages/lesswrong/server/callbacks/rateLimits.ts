@@ -2,8 +2,7 @@ import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getNthMostRecentItemDate } from '../../lib/vulcan-users/helpers';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
 import Comments from '../../lib/collections/comments/collection';
 import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, rateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
@@ -41,11 +40,42 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-
-  await enforceCommentRateLimit(currentUser, comment);
+  await enforceCommentRateLimit({user: currentUser, comment});
 
   return validationErrors;
 });
+
+export const getNthMostRecentItemDate = async function<
+  T extends DbObject & {createdAt:Date}
+>({user, collection, cutoffHours, n, filter}: {
+  user: DbUser,
+  collection: CollectionBase<T>,
+  n: number,
+  cutoffHours?: number,
+  filter?: MongoSelector<T>
+}): Promise<Date|null> {
+  var mNow = moment();
+  const items = await collection.find({
+    userId: user._id,
+    ...filter,
+    ...(cutoffHours && {
+      createdAt: {
+        $gte: mNow.subtract(cutoffHours, 'hours').toDate(),
+      },
+    })
+  }, {
+    sort: ({createdAt: -1} as Partial<Record<keyof T,number>>),
+    limit: n,
+    projection: {createdAt:1},
+  }).fetch();
+
+  if (items.length < n)
+    return null;
+  else
+    return items[n-1].createdAt;
+
+};
+
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
@@ -80,8 +110,42 @@ async function enforcePostRateLimit (user: DbUser) {
 
 }
 
-async function enforceCommentRateLimit(user: DbUser, comment: DbComment) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user);
+const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
+  const mNow = moment();
+  const comments = await Comments.find({
+    userId: user._id,
+    createdAt: {
+      $gte: mNow.subtract(hours, 'hours').toDate(),
+    },
+  }).fetch();
+  const postIds = comments.map(comment => comment.postId)
+  const postsNotAuthoredByCommenter = await Posts.find({_id: {$in: postIds}, userId: {$ne:user._id}}).fetch()
+  const postsNotAuthoredByCommenterIds = postsNotAuthoredByCommenter.map(post => post._id)
+  const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
+  return commentsOnNonauthorPosts.length
+}
+
+async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null): Promise<boolean> {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
+    return true
+  }
+  if (postId) {
+    const post = await Posts.findOne({_id: postId})
+    const commenterIsPostAuthor = post && user._id === post.userId
+    if (post?.ignoreRateLimits || commenterIsPostAuthor) {
+      return true
+    }
+  }
+  return false
+}
+
+
+async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
+  if (await shouldIgnoreCommentRateLimit(user, comment.postId)) {
+    return
+  }
+ 
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
@@ -106,18 +170,24 @@ type RateLimitReason = "moderator"|"lowKarma"|"universal"
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
  */
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Promise<{
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<{
   nextEligible: Date,
   rateLimitType: RateLimitReason
 }|null> {
-  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
-    return null;
+  if (await shouldIgnoreCommentRateLimit(user, postId)) {
+    return null
   }
-
   // If moderators have imposed a rate limit on this user, enforce that
   const moderatorRateLimit = await getModeratorRateLimit(user)
   if (moderatorRateLimit) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+
+    // moderatorRateLimits should only apply to comments on posts by people other than the comment author
+    const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+  
+    if (commentsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
 
     const mostRecentInTimeframe = await getNthMostRecentItemDate({
       user, collection: Comments,
@@ -131,7 +201,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser): Prom
       }
     }
   }
-  
+
   // commented out for now until EA Forum reviews
   // If less than 30 karma, you are also limited to no more than 3 comments per
   // 0.5 hours.
@@ -175,6 +245,10 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
   nextEligible: Date,
   rateLimitType: RateLimitReason,
 }|null> {
+  if (await shouldIgnoreCommentRateLimit(user, postId)) {
+    return null
+  }
+
   if (postId && await userHasActiveModeratorActionOfType(user, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
     const hours = 24 * 7
     const num_comments = 3

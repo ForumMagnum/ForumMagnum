@@ -9,6 +9,9 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import { isEAForum } from '../../lib/instanceSettings';
 
+const IMAGE_WIDTH = 292;
+const IMAGE_HEIGHT = 96;
+
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
@@ -97,6 +100,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     overflow: 'hidden',
     right: 0,
     bottom: 0,
+    aspectRatio: `${IMAGE_WIDTH}/${IMAGE_HEIGHT}`,
 
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
@@ -196,7 +200,7 @@ const PostsItemIntroSequence = ({
 
           {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />

@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     verticalAlign: 'middle',
+    color: isEAForum ? theme.palette.grey[500] : undefined,
     cursor: "pointer",
   },
   popper: {
@@ -21,8 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, placement = "right-start", classes}: {
+const PostActionsButton = ({post, popperPlacement='right-start', vertical, classes}: {
   post: PostsList|SunshinePostsList,
+  popperPlacement?: PopperPlacementType,
   vertical?: boolean,
   placement?: PopperPlacementType,
   classes: ClassesType,
@@ -48,7 +50,7 @@ const PostActionsButton = ({post, vertical, placement = "right-start", classes}:
     <PopperCard
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement={placement}
+      placement={popperPlacement}
       allowOverflow
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}

@@ -198,6 +198,7 @@ importComponent("UsersProfile", () => require('../components/users/UsersProfile'
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
 importComponent("BookmarksPage", () => require('../components/posts/BookmarksPage'));
 importComponent("BookmarksList", () => require('../components/posts/BookmarksList'));
+importComponent("ReadHistoryPage", () => require('../components/posts/ReadHistoryPage'));
 importComponent("DraftsPage", () => require('../components/posts/DraftsPage'));
 importComponent("DraftsList", () => require('../components/posts/DraftsList'));
 importComponent("DraftsListSettings", () => require('../components/posts/DraftsListSettings'));

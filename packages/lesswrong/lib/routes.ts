@@ -738,6 +738,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'RecommendationsSamplePage',
       title: "Recommendations Sample"
     },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
+    },
   ],
   LessWrong: [
     {
