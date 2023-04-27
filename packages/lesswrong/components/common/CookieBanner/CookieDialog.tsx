@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     marginLeft: 4,
     padding: "24px 24px 10px",
+    color: "white",
   },
   content: {
     minWidth: 280,
@@ -69,6 +70,7 @@ const styles = (theme: ThemeType) => ({
   button: {
     marginTop: 12,
     marginLeft: "auto",
+    color: theme.palette.text.alwaysWhite,
     textTransform: "none",
     whiteSpace: "nowrap",
     fontSize: 14,

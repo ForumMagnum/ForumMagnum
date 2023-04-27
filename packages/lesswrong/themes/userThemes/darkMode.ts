@@ -180,7 +180,7 @@ export const darkModeTheme: UserThemeSpecification = {
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
-      cookieBanner: shadePalette.grey[20],
+      cookieBanner: "#ffffff",
     },
     background: {
       diffInserted: "#205120",

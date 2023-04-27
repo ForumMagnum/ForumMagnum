@@ -16,22 +16,22 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.cookieBanner,
     zIndex: 1001, // Appear above sunshine sidebar
     flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "14px 60px",
+    justifyContent: "center",
+    padding: "16px",
     [theme.breakpoints.down("md")]: {
-      padding: "14px 40px",
+      padding: "16px",
     },
     [theme.breakpoints.down("xs")]: {
       padding: 14,
       flexDirection: "column",
-      justifyContent: "center",
+      display: "grid",
     },
   },
   text: {
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.invertedBackgroundText,
     fontWeight: 400,
     maxWidth: 1200,
-    fontSize: 13,
+    fontSize: 14,
     "& a": {
       textDecoration: "underline",
       fontWeight: 600,
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     marginTop: 0,
     alignItems: "flex-end",
-    marginLeft: 12,
+    marginLeft: 24,
     [theme.breakpoints.down("xs")]: {
       marginTop: 12,
       marginLeft: 0,
@@ -52,9 +52,10 @@ const styles = (theme: ThemeType) => ({
   },
   button: {
     textTransform: "none",
+    color: theme.palette.text.alwaysWhite,
     whiteSpace: "nowrap",
     fontSize: 14,
-    marginLeft: 6,
+    marginRight: 6,
     [theme.breakpoints.up("sm")]: {
       marginBottom: 0,
     },
@@ -87,7 +88,7 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
         for more control, or review our cookie policy <a href='/cookiePolicy'>here</a>
       </Typography>
       <div className={classes.buttonGroup}>
-        <Button className={classes.button} variant="contained" color="primary" onClick={handleReject}>
+        <Button className={classes.button} variant="contained" color="secondary" onClick={handleReject}>
           Reject
         </Button>
         <Button className={classes.button} variant="contained" color="primary" onClick={handleAcceptAll}>
