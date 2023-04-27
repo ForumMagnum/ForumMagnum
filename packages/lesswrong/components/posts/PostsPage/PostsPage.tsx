@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -22,6 +22,8 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
@@ -32,6 +34,9 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
+
+const TYPE_III_PLAYER_SCRIPT = '<script type="module" src="https://embed.type3.audio/player.js" crossorigin></script><type-3-player></type-3-player>'
+const TYPE_III_DATE_CUTOFF = new Date('2023-04-01')
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
@@ -169,6 +174,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const allowTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF;
 
   const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -357,6 +363,7 @@ const PostsPage = ({post, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
+        {!post.podcastEpisode && allowTypeIIIPlayer && <div id="type-iii-player" dangerouslySetInnerHTML={{ __html: TYPE_III_PLAYER_SCRIPT }} />}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
