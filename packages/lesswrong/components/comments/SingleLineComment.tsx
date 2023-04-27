@@ -188,7 +188,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
-        <CommentUserName comment={comment} simple={true} hideSprout className={classes.username} />
+        <CommentUserName
+          comment={comment}
+          simple
+          className={classes.username}
+        />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}

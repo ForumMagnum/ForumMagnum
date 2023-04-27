@@ -167,7 +167,7 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
     // Sort by createdAt descending so that `.find` returns the most recent one matching the condition
     ModeratorActions.find({ userId }, { sort: { createdAt: -1 } }).fetch(),
     Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
-    Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
+    Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20, projection: { postedAt: 1, baseScore: 1 } }).fetch()
   ]);
 
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());

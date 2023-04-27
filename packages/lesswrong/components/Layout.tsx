@@ -277,7 +277,8 @@ const Layout = ({currentUser, children, classes}: {
     }
 
     // enable during ACX Everywhere
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+    // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
+
     // cookies[COOKIE_PREFERENCES_COOKIE] list of allowed cookie types, if it doesn't exist, that means the user has not yet made a choice
     const showCookieBanner = !cookies[COOKIE_PREFERENCES_COOKIE]
 
@@ -318,7 +319,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {

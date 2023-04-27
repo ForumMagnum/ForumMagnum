@@ -309,6 +309,7 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
