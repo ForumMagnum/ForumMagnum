@@ -21,6 +21,7 @@ const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPo
 
 // Rate limit the number of comments a user can post per 30 min if they have under this much karma
 const commentRateLimitKarmaThresholdSetting = new DatabasePublicSetting<number|null>('commentRateLimitKarmaThreshold', null)
+const commentRateLimitDownvoteRatioSetting = new DatabasePublicSetting<number|null>('commentRateLimitDownvoteRatio', 0.3)
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -191,9 +192,17 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
  * (Currently, this is 4 comments every 30 min.)
  * If so, then return the date at which the rate limit will expire.
  */
-const checkLowKarmaCommentRateLimit = async (user: DbUser): Promise<Date|null> => {
+const checkLowKarmaOrDownvotedCommentRateLimit = async (user: DbUser): Promise<Date|null> => {
   const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
-  if (karmaThreshold !== null && user.karma < karmaThreshold) {
+  const belowKarmaThreshold = karmaThreshold !== null && user.karma < karmaThreshold
+
+  const voteCountsAreValid = user.voteReceivedCount > 0 && !(user.smallDownvoteReceivedCount < 0) && !(user.bigDownvoteReceivedCount < 0)
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount) / user.voteReceivedCount : 0
+  const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
+  const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
+
+  if (belowKarmaThreshold || aboveDownvoteRatioThreshold) {
     const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
       user,
       collection: Comments,
@@ -248,7 +257,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   
   // If less than 30 karma, you are also limited to no more than 4 comments per
   // 0.5 hours.
-  const nextEligible = await checkLowKarmaCommentRateLimit(user)
+  const nextEligible = await checkLowKarmaOrDownvotedCommentRateLimit(user)
   if (nextEligible && isInFuture(nextEligible)) {
     return {
       nextEligible,

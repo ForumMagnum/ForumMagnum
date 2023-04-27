@@ -1826,6 +1826,42 @@ const schema: SchemaType<DbUser> = {
     canRead: ['admins', 'sunshineRegiment'],
   },
 
+  voteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    label: "Small Upvote Count",
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+
+  smallUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+
+  smallDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+
+  bigUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+
+  bigDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+
   usersContactedBeforeReview: {
     type: Array,
     optional: true,
