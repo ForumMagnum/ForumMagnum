@@ -7,6 +7,21 @@ import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
 import { viewFieldAllowAny } from '../vulcan-lib';
 
+const communityFilters = {
+  none: {$or: [
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+  ]},
+  lt10comments: {$or: [
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+    {commentCount: {$lt: 10}},
+  ]},
+  all: {},
+} as const;
+
+type CommunityFilter = typeof communityFilters[keyof typeof communityFilters];
+
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
   args: "af: Boolean",
@@ -33,12 +48,17 @@ defineFeedResolver<Date>({
     // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
     const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
-    // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
-    const postCommentedExcludeCommunity = {$or: [
-      {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
-      {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
-    ]}
-    
+
+    // On the EA Forum, we default to hiding posts tagged with "Community" from
+    // Recent Discussion if they have at least 10 comments, or if the current user
+    // has set `hideCommunitySection` to true
+    let postCommentedExcludeCommunity: CommunityFilter = communityFilters.lt10comments;
+    if (currentUser?.showCommunityInRecentDiscussion) {
+      postCommentedExcludeCommunity = communityFilters.all;
+    } else if (currentUser?.hideCommunitySection) {
+      postCommentedExcludeCommunity = communityFilters.none;
+    }
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -57,10 +77,12 @@ defineFeedResolver<Date>({
             shortform: viewFieldAllowAny,
             groupId: viewFieldAllowAny,
             ...(af ? {af: true} : undefined),
-            ...((isEAForum && !currentUser?.showCommunityInRecentDiscussion) ? {$and: [
-              postCommentedEventsCriteria,
-              postCommentedExcludeCommunity
-            ]} : postCommentedEventsCriteria)
+            ...(isEAForum
+              ? {$and: [
+                postCommentedEventsCriteria,
+                postCommentedExcludeCommunity,
+              ]}
+              : postCommentedEventsCriteria),
           },
         }),
         // Tags with discussion comments
