@@ -144,8 +144,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   postActions: {
     minWidth: 20,
-    "&:hover": {
-      opacity: 0.5,
+    "&:hover .PostActionsButton-icon": {
+      color: theme.palette.grey[800],
     },
   },
   hideOnMobile: {
