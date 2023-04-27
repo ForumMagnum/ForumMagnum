@@ -114,7 +114,6 @@ async function runDenormalizedFieldMigration<T extends DbObject>({ collection, f
         if ((isNullOrDefined(newValue) && isNullOrDefined(doc[fieldName])) || doc[fieldName] === newValue) return null
         // If we don't want to update null or missing values to 0, don't make a database update
         if (!nullToZero && isNullOrDefined(doc[fieldName]) && newValue === 0) return null
-        console.log({ docId: doc._id, oldValue: doc[fieldName], newValue });
         return {
           updateOne: {
             filter: {_id: doc._id},
