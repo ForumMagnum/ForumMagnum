@@ -279,7 +279,7 @@ const Layout = ({currentUser, children, classes}: {
     // enable during ACX Everywhere
     // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
 
-    // cookies[COOKIE_PREFERENCES_COOKIE] list of allowed cookie types, if it doesn't exist, that means the user has not yet made a choice
+    // cookies[COOKIE_PREFERENCES_COOKIE] is a list of allowed cookie types, if it doesn't exist, that means the user has not yet made a choice
     const showCookieBanner = !cookies[COOKIE_PREFERENCES_COOKIE]
 
     return (
