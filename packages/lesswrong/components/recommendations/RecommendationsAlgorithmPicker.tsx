@@ -6,7 +6,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
@@ -46,6 +46,8 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   currentUser: UsersCurrent|null,
   configName: string,
 }): RecommendationsAlgorithm {
+  if (isEAForum) return defaultAlgorithmSettings
+  
   if (settings) {
     return {
       ...defaultAlgorithmSettings,
@@ -93,7 +95,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    {['frontpage', 'frontpageEA'].includes(configName) && <span className={classes.settingGroup}>
+    {(configName === "frontpage") && <span className={classes.settingGroup}>
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideContinueReading}

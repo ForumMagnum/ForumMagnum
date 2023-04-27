@@ -54,6 +54,7 @@ augmentFieldsDict(Users, {
     nullable: true,
     resolveAs: {
       type: "Date",
+      arguments: 'postId: String',
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
         const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
         if (rateLimit) {
