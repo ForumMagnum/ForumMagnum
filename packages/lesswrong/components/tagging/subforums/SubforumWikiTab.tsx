@@ -20,16 +20,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
   },
-  tagHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-  },
-  postsTaggedTitle: {
-    color: theme.palette.grey[600]
-  },
   pastRevisionNotice: {
     ...theme.typography.commentStyle,
     fontStyle: 'italic'
@@ -42,6 +32,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
+  },
+  postListMeta: {
+    display: "flex",
+    alignItems: "center",
+  },
+  relevance: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    textAlign: "right",
+    flexGrow: 1,
+    marginRight: 8,
   },
 })
 
@@ -135,18 +137,11 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
         {tag.sequence && <TagIntroSequence tag={tag} />}
         {!tag.wikiOnly && (
           <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ? (
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </SectionTitle>
-            ) : (
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>
-                  Posts tagged <em>{tag.name}</em>
-                </div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </div>
-            )}
+            <SectionTitle title={`Posts tagged ${tag.name}`} />
+            <div className={classes.postListMeta}>
+              <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+              <div className={classes.relevance}>Relevance</div>
+            </div>
             <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={200}>
               <AddPostsToTag tag={tag} />
             </PostsList2>
