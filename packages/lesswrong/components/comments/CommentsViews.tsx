@@ -12,6 +12,7 @@ import type { Option } from '../common/InlineSelect';
 export const viewNames: Partial<Record<CommentsViewName,string>> = {
   'postCommentsMagic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
   'postCommentsTop': 'top scoring',
+  'postCommentsRecentReplies': 'latest reply',
   'afPostCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
@@ -40,7 +41,7 @@ const CommentsViews = ({post, classes}: {
   };
 
   const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-  let views: Array<CommentsViewName> = ["postCommentsMagic", commentsTopView, "postCommentsNew", "postCommentsOld"]
+  let views: Array<CommentsViewName> = ["postCommentsMagic", commentsTopView, "postCommentsNew", "postCommentsOld", "postCommentsRecentReplies"]
   const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
   const afViews: Array<CommentsViewName> = ["postLWComments"]
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)

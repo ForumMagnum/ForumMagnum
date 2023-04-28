@@ -11,6 +11,7 @@ export const sortingNames = {
   'magic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
   'newest': 'newest',
   'oldest': 'oldest',
+  'recentComments': 'latest reply',
 }
 
 const AnswersSorting = ({ post, classes }: {
