@@ -222,7 +222,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   nextEligible: Date,
   rateLimitType: RateLimitReason
 }|null> {
-  // if this user is a mod/admin or is the post author,
+  // if this user is a mod/admin or (on non-EAF forums) is the post author,
   // then they are exempt from all rate limits except for the "universal" 8 sec one
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
   
