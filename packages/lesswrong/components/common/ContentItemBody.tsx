@@ -285,12 +285,10 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     const footnotes = body.querySelector(".footnotes");
     if (footnotes) {
       const collapsedFootnotes = (
-        <Components.CollapsedFootnotes>
-          <div
-            {...this.forwardAttributes(footnotes)}
-            dangerouslySetInnerHTML={{__html: footnotes.innerHTML}}
-          />
-        </Components.CollapsedFootnotes>
+        <Components.CollapsedFootnotes
+          footnotesHtml={footnotes.innerHTML}
+          attributes={this.forwardAttributes(footnotes)}
+        />
       );
       this.replaceElement(footnotes, collapsedFootnotes);
     }

@@ -1,7 +1,8 @@
-import React, { ReactElement, useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useLocation } from "../../../lib/routeUtil";
 import Collapse from "@material-ui/core/Collapse";
+import classNames from "classnames";
 
 export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
@@ -9,27 +10,68 @@ export const locationHashIsFootnote = (hash: string) =>
   hash.startsWith("#fn") && !hash.startsWith("#fnref");
 
 const styles = (theme: ThemeType) => ({
+  collapse: {
+    marginTop: "-1.5em",
+  },
+  fullyExpanded: {
+    overflow: "visible",
+  },
+  buttonWrapper: {
+    marginTop: "1em",
+  },
   button: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[600],
-    background: theme.palette.grey[50],
-    padding: 6,
-    textAlign: "center",
+    fontSize: 16,
+    fontWeight: 600,
+    color: theme.palette.primary.main,
     cursor: "pointer",
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
     "&:hover": {
-      background: theme.palette.grey[140],
+      color: theme.palette.primary.light,
     },
   },
 });
 
-const CollapsedFootnotes = ({children, classes}: {
-  children: ReactElement,
+const htmlToElement = <T extends HTMLElement>(html: string): T | null => {
+  const div = document.createElement("div");
+  div.innerHTML = html.trim();
+  return div.firstChild as T | null;
+}
+
+const extractChildren = <T extends HTMLElement>(
+  elem: T,
+  selector: string,
+): string => {
+  const children = Array.from(elem.querySelectorAll(selector));
+  return children.map((child) => child.outerHTML).join(" ");
+}
+
+// Because this component is only created client-side by ContentItemBody, this
+// doesn't need to be (and definitely isn't) SSR-safe.
+const splitFootnotes = (html: string, previewCount: number) => {
+  const elem = htmlToElement<HTMLDivElement>(html);
+  return elem
+    ? {
+      preview: extractChildren(elem, `li:nth-child(-n + ${previewCount})`),
+      rest: extractChildren(elem, `li:nth-child(n + ${previewCount + 1})`),
+    }
+    : {preview: "", rest: ""};
+}
+
+const CollapsedFootnotes = ({
+  footnotesHtml,
+  attributes,
+  previewCount = 3,
+  classes,
+}: {
+  footnotesHtml: string,
+  attributes?: Record<string, unknown>,
+  previewCount?: number,
   classes: ClassesType,
 }) => {
   const {hash} = useLocation();
   const [collapsed, setCollapsed] = useState(!locationHashIsFootnote(hash ?? ""));
+  const [fullyExpanded, setFullyExpanded] = useState(!collapsed);
+  const ref = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
     const handler = () => setCollapsed(false);
@@ -37,19 +79,32 @@ const CollapsedFootnotes = ({children, classes}: {
     return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
   }, []);
 
+  const {preview, rest} = splitFootnotes(footnotesHtml, previewCount);
+
   return (
-    <div>
-      <Collapse in={!collapsed} collapsedHeight="41px">
-        {children}
+    <div {...attributes}>
+      <ol dangerouslySetInnerHTML={{__html: preview}} />
+      <Collapse
+        in={!collapsed}
+        onEntered={() => setFullyExpanded(true)}
+        className={classNames(
+          classes.collapse,
+          {[classes.fullyExpanded]: fullyExpanded},
+        )}
+      >
+        <ol
+          ref={ref}
+          dangerouslySetInnerHTML={{__html: rest}}
+          start={previewCount + 1}
+        />
       </Collapse>
-      <Collapse in={collapsed}>
-        <div
+      <Collapse in={collapsed} className={classes.buttonWrapper}>
+        <span
           className={classes.button}
           onClick={() => setCollapsed(false)}
-          role="button"
         >
-          Expand footnotes
-        </div>
+          Show all footnotes
+        </span>
       </Collapse>
     </div>
   );
