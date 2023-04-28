@@ -158,7 +158,7 @@ const CommentsLink: FC<{
     if (elem) {
       // Match the scroll behaviour from TableOfContentsList
       window.scrollTo({
-        top: elem.getBoundingClientRect().y - window.innerHeight / 3 + 1,
+        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
         behavior: "smooth",
       });
     }
