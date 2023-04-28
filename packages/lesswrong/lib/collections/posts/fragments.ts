@@ -105,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -160,6 +162,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
     ...PostsListBase
     currentUserVote
@@ -193,6 +204,7 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -561,6 +573,7 @@ registerFragment(`
       moderatorActions {
         ...ModeratorActionDisplay
       }
+
     }
   }
 `)
@@ -601,5 +614,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostWithRateLimit on Post {
+    _id
+    postSpecificRateLimit
   }
 `);

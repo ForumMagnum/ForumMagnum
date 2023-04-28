@@ -8,7 +8,7 @@ declare global {
   // or in shared code.
   interface Window {
     themeOptions: AbstractThemeOptions,
-    ssrRenderedAt: Date,
+    ssrRenderedAt: string,
     publicSettings: any,
     publicInstanceSettings: any,
     __APOLLO_STATE__: any,

@@ -415,7 +415,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -475,6 +475,21 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostRecommendationsCollection extends CollectionBase<DbPostRecommendation, "PostRecommendations"> {
+}
+
+interface DbPostRecommendation extends DbObject {
+  __collectionName?: "PostRecommendations"
+  userId: string
+  postId: string
+  strategyName: string
+  recommendationCount: number
+  lastRecommendedAt: Date
+  clickedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -637,6 +652,7 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
@@ -1369,6 +1385,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1418,6 +1435,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

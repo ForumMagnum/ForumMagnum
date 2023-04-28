@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 'inherit',
     width: 'initial',
     height: 'initial',
-    marginTop: isEAForum ? 2 : undefined,
     padding: 0,
     '&:hover': {
       backgroundColor: 'transparent',

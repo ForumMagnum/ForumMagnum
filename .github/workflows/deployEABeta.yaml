@@ -3,14 +3,14 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ ea-redesign-2023 ]
+    branches: [posts-page-recommendations]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
-        environment: [EAForum-Production-UI-Beta]
+        environment: [EAForum-Beta]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v2

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -1262,7 +1262,9 @@ const schema: SchemaType<DbPost> = {
             false,
           );
         }
-        return data.frontpageDate ?? oldDocument.frontpageDate;
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
   },
@@ -2194,6 +2196,14 @@ const schema: SchemaType<DbPost> = {
     optional: true
   },
   
+  postSpecificRateLimit: {
+    type: Date,
+    nullable: true,
+    canRead: ['members'],
+    optional: true, hidden: true,
+    // Implementation in postResolvers.ts
+  },
+  
   
   commentSortOrder: {
     type: String,
@@ -2326,6 +2336,19 @@ const schema: SchemaType<DbPost> = {
         ];
       }
     },
+  },
+
+  ignoreRateLimits: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: isEAForum,
+    tooltip: "Allow rate-limited users to comment freely on this post",
+    group: formGroups.moderationGroup,
+    canRead: ["guests"],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    order: 60
   },
   
   // On a post, do not show comment karma

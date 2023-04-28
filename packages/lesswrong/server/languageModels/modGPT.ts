@@ -220,7 +220,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
 }
 
 getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
-  if (!isEAForum || !newDocument.postId) return
+  if (!isEAForum || !newDocument.postId || newDocument.deleted) return
   
   const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
   if (noChange) return
@@ -232,7 +232,7 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
 })
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
-  if (!isEAForum || !document.postId) return
+  if (!isEAForum || !document.postId || document.deleted) return
   // only have ModGPT check comments on posts tagged with "Community"
   const postTags = (await Posts.findOne({_id: document.postId}))?.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return

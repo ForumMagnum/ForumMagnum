@@ -12,13 +12,12 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, ManuallyAppliedModeratorActionType, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { getNewModActionNotes, getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -65,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
+    minHeight: 250,
     ...hideScrollBars,
     '& *': {
       ...hideScrollBars
@@ -303,11 +303,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
 
 
-  const createRateLimit = async (type: RateLimitType) => {
+  const applyModeratorAction = async (type: ManuallyAppliedModeratorActionType) => {
 
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 60);
-    
+
     await createModeratorAction({
       data: {
         type,
@@ -316,6 +316,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       }
     });
 
+    setNotes( getNewModActionNotes(currentUser.displayName, type, notes) )
     const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
     for (const rateLimit of existingRateLimits) {
       void endRateLimit(rateLimit._id)
@@ -410,8 +411,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         open={!!anchorEl}
         anchorEl={anchorEl}
       >
-        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => createRateLimit(rateLimit)}>
-          {MODERATOR_ACTION_TYPES[rateLimit]}
+        {allRateLimits.map(moderatorAction => <MenuItem key={moderatorAction} onClick={() => applyModeratorAction(moderatorAction)}>
+          {MODERATOR_ACTION_TYPES[moderatorAction]}
         </MenuItem>)}
       </Menu>
     </div>

@@ -6,6 +6,8 @@ import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
+import withUser from './withUser';
+import { withLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
@@ -71,15 +73,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-interface ContentItemBodyProps extends WithStylesProps {
-  dangerouslySetInnerHTML: { __html: string },
-  className?: string,
-  description?: string,
+interface ExternalProps {
+  dangerouslySetInnerHTML: { __html: string };
+  className?: string;
+  description?: string;
   // Only Implemented for Tag Hover Previews
-  noHoverPreviewPrefetch?: boolean,
-  nofollow?: boolean,
-  idInsertions?: Record<string,React.ReactNode>
+  noHoverPreviewPrefetch?: boolean;
+  nofollow?: boolean;
+  idInsertions?: Record<string, React.ReactNode>;
 }
+interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
 }
@@ -127,6 +130,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.collapseFootnotes();
       this.markHoverableLinks();
       this.markElicitBlocks();
+      this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
       this.setState({updatedElements: true})
     } catch(e) {
@@ -327,6 +331,20 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       }
     }
   }
+
+  hideStrawPollLoggedOut = () => {
+    const { currentUser } = this.props;
+    const { location } = this.props;
+    const { pathname } = location;
+
+    if(!currentUser && this.bodyRef?.current) {
+      const strawpollBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("strawpoll-embed"));
+      for (const strawpollBlock of strawpollBlocks) {
+        const replacementElement = <Components.StrawPollLoggedOut pathname={pathname}/>
+        this.replaceElement(strawpollBlock, replacementElement)
+      }
+    }
+  }
   
   applyIdInsertions = () => {
     if (!this.props.idInsertions) return;
@@ -363,7 +381,13 @@ const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {styles});
+const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
+  styles,
+  hocs: [
+    withUser,
+    withLocation
+  ],
+});
 
 declare global {
   interface ComponentTypes {

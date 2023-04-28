@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
@@ -15,7 +16,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, 
           BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem,
           BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment,
-          PinToProfileMenuItem } = Components
+          PinToProfileMenuItem, LockThreadMenuItem } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -51,7 +52,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       subscribeMessage="Subscribe to comment replies"
       unsubscribeMessage="Unsubscribe from comment replies"
     />
-    {comment.user?._id && (comment.user._id !== currentUser._id) &&
+    {comment.user?._id && (comment.user._id !== currentUser._id) && !comment.deleted &&
       <NotifyMeButton asMenuItem document={comment.user} showIcon
         subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
         unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
@@ -66,6 +67,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
      * It returns null if the user can't moderate their own comment (i.e. because it has children) */}
     {showDeleteCommentItem && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
     <RetractCommentMenuItem comment={comment}/>
+    {userIsAdminOrMod(currentUser) && <LockThreadMenuItem comment={comment}/>}
     {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}

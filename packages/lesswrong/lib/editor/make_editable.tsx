@@ -48,6 +48,11 @@ export const defaultEditorPlaceholder = isEAForum ?
 We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
 You can switch between rich text and markdown in your user settings.`
 
+export const debateEditorPlaceholder = 
+`Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
+
+Other participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.`;
+
 const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: false,

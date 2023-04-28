@@ -1,13 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { forumTypeSetting } from '../../instanceSettings';
 import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });

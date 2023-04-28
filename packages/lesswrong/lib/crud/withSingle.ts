@@ -159,25 +159,32 @@ type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<Fra
   }
 }
 
-export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
-  documentId: string|undefined,
-  collectionName: CollectionNameString,
-  fragmentName?: FragmentTypeName,
-  fragment?: any,
-  extraVariables?: Record<string,any>,
-  extraVariablesValues?: any,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  notifyOnNetworkStatusChange?: boolean,
-  allowNull?: boolean,
-  skip?: boolean,
-  
-  /**
-   * Optional Apollo client instance to use for this request. If not provided,
-   * uses the default client provided by React context. This should only be
-   * overriden for crossposting or similar foreign-DB operations.
-   */
-  apolloClient?: ApolloClient<NormalizedCacheObject>,
-}
+// You can pass either `documentId` or `slug`, but not both. The must pass one;
+// you pass undefined, in which case the query is skipped.
+export type DocumentIdOrSlug =
+   {documentId: string|undefined, slug?: never}
+  |{slug: string|undefined, documentId?: never};
+
+export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
+  DocumentIdOrSlug & {
+    collectionName: CollectionNameString,
+    fragmentName?: FragmentTypeName,
+    fragment?: any,
+    extraVariables?: Record<string,any>,
+    extraVariablesValues?: any,
+    fetchPolicy?: WatchQueryFetchPolicy,
+    notifyOnNetworkStatusChange?: boolean,
+    allowNull?: boolean,
+    skip?: boolean,
+    
+    /**
+     * Optional Apollo client instance to use for this request. If not provided,
+     * uses the default client provided by React context. This should only be
+     * overriden for crossposting or similar foreign-DB operations.
+     */
+    apolloClient?: ApolloClient<NormalizedCacheObject>,
+  }
+);
 
 /**
  * React hook that queries a collection, returning a single document with the
@@ -189,7 +196,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
  * of those arguments, and extraVariablesValues, which contains their values.
  */
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  documentId,
+  documentId, slug,
   collectionName,
   fragmentName, fragment,
   extraVariables,
@@ -207,7 +214,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
-        selector: { documentId },
+        selector: { documentId, slug },
         ...(allowNull && {allowNull: true})
       },
       ...extraVariablesValues
@@ -215,7 +222,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     fetchPolicy,
     notifyOnNetworkStatusChange,
     ssr: true,
-    skip: skip || !documentId,
+    skip: skip || (!documentId && !slug),
     client: apolloClient,
   })
   if (error) {

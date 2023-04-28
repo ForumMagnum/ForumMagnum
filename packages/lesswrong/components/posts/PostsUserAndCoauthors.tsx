@@ -1,7 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
-import DebateIcon from '@material-ui/icons/Forum';
 import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
@@ -15,6 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
     },
+  },
+  userMarkers: {
+    marginLeft: 4,
   },
   lengthUnlimited: {
     display: "inline",
@@ -37,17 +39,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {
+const PostsUserAndCoauthors = ({
+  post,
+  abbreviateIfLong=false,
+  classes,
+  simple=false,
+  tooltipPlacement="left",
+  newPromotedComments,
+  showMarkers,
+}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
-  newPromotedComments?: boolean
+  newPromotedComments?: boolean,
+  showMarkers?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
 
-  const { UsersName, UserNameDeleted } = Components
+  const {UsersName, UserNameDeleted, UserCommentMarkers} = Components
 
   if (isAnon)
     return <UserNameDeleted/>;
@@ -57,6 +68,9 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
       <React.Fragment key={author._id}>
         {i > 0 ? ", " : ""}
         <UsersName user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
+        {showMarkers &&
+          <UserCommentMarkers user={author} className={classes.userMarkers} />
+        }
       </React.Fragment>
     )
     }

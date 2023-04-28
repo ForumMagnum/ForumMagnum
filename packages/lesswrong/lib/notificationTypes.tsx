@@ -274,7 +274,7 @@ export const NewDebateCommentNotification = registerNotificationType({
   userSettingField: "notificationDebateCommentsOnSubscribedPost",
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new reply on the debate "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -288,7 +288,7 @@ export const NewDebateReplyNotification = registerNotificationType({
   userSettingField: "notificationDebateReplies",
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new reply on the debate "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

@@ -238,6 +238,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
+  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
+    throw new Error("Cannot vote on dialogue responses");
+  }
+
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   

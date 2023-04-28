@@ -41,6 +41,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main,
   },
+  header: {
+    fontWeight: 600,
+    fontSize: 24,
+    marginBottom: 18,
+    "& span": {
+      color: theme.palette.grey[600],
+    },
+  },
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
@@ -169,12 +177,18 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
 
+      {isEAForum &&
+        <div className={classes.header}>
+          Comments <span>{totalComments}</span>
+        </div>
+      }
+
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
+          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

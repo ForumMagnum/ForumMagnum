@@ -178,5 +178,15 @@
     "acceptsSchemaHash": "1058503cdf3522b15f94b3499566433a",
     "acceptedByMigration": "20230413T184626.add_rejected_reasons_fields.ts",
     "timestamp": "2023-04-13T18:46:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c4afbf05797c266012f5ba5ae0119c87",
+    "acceptedByMigration": "20230424T200407.add_ignore_rate_limits.ts",
+    "timestamp": "2023-04-24T20:04:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ccf166b73b25877ca82e4fe4da4238e9",
+    "acceptedByMigration": "20230427T174102.create_PostRecommendations_table.ts",
+    "timestamp": "2023-04-27T17:41:02.000Z"
   }
 ]

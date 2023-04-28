@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const Spotlights: SpotlightsCollection = createCollection({
   collectionName: 'Spotlights',
   typeName: 'Spotlight',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Spotlights'),
   mutations: getDefaultMutations('Spotlights')

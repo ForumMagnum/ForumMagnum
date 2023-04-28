@@ -13,6 +13,7 @@ import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 const styles = (theme: ThemeType): JssStyles => ({
   page: {
     width: '90%',
+    maxWidth: 1800,
     margin: 'auto',
     [theme.breakpoints.down('sm')]: {
       width: '100%',

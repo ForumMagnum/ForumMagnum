@@ -45,7 +45,7 @@ if (forumTypeSetting.get() === "EAForum") {
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Debate must have at least one co-author!');
+    throw new Error('Dialogue must have at least one co-author!');
   }
 
   return validationErrors;

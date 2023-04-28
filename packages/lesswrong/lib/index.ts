@@ -211,6 +211,9 @@ import './components';
 // PostRelation
 import './collections/postRelations';
 
+// PostRecommendations
+import './collections/postRecommendations/collection';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';

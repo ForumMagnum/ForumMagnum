@@ -46,6 +46,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
                 post: comment.post || undefined,
                 showPostTitle: true,
               }}
+              expandByDefault
               comment={comment}
             />)}
     </div>
