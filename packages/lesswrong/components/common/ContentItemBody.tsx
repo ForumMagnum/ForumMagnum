@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
+import { isEAForum } from '../../lib/instanceSettings';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
 
@@ -126,6 +127,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   applyLocalModifications() {
     try {
       this.markScrollableLaTeX();
+      this.collapseFootnotes();
       this.markHoverableLinks();
       this.markElicitBlocks();
       this.hideStrawPollLoggedOut();
@@ -259,7 +261,39 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     updateScrollIndicatorClasses();
     block.onscroll = (ev) => updateScrollIndicatorClasses();
   };
-  
+
+  forwardAttributes = (node: HTMLElement) => {
+    const result: Record<string, unknown> = {};
+    const attrs = node.attributes ?? [];
+    for (let i = 0; i < attrs.length; i++) {
+      const attr = attrs[i];
+      if (attr.name === "class") {
+        result.className = attr.value;
+      } else {
+        result[attr.name] = attr.value;
+      }
+    }
+    return result;
+  }
+
+  collapseFootnotes = () => {
+    const body = this.bodyRef?.current;
+    if (!isEAForum || !body) {
+      return;
+    }
+
+    const footnotes = body.querySelector(".footnotes");
+    if (footnotes) {
+      const collapsedFootnotes = (
+        <Components.CollapsedFootnotes
+          footnotesHtml={footnotes.innerHTML}
+          attributes={this.forwardAttributes(footnotes)}
+        />
+      );
+      this.replaceElement(footnotes, collapsedFootnotes);
+    }
+  }
+
   markHoverableLinks = () => {
     if(this.bodyRef?.current) {
       const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
