@@ -334,7 +334,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
         </div>
       </div>
     </AnalyticsContext>
