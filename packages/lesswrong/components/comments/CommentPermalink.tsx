@@ -72,7 +72,8 @@ const CommentPermalink = ({ documentId, post, classes }: {
       refetch,
       showPostTitle: false,
     },
-    expandByDefault: true,
+    forceUnTruncated: true,
+    forceUnCollapsed: true,
     noAutoScroll: true
   };
 
