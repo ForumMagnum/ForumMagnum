@@ -2,7 +2,7 @@ import { Client } from "@elastic/elasticsearch";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
-} from "../../lib/algoliaUtil";
+} from "../../lib/search/algoliaUtil";
 import {
   AlgoliaIndexedCollection,
   AlgoliaIndexedDbObject,

@@ -1,16 +1,15 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { Posts } from '../../lib/collections/posts'
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { Comments } from '../../lib/collections/comments'
-import { Tags } from '../../lib/collections/tags/collection'
-import Users from '../../lib/collections/users/collection'
 import { getCollection } from '../vulcan-lib';
-import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import {
+  getAlgoliaIndexName,
+  algoliaIndexedCollectionNames,
+  AlgoliaIndexCollectionName,
+} from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { isProductionDBSetting } from '../../lib/publicSettings';
 import * as _ from 'underscore';

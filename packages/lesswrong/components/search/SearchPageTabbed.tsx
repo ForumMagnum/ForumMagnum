@@ -3,7 +3,13 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
+import {
+  getAlgoliaIndexName,
+  isAlgoliaEnabled,
+  getSearchClient,
+  AlgoliaIndexCollectionName,
+  collectionIsAlgoliaIndexed,
+} from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';

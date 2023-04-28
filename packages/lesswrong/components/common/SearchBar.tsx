@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
 

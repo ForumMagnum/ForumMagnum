@@ -4,7 +4,11 @@ import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
-import { getAlgoliaIndexName, collectionIsAlgoliaIndexed, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import {
+  getAlgoliaIndexName,
+  collectionIsAlgoliaIndexed,
+  AlgoliaIndexCollectionName,
+} from '../../lib/search/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
 import { postStatuses } from '../../lib/collections/posts/constants';
