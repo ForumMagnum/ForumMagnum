@@ -261,6 +261,8 @@ const makeCollectionFilter = (collectionName: string) => {
       return { deleted: { $ne: true } };
     case "Messages":
       return { contents: { $exists: true } };
+    case "CronHistories":
+      return { intendedAt: {$ne: null} }
     default:
       return {};
   }
@@ -271,6 +273,7 @@ const isNonIdSortField = (collectionName: string) => {
     case 'EmailTokens': return false;
     case 'Posts': return false;
     case 'ReadStatuses': return false;
+    case 'CronHistories': return false;
     default: return true;
   }
 };
