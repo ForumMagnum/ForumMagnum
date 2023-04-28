@@ -3,8 +3,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import RejectedIcon from "@material-ui/icons/NotInterested";
+import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { isLW } from '../../lib/instanceSettings';
 

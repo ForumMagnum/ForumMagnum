@@ -979,6 +979,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly deletedDraft: boolean,
+  readonly rejectedReason: string | null,
   readonly contents: PostsList_contents|null,
   readonly fmCrosspost: {
     isCrosspost: boolean,
@@ -1225,6 +1226,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
+  readonly rejectedReason: string | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }

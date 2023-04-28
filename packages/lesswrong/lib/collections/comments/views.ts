@@ -310,6 +310,13 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
   };
 });
 
+Comments.addView("rejected", (terms: CommentsViewTerms) => {
+  return {
+    selector: {rejected: true, authorIsUnreviewed: null},
+    options: {sort: { postedAt: -1}, limit: terms.limit || 20},
+  };
+})
+
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
   // The forum has fewer comments, and so wants a more expansive definition of

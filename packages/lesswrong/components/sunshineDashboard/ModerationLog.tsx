@@ -164,7 +164,16 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, PostsList2, RecentComments } = Components;
+  
+  const limit = 10
+  
+  const rejectedContentTerms = {
+    view: "magic",
+    forum: true,
+    limit:limit
+  }
+  
   return (
     <SingleColumnSection className={classes.root}>
       <h2>Moderation Log</h2>
@@ -214,6 +223,17 @@ const ModerationLog = ({classes}: {
           />
         </div>
       </>}
+      <div>
+        <h2>Rejected Content</h2>
+        <PostsList2
+          terms={{view: 'rejected'}}
+          alwaysShowLoadMore
+        />
+        <RecentComments
+          terms={{view: 'rejected', authorIsUnreviewed: null, limit: 20}}
+          showPinnedOnProfile
+        />
+      </div>
     </SingleColumnSection>
   )
 }

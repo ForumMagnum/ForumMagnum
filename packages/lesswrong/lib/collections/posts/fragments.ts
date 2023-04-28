@@ -222,6 +222,7 @@ registerFragment(`
     ...PostsListBase
     tagRelevance
     deletedDraft
+    rejectedReason
     contents {
       _id
       htmlHighlight
@@ -531,6 +532,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id

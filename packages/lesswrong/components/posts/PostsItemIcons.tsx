@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import DebateIcon from '@material-ui/icons/Forum';
+import RejectedIcon from "@material-ui/icons/NotInterested";
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
@@ -110,6 +111,12 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {post.debate && <span className={classes.postIcon}>
       <DebateIcon className={classes.icon} />
+    </span>}
+    
+    {post.rejected && <span className={classes.postIcon}>
+      <LWTooltip title="This post was rejected by the moderators" placement="right">
+        <RejectedIcon className={classes.icon} />
+      </LWTooltip>
     </span>}
 
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
