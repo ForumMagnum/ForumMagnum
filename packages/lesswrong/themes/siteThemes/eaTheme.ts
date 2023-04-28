@@ -86,6 +86,9 @@ export const eaForumTheme: SiteThemeSpecification = {
       individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
     },
+    buttons: {
+      alwaysPrimary: '#0c869b',
+    },
     tag: {
       text: shadePalette.grey[1000],
       background: shadePalette.grey[0],

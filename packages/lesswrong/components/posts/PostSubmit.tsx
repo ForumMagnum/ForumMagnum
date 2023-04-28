@@ -39,6 +39,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   submitButton: {
     ...(isEAForum ? {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
       marginLeft: 10,
     } : {

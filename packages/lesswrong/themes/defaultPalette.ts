@@ -383,7 +383,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
-    
+    alwaysPrimary: "#5f9b65",
     startReadingButtonBackground: shades.greyAlpha(0.05),
     recentDiscussionSubscribeButtonText: "#fff",
     featuredResourceCTAtext: "#fff",

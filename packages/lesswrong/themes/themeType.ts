@@ -315,6 +315,7 @@ declare global {
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,

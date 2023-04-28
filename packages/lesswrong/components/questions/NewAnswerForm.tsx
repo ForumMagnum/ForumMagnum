@@ -23,6 +23,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   formButton: isEAForum ? {
     float: "right",
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',

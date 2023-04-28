@@ -79,6 +79,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   cancelButton: {
     color: isEAForum ? undefined : theme.palette.grey[400],
   },
+  submitButton: isEAForum ? {
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  } : {},
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
@@ -251,7 +260,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       <Button
         type="submit"
         id="new-comment-submit"
-        className={formButtonClass}
+        className={classNames(formButtonClass, classes.submitButton)}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
