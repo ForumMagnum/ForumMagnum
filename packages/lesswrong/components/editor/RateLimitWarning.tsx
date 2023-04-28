@@ -37,9 +37,10 @@ const RateLimitWarning = ({lastRateLimitExpiry, classes}: {
   // that the user is currently rate-limited, to display the appropriate message.
   if (!isEAForum && !lastRateLimitExpiry) return null
 
+  const time = moment(lastRateLimitExpiry).fromNow()
   const message = isEAForum ?
-    `You've written more than 3 comments in the last 30 min. Wait 30 min to post another. The amount of comments you can post goes up as you get more karma.` :
-    `Please wait ${moment(lastRateLimitExpiry).fromNow()} before commenting again.`
+    `You've written more than 3 comments in the last 30 min. Please wait ${time} before commenting again. You'll be able to post more comments as your karma increases.` :
+    `Please wait ${time} before commenting again.`
   
   return <div className={classes.root}>
     <Components.ForumIcon icon="Warning" className={classes.icon} />
