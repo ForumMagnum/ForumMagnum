@@ -195,6 +195,7 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
     moderationGuidelines {
       _id
       html
@@ -224,7 +225,6 @@ registerFragment(`
     ...PostsListBase
     tagRelevance
     deletedDraft
-    rejectedReason
     contents {
       _id
       htmlHighlight

@@ -17,7 +17,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userOwns } from '../../vulcan-users/permissions';
+import { adminsGroup, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -2469,10 +2469,10 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     nullable: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests', 'sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    hidden: true
+    group: formGroups.adminOptions
   },
 
   rejectedByUserId: {

@@ -733,7 +733,6 @@ const schema: SchemaType<DbComment> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    hidden: true
   },
 
   rejectedByUserId: {

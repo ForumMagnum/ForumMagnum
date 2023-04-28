@@ -958,6 +958,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
+  readonly rejectedReason: string | null,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -983,7 +984,6 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly deletedDraft: boolean,
-  readonly rejectedReason: string | null,
   readonly contents: PostsList_contents|null,
   readonly fmCrosspost: {
     isCrosspost: boolean,

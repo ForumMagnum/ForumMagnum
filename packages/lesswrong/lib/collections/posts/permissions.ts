@@ -53,7 +53,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return true;
   } else if (post.isFuture || post.draft) {
     return false;
-  } else if (post.authorIsUnreviewed) {
+  } else if (post.authorIsUnreviewed && !post.rejected) {
     return false
   } else {
     const status = _.findWhere(postStatusLabels, {value: post.status});

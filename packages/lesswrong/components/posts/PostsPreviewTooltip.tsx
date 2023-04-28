@@ -108,9 +108,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     marginRight: theme.spacing.unit
   },
-  rejectedReason: {
-    
-  }
 })
 
 const getPostCategory = (post: PostsBase) => {
@@ -173,17 +170,6 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
       <Card className={classes.root}>
         <div className={classes.header}>
           <div>
-            {post.rejected && <div className={classes.rejectedReason}>
-              This post was rejected.
-              {post.rejectedReason && <ContentStyles contentType="comment">
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: post.rejectedReason || ""}}
-                />
-              </ContentStyles>
-              }
-              <br/>
-              <br/>
-            </div>}
             <div className={classes.title}>
               <PostsTitle post={post} wrap showIcons={false} />
             </div>

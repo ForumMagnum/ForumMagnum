@@ -1,16 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Comments } from '../../lib/collections/comments'
-import Users from '../../lib/collections/users/collection';
-import { Link } from '../../lib/reactRouterWrapper'
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Posts } from '../../../lib/collections/posts';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { Comments } from '../../../lib/collections/comments'
+import Users from '../../../lib/collections/users/collection';
+import { Link } from '../../../lib/reactRouterWrapper'
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
-import { isMod } from '../../lib/collections/users/helpers';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import type { Column } from '../vulcan-core/Datatable';
-import { ModeratorActions } from '../../lib/collections/moderatorActions'
+import { useCurrentUser } from '../../common/withUser';
+import { isMod } from '../../../lib/collections/users/helpers';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import type { Column } from '../../vulcan-core/Datatable';
+import { ModeratorActions } from '../../../lib/collections/moderatorActions'
+import { RejectedPosts } from './RejectedPosts';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -187,7 +188,7 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection, PostsList2, RecentComments } = Components;
+  const { SingleColumnSection, RejectedPosts, RecentComments } = Components;
   
   const limit = 10
   
@@ -223,7 +224,7 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromPostsModerationLog',
               terms: {view: "postsWithBannedUsers"},
-              limit: 20,
+              limit: 10,
               enableTotal: true
             }}
             showEdit={false}
@@ -238,7 +239,7 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
-              limit: 20,
+              limit: 10,
               enableTotal: true
             }}
             showEdit={false}
@@ -253,7 +254,7 @@ const ModerationLog = ({classes}: {
             options={{
               terms: {view: "restrictionModerationActions"},
               fragmentName: 'ModeratorActionDisplay',
-              limit: 20,
+              limit: 10,
               enableTotal: true
             }}
             showEdit={false}
@@ -262,14 +263,13 @@ const ModerationLog = ({classes}: {
         </div>
       </>}
       <div>
-        <h2>Rejected Content</h2>
-        <PostsList2
-          terms={{view: 'rejected'}}
-          alwaysShowLoadMore
-        />
+        <h3>Rejected Posts</h3>
+        <RejectedPosts />
+        <h3>Rejected Comments</h3>
         <RecentComments
-          terms={{view: 'rejected', authorIsUnreviewed: null, limit: 20}}
+          terms={{view: 'rejected', authorIsUnreviewed: null, limit: 10}}
           showPinnedOnProfile
+          truncated
         />
       </div>
     </SingleColumnSection>
