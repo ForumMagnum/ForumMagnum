@@ -207,6 +207,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 truncated
                 comment={renderedComment}
                 hoverPreview
+                forceUnCollapsed
               />
             </div>
           : loading

@@ -7,7 +7,7 @@ export const CronHistories: CronHistoriesCollection = createCollection({
   collectionName: 'CronHistories',
   dbCollectionName: 'cronHistory',
   typeName: 'CronHistory',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   logChanges: false,
 });

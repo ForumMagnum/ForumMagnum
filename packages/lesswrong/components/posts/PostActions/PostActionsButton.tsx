@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     verticalAlign: 'middle',
-    color: isEAForum ? theme.palette.grey[500] : undefined,
+    color: isEAForum ? theme.palette.grey[400] : undefined,
     cursor: "pointer",
   },
   popper: {
