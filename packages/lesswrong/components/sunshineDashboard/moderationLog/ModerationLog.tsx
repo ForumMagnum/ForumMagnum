@@ -190,14 +190,6 @@ const ModerationLog = ({classes}: {
     shouldShowEndUserModerationToNonMods
   const { SingleColumnSection, RejectedPosts, RecentComments } = Components;
   
-  const limit = 10
-  
-  const rejectedContentTerms = {
-    view: "magic",
-    forum: true,
-    limit:limit
-  }
-  
   return (
     <SingleColumnSection className={classes.root}>
       <h2>Moderation Log</h2>
