@@ -4,7 +4,7 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
@@ -82,7 +82,7 @@ const schema: SchemaType<DbTagRel> = {
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {

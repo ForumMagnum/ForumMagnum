@@ -35,7 +35,7 @@ interface ExtendedSequencesCollection extends SequencesCollection {
 export const Sequences: ExtendedSequencesCollection = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "switching",
   schema,
   resolvers: getDefaultResolvers('Sequences'),
   mutations: getDefaultMutations('Sequences', options),

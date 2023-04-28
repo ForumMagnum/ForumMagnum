@@ -6,7 +6,6 @@ import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -22,7 +21,7 @@ export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {

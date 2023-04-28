@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -96,7 +96,9 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
         <div className={classes.relatedTags}>
           {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
-            return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+            return <Fragment key={idx}>
+              <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
+            </Fragment>
           })}</span></div> : <></>}
         </div> : <></>
       }

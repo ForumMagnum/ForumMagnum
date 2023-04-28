@@ -8,6 +8,9 @@ import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
+import { DatabaseServerSetting } from "../databaseSettings";
+
+const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
 
 export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
 const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
@@ -28,6 +31,11 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
   const apiUrl = makeApiUrl(route.path);
   let result: Response;
+
+  const controller = new AbortController();
+  // Timeout early to avoid this causing frontpage loads to time out
+  const timeoutId = setTimeout(() => controller.abort(), fmCrosspostTimeoutMsSetting.get());
+
   try {
     result = await fetch(apiUrl, {
       method: "POST",
@@ -36,15 +44,25 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
         "User-Agent": crosspostUserAgent,
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
   } catch (e) {
-    if (e.cause.code === 'ECONNREFUSED' && e.cause.port === 4000) {
+    clearTimeout(timeoutId); // Clear the timeout when an error occurs
+
+    if (e.name === 'AbortError') {
+      throw new ApiError(500, "Crosspost request timed out");
+    }
+
+    if (e.cause?.code === 'ECONNREFUSED' && e.cause?.port === 4000) {
       // We're testing locally, and the x-post server isn't running
       return { document: {} }
     } else {
       throw e
     }
   }
+
+  clearTimeout(timeoutId); // Clear the timeout when the request completes
+
   // Assertion is safe because either we got a result or we threw an error or returned
   const json = await result!.json();
   const validatedResponse = route.responseValidator.decode(json);

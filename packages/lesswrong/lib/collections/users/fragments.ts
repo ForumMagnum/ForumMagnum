@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    profileImageId
     previousDisplayName
     fullName
     karma
@@ -14,6 +15,8 @@ registerFragment(`
     deleted
     isAdmin
     htmlBio
+    jobTitle
+    organization
     postCount
     commentCount
     sequenceCount
@@ -63,7 +66,6 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
-    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -204,6 +206,19 @@ registerFragment(`
   }
 `);
 
+/**
+ * Fragment containing rate-limit information (ie, whether the user is rate limited and when
+ * they're next eligible to comment). Separated from `UsersCurrent` because figuring that out can
+ * involve some DB queries that we don't want to have to finish in serial before the rest of the
+ * page can start loading.
+ */
+registerFragment(`
+  fragment UsersCurrentRateLimit on User {
+    _id
+    rateLimitNextAbleToComment(postId: $postId)
+  }
+`);
+
 registerFragment(`
   fragment UserBookmarkedPosts on User {
     _id
@@ -280,8 +295,6 @@ registerFragment(`
     reviewedAt
     signUpReCaptchaRating
     mapLocation
-    profileImageId
-    
     needsReview
     sunshineNotes
     sunshineFlagged
