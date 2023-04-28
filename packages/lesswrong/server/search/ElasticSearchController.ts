@@ -1,7 +1,12 @@
 import { Application, Request, Response, json } from "express";
+import { isValidSearchQuery } from "./searchQuery";
+import ElasticSearchService from "./ElasticSearchService";
 
 class ElasticSearchController {
-  constructor(app: Application) {
+  constructor(
+    app: Application,
+    private searchService = new ElasticSearchService(),
+  ) {
     const route = "/api/search";
     app.use(route, json({ limit: "1mb" }));
     app.post(route, this.onSearch.bind(this));
@@ -22,10 +27,10 @@ class ElasticSearchController {
   }
 
   private async onQuery(query: unknown) {
-    // if (!isPostgresSearchQuery(query)) {
-      // throw new Error("Invalid query");
-    // }
-    // return this.searchService.runQuery(query);
+    if (!isValidSearchQuery(query)) {
+      throw new Error("Invalid query");
+    }
+    return this.searchService.runQuery(query);
   }
 }
 
