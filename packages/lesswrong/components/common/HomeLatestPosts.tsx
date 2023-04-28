@@ -97,7 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts,
+    CuratedPostsList, SectionTitle, StickiedPosts, CommentsListCondensed
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -124,11 +124,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
       settings: filterSettings,
     })
   }
-  
-  const recentSubforumDiscussionTerms = {
-    view: "shortformFrontpage" as const,
-    profileTagIds: currentUser?.profileTagIds,
-  };
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
@@ -189,15 +184,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
-                opt-out of their shortform posts being shown on the frontpage */}
-            {/* {isEAForum && (
-              <CommentsListCondensed
-                label={"Shortform discussion"}
-                terms={recentSubforumDiscussionTerms}
-                initialLimit={3}
-              />
-            )} */}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

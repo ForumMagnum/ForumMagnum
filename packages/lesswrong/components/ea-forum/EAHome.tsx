@@ -1,5 +1,5 @@
 import React from 'react'
-import { PublicInstanceSetting } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -18,7 +18,7 @@ const EAHome = () => {
   const {
     RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts
+    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -29,6 +29,10 @@ const EAHome = () => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
+
+  const recentSubforumDiscussionTerms = {
+    view: "shortformFrontpage" as const
+  };
 
   return (
     <AnalyticsContext pageContext="homePage">
@@ -48,6 +52,17 @@ const EAHome = () => {
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+          {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
+                opt-out of their shortform posts being shown on the frontpage */}
+          {isEAForum && (
+            <SingleColumnSection>
+              <CommentsListCondensed
+                label={"Shortform discussion"}
+                terms={recentSubforumDiscussionTerms}
+                initialLimit={3}
+              />
+            </SingleColumnSection>
+          )}
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
             title="Recent comments"
