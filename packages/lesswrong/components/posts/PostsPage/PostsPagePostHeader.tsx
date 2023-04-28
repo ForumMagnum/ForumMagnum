@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -147,6 +147,29 @@ const getResponseCounts = (
   };
 };
 
+const CommentsLink: FC<{
+  count: string,
+  anchor: string,
+  className?: string,
+}> = ({count, anchor, className}) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.querySelector(anchor);
+    if (elem) {
+      // Match the scroll behaviour from TableOfContentsList
+      window.scrollTo({
+        top: elem.getBoundingClientRect().y - window.innerHeight / 3 + 1,
+        behavior: "smooth",
+      });
+    }
+  }
+  return (
+    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+      {count}
+    </a>
+  );
+}
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
@@ -218,8 +241,18 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
+          {post.question &&
+            <CommentsLink
+              count={postGetAnswerCountStr(answerCount)}
+              anchor="#answers"
+              className={classes.commentsLink}
+            />
+          }
+          <CommentsLink
+            count={postGetCommentCountStr(post, commentCount)}
+            anchor="#comments"
+            className={classes.commentsLink}
+          />
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
