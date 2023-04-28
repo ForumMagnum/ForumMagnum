@@ -1,4 +1,4 @@
-import type { Index } from "algoliasearch/lite";
+import type { Client, Index } from "algoliasearch/lite";
 import type { MultiResponse, QueryParameters, SearchForFacetValues } from "algoliasearch";
 import LRU from "lru-cache";
 
@@ -8,27 +8,27 @@ export type SearchQuery = {
   params: QueryParameters;
 }
 
-class NativeSearchClient {
+class NativeSearchClient implements Client {
   private headers: Record<string, string> = {};
-  private cache = new LRU<string, Promise<MultiResponse<any>>>();
+  private cache = new LRU<string, Promise<MultiResponse<unknown>>>();
 
   initIndex(_indexName: string): Index {
     throw new Error("initIndex not supported by NativeSearchClient");
   }
 
-  search<T=any>(
+  search<T=unknown>(
     queries: SearchQuery[],
     cb: (err: Error|null, res: MultiResponse<T>|null) => void,
   ): void;
-  search<T=any>(queries: SearchQuery[]): Promise<MultiResponse<T>>;
-  search<T=any>(
+  search<T=unknown>(queries: SearchQuery[]): Promise<MultiResponse<T>>;
+  search<T=unknown>(
     queries: SearchQuery[],
     cb?: (err: Error|null, res: MultiResponse<T>|null) => void,
   ): Promise<MultiResponse<T>>|void {
     const body = JSON.stringify(queries);
     const cached = this.cache.get(body);
     if (cached) {
-      return cached;
+      return Promise.resolve(cached) as Promise<MultiResponse<T>>;
     }
     const promise = new Promise<MultiResponse<T>>((resolve, reject) => {
       fetch("/api/search", {

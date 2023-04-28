@@ -18,7 +18,7 @@ import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 import Globals from "../../lib/vulcan-lib/config";
 
-class ElasticSearchService {
+class ElasticSearchClient {
   private client: Client;
 
   constructor() {
@@ -168,6 +168,6 @@ class ElasticSearchService {
   }
 }
 
-Globals.elasticExportAll = () => new ElasticSearchService().exportAll();
+Globals.elasticExportAll = () => new ElasticSearchClient().exportAll();
 
-export default ElasticSearchService;
+export default ElasticSearchClient;
