@@ -10,6 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isMod } from '../../lib/collections/users/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import type { Column } from '../vulcan-core/Datatable';
+import { ModeratorActions } from '../../lib/collections/moderatorActions'
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -48,14 +49,14 @@ const styles = (theme: JssStyles) => ({
 
 const DateDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
 const PostDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const post = document.post || document
   return <Link rel="nofollow" to={postGetPageUrl(post) + "#" + document._id }>{ post.title }</Link>
@@ -63,7 +64,7 @@ const PostDisplay = ({column, document}: {
 
 const UserDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const user = document.user || document
   return <div>
@@ -73,7 +74,7 @@ const UserDisplay = ({column, document}: {
 
 const DeletedByUserDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const user = document.deletedByUser || document.user || document
   return <span>
@@ -84,7 +85,7 @@ const DeletedByUserDisplay = ({column, document}: {
 
 const BannedUsersDisplay = ({column, document}: {
   column: Column;
-  document: any;
+  document: AnyBecauseTodo;
 }) => {
   const bannedUsers = document[column.name] ?? []
   return <div>
@@ -92,6 +93,13 @@ const BannedUsersDisplay = ({column, document}: {
       <Components.UsersNameWrapper documentId={userId} nofollow />
       </div>)}
   </div>
+}
+
+const ModeratorTypeDisplay = ({column, document}: {
+  column: Column;
+  document: AnyBecauseTodo;
+}) => {
+  return <div>{document[column.name]}</div>
 }
 
 
@@ -121,6 +129,21 @@ const deletedCommentColumns: Column[] = [
     name:'deletedReason',
     label:'Reason'
   },
+]
+
+const moderatorActionColumns: Column[] = [
+  {
+    name: 'user',
+    component: UserDisplay
+  },
+  {
+    name: 'endedAt',
+    component: DateDisplay,
+  },
+  {
+    name: 'type',
+    component: ModeratorTypeDisplay
+  }
 ]
 
 const usersBannedFromPostsColumns: Column[] = [
@@ -206,6 +229,21 @@ const ModerationLog = ({classes}: {
             options={{
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
+              limit: 20,
+              enableTotal: true
+            }}
+            showEdit={false}
+            showNew={false}
+          />
+        </div>
+        <div className={classes.section}>
+          <h3>Moderated Users</h3>
+          <Components.Datatable
+            collection={ModeratorActions}
+            columns={moderatorActionColumns}
+            options={{
+              terms: {view: "restrictionModerationActions"},
+              fragmentName: 'ModeratorActionDisplay',
               limit: 20,
               enableTotal: true
             }}
