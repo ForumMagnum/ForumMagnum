@@ -40,7 +40,7 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   return validationErrors;
 });
 
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
+const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 5) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser }) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
@@ -163,10 +163,6 @@ async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null
 
 
 async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
-  if (await shouldIgnoreCommentRateLimit(user, comment.postId)) {
-    return
-  }
- 
   const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
@@ -218,47 +214,49 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   nextEligible: Date,
   rateLimitType: RateLimitReason
 }|null> {
-  if (await shouldIgnoreCommentRateLimit(user, postId)) {
-    return null
-  }
-  // If moderators have imposed a rate limit on this user, enforce that
-  const moderatorRateLimit = await getModeratorRateLimit(user)
-  if (moderatorRateLimit) {
-    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
-
-    // moderatorRateLimits should only apply to comments on posts by people other than the comment author
-    const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+  // if this user is a mod/admin or is the post author,
+  // then they are exempt from all rate limits except for the "universal" 5 sec one
+  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
   
-    if (commentsInPastTimeframe > 0) {
-      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
-    }
+  if (!ignoreRateLimits) {
+    // If moderators have imposed a rate limit on this user, enforce that
+    const moderatorRateLimit = await getModeratorRateLimit(user)
+    if (moderatorRateLimit) {
+      const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-    const mostRecentInTimeframe = await getNthMostRecentItemDate({
-      user, collection: Comments,
-      n: 1,
-      cutoffHours: hours,
-    });
-    if (mostRecentInTimeframe) {
-      return {
-        nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
-        rateLimitType: "moderator",
+      // moderatorRateLimits should only apply to comments on posts by people other than the comment author
+      const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+    
+      if (commentsInPastTimeframe > 0) {
+        throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+      }
+
+      const mostRecentInTimeframe = await getNthMostRecentItemDate({
+        user, collection: Comments,
+        n: 1,
+        cutoffHours: hours,
+      });
+      if (mostRecentInTimeframe) {
+        return {
+          nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
+          rateLimitType: "moderator",
+        }
       }
     }
-  }
-  
-  // If less than 30 karma, you are also limited to no more than 4 comments per
-  // 0.5 hours.
-  const nextEligible = await checkLowKarmaCommentRateLimit(user)
-  if (nextEligible && isInFuture(nextEligible)) {
-    return {
-      nextEligible,
-      rateLimitType: "lowKarma",
-    };
+    
+    // If less than 30 karma, you are also limited to no more than 4 comments per
+    // 0.5 hours.
+    const nextEligible = await checkLowKarmaCommentRateLimit(user)
+    if (nextEligible && isInFuture(nextEligible)) {
+      return {
+        nextEligible,
+        rateLimitType: "lowKarma",
+      };
+    }
   }
 
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-
-  // check that user waits more than 15 seconds between comments
+  // check that user waits more than 5 seconds between comments
   const mostRecentCommentDate = await getNthMostRecentItemDate({
     user, collection: Comments,
     n: 1,
