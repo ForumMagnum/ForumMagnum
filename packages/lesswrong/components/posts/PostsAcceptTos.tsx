@@ -1,6 +1,6 @@
 import React, { FC, useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -37,11 +37,12 @@ const PostsAcceptTos = ({currentUser, classes}: {
   classes: ClassesType,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(currentUser.acceptedTos);
   const [acceptTos] = useMutation(gql`
     mutation AcceptTos {
       UserAcceptTos
     }
-  `, {refetchQueries: ['getCurrentUser']})
+  `);
   const {flash} = useMessages();
 
   const onAccept = useCallback(async () => {
@@ -54,13 +55,14 @@ const PostsAcceptTos = ({currentUser, classes}: {
     const accepted = result?.data?.UserAcceptTos;
     if (accepted) {
       flash("Thank you for accepting the terms of use");
+      setAccepted(true);
     } else {
       flash("Error: Something went wrong, please try again");
       setLoading(false);
     }
   }, [loading, setLoading, flash, acceptTos]);
 
-  if (forumTypeSetting.get() !== "EAForum" || currentUser.acceptedTos) {
+  if (!isEAForum || accepted) {
     return null;
   }
 
