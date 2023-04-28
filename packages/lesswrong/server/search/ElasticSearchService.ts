@@ -14,8 +14,9 @@ import {
 } from "../../lib/instanceSettings";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 import { getAlgoliaFilter } from "./algoliaFilters";
-import { getCollection, Globals } from "../vulcan-lib";
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import Globals from "../../lib/vulcan-lib/config";
 
 class ElasticSearchService {
   private client: Client;
