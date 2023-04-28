@@ -9,7 +9,7 @@ export const cookiePreferencesChangedCallbacks = new CallbackChainHook<CookieTyp
  * There is no way to turn it off without reloading currently (see https://github.com/DataDog/browser-sdk/issues/1008)
  */
 cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
-  initDatadog();
+  void initDatadog();
 });
 /**
  * Send a cookie_preferences_changed event to Google Tag Manager, which triggers google analytics and hotjar to start

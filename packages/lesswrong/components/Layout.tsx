@@ -180,7 +180,8 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const { explicitConsentGiven: cookieConsentGiven } = useCookiePreferences();
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -303,7 +304,7 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
               {/* Only show intercom after they have accepted cookies */}
-              {!cookieConsentGiven ? <CookieBanner /> : <IntercomWrapper/>}
+              {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
