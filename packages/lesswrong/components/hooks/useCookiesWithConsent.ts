@@ -4,6 +4,7 @@ import { COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType,
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
+import { useTracking } from "../../lib/analyticsEvents";
 
 export function useCookiePreferences(): {
   cookiePreferences: CookieType[];
@@ -11,6 +12,7 @@ export function useCookiePreferences(): {
   explicitConsentGiven: boolean;
   explicitConsentRequired: boolean | "unknown";
 } {
+  const { captureEvent } = useTracking()
   const [explicitConsentRequired, setExplicitConsentRequired] = useState<boolean | "unknown">(getExplicitConsentRequiredSync());
 
   const [cookies, setCookie] = useCookies([COOKIE_PREFERENCES_COOKIE, COOKIE_CONSENT_TIMESTAMP_COOKIE]);
@@ -44,11 +46,14 @@ export function useCookiePreferences(): {
   
   const updateCookiePreferences = useCallback(
     (newPreferences: CookieType[]) => {
+      captureEvent("cookiePreferencesUpdated", {
+        cookiePreferences: newPreferences,
+      })
       setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/" });
       setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/" });
       void cookiePreferencesChangedCallbacks.runCallbacks({iterator: newPreferences, properties: []});
     },
-    [setCookie]
+    [captureEvent, setCookie]
   );
   return { cookiePreferences, updateCookiePreferences, explicitConsentGiven, explicitConsentRequired };
 }

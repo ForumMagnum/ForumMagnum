@@ -37,7 +37,7 @@ const IntercomWrapper = ({classes}: {
   }
   if (!functionalCookiesAllowed) {
     // eslint-disable-next-line no-console
-    console.warn("Not showing Intercom because functional cookies are not allowed")
+    console.log("Not showing Intercom because functional cookies are not allowed")
     return null;
   }
   

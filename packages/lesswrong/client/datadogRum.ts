@@ -14,7 +14,7 @@ export async function initDatadog() {
   if (forumTypeSetting.get() !== 'EAForum') return
   if (!analyticsCookiesAllowed) {
     // eslint-disable-next-line no-console
-    console.warn("Not initializing datadog because analytics cookies are not allowed")
+    console.log("Not initializing datadog because analytics cookies are not allowed")
     return
   }
 
