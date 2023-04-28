@@ -52,8 +52,8 @@ const splitFootnotes = (html: string, previewCount: number) => {
   const elem = htmlToElement<HTMLDivElement>(html);
   return elem
     ? {
-      preview: extractChildren(elem, `li:nth-child(-n + ${previewCount})`),
-      rest: extractChildren(elem, `li:nth-child(n + ${previewCount + 1})`),
+      preview: extractChildren(elem, `li:nth-child(-n + ${previewCount})[id]`),
+      rest: extractChildren(elem, `li:nth-child(n + ${previewCount + 1})[id]`),
       totalCount: elem.querySelectorAll("li").length,
     }
     : {preview: "", rest: "", totalCount: 0};
