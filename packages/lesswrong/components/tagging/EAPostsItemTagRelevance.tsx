@@ -11,12 +11,12 @@ import classNames from "classnames";
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    gap: "8px",
-    padding: "12px 4px",
+    alignItems: "center",
     color: theme.palette.grey[600],
   },
   button: {
-    useSelect: "none",
+    userSelect: "none",
+    padding: 8,
     "&:hover": {
       opacity: 1,
     },

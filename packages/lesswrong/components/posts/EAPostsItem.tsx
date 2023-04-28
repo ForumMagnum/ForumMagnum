@@ -63,7 +63,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   tagRelWrapper: {
-    marginLeft: 14,
+    marginLeft: 10,
   },
   voteArrow: {
     color: theme.palette.grey[400],
