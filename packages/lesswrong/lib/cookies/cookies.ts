@@ -14,12 +14,6 @@ export const TIMEZONE_COOKIE = registerCookie({
   description: "Stores the user's timezone",
 });
 
-export const COOKIE_PREFERENCES_COOKIE = registerCookie({
-  name: "cookie_preferences", // Must match variable in Google Tag Manager
-  type: "necessary",
-  description: "Stores the user's cookie preferences",
-});
-
 export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", description: "Stores the user's theme preferences" });
 
 // Third party cookies

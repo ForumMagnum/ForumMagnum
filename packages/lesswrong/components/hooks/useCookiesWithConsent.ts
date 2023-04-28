@@ -1,43 +1,62 @@
 import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
-import { CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
-import { useCallback, useMemo } from "react";
-import { COOKIE_PREFERENCES_COOKIE } from "../../lib/cookies/cookies";
-import { hookToHoc } from "../../lib/hocUtils";
+import { COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
+import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
+import { useTracking } from "../../lib/analyticsEvents";
 
-export function useUpdateCookiePreferences(): [
-  {
-    [name: string]: any;
-  },
-  (newPreferences: CookieType[]) => void,
-] {
-  const [cookies, setCookie] = useCookies([COOKIE_PREFERENCES_COOKIE]);
+export function useCookiePreferences(): {
+  cookiePreferences: CookieType[];
+  updateCookiePreferences: (newPreferences: CookieType[]) => void;
+  explicitConsentGiven: boolean;
+  explicitConsentRequired: boolean | "unknown";
+} {
+  const { captureEvent } = useTracking()
+  const [explicitConsentRequired, setExplicitConsentRequired] = useState<boolean | "unknown">(getExplicitConsentRequiredSync());
+
+  const [cookies, setCookie] = useCookies([COOKIE_PREFERENCES_COOKIE, COOKIE_CONSENT_TIMESTAMP_COOKIE]);
+  const preferencesCookieValue = cookies[COOKIE_PREFERENCES_COOKIE];
+  const explicitConsentGiven = !!cookies[COOKIE_CONSENT_TIMESTAMP_COOKIE] && isValidCookieTypeArray(preferencesCookieValue)
+
+  const fallbackPreferences: CookieType[] = useMemo(() => explicitConsentRequired !== false ? ["necessary"] : ["necessary", "functional", "analytics"], [explicitConsentRequired]);
+  const cookiePreferences = explicitConsentGiven ? preferencesCookieValue : fallbackPreferences
+
+  // If we can't determine whether explicit consent is required synchronously (from localStorage), check via the geolocation API
+  useEffect(() => {
+    if (explicitConsentRequired !== "unknown") return;
+
+    void (async () => {
+      const explicitConsentRequired = await getExplicitConsentRequiredAsync();
+      setExplicitConsentRequired(explicitConsentRequired);
+    })();
+  }, [explicitConsentRequired]);
+
+  // If the user had not given explicit consent, but the value of COOKIE_PREFERENCES_COOKIE is different to what we are
+  // using in the code (fallbackPreferences), update the cookie. This is so that Google Tag Manager handles it correctly.
+  useEffect(() => {
+    if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
+
+    if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
+      setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/" });
+      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
   
   const updateCookiePreferences = useCallback(
     (newPreferences: CookieType[]) => {
+      captureEvent("cookiePreferencesUpdated", {
+        cookiePreferences: newPreferences,
+      })
+      setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/" });
       setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/" });
       void cookiePreferencesChangedCallbacks.runCallbacks({iterator: newPreferences, properties: []});
     },
-    [setCookie]
+    [captureEvent, setCookie]
   );
-  return [cookies, updateCookiePreferences];
+  return { cookiePreferences, updateCookiePreferences, explicitConsentGiven, explicitConsentRequired };
 }
-
-export function useCheckCookieConsent() {
-  const [cookies] = useCookies([COOKIE_PREFERENCES_COOKIE]);
-  const cookiePreferences: CookieType[] = useMemo(
-    () =>
-      isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"],
-    [cookies]
-  );
-
-  const checkCookieConsent = useCallback((types: CookieType[]) => {
-    return types.every((type) => cookiePreferences.includes(type));
-  }, [cookiePreferences]);
-  return { checkCookieConsent };
-}
-export const withCheckCookieConsent = hookToHoc(useCheckCookieConsent)
 
 export function useCookiesWithConsent(dependencies?: string[]): [
   {
@@ -46,15 +65,9 @@ export function useCookiesWithConsent(dependencies?: string[]): [
   (name: string, value: any, options?: CookieSetOptions) => void,
   (name: string, options?: CookieSetOptions) => void
 ] {
-  const fullDependencies = dependencies ? [...dependencies, COOKIE_PREFERENCES_COOKIE] : undefined;
-  const [cookies, setCookieBase, removeCookieBase] = useCookies(fullDependencies);
+  const { cookiePreferences } = useCookiePreferences();
 
-  const cookiePreferencesCookie = cookies[COOKIE_PREFERENCES_COOKIE];
-  const cookiePreferences: CookieType[] = useMemo(
-    () => (isValidCookieTypeArray(cookiePreferencesCookie) ? cookiePreferencesCookie : ["necessary"]),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(cookiePreferencesCookie)]
-  );
+  const [cookies, setCookieBase, removeCookieBase] = useCookies(dependencies);
 
   const setCookie = useCallback(
     (name: string, value: string, options?: CookieSetOptions) => {
@@ -66,7 +79,8 @@ export function useCookiesWithConsent(dependencies?: string[]): [
 
       setCookieBase(name, value, options);
     },
-    [cookiePreferences, setCookieBase]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(cookiePreferences), setCookieBase]
   );
 
   return [cookies, setCookie, removeCookieBase];
