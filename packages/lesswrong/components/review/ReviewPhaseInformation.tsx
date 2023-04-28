@@ -36,8 +36,8 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
 
 
   const FaqCard = ({linkText, children}: {
-    linkText: React.ReactNode
-    children: React.ReactNode
+    linkText: React.ReactNode,
+    children: React.ReactNode,
   }) => (
     <LWTooltip tooltip={false} clickable title={
       <Card className={classes.faqCard}>

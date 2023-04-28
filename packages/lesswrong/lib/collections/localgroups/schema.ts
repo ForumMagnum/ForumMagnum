@@ -19,7 +19,7 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups: Partial<Record<string,FormGroup>> = {
+const formGroups: Partial<Record<string,FormGroupType>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,

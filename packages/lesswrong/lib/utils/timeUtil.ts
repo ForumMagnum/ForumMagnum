@@ -40,3 +40,7 @@ export const convertTimeOfWeekTimezone = (timeOfDay: number, dayOfWeek: string|n
     dayOfWeek: time.format("dddd") as "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   };
 }
+
+export function isInFuture(when: Date): boolean {
+  return when > new Date();
+}

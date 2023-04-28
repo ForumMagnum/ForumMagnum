@@ -15,6 +15,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { Link } from '../../lib/reactRouterWrapper';
+import { NewPostModerationWarning } from '../sunshineDashboard/NewPostModerationWarning';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -171,7 +172,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, ContentStyles } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, NewPostModerationWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -230,15 +231,10 @@ const PostsNewForm = ({classes}: {
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
-        {postWillBeHidden && <ContentStyles contentType="comment" className={classes.modNote}>
-          <em>
-            LessWrong is raising our moderation standards for new posts.<br/>
-            See <Link to="/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy?commentId=CFS4ccYK3rwk6Z7Ac">this FAQ</Link> to ensure your post is approved.
-          </em>
-        </ContentStyles>}
+        {postWillBeHidden && <NewPostModerationWarning />}
         <NoSSR>
           <WrappedSmartForm
-            collection={Posts}
+            collectionName="Posts"
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {

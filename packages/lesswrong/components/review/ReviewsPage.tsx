@@ -27,7 +27,7 @@ export const ReviewsPage = ({classes}:{classes: ClassesType}) => {
 
   const { params } = useLocation()
 
-  let reviewYear: ReviewYear|null = null
+  let reviewYear: ReviewYear|undefined
   if (params.year !== 'all') {
     reviewYear = getReviewYearFromString(params.year)
   }

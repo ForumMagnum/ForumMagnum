@@ -261,7 +261,7 @@ addGraphQLResolvers({
       // Get the tags themselves, keyed by the id
       const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
       const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
-      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc, tag) => {
+      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
         acc[tag._id] = tag;
         return acc;
       }, {});

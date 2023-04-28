@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
     marginBottom: 2

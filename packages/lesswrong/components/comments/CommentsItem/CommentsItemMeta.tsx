@@ -10,8 +10,6 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
-import RejectedIcon from "@material-ui/icons/NotInterested";
-import { useUpdate } from "../../../lib/crud/withUpdate";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -39,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
+      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -50,20 +48,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: 5,
+    marginRight: isEAForum ? 0 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
     paddingBottom: 4,
     display: "inline-block",
     verticalAlign: "middle",
+    transform: isEAForum ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
     },
   },
+  collapseChevron: {
+    width: 15,
+    transition: "transform 0.2s",
+  },
+  collapseChevronOpen: {
+    transform: "rotate(90deg)",
+  },
   username: {
-    marginRight: 10,
+    marginRight: isEAForum ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -73,6 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       overflowX: "hidden",
     },
+  },
+  userMarkers: {
+    marginRight: 6,
   },
   moderatorHat: {
     marginRight: 8,
@@ -163,11 +172,6 @@ export const CommentsItemMeta = ({
 }) => {
   const currentUser = useCurrentUser();
   
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
-
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -221,17 +225,10 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-  const setCommentRejectedStatus = (rejected: boolean) => () => {
-    void updateComment({
-      selector: { _id: comment._id },
-      data: { rejected }
-    });
-  };
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu,
+    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers,
   } = Components;
 
   return (
@@ -254,7 +251,13 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          [<span>{collapsed ? "+" : "-"}</span>]
+          {isEAForum
+            ? <ForumIcon icon="ThickChevronRight" className={classNames(
+                classes.collapseChevron,
+                {[classes.collapseChevronOpen]: !collapsed},
+              )} />
+            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+          }
         </a>
       }
       {singleLineCollapse && <a className={classes.collapse} onClick={() =>
@@ -265,7 +268,11 @@ export const CommentsItemMeta = ({
       <CommentUserName
         comment={comment}
         className={classes.username}
+      />
+      <UserCommentMarkers
+        user={comment.user}
         isPostAuthor={authorIsPostAuthor}
+        className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&
@@ -316,14 +323,9 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {isLW && userIsAdmin(currentUser) && <>
-        {comment.rejected && <span className={classes.rejectedLabel} onClick={setCommentRejectedStatus(false)}>
-          [Rejected]
-        </span>}
-        {!comment.rejected && comment.authorIsUnreviewed && <span className={classes.rejectedIcon}>
-          <RejectedIcon onClick={setCommentRejectedStatus(true)} />
-        </span>}
-      </>}
+      {isLW && userIsAdmin(currentUser) &&
+        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
+      }
 
       <span className={classes.rightSection}>
         {isEAForum &&

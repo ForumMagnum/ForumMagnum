@@ -15,8 +15,8 @@ import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
 
-export const withRouter = (WrappedComponent) => {
-  const WithRouterWrapper = (props) => {
+export const withRouter = (WrappedComponent: AnyBecauseTodo) => {
+  const WithRouterWrapper = (props: AnyBecauseTodo) => {
     return <WrappedComponent
       routes={[]}
       location={{pathname:""}}
@@ -38,7 +38,7 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
 
 export const Link = ({eventProps, ...props}: LinkProps) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
-  const handleClick = (e) => {
+  const handleClick = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
   }
@@ -51,7 +51,7 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   return <HashLink {...props} onMouseDown={handleClick}/>
 }
 
-export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}) => {
+export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}: AnyBecauseTodo) => {
   // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
   const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
   return <reactRouterDom.Link

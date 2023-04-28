@@ -23,13 +23,13 @@ const getAkismetClient = () => {
       blog : akismetURLSetting.get()
     });
     akismetClient.verifyKey()
-      .then(function(valid) {
+      .then(function(valid: AnyBecauseTodo) {
         //eslint-disable-next-line no-console
         if (valid) console.log('Valid Akismet key!');
         //eslint-disable-next-line no-console
         else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKeySetting.get());
       })
-      .catch(function(err) {
+      .catch(function(err: AnyBecauseTodo) {
         //eslint-disable-next-line no-console
         console.log('Akismet key check failed: ' + err.message);
       });
@@ -37,7 +37,10 @@ const getAkismetClient = () => {
   return akismetClient;
 }
 
-async function constructAkismetReport({document, type = "post"}) {
+async function constructAkismetReport({document, type="post"}: {
+  document: AnyBecauseTodo
+  type: string
+}) {
     const author = await Users.findOne(document.userId)
     if (!author) throw Error("Couldn't find author for Akismet report")
     let post = document
@@ -62,7 +65,7 @@ async function constructAkismetReport({document, type = "post"}) {
     }
 }
 
-async function checkForAkismetSpam({document, type}) {
+async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
   try {
     if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
       // eslint-disable-next-line no-console
@@ -129,7 +132,7 @@ async function akismetReportSpamHam(report: DbReport) {
     if (!report.markedAsSpam) {
       const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
       const akismetReport = await constructAkismetReport(akismetReportArguments)
-      getAkismetClient().submitHam(akismetReport, (err) => {
+      getAkismetClient().submitHam(akismetReport, (err: AnyBecauseTodo) => {
         // eslint-disable-next-line no-console
         if (!err) { console.log("Reported Akismet false positive", akismetReport)}
       })
@@ -140,7 +143,7 @@ async function akismetReportSpamHam(report: DbReport) {
 
 export async function postReportPurgeAsSpam(post: DbPost) {
   const akismetReport = await constructAkismetReport({document: post, type: "post"})
-  getAkismetClient().submitSpam(akismetReport, (err) => {
+  getAkismetClient().submitSpam(akismetReport, (err: AnyBecauseTodo) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })
@@ -148,7 +151,7 @@ export async function postReportPurgeAsSpam(post: DbPost) {
 
 export async function commentReportPurgeAsSpam(comment: DbComment) {
   const akismetReport = await constructAkismetReport({document: comment, type: "comment"})
-  getAkismetClient().submitSpam(akismetReport, (err) => {
+  getAkismetClient().submitSpam(akismetReport, (err: AnyBecauseTodo) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })

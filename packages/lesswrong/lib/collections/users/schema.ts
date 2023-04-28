@@ -13,7 +13,6 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
-import moment from 'moment';
 import { postsLayouts } from '../posts/dropdownOptions';
 
 ///////////////////////////////////////
@@ -238,9 +237,6 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   githubProfileURL: 'github.com/'
 }
 
-export const CS_START = '2023/04/01'
-export const CS_END = '2023/04/02'
-
 /**
  * @summary Users schema
  * @type {Object}
@@ -401,7 +397,7 @@ const schema: SchemaType<DbUser> = {
     },
     form: {
       // Will always be disabled for mods, because they cannot read hasAuth0Id
-      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
+      disabled: ({document}: AnyBecauseTodo) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
@@ -786,9 +782,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
-    hidden: () => forumTypeSetting.get() !== 'EAForum' ||
-      moment().isBefore(moment(new Date(CS_START))) ||
-      moment().isAfter(moment(new Date(CS_END))),
+    hidden: true,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -1322,11 +1316,11 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationDebateCommentsOnSubscribedPost: {
-    label: "New debate content in a debate I'm subscribed to",
+    label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New debate content in a debate I'm participating in",
+    label: "New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField()
   },
 
@@ -2626,6 +2620,13 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canCreate: ['admins'],
     hidden: true,
+  },
+  
+  rateLimitNextAbleToComment: {
+    type: Date,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
   },
 };
 

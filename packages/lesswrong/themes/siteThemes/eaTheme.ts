@@ -52,9 +52,17 @@ export const eaForumTheme: SiteThemeSpecification = {
     error: {
       main: "#bf360c",
     },
+    warning: {
+      main: "#ffad08"
+    },
+    text: {
+      primaryAlert: "#137283"
+    },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
       primaryDim: '#e2f1f4',
+      primaryTranslucent: "rgba(12, 134, 155, 0.05)",
+      warningTranslucent: "rgba(255, 173, 8, 0.1)",
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
@@ -77,6 +85,9 @@ export const eaForumTheme: SiteThemeSpecification = {
       commentHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
+    },
+    buttons: {
+      alwaysPrimary: '#0c869b',
     },
     tag: {
       text: shadePalette.grey[1000],

@@ -1,6 +1,7 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
+import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import { permissionGroups } from "../permissions";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
@@ -19,6 +20,8 @@ interface CollectionFieldPermissions {
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
 }
+
+type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
@@ -53,11 +56,9 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: any,
-  allowedValues?: any,
+  options?: MaybeFunction<any,SmartFormProps>,
+  allowedValues?: string[],
   
-  form?: any,
-  input?: any,
   /**
    * Custom props that will be passed to the input component. Can pass in
    * values or functions. All functions will be called before being passed into
@@ -76,9 +77,9 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *   decorativeComponent: () => MyDecorativeComponent
    * }
    *
-   * NOTE: this is unused and untested as of 2022-05
+   * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  inputProperties?: any,
+  form?: MaybeFunction<any,SmartFormProps>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -87,21 +88,11 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   label?: string,
   tooltip?: string,
   // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  control?: 'text' |
-    'number' |
-    'url' |
-    'email' |
-    'textarea' |
-    'checkbox' |
-    'checkboxgroup' |
-    'radiogroup' |
-    'select' |
-    'datetime' |
-    'date' |
-    keyof ComponentTypes,
+  input?: FormInputType,
+  control?: FormInputType,
   placeholder?: string,
-  hidden?: boolean|((formProps: any)=>boolean),
-  group?: FormGroup<T>,
+  hidden?: MaybeFunction<boolean,SmartFormProps>,
+  group?: FormGroupType<T>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -145,7 +136,7 @@ type FormField<T extends DbObject> = Pick<
   nestedFields: any
 }
 
-type FormGroup<T extends DbObject = DbObject> = {
+type FormGroupType<T extends DbObject = DbObject> = {
   name?: string,
   order: number,
   label?: string,

@@ -44,3 +44,129 @@ export const callbackProps = {
   cancelCallback: PropTypes.func,
   revertCallback: PropTypes.func
 };
+
+type SmartFormCallbacks = {
+  changeCallback?: any
+  submitCallback?: any
+  successCallback?: any
+  removeSuccessCallback?: any
+  errorCallback?: any
+  cancelCallback?: any
+  revertCallback?: any
+}
+
+export interface WrappedSmartFormProps extends SmartFormCallbacks {
+  collectionName: CollectionNameString
+
+  prefilledProps?: any
+  layout?: string
+  fields?: string[]
+  addFields?: string[]
+  removeFields?: string[]
+  showRemove?: boolean
+  submitLabel?: React.ReactNode,
+  cancelLabel?: React.ReactNode,
+  revertLabel?: React.ReactNode,
+  repeatErrors?: boolean
+  noSubmitOnCmdEnter?: boolean
+  warnUnsavedChanges?: boolean
+  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
+  
+  // Wasn't in propTypes but used
+  id?: string
+  data?: any
+  refetch?: any
+  autoSubmit?: any
+  formProps?: any
+  
+  queryFragment?: any
+  mutationFragment?: any
+  queryFragmentName?: FragmentName
+  mutationFragmentName?: FragmentName
+
+  documentId?: string
+  slug?: string
+  
+  // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
+  fragment?: any
+  
+  // version: Passed from PostsEditForm, but may be erroneous; does not seem to be used inside the forms code
+  version?: "draft"
+  
+  alignmentForumPost?: boolean
+  eventForm?: any,
+  debateForm?: boolean
+  extraVariables?: any
+  extraVariablesValues?: any
+  excludeHiddenFields?: boolean
+
+  // Provided by HoCs in wrappers
+  history?: any
+}
+
+export interface SmartFormProps extends WrappedSmartFormProps {
+  collection: any
+  typeName: string
+  document?: any
+  schema?: any
+  createMutation?: any
+  updateMutation?: any
+  removeMutation?: any
+  currentUser: UsersCurrent|null
+}
+
+declare global {
+  type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>
+
+  interface FormComponentWrapperProps<T> {
+    document: any
+    name: string
+    label?: string
+    placeholder?: string
+    input?: FormInputType
+    datatype: any
+    path: string
+    disabled?: boolean
+    nestedSchema: any
+    currentValues: any
+    deletedValues: any[]
+    throwError: ()=>void
+    updateCurrentValues: UpdateCurrentValues
+    errors: any[]
+    addToDeletedValues: any
+    clearFieldErrors: any
+    currentUser?: UsersCurrent|null
+    tooltip?: string
+    formComponents: ComponentTypes
+    locale?: string
+    max?: number
+    nestedInput: any
+    formProps: any
+    formType: "new"|"edit"
+    setFooterContent?: any
+  }
+  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
+    value: T
+  }
+
+  interface FormButtonProps {
+    submitLabel: React.ReactNode;
+    cancelLabel: React.ReactNode;
+    revertLabel: React.ReactNode;
+    cancelCallback: any;
+    revertCallback: any;
+    submitForm: any
+    updateCurrentValues: UpdateCurrentValues
+    document: any;
+    deleteDocument: any;
+    collectionName: CollectionNameString;
+    currentValues?: any
+    deletedValues?: any
+    errors?: any[]
+    formType: "edit"|"new"
+  }
+  interface FormComponentContext<T> {
+    updateCurrentValues: UpdateCurrentValues
+    addToDeletedValues: any
+  }
+}

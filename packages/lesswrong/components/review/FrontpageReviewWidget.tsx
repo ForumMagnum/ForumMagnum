@@ -156,11 +156,11 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
   const reviewPhase = getReviewPhase() || "NOMINATIONS"
   
   // Not sure why the type assertion at the end is necessary
-  const reviewPhaseInfo = {
+  const reviewPhaseInfo = ({
     NOMINATIONS: {reviewNominations: REVIEW_YEAR},
     REVIEWS: {reviewReviews: REVIEW_YEAR},
     VOTING: {reviewReviews: REVIEW_YEAR},
-  }[reviewPhase] as {reviewNominations: ReviewYear} | {reviewReviews: ReviewYear}
+  } as AnyBecauseTodo)[reviewPhase] as {reviewNominations: ReviewYear} | {reviewReviews: ReviewYear}
   return {
     method: "sample",
     count: 3,

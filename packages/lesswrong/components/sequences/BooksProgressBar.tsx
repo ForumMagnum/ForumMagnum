@@ -53,6 +53,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const WORDS_PER_MINUTE = 300;
+const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
+const WORDS_PER_PAGE = 500;
+
 const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
@@ -63,10 +67,16 @@ const BooksProgressBar = ({ book, classes }: {
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
   // Check whether the post is marked as read either on the server or in the client-side context
-  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]).length;
+  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]);
   const totalPosts = bookPosts.length;
 
-  const postsReadText = `${readPosts} / ${totalPosts} posts read`;
+  const postsReadText = `${readPosts.length} / ${totalPosts} posts read`;
+  const totalWordCount = bookPosts.reduce((i, post) => i + (post.contents?.wordCount || 0), 0)
+  const readTime = totalWordCount > WORDS_PER_HOUR ? `${(totalWordCount/WORDS_PER_HOUR).toFixed(1)} hour` : `${Math.round(totalWordCount/WORDS_PER_MINUTE)} min`
+  const postsReadTooltip = <div>
+    <div>{totalWordCount.toLocaleString()} words, {Math.round(totalWordCount / WORDS_PER_PAGE)} pages</div>
+    <div>Approximately {readTime} read</div>
+  </div>
 
   if (book.hideProgressBar) return null
 
@@ -83,7 +93,7 @@ const BooksProgressBar = ({ book, classes }: {
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>
-      {postsReadText}
+      <LWTooltip title={postsReadTooltip}>{postsReadText}</LWTooltip>
       <LoginToTrack className={classes.loginText}>
         login to track progress
       </LoginToTrack>

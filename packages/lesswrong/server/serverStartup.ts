@@ -205,7 +205,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? scope[key];
+          return global[key as keyof Global] ?? scope[key as "Globals"|"Vulcan"];
         }
       }
     }));

@@ -436,5 +436,10 @@ export const localEvents = [
     "_id": "X9Hm5xcECaEx5kbef",
     "lat": 26.6988881,
     "lng": -80.0635902
+  },
+  {
+    "_id": "KsJPoayRyndL5ig52",
+    "lat": 47.5200145,
+    "lng": 19.046452
   }
 ];

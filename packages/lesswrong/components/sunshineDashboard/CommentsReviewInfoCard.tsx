@@ -103,7 +103,7 @@ const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] })
     neutral: 0
   };
 
-  return allVotes.reduce((prev, curr) => {
+  return allVotes.reduce((prev: AnyBecauseTodo, curr: AnyBecauseTodo) => {
     prev[curr.voteType]++;
     return prev;
   }, voteCounts);

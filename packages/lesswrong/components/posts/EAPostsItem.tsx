@@ -8,6 +8,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { useClickableCell } from "../common/useClickableCell";
+import { useCurrentUser } from "../common/withUser";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -142,16 +143,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     color: theme.palette.grey[1000],
   },
-  bookmark: {
+  postActions: {
     minWidth: 20,
-    "&:hover": {
-      opacity: 0.5,
+    marginLeft: -5,
+    "& .PostActionsButton-icon": {
+      fontSize: 20,
     },
-  },
-  bookmarkIcon: {
-    fontSize: 18,
-    marginTop: 2,
-    color: theme.palette.grey[600],
+    "&:hover .PostActionsButton-icon": {
+      color: theme.palette.grey[700],
+    },
   },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
@@ -227,13 +227,14 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
+  const currentUser = useCurrentUser()
 
   if (isRepeated) {
     return null;
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, BookmarkButton, PostsItemKarma, FooterTag,
+    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
@@ -247,11 +248,11 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <ForumIcon icon="Comment" />
         {commentCount}
       </a>
-      <div className={classes.bookmark}>
+      {currentUser && <div className={classes.postActions}>
         <InteractionWrapper classes={classes}>
-          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+          <PostActionsButton post={post} popperPlacement="left-start" vertical />
         </InteractionWrapper>
-      </div>
+      </div>}
     </>
   );
 

@@ -11,8 +11,8 @@ import fs from 'fs';
 
 const isLW = forumTypeSetting.get() === 'LessWrong';
 
-const getCost = (vote) => getCostData({})[vote.qualitativeScore].cost
-const getValue = (vote, total) => getCostData({costTotal:total})[vote.qualitativeScore].value
+const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
+const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
 
 registerMigration({
   name: "updateFinal2020ReviewVotes",
@@ -25,14 +25,14 @@ registerMigration({
     const users = await Users.find({_id: {$in: Object.keys(votesByUserId)}}).fetch()
     const usersByUserId = groupBy(users, user => user._id)
 
-    let postsAllUsers = {}
-    let postsHighKarmaUsers = {}
-    let postsAFUsers = {}
+    let postsAllUsers: AnyBecauseObsolete = {}
+    let postsHighKarmaUsers: AnyBecauseObsolete = {}
+    let postsAFUsers: AnyBecauseObsolete = {}
 
     const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
     const postIds = posts.map(post=>post._id)
 
-    function updatePost(postList, vote, total) {
+    function updatePost(postList: AnyBecauseTodo, vote: AnyBecauseTodo, total: number) {
       if (postList[vote.postId] === undefined) { 
         postList[vote.postId] = [getValue(vote, total)]
       } else {
@@ -69,8 +69,8 @@ registerMigration({
     console.log("Updating all karma...")
     for (let postId in postsAllUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
-        finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+        finalReviewVotesAllKarma: postsAllUsers[postId].sort((a: number, b: number) => b - a), 
+        finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x: number, y: number) => x + y, 0) 
       }})
     }
 
@@ -78,20 +78,20 @@ registerMigration({
     console.log("Updating high karma...")
     for (let postId in postsHighKarmaUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
-        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
+        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a:number,b:number) => b - a),
+        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x:number, y:number) => x + y, 0),
       }})
     }
     // eslint-disable-next-line no-console
     console.log("Updating AF...")
     for (let postId in postsAFUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
-        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
+        finalReviewVotesAF: postsAFUsers[postId].sort((a:number,b:number) => b - a),
+        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x:number, y:number) => x + y, 0),
        }})
     }
 
-    const finalPosts = isLW ?
+    const finalPosts: DbPost[] = isLW ?
       await Posts.find({
         reviewCount: {$gt: 0},
         finalReviewVoteScoreHighKarma: {$exists: true},
@@ -122,24 +122,24 @@ registerMigration({
 
     const authors = await Users.find({_id: {$in:authorIds}}).fetch()
 
-    const getAuthor = (post) => authors.filter(author => author._id === post.userId)[0]
+    const getAuthor = (post: DbPost) => authors.filter(author => author._id === post.userId)[0]
 
     const theme = getForumTheme({name: "default", siteThemeOverride: {}});
     const primaryColor = theme.palette.primary.main;
     const errorColor = "#bf360c"
 
-    const voteColor = vote => {
+    const voteColor = (vote: AnyBecauseObsolete) => {
       if (vote > 0) return primaryColor  
       if (vote < 0) return errorColor
       return "#888"
     }
 
-    const voteSize = vote => {
+    const voteSize = (vote: AnyBecauseObsolete) => {
       const size = Math.sqrt(Math.abs(vote))*3
       return size < 3 ? 3 : size
     }
 
-    const voteDot = (vote) => {
+    const voteDot = (vote: AnyBecauseObsolete) => {
       if (vote !== 0) {
         return `<span title="${vote}" class="dot" style="
           height:${voteSize(vote)}px;
@@ -151,7 +151,7 @@ registerMigration({
       }
     }
 
-    const donateButton = (post) => isLW ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
+    const donateButton = (post: DbPost) => isLW ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post).displayName}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
@@ -159,7 +159,7 @@ registerMigration({
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
     </form></td>` : ""
 
-    const postTableRow = (post, i) => `<tr>
+    const postTableRow = (post: DbPost, i: number) => `<tr>
         <td class="item-count">${i}</td>
         <td>
           <div class="title-row">

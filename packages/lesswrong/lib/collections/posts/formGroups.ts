@@ -3,7 +3,7 @@ import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSet
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+export const formGroups: Partial<Record<string,FormGroupType>> = {
   default: {
     name: "default",
     order: 0,

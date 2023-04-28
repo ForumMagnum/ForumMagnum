@@ -85,11 +85,16 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
 }
 Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
-async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly }) {
+async function runDenormalizedFieldMigration<T extends DbObject>({ collection, fieldName, getValue, validateOnly }: {
+  collection: CollectionBase<T>,
+  fieldName: keyof T,
+  getValue: AnyBecauseTodo,
+  validateOnly: boolean
+}) {
   let numDifferent = 0;
 
   await migrateDocuments({
-    description: `Recomputing denormalized values for ${collection.collectionName} field ${fieldName}`,
+    description: `Recomputing denormalized values for ${collection.collectionName} field ${String(fieldName)}`,
     collection,
     batchSize: 100,
     migrate: async (documents) => {
@@ -140,6 +145,6 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
   console.log(`${numDifferent} total documents had wrong denormalized value`)
 }
 
-function isNullOrDefined(value) {
+function isNullOrDefined(value: AnyBecauseTodo) {
   return value === null || value === undefined
 }

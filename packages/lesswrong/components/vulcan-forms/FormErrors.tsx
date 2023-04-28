@@ -8,7 +8,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FormErrors = ({ classes, errors }) => (
+const FormErrors = ({ errors, classes }: {
+  errors: any[]
+  classes: ClassesType
+}) => (
   <div className={classNames(classes.root, "form-errors")}>
     {!!errors.length && (
       <Components.Alert className="flash-message" variant="danger">

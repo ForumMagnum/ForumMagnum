@@ -167,6 +167,9 @@ interface DbComment extends DbObject {
   relevantTagIds: Array<string>
   debateResponse: boolean | null
   rejected: boolean
+  modGPTAnalysis: string | null
+  modGPTRecommendation: string | null
+  rejectedReason: string | null
   rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
@@ -397,7 +400,7 @@ interface ModerationTemplatesCollection extends CollectionBase<DbModerationTempl
 interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
   name: string
-  collectionName: "Messages" | "Comments"
+  collectionName: "Messages" | "Comments" | "Rejections"
   order: number
   deleted: boolean
   createdAt: Date
@@ -412,7 +415,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -634,10 +637,12 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
   rejected: boolean
+  rejectedReason: string | null
   rejectedByUserId: string
   subforumTagId: string
   af: boolean

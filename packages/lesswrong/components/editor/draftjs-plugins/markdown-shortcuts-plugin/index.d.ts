@@ -1,0 +1,3 @@
+
+const createMarkdownShortcutsPlugin: AnyBecauseTodo
+export default createMarkdownShortcutsPlugin

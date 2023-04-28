@@ -287,7 +287,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   {
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.
-    const createCallback = async (newDoc, {currentUser, collection, context}) => {
+    const createCallback = async (newDoc: AnyBecauseTodo, {currentUser, collection, context}: AnyBecauseTodo) => {
       denormalizedLogger(`about to test new ${foreignTypeName}`, newDoc)
       if (newDoc[foreignFieldName] && filter(newDoc)) {
         denormalizedLogger(`new ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`)
@@ -305,7 +305,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     // need to increment a count, we may need to do both with them cancelling
     // out, or we may need to both but on different documents.
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
-      async (newDoc, {oldDocument, currentUser, collection}) => {
+      async (newDoc: AnyBecauseTodo, {oldDocument, currentUser, collection}: AnyBecauseTodo) => {
         denormalizedLogger(`about to test updating ${foreignTypeName}`, newDoc, oldDocument)
         const countingCollection = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
@@ -345,7 +345,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       }
     );
     addCallback(`${foreignCollectionCallbackPrefix}.delete.async`,
-      async ({document, currentUser, collection}) => {
+      async ({document, currentUser, collection}: AnyBecauseTodo) => {
         denormalizedLogger(`about to test deleting ${foreignTypeName}`, document)
         if (document[foreignFieldName] && filter(document)) {
           denormalizedLogger(`deleting ${foreignTypeName} should decrement ${document[foreignFieldName]}`)
@@ -382,7 +382,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   }
 }
 
-export function googleLocationToMongoLocation(gmaps) {
+export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
   return {
     type: "Point",
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]

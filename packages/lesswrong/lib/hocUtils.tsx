@@ -5,7 +5,7 @@ import React from 'react';
 // it on the component's props and passes the result as an argument to hookFn;
 // otherwise hookFn is assumed to take no arguments.
 export function hookToHoc(hookFn: any, componentPropsToHookParams?: (props:Record<string,any>)=>Record<string,any>) {
-  return (Component) => (props) => {
+  return (Component: AnyBecauseTodo) => (props: AnyBecauseTodo) => {
     const hookProps = componentPropsToHookParams ? hookFn(componentPropsToHookParams(props)) : hookFn();
     return <Component {...props} {...hookProps}/>;
   }

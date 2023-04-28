@@ -313,7 +313,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
     onUninterested(reason)
   }
   
-  const handleSubmitUninterestedReason = (e) => {
+  const handleSubmitUninterestedReason = (e: AnyBecauseTodo) => {
     e.preventDefault()
     setClosed(true)
     onUninterested(e.target.uninterestedReason.value)

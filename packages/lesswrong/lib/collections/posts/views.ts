@@ -235,8 +235,8 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
     }
 
-    if (sortings[terms.sortedBy]) {
-      params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
+    if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
+      params.options = {sort: {...params.options.sort, ...(sortings as AnyBecauseTodo)[terms.sortedBy]}}
     } else {
       // eslint-disable-next-line no-console
       console.warn(
@@ -970,7 +970,13 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   
   let query = {
     selector: {
-      globalEvent: true,
+      $or: [
+        {globalEvent: true},
+        {$and: [
+          {onlineEvent: true},
+          {mongoLocation: {$exists: false}},
+        ]},
+      ],
       isEvent: true,
       groupId: null,
       eventType: terms.eventType ? {$in: terms.eventType} : null,
@@ -1035,6 +1041,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
             }
           }
         },
+        {$and: [{mongoLocation: {$exists: false}}, {onlineEvent: true}]},
         {globalEvent: true} // also include events that are open to everyone around the world
       ]
     },

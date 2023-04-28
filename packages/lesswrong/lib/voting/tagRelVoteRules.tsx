@@ -13,7 +13,7 @@ let lastFetched = 0;
 const getTagVotingGroups = async (tagId: string) => {
   if (lastFetched + FETCH_INTERVAL_MS < Date.now()) {
     const results = await Tags.find({canVoteOnRels: {$exists: true}}).fetch();
-    tagVotingGroups = results.reduce((groups, {_id, canVoteOnRels}) => {
+    tagVotingGroups = results.reduce((groups: AnyBecauseTodo, {_id, canVoteOnRels}) => {
       groups[_id] = canVoteOnRels;
       return groups;
     }, {});

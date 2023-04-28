@@ -20,7 +20,7 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType, indent = 2): string {
+export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType: AnyBecauseTodo, indent = 2): string {
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {
@@ -65,7 +65,7 @@ function simplSchemaUnionTypeToTypescript(allowedValues: string[]) {
   return allowedValues.map(allowedValue => `"${allowedValue}"`).join(" | ");
 }
 
-function simplSchemaObjectTypeToTypescript(innerSchema, indent: number) {
+function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: number) {
   const indentSpaces = Array(indent + 2).fill(' ').join('');
   const fields = Object.keys(innerSchema).map(innerSchemaField => {
     const fieldTypeDef = simplSchemaTypeToTypescript(innerSchema, innerSchemaField, innerSchema[innerSchemaField].type, indent + 2);

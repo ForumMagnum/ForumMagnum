@@ -89,7 +89,7 @@ export const SpotlightsPage = ({classes}: {
       <div className={classes.form}>
         <SpotlightEditorStyles>
           <WrappedSmartForm
-            collection={Spotlights}
+            collectionName="Spotlights"
             mutationFragment={getFragment('SpotlightEditQueryFragment')}
           />
         </SpotlightEditorStyles>

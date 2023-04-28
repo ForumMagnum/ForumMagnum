@@ -153,10 +153,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
-  editorWarningText: {
-    margin: `${theme.spacing.unit * 3}px 0`,
-    color: theme.palette.warning.main,
-  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -536,22 +532,20 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // TODO: figure out a better solution to this problem.
 
       return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
-        { isCollaborative
+        {editorWarning && <Components.WarningBanner message={editorWarning} />}
+        {isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
               {...editorProps}
               isCollaborative={true}
               accessLevel={this.props.accessLevel}
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
-        {editorWarning && <Components.Typography component='aside' variant='body2' className={classes.editorWarningText}>
-          {editorWarning}
-        </Components.Typography>}
       </div>
     }
   }
 
-  validateCkEditor = (document) => {
-    const result = checkEditorValid(document, this.props.currentUser)
+  validateCkEditor = (document: AnyBecauseTodo) => {
+    const result = checkEditorValid(document, this.props.currentUser, this.props.commentEditor)
     this.setState({editorWarning: result.message})
   }
 
