@@ -202,7 +202,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     }
 
     return Math.max(1, Math.round(wordCount / 250));
-  }, [post, dialogueResponses]);
+  }, [post, dialogueResponses, wordCount]);
 
   const {
     answerCount,
