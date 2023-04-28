@@ -301,7 +301,8 @@
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0",
-    "uuid": "^7.0.0"
+    "uuid": "^7.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
