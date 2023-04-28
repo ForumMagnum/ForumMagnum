@@ -80,8 +80,6 @@ export async function getCookiePreferences(): Promise<{
   return { cookiePreferences, explicitConsentGiven };
 }
 
-
-// TODO add forum gating (here and everywhere)
 export function registerCookie(cookie: CookieSignatureMinimum): string {
   if (cookie.name in CookiesTable && CookiesTable[cookie.name] !== cookie) {
     throw new Error(`Two cookies with the same name: ${cookie.name}`);
