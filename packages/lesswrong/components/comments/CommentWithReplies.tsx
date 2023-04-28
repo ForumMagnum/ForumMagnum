@@ -88,7 +88,8 @@ const CommentWithReplies = ({
       shortform
       showExtraChildrenButton={showExtraChildrenButton}
       expandAllThreads={startExpanded}
-      expandByDefault={startExpanded}
+      forceUnTruncated={startExpanded}
+      forceUnCollapsed={startExpanded}
       {...commentNodeProps}
       treeOptions={treeOptions}
       className={className}

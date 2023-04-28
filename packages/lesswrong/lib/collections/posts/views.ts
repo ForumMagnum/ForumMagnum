@@ -970,7 +970,13 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   
   let query = {
     selector: {
-      globalEvent: true,
+      $or: [
+        {globalEvent: true},
+        {$and: [
+          {onlineEvent: true},
+          {mongoLocation: {$exists: false}},
+        ]},
+      ],
       isEvent: true,
       groupId: null,
       eventType: terms.eventType ? {$in: terms.eventType} : null,
@@ -1035,6 +1041,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
             }
           }
         },
+        {$and: [{mongoLocation: {$exists: false}}, {onlineEvent: true}]},
         {globalEvent: true} // also include events that are open to everyone around the world
       ]
     },
