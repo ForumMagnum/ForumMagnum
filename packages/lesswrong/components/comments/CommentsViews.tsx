@@ -12,7 +12,7 @@ import type { Option } from '../common/InlineSelect';
 export const viewNames: Partial<Record<CommentsViewName,string>> = {
   'postCommentsMagic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
   'postCommentsTop': 'top scoring',
-  'postCommentsRecentReplies': 'newest reply',
+  'postCommentsRecentReplies': 'latest reply',
   'afPostCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
