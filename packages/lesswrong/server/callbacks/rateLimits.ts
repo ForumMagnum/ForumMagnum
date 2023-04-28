@@ -10,6 +10,7 @@ import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -40,7 +41,7 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   return validationErrors;
 });
 
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 5) // How long users should wait in between comments (in seconds)
+const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 8) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser }) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
@@ -56,7 +57,7 @@ getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbC
   if (user) {
     const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, null)
     // if the user has created a comment that makes them hit the rate limit, record an event
-    // (ignore the universal 15 sec rate limit)
+    // (ignore the universal 8 sec rate limit)
     if (rateLimit && rateLimit.rateLimitType !== 'universal') {
       captureEvent("commentRateLimitHit", {
         rateLimitType: rateLimit.rateLimitType,
@@ -147,6 +148,13 @@ const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, ho
   return commentsOnNonauthorPosts.length
 }
 
+/**
+ * Checks if the user is exempt from commenting rate limits (optionally, for the given post).
+ *
+ * Admins and mods are always exempt.
+ * If the post has "ignoreRateLimits" set, then all users are exempt.
+ * On forums other than the EA Forum, the post author is always exempt on their own posts.
+ */
 async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return true
@@ -154,7 +162,7 @@ async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null
   if (postId) {
     const post = await Posts.findOne({_id: postId})
     const commenterIsPostAuthor = post && user._id === post.userId
-    if (post?.ignoreRateLimits || commenterIsPostAuthor) {
+    if (post?.ignoreRateLimits || (!isEAForum && commenterIsPostAuthor)) {
       return true
     }
   }
@@ -215,7 +223,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   rateLimitType: RateLimitReason
 }|null> {
   // if this user is a mod/admin or is the post author,
-  // then they are exempt from all rate limits except for the "universal" 5 sec one
+  // then they are exempt from all rate limits except for the "universal" 8 sec one
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
   
   if (!ignoreRateLimits) {
@@ -256,7 +264,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   }
 
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-  // check that user waits more than 5 seconds between comments
+  // check that user waits more than 8 seconds between comments
   const mostRecentCommentDate = await getNthMostRecentItemDate({
     user, collection: Comments,
     n: 1,
