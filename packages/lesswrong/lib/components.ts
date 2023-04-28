@@ -150,6 +150,7 @@ importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
 importComponent("NewFeaturePulse", () => require('../components/common/NewFeaturePulse'));
 importComponent("Typography", () => require('../components/common/Typography'));
+importComponent("WarningBanner", () => require('../components/common/WarningBanner'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));
 importComponent("LoadMore", () => require('../components/common/LoadMore'));
