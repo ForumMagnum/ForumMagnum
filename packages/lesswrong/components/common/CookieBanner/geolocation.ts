@@ -44,10 +44,9 @@ function getCountryCodeFromLocalStorage() {
   const currentTime = new Date().getTime();
   const timeDifference = currentTime - parseInt(cachedTimestamp);
 
-  // const twentyFourHours = 24 * 60 * 60 * 1000;
-  // TODO revert
-  const twentyFourHours = 1000;
-  if (timeDifference > twentyFourHours) {
+  // 24 hours
+  const cacheTTL = 24 * 60 * 60 * 1000;
+  if (timeDifference > cacheTTL) {
     localStorage.removeItem('countryCode');
     localStorage.removeItem('countryCodeTimestamp');
     return null;
@@ -62,7 +61,7 @@ function setCountryCodeToLocalStorage(countryCode: string) {
   localStorage.setItem('countryCodeTimestamp', timestamp.toString());
 }
 
-export function getCachedUserCountryCode() {
+function getCachedUserCountryCode() {
   if (isServer) return null;
 
   const cachedCountryCode = getCountryCodeFromLocalStorage();
@@ -72,7 +71,7 @@ export function getCachedUserCountryCode() {
   return null;
 }
 
-export async function getUserCountryCode() {
+async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
   if (isServer) return null;
 
   const cachedCountryCode = getCachedUserCountryCode();
@@ -80,21 +79,20 @@ export async function getUserCountryCode() {
     return cachedCountryCode;
   }
 
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
-    const countryCode = data.country;
-    setCountryCodeToLocalStorage(countryCode);
-    return countryCode;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching user country:', error);
-    return null;
+  const response = await fetch('https://ipapi.co/json/', { signal });
+
+  if (!response.ok) {
+    throw new Error(`Error fetching user country: ${response.statusText}`);
   }
+
+  const data = await response.json();
+  const countryCode = data.country;
+  setCountryCodeToLocalStorage(countryCode);
+  return countryCode;
 }
 
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
-  if (isServer) return "unknown"; // TODO is this right
+  if (isServer) return "unknown";
   if (!isEAForum) return false;
 
   const cachedCountryCode = getCachedUserCountryCode();
@@ -105,12 +103,25 @@ export function getExplicitConsentRequiredSync(): boolean | "unknown" {
 }
 
 export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unknown"> {
-  if (isServer) return "unknown"; // TODO is this right
+  if (isServer) return "unknown";
   if (!isEAForum) return false;
 
-  const countryCode = await getUserCountryCode();
-  if (countryCode) {
-    return GDPR_COUNTRY_CODES.includes(countryCode);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const countryCode = await getUserCountryCode({ signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (countryCode) {
+      return GDPR_COUNTRY_CODES.includes(countryCode);
+    }
+    return true;
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    // If there is any error (such as due to timing out), assume consent IS required
+    return true;
   }
-  return "unknown";
 }
+
