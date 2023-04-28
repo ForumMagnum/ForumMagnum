@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
-import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
+import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
 
 const CookieBanner = ({ classes }: { classes: ClassesType }) => {
   const { openDialog } = useDialog();
-  const [_, updateCookiePreferences] = useUpdateCookiePreferences();
+  const { updateCookiePreferences } = useCookiePreferences();
   
   const handleAcceptAll = () => {
     updateCookiePreferences(["necessary", "functional", "analytics"]);

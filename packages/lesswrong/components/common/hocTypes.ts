@@ -85,8 +85,4 @@ interface WithUpdatePostProps {
   updatePost: WithUpdateFunction<PostsCollection>
 }
 
-interface WithCheckCookieConsentProps {
-  checkCookieConsent: (types: CookieType[]) => boolean,
-}
-
 }

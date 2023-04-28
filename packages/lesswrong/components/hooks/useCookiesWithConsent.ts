@@ -1,18 +1,21 @@
 import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
-import { CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
-import { useCallback, useMemo } from "react";
-import { COOKIE_PREFERENCES_COOKIE } from "../../lib/cookies/cookies";
-import { hookToHoc } from "../../lib/hocUtils";
+import { COOKIE_PREFERENCES_COOKIE, CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
+import { useCallback } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 
-export function useUpdateCookiePreferences(): [
-  {
-    [name: string]: any;
-  },
-  (newPreferences: CookieType[]) => void,
-] {
+export function useCookiePreferences(): {
+  cookiePreferences: CookieType[];
+  updateCookiePreferences: (newPreferences: CookieType[]) => void;
+  explicitConsentGiven: boolean;
+} {
   const [cookies, setCookie] = useCookies([COOKIE_PREFERENCES_COOKIE]);
+  const preferencesValue = cookies[COOKIE_PREFERENCES_COOKIE];
+  const explicitConsentGiven = isValidCookieTypeArray(preferencesValue)
+
+  // TODO this should only be ["necessary"] in the UK + EU
+  const fallbackPreferences = ["necessary"] as CookieType[]
+  const cookiePreferences = explicitConsentGiven ? preferencesValue : fallbackPreferences
   
   const updateCookiePreferences = useCallback(
     (newPreferences: CookieType[]) => {
@@ -21,23 +24,8 @@ export function useUpdateCookiePreferences(): [
     },
     [setCookie]
   );
-  return [cookies, updateCookiePreferences];
+  return { cookiePreferences, updateCookiePreferences, explicitConsentGiven };
 }
-
-export function useCheckCookieConsent() {
-  const [cookies] = useCookies([COOKIE_PREFERENCES_COOKIE]);
-  const cookiePreferences: CookieType[] = useMemo(
-    () =>
-      isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE]) ? cookies[COOKIE_PREFERENCES_COOKIE] : ["necessary"],
-    [cookies]
-  );
-
-  const checkCookieConsent = useCallback((types: CookieType[]) => {
-    return types.every((type) => cookiePreferences.includes(type));
-  }, [cookiePreferences]);
-  return { checkCookieConsent };
-}
-export const withCheckCookieConsent = hookToHoc(useCheckCookieConsent)
 
 export function useCookiesWithConsent(dependencies?: string[]): [
   {
@@ -46,15 +34,9 @@ export function useCookiesWithConsent(dependencies?: string[]): [
   (name: string, value: any, options?: CookieSetOptions) => void,
   (name: string, options?: CookieSetOptions) => void
 ] {
-  const fullDependencies = dependencies ? [...dependencies, COOKIE_PREFERENCES_COOKIE] : undefined;
-  const [cookies, setCookieBase, removeCookieBase] = useCookies(fullDependencies);
-
-  const cookiePreferencesCookie = cookies[COOKIE_PREFERENCES_COOKIE];
-  const cookiePreferences: CookieType[] = useMemo(
-    () => (isValidCookieTypeArray(cookiePreferencesCookie) ? cookiePreferencesCookie : ["necessary"]),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(cookiePreferencesCookie)]
-  );
+  const { cookiePreferences } = useCookiePreferences();
+  
+  const [cookies, setCookieBase, removeCookieBase] = useCookies(dependencies);
 
   const setCookie = useCallback(
     (name: string, value: string, options?: CookieSetOptions) => {
@@ -66,7 +48,8 @@ export function useCookiesWithConsent(dependencies?: string[]): [
 
       setCookieBase(name, value, options);
     },
-    [cookiePreferences, setCookieBase]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(cookiePreferences), setCookieBase]
   );
 
   return [cookies, setCookie, removeCookieBase];

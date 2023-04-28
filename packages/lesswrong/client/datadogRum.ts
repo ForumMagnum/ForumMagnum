@@ -2,16 +2,14 @@ import { datadogRum } from '@datadog/browser-rum';
 import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
-import { Cookies } from 'react-cookie';
-import { COOKIE_PREFERENCES_COOKIE } from '../lib/cookies/cookies';
+import { getCookiePreferences } from '../lib/cookies/utils';
 
 let datadogInitialized = false;
 
 export function initDatadog() {
-  const cookies = new Cookies();
+  const { cookiePreferences } = getCookiePreferences();
 
-  const allowedCookies = cookies.get(COOKIE_PREFERENCES_COOKIE) || ["necessary"];
-  const analyticsCookiesAllowed = allowedCookies.includes("analytics");
+  const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
   if (forumTypeSetting.get() !== 'EAForum') return
   if (!analyticsCookiesAllowed) {

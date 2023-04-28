@@ -22,8 +22,7 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from './seasonal/HomepageMap/HomepageMapFilter';
-import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
-import { COOKIE_PREFERENCES_COOKIE } from '../lib/cookies/cookies';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -181,7 +180,11 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const [cookies] = useCookiesWithConsent()
+  const { explicitConsentGiven: cookieConsentGiven } = useCookiePreferences();
+
+  // enable during ACX Everywhere
+  // const [cookies] = useCookiesWithConsent()
+  // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -276,12 +279,6 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
-    // enable during ACX Everywhere
-    // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
-
-    // cookies[COOKIE_PREFERENCES_COOKIE] is a list of allowed cookie types, if it doesn't exist, that means the user has not yet made a choice
-    const showCookieBanner = !cookies[COOKIE_PREFERENCES_COOKIE]
-
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -306,7 +303,7 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
               {/* Only show intercom after they have accepted cookies */}
-              {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+              {!cookieConsentGiven ? <CookieBanner /> : <IntercomWrapper/>}
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}

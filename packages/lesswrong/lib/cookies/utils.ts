@@ -1,8 +1,16 @@
+import { Cookies } from "react-cookie";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
-import { CallbackChainHook } from "../vulcan-lib";
+
+export const CookiesTable: Record<string, CookieSignature> = {};
 
 const CookieTypes = new TupleSet(["necessary", "functional", "analytics"] as const)
 export type CookieType = UnionOf<typeof CookieTypes>;
+
+export const COOKIE_PREFERENCES_COOKIE = registerCookie({
+  name: "cookie_preferences", // Must match variable in Google Tag Manager
+  type: "necessary",
+  description: "Stores the user's cookie preferences",
+});
 
 export type CookieSignature = {
   name: string;
@@ -19,8 +27,6 @@ export type CookieSignatureMinimum = Omit<CookieSignature, 'maxExpires' | 'match
   matches?: (name: string) => boolean;
   maxExpires?: string;
 }
-
-export const CookiesTable: Record<string, CookieSignature> = {};
 
 export const isValidCookieTypeArray = (types?: string[] | null): types is CookieType[] => {
   if (!types) return false;
@@ -40,6 +46,25 @@ export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]):
     }
   }
   throw new Error(`Unknown cookie: ${name}, you must register it with registerCookie`);
+}
+
+/**
+ * Non-hook version of useCookiePreferences for use outside of React. Returns the list of
+ * allowed cookie types and whether the user has given explicit consent (if they are outside
+ * the EU, this will always be true)
+ */
+export function getCookiePreferences(): {
+  cookiePreferences: CookieType[];
+  explicitConsentGiven: boolean;
+} {
+  const cookies = new Cookies();
+  const preferencesValue = cookies.get(COOKIE_PREFERENCES_COOKIE);
+  const explicitConsentGiven = isValidCookieTypeArray(preferencesValue)
+
+  const fallbackPreferences = ["necessary"] as CookieType[]
+  const cookiePreferences = explicitConsentGiven ? preferencesValue : fallbackPreferences
+  
+  return { cookiePreferences, explicitConsentGiven };
 }
 
 // TODO add forum gating (here and everywhere)

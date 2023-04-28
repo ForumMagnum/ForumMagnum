@@ -6,7 +6,7 @@ import { getUserEmail } from "../../lib/collections/users/helpers";
 import { useLocation } from '../../lib/routeUtil';
 import withErrorBoundary from './withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
-import { useCheckCookieConsent } from '../hooks/useCookiesWithConsent';
+import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 
@@ -29,8 +29,8 @@ const IntercomWrapper = ({classes}: {
   const currentUser = useCurrentUser();
   const { currentRoute } = useLocation();
 
-  const { checkCookieConsent } = useCheckCookieConsent()
-  const functionalCookiesAllowed = checkCookieConsent(['functional'])
+  const { cookiePreferences } = useCookiePreferences()
+  const functionalCookiesAllowed = cookiePreferences.includes('functional')
   
   if (currentRoute?.standalone) {
     return null;
