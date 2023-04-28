@@ -63,8 +63,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   tagRelWrapper: {
-    position: "relative",
-    marginLeft: 30,
+    marginLeft: 14,
   },
   voteArrow: {
     color: theme.palette.grey[400],
@@ -235,7 +234,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
-    TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    TruncatedAuthorsList, EAPostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
 
@@ -253,6 +252,13 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
           <PostActionsButton post={post} popperPlacement="left-start" vertical />
         </InteractionWrapper>
       </div>}
+      {tagRel &&
+        <div className={classes.tagRelWrapper}>
+          <InteractionWrapper classes={classes}>
+            <EAPostsItemTagRelevance tagRel={tagRel} />
+          </InteractionWrapper>
+        </div>
+      }
     </>
   );
 
@@ -273,19 +279,10 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <div className={classes.expandedCommentsWrapper}>
           <div className={classes.container} onClick={onClick}>
             <div className={classes.karma}>
-              {tagRel
-                ? <div className={classes.tagRelWrapper}>
-                  <InteractionWrapper classes={classes}>
-                    <PostsItemTagRelevance tagRel={tagRel} post={post} />
-                  </InteractionWrapper>
-                </div>
-                : <>
-                  <div className={classes.voteArrow}>
-                    <SoftUpArrowIcon />
-                  </div>
-                  <PostsItemKarma post={post} />
-                </>
-              }
+              <div className={classes.voteArrow}>
+                <SoftUpArrowIcon />
+              </div>
+              <PostsItemKarma post={post} />
             </div>
             <div className={classes.details}>
               <PostsTitle
