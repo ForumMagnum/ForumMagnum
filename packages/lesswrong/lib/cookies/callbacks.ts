@@ -15,6 +15,11 @@ cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
  * Send a cookie_preferences_changed event to Google Tag Manager, which triggers google analytics and hotjar to start
  */
 cookiePreferencesChangedCallbacks.add((cookiePreferences) => {
-  // @ts-ignore
-  window.dataLayer.push({ event: "cookie_preferences_changed" }); // Must match event name in Google Tag Manager
+  const dataLayer = (window as any).dataLayer
+  if (!dataLayer) {
+    // eslint-disable-next-line no-console
+    console.warn("Trying to call gtag before dataLayer has been initialized")
+  } else {
+    dataLayer.push({ event: "cookie_preferences_changed" })
+  }
 });
