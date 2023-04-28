@@ -29,6 +29,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   maxWidthRoot: {
     maxWidth: 720,
   },
+  commentsHeadline: {
+    fontSize: 24,
+    lineHeight: '36px',
+    fontWeight: 600,
+    marginBottom: 16
+  },
+  commentCount: {
+    color: theme.palette.grey[600],
+    marginLeft: 10
+  },
   inline: {
     display: 'inline',
     color: theme.palette.text.secondary,
@@ -61,8 +71,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: 4,
-    ...theme.typography.italic,
+    marginTop: isEAForum ? 8 : 4,
+    fontStyle: "italic",
   }
 })
 
@@ -109,21 +119,25 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
+    let commentSortNode = (commentCount < totalComments) ?
+      <span>
+        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+        {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+      </span> :
+      <span>
+        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
+      </span>
+    if (isEAForum) {
+      commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
+    }
+    
     return <CommentsListMeta>
       <Typography
         variant="body2"
         component='span'
-        className={classes.inline}>
-        {
-          (commentCount < totalComments) ?
-            <span>
-              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
-            </span> :
-            <span>
-              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
-            </span>
-        }
+        className={classes.inline}
+      >
+        {commentSortNode}
       </Typography>
       {post && <Typography
         variant="body2"
@@ -164,17 +178,22 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     currentUser
     && post?.debate
     && (currentUser._id === postAuthor?._id || post?.coauthorStatuses.some(coauthor => coauthor.userId === currentUser._id));
+    
+  const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
 
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
+      {isEAForum && (newForm || !!totalComments) && <div className={classes.commentsHeadline}>
+        Comments{commentCountNode}
+      </div>}
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>
+          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
