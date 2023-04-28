@@ -17,8 +17,6 @@ export async function initDatadog() {
     console.warn("Not initializing datadog because analytics cookies are not allowed")
     return
   }
-  // TODO remove
-  console.log("Initializing datadog")
 
   datadogRum.init({
     applicationId: '2e902643-baff-466d-8882-db60acbdf13b',

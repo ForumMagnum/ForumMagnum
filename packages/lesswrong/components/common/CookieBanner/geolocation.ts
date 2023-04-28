@@ -1,4 +1,3 @@
-// TODO move to lib
 import { isServer } from "../../../lib/executionEnvironment";
 import { isEAForum } from "../../../lib/instanceSettings";
 
@@ -33,7 +32,7 @@ const GDPR_COUNTRY_CODES: string[] = [
   "GB", // United Kingdom
 ];
 
-function getCountryCodeFromLocalStorage() {
+function getCountryCodeFromLocalStorage(): string | null {
   const cachedCountryCode = localStorage.getItem('countryCode');
   const cachedTimestamp = localStorage.getItem('countryCodeTimestamp');
 

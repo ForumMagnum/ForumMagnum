@@ -1,3 +1,3 @@
 import { initDatadog } from "./datadogRum";
 
-initDatadog();
+void initDatadog();

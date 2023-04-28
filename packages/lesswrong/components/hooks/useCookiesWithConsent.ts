@@ -23,7 +23,7 @@ export function useCookiePreferences(): {
   // If we can't determine whether explicit consent is required synchronously (from localStorage), check via the geolocation API
   useEffect(() => {
     if (explicitConsentRequired !== "unknown") return;
-    
+
     void (async () => {
       const explicitConsentRequired = await getExplicitConsentRequiredAsync();
       setExplicitConsentRequired(explicitConsentRequired);
@@ -34,7 +34,7 @@ export function useCookiePreferences(): {
   // using in the code (fallbackPreferences), update the cookie. This is so that Google Tag Manager handles it correctly.
   useEffect(() => {
     if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
-    
+
     if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
       setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/" });
       void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
@@ -61,7 +61,7 @@ export function useCookiesWithConsent(dependencies?: string[]): [
   (name: string, options?: CookieSetOptions) => void
 ] {
   const { cookiePreferences } = useCookiePreferences();
-  
+
   const [cookies, setCookieBase, removeCookieBase] = useCookies(dependencies);
 
   const setCookie = useCallback(
