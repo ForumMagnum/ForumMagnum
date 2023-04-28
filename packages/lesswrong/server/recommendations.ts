@@ -16,6 +16,7 @@ import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "../lib/sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
+import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
 
 const MINIMUM_BASE_SCORE = 50
@@ -136,7 +137,7 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
 const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => {
-  const recommendationFilter = {
+  let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
     ...getDefaultViewSelector("Posts"),
@@ -151,7 +152,17 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
     // Enforce the disableRecommendation flag
     disableRecommendation: {$ne: true},
   }
-  
+
+  if (isEAForum) {
+    recommendationFilter = {$and: [
+      recommendationFilter,
+      {$or: [
+        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$exists: false}},
+        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$lt: 1}},
+      ]},
+    ]};
+  }
+
   if (algorithm.excludeDefaultRecommendations) {
     return recommendationFilter
   } else {
