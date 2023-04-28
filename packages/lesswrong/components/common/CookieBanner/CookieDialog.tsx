@@ -5,9 +5,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
-import { CookieType, CookiesTable, isValidCookieTypeArray } from "../../../lib/cookies/utils";
-import { useUpdateCookiePreferences } from "../../hooks/useCookiesWithConsent";
-import { COOKIE_PREFERENCES_COOKIE } from "../../../lib/cookies/cookies";
+import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
+import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -154,11 +153,8 @@ const CookieCategory = ({
 const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType }) => {
   const { LWDialog, Typography } = Components;
 
-  const [cookies, updateCookiePreferences] = useUpdateCookiePreferences();
-  const existingCookiePreferences = isValidCookieTypeArray(cookies[COOKIE_PREFERENCES_COOKIE])
-    ? cookies[COOKIE_PREFERENCES_COOKIE]
-    : ["necessary"];
-  const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(existingCookiePreferences);
+  const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
+  const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(cookiePreferences);
 
   const saveAndClose = useCallback(() => {
     updateCookiePreferences(allowedCookies);
