@@ -15,11 +15,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
   },
   button: {
-    userSelect: "none",
-    padding: 8,
-    "&:hover": {
-      opacity: 1,
-    },
+    padding: 2,
   },
   upvote: {
     "&:hover": {
@@ -72,20 +68,19 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   const isUpvoted = document.currentUserVote?.indexOf("Up") > 0;
   const isDownvoted = document.currentUserVote?.indexOf("Down") > 0;
 
-  const {LWTooltip} = Components;
+  const {LWTooltip, ForumIcon} = Components;
 
   return (
     <div className={classes.root}>
-      <a
+      <ForumIcon
+        icon="MinusSmall"
         onClick={onVote("smallDownvote", isDownvoted)}
         className={classNames(
           classes.button,
           classes.downvote,
           {[classes.downvoted]: isDownvoted},
         )}
-      >
-        -
-      </a>
+      />
       <LWTooltip title={
         <div>
           <div>{baseScore} Relevance</div>
@@ -95,16 +90,15 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       }>
         <span>{baseScore}</span>
       </LWTooltip>
-      <a
+      <ForumIcon
+        icon="PlusSmall"
         onClick={onVote("smallUpvote", isUpvoted)}
         className={classNames(
           classes.button,
           classes.upvote,
           {[classes.upvoted]: isUpvoted},
         )}
-      >
-        +
-      </a>
+      />
     </div>
   );
 }

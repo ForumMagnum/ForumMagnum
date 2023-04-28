@@ -9,6 +9,8 @@ import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
+import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
+import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
@@ -65,7 +67,9 @@ export type ForumIconName =
   "Plus" |
   "Check" |
   "Card" |
-  "List";
+  "List" |
+  "PlusSmall" |
+  "MinusSmall";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -88,6 +92,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    PlusSmall: PlusSmallIcon,
+    MinusSmall: MinusSmallIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
@@ -112,6 +118,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    PlusSmall: PlusSmallIcon,
+    MinusSmall: MinusSmallIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
