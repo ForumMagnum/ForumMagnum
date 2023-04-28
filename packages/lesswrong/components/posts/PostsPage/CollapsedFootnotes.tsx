@@ -3,6 +3,7 @@ import { registerComponent } from "../../../lib/vulcan-lib";
 import { useLocation } from "../../../lib/routeUtil";
 import Collapse from "@material-ui/core/Collapse";
 import classNames from "classnames";
+import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
 
 export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
@@ -79,6 +80,8 @@ const CollapsedFootnotes = ({
     window.addEventListener(EXPAND_FOOTNOTES_EVENT, handler);
     return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
   }, []);
+
+  useOnSearchHotkey(() => setCollapsed(false));
 
   const {preview, rest, totalCount} = splitFootnotes(footnotesHtml, previewCount);
 
