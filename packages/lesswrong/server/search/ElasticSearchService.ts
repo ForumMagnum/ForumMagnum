@@ -13,7 +13,7 @@ import {
   elasticPasswordSetting,
 } from "../../lib/instanceSettings";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
-import { getAlgoliaFilter } from "../scripts/algoliaExport";
+import { getAlgoliaFilter } from "./algoliaFilters";
 import { getCollection, Globals } from "../vulcan-lib";
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 

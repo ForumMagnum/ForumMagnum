@@ -1,5 +1,4 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { postStatuses } from '../../lib/collections/posts/constants';
 import { getCollection } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
@@ -15,6 +14,7 @@ import { isProductionDBSetting } from '../../lib/publicSettings';
 import * as _ from 'underscore';
 import moment from 'moment';
 import take from 'lodash/take';
+import { getAlgoliaFilter } from '../search/algoliaFilters';
 
 async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
@@ -62,22 +62,6 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   }
 }
 
-export const getAlgoliaFilter = (collectionName: AlgoliaIndexCollectionName) => {
-  switch (collectionName) {
-    case 'Posts':
-     return {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED};
-    case 'Comments':
-      return {baseScore: {$gt: 0}, deleted: {$ne: true}};
-    case 'Users':
-      return {deleted: {$ne: true}, deleteContent: {$ne: true}};
-    case 'Sequences':
-      return {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}};
-    case 'Tags':
-      return {deleted: {$ne: true}, adminOnly: {$ne: true}};
-    default:
-      throw new Error(`Did not recognize collectionName: ${collectionName}`);
-  }
-}
 
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
   const collection = getCollection(collectionName) as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
