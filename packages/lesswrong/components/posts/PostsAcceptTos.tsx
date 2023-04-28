@@ -51,7 +51,6 @@ const PostsAcceptTos = ({currentUser, classes}: {
       acceptedTos: true,
     });
     const accepted = result?.data?.updateUser?.data?.acceptedTos;
-    console.log(result, accepted);
     if (accepted) {
       flash("Thank you for accepting the terms of use");
       setAccepted(true);
