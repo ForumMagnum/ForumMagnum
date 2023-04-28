@@ -56,10 +56,17 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     fontSize: 14,
     marginRight: 6,
+    boxShadow: "none",
     [theme.breakpoints.up("sm")]: {
       marginBottom: 0,
     },
   },
+  rejectButton: {
+    backgroundColor: theme.palette.grey[600],
+    "&:hover": {
+      backgroundColor: theme.palette.grey[700],
+    },
+  }
 });
 
 const CookieBanner = ({ classes }: { classes: ClassesType }) => {
@@ -85,10 +92,14 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
         >
           cookie settings
         </a>{" "}
-        for more control, or review our cookie policy <a href='/cookiePolicy'>here</a>
+        for more control, or review our cookie policy <a href="/cookiePolicy">here</a>
       </Typography>
       <div className={classes.buttonGroup}>
-        <Button className={classes.button} variant="contained" color="secondary" onClick={handleReject}>
+        <Button
+          className={classNames(classes.button, classes.rejectButton)}
+          variant="contained"
+          onClick={handleReject}
+        >
           Reject
         </Button>
         <Button className={classes.button} variant="contained" color="primary" onClick={handleAcceptAll}>

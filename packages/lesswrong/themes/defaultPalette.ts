@@ -355,7 +355,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
     restoreSavedContentNotice: "rgba(255,0,0,.1)",
-    cookieBanner: "#454545",
+    cookieBanner: shades.grey[800],
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,

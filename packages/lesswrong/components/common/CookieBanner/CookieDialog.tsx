@@ -16,6 +16,9 @@ const styles = (theme: ThemeType) => ({
   title: {
     marginLeft: 4,
     padding: "24px 24px 10px",
+    '& .MuiTypography-title': {
+      color: theme.palette.grey[1000]
+    }
   },
   content: {
     minWidth: 280,
@@ -74,6 +77,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     fontSize: 14,
     display: "block",
+    boxShadow: "none",
   },
 });
 
