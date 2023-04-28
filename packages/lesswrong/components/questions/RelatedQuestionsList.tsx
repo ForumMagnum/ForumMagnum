@@ -41,6 +41,8 @@ const RelatedQuestionsList = ({ post, classes }: {
   
   const showParentLabel = sourcePostRelations.length > 0
   const showSubQuestionLabel = (sourcePostRelations.length > 0) && (targetPostRelations.length > 0)
+  
+  if (!totalRelatedQuestionCount) return null
 
   return (
     <div className={classes.root}>
