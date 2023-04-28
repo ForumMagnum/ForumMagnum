@@ -1,12 +1,18 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting } from "../../instanceSettings";
+import { forumTypeSetting, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import type { PermissionResult } from '../../make_voteable';
+import { DatabasePublicSetting } from '../../publicSettings';
+import moment from 'moment';
+import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
+
+const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
@@ -33,6 +39,16 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
+}
+
+/**
+ * Count a user as "new" if they have low karma or joined less than a week ago
+ */
+export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  return (
+    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
+  );
 }
 
 export interface SharableDocument {
@@ -509,4 +525,41 @@ export const getSignature = (name: string) => {
 
 export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
+};
+
+export function getNewModActionNotes(responsibleAdminName: string, modActionType: DbModeratorAction["type"], sunshineNotes: string) {
+  const modActionDescription = MODERATOR_ACTION_TYPES[modActionType];
+  const newNote = getSignatureWithNote(responsibleAdminName, ` "${modActionDescription}"`);
+  const oldNotes = sunshineNotes ?? '';
+  return `${newNote}${oldNotes}`;
+}
+
+export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
+  // If the user is null, then returning true from this function is still valid;
+  // it just means that the vote buttons are enabled (but their behavior is that
+  // they open a login form).
+  
+  if (!isLW) {
+    return { fail: false };
+  }
+
+  if (!user) {
+    return {
+      fail: true,
+      reason: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+    };
+  }
+
+  // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
+  const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
+  const userKarmaAtOrAboveThreshold = user.karma >= lowKarmaUserVotingCutoffKarmaSetting.get();
+
+  if(!userCreatedAfterCutoff || userKarmaAtOrAboveThreshold) {
+    return { fail: false }
+  }
+  
+  return {
+    fail: true,
+    reason: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
+  }
 };

@@ -1,6 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
+import { useCurrentUser } from '../common/withUser';
+import { userCanVote } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -39,10 +41,14 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
 }) => {
   const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
+  const currentUser = useCurrentUser();
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
     <div>({tagRel.voteCount} {tagRel.voteCount === 1 ? "vote" : "votes"})</div>
+    {!canVote && whyYouCantVote}
   </div>
 
   return <PostsItem2MetaInfo className={classes.root}>
@@ -54,6 +60,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             color="error"
             upOrDown="Downvote"
             solidArrow
+            enabled={canVote}
             {...voteProps}
           />
         </div>
@@ -68,6 +75,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             color="secondary"
             upOrDown="Upvote"
             solidArrow
+            enabled={canVote}
             {...voteProps}
           />
         </div>

@@ -5,9 +5,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
-import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
+import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
+import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,6 +69,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*4,
     marginBottom: theme.spacing.unit*8
   },
+  linkIcon: {
+    fontSize: "1.2rem",
+    color: theme.palette.icon.dim,
+    margin: "0 4px",
+    position: "relative",
+  },
   menu: {
     opacity:.5,
     cursor: "pointer",
@@ -105,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 2px ${theme.palette.lwTertiary.main}`,
   },
   metaNotice: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     ...theme.typography.commentStyle,
     marginTop: -12,
     marginBottom: 10
@@ -129,8 +136,17 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles } = Components
+  const CommentLinkWrapper = useCommentLink({comment, post});
+
+  const {
+    ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
+    CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles,
+  } = Components;
   const { html = "" } = comment.contents || {}
+
+  const menuIcon = isEAForum
+    ? undefined
+    : <MoreHorizIcon className={classes.menuIcon} />;
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
@@ -139,12 +155,17 @@ const Answer = ({ comment, post, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
+          {isEAForum &&
+            <CommentLinkWrapper>
+              <ForumIcon icon="Link" className={classes.linkIcon} />
+            </CommentLinkWrapper>
+          }
           <CommentsMenu
             className={classes.menu}
             showEdit={setShowEditTrue}
             comment={comment}
             post={post}
-            icon={<MoreHorizIcon className={classes.menuIcon}/>}
+            icon={menuIcon}
           />
         </div>
         :
@@ -161,12 +182,17 @@ const Answer = ({ comment, post, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collection={Comments}/>
                 </span>
+                {isEAForum &&
+                  <CommentLinkWrapper>
+                    <ForumIcon icon="Link" className={classes.linkIcon} />
+                  </CommentLinkWrapper>
+                }
                 <CommentsMenu
                   className={classes.menu}
                   showEdit={setShowEditTrue}
                   comment={comment}
                   post={post}
-                  icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                  icon={menuIcon}
                 />
               </div>
               { comment.promotedByUser && <div className={classes.metaNotice}>

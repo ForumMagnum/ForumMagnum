@@ -1,13 +1,10 @@
-import { forumTypeSetting } from "../../instanceSettings";
+import { canVoteOnTag } from "../../voting/tagRelVoteRules";
+import { CoauthoredPost } from "../posts/helpers";
 
-const adminOnlyTagSlugs = ["community"];
+type TagWithVotePermissons = Pick<TagPreviewFragment, "slug" | "canVoteOnRels">;
 
-export const shouldHideTagForVoting = (user: UsersCurrent | null, tag?: {slug: string}) => {
-  if (forumTypeSetting.get() !== "EAForum") {
-    return false;
-  }
-  if (tag && adminOnlyTagSlugs.includes(tag.slug)) {
-    return !user || (!user.isAdmin && !user.groups?.includes("sunshineRegiment"))
-  }
-  return false;
-}
+export const shouldHideTagForVoting = (
+  user: UsersCurrent | null,
+  tag: TagWithVotePermissons,
+  post: {userId?: string} & CoauthoredPost|null,
+) => !canVoteOnTag(tag?.canVoteOnRels, user, post, 'smallUpvote');

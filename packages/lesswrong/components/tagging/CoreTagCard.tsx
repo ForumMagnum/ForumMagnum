@@ -82,7 +82,6 @@ const CoreTagCard = ({tag, classes}: {
             subscribeMessage={"Subscribe"}
             unsubscribeMessage={"Subscribed"}
             tag={tag}
-            showNotificationBell={false}
           />
         </div>
       </div>

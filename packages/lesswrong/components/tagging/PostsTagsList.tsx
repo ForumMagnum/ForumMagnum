@@ -48,7 +48,7 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expa
   classes: ClassesType,
   posts: PostsList[]|null,
   currentFilter: string|null, // the current tag being filtered on the post list
-  handleFilter: (string) => void, // function to update which tag is being filtered
+  handleFilter: (filter: string) => void, // function to update which tag is being filtered
   expandedMinCount?: number // when showing more tags, this is the number
   // of posts each tag needs to have to be included
   defaultMax?: number // default number of tags to show
@@ -69,12 +69,12 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expa
 
   const expandedNumberOfTags = filter(tagsWithCount, tag => tag.count >= expandedMinCount).length
 
-  const tagButtonTooltip = (tag) => {
+  const tagButtonTooltip = (tag: TagWithCount) => {
     if (currentFilter === tag._id) return `Show posts of all tags`
     return `Filter posts to only show posts tagged '${tag.name}'`
   }
 
-  const tagButton = (tag) => <LWTooltip title={tagButtonTooltip(tag)}><div key={tag._id} className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
+  const tagButton = (tag: TagWithCount) => <LWTooltip title={tagButtonTooltip(tag)}><div key={tag._id} className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
     {tag.name} <span className={classes.count}>{tag.count}</span>
   </div></LWTooltip>
 

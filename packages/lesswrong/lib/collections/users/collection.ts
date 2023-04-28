@@ -39,9 +39,9 @@ export const Users: ExtendedUsersCollection = createCollection({
 });
 
 
-const specificResolvers = {
+addGraphQLResolvers({
   Query: {
-    async currentUser(root, args, context: ResolverContext) {
+    async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
@@ -56,9 +56,7 @@ const specificResolvers = {
       return user;
     },
   },
-};
-
-addGraphQLResolvers(specificResolvers);
+});
 addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});

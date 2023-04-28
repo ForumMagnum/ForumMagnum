@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
+import { loadByIds } from '../loaders';
+import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -47,7 +49,7 @@ registerVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
   getCommentVotingComponent: () => Components.VoteOnComment,
-  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     return null;
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
@@ -65,7 +67,7 @@ registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
-  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
+  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
@@ -91,8 +93,8 @@ registerVotingSystem({
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-    const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
-    const usersById = keyBy(usersThatVoted, u=>u._id);
+    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
     
     const result = {
       approvalVoteCount: votes.filter(v=>(v.voteType && v.voteType!=="neutral")).length,
@@ -171,8 +173,8 @@ registerVotingSystem({
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-    const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
-    const usersById = keyBy(usersThatVoted, u=>u._id);
+    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
     
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       return [axis, sumBy(votes, v => getVoteAxisStrength(v, usersById, axis))];

@@ -5,7 +5,7 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation } from '../vulcan-lib/routes';
+import type { RouterLocation, Route } from '../vulcan-lib/routes';
 
 export interface ServerRequestStatusContextType {
   status?: number
@@ -49,8 +49,12 @@ export const parsePath = function parsePath(path: string): SegmentedUrl {
   };
 };
 
-export function parseQuery(location) {
-  let query = location && location.search;
+/**
+ * Given the props of a component which has withRouter, return the parsed query
+ * from the URL.
+ */
+export function parseQuery(location: AnyBecauseTodo): Record<string,string> {
+  let query = location?.search;
   if (!query) return {};
 
   // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
@@ -59,7 +63,7 @@ export function parseQuery(location) {
   if (query.startsWith('?'))
     query = query.substr(1);
 
-  return qs.parse(query);
+  return qs.parse(query) as Record<string,string>;
 }
 
 // Match a string against the routes table, and parse the route components.
@@ -71,7 +75,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   onError?: null|((err: string)=>void),
 }): RouterLocation {
   const routeNames = Object.keys(Routes);
-  let currentRoute: any = null;
+  let currentRoute: Route|null = null;
   let params={};
   for (let routeName of routeNames) {
     const route = Routes[routeName];
@@ -104,7 +108,8 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   
   const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result: RouterLocation = {
-    currentRoute, RouteComponent, location, params,
+    currentRoute: currentRoute!, //TODO: Better null handling than this
+    RouteComponent, location, params,
     pathname: location.pathname,
     url: location.pathname + location.search + location.hash,
     hash: location.hash,

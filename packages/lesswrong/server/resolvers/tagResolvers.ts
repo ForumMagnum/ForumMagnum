@@ -10,6 +10,7 @@ import { Posts } from '../../lib/collections/posts';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
+import { loadByIds } from '../../lib/loaders';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -204,13 +205,13 @@ addGraphQLResolvers({
       }).fetch();
       
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
-      const usersAll = await context.loaders.Users.loadMany(userIds)
+      const usersAll = await loadByIds(context, "Users", userIds)
       const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
       const usersById = keyBy(users, u => u._id);
       
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
-      const tagsUnfiltered = await context.loaders.Tags.loadMany(tagIds);
+      const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
       const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
       
       return tags.map(tag => {
@@ -259,8 +260,8 @@ addGraphQLResolvers({
 
       // Get the tags themselves, keyed by the id
       const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
-      const tagsUnfiltered = (await context.loaders.Tags.loadMany(tagIds));
-      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc, tag) => {
+      const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
+      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
         acc[tag._id] = tag;
         return acc;
       }, {});
@@ -309,7 +310,7 @@ augmentFieldsDict(Tags, {
       }> => {
         const contributionStatsByUserId = await getContributorsList(tag, version||null);
         const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const contributorUsersUnfiltered = await context.loaders.Users.loadMany(contributorUserIds);
+        const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
         const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
         const usersById = keyBy(contributorUsers, u => u._id);
   

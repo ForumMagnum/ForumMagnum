@@ -6,7 +6,11 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginRight: isEAForum ? 7 : undefined,
+    ...(isEAForum && {
+      marginLeft: 2,
+      marginRight: 7,
+    }),
+
     "& a:hover, & a:active": {
       "& $icon": {
         color: `${theme.palette.icon.dim5} !important`,

@@ -33,9 +33,9 @@ Vulcan.importLocalgroups = wrapVulcanAsyncScript(
           name: data.name,
           nameInAnotherLanguage: data.nameInAnotherLanguage || undefined,
           inactive: data.inactive === 'TRUE',
-          categories: data.categories.split('; ').map(label => {
+          categories: data.categories.split('; ').map((label: AnyBecauseObsolete) => {
             return GROUP_CATEGORIES.find(cat => cat.label === label)?.value
-          }).filter(val => !!val),
+          }).filter((val: AnyBecauseObsolete) => !!val),
           isOnline: data.isOnline === 'TRUE',
           contactInfo: data.contactInfo || undefined,
           website,

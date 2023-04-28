@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -40,7 +40,7 @@ export const timeframes = {
 
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
-const formatSort = (sorting: string) => {
+const formatSort = (sorting: PostSortingMode) => {
   const sort = SORT_ORDER_OPTIONS[sorting].label
   return isEAForum ? sort : `Sorted by ${sort}`;
 }
@@ -68,7 +68,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
   }, [showSettings, captureEvent, currentUser, updateCurrentUser]);
 
   const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily';
-  const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic';
+  const currentSorting = (query.sortedBy   || currentUser?.allPostsSorting   || 'magic') as PostSortingMode;
   const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all';
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
     currentUser?.allPostsShowLowKarma || false;

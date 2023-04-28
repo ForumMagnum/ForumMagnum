@@ -4,7 +4,7 @@ import { Mutation } from '@apollo/client/react/components';
 import type { MutationResult } from '@apollo/client/react';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
-import { getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
+import { getCollection, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { updateCacheAfterUpdate } from './cacheUpdates';
 
@@ -78,6 +78,10 @@ export const withUpdate = (options: {
   )
 };
 
+type FragmentOrFragmentName =
+   {fragment: any, fragmentName?: never}
+  |{fragment?: never, fragmentName: FragmentName}
+
 /**
  * HoC that returns a function which updates an object, given its ID and some
  * fields to change. A typical usage would look like:
@@ -100,9 +104,8 @@ export const withUpdate = (options: {
  * the client-side cache; the selected fragment should have fields that are a
  * superset of fields used in the queries that you want to be updated.
  */
-export const useUpdate = <CollectionName extends CollectionNameString>({ collectionName, fragmentName }: {
+export const useUpdate = <CollectionName extends CollectionNameString>(options: FragmentOrFragmentName & {
   collectionName: CollectionName,
-  fragmentName: FragmentName,
 }): {
   /** Set a field to `null` to delete it */
   mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
@@ -111,8 +114,8 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 }=> {
-  const collection = getCollection(collectionName);
-  const fragment = getFragment(fragmentName);
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`

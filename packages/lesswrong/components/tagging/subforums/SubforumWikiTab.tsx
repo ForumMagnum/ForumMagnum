@@ -136,7 +136,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
         {!tag.wikiOnly && (
           <AnalyticsContext pageSectionContext="tagsSection">
             {tag.sequence ? (
-              <SectionTitle title={`Posts tagged ${tag.name}`} noBottomPadding>
+              <SectionTitle title={`Posts tagged ${tag.name}`}>
                 <PostsListSortDropdown value={query.sortedBy || "relevance"} />
               </SectionTitle>
             ) : (

@@ -4,7 +4,7 @@ import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
-import { SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
+import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({

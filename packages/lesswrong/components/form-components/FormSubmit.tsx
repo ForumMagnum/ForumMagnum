@@ -33,26 +33,24 @@ const FormSubmit = ({
   cancelLabel = "Cancel",
   cancelCallback,
   document,
-  deleteDocument,
   collectionName,
   classes,
-}: {
-  submitLabel?: string;
-  cancelLabel?: string;
-  cancelCallback: any;
-  document: any;
-  deleteDocument: any;
-  collectionName: Lowercase<CollectionNameString>;
-  classes: ClassesType;
-},
+}: FormButtonProps & {classes: ClassesType},
 {
   updateCurrentValues,
   addToDeletedValues
-}: any) => {
+}: FormComponentContext<any>) => {
   const currentUser = useCurrentUser();
   
+  // NOTE: collectionName was previously annotated with type Lowercase<CollectionNameString>
+  // and was used in case-sensitive comparisons with collection names like "posts".
+  // Type-annotating more of the forms system said that what should be getting passed
+  // is actually a regular CollectionNameString. I'm not sure what's going on here; I
+  // suspect that the cases that were being handled by these were actually transferred to
+  // other components like PostSubmit at some point, and this is legacy.
+  
   return <div className="form-submit">
-    {collectionName === "posts" && <span className="post-submit-buttons">
+    {collectionName.toLowerCase() === "posts" && <span className="post-submit-buttons">
       { !document.isEvent &&
         !document.meta &&
         userCanDo(currentUser, 'posts.curate.all') && !document.question &&
@@ -60,7 +58,7 @@ const FormSubmit = ({
             type="submit"
             className={classNames(classes.formButton, classes.secondaryButton)}
             onClick={() => {
-              updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+              void updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
               if (document.frontpageDate) {
                 addToDeletedValues('frontpageDate')
               }
@@ -84,7 +82,7 @@ const FormSubmit = ({
           type="submit"
           className={classNames(classes.formButton, classes.secondaryButton)}
           onClick={() => {
-            updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
+            void updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
             if (document.curatedDate) {
               addToDeletedValues('curatedDate')
             }
@@ -111,9 +109,9 @@ const FormSubmit = ({
 
     <Button
       type="submit"
-      onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
+      onClick={() => collectionName.toLowerCase() === "posts" && updateCurrentValues({draft: false})}
       className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-      variant={collectionName=="users" ? "outlined" : undefined}
+      variant={collectionName.toLowerCase()=="users" ? "outlined" : undefined}
     >
       {submitLabel}
     </Button>

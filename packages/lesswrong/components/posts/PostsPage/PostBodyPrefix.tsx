@@ -4,6 +4,7 @@ import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import {forumSelect} from "../../../lib/forumTypeUtils";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -45,6 +46,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const forumNewUserProcessingTime = forumSelect({
+  EAForum: 24,
+  LessWrong: 72,
+  AlignmentForum: 72,
+  default: 24
+})
+
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   query?: any,
@@ -77,7 +85,7 @@ const PostBodyPrefix = ({post, query, classes}: {
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
-        Most posts will be approved within 24 hours; posts that are spam or that don't meet site
+        Most posts will be approved within {forumNewUserProcessingTime} hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.
       </p>}>

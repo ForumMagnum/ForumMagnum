@@ -24,8 +24,3 @@ export const subforumSortingToResolverName = (sort: SubforumSorting) =>
 
 export const isSubforumSorting = (sort: string): sort is SubforumSorting =>
   (subforumSortings as string []).includes(sort);
-
-export const subforumLayouts = new TupleSet(["feed", "list"] as const)
-export type SubforumLayout = UnionOf<typeof subforumLayouts>
-export const isSubforumLayout = (tab: string): tab is SubforumLayout => subforumLayouts.has(tab)
-export const defaultSubforumLayout: SubforumLayout = "list"

@@ -19,13 +19,13 @@ export const defaultSubscriptionTypeTable = {
  * @param {Object} user: current user (xxx: legacy, to replace with this.userId)
  * @returns {Boolean}
  */
-export const performSubscriptionAction = async (action, collection, itemId, user) => {
+export const performSubscriptionAction = async (action:"subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
   const collectionName = collection.options.collectionName
   const newSubscription: Partial<DbSubscription> = {
     state: action === "subscribe" ? 'subscribed' : 'suppressed',
     documentId: itemId,
     collectionName,
-    type: defaultSubscriptionTypeTable[collectionName]
+    type: (defaultSubscriptionTypeTable as any)[collectionName]
   }
   await Utils.createMutator({
     collection: Subscriptions,

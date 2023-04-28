@@ -16,7 +16,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 const prependMailTo = (url: string) => tryToFixUrl(url, `mailto:${url}`);
 const prependHttps = (url: string) => tryToFixUrl(url, `https://${url}`);
 
-const validateUrl = (url) => {
+const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the protocol is missing
     new URL(url);
@@ -36,7 +36,7 @@ const validateUrl = (url) => {
   return url;
 }
 
-const updateCollection = async (collection) => {
+const updateCollection = async (collection: AnyBecauseObsolete) => {
   await forEachDocumentBatchInCollection({
     collection,
     batchSize: 500,

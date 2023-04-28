@@ -20,7 +20,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: isEAForum ? theme.spacing.unit*3 : theme.spacing.unit*4,
+    marginBottom: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,

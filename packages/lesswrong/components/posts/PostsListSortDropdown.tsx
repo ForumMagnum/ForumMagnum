@@ -1,76 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Menu from '@material-ui/core/Menu';
-import { QueryLink } from '../../lib/reactRouterWrapper';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    marginTop: 8,
-    marginBottom: 8,
-    marginRight: 8,
-    textAlign: "center",
-  },
-  selectMenu: {
-    cursor: "pointer",
-    paddingLeft: 4,
-    color: theme.palette.primary.main
-  },
-  noBreak: {
-    whiteSpace: "nowrap"
-  },
-  icon: {
-    verticalAlign: "middle",
-    position: "relative",
-    top: -2,
-    left: -2
-  },
-  menuItem: {
-    '&:focus': {
-      outline: "none",
-    }
-  }
+  root: {}
 })
 
 const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS);
 
-const PostsListSortDropdown = ({classes, value, options=defaultOptions, sortingParam="sortedBy"}:{
-  classes: ClassesType,
+const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}:{
   value: string
   options?: string[],
   sortingParam?: string,
+  classes: ClassesType,
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const splitLabel = (label: string) => {
-    const words = label.split(" ");
-    const lastWord = words.pop();
-    return [words.join(" "), lastWord]
-  }
-  const [labelStart, labelEnd] = splitLabel(TAG_POSTS_SORT_ORDER_OPTIONS[value].label)
-  const { MenuItem } = Components;
+  const { ForumDropdown } = Components;
 
-  return <div className={classes.root}>
-    <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {labelStart} <span className={classes.noBreak}>{labelEnd} <ArrowDropDownIcon className={classes.icon}/></span>
-    </span>
-    <Menu
-      open={Boolean(anchorEl)}
-      anchorEl={anchorEl}
-      onClose={()=>setAnchorEl(null)}
-    >
-      {options.map(sorting => (
-        <QueryLink key={sorting} query={{[sortingParam]:sorting}} merge>
-          <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
-            {TAG_POSTS_SORT_ORDER_OPTIONS[sorting].label}
-          </MenuItem>
-        </QueryLink>
-      ))}
-    </Menu>
-  </div>
+  // if specific options are passed in, filter out any other options from TAG_POSTS_SORT_ORDER_OPTIONS
+  const filteredOptions = options
+    ? defaultOptions
+        .filter((option) => options.includes(option))
+        .reduce((obj, key) => {
+          return Object.assign(obj, { [key]: TAG_POSTS_SORT_ORDER_OPTIONS[key] });
+        }, {})
+    : TAG_POSTS_SORT_ORDER_OPTIONS;
+
+  return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} eventProps={{parent: "PostsListSortDropdown"}} />;
 }
 
 const PostsListSortDropdownComponent = registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});

@@ -308,6 +308,7 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
@@ -379,6 +380,7 @@ declare global {
       usersListItem: ColorString,
       primaryDim: ColorString,
       transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -431,6 +433,7 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
     },
     borderRadius: {
       default: number,

@@ -6,7 +6,6 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
 import { makeSearchable, SearchJoin } from '../../make_searchable';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
@@ -49,7 +48,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),

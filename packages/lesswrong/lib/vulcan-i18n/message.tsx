@@ -7,7 +7,7 @@ const FormattedMessage = ({ id, values, defaultMessage = '', html = false, class
   defaultMessage?: string,
   html?: boolean,
   className?: string
-}, { intl }) => {
+}, { intl }: AnyBecauseTodo) => {
   const message = intl.formatMessage({ id, defaultMessage }, values);
   const cssClass = `i18n-message ${className}`;
 

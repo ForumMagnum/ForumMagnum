@@ -4,11 +4,14 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const sortingNames = {
   'top': 'top scoring',
+  'magic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
   'newest': 'newest',
   'oldest': 'oldest',
+  'recentComments': 'latest reply',
 }
 
 const AnswersSorting = ({ post, classes }: {

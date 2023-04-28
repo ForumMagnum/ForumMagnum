@@ -103,6 +103,9 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
+      spacing: {
+        mainLayoutPaddingTop: 20
+      },
       borderRadius: {
         default: 6,
         small: 4,

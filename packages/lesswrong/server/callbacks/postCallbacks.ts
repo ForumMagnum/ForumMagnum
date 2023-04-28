@@ -15,12 +15,16 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import Conversations from '../../lib/collections/conversations/collection';
+import Messages from '../../lib/collections/messages/collection';
+import { isAnyTest } from '../../lib/executionEnvironment';
+import { getAdminTeamAccount } from './commentCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -41,7 +45,7 @@ if (forumTypeSetting.get() === "EAForum") {
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Debate must have at least one co-author!');
+    throw new Error('Dialogue must have at least one co-author!');
   }
 
   return validationErrors;
@@ -112,6 +116,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
    collection: Posts,
    user: postAuthor,
    skipRateLimits: true,
+   selfVote: true
  })
  return {...post, ...votedPost} as DbPost;
 });
@@ -199,7 +204,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft) return
+  if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
   
@@ -208,6 +213,79 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
     await postPublishedCallback.runCallbacksAsync([document]);
+  }
+});
+
+interface SendPostRejectionPMParams {
+  messageContents: string,
+  lwAccount: DbUser,
+  post: DbPost,
+  noEmail: boolean,
+}
+
+async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }: SendPostRejectionPMParams) {
+  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+    participantIds: [post.userId, lwAccount._id],
+    title: `Your post ${post.title} was rejected`,
+    moderator: true
+  };
+
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  const messageData = {
+    userId: lwAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: messageContents
+      }
+    },
+    conversationId: conversation.data._id,
+    noEmail: noEmail
+  };
+
+  await createMutator({
+    collection: Messages,
+    document: messageData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log("Sent moderation message for post", post._id);
+  }
+}
+
+getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser }) {
+  const postRejected = post.rejected && !oldPost.rejected;
+  if (postRejected) {
+    const postUser = await Users.findOne({_id: post.userId});
+
+    let firstMessageContents =
+        // TODO: make link conditional on forum, or something
+        `Unfortunately, I rejected your post "${post.title}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+  
+    if (post.rejectedReason) {
+      firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
+    }
+
+    // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
+    const noEmail = forumTypeSetting.get() === "EAForum" 
+    ? false 
+    : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  
+    await sendPostRejectionPM({
+      post,
+      messageContents: firstMessageContents,
+      lwAccount: currentUser ?? await getAdminTeamAccount(),
+      noEmail,
+    });  
   }
 });
 
@@ -224,6 +302,21 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
       document: {
         userId: document.userId,
         type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_POST,
         endedAt: new Date()
       }
     });

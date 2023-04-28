@@ -1,19 +1,16 @@
-import classNames from 'classnames';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AddBoxIcon from "@material-ui/icons/AddBox";
+import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
+import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
-import startCase from 'lodash/startCase';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import difference from 'lodash/fp/difference';
+import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -21,37 +18,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
   },
-  newPostLink: {
-    display: "flex",
-    alignItems: "center",
-  },
-  newPostLinkHover: {
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
-  feedWrapper: {
-    padding: "0 10px",
-  },
   feedHeader: {
     display: "flex",
-    marginLeft: 10,
+    justifyContent: "space-between",
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
         marginRight: "0px !important",
       }
     }
-  },
-  feedHeaderButtons: {
-    display: "flex",
-    flexGrow: 1,
-    columnGap: 16,
-  },
-  listSettingsToggle: {
-    marginLeft: 16,
-  },
-  listSettingsContainer: {
-    marginTop: 16,
   },
   newShortformContainer: {
     background: theme.palette.grey[0],
@@ -61,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   shortformComment: {
     '&&': {
       marginTop: 0,
-      marginBottom: 32,
+      marginBottom: 16,
     }
   },
   centerChild: {
@@ -70,27 +44,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   feedPostWrapper: {
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
-      display: "none"
-    }
+    marginTop: 8,
+    marginBottom: 8,
   },
   commentPermalink: {
     marginBottom: 8,
   },
   listLayout: {
-    paddingTop: 16,
+    paddingTop: 8,
   }
 })
 
-const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
+const SubforumSubforumTab = ({
+  tag,
+  userTagRel,
+  layout,
+  newShortformOpen,
+  setNewShortformOpen,
+  classes
+}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
-  layout: SubforumLayout,
-  isSubscribed: boolean,
+  layout: PostsLayout,
+  newShortformOpen: boolean,
+  setNewShortformOpen: (open: boolean) => void,
   classes: ClassesType,
 }) => {
   const {
@@ -102,10 +79,10 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     CommentWithReplies,
     PostsList2,
     CommentsListCondensed,
-    SubforumListSettings,
-    SortButton,
     ShortformSubmitForm,
     WrappedLoginForm,
+    PostsListSortDropdown,
+    PostsLayoutDropdown,
   } = Components;
 
   const { query } = useLocation();
@@ -118,14 +95,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       refetchRef.current();
   }, [refetchRef]);
 
-  const [newShortformOpen, setNewShortformOpen] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
-  
-  const clickNewShortform = useCallback(() => {
-    setNewShortformOpen(true)
-    captureEvent("newShortformClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
-  }, [captureEvent, tag._id, tag.name])
 
   const { mutate: updateUserTagRel } = useUpdate({
     collectionName: 'UserTagRels',
@@ -137,9 +107,14 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
   }, [updateUserTagRel, userTagRel])
 
+  const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
+  const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
-  query.sortedBy = sortBy // make sure to set the default sorting if necessary
+  const sortBy: CommentSortingMode = (
+    (sortByOptions.includes(query.sortedBy) && query.sortedBy)
+    || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder)
+    || defaultSubforumSorting
+  ) as CommentSortingMode;
   
   const commentNodeProps = {
     treeOptions: {
@@ -154,50 +129,8 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   };
   const maxAgeHours = 18;
   const commentsLimit = 3;
-
-  const shortformButton = (
-    <LWTooltip
-      title={"You must be logged in to create a shortform"}
-      disabled={!!currentUser}
-      className={classNames(classes.newPostLink, classes.newPostLinkHover)}
-    >
-      <SectionButton onClick={currentUser ? clickNewShortform : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Shortform
-      </SectionButton>
-    </LWTooltip>
-  );
-
-  const newPostButton = (
-    <LWTooltip
-      title={
-        currentUser
-          ? `Create a post tagged with the ${startCase(
-              tag.name
-            )} topic — by default this will appear here and on the frontpage`
-          : "You must be logged in to create a post"
-      }
-      className={classes.newPostLink}
-    >
-      <Link
-        to={`/newPost?subforumTagId=${tag._id}`}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
-            });
-            ev.preventDefault();
-          }
-        }}
-      >
-        <SectionButton>
-          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
-        </SectionButton>
-      </Link>
-    </LWTooltip>
-  );
   
-  const feedLayoutComponent = <>
+  const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
       <div className={classes.feedPostWrapper}>
         <RecentDiscussionThread
@@ -216,8 +149,9 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       firstPageSize={15}
       pageSize={20}
       refetchRef={refetchRef}
-      resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
-      sortKeyType={subforumSortingTypes[sortBy]}
+      // type is guaranteed to be SubforumSorting by the `sortByOptions` logic above
+      resolverName={`Subforum${subforumSortingToResolverName(sortBy as SubforumSorting)}Feed`}
+      sortKeyType={(subforumSortingTypes as AnyBecauseTodo)[sortBy]}
       resolverArgs={{
         tagId: "String!",
         af: "Boolean",
@@ -290,7 +224,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   </>;
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag, {...query, sortedBy: sortBy}),
     limit: 10
   }
   const listLayoutComponent = (
@@ -311,39 +245,22 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     </div>
   );
 
-  const layoutComponents: Record<SubforumLayout, JSX.Element> = {
-    feed: feedLayoutComponent,
+  const layoutComponents: Record<PostsLayout, JSX.Element> = {
+    card: cardLayoutComponent,
     list: listLayoutComponent
   }
 
   return (
-    <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+    <div className={classes.centralColumn}>
       {query.commentId && (
         <div className={classes.commentPermalink}>
           <CommentPermalink documentId={query.commentId} />
         </div>
       )}
       <div className={classes.feedHeader}>
-        <div className={classes.feedHeaderButtons}>
-          {shortformButton}
-          {newPostButton}
-        </div>
-        <LWTooltip title={`${showSettings ? "Hide" : "Show"} options for sorting and layout`} placement="top-end">
-          <div
-            className={classes.listSettingsToggle}
-            onClick={() => {
-              setShowSettings(!showSettings);
-            }}
-          >
-            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? preferredHeadingCase('Posts Expanded') : preferredHeadingCase('Posts Collapsed')}</span></span>} />
-          </div>
-        </LWTooltip>
+        <PostsListSortDropdown value={sortBy} options={sortByOptions}/>
+        <PostsLayoutDropdown value={layout} />
       </div>
-      {showSettings && (
-        <div className={classes.listSettingsContainer}>
-          <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
-        </div>
-      )}
       {newShortformOpen && (
         <div className={classes.newShortformContainer}>
           {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time

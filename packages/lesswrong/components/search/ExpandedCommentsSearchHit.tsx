@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 6,
     fontSize: 15,
     lineHeight: '22px',
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
   },

@@ -32,7 +32,7 @@ export const ModerationTemplateItem = ({classes, template}: {
     {edit 
       ? <BasicFormStyles>
           <WrappedSmartForm
-            collection={ModerationTemplates}
+            collectionName="ModerationTemplates"
             documentId={template._id}
             mutationFragment={getFragment('ModerationTemplateFragment')}
             queryFragment={getFragment('ModerationTemplateFragment')}

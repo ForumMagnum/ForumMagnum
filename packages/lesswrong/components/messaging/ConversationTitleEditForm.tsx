@@ -17,7 +17,7 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
       <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm
-          collection={Conversations}
+          collectionName="Conversations"
           documentId={documentId}
           fragment={getFragment('conversationsListFragment')}
           queryFragment={getFragment('conversationsListFragment')}

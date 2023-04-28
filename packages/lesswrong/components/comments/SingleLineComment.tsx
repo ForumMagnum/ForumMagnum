@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
-import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap } from '../tagging/CoreTagIcon';
+import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -65,9 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   karma: {
     display:"inline-block",
     textAlign: "center",
-    width: 30,
     paddingTop: SINGLE_LINE_PADDING_TOP,
     paddingRight: SINGLE_LINE_PADDING_TOP,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   date: {
     display:"inline-block",
@@ -132,11 +133,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   metaNotice: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     marginRight: theme.spacing.unit
   },
   postTitle: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     marginRight: 20
   },
   preview: {
@@ -187,7 +188,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
-        <CommentUserName comment={comment} simple={true} hideSprout className={classes.username} />
+        <CommentUserName
+          comment={comment}
+          simple
+          className={classes.username}
+        />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}

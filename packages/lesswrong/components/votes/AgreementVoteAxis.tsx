@@ -5,6 +5,8 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './withVote';
 import { isEAForum } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
+import { userCanVote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,6 +46,9 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   const collection = getCollection(voteProps.collectionName);
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
+  const currentUser = useCurrentUser();
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   let documentTypeName = "comment";
   if (collection == Posts) {
@@ -53,9 +58,32 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     documentTypeName = "revision";
   }
   
-  return <>
+  const karmaTooltipTitle = hideKarma
+    ? 'This post has disabled karma visibility'
+    : <div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
+
+  const TooltipIfDisabled = (canVote
+    ? ({children}: {children: React.ReactNode}) => <>{children}</>
+    : ({children}: {children: React.ReactNode}) => <LWTooltip
+      placement="top"
+      title={<>
+        <div>{whyYouCantVote}</div>
+        <div>{karmaTooltipTitle}</div>
+      </>}
+    >
+      {children}
+    </LWTooltip>
+  )
+  const TooltipIfEnabled = (canVote
+    ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) => <LWTooltip {...props}>
+      {children}
+    </LWTooltip>
+    : ({children}: {children: React.ReactNode}) => <>{children}</>
+  );
+  
+  return <TooltipIfDisabled>
     <span className={classes.agreementSection}>
-      <LWTooltip
+      <TooltipIfEnabled
         title={<div><b>Agreement: Downvote</b><br />How much do you <b>disagree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong downvote, click-and-hold.<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
@@ -63,24 +91,23 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
           VoteIconComponent={Components.VoteAgreementIcon}
           axis="agreement"
           orientation="left" color="error" upOrDown="Downvote"
+          enabled={canVote}
           {...voteProps}
         />
-      </LWTooltip>
+      </TooltipIfEnabled>
       
       <span className={classes.agreementScore}>
-        {hideKarma ?
-          <LWTooltip title={'This post has disabled karma visibility'}>
-            <span>{' '}</span>
-          </LWTooltip> :
-          <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-            <span className={classes.voteScore}>
-              {karma}
-            </span>
-          </LWTooltip>
-        }
+        <TooltipIfEnabled title={karmaTooltipTitle} placement="bottom">
+          {hideKarma
+            ? <span>{' '}</span>
+            : <span className={classes.voteScore}>
+                {karma}
+              </span>
+          }
+        </TooltipIfEnabled>
       </span>
       
-      <LWTooltip
+      <TooltipIfEnabled
         title={<div><b>Agreement: Upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
@@ -88,11 +115,12 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
           VoteIconComponent={Components.VoteAgreementIcon}
           axis="agreement"
           orientation="right" color="secondary" upOrDown="Upvote"
+          enabled={canVote}
           {...voteProps}
         />
-      </LWTooltip>
+      </TooltipIfEnabled>
     </span>
-  </>
+  </TooltipIfDisabled>
 }
 
 

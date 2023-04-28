@@ -132,8 +132,23 @@ type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
 export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
-type MongoIndexSpec = Record<string, 1 | -1> | string;
-type MongoEnsureIndexOptions = Record<string, any>;
+
+type FieldOrDottedPath<T> = keyof T | `${keyof T&string}.${string}`
+type MongoIndexKeyObj<T> = Partial<Record<FieldOrDottedPath<T>,1|-1|"2dsphere">>;
+type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
+type MongoEnsureIndexOptions<T> = {
+  partialFilterExpression?: Record<string, any>,
+  unique?: boolean,
+  name?: string,
+  collation?: {
+    locale: string,
+    strength: number,
+  },
+}
+type MongoIndexSpecification<T> = MongoEnsureIndexOptions<T> & {
+  key: MongoIndexKeyObj<T>
+}
+
 type MongoDropIndexOptions = {};
 
 type MongoBulkInsert<T extends DbObject> = {document: T};

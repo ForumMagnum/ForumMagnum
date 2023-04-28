@@ -1,7 +1,7 @@
 import {canMention, userMentionQuery, userMentionValue} from '../../lib/pingback'
 
 type ValidationResult = { valid: boolean, message?: string }
-export const checkEditorValid = (document, currentUser: UsersCurrent | null): ValidationResult => {
+export const checkEditorValid = (document: AnyBecauseTodo, currentUser: UsersCurrent | null): ValidationResult => {
   if (!currentUser) return {valid: false, message: 'You must be logged in to post.'}
 
   const verifyCanMention = canMention(currentUser, countMentions(document))
@@ -12,12 +12,12 @@ export const checkEditorValid = (document, currentUser: UsersCurrent | null): Va
   }
 }
 
-function countMentions(document) {
+function countMentions(document: AnyBecauseTodo): number {
   const rootElement = document.getRoot()
 
   return countMentionsRecursively(rootElement)
 
-  function countMentionsRecursively(node) {
+  function countMentionsRecursively(node: AnyBecauseTodo) {
     let mentions = 0
 
     for (const child of node.getChildren()) {

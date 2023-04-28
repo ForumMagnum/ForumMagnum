@@ -579,7 +579,7 @@ function getFullMatch(segment: any, beforeStart: number, afterStart: number, min
         }
     }
 
-    return new Match(beforeStart, afterStart, currentLength, segment);
+    return new (<any>Match)(beforeStart, afterStart, currentLength, segment);
 }
 
 /**
@@ -614,7 +614,7 @@ function createSegment(beforeTokens: any[], afterTokens: any[], beforeIndex: num
  */
 function findMatchingBlocks(segment: any){
     // Create a binary search tree to hold the matches we find in order.
-    var matches = new MatchBinarySearchTree();
+    var matches = new (<any>MatchBinarySearchTree)();
     var match;
     var segments = [segment];
 
@@ -682,7 +682,7 @@ function calculateOperations(beforeTokens: string[], afterTokens: string[]): Arr
     var operations: Array<any> = [];
     var segment = createSegment(beforeTokens, afterTokens, 0, 0);
     var matches = findMatchingBlocks(segment);
-    matches.push(new Match(beforeTokens.length, afterTokens.length, 0, segment));
+    matches.push(new (<any>Match)(beforeTokens.length, afterTokens.length, 0, segment));
 
     for (var index = 0; index < matches.length; index++){
         var match = matches[index];
@@ -840,7 +840,7 @@ TokenWrapper.prototype.combine = function(mapFn: any, tagFn: any){
  * @param {string} className (Optional) The class name to include in the wrapper tag.
  */
 function wrap(tag: string, content: string[], opIndex: number, dataPrefix?: string, className?: string){
-    var wrapper = new TokenWrapper(content);
+    var wrapper = new (<any>TokenWrapper)(content);
     dataPrefix = dataPrefix ? dataPrefix + '-' : '';
     var attrs = ' data-' + dataPrefix + 'operation-index="' + opIndex + '"';
     if (className){

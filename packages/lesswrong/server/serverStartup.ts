@@ -7,7 +7,7 @@ import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
-import { forumTypeSetting } from "../lib/instanceSettings";
+import { forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -46,6 +46,9 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
+  if (isEAForum) {
+    return;
+  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
@@ -202,7 +205,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? scope[key];
+          return global[key as keyof Global] ?? scope[key as "Globals"|"Vulcan"];
         }
       }
     }));

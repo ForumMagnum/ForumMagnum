@@ -12,12 +12,17 @@ import { useTagBySlug } from '../useTag';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
-import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { useSubscribeUserToTag } from '../../../lib/filterSettings';
+import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  tabRow: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   tabs: {
-    margin: '0 auto 0px',
+    marginRight: 'auto',
     '& .MuiTab-root': {
       minWidth: 80,
       [theme.breakpoints.down('xs')]: {
@@ -25,31 +30,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
       }
     },
     '& .MuiTab-labelContainer': {
-      fontSize: '1rem'
-    }
-  },
-  contentGivenImage: {
-    marginTop: 185,
-  },
-  imageContainer: {
-    position: 'absolute',
-    width: "100%",
-    '& > picture > img': {
-      objectFit: 'cover',
-      width: '100%',
-    },
-    [theme.breakpoints.down('sm')]: {
-      '& > picture > img': {
-        height: 270,
-      },
-      top: 77,
-      left: -4,
-    },
-    [theme.breakpoints.up('sm')]: {
-      top: 90,
-      '& > picture > img': {
-        height: 300,
-      },
+      fontSize: '1rem',
+      padding: '28px 12px'
     }
   },
   centralColumn: {
@@ -58,10 +40,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: MAX_COLUMN_WIDTH,
   },
   header: {
-    paddingTop: 19,
-    paddingBottom: 0,
-    paddingLeft: 42,
-    paddingRight: 34,
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
     width: "100%",
@@ -70,31 +48,46 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 32,
     }
   },
-  titleRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
+  titleComponent: {
+    paddingTop: 150,
+    paddingBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 100,
+      paddingLeft: 24,
+      paddingRight: 24,
+    }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography.headline,
+    color: theme.palette.text.alwaysWhite,
     marginTop: 0,
-    fontWeight: 700,
+    fontSize: 40,
+    fontWeight: 600,
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
     }
   },
-  notifyMeButton: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 6,
-    },
+  titleDesktop: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   },
-  wikiSection: {
-    paddingTop: 12,
-    paddingLeft: 42,
-    paddingRight: 42,
-    paddingBottom: 12,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
+  titleMobile: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  subtitle: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.text.alwaysWhite,
+    fontSize: 14,
+  },
+  writeNewButton: {
+    marginRight: 8,
+    [theme.breakpoints.down('xs')]: {
+      display: 'none !important'
+    },
   },
   nextLink: {
     ...theme.typography.commentStyle
@@ -103,46 +96,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: 24,
+    marginTop: 24,
   },
   tableOfContentsWrapper: {
     padding: 24,
-  },
-  membersListLink: {
-    background: 'none',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    color: theme.palette.primary.main,
-    padding: 0,
-    '&:hover': {
-      opacity: 0.5
-    },
-    [theme.breakpoints.up('lg')]: {
-      display: 'none' // only show on mobile (when the sidebar is not showing)
-    }
-  },
-  joinBtn: {
-    // FIXME: refactor to remove these !importants once the old subforum page is deprecated (this is the only other place SubforumSubscribeSection is used)
-    alignItems: 'center !important',
-    padding: '4px 0 0 0 !important',
-    '& button': {
-      minHeight: 0,
-      fontSize: 14,
-      padding: 8
-    },
-    [theme.breakpoints.down('sm')]: {
-      padding: '2px 0 0 0 !important',
-      '& button': {
-        minHeight: 0,
-        fontSize: 12,
-        padding: 6
-      },
-    }
-  },
-  notificationSettings: {
-    marginTop: 6,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 4,
-    }
   },
 });
 
@@ -159,13 +116,11 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect,
     HeadTags,
     TagFlagItem,
-    Typography,
-    RightSidebarColumn,
-    CloudinaryImage2,
+    SubforumLayout,
+    WriteNewButton,
     SubscribeButton,
     TagTableOfContents,
     SidebarSubtagsBox,
-    SubforumWelcomeBox,
     SubforumWikiTab,
     SubforumSubforumTab,
   } = Components;
@@ -211,8 +166,9 @@ const TagSubforumPage2 = ({classes}: {
   
   const [truncated, setTruncated] = useState(true) // Used in SubforumWikiTab, defined here because it can be controlled from the sidebar
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
+  const [newShortformOpen, setNewShortformOpen] = useState(false)
 
-  const multiTerms = {
+  const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
     myPages: {view: "userTags", userId: currentUser?._id},
     //tagFlagId handled as default case below
@@ -238,7 +194,11 @@ const TagSubforumPage2 = ({classes}: {
   });
   const userTagRel = userTagRelResults?.[0];
 
-  const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
+  // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
+  if (query.layout === "feed") {
+    query.layout = "card"
+  }
+  const layout = isPostsLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultPostsLayout
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -268,6 +228,8 @@ const TagSubforumPage2 = ({classes}: {
     setHoveredContributorId(userId);
   }, []);
   
+  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag ?? undefined)
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -277,10 +239,9 @@ const TagSubforumPage2 = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
-  const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
-  const tagFlagItemType = {
+  const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
     myPages: "userPages"
   }
@@ -304,43 +265,46 @@ const TagSubforumPage2 = ({classes}: {
           )}
         </span>
       )}
-      <div className={classes.titleRow}>
-        <Typography variant="display3" className={classes.title}>
-          {tag.name}
-        </Typography>
-        <SubscribeButton
-          tag={tag}
-          userTagRel={userTagRel}
-          subscribeMessage="Subscribe"
-          unsubscribeMessage="Unsubscribe"
-          subscriptionType={subscriptionTypes.newTagPosts}
-          className={classes.notifyMeButton}
-        />
-      </div>
       {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
       Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
-      <Tabs
-        value={tab}
-        onChange={handleChangeTab}
-        className={classes.tabs}
-        textColor="primary"
-        aria-label="select tab"
-        scrollButtons="off"
-      >
-        <Tab label="Posts" value="posts" />
-        <Tab label="Wiki" value="wiki" />
-      </Tabs>
+      <div className={classes.tabRow}>
+        <Tabs
+          value={tab}
+          onChange={handleChangeTab}
+          className={classes.tabs}
+          textColor="primary"
+          aria-label="select tab"
+          scrollButtons="off"
+        >
+          <Tab label="Posts" value="posts" />
+          <Tab label="Wiki" value="wiki" />
+        </Tabs>
+        <WriteNewButton
+          tag={tag}
+          isSubscribed={isSubscribed}
+          setNewShortformOpen={setNewShortformOpen}
+          className={classes.writeNewButton}
+        />
+        <SubscribeButton
+          tag={tag}
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Subscribed"
+          subscriptionType={subscriptionTypes.newTagPosts}
+          isSubscribedOverride={isSubscribed}
+          subscribeUserToTagOverride={subscribeUserToTag}
+        />
+      </div>
     </div>
   );
 
+  const titleComponent = <div className={classNames(classes.titleComponent, classes.centralColumn)}>
+    <div className={classNames(classes.title, classes.titleDesktop)}>{tag.name}</div>
+    <div className={classNames(classes.title, classes.titleMobile)}>{tag.shortName || tag.name}</div>
+    <div className={classes.subtitle}>{tag.subtitle}</div>
+  </div>
+
   const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
     posts: [
-      // Welcome box: "Welcome to the [subforum name] subforum!"
-      <SubforumWelcomeBox
-        html={tag.subforumWelcomeText?.html}
-        className={classes.sidebarBoxWrapper}
-        key={"welcome_box"}
-      />,
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
     wiki: [
@@ -356,9 +320,17 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    posts: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
-    wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
-  }
+    posts: (
+      <SubforumSubforumTab
+        tag={tag}
+        userTagRel={userTagRel}
+        layout={layout}
+        newShortformOpen={newShortformOpen}
+        setNewShortformOpen={setNewShortformOpen}
+      />
+    ),
+    wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />,
+  };
 
   return (
     <AnalyticsContext
@@ -369,19 +341,14 @@ const TagSubforumPage2 = ({classes}: {
     >
       <HeadTags description={headTagDescription} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
-      {tag.bannerImageId && (
-        <div className={classes.imageContainer}>
-          <CloudinaryImage2 publicId={tag.bannerImageId} fullWidthHeader />
-        </div>
-      )}
-      <div className={tag.bannerImageId ? classes.contentGivenImage : ""}>
-        <RightSidebarColumn
-          sidebarComponents={rightSidebarComponents[tab]}
-          header={headerComponent}
-        >
-          {tabComponents[tab]}
-        </RightSidebarColumn>
-      </div>
+      <SubforumLayout
+        titleComponent={titleComponent}
+        bannerImageId={tag.bannerImageId}
+        headerComponent={headerComponent}
+        sidebarComponents={rightSidebarComponents[tab]}
+      >
+        {tabComponents[tab]}
+      </SubforumLayout>
     </AnalyticsContext>
   );
 }

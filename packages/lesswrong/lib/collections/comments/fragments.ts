@@ -67,6 +67,8 @@ registerFragment(`
     votingSystem
     isPinnedOnProfile
     debateResponse
+    rejected
+    modGPTRecommendation
   }
 `);
 
@@ -180,5 +182,15 @@ registerFragment(`
     allVotes {
       voteType
     }
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModGPTAnalysis on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    modGPTAnalysis
   }
 `);

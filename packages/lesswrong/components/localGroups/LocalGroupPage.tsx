@@ -21,13 +21,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     }
   },
   topSectionMap: {
     height: 250,
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -36,7 +36,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     [theme.breakpoints.up('md')]: {
-      marginTop: -50,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -57,9 +57,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 24,
     [theme.breakpoints.down('xs')]: {
       display: 'block',
-    },
-    [theme.breakpoints.up('md')]: {
-      marginTop: isEAForum ? 60 : undefined,
     },
   },
   inactiveGroupTag: {

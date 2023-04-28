@@ -7,7 +7,7 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   map: {
     height: '100vh',
-    marginTop: -50,
+    marginTop: -theme.spacing.mainLayoutPaddingTop,
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
     },

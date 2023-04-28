@@ -52,7 +52,7 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
     newDocument: T,
     fieldName: string,
   }) => {
-    if (newDocument[fieldName] === undefined) {
+    if (newDocument[fieldName as keyof T] === undefined) {
       return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
@@ -63,8 +63,8 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
     document: T,
     fieldName: string,
   }) => {
-    const wasValid = (oldDocument[fieldName] !== undefined && oldDocument[fieldName] !== null);
-    const isValid = (document[fieldName] !== undefined && document[fieldName] !== null);
+    const wasValid = (oldDocument[fieldName as keyof T] !== undefined && oldDocument[fieldName as keyof T] !== null);
+    const isValid = (document[fieldName as keyof T] !== undefined && document[fieldName as keyof T] !== null);
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }

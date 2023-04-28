@@ -12,7 +12,7 @@ import Table from "./Table";
  * drop a field that is not in the schema.
  */
 class DropFieldQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string) {
     const fields = table.getFields();
     const fieldType = fields[fieldName];
     if (!fieldType) {

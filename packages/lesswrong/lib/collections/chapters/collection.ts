@@ -5,7 +5,6 @@ import Sequences from '../sequences/collection';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbChapter> = {
   newCheck: async (user: DbUser|null, document: DbChapter|null) => {
@@ -33,7 +32,7 @@ const options: MutationOptions<DbChapter> = {
 export const Chapters: ChaptersCollection = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Chapters'),
   mutations: getDefaultMutations('Chapters', options),

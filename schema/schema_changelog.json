@@ -154,9 +154,33 @@
     "acceptedByMigration": "20230403T133656.add_UserActivities.ts",
     "timestamp": "2023-04-03T13:36:56.000Z"
   },
+    "acceptsSchemaHash": "cc99890ebfba1e45ded25456d68f852b",
+    "acceptedByMigration": "20230404T170523.add_subtitle.ts",
+    "timestamp": "2023-04-04T17:05:23.000Z"
+  },
   {
-    "acceptsSchemaHash": "a22731092d3f9f7c414a9695bbc8c6a9",
-    "acceptedByMigration": "20230404T180541.make_posts_searchable.ts",
-    "timestamp": "2023-04-04T18:05:41.000Z"
+    "acceptsSchemaHash": "380d30e2ea28cacb71bbc6d29e540a6e",
+    "acceptedByMigration": "20230407T214751.add_rejection_fields.ts",
+    "timestamp": "2023-04-07T21:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1728cb3d532414ce56d22566ab53c3be",
+    "acceptedByMigration": "20230411T172612.add_hideCommunitySection_to_users.ts",
+    "timestamp": "2023-04-11T17:26:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "64c57945e3105d8daf5be8d51a1ee559",
+    "acceptedByMigration": "20230412T185846.add_modGPTAnalysis.ts",
+    "timestamp": "2023-04-12T18:58:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1058503cdf3522b15f94b3499566433a",
+    "acceptedByMigration": "20230413T184626.add_rejected_reasons_fields.ts",
+    "timestamp": "2023-04-13T18:46:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c4afbf05797c266012f5ba5ae0119c87",
+    "acceptedByMigration": "20230424T200407.add_ignore_rate_limits.ts",
+    "timestamp": "2023-04-24T20:04:07.000Z"
   }
 ]

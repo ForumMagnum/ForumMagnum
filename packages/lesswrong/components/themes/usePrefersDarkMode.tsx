@@ -13,7 +13,9 @@ const buildQuery = () =>
       removeEventListener: () => {},
     };
 
-export const PrefersDarkModeProvider = ({children}) => {
+export const PrefersDarkModeProvider = ({children}: {
+  children: React.ReactNode
+}) => {
   const [query] = useState(() => buildQuery());
   const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
 

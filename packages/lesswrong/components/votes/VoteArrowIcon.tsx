@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 'inherit',
     width: 'initial',
     height: 'initial',
-    marginTop: isEAForum ? 2 : undefined,
     padding: 0,
     '&:hover': {
       backgroundColor: 'transparent',
@@ -87,15 +86,6 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
-  const { LWTooltip } = Components;
-
-  const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
-      <LWTooltip title={"You do not have permission to vote on this"} placement="top">
-        {children}
-      </LWTooltip>
-    );
 
   if (!enabled) {
     eventHandlers = {};
@@ -110,13 +100,11 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       onClick={eventHandlers.handleClick}
       disableRipple
     >
-      <Tooltip>
-        <Icon
-          className={classes.smallArrow}
-          color={(voted || alwaysColored) ? color : 'inherit'}
-          viewBox='6 6 12 12'
-        />
-      </Tooltip>
+      <Icon
+        className={classes.smallArrow}
+        color={(voted || alwaysColored) ? color : 'inherit'}
+        viewBox='6 6 12 12'
+      />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon

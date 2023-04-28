@@ -1,7 +1,7 @@
 import moment from "moment";
 import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
@@ -34,7 +34,7 @@ export function getTimeframeForRateLimit(type: RateLimitType) {
 export function getModeratorRateLimit(user: DbUser) {
   return ModeratorActions.findOne({
     userId: user._id,
-    type: {$in: rateLimits},
+    type: {$in: postAndCommentRateLimits},
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
   }, {
     sort: {
@@ -46,6 +46,15 @@ export function getModeratorRateLimit(user: DbUser) {
 export function getAverageContentKarma(content: VoteableType[]) {
   const runningContentKarma = content.reduce((prev, curr) => prev + curr.baseScore, 0);
   return runningContentKarma / content.length;
+}
+
+export async function userHasActiveModeratorActionOfType(user: DbUser, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
+  const action = await ModeratorActions.findOne({
+    userId: user._id,
+    type: moderatorActionType,
+    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+  });
+  return !!action;
 }
 
 interface ModeratableContent extends VoteableType {
@@ -87,8 +96,9 @@ export interface UserContentCountPartial {
 }
 
 export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount ?? 0
-  const commentCount = user.commentCount ?? 0
+  // Note: there's a bug somewhere that sometimes makes postCount or commentCount negative, which breaks things. Math.max ensures minimum of 0.
+  const postCount = Math.max(user.postCount ?? 0, 0)
+  const commentCount = Math.max(user.commentCount ?? 0, 0)
   return postCount + commentCount
 }
 
@@ -96,7 +106,7 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
   if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
-  const neverReviewed = !user.reviewedByUserId;
+  const neverReviewed = !user.reviewedByUserId && !user.reviewedAt;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
 
   if (fullyReviewed) return 'alreadyApproved';

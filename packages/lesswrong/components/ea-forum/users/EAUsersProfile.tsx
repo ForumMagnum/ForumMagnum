@@ -13,7 +13,7 @@ import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
@@ -360,7 +360,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
   // posts list sort settings
-  const currentSorting = query.sortedBy || query.view ||  "new"
+  const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
   const currentFilter = query.filter ||  "all"
   const ownPage = currentUser?._id === user._id
   const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
@@ -618,6 +618,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
               Manage subscriptions
+            </Link>}
+            {currentUser && currentUser._id === user._id && <Link to="/history">
+              Read history
             </Link>}
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account settings

@@ -166,6 +166,11 @@ interface DbComment extends DbObject {
   title: string
   relevantTagIds: Array<string>
   debateResponse: boolean | null
+  rejected: boolean
+  modGPTAnalysis: string | null
+  modGPTRecommendation: string | null
+  rejectedReason: string | null
+  rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -395,7 +400,7 @@ interface ModerationTemplatesCollection extends CollectionBase<DbModerationTempl
 interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
   name: string
-  collectionName: "Messages" | "Comments"
+  collectionName: "Messages" | "Comments" | "Rejections"
   order: number
   deleted: boolean
   createdAt: Date
@@ -410,7 +415,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -632,9 +637,13 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
+  rejected: boolean
+  rejectedReason: string | null
+  rejectedByUserId: string
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -880,6 +889,7 @@ interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
   shortName: string | null
+  subtitle: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -909,7 +919,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<string>
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -1005,6 +1015,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  hideCommunitySection: boolean
   showCommunityInRecentDiscussion: boolean
   noComicSans: boolean
   petrovOptOut: boolean | null
@@ -1257,7 +1268,7 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
-  subforumPreferredLayout: "feed" | "list"
+  subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string>
   interestedIn: Array<string>
   allowDatadogSessionReplay: boolean | null

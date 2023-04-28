@@ -47,7 +47,7 @@ const EAHome = () => {
       <EAHomeMainContent FrontpageNode={
         () => <>
           <HomeLatestPosts />
-          <EAHomeCommunityPosts />
+          {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
             title="Recent comments"

@@ -18,6 +18,7 @@ registerFragment(`
     userId
     coauthorStatuses
     hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -104,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -600,5 +603,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostWithRateLimit on Post {
+    _id
+    postSpecificRateLimit
   }
 `);

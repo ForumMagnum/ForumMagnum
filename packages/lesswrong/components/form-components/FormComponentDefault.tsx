@@ -1,10 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-class FormComponentDefault extends Component {
-  render() {
-    return <Components.MuiTextField {...this.props as any} />
-  }
+const FormComponentDefault = (props: FormComponentProps<string>) => {
+  return <Components.MuiTextField {...props} />
 }
 
 const FormComponentDefaultComponent = registerComponent("FormComponentDefault", FormComponentDefault);

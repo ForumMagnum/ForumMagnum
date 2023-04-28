@@ -19,8 +19,8 @@ const runRSSImport = async () => {
       const url = feed.url;
       const currentPosts = await feedparser.parse(url);
       
-      let newPosts: Array<any> = currentPosts.filter(function (post) {
-        return !previousPosts.some(prevPost => {
+      let newPosts: Array<any> = currentPosts.filter(function (post: AnyBecauseTodo) {
+        return !previousPosts.some((prevPost: AnyBecauseTodo) => {
           return post.guid === prevPost.guid
         })
       })

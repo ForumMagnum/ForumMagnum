@@ -2,18 +2,8 @@ import * as _ from 'underscore';
 import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
 import { disableEnsureIndexSetting } from './instanceSettings';
 
-export type IndexDefinition = {
-  key: Record<string, 1>,
-  partialFilterExpression?: Record<string, any>,
-  unique?: boolean,
-  name?: string,
-  collation?: {
-    locale: string,
-    strength: number,
-  },
-}
 
-export const expectedIndexes: Partial<Record<CollectionNameString, Array<IndexDefinition>>> = {};
+export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
@@ -115,20 +105,22 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
 //   prefix: [ordered dictionary] Collection fields from the default view
 //   suffix: [ordered dictionary] Collection fields from the default view
 //
-export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix}: {
-  viewFields: any,
-  prefix: any,
-  suffix: any,
-})
+export function combineIndexWithDefaultViewIndex<T extends DbObject>({viewFields, prefix, suffix}: {
+  viewFields: MongoIndexKeyObj<T>,
+  prefix: MongoIndexKeyObj<T>,
+  suffix: MongoIndexKeyObj<T>,
+}): MongoIndexKeyObj<T>
 {
   let combinedIndex = {...prefix};
   for (let key in viewFields) {
+    const keyWithType = key as keyof(typeof viewFields)
     if (!(key in combinedIndex))
-      combinedIndex[key] = viewFields[key];
+      combinedIndex[keyWithType] = viewFields[keyWithType];
   }
   for (let key in suffix) {
+    const keyWithType = key as keyof(typeof suffix)
     if (!(key in combinedIndex))
-      combinedIndex[key] = suffix[key];
+      combinedIndex[keyWithType] = suffix[keyWithType];
   }
   return combinedIndex;
 }

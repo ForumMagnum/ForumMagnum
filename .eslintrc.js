@@ -84,6 +84,7 @@ module.exports = {
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {"paths": [
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+      { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
       { name: "@material-ui", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
       { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },

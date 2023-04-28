@@ -30,7 +30,7 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
-type PermissionableUser = UsersMinimumInfo & {
+export type PermissionableUser = UsersMinimumInfo & {
   readonly groups: Array<string>
   readonly banned: Date
 }
@@ -40,7 +40,7 @@ export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<strin
   if (!user) { // guests user
     return ['guests'];
   }
-  if (user.banned > moment().toDate()) { // banned users have no membership permissions
+  if (user.banned && user.banned > moment().toDate()) { // banned users have no membership permissions
     return ['guests'];
   }
   let userGroups: Array<string> = ['members'];

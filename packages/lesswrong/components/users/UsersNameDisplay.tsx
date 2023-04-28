@@ -14,8 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   noColor: {
     color: "inherit !important"
-  }
-})
+  },
+});
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean)=>void};
 export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >({disableNoKibitz: false, setDisableNoKibitz: ()=>{}});
@@ -24,7 +24,15 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
+const UsersNameDisplay = ({
+  user,
+  color=false,
+  nofollow=false,
+  simple=false,
+  classes,
+  tooltipPlacement="left",
+  className,
+}: {
   user: UsersMinimumInfo|null|undefined,
   color?: boolean,
   nofollow?: boolean,
@@ -47,8 +55,8 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, clas
   if (!user || user.deleted) {
     return <Components.UserNameDeleted userShownToAdmins={user}/>
   }
-  const { UserTooltip, LWTooltip } = Components
-  
+  const { UserTooltip } = Components
+
   const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
@@ -58,16 +66,22 @@ const UsersNameDisplay = ({user, color=false, nofollow=false, simple=false, clas
     </span>
   }
 
-  return <span {...eventHandlers} className={className}>
-    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-    <LWTooltip title={<UserTooltip user={user}/>} placement={tooltipPlacement} inlineBlock={false}>
-      <Link to={userGetProfileUrl(user)} className={colorClass}
-        {...(nofollow ? {rel:"nofollow"} : {})}
-      >
-        {displayName}
-      </Link>
-    </LWTooltip>
-    </AnalyticsContext>
+  return <span className={className}>
+    <span {...eventHandlers}>
+      <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+        <UserTooltip
+          user={user}
+          placement={tooltipPlacement}
+          inlineBlock={false}
+        >
+          <Link to={userGetProfileUrl(user)} className={colorClass}
+            {...(nofollow ? {rel:"nofollow"} : {})}
+          >
+            {displayName}
+          </Link>
+        </UserTooltip>
+      </AnalyticsContext>
+    </span>
   </span>
 }
 

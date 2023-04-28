@@ -26,14 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * voting-on-tag-relevance as the post page. Styling doesn't match between these
  * two, which is moderately unfortunate.
  */
-const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder, classes}: {
-  value: any,
-  path: string,
-  document: any,
-  label?: string,
-  placeholder?: string,
-  formType: "edit"|"new",
-  updateCurrentValues: any,
+const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder, classes}: FormComponentProps<any> & {
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
@@ -51,9 +44,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
 
   if (loading) return <Loading/>
   if (!coreTags) return null
-  
-  const coreTagsToDisplay = coreTags.filter(tag => tag.isSubforum && !shouldHideTagForVoting(currentUser, tag));
-  
+
+  const post = {userId: currentUser?._id};
+  const coreTagsToDisplay = coreTags.filter(
+    tag => tag.isSubforum && !shouldHideTagForVoting(currentUser, tag, post),
+  );
+
   const selectedTagIds = Object.keys(value||{})
   const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTagsToDisplay.find(tag => tag._id === tagId)) : []
 
@@ -61,7 +57,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
    * post tagRelevance field needs to look like {string: number}
    */
   const updateValuesWithArray = (arrayOfTagIds: string[]) => {
-    updateCurrentValues(
+    void updateCurrentValues(
       mapValues(
         { tagRelevance: arrayOfTagIds },
         (arrayOfTagIds: string[]) => toDictionary(

@@ -3,7 +3,7 @@ import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 
-const getNestedProperty = function (obj, desc) {
+const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
@@ -110,8 +110,8 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum"|"EAForumCS";
-export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum","EAForumCS"];
+export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
 export const isLW = forumTypeSetting.get() === "LessWrong"
@@ -171,3 +171,8 @@ export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<str
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 
 export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");
+
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");

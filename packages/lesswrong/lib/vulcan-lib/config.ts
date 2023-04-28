@@ -21,7 +21,6 @@ Globals.VERSION = '2.0.0';
 SimpleSchema.extendOptions([
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // extra form properties
-  'inputProperties', // extra form properties
   'input', // SmartForm control (String or React component)
   'control', // SmartForm control (String or React component) (legacy)
   'order', // position in the form

@@ -16,7 +16,7 @@ import GraphQLJSON from 'graphql-type-json';
 // that was reversed.
 //
 
-const docIsTagRel = (currentUser, document) => {
+const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) => {
   // TagRel votes are treated as public
   return document?.collectionName === "TagRels"
 }

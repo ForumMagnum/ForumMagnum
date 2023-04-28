@@ -23,7 +23,7 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
       </DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm
-          collection={TagFlags}
+          collectionName="TagFlags"
           documentId={tagFlagId}
           queryFragment={getFragment("TagFlagEditFragment")}
           mutationFragment={getFragment("TagFlagFragment")}

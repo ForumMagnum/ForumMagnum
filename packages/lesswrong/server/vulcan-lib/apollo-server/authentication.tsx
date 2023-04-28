@@ -108,7 +108,7 @@ function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverConte
   })
 }
 
-export async function createAndSetToken(req, res, user) {
+export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo, user: DbUser) {
   const token = randomBytes(32).toString('hex');
   (res as any).setHeader("Set-Cookie", `loginToken=${token}; Max-Age=315360000; Path=/`);
 
@@ -192,7 +192,7 @@ const authenticationResolvers = {
           if (!user) throw new AuthenticationError("Invalid username/password")
           if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
 
-          req!.logIn(user, async err => {
+          req!.logIn(user, async (err: AnyBecauseTodo) => {
             if (err) throw new AuthenticationError(err)
             token = await createAndSetToken(req, res, user)
             resolve(token)
@@ -211,7 +211,7 @@ const authenticationResolvers = {
         token: null
       }
     },
-    async signup(root: void, args, context: ResolverContext) {
+    async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
       const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
@@ -318,7 +318,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 };
 
 
-function registerLoginEvent(user, req) {
+function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
   const document = {
     name: 'login',
     important: false,

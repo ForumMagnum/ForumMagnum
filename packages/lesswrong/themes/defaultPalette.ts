@@ -303,6 +303,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
+    imageOverlay: 'rgba(0,0,0,0.4)',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -373,6 +374,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sunshineSidebarHoverInfo: `-3px 0 5px 0px ${shades.boxShadowColor(.1)}`,
     sunshineSendMessage: `0 0 10px ${shades.boxShadowColor(.5)}`,
     lwCard: `0 0 10px ${shades.boxShadowColor(.2)}`,
+    eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
   },

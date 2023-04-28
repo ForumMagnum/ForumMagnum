@@ -58,7 +58,7 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
       else
         return obj;
     } else if (typeof obj === 'object') {
-      let result = {};
+      let result: typeof obj = {};
       for (let key of Object.keys(obj)) {
         result[key] = objReplaceColors(obj[key], replacement);
       }

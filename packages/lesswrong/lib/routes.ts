@@ -732,6 +732,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
     },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
+    },
   ],
   LessWrong: [
     {
@@ -1267,6 +1273,12 @@ addRoute(
     path: '/admin/moderationTemplates',
     componentName: 'ModerationTemplatesPage',
     title: "Moderation Message Templates"
+  },
+  {
+    name: 'ModGPTDashboard',
+    path: '/admin/modgpt',
+    componentName: 'ModGPTDashboard',
+    title: "ModGPT Dashboard"
   },
   {
     name: 'moderation',

@@ -153,7 +153,7 @@ function preprocessPostBody(post: DbPost): string {
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
-  const result = {preprocessedBody: {}};
+  const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostBody(post);
   }
@@ -190,13 +190,15 @@ async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> 
   return account;
 }
 
-let tagBotUserIdCache: {id:string|null}|null = null;
+let tagBotUserIdCache: Promise<{id:string|null}>|null = null;
 export async function getTagBotUserId(context: ResolverContext): Promise<string|null> {
   if (!tagBotUserIdCache) {
-    const tagBotAccount = await getTagBotAccount(context);
-    tagBotUserIdCache = {id: tagBotAccount?._id ?? null};
+    tagBotUserIdCache = (async () => {
+      const tagBotAccount = await getTagBotAccount(context);
+      return {id: tagBotAccount?._id ?? null};
+    })();
   }
-  return tagBotUserIdCache.id;
+  return (await tagBotUserIdCache).id;
 }
 
 export async function getAutoAppliedTags(): Promise<DbTag[]> {

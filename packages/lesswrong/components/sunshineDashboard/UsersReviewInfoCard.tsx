@@ -2,13 +2,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag';
-import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { Link } from '../../lib/reactRouterWrapper'
+
+export const CONTENT_LIMIT = 20
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,10 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     paddingBottom: 14,
     borderBottom: theme.palette.border.extraFaint
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -150,9 +146,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -163,7 +159,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
@@ -171,7 +167,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
 
   const reviewTrigger = getReasonForReview(user)
@@ -180,17 +176,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div>
-      <div className={classes.displayName}>
-        <UsersName user={user}/>
-        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
-        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
-      </div>
-      <UserReviewStatus user={user}/>
+    <div className={classes.displayName}>
+      <UsersName user={user}/>
+      <FirstContentIcons user={user}/>
+      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
-
-    <div className={classes.row}>
+    <UserReviewStatus user={user}/>
+    <Row>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -200,7 +193,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
-    </div>
+    </Row>
   </div>
 
   const votesRow = <div className={classes.votesRow}>
@@ -236,7 +229,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
