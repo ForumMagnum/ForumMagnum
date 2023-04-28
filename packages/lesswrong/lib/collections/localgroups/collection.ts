@@ -30,7 +30,7 @@ const options: MutationOptions<DbLocalgroup> = {
 export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "switching",
   schema,
   resolvers: getDefaultResolvers('Localgroups'),
   mutations: getDefaultMutations('Localgroups', options),

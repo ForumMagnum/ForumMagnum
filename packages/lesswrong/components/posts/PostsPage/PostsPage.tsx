@@ -21,6 +21,7 @@ import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import Helmet from 'react-helmet';
 
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
@@ -35,7 +36,6 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
-const TYPE_III_PLAYER_SCRIPT = '<script type="module" src="https://embed.type3.audio/player.js" crossorigin></script><type-3-player></type-3-player>'
 const TYPE_III_DATE_CUTOFF = new Date('2023-04-01')
 
 /** Get a og:description-appropriate description for a post */
@@ -174,7 +174,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF;
+  const showTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
 
   const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -351,6 +351,9 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <Helmet>
+      {showTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
+    </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -363,7 +366,8 @@ const PostsPage = ({post, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
-        {!post.podcastEpisode && allowTypeIIIPlayer && <div id="type-iii-player" dangerouslySetInnerHTML={{ __html: TYPE_III_PLAYER_SCRIPT }} />}
+        {/* @ts-ignore */}
+        {showTypeIIIPlayer && <type-3-player></type-3-player>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>

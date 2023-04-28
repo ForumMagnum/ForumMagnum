@@ -191,6 +191,22 @@ ensureIndex(Comments,
   { name: "comments.top_comments" }
 );
 
+Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, lastSubthreadActivity: -1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.recent_replies" }
+);
+
 Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
   return {
     selector: {
