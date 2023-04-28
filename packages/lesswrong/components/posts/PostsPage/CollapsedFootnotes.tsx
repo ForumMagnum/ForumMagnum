@@ -53,8 +53,9 @@ const splitFootnotes = (html: string, previewCount: number) => {
     ? {
       preview: extractChildren(elem, `li:nth-child(-n + ${previewCount})`),
       rest: extractChildren(elem, `li:nth-child(n + ${previewCount + 1})`),
+      totalCount: elem.querySelectorAll("li").length,
     }
-    : {preview: "", rest: ""};
+    : {preview: "", rest: "", totalCount: 0};
 }
 
 const CollapsedFootnotes = ({
@@ -79,7 +80,17 @@ const CollapsedFootnotes = ({
     return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
   }, []);
 
-  const {preview, rest} = splitFootnotes(footnotesHtml, previewCount);
+  const {preview, rest, totalCount} = splitFootnotes(footnotesHtml, previewCount);
+
+  if (totalCount < 1) {
+    return null;
+  }
+
+  if (totalCount <= previewCount) {
+    return (
+      <ol {...attributes} dangerouslySetInnerHTML={{__html: preview}} />
+    );
+  }
 
   return (
     <div {...attributes}>
