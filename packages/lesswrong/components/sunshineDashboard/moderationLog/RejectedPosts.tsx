@@ -5,6 +5,7 @@ import { usePostsList } from '../../posts/usePostsList';
 import Card from '@material-ui/core/Card'
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { htmlToText } from 'html-to-text';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -18,31 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 12,
     marginTop: 24
   },
-  reason: {
-    color: theme.palette.grey[500],
-    ...theme.typography.body2,
-    maxHeight: 20,
-    overflow: "hidden",
-    marginBottom: 12,
-    '&:hover': {
-      opacity: .5
-    },
-    '& *': {
-      visibility: "hidden",
-      margin: 0,
-      padding: 0,
-    },
-    '& strong': {
-      visibility: "visible",
-      fontWeight: 500,
-      fontSize: '1rem',
-      color: theme.palette.grey[500]
-    }
-  },
   reasonTooltip: {
-    padding: 4,
-    paddingLeft: 2,
-    paddingRight: 12,
+    paddingTop: 4,
+    paddingBottom: 2,
+    paddingLeft: 0,
+    paddingRight: 16,
     width: 400,
     fontSize: '1rem',
     marginBottom: 12
@@ -60,7 +41,15 @@ export const RejectedPosts = ({classes}: {
     itemProps,
   }= usePostsList({terms:{view:'rejected'}, enableTotal: true});
 
-  const { SingleColumnSection, SectionFooter, LoadMore, LWTooltip, ContentItemBody, ContentStyles, PostsHighlight } = Components
+  const { SingleColumnSection, SectionFooter, LoadMore, LWTooltip, ContentItemBody, ContentStyles, PostsHighlight, MetaInfo } = Components
+
+  function getShortReason (reason: string|null) {
+    const reasonSnippet = htmlToText(reason || "").split(".")[0]
+    const bulletStrippedSnippet = reasonSnippet.includes(" * ") ? reasonSnippet.split(" * ")[1] : reasonSnippet
+    if (bulletStrippedSnippet) return `Rejected for "${bulletStrippedSnippet}"`
+    return "Rejected"
+  }
+
   return <SingleColumnSection className={classes.root}>
     {itemProps?.map(({post}) => 
       <div className={classes.rejectedPost} key={post._id}>
@@ -68,14 +57,13 @@ export const RejectedPosts = ({classes}: {
           <LWTooltip placement="bottom-start" tooltip={false} clickable title={<Card>
             <ContentStyles contentType='comment'>
               <ContentItemBody className={classes.reasonTooltip}
-                dangerouslySetInnerHTML={{__html: post.rejectedReason || '' }}
+                dangerouslySetInnerHTML={{__html: post.rejectedReason || '<ul><li>No specific reason given</li></ul>' }}
               />
             </ContentStyles>
           </Card>}>
-            <div
-              className={classes.reason}
-              dangerouslySetInnerHTML={{__html: post.rejectedReason || '' }}
-            />
+            <MetaInfo>
+              {getShortReason(post.rejectedReason)}
+            </MetaInfo>
           </LWTooltip>
         </div>
         <div className={classes.title}><Link to={postGetPageUrl(post)}>{post.title}</Link></div>
