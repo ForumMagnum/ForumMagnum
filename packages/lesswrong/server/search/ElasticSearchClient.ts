@@ -1,4 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
+import type { SearchResponse, SearchHit } from "@elastic/elasticsearch/lib/api/types";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
@@ -17,6 +18,10 @@ import { getAlgoliaFilter } from "./algoliaFilters";
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 import Globals from "../../lib/vulcan-lib/config";
+
+export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
+export type ElasticSearchHit = SearchHit<ElasticDocument>;
+export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 
 class ElasticSearchClient {
   private client: Client;
@@ -38,6 +43,53 @@ class ElasticSearchClient {
         username,
         password,
       },
+    });
+  }
+
+  search({index, search, offset = 0, limit = 10, preTag, postTag}: {
+    index: string,
+    search: string
+    offset?: number,
+    limit?: number,
+    preTag?: string,
+    postTag?: string,
+  }): Promise<ElasticSearchResponse> {
+    return this.client.search({
+      index,
+      query: {
+        script_score: {
+          query: {
+            simple_query_string: {
+              query: search,
+              fields: [
+                "title^3",
+                "body",
+                "authorDisplayName",
+                "authorFullName",
+                "authorSlug",
+              ],
+              default_operator: "and",
+            },
+          },
+          script: {
+            source: "_score * saturation(doc['baseScore'].value, 10)",
+          },
+        },
+      },
+      highlight: {
+        fields: {
+          title: {
+            pre_tags: [preTag ?? "<em>"],
+            post_tags: [postTag ?? "</em>"],
+          },
+          body: {
+            pre_tags: [preTag ?? "<em>"],
+            post_tags: [postTag ?? "</em>"],
+          },
+        },
+      },
+      from: offset,
+      size: limit,
     });
   }
 

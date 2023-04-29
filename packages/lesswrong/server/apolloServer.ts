@@ -34,7 +34,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
@@ -248,7 +248,9 @@ export function startWebserver() {
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
-  new ElasticSearchController(app);
+  if (isEAForum) {
+    new ElasticSearchController(app);
+  }
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

@@ -1,4 +1,4 @@
-export type SearchResultHit = DbObject
+export type SearchResultHit = AlgoliaDocument;
 
 export type SearchResult = {
   hits: SearchResultHit[],
