@@ -17,6 +17,7 @@ import { inspect } from "util";
 import { CollectionFilters } from './collectionMigrationFilters';
 import { timedFunc } from "../../lib/helpers";
 import Posts from "../../lib/collections/posts/collection";
+import Users from "../../lib/collections/users/collection";
 
 type Transaction = ITask<{}>;
 
@@ -34,7 +35,7 @@ const sanitizeNullTerminatingChars = (value: DbRevision['originalContents']) => 
   return value;
 }
 
-const VALID_POST_ID_LENGTHS = new Set([17, 24]);
+const VALID_ID_LENGTHS = new Set([17, 24]);
 
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
@@ -112,9 +113,21 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     }
     return comment;
   },
-  Messages: (message: DbMessage): DbMessage => {
+  Messages: async (message: DbMessage): Promise<DbMessage | undefined> => {
     if (message.contents?.originalContents) {
       message.contents.originalContents = sanitizeNullTerminatingChars(message.contents.originalContents);
+    }
+    if (!VALID_ID_LENGTHS.has(message.userId.length)) {
+      const maybeSlug = message.userId.toLowerCase();
+      console.log(`Message with invalid userId ${maybeSlug}, checking if it's a slug`);
+      const userBySlug = await Users.findOne({ slug: maybeSlug });
+      if (userBySlug) {
+        console.log(`Found user with slug ${maybeSlug}, id: ${userBySlug._id}`);
+        message.userId = userBySlug._id;
+      } else {
+        // These cases are annoying to handle via collection query filters, so just filter them out here
+        return undefined;
+      }
     }
     return message;
   },
@@ -125,7 +138,7 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     return revision;
   },
   ReadStatuses: async (readStatus: DbReadStatus): Promise<DbReadStatus | undefined> => {
-    if (readStatus.postId && !VALID_POST_ID_LENGTHS.has(readStatus.postId.length)) {
+    if (readStatus.postId && !VALID_ID_LENGTHS.has(readStatus.postId.length)) {
       const maybeSlug = readStatus.postId;
       if (maybeSlug !== 'null' && maybeSlug !== 'undefined') {
         console.log(`ReadStatus with invalid postId ${maybeSlug}, checking if it's a slug`);
@@ -246,6 +259,10 @@ const makeCollectionFilter = (collectionName: string) => {
       return CollectionFilters['Sequences'];
     case "Collections":
       return { deleted: { $ne: true } };
+    case "Messages":
+      return { contents: { $exists: true } };
+    case "CronHistories":
+      return { intendedAt: {$ne: null} }
     default:
       return {};
   }
@@ -256,6 +273,7 @@ const isNonIdSortField = (collectionName: string) => {
     case 'EmailTokens': return false;
     case 'Posts': return false;
     case 'ReadStatuses': return false;
+    case 'CronHistories': return false;
     default: return true;
   }
 };

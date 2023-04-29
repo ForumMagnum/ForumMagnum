@@ -6,7 +6,6 @@ import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -17,12 +16,13 @@ interface ExtendedTagsCollection extends TagsCollection {
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
-export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6'
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
+export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
 
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {

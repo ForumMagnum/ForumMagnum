@@ -149,9 +149,10 @@ const getResponseCounts = (
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
+  dialogueResponses?: CommentsList[],
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
@@ -178,8 +179,30 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
-  const wordCount = post.contents?.wordCount || 0
-  const readTime = post.readTimeMinutes ?? 1
+
+  const wordCount = useMemo(() => {
+    if (!post.debate || dialogueResponses.length === 0) {
+      return post.contents?.wordCount || 0;
+    }
+
+    return dialogueResponses.reduce((wordCount, response) => {
+      wordCount += response.contents?.wordCount ?? 0;
+      return wordCount;
+    }, 0);
+  }, [post, dialogueResponses]);
+
+  /**
+   * It doesn't make a ton of sense to fetch all the debate response comments in the resolver field, since we:
+   * 1. already have them here
+   * 2. need them to compute the word count in the debate case as well
+   */
+  const readTime = useMemo(() => {
+    if (!post.debate || dialogueResponses.length === 0) {
+      return post.readTimeMinutes ?? 1;
+    }
+
+    return Math.max(1, Math.round(wordCount / 250));
+  }, [post, dialogueResponses, wordCount]);
 
   const {
     answerCount,
