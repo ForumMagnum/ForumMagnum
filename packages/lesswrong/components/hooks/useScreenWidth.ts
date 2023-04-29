@@ -45,6 +45,8 @@ export const useIsAboveBreakpoint = (breakpoint: BreakpointName) => {
  *
  * It assumes you're on the desktop and can cause layout shift on load for mobile
  * users if you're not careful.
+ *
+ * NB: This is not the same as !useIsMobile(), because tablets exist.
  */
 export const useIsDesktop = () => {
   return useIsAboveBreakpoint('lg');

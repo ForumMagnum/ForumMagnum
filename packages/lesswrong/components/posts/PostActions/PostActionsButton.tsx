@@ -38,7 +38,6 @@ const PostActionsButton = ({post, vertical, popperGap, classes}: {
   // interaction
   const isDesktopWatched = useIsAboveBreakpoint('xl');
 
-  // TODO; gap right
   const popperPlacement: PopperPlacementType = isDesktopWatched ? 'right-start' : 'left-start'
   let gapStyle: CSSProperties | undefined
   if (popperGap) {
