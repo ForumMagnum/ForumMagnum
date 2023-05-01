@@ -274,6 +274,7 @@ const isNonIdSortField = (collectionName: string) => {
     case 'Posts': return false;
     case 'ReadStatuses': return false;
     case 'CronHistories': return false;
+    case 'Images': return false;
     default: return true;
   }
 };
