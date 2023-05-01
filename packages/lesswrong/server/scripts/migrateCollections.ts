@@ -244,9 +244,13 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
   if (!createdSince) {
     return {};
   }
-  return collectionName === "cronHistory"
-    ? { startedAt: { $gte: createdSince } }
-    : { createdAt: { $gte: createdSince } };
+
+  switch (collectionName) {
+    case 'cronHistory': return { startedAt: { $gte: createdSince } };
+    // It seems like we create cookies that expire after 10 years, by default?
+    case 'Sessions': return { expires: { $gte: createdSince.setUTCFullYear(createdSince.getUTCFullYear() + 10) } };
+    default: return { createdAt: { $gte: createdSince } };
+  }
 }
 
 const makeCollectionFilter = (collectionName: string) => {
@@ -284,6 +288,7 @@ const getCollectionSortField = (collectionName: string) => {
     case 'DebouncerEvents': return 'delayTime';
     case 'Migrations': return 'started';
     case 'Votes': return 'votedAt';
+    case 'Sessions': return 'expires';
     default: return 'createdAt';
   }
 };
