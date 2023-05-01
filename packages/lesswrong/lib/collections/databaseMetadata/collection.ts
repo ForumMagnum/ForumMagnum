@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "switching",
   schema,
 });
 addUniversalFields({collection: DatabaseMetadata});
