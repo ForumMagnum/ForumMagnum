@@ -256,7 +256,7 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
 const makeCollectionFilter = (collectionName: string) => {
   switch (collectionName) {
     case "DatabaseMetadata":
-      return { name: { $ne: "databaseId" } };
+      return { name: { $nin: ["databaseId", "expectedDatabaseId"] } };
     case "Books":
       return CollectionFilters['Books'];
     case "Sequences":
@@ -295,6 +295,7 @@ const getCollectionSortField = (collectionName: string) => {
 
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
+  const expectedDatabaseId = await DatabaseMetadata.findOne({name: "expectedDatabaseId"});
   if (databaseId) {
     extractObjectId(databaseId);
     await sql.none(`
@@ -303,6 +304,16 @@ const copyDatabaseId = async (sql: Transaction) => {
       ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
       SET "value" = TO_JSONB($3::TEXT)
     `, [databaseId._id, databaseId.name, databaseId.value]);
+  }
+
+  if (expectedDatabaseId) {
+    extractObjectId(expectedDatabaseId);
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [expectedDatabaseId._id, expectedDatabaseId.name, expectedDatabaseId.value]);
   }
 }
 
