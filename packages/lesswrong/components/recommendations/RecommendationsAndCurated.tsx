@@ -8,6 +8,8 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { useCookies } from 'react-cookie';
+import moment from 'moment';
 
 export const curatedUrl = "/recommendations"
 
@@ -62,7 +64,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   curated: {
     marginTop: 12
-  }
+  },
+  expandIcon: {
+    position: 'relative',
+    top: 3,
+    left: 10,
+    fontSize: 16,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    }
+  },
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
@@ -87,6 +99,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 
 const isLW = forumTypeSetting.get() === 'LessWrong'
 
+const SHOW_RECOMMENDATIONS_SECTION_COOKIE = 'show_recommendations_section'
+
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -94,9 +108,26 @@ const RecommendationsAndCurated = ({
   configName: string,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
-  const currentUser = useCurrentUser();
+  const [cookies, setCookie] = useCookies([SHOW_RECOMMENDATIONS_SECTION_COOKIE]);
+
+  const defaultExpanded = !isEAForum || !currentUser
+  const [sectionExpanded, setSectionExpanded] = useState<boolean>(
+    // if unset, use the default, otherwise use the explicitly set value
+    (cookies[SHOW_RECOMMENDATIONS_SECTION_COOKIE] && JSON.parse(cookies[SHOW_RECOMMENDATIONS_SECTION_COOKIE])) ??
+      defaultExpanded
+  );
+
+  const toggleSectionVisibility = () => {
+    const newVisibility = !sectionExpanded
+    setSectionExpanded(newVisibility)
+
+    setCookie(SHOW_RECOMMENDATIONS_SECTION_COOKIE, newVisibility, {expires: moment().add(2, 'years').toDate()})
+    captureEvent(newVisibility ? 'recommendationsSectionExpanded' : 'recommendationsSectionCollapsed')
+  }
+
   const {continueReading} = useContinueReading();
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
 
@@ -107,7 +138,7 @@ const RecommendationsAndCurated = ({
 
   const render = () => {
     const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
-      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
+      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -143,34 +174,43 @@ const RecommendationsAndCurated = ({
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
-    return <SingleColumnSection className={classes.section}>
-      <AnalyticsContext pageSectionContext="recommendations">
-        <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-          <Link to={"/recommendations"}>
-            {isEAForum ? 'Classic posts' : 'Recommendations'}
-          </Link>
-        </LWTooltip>}>
-          {!isEAForum && currentUser &&
-            <LWTooltip title="Customize your recommendations">
-              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
-            </LWTooltip>
+    const titleNode = (
+      <div className={classes.title}>
+        <SectionTitle
+          title={
+            <>
+              <LWTooltip title={recommendationsTooltip} placement="left">
+                <Link to={"/recommendations"}>{isEAForum ? "Classic posts" : "Recommendations"}</Link>
+              </LWTooltip>
+              {isEAForum && <ForumIcon
+                icon={sectionExpanded ? "ThickChevronDown" : "ThickChevronRight"}
+                onClick={toggleSectionVisibility}
+                className={classes.expandIcon}
+              />}
+            </>
           }
+        >
+          {!isEAForum && currentUser && (
+            <LWTooltip title="Customize your recommendations">
+              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
+            </LWTooltip>
+          )}
         </SectionTitle>
+      </div>
+    );
 
-        {showSettings &&
-          <RecommendationsAlgorithmPicker
-            configName={configName}
-            settings={frontpageRecommendationSettings}
-            onChange={(newSettings) => setSettings(newSettings)}
-          /> }
+    const bodyNode = (
+      <>
+        {isLW && (
+          <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+            <CurrentSpotlightItem />
+          </AnalyticsContext>
+        )}
 
-        {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CurrentSpotlightItem />
-        </AnalyticsContext>}
-  
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
-        {/* <div className={classes.largeScreenLoggedOutSequences}>
+        {!currentUser && forumTypeSetting.get() === "LessWrong" && (
+          <div>
+            {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
               <CuratedSequences />
             </AnalyticsContext>
@@ -178,51 +218,77 @@ const RecommendationsAndCurated = ({
           <div className={classes.smallScreenLoggedOutSequences}>
             <ContinueReadingList continueReading={continueReading} />
           </div> */}
-        </div>}
+          </div>
+        )}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
-            {renderRecommendations && 
-              <AnalyticsContext listContext="frontpageFromTheArchives" pageSubSectionContext="frontpageFromTheArchives" capturePostItemOnMount>
+            {renderRecommendations && (
+              <AnalyticsContext
+                listContext="frontpageFromTheArchives"
+                pageSubSectionContext="frontpageFromTheArchives"
+                capturePostItemOnMount
+              >
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
-            }
-            {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
-              <CuratedPostsList />
-            </div>}
+            )}
+            {forumTypeSetting.get() !== "EAForum" && (
+              <div className={classes.curated}>
+                <CuratedPostsList />
+              </div>
+            )}
           </div>
         </div>
 
-        {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
-          <AnalyticsContext pageSubSectionContext="continueReading">
-            <LWTooltip placement="top-start" title={continueReadingTooltip}>
-              <Link to={"/library"}>
-                <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                  Continue Reading
-                </SectionSubtitle>
-              </Link>
-            </LWTooltip>
-            <ContinueReadingList continueReading={continueReading} />
-          </AnalyticsContext>
-        </div>}
+        {renderContinueReading && (
+          <div className={currentUser ? classes.subsection : null}>
+            <AnalyticsContext pageSubSectionContext="continueReading">
+              <LWTooltip placement="top-start" title={continueReadingTooltip}>
+                <Link to={"/library"}>
+                  <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                    Continue Reading
+                  </SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              <ContinueReadingList continueReading={continueReading} />
+            </AnalyticsContext>
+          </div>
+        )}
 
-        {renderBookmarks && <div className={classes.subsection}>
-          <AnalyticsContext pageSubSectionContext="frontpageBookmarksList" listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-            <LWTooltip placement="top-start" title={bookmarksTooltip}>
-              <Link to={"/bookmarks"}>
-                <SectionSubtitle>
-                  Bookmarks
-                </SectionSubtitle>
-              </Link>
-            </LWTooltip>
-            <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
-          </AnalyticsContext>
-        </div>}
+        {renderBookmarks && (
+          <div className={classes.subsection}>
+            <AnalyticsContext
+              pageSubSectionContext="frontpageBookmarksList"
+              listContext={"frontpageBookmarksList"}
+              capturePostItemOnMount
+            >
+              <LWTooltip placement="top-start" title={bookmarksTooltip}>
+                <Link to={"/bookmarks"}>
+                  <SectionSubtitle>Bookmarks</SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
+            </AnalyticsContext>
+          </div>
+        )}
 
         {/* disabled except during review */}
         {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
           <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
         </AnalyticsContext> */}
+      </>
+    );
+
+    return <SingleColumnSection className={classes.section}>
+      <AnalyticsContext pageSectionContext="recommendations">
+        {titleNode}
+        {showSettings &&
+          <RecommendationsAlgorithmPicker
+            configName={configName}
+            settings={frontpageRecommendationSettings}
+            onChange={(newSettings) => setSettings(newSettings)}
+          /> }
+        {sectionExpanded && bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }
