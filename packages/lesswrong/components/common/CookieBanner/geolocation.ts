@@ -1,5 +1,6 @@
 import { isServer } from "../../../lib/executionEnvironment";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
 
 const GDPR_COUNTRY_CODES: string[] = [
   "AT", // Austria
@@ -33,8 +34,10 @@ const GDPR_COUNTRY_CODES: string[] = [
 ];
 
 function getCountryCodeFromLocalStorage(): string | null {
-  const cachedCountryCode = localStorage.getItem('countryCode');
-  const cachedTimestamp = localStorage.getItem('countryCodeTimestamp');
+  const ls = getBrowserLocalStorage();
+
+  const cachedCountryCode = ls.getItem('countryCode');
+  const cachedTimestamp = ls.getItem('countryCodeTimestamp');
 
   if (!cachedCountryCode || !cachedTimestamp) {
     return null;
@@ -55,9 +58,11 @@ function getCountryCodeFromLocalStorage(): string | null {
 }
 
 function setCountryCodeToLocalStorage(countryCode: string) {
+  const ls = getBrowserLocalStorage();
+
   const timestamp = new Date().getTime();
-  localStorage.setItem('countryCode', countryCode);
-  localStorage.setItem('countryCodeTimestamp', timestamp.toString());
+  ls.setItem('countryCode', countryCode);
+  ls.setItem('countryCodeTimestamp', timestamp.toString());
 }
 
 function getCachedUserCountryCode() {
