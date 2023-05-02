@@ -68,6 +68,12 @@ registerCookie({
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
+export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
+  name: "show_recommendations_section",
+  type: "necessary",
+  description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
+});
+
 // Third party cookies
 
 // Intercom
