@@ -31,4 +31,29 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       ) < "nearbyEventsNotificationsRadius"
     `, [location.coordinates[0], location.coordinates[1]])
   }
+
+  getUserByEmail(email: string): Promise<DbUser | null> {
+    return this.oneOrNone(`
+      SELECT *
+      FROM "Users"
+      WHERE (LOWER("email") = LOWER($1)
+      OR (_ID IN (
+        SELECT _ID
+        FROM "Users"
+        WHERE to_jsonb("emails") @> ('[{"address": "' || $1 || '"}]')::JSONB)))
+      LIMIT 1
+    `, [email]);
+  }
+
+  getAllUsersByEmail(email: string): Promise<DbUser[]> {
+    return this.any(`
+      SELECT *
+      FROM "Users"
+      WHERE (LOWER("email") = LOWER($1)
+      OR (_ID IN (
+        SELECT _ID
+        FROM "Users"
+        WHERE to_jsonb("emails") @> ('[{"address": "' || $1 || '"}]')::JSONB)))
+    `, [email]);
+  }
 }

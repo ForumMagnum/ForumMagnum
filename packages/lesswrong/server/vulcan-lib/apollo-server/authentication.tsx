@@ -21,7 +21,7 @@ import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../../commonQueries";
 import { ClientIds } from "../../../lib/collections/clientIds/collection";
 
 // Meteor hashed its passwords twice, once on the client
