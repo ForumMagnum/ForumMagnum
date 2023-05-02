@@ -23,8 +23,15 @@ type ConstructableFeature = {
 }
 
 class KarmaFeature extends Feature {
+  private readonly pivot = 100;
+
   getScore() {
-    return `p."baseScore" / 1000`;
+    return `
+      CASE WHEN p."baseScore" > 0
+        THEN p."baseScore" / (${this.pivot} + p."baseScore")
+        ELSE 0
+      END
+    `;
   }
 }
 

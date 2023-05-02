@@ -20,13 +20,17 @@ class CollabFilterStrategy extends FeatureStrategy {
     strategy: StrategySpecification,
   ): Promise<DbPost[]> {
     const features: WeightedFeature[] = [
-      {feature: "collabFilter", weight: 1},
-      {feature: "karma", weight: 0.2},
-      {feature: "curated", weight: 0.05},
+      {feature: "karma", weight: 0.8},
+      {feature: "curated", weight: 0.1},
     ];
+
     if (this.weightByTagSimilarity) {
       features.push({feature: "tagSimilarity", weight: strategy.bias ?? 1.5});
+      features.push({feature: "collabFilter", weight: 1});
+    } else {
+      features.push({feature: "collabFilter", weight: 6});
     }
+
     return super.recommend(
       currentUser,
       count,

@@ -46,20 +46,20 @@ const parseStrategy = (queryStrategy?: string): RecommendationStrategyName =>
     ? queryStrategy
     : "tagWeightedCollabFilter";
 
-const parseNumber = (queryValue?: string): number => {
+const parseNumber = (queryValue?: string, defaultValue = 1): number => {
   if (queryValue) {
     const parsed = parseFloat(queryValue);
     if (Number.isFinite(parsed)) {
       return parsed;
     }
   }
-  return 1;
+  return defaultValue;
 }
 
 const getDefaultFeatures = (): Record<RecommendationFeatureName, string> => ({
-  karma: "1",
-  curated: "0.05",
-  tagSimilarity: "1.2",
+  karma: "0.8",
+  curated: "0.1",
+  tagSimilarity: "1.5",
   collabFilter: "1",
 });
 
@@ -87,7 +87,7 @@ const RecommendationsSamplePage = ({classes}: {
   const [loggedOutView, setLoggedOutView] = useState(
     query.loggedOutView ? query.loggedOutView === "true" : true,
   );
-  const [bias, setBias] = useState(parseNumber(query.bias));
+  const [bias, setBias] = useState(parseNumber(query.bias, 1.5));
   const [biasInput, setBiasInput] = useState(String(bias));
   const [featureInput, setFeatureInput] = useState(getDefaultFeatures);
   const [features, setFeatures] = useState(

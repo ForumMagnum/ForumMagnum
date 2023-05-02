@@ -400,7 +400,6 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.recommendations}>
           <PostsPageRecommendationsList
             strategy="tagWeightedCollabFilter"
-            bias={1.5}
           />
         </div>
       }
