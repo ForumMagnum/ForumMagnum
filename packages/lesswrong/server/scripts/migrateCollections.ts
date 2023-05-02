@@ -244,15 +244,19 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
   if (!createdSince) {
     return {};
   }
-  return collectionName === "cronHistory"
-    ? { startedAt: { $gte: createdSince } }
-    : { createdAt: { $gte: createdSince } };
+
+  switch (collectionName) {
+    case 'cronHistory': return { startedAt: { $gte: createdSince } };
+    // It seems like we create cookies that expire after 10 years, by default?
+    case 'Sessions': return { expires: { $gte: createdSince.setUTCFullYear(createdSince.getUTCFullYear() + 10) } };
+    default: return { createdAt: { $gte: createdSince } };
+  }
 }
 
 const makeCollectionFilter = (collectionName: string) => {
   switch (collectionName) {
     case "DatabaseMetadata":
-      return { name: { $ne: "databaseId" } };
+      return { name: { $nin: ["databaseId", "expectedDatabaseId"] } };
     case "Books":
       return CollectionFilters['Books'];
     case "Sequences":
@@ -262,7 +266,9 @@ const makeCollectionFilter = (collectionName: string) => {
     case "Messages":
       return { contents: { $exists: true } };
     case "CronHistories":
-      return { intendedAt: {$ne: null} }
+      return { intendedAt: { $ne: null } };
+    case "DebouncerEvents":
+      return { upperBoundTime: { $ne: NaN } };
     default:
       return {};
   }
@@ -284,12 +290,14 @@ const getCollectionSortField = (collectionName: string) => {
     case 'DebouncerEvents': return 'delayTime';
     case 'Migrations': return 'started';
     case 'Votes': return 'votedAt';
+    case 'Sessions': return 'expires';
     default: return 'createdAt';
   }
 };
 
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
+  const expectedDatabaseId = await DatabaseMetadata.findOne({name: "expectedDatabaseId"});
   if (databaseId) {
     extractObjectId(databaseId);
     await sql.none(`
@@ -298,6 +306,16 @@ const copyDatabaseId = async (sql: Transaction) => {
       ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
       SET "value" = TO_JSONB($3::TEXT)
     `, [databaseId._id, databaseId.name, databaseId.value]);
+  }
+
+  if (expectedDatabaseId) {
+    extractObjectId(expectedDatabaseId);
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [expectedDatabaseId._id, expectedDatabaseId.name, expectedDatabaseId.value]);
   }
 }
 
