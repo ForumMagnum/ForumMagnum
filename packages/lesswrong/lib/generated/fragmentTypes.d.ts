@@ -1351,6 +1351,7 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
 }
 

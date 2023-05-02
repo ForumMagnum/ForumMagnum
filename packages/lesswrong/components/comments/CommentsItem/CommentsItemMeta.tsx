@@ -125,17 +125,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     : {
       opacity: 0.35,
     },
-  rejectedIcon: {
+  rejectButton: {
     marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  rejectedLabel: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
+    marginBottom: 2
   }
 });
 
@@ -143,6 +135,7 @@ export const CommentsItemMeta = ({
   treeOptions,
   comment,
   showCommentTitle,
+  showRejectInfo,
   isParentComment,
   parentCommentId,
   showParentState,
@@ -158,6 +151,7 @@ export const CommentsItemMeta = ({
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   showCommentTitle: boolean,
+  showRejectInfo?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
   showParentState: boolean,
@@ -228,7 +222,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers,
+    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers, RejectedReason
   } = Components;
 
   return (
@@ -323,9 +317,12 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {isLW && userIsAdmin(currentUser) &&
-        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
-      }
+      {/* {isLW && showRejectInfo &&
+        <span className={classes.rejectButton}>
+          <RejectedReason reason={comment.rejectedReason}/>
+          {userIsAdmin(currentUser) && <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} />}
+        </span>
+      } */}
 
       <span className={classes.rightSection}>
         {isEAForum &&

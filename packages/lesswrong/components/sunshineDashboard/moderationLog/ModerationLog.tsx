@@ -12,6 +12,7 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import type { Column } from '../../vulcan-core/Datatable';
 import { ModeratorActions } from '../../../lib/collections/moderatorActions'
 import { RejectedPosts } from './RejectedPosts';
+import { ToCColumn } from '../../posts/TableOfContents/ToCColumn';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -23,7 +24,13 @@ const shouldShowEndUserModerationToNonMods = forumSelect({
 const styles = (theme: JssStyles) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
-  
+  },
+  section: {
+    border: theme.palette.border.normal,
+    padding: 10,
+    marginBottom: 16,
+    borderRadius: 2,
+    background: theme.palette.background.pageActiveAreaBackground,
     "& h1": {
       ...theme.typography.display3,
     },
@@ -37,13 +44,6 @@ const styles = (theme: JssStyles) => ({
       marginTop: 0,
       marginBottom: "0.5em",
     },
-  },
-  section: {
-    border: theme.palette.border.normal,
-    padding: 10,
-    marginBottom: 16,
-    borderRadius: 2,
-    background: theme.palette.background.pageActiveAreaBackground
   }
 })
 
@@ -188,83 +188,126 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection, RejectedPosts, RecentComments } = Components;
+  const { SingleColumnSection, RejectedPosts, RecentComments, SectionTitle, ToCColumn, TableOfContents } = Components;
   
+
+  const sectionData = {
+    html: "",
+    sections: [
+      {
+        title: "Deleted Comments",
+        anchor: "deleted-comments",
+        level: 1
+      },
+      {
+        title: "Users Banned From Posts",
+        anchor: "users-banned-from-posts",
+        level: 1
+      },
+      {
+        title: "Users Banned From Users",
+        anchor: "users-banned-from-users",
+        level: 1
+      },
+      {
+        title: "Moderated Users",
+        anchor: "moderated-users",
+        level: 1
+      },
+      {
+        title: "Rejected Posts",
+        anchor: "rejected-posts",
+        level: 1
+      },
+      {
+        title: "Rejected Comments",
+        anchor: "rejected-comments",
+        level: 1
+      },
+    ],
+    headingsCount: 0
+  }
+
   return (
-    <SingleColumnSection className={classes.root}>
-      <h2>Moderation Log</h2>
-      <div className={classes.section}>
-        <h3>Deleted Comments</h3>
-        <Components.Datatable
-          collection={Comments}
-          columns={deletedCommentColumns}
-          options={{
-            fragmentName: 'DeletedCommentsModerationLog',
-            terms: {view: "allCommentsDeleted"},
-            limit: 10,
-            enableTotal: true
-          }}
-          showEdit={false}
-        />
-      </div>
-      {shouldShowEndUserModeration && <>
-        <div className={classNames(classes.section, classes.floatLeft)}>
-          <h3>Users Banned From Posts</h3>
-          <Components.Datatable
-            collection={Posts}
-            columns={usersBannedFromPostsColumns}
-            options={{
-              fragmentName: 'UsersBannedFromPostsModerationLog',
-              terms: {view: "postsWithBannedUsers"},
-              limit: 10,
-              enableTotal: true
-            }}
-            showEdit={false}
-            showNew={false}
-          />
-        </div>
-        <div className={classNames(classes.section, classes.floatLeft)}>
-          <h3>Users Banned From Users</h3>
-          <Components.Datatable
-            collection={Users}
-            columns={usersBannedFromUsersColumns}
-            options={{
-              fragmentName: 'UsersBannedFromUsersModerationLog',
-              terms: {view: "usersWithBannedUsers"},
-              limit: 10,
-              enableTotal: true
-            }}
-            showEdit={false}
-            showNew={false}
-          />
-        </div>
+    <ToCColumn tableOfContents={<TableOfContents
+        sectionData={sectionData}
+        title={"Moderation Log"}
+      />}>
+      <SingleColumnSection className={classes.root}>
+        <SectionTitle title="Moderation Log"/>
         <div className={classes.section}>
-          <h3>Moderated Users</h3>
+          <h3 id="deleted-comments">Deleted Comments</h3>
           <Components.Datatable
-            collection={ModeratorActions}
-            columns={moderatorActionColumns}
+            collection={Comments}
+            columns={deletedCommentColumns}
             options={{
-              terms: {view: "restrictionModerationActions"},
-              fragmentName: 'ModeratorActionDisplay',
+              fragmentName: 'DeletedCommentsModerationLog',
+              terms: {view: "allCommentsDeleted"},
               limit: 10,
               enableTotal: true
             }}
             showEdit={false}
-            showNew={false}
           />
         </div>
-      </>}
-      <div>
-        <h3>Rejected Posts</h3>
-        <RejectedPosts />
-        <h3>Rejected Comments</h3>
-        <RecentComments
-          terms={{view: 'rejected', authorIsUnreviewed: null, limit: 10}}
-          showPinnedOnProfile
-          truncated
-        />
-      </div>
-    </SingleColumnSection>
+        {shouldShowEndUserModeration && <>
+          <div className={classNames(classes.section, classes.floatLeft)}>
+            <h3 id="users-banned-from-posts">Users Banned From Posts</h3>
+            <Components.Datatable
+              collection={Posts}
+              columns={usersBannedFromPostsColumns}
+              options={{
+                fragmentName: 'UsersBannedFromPostsModerationLog',
+                terms: {view: "postsWithBannedUsers"},
+                limit: 10,
+                enableTotal: true
+              }}
+              showEdit={false}
+              showNew={false}
+            />
+          </div>
+          <div className={classNames(classes.section, classes.floatLeft)}>
+            <h3 id="users-banned-from-users">Users Banned From Users</h3>
+            <Components.Datatable
+              collection={Users}
+              columns={usersBannedFromUsersColumns}
+              options={{
+                fragmentName: 'UsersBannedFromUsersModerationLog',
+                terms: {view: "usersWithBannedUsers"},
+                limit: 10,
+                enableTotal: true
+              }}
+              showEdit={false}
+              showNew={false}
+            />
+          </div>
+          <div className={classes.section}>
+            <h3 id="moderated-users">Moderated Users</h3>
+            <Components.Datatable
+              collection={ModeratorActions}
+              columns={moderatorActionColumns}
+              options={{
+                terms: {view: "restrictionModerationActions"},
+                fragmentName: 'ModeratorActionDisplay',
+                limit: 10,
+                enableTotal: true
+              }}
+              showEdit={false}
+              showNew={false}
+            />
+          </div>
+        </>}
+        <div>
+          <SectionTitle title="Rejected Posts" anchor="rejected-posts"/>
+          <RejectedPosts />
+          <SectionTitle title="Rejected Comments" anchor="rejected-comments"/>
+          <RecentComments
+            terms={{view: 'rejected', authorIsUnreviewed: null, limit: 10}}
+            showPinnedOnProfile
+            truncated
+          />
+        </div>
+      </SingleColumnSection>
+    </ToCColumn>
   )
 }
 

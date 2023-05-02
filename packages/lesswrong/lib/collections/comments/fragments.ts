@@ -68,6 +68,7 @@ registerFragment(`
     isPinnedOnProfile
     debateResponse
     rejected
+    rejectedReason
     modGPTRecommendation
   }
 `);

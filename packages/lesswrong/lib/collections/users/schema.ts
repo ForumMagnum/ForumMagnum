@@ -1959,6 +1959,9 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
+    group: formGroups.adminOptions,
   },
   oldSlugs: {
     type: Array,

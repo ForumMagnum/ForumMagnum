@@ -517,6 +517,7 @@ importComponent("ModerationTemplateItem", () => require('../components/moderatio
 importComponent("ModGPTDashboard", () => require('../components/sunshineDashboard/ModGPTDashboard'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/moderationLog/ModerationLog'));
 importComponent("RejectedPosts", () => require('../components/sunshineDashboard/moderationLog/RejectedPosts'));
+importComponent("RejectedReason", () => require('../components/sunshineDashboard/RejectedReason'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));

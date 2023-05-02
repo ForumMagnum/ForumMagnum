@@ -1,0 +1,56 @@
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import Card from '@material-ui/core/Card';
+import { htmlToText } from 'html-to-text';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    marginBottom: 4
+  },
+  reasonTooltip: {
+    paddingTop: 4,
+    paddingBottom: 2,
+    paddingLeft: 0,
+    paddingRight: 16,
+    width: 400,
+    fontSize: '1rem',
+    marginBottom: 12
+  },
+});
+
+export const RejectedReason = ({classes, reason}: {
+  classes: ClassesType,
+  reason: string|null
+}) => {
+  const { LWTooltip, ContentStyles, ContentItemBody, MetaInfo } = Components
+
+  function getShortRejectedReason (reason: string|null|undefined) {
+    const reasonSnippet = htmlToText(reason || "").split(".")[0]
+    const bulletStrippedSnippet = reasonSnippet.includes(" * ") ? reasonSnippet.split(" * ")[1] : reasonSnippet
+    if (bulletStrippedSnippet) return `Rejected for "${bulletStrippedSnippet}"`
+    return "Rejected"
+  }
+
+  return <span className={classes.root}>
+    <LWTooltip placement="bottom-start" tooltip={false} clickable title={<Card>
+      <ContentStyles contentType='comment'>
+        <ContentItemBody className={classes.reasonTooltip}
+          dangerouslySetInnerHTML={{__html: reason || '<ul><li>No specific reason given</li></ul>' }}
+        />
+      </ContentStyles>
+    </Card>}>
+      <MetaInfo>
+        {getShortRejectedReason(reason)}
+      </MetaInfo>
+    </LWTooltip>
+  </span>;
+}
+
+const RejectedReasonComponent = registerComponent('RejectedReason', RejectedReason, {styles});
+
+declare global {
+  interface ComponentTypes {
+    RejectedReason: typeof RejectedReasonComponent
+  }
+}
+

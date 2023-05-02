@@ -6,6 +6,7 @@ import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { isLW } from '../../lib/instanceSettings';
+import { RejectedReason } from './RejectedReason';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -51,19 +52,8 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReason } = Components
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-  });
-
-  const setPostRejectedStatus = (post: SunshinePostsList, rejected: boolean) => () => {
-    void updatePost({
-      selector: { _id: post._id },
-      data: { rejected }
-    });
-  };
  
   if (!posts) return null
 
@@ -95,7 +85,10 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             </div>
           </div>
           
-          {isLW && <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} classNames={classes} />}
+          {isLW && <span className={classes.rejectButton}>
+            <RejectedReason reason={post.rejectedReason}/>
+            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
+          </span>}
           
           <PostActionsButton post={post} />
         </div>
