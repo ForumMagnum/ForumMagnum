@@ -493,7 +493,7 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+      lastSubthreadActivity: {$gt: moment().subtract(4, 'days').toDate()}
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
