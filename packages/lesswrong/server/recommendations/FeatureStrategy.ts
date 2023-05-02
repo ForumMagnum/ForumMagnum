@@ -1,70 +1,7 @@
 import RecommendationStrategy from "./RecommendationStrategy";
-import type {
-  StrategySpecification,
-  RecommendationFeatureName,
-} from "../../lib/collections/users/recommendationSettings";
+import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-
-abstract class Feature {
-  getJoin(): string {
-    return "";
-  }
-
-  getFilter(): string {
-    return "";
-  }
-
-  getScore(): string {
-    return "";
-  }
-
-  getArgs(): Record<string, unknown> {
-    return {};
-  }
-}
-
-class KarmaFeature extends Feature {
-  getScore() {
-    return `p."baseScore" / 1000`;
-  }
-}
-
-class CuratedFeature extends Feature {
-  getScore() {
-    return `CASE WHEN p."curatedDate" IS NULL THEN 0 ELSE 1 END`;
-  }
-}
-
-class TagSimilarityFeature extends Feature {
-  getScore() {
-    return `fm_post_tag_similarity($(postId), p."_id")`;
-  }
-}
-
-class CollabFilterFeature extends Feature {
-  getJoin() {
-    return `INNER JOIN "UniquePostUpvoters" rec ON rec."postId" = p."_id"`;
-  }
-
-  getScore() {
-    const srcVoters = `(
-      SELECT voters
-      FROM "UniquePostUpvoters"
-      WHERE "postId" = $(postId)
-    )`;
-    return `
-      COALESCE(
-        (# (${srcVoters} & rec.voters))::FLOAT /
-          NULLIF((# (${srcVoters} | rec.voters))::FLOAT, 0),
-        0
-      )
-    `;
-  }
-}
-
-type ConstructableFeature = {
-  new(): Feature;
-}
+import { featureRegistry } from "./Feature";
 
 /**
  * The feature strategy can be used to combine multiple composable "features" that
@@ -73,16 +10,6 @@ type ConstructableFeature = {
  * when sorting results.
  */
 class FeatureStrategy extends RecommendationStrategy {
-  private static readonly featureRegistry: Record<
-    RecommendationFeatureName,
-    ConstructableFeature
-  > = {
-    karma: KarmaFeature,
-    curated: CuratedFeature,
-    tagSimilarity: TagSimilarityFeature,
-    collabFilter: CollabFilterFeature,
-  };
-
   async recommend(
     currentUser: DbUser|null,
     count: number,
@@ -104,7 +31,7 @@ class FeatureStrategy extends RecommendationStrategy {
     let args = {};
 
     for (const {feature: featureName, weight} of features) {
-      const feature = new FeatureStrategy.featureRegistry[featureName]();
+      const feature = new featureRegistry[featureName]();
       joins += ` ${feature.getJoin()}`;
       filters += ` ${feature.getFilter()}`;
       const weightName = `${featureName}Weight`;

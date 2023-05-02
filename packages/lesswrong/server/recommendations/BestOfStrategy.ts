@@ -1,4 +1,4 @@
-import RecommendationStrategy from "./RecommendationStrategy";
+import FeatureStrategy from "./FeatureStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 
 /**
@@ -6,20 +6,22 @@ import type { StrategySpecification } from "../../lib/collections/users/recommen
  * hasn't viewed. Note that, for performance reasons, the scores are not inflation
  * adjusted.
  */
-class BestOfStrategy extends RecommendationStrategy {
+class BestOfStrategy extends FeatureStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
+    strategy: StrategySpecification,
   ): Promise<DbPost[]> {
-    const {filter, args} = this.getTagFilter();
-    return this.recommendDefaultWithPostFilter(
+    return super.recommend(
       currentUser,
       count,
-      postId,
-      filter,
-      args,
-      "baseScore",
+      {
+        ...strategy,
+        features: [
+          {feature: "karma", weight: 1},
+          {feature: "curated", weight: 0.05},
+        ],
+      },
     );
   };
 }
