@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.5
   },
   form: {
-    padding: 10,
+    padding: isEAForum ? 12 : 10,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -355,7 +355,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum ? 'Add comment' : 'Submit'}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
             />
           </div>
         </div>

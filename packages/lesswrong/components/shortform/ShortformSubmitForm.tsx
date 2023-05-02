@@ -5,8 +5,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 12,
-    paddingRight: 12,
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     borderRadius: 3,

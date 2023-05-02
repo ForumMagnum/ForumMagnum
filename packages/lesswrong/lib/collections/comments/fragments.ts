@@ -54,6 +54,7 @@ registerFragment(`
     postVersion
     reviewedByUserId
     shortform
+    shortformFrontpage
     lastSubthreadActivity
     moderatorHat
     hideModeratorHat
