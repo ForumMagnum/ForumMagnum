@@ -3,6 +3,7 @@ import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -18,7 +19,7 @@ export type CommentVotingComponentProps = {
 }
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 
-export interface VotingSystem {
+export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
@@ -26,24 +27,25 @@ export interface VotingSystem {
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    extendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any,
+  })=>ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    cancelledExtendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
+  })=>ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
 
-const registerVotingSystem = (votingSystem: VotingSystem) => {
+const registerVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
   votingSystems[votingSystem.name] = votingSystem;
 }
 
@@ -245,12 +247,21 @@ registerVotingSystem({
   },
 });
 
-registerVotingSystem({
+export const newReactKarmaThreshold = new DatabasePublicSetting("reacts.useNewReactKarmaThreshold", 1000);
+export const existingReactKarmaThreshold = new DatabasePublicSetting("reacts.useExistingReactKarmaThreshold", 50);
+
+registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
   description: "Names-attached reactions",
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
   getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,
-  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
+  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
+    voteType: string|null,
+    document: VoteableTypeClient,
+    oldExtendedScore: NamesAttachedReactionsScore,
+    extendedVote: NamesAttachedReactionsVote,
+    currentUser: UsersCurrent
+  }): NamesAttachedReactionsScore => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
@@ -301,22 +312,49 @@ registerVotingSystem({
       }
     }
     
-    const result = {
+    return {
       approvalVoteCount: votes.filter(v=>(v.voteType && v.voteType!=="neutral")).length,
       agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
       agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0).length,
       reacts: mergedReacts,
     };
-    return result;
   },
+
+  isAllowedExtendedVote: (user: UsersCurrent|DbUser, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
+    // Are there any reacts in this vote?
+    if (extendedVote?.reacts && extendedVote.reacts.length>0) {
+      // If the user is using any react at all, they need at least
+      // existingReactKarmaThreshold karma for it to be a valid vote.
+      if (user.karma<existingReactKarmaThreshold.get()) {
+        return {allowed: false, reason: `You need at least ${existingReactKarmaThreshold.get()} karma to use reacts`};
+      }
+
+      // If the user is using a react which no one else has used on this comment
+      // before, they need at least newReactKarmaThreshold karma for it to be a
+      // valid vote.
+      if (user.karma<newReactKarmaThreshold.get()) {
+        for (let reaction of extendedVote.reacts) {
+          if (!(reaction in oldExtendedScore.reacts)) {
+            return {allowed: false, reason: `You need at least ${existingReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
+          }
+        }
+      }
+    }
+
+    return {allowed: true};
+  },
+
   isNonblankExtendedVote: (vote: DbVote) => {
     return (vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral")
       || (vote?.extendedVoteType?.reacts && vote.extendedVoteType.reacts.length>0);
   },
 });
 
-type EmojiReactName = string;
-export type NamesAttachedReactionsVote = EmojiReactName[];
+export type EmojiReactName = string;
+export type NamesAttachedReactionsVote = {
+  agreement: string,
+  reacts: EmojiReactName[],
+}
 type UserReactInfo = {
   userId: string
   displayName: string
@@ -325,8 +363,18 @@ type UserReactInfo = {
 export type NamesAttachedReactionsList = {
   [reactionType: EmojiReactName]: UserReactInfo[]|undefined
 };
+export type NamesAttachedReactionsScore = {
+  approvalVoteCount: number,
+  agreement: number,
+  agreementVoteCount: number,
+  reacts: NamesAttachedReactionsList,
+};
 
-function addReactsVote(old: NamesAttachedReactionsList|undefined, voteReacts: NamesAttachedReactionsVote|undefined, currentUser: UsersCurrent): NamesAttachedReactionsList {
+function addReactsVote(
+  old: NamesAttachedReactionsList|undefined,
+  voteReacts: EmojiReactName[],
+  currentUser: UsersCurrent
+): NamesAttachedReactionsList {
   let updatedReactions = removeReactsVote(old, currentUser);
   const userInfo = {
     userId: currentUser._id,

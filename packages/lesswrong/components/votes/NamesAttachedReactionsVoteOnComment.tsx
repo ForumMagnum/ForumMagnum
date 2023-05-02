@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, NamesAttachedReactionsList, NamesAttachedReactionsVote } from '../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, newReactKarmaThreshold, existingReactKarmaThreshold } from '../../lib/voting/votingSystems';
 import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
-import { isEAForum } from '../../lib/instanceSettings';
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import withErrorBoundary from '../common/withErrorBoundary';
 import filter from 'lodash/filter';
@@ -140,7 +139,8 @@ const NamesAttachedReactionsAxis = ({document, hideKarma=false, voteProps, class
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
   const { PopperCard } = Components;
-  const reactions = document?.extendedScore?.reacts as NamesAttachedReactionsList|undefined;
+  const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const reactions = extendedScore?.reacts;
   const reactionTypesUsed: string[] = reactions ? Object.keys(reactions): [];
   const sortedReactionTypes = reactionTypesUsed; //TODO
   
@@ -167,9 +167,10 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
   const { LWTooltip } = Components;
+  const currentUserExtendedVote = voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined;
 
   function reactionIsSelected(name: string): boolean {
-    const reacts: string[] = voteProps.document?.currentUserExtendedVote?.reacts ?? [];
+    const reacts: string[] = currentUserExtendedVote?.reacts ?? [];
     return !!reacts.find(r=>r===name);
   }
 
@@ -182,8 +183,8 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
       return;
     }
     
-    const oldReacts: string[] = voteProps.document?.currentUserExtendedVote?.reacts ?? [];
-    const newReacts: NamesAttachedReactionsVote = reactionIsSelected(name)
+    const oldReacts: string[] = currentUserExtendedVote?.reacts ?? [];
+    const newReacts: EmojiReactName[] = reactionIsSelected(name)
       ? filter(oldReacts, r=>r!==name)
       : [...oldReacts, name]
 
@@ -191,14 +192,15 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: {
-        ...voteProps.document.currentUserExtendedVote,
+        ...currentUserExtendedVote,
         reacts: newReacts,
       },
       currentUser,
     });
   }
   
-  const alreadyUsedReactions: NamesAttachedReactionsList = voteProps.document.extendedScore?.reacts ?? {};
+  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
   const alreadyUsedReactionTypes: string[] = Object.keys(alreadyUsedReactions);
   const alreadyUsedReactionTypesByKarma = orderBy(alreadyUsedReactionTypes, r=>alreadyUsedReactions[r]![0].karma);
   
