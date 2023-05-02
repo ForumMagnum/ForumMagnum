@@ -355,7 +355,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum ? 'Add comment' : 'Submit'}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
             />
           </div>
         </div>

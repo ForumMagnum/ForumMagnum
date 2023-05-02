@@ -97,7 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts, CommentsListCondensed
+    CuratedPostsList, SectionTitle, StickiedPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 

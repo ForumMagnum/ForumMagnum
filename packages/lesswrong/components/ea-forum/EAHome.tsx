@@ -30,7 +30,7 @@ const EAHome = () => {
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
 
-  const recentSubforumDiscussionTerms = {
+  const shortformTerms = {
     view: "shortformFrontpage" as const
   };
 
@@ -55,9 +55,9 @@ const EAHome = () => {
           {isEAForum && (
             <SingleColumnSection>
               <CommentsListCondensed
-                label={"Shortform discussion"}
-                terms={recentSubforumDiscussionTerms}
-                initialLimit={3}
+                label={"Shortform"}
+                terms={shortformTerms}
+                initialLimit={5}
               />
             </SingleColumnSection>
           )}

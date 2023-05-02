@@ -75,6 +75,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[800],
     }
   },
+  readMoreLink: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 600,
+    '@media (max-width: 350px)': {
+      display: 'none'
+    },
+  },
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
@@ -174,19 +182,26 @@ const RecommendationsAndCurated = ({
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
+    const titleText = isEAForum ? "Classic posts" : "Recommendations"
     const titleNode = (
       <div className={classes.title}>
         <SectionTitle
           title={
             <>
-              <LWTooltip title={recommendationsTooltip} placement="left">
-                <Link to={"/recommendations"}>{isEAForum ? "Classic posts" : "Recommendations"}</Link>
-              </LWTooltip>
-              {isEAForum && <ForumIcon
-                icon={sectionExpanded ? "ThickChevronDown" : "ThickChevronRight"}
-                onClick={toggleSectionVisibility}
-                className={classes.expandIcon}
-              />}
+              {isEAForum ? (
+                <>{ titleText }</>
+              ) : (
+                <LWTooltip title={recommendationsTooltip} placement="left">
+                  <Link to={"/recommendations"}>{titleText}</Link>
+                </LWTooltip>
+              )}
+              {isEAForum && (
+                <ForumIcon
+                  icon={sectionExpanded ? "ThickChevronDown" : "ThickChevronRight"}
+                  onClick={toggleSectionVisibility}
+                  className={classes.expandIcon}
+                />
+              )}
             </>
           }
         >
@@ -194,6 +209,11 @@ const RecommendationsAndCurated = ({
             <LWTooltip title="Customize your recommendations">
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
             </LWTooltip>
+          )}
+          {isEAForum && sectionExpanded && (
+            <Link to="/recommendations" className={classes.readMoreLink}>
+              View more
+            </Link>
           )}
         </SectionTitle>
       </div>
