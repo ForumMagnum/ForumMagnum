@@ -32,7 +32,7 @@ const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
 Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|null> => {
-  if (comment.deleted || comment.rejected ) return null;
+  if (comment.deleted || comment.rejected || comment.authorIsUnreviewed ) return null;
   
   const algoliaComment: AlgoliaComment = {
     objectID: comment._id,
