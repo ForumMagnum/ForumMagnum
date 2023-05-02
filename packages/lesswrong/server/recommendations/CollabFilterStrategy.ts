@@ -1,6 +1,8 @@
-import RecommendationStrategy from "./RecommendationStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import FeatureStrategy from "./FeatureStrategy";
+import type {
+  StrategySpecification,
+  WeightedFeature,
+} from "../../lib/collections/users/recommendationSettings";
 
 /**
  * This class implements a simple item-item collaborative filtering algorithm for
@@ -9,50 +11,30 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
  * Jaccard index between the source post and each recommendable target post,
  * returning the posts with the highest indices.
  */
-class CollabFilterStrategy extends RecommendationStrategy {
+class CollabFilterStrategy extends FeatureStrategy {
   protected weightByTagSimilarity = false;
 
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId, bias}: StrategySpecification,
+    strategy: StrategySpecification,
   ): Promise<DbPost[]> {
-    const db = getSqlClientOrThrow();
-    const userFilter = this.getUserFilter(currentUser);
-    const postFilter = this.getDefaultPostFilter();
-    const tagFilter = this.getTagFilter();
-    const srcVoters = `(
-      SELECT voters
-      FROM "UniquePostUpvoters"
-      WHERE "postId" = $(postId)
-    )`;
-    const tagWeighting = this.weightByTagSimilarity
-      ? `+ (fm_post_tag_similarity($(postId), p."_id") * $(bias))`
-      : "";
-    return db.any(`
-      SELECT p.*
-      FROM "Posts" p
-      INNER JOIN "UniquePostUpvoters" rec ON rec."postId" = p."_id"
-      ${postFilter.join}
-      ${userFilter.join}
-      WHERE
-        p."_id" <> $(postId) AND
-        ${postFilter.filter}
-        ${userFilter.filter}
-        ${tagFilter.filter}
-      ORDER BY
-        COALESCE((# (${srcVoters} & rec.voters))::FLOAT /
-          NULLIF((# (${srcVoters} | rec.voters))::FLOAT, 0), 0) ${tagWeighting} DESC,
-        p."baseScore" DESC
-      LIMIT $(count)
-    `, {
-      ...userFilter.args,
-      ...postFilter.args,
-      ...tagFilter.args,
-      postId,
+    const features: WeightedFeature[] = [
+      {feature: "collabFilter", weight: 1},
+      {feature: "karma", weight: 0.2},
+      {feature: "curated", weight: 0.05},
+    ];
+    if (this.weightByTagSimilarity) {
+      features.push({feature: "tagSimilarity", weight: strategy.bias ?? 1.5});
+    }
+    return super.recommend(
+      currentUser,
       count,
-      bias: bias ?? 1,
-    });
+      {
+        ...strategy,
+        features,
+      },
+    );
   };
 }
 
