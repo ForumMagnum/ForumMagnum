@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -359,7 +359,10 @@ const TagPage = ({classes}: {
              */}
             {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
                 tag.subTags.map((subTag, idx) => {
-                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+                return <Fragment key={idx}>
+                  <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
+                  {idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
+                </Fragment>
               })}</span>
             </div> : <></>}
           </div>
