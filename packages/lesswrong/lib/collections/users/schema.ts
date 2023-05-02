@@ -144,6 +144,11 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
+const expandedFrontpageSectionsSettings = new SimpleSchema({
+  community: {type: Boolean, optional: true, nullable: true},
+  recommendations: {type: Boolean, optional: true, nullable: true},
+});
+
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
@@ -760,6 +765,16 @@ const schema: SchemaType<DbUser> = {
     canCreate: ["members"],
     control: "checkbox",
     label: "Hide community section from the frontpage",
+  },
+
+  expandedFrontpageSections: {
+    type: expandedFrontpageSectionsSettings,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
   },
 
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
