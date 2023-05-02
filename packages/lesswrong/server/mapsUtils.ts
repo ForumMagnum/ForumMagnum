@@ -3,7 +3,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 
 const googleMapsApiKeySetting = new DatabaseServerSetting<string | null>('googleMaps.serverApiKey', null)
 
-export async function getLocalTime(time, googleLocation) {
+export async function getLocalTime(time: AnyBecauseTodo, googleLocation: AnyBecauseTodo) {
   const googleMapsApiKey = googleMapsApiKeySetting.get()
   if (!googleMapsApiKey) {
     // eslint-disable-next-line no-console

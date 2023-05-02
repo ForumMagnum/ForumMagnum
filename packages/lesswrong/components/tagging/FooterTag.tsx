@@ -7,6 +7,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
+import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { coreTagIconMap } from './CoreTagIcon';
 
@@ -140,7 +141,9 @@ const FooterTag = ({
   });
   const { PopperCard, TagRelCard, CoreTagIcon } = Components
 
-  if (tag.adminOnly) { return null }
+  const currentUser = useCurrentUser()
+  
+  if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 

@@ -140,12 +140,8 @@ const formPreviewSizeByImageType = {
   },
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
-  name: string,
-  document: Record<string, any>,
-  updateCurrentValues: Function,
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: FormComponentProps<string> & {
   clearField: Function,
-  label: string,
   croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
@@ -163,7 +159,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
     const imageInfo = result.info
     if (imageInfo && imageInfo.public_id) {
       setImageId(imageInfo.public_id)
-      updateCurrentValues({[name]: imageInfo.public_id})
+      void updateCurrentValues({[name]: imageInfo.public_id})
     } else {
       //eslint-disable-next-line no-console
       console.error("Image Upload failed");
@@ -204,7 +200,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   
   const chooseDefaultImg = (newImageId: string) => {
     setImageId(newImageId)
-    updateCurrentValues({[name]: newImageId})
+    void updateCurrentValues({[name]: newImageId})
   }
   
   const removeImg = () => {

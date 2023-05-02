@@ -137,6 +137,7 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   descendentCount: number
   shortform: boolean
+  shortformFrontpage: boolean
   nominatedForReview: string
   reviewingForReview: string
   lastSubthreadActivity: Date
@@ -415,7 +416,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -637,6 +638,7 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   debate: boolean | null
@@ -1014,7 +1016,6 @@ interface DbUser extends DbObject {
   noCollapseCommentsFrontpage: boolean
   hideCommunitySection: boolean
   showCommunityInRecentDiscussion: boolean
-  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

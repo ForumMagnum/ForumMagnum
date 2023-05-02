@@ -98,7 +98,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -128,7 +128,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc, { currentUser, context })
+    async function editorSerializationBeforeCreate (doc: AnyBecauseTodo, { currentUser, context }: AnyBecauseTodo)
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -200,7 +200,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).updateBefore.add(
-    async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser })
+    async function editorSerializationEdit (docData: AnyBecauseTodo, { oldDocument: document, newDocument, currentUser }: AnyBecauseTodo)
   {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -277,7 +277,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: DbRevision)
+    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -313,7 +313,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
-            contents: newDoc[fieldName],
+            contents: newDoc[fieldName as keyof DbPost],
             debateResponse: true,
           },
           context,

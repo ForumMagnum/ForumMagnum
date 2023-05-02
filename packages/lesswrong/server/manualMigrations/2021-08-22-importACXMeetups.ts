@@ -8,7 +8,7 @@ import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 const what3WordsAPIKey = "FM5HBWEL"
 
-async function what3WordsToCoordinates(words) {
+async function what3WordsToCoordinates(words: string) {
   const requestOptions: any = {
     method: 'GET',
     redirect: 'follow'

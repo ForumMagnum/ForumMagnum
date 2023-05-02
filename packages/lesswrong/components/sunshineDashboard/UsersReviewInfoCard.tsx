@@ -39,10 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 14,
     borderBottom: theme.palette.border.extraFaint
   },
-  row: {
-    display: "flex",
-    alignItems: "center",
-  },
   bigDownvotes: {
     color: theme.palette.error.dark,
     padding: 6,
@@ -150,9 +146,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, FirstContentIcons
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -180,17 +176,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div>
-      <div className={classes.displayName}>
-        <UsersName user={user}/>
-        <FirstContentIcons user={user}/>
-        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
-      </div>
-      <UserReviewStatus user={user}/>
+    <div className={classes.displayName}>
+      <UsersName user={user}/>
+      <FirstContentIcons user={user}/>
+      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
-
-    <div className={classes.row}>
+    <UserReviewStatus user={user}/>
+    <Row>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -200,7 +193,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
-    </div>
+    </Row>
   </div>
 
   const votesRow = <div className={classes.votesRow}>
@@ -236,7 +229,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>

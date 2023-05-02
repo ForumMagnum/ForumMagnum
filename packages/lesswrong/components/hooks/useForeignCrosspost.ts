@@ -77,7 +77,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   if (!localPost.fmCrosspost.hostedHere) {
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
-      Object.assign(combinedPost, { [field]: foreignPost?.[field] ?? localPost[field] });
+      Object.assign(combinedPost, { [field]: (foreignPost as AnyBecauseTodo)?.[field] ?? (localPost as AnyBecauseTodo)[field] });
     }
     // We just took the table of contents from the foreign version, but we want to use the local comment count
     if (hasTableOfContents(combinedPost)) {

@@ -36,7 +36,7 @@ export const NewMessageForm = ({classes, conversationId, templateQueries, succes
 
   return <div className={classes.root}>
     <WrappedSmartForm
-      collection={Messages}
+      collectionName="Messages"
       prefilledProps={{
         conversationId,
         contents: {

@@ -267,7 +267,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
-                  collection={Spotlights}
+                  collectionName="Spotlights"
                   fields={['description']}
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
@@ -310,12 +310,12 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {edit ? <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
-                collection={Spotlights}
-                documentId={spotlight._id}
-                mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                queryFragment={getFragment('SpotlightEditQueryFragment')}
-                successCallback={onUpdate}
-              /> 
+              collectionName="Spotlights"
+              documentId={spotlight._id}
+              mutationFragment={getFragment('SpotlightEditQueryFragment')}
+              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              successCallback={onUpdate}
+            />
             </SpotlightEditorStyles>
           </div>
            :

@@ -86,7 +86,11 @@ const ShortformListItem = ({comment, hideTag, classes}: {
     commentId: comment._id,
   });
 
-  const treeOptions = {post: comment.post || undefined};
+  const treeOptions = {
+    post: comment.post || undefined,
+    showCollapseButtons: true,
+    onToggleCollapsed: () => setExpanded(!expanded),
+  };
 
   const {
     LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode

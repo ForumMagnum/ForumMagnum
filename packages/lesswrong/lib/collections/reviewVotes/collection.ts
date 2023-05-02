@@ -8,7 +8,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const ReviewVotes: ReviewVotesCollection = createCollection({
   collectionName: 'ReviewVotes',
   typeName: 'ReviewVote',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ReviewVotes'),
 });

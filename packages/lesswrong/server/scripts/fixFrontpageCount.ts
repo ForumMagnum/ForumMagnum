@@ -14,7 +14,7 @@ async function fixFrontpagePostCount() {
     console.log("Fixing frontpage counts", frontpageCountsPromise);
     let frontpageCounts = await frontpageCountsPromise;
     let frontpageCountsArray = await frontpageCounts.toArray();
-    const userUpdates = frontpageCountsArray.map((postCount) => (
+    const userUpdates = frontpageCountsArray.map((postCount: AnyBecauseTodo) => (
       { updateOne :
        {
           filter: {_id: postCount._id},

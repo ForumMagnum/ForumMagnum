@@ -25,7 +25,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const StrawPollLoggedOut = ({ classes, pathname }) => (
+const StrawPollLoggedOut = ({ pathname, classes }: {
+  pathname: string
+  classes: ClassesType
+}) => (
   <div className={classes.loginRequired}>
     <div className={classes.yellowBar} />
     <h3 className={classes.heading}>This poll is hidden</h3>

@@ -198,7 +198,7 @@ const TagPage = ({classes}: {
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
-  const multiTerms = {
+  const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
     myPages: {view: "userTags", userId: currentUser?._id},
     //tagFlagId handled as default case below
@@ -282,7 +282,7 @@ const TagPage = ({classes}: {
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
-  const tagFlagItemType = {
+  const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
     myPages: "userPages"
   }

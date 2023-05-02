@@ -46,6 +46,8 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
                 post: comment.post || undefined,
                 showPostTitle: true,
               }}
+              forceUnTruncated
+              forceUnCollapsed
               comment={comment}
             />)}
     </div>

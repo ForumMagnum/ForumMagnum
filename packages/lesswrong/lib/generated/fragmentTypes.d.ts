@@ -79,7 +79,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsFrontpage: boolean,
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
-  readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -342,6 +341,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly reviewForAlignmentForumUserId: string,
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
+  readonly rateLimitNextAbleToComment: Date,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -363,6 +363,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly directChildrenCount: number,
   readonly descendentCount: number,
   readonly shortform: boolean,
+  readonly shortformFrontpage: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly lastSubthreadActivity: Date,
@@ -640,6 +641,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
+  readonly postSpecificRateLimit: Date,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
   readonly tableOfContents: any,
@@ -648,6 +650,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
   readonly sideCommentVisibility: string,
   readonly moderationStyle: string,
+  readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly languageModelSummary: string,
@@ -797,7 +800,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly endedAt: Date | null,
 }
 
@@ -892,6 +895,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly afSticky: boolean,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
+  readonly ignoreRateLimits: boolean | null,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
@@ -1286,6 +1290,11 @@ interface PostWithGeneratedSummary { // fragment on Posts
   readonly languageModelSummary: string,
 }
 
+interface PostWithRateLimit { // fragment on Posts
+  readonly _id: string,
+  readonly postSpecificRateLimit: Date,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1328,6 +1337,7 @@ interface CommentsList { // fragment on Comments
   readonly postVersion: string,
   readonly reviewedByUserId: string,
   readonly shortform: boolean,
+  readonly shortformFrontpage: boolean,
   readonly lastSubthreadActivity: Date,
   readonly moderatorHat: boolean,
   readonly hideModeratorHat: boolean | null,
@@ -2295,6 +2305,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly createdAt: Date,
   readonly username: string,
   readonly displayName: string,
+  readonly profileImageId: string,
   readonly previousDisplayName: string,
   readonly fullName: string,
   readonly karma: number,
@@ -2302,6 +2313,8 @@ interface UsersMinimumInfo { // fragment on Users
   readonly deleted: boolean,
   readonly isAdmin: boolean,
   readonly htmlBio: string,
+  readonly jobTitle: string,
+  readonly organization: string,
   readonly postCount: number,
   readonly commentCount: number,
   readonly sequenceCount: number,
@@ -2336,7 +2349,6 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly sequenceDraftCount: number,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionDisplay|null,
-  readonly profileImageId: string,
   readonly bannedUserIds: Array<string>,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -2501,6 +2513,11 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allowDatadogSessionReplay: boolean | null,
 }
 
+interface UsersCurrentRateLimit { // fragment on Users
+  readonly _id: string,
+  readonly rateLimitNextAbleToComment: Date,
+}
+
 interface UserBookmarkedPosts { // fragment on Users
   readonly _id: string,
   readonly bookmarkedPosts: Array<PostsList>,
@@ -2540,7 +2557,6 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly reviewedAt: Date,
   readonly signUpReCaptchaRating: number,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly profileImageId: string,
   readonly needsReview: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
@@ -2917,7 +2933,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -3031,6 +3047,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostWithRateLimit: PostWithRateLimit
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3128,6 +3145,7 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
+  UsersCurrentRateLimit: UsersCurrentRateLimit
   UserBookmarkedPosts: UserBookmarkedPosts
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
@@ -3216,6 +3234,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostWithRateLimit: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3313,6 +3332,7 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
+  UsersCurrentRateLimit: "Users"
   UserBookmarkedPosts: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"

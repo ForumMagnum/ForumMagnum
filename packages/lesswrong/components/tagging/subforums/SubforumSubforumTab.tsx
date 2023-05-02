@@ -151,7 +151,7 @@ const SubforumSubforumTab = ({
       refetchRef={refetchRef}
       // type is guaranteed to be SubforumSorting by the `sortByOptions` logic above
       resolverName={`Subforum${subforumSortingToResolverName(sortBy as SubforumSorting)}Feed`}
-      sortKeyType={subforumSortingTypes[sortBy]}
+      sortKeyType={(subforumSortingTypes as AnyBecauseTodo)[sortBy]}
       resolverArgs={{
         tagId: "String!",
         af: "Boolean",

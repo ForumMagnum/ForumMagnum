@@ -62,8 +62,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export interface ChecklistTag {
+  _id: string;
+  name: string;
+  parentTag?: ChecklistTag;
+}
+
 interface TagsChecklistItem {
-  tag: TagFragment,
+  tag: ChecklistTag,
   selected: boolean,
 }
 
@@ -84,7 +90,7 @@ const TagsChecklist = ({
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
   classes: ClassesType;
   selectedTagIds?: Array<string | undefined>;
-  tags: TagFragment[];
+  tags: {_id: string, name: string}[];
   displaySelected?: "highlight" | "hide";
   tooltips?: boolean;
   truncate?: boolean;
@@ -118,8 +124,8 @@ const TagsChecklist = ({
   const shouldDisplayLoadMore = actuallyTruncate && tagsToDisplay.length < allRelevantTags.length;
   const numHidden = allRelevantTags.length - tagsToDisplay.length;
 
-  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
-  const handleOnTagRemoved = (tag, existingTagIds) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
+  const handleOnTagSelected = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
+  const handleOnTagRemoved = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
 
   return (
     <>

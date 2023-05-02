@@ -15,7 +15,7 @@ const schema: SchemaType<DbLegacyData> = {
 export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema
 });
 

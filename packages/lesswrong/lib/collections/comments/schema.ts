@@ -10,8 +10,9 @@ import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import { userHasShortformTags } from '../../betas';
+import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 
-export const moderationOptionsGroup: FormGroup = {
+export const moderationOptionsGroup: FormGroupType = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -266,6 +267,16 @@ const schema: SchemaType<DbComment> = {
         return !!post.shortform;
       }
     }),
+  },
+
+  shortformFrontpage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(true)
   },
 
   // users can write comments nominating posts for a particular review period.
@@ -666,8 +677,7 @@ const schema: SchemaType<DbComment> = {
     label: `Shortform ${taggingNameSetting.get()}`,
     tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
     control: "FormComponentTagsChecklist",
-    hidden: (
-      {currentUser, document}: {currentUser: UsersCurrent|DbUser|null, document: CommentsList}): boolean => {
+    hidden: ({currentUser, document}: SmartFormProps): boolean => {
         if (!userHasShortformTags(currentUser)) return true;
         return !document.shortform
     },
@@ -766,7 +776,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props) => alignmentForum || !props.alignmentForumPost
+    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

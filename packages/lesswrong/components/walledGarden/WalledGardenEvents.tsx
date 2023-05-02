@@ -24,7 +24,7 @@ const WalledGardenEvents = ({frontpage=true}) => {
   if (!(events.length > 0)) return null
 
   return <div>
-    { events.slice(0,limit).map((event,i)=> frontpage ?
+    { events.slice(0,limit).map((event: AnyBecauseTodo,i: number)=> frontpage ?
       <FrontpageGcalEventItem key={`event-${i}`} gcalEvent={event}/>
       : <PortalBarGcalEventItem key={`event-${i}`} gcalEvent={event}/>
     )}

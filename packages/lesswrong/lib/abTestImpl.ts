@@ -70,7 +70,7 @@ export class ABTest<T extends string = string> {
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
-      (sum:number, key:string) => sum+groups[key].weight,
+      (sum:number, key:T) => sum+groups[key].weight,
       0
     );
     if (totalWeight === 0) {

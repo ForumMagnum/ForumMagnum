@@ -114,7 +114,10 @@ export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
   let body = "";
   
   const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description?.originalContents?.type);
-  const lines = descriptionMarkdown.trim().split('\n').map(line => line.trim());
+  const lines = descriptionMarkdown
+    .trim()
+    .split('\n')
+    .map((line: string) => line.trim());
   
   for (let i=0; i<lines.length; i++) {
     const line = lines[i];

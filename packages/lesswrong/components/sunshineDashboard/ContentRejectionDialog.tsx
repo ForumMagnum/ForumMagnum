@@ -3,9 +3,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
-import React, { ChangeEventHandler, useState } from 'react';
+import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import Card from '@material-ui/core/Card'
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogContent: {
@@ -27,6 +28,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hideModalTextField: {
     display: 'none'
+  },
+  card: {
+    padding: 12,
+    width: 500,
   }
 });
 
@@ -34,7 +39,7 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   classes: ClassesType,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip } = Components;
+  const { LWTooltip, ContentItemBody, ContentStyles } = Components;
 
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
@@ -71,13 +76,19 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   const dialogContent = <div className={classes.rejectionCheckboxes}>
     {Object.entries(rejectionReasons).map(([label, description]) => {
       return <span key={`rejection-reason-${label}`}>
-        <Checkbox
-          checked={selections[label]}
-          onChange={(_, checked) => composeRejectedReason(label, checked)}
-          className={classes.checkbox}
-        />
-        <LWTooltip title={description}>
-          {label}
+        <LWTooltip placement="right-end" tooltip={false} title={<Card className={classes.card}>
+          <ContentStyles contentType='comment'>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: description || ""}} />
+          </ContentStyles>
+        </Card>}>
+          <div>
+            <Checkbox
+              checked={selections[label]}
+              onChange={(_, checked) => composeRejectedReason(label, checked)}
+              className={classes.checkbox}
+            />
+            {label}
+          </div>
         </LWTooltip>
       </span>
     })}

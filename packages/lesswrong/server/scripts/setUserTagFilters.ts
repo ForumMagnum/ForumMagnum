@@ -29,7 +29,7 @@ Vulcan.setUserTagFilters = wrapVulcanAsyncScript(
         
         const changes = users.map(({ _id, frontpageFilterSettings }) => {
           const newTags = [
-            ...frontpageFilterSettings.tags.filter((t) => t.tagId !== tag._id),
+            ...frontpageFilterSettings.tags.filter((t: AnyBecauseTodo) => t.tagId !== tag._id),
             {
               tagId: tag._id,
               tagName: tag.name,

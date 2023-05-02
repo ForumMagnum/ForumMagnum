@@ -37,12 +37,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const MultiSelectButtons = ({ value, classes, label, options, path }: {
-  classes: ClassesType;
-  value: string;
-  label: string;
+const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
   options: Array<{ value: string; label?: string }>;
-  path: string;
+  classes: ClassesType;
 }, context: any) => {
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {

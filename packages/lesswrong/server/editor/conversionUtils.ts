@@ -59,7 +59,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
       }, 10000);
     }
 
-    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
+    const errorHandler = (id: AnyBecauseTodo, wrapperNode: AnyBecauseTodo, sourceFormula: AnyBecauseTodo, sourceFormat: AnyBecauseTodo, errors: AnyBecauseTodo) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
@@ -163,7 +163,7 @@ const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
   return false
 }
 
-export async function draftJSToHtmlWithLatex(draftJS) {
+export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   const draftJSWithLatex = await preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
@@ -198,7 +198,7 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
-export async function dataToHTML(data, type, sanitizeData = false) {
+export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
   switch (type) {
     case "html":
       return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
@@ -212,7 +212,7 @@ export async function dataToHTML(data, type, sanitizeData = false) {
   }
 }
 
-export function dataToMarkdown(data, type) {
+export function dataToMarkdown(data: AnyBecauseTodo, type: string) {
   if (!data) return ""
   switch (type) {
     case "markdown": {
@@ -239,7 +239,7 @@ export function dataToMarkdown(data, type) {
   }
 }
 
-export async function dataToCkEditor(data, type) {
+export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
   switch (type) {
     case "html":
       return sanitize(data);
@@ -269,7 +269,7 @@ export async function dataToCkEditor(data, type) {
  * is just to find the first place where this occurs and then to ignore to the end of
  * the document.
  */
-export async function dataToWordCount(data, type) {
+export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   try {
     const markdown = dataToMarkdown(data, type) ?? "";
     const withoutFootnotes = markdown

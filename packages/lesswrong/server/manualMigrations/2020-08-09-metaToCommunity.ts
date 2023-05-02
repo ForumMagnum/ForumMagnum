@@ -36,7 +36,7 @@ registerMigration({
   dateWritten: '2020-08-11',
   idempotent: true,
   action: async () => {
-    const communityTagId = Tags.find({slug: 'community'}).fetch()[0]._id
+    const communityTagId = (await Tags.find({slug: 'community'}).fetch())[0]._id
 
     await forEachDocumentBatchInCollection({
       collection: Users,
@@ -98,8 +98,8 @@ registerMigration({
   dateWritten: '2020-08-12',
   idempotent: true,
   action: async () => {
-    const communityTagId = Tags.find({slug: 'community'}).fetch()[0]._id
-    const defaultAdminUserId = Users.find({ slug: DEFAULT_ADMIN_USER_SLUG }).fetch()[0]._id
+    const communityTagId = (await Tags.find({slug: 'community'}).fetch())[0]._id
+    const defaultAdminUserId = (await Users.find({ slug: DEFAULT_ADMIN_USER_SLUG }).fetch())[0]._id
 
     await forEachDocumentBatchInCollection({
       collection: Posts,

@@ -2,7 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
 
-const FormNestedItemLayout = ({ content, removeButton }) => (
+const FormNestedItemLayout = ({ content, removeButton }: {
+  content: React.ReactNode
+  removeButton: React.ReactNode
+}) => (
   <div className="form-nested-item">
     <div className="form-nested-item-inner">{content}</div>
     {removeButton && [
@@ -16,21 +19,24 @@ const FormNestedItemLayout = ({ content, removeButton }) => (
     ]}
   </div>
 );
-FormNestedItemLayout.propTypes = {
-  content: PropTypes.node.isRequired,
-  removeButton: PropTypes.node
-};
 const FormNestedItemLayoutComponent = registerComponent('FormNestedItemLayout', FormNestedItemLayout);
 
-const FormNestedItem = (
-  { nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props },
-  { errors }
-) => {
+const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentProps<any> & {
+  nestedFields: any
+  name: string
+  path: string
+  removeItem: (i: string)=>void
+  itemIndex: number
+  formComponents: ComponentTypes
+  hideRemove: boolean
+}, { errors }: {
+  errors: any[]
+}) => {
   const FormComponents = mergeWithComponents(formComponents);
   const isArray = typeof itemIndex !== 'undefined';
   return (
     <FormComponents.FormNestedItemLayout
-      content={nestedFields.map((field, i) => {
+      content={nestedFields.map((field: AnyBecauseTodo, i: number) => {
         return (
           <FormComponents.FormComponent
             key={i}
@@ -65,13 +71,6 @@ const FormNestedItem = (
       }
     />
   );
-};
-
-FormNestedItem.propTypes = {
-  path: PropTypes.string.isRequired,
-  itemIndex: PropTypes.number,
-  formComponents: PropTypes.object,
-  hideRemove: PropTypes.bool
 };
 
 FormNestedItem.contextTypes = {

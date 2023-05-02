@@ -15,7 +15,7 @@ onStartup(() => {
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
   foreignApolloClient.disableNetworkFetches = true;
 
-  const ssrRenderedAt: Date = window.ssrRenderedAt;
+  const ssrRenderedAt: Date = new Date(window.ssrRenderedAt);
   const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
 
   // Create the root element, if it doesn't already exist.

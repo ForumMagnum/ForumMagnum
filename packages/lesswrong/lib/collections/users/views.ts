@@ -19,6 +19,7 @@ declare global {
       afCommentCount?: number,
     },
     userId?: string,
+    userIds?: Array<string>,
     slug?: string,
     lng?: number
     lat?: number,
@@ -68,6 +69,12 @@ const termsToMongoSort = (terms: UsersViewTerms) => {
     v => isNumber(v) ? v : 1
   );
 }
+
+Users.addView('usersByUserIds', function(terms: UsersViewTerms) {
+  return {
+    selector: {_id: {$in:terms.userIds}}
+  }
+})
 
 Users.addView('usersProfile', function(terms: UsersViewTerms) {
   if (terms.userId) {

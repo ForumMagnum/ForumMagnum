@@ -154,7 +154,7 @@ function preprocessPostBody(post: DbPost): string {
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
-  const result = {preprocessedBody: {}};
+  const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostBody(post);
   }

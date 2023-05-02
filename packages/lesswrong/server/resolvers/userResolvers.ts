@@ -18,6 +18,7 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
+import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -47,6 +48,21 @@ augmentFieldsDict(Users, {
         return bio?.html || "";
       }
     }
+  },
+  // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
+  rateLimitNextAbleToComment: {
+    nullable: true,
+    resolveAs: {
+      type: "Date",
+      arguments: 'postId: String',
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
+        if (rateLimit) {
+          return rateLimit.nextEligible;
+        }
+        return null;
+      }
+    },
   },
 });
 
@@ -146,6 +162,7 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
+    // TODO: Deprecated
     async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
       if (!currentUser) {
         throw new Error('Cannot accept terms of use while not logged in');
@@ -286,7 +303,7 @@ addGraphQLResolvers({
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
       }
       
-      const results = {
+      const results: AnyBecauseTodo = {
         ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
@@ -319,7 +336,7 @@ addGraphQLResolvers({
   },
 })
 
-function getAlignment(results) {
+function getAlignment(results: AnyBecauseTodo) {
   let goodEvil = 'neutral', lawfulChaotic = 'Neutral';
   if (results.engagementPercentile < 0.33) {
     goodEvil = 'evil'
@@ -385,6 +402,7 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
+// TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
 )

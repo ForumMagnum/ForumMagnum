@@ -74,7 +74,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingTimeOfDay = (timeOfDay: number, tz) => {
+  setBatchingTimeOfDay = (timeOfDay: number, tz: AnyBecauseTodo) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: timeOfDay,
@@ -88,7 +88,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingDayOfWeek = (dayOfWeek: string, tz) => {
+  setBatchingDayOfWeek = (dayOfWeek: string, tz: AnyBecauseTodo) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: oldTimeLocalTZ.timeOfDay,

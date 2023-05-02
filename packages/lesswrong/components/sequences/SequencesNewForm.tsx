@@ -153,7 +153,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
     return (
       <div className={classes.sequencesForm}>
         <Components.WrappedSmartForm
-          collection={Sequences}
+          collectionName="Sequences"
           successCallback={(sequence: any) => {
             history.push({pathname: redirect || '/s/' + sequence._id });
             flash({messageString: "Successfully created Sequence", type: "success"});

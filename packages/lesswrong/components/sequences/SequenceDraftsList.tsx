@@ -59,7 +59,7 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
     {(!results && loading) ? <Loading /> : <>
       <Components.SectionTitle title={title} noTopMargin={true}>
         <div onClick={() => setShowSettings(!showSettings)}>
-          <Components.SortButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </Components.SectionTitle>
       {showSettings && <Components.DraftsListSettings

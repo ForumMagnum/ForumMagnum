@@ -29,8 +29,8 @@ import { getAdminTeamAccount } from './commentCallbacks';
 const MINIMUM_APPROVAL_KARMA = 5
 
 if (forumTypeSetting.get() === "EAForum") {
-  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
-    if (post.draft === false && !post.shortform && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
+    if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
     }
     return post;
@@ -39,13 +39,13 @@ if (forumTypeSetting.get() === "EAForum") {
     (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
   );
   getCollectionHooks("Posts").updateBefore.add(
-    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+    (post, {currentUser}) => checkTosAccepted(currentUser, post),
   );
 }
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Debate must have at least one co-author!');
+    throw new Error('Dialogue must have at least one co-author!');
   }
 
   return validationErrors;

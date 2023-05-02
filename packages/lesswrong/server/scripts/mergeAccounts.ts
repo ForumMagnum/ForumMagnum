@@ -11,7 +11,12 @@ import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 
-const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
+const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
+  documentId: string
+  targetUserId: string
+  collection: CollectionBase<any>
+  fieldName: string
+}) => {
   await updateMutator({
     collection,
     documentId,

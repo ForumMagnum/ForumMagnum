@@ -15,25 +15,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: {
-  value?: string,
-  path: string,
-  label: string,
+const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: FormComponentProps<string> & {
   classes: ClassesType,
-  updateCurrentValues<T extends {}>(values: T): void
 }) => {
-  
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
         <Components.UsersSearchAutoComplete
           clickAction={(userId: string) => {
-            updateCurrentValues({ [path]: userId });
+            void updateCurrentValues({ [path]: userId });
           }}
           label={label}
         />
       </Components.ErrorBoundary>
-      {value && <Components.SingleUsersItemWrapper documentId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
+      {value && <Components.SingleUsersItem userId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
     </div>
   )
 };

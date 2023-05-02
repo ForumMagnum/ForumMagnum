@@ -27,7 +27,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
         const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
@@ -69,7 +69,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
 
         // prime the cache
-        restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
+        restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
         const data: any = { results: restrictedDocs };
 
@@ -94,7 +94,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems

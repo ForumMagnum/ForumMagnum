@@ -15,7 +15,7 @@ export function createVoteableUnionType() {
 
 const resolverMap = {
   Voteable: {
-    __resolveType(obj, context, info){
+    __resolveType(obj: AnyBecauseTodo, context: AnyBecauseTodo, info: AnyBecauseTodo) {
       return obj.__typename;
     },
   },

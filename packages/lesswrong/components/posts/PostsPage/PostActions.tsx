@@ -219,7 +219,7 @@ const PostActions = ({post, closeMenu, classes}: {
   // thing.
   
   return (
-      <div className={classes.actions}>
+      <div className={classes.actions} >
         {editLink}
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
@@ -268,9 +268,9 @@ const PostActions = ({post, closeMenu, classes}: {
             showIcon
             document={post}
             subscriptionType={subscriptionTypes.newDebateComments}
-            subscribeMessage="Subscribe to debate"
-            unsubscribeMessage="Unsubscribe from debate"
-            tooltip="Notifies you when there is new activity in the debate"
+            subscribeMessage="Subscribe to dialogue"
+            unsubscribeMessage="Unsubscribe from dialogue"
+            tooltip="Notifies you when there is new activity in the dialogue"
           />
         }
 

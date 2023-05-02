@@ -54,7 +54,7 @@ class App extends PureComponent<AppProps,any> {
   Show a flash message
 
   */
-  flash = message => {
+  flash = (message: AnyBecauseTodo) => {
     this.setState({
       messages: [...this.state.messages, message]
     });
@@ -69,7 +69,7 @@ class App extends PureComponent<AppProps,any> {
     // When clearing messages, we first set all current messages to have a hide property
     // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
     this.setState({
-      messages: this.state.messages.map(message => ({...message, hide: true}))
+      messages: this.state.messages.map((message: AnyBecauseTodo) => ({...message, hide: true}))
     })
     setTimeout(() => {
       this.setState({ messages: []});

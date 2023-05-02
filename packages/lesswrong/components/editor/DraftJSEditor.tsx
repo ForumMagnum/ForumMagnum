@@ -27,14 +27,14 @@ const styleMap = (theme: ThemeType) => ({
   'CODE': theme.typography.code
 })
 
-function customBlockStyleFn(contentBlock) {
+function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
   const type = contentBlock.getType();
   if (type === 'spoiler') {
     return 'spoiler';
   }
 }
 
-const initializePlugins = (commentEditor) => {
+const initializePlugins = (commentEditor: AnyBecauseTodo) => {
   const HeadlineOneButton = createBlockStyleButton({
     blockType: 'header-one',
     children: (
@@ -177,7 +177,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
             customStyleMap={styleMap(theme!)}
             blockStyleFn={customBlockStyleFn}
             blockRenderMap={blockRenderMap}
-            ref={(ref) => { this._ref = ref }}
+            ref={(ref: AnyBecauseTodo) => { this._ref = ref }}
           />
         </div>
         <InlineToolbar />

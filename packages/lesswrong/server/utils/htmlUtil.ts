@@ -19,7 +19,7 @@ export function cheerioParse(html: string|null) {
 export function tokenizeHtml(html: string): [string,string][] {
   const result: [string,string][] = [];
   const lexer = new HtmlLexer({
-    write: (token) => result.push(token),
+    write: (token: [string,string]) => result.push(token),
     end: () => null
   })
   lexer.write(html);
