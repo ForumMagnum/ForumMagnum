@@ -288,7 +288,7 @@ const RecommendationsAndCurated = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {sectionExpanded && bodyNode}
+        {(sectionExpanded || !isEAForum) && bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }
