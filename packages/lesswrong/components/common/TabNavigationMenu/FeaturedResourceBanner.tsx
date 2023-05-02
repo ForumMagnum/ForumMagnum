@@ -13,6 +13,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 
+console.log("registering hide_featured_resource");
 const HIDE_FEATURED_RESOURCE_COOKIE = registerCookie({
   name: "hide_featured_resource",
   type: "functional",

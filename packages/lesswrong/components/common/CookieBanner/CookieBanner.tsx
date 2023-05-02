@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
+import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {
@@ -74,17 +75,17 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
   const { updateCookiePreferences } = useCookiePreferences();
   
   const handleAcceptAll = () => {
-    updateCookiePreferences(["necessary", "functional", "analytics"]);
+    updateCookiePreferences(ALL_COOKIES);
   }
   const handleReject = () => {
-    updateCookiePreferences(["necessary"]);
+    updateCookiePreferences(ONLY_NECESSARY_COOKIES);
   }
 
   const { Typography } = Components;
   return (
     <div className={classNames(classes.bannerContainer)}>
       <Typography variant="body2" className={classes.text}>
-        We use cookies to enhance your experience, by clicking "Accept All" you agree to their use. Customise your{" "}
+        We use cookies to enhance your experience, by clicking "Accept all" you agree to their use. Customise your{" "}
         <a
           onClick={() => {
             openDialog({ componentName: "CookieDialog", componentProps: {} });
@@ -92,7 +93,7 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
         >
           cookie settings
         </a>{" "}
-        for more control, or review our cookie policy <a href="/cookiePolicy">here</a>
+        for more control, or review our cookie policy <a href="/cookiePolicy">here</a>.
       </Typography>
       <div className={classes.buttonGroup}>
         <Button

@@ -1,11 +1,19 @@
 import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
-import { COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
+import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
 
+/**
+ * Fetches the current cookie preferences and allows the user to update them.
+ *
+ * IMPORTANT NOTE: getCookiePreferences in packages/lesswrong/lib/cookies/utils.ts
+ * should mirror the behaviour here (at least the parts that get cookiePreferences
+ * and explicitConsentGiven). If you make a change here, make sure to update that
+ * function too.
+ */
 export function useCookiePreferences(): {
   cookiePreferences: CookieType[];
   updateCookiePreferences: (newPreferences: CookieType[]) => void;
@@ -19,7 +27,7 @@ export function useCookiePreferences(): {
   const preferencesCookieValue = cookies[COOKIE_PREFERENCES_COOKIE];
   const explicitConsentGiven = !!cookies[COOKIE_CONSENT_TIMESTAMP_COOKIE] && isValidCookieTypeArray(preferencesCookieValue)
 
-  const fallbackPreferences: CookieType[] = useMemo(() => explicitConsentRequired !== false ? ["necessary"] : ["necessary", "functional", "analytics"], [explicitConsentRequired]);
+  const fallbackPreferences: CookieType[] = useMemo(() => explicitConsentRequired !== false ? ONLY_NECESSARY_COOKIES : ALL_COOKIES, [explicitConsentRequired]);
   const cookiePreferences = explicitConsentGiven ? preferencesCookieValue : fallbackPreferences
 
   // If we can't determine whether explicit consent is required synchronously (from localStorage), check via the geolocation API

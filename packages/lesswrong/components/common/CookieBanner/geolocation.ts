@@ -91,8 +91,8 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
 }
 
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
-  if (isServer) return "unknown";
   if (!isEAForum) return false;
+  if (isServer) return "unknown";
 
   const cachedCountryCode = getCachedUserCountryCode();
   if (cachedCountryCode) {
@@ -102,8 +102,8 @@ export function getExplicitConsentRequiredSync(): boolean | "unknown" {
 }
 
 export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unknown"> {
-  if (isServer) return "unknown";
   if (!isEAForum) return false;
+  if (isServer) return "unknown";
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);

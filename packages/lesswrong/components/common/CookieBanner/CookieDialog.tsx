@@ -15,9 +15,9 @@ const styles = (theme: ThemeType) => ({
   title: {
     marginLeft: 4,
     padding: "24px 24px 10px",
-    '& .MuiTypography-title': {
-      color: theme.palette.grey[1000]
-    }
+    "& .MuiTypography-title": {
+      color: theme.palette.grey[1000],
+    },
   },
   content: {
     minWidth: 280,
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     transition: "max-height 0.3s ease-in-out",
   },
   explanation: {
-    padding: '8px 0px',
+    padding: "8px 0px",
     fontWeight: 400,
   },
   open: {
@@ -111,13 +111,24 @@ const CookieCategory = ({
   }, [alwaysEnabled, checked, setAllowedCookies, allowedCookies, cookieType]);
 
   const cookieTypeExplanations: Record<CookieType, string> = {
-    necessary: "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. In general these cookies expire after 24 months.",
-    functional: "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. In general these cookies expire after 24 months.",
-    analytics: "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. In general these cookies expire after 24 months.",
-  }
+    necessary:
+      "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. In general these cookies expire after 24 months.",
+    functional:
+      "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. In general these cookies expire after 24 months.",
+    analytics:
+      "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. In general these cookies expire after 24 months.",
+  };
   const explanation = cookieTypeExplanations[cookieType];
 
-  const uniqueThirdPartyNames = [...new Set(Object.values(CookiesTable).filter(cookie => cookie.type === cookieType).map(cookie => cookie.thirdPartyName))].sort().reverse();
+  const uniqueThirdPartyNames = [
+    ...new Set(
+      Object.values(CookiesTable)
+        .filter((cookie) => cookie.type === cookieType)
+        .map((cookie) => cookie.thirdPartyName)
+    ),
+  ]
+    .sort()
+    .reverse();
 
   return (
     <div className={className}>
@@ -144,7 +155,9 @@ const CookieCategory = ({
         <Typography variant="body2" className={classes.explanation}>
           {explanation}
         </Typography>
-        {uniqueThirdPartyNames.map((name) => <CookieTable type={cookieType} thirdPartyName={name} key={`${cookieType}_${name}`}/>)}
+        {uniqueThirdPartyNames.map((name) => (
+          <CookieTable type={cookieType} thirdPartyName={name} key={`${cookieType}_${name}`} />
+        ))}
       </div>
     </div>
   );
@@ -162,9 +175,13 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   }, [allowedCookies, onClose, updateCookiePreferences]);
 
   return (
-    <LWDialog open onClose={onClose} dialogClasses={{
-      paper: classes.dialog,
-    }}>
+    <LWDialog
+      open
+      onClose={onClose}
+      dialogClasses={{
+        paper: classes.dialog,
+      }}
+    >
       <DialogTitle className={classes.title}>Cookie Settings</DialogTitle>
       <DialogContent className={classes.content}>
         <Typography variant="body2" className={classes.blurb}>
@@ -173,6 +190,11 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           for non-essential purposes such as remembering your preferences between visits, or for analytics. These
           cookies will be stored in your browser only with your consent. Read our full cookie policy{" "}
           <a href="/cookiePolicy">here</a>.
+        </Typography>
+        <Typography variant="body2" className={classes.blurb}>
+          If you choose to reject cookies, you are responsible for removing any that have already been set (such as if
+          you previously accepted, or you visited before our cookie policy was implemented). See the instructions for
+          doing so <a href="https://support.google.com/chrome/answer/95647">here</a>.
         </Typography>
         <CookieCategory
           title="Necessary"

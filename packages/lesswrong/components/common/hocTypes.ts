@@ -1,6 +1,5 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib';
-import { CookieType } from '../../lib/cookies/utils';
 
 declare global {
 

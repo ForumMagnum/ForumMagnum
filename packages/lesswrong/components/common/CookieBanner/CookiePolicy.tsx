@@ -48,15 +48,15 @@ const styles = (theme: ThemeType) => ({
     margin: "0 15px 0 25px",
   },
   cookiePreamble: {
-    paddingBottom: '0px !important',
+    paddingBottom: "0px !important",
   },
   cookieTable: {
-    '& .CookieTable-heading': {
-      paddingBottom: '0 !important',
+    "& .CookieTable-heading": {
+      paddingBottom: "0 !important",
       marginTop: 10,
       marginBottom: 10,
-    }
-  }
+    },
+  },
 });
 
 const ExternalLink: FC<{ href: string }> = ({ href, children }) => (
@@ -118,6 +118,11 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         <a onClick={() => openDialog({ componentName: "CookieDialog", componentProps: {} })}>here</a>.
       </Typography>
       <Typography variant="body1">
+        If you choose to reject cookies you are responsible for removing any that have already been set (such as if you
+        previously accepted, or you visited before our cookie policy was implemented), see the instructions for doing so{" "}
+        <a href="https://support.google.com/chrome/answer/95647">here</a>.
+      </Typography>
+      <Typography variant="body1">
         This cookie notice is different to the cookie notice that covers other Effective Ventures Foundation websites.
         You can see the Effective Ventures Foundation cookie notice{" "}
         <ExternalLink href="https://ev.org/cookie-policy/">here</ExternalLink>.
@@ -155,21 +160,35 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         irregular site behaviour, prevent fraudulent activity and improve security; or that allow you to make use of our
         functions such as making donations, saved search or similar functions. These cookies expire after 24 months.
       </Typography>
-      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>
+        The cookies we use in this category are:
+      </Typography>
       {uniqueNecessaryThirdParties.map((name) => (
-        <CookieTable type={"necessary"} thirdPartyName={name} key={`necessary_${name}`} className={classes.cookieTable}/>
+        <CookieTable
+          type={"necessary"}
+          thirdPartyName={name}
+          key={`necessary_${name}`}
+          className={classes.cookieTable}
+        />
       ))}
-      <br/>
+      <br />
       <Typography variant="body1">
         <b>Functional cookies:</b> these cookies enable functionalities that are not strictly necessary for the website
         to be usable. This includes remembering whether certain banners are hidden, or allowing you to contact us for
         support via Intercom. These cookies expire after 24 months.
       </Typography>
-      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>
+        The cookies we use in this category are:
+      </Typography>
       {uniqueFunctionalThirdParties.map((name) => (
-        <CookieTable type={"functional"} thirdPartyName={name} key={`functional_${name}`} className={classes.cookieTable}/>
+        <CookieTable
+          type={"functional"}
+          thirdPartyName={name}
+          key={`functional_${name}`}
+          className={classes.cookieTable}
+        />
       ))}
-      <br/>
+      <br />
       <Typography variant="body1">
         <b>Analytics and performance cookies:</b> these cookies help us improve or optimise the experience we provide.
         They allow us to measure how visitors interact with our Platforms and we use this information to improve the
@@ -177,12 +196,19 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         as the last visited Platform, the number of pages visited, whether or not email communications are opened, which
         parts of our website or email communication are clicked on and the length of time between clicks. They may also
         collect information to provide helpful features and e.g. be used to remember your preferences (such as your
-        language preference), your interests and the presentation of the website (such as the font size). These
-        cookies expire after 24 months.
+        language preference), your interests and the presentation of the website (such as the font size). These cookies
+        expire after 24 months.
       </Typography>
-      <Typography variant="body1" className={classes.cookiePreamble}>The cookies we use in this category are:</Typography>
+      <Typography variant="body1" className={classes.cookiePreamble}>
+        The cookies we use in this category are:
+      </Typography>
       {uniqueAnalyticsThirdParties.map((name) => (
-        <CookieTable type={"analytics"} thirdPartyName={name} key={`analytics_${name}`}  className={classes.cookieTable}/>
+        <CookieTable
+          type={"analytics"}
+          thirdPartyName={name}
+          key={`analytics_${name}`}
+          className={classes.cookieTable}
+        />
       ))}
     </div>
   );

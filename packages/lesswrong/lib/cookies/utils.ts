@@ -7,6 +7,9 @@ export const CookiesTable: Record<string, CookieSignature> = {};
 const CookieTypes = new TupleSet(["necessary", "functional", "analytics"] as const)
 export type CookieType = UnionOf<typeof CookieTypes>;
 
+export const ONLY_NECESSARY_COOKIES: CookieType[] = ["necessary"];
+export const ALL_COOKIES: CookieType[] = ["necessary", "functional", "analytics"];
+
 export const COOKIE_PREFERENCES_COOKIE = registerCookie({
   name: "cookie_preferences", // Must match variable in Google Tag Manager
   type: "necessary",
@@ -27,6 +30,9 @@ export type CookieSignature = {
   thirdPartyName?: string;
   /** String description of the longest possible expiry date. Can be e.g. "12 months" or "Session" */
   maxExpires: string;
+  /** Not all cookies have uniquely determinable names (e.g. if they include a session id in the cookie name).
+   * In this case, you can provide a function that returns true if the cookie name matches a pattern (e.g. if
+   * it starts with 'intercom-id') */
   matches: (name: string) => boolean;
 }
 // maxExpires and matches are filled in by registerCookie if not provided
@@ -59,6 +65,8 @@ export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]):
  * Non-hook version of useCookiePreferences for use outside of React. Returns the list of
  * allowed cookie types and whether the user has given explicit consent (if they are outside
  * the EU, this will always be true)
+ *
+ * IMPORTANT NOTE: update useCookiePreferences to match the behaviour here if you change this
  */
 export async function getCookiePreferences(): Promise<{
   cookiePreferences: CookieType[];
@@ -71,8 +79,8 @@ export async function getCookiePreferences(): Promise<{
 
   const explicitConsentRequired = await getExplicitConsentRequiredAsync();
   const fallbackPreferences: CookieType[] = explicitConsentRequired
-    ? ["necessary"]
-    : ["necessary", "functional", "analytics"];
+    ? ONLY_NECESSARY_COOKIES
+    : ALL_COOKIES;
   const cookiePreferences = explicitConsentGiven
     ? preferencesValue
     : fallbackPreferences;
