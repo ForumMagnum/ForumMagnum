@@ -103,14 +103,33 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
-
+  
+  const filterSettingsNonAI = {
+    "personalBlog": "Hidden",
+    "tags": [
+    {
+      "tagId": "sYm3HiWcfZvrGu3ui",
+      "tagName": "AI",
+      "filterMode": "Hidden"
+    },
+  ]}
+  
+  const recentPostsTermsNonAI = {
+    ...query,
+    filterSettings: filterSettingsNonAI,
+    after: dateCutoff,
+    view: "magic",
+    forum: true,
+    limit:4
+  }
+  
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
+    limit:limit-4
   }
   
   const changeShowTagFilterSettingsDesktop = () => {
@@ -119,6 +138,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
       void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     }
     
+    console.log({filterSettings})
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
@@ -135,6 +155,12 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
+        <SectionTitle title={'Latest Posts excluding AI'} noTopMargin={isEAForum} noBottomPadding/>
+        <PostsList2
+          terms={recentPostsTermsNonAI}
+          alwaysShowLoadMore
+          hideHiddenFrontPagePosts
+        />
         <SectionTitle title={latestPostsName} noTopMargin={isEAForum} noBottomPadding>
           <LWTooltip
             title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
