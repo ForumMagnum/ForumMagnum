@@ -52,8 +52,6 @@ const EAHome = () => {
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-          {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
-                opt-out of their shortform posts being shown on the frontpage */}
           {isEAForum && (
             <SingleColumnSection>
               <CommentsListCondensed
