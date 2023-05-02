@@ -42,10 +42,16 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   const {openDialog} = useDialog();
   const {flash} = useMessages();
   const {captureEvent} = useTracking();
-  const {document, baseScore, vote, voteCount} = useVote(tagRel, "TagRels");
   const currentUser = useCurrentUser();
   const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
   const canVote = !fail;
+  const {
+    document,
+    collectionName,
+    baseScore,
+    vote,
+    voteCount,
+  } = useVote(tagRel, "TagRels");
 
   const onVote = (voteType: string, isVoted: boolean) => async () => {
     if (currentUser && canVote) {
@@ -54,7 +60,7 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
         voteType: isVoted ? "neutral" : voteType,
         currentUser,
       });
-      captureEvent("vote", {collectionName: "TagRels"});
+      captureEvent("vote", {collectionName});
     } else if (currentUser) {
       flash(whyYouCantVote ?? "You can't vote on this");
     } else {
