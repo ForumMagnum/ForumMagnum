@@ -17,7 +17,7 @@ import * as _ from 'underscore';
 import moment from 'moment';
 import take from 'lodash/take';
 
-async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
+async function algoliaExport<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, selector?: MongoSelector<T>, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
@@ -45,8 +45,8 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
     filter: computedSelector,
     batchSize: 100,
     loadFactor: 0.5,
-    callback: async (documents: AlgoliaIndexedDbObject[]) => {
-      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+    callback: async (documents: T[]) => {
+      await algoliaIndexDocumentBatch<T>({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
       
       exportedSoFar += documents.length;
       // eslint-disable-next-line no-console
