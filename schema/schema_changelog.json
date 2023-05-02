@@ -183,5 +183,10 @@
     "acceptsSchemaHash": "c4afbf05797c266012f5ba5ae0119c87",
     "acceptedByMigration": "20230424T200407.add_ignore_rate_limits.ts",
     "timestamp": "2023-04-24T20:04:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a85cc326da77f34b19140ca908956227",
+    "acceptedByMigration": "20230502T083210.add_shortformFrontpage.ts",
+    "timestamp": "2023-05-02T08:32:10.000Z"
   }
 ]
