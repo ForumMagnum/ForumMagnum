@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useRef } from "react";
+import React, { FC, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -8,6 +8,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { useCurrentUser } from "../common/withUser";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -144,8 +145,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   postActions: {
     minWidth: 20,
+    marginLeft: -5,
+    "& .PostActionsButton-icon": {
+      fontSize: 20,
+    },
     "&:hover .PostActionsButton-icon": {
-      color: theme.palette.grey[800],
+      color: theme.palette.grey[700],
     },
   },
   hideOnMobile: {
@@ -206,6 +211,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
+  const currentUser = useCurrentUser();
 
   if (isRepeated) {
     return null;
@@ -226,11 +232,11 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <ForumIcon icon="Comment" />
         {commentCount}
       </a>
-      <div className={classes.postActions}>
+      {currentUser && <div className={classes.postActions}>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton post={post} popperPlacement="left-start" />
+          <PostActionsButton post={post} popperGap={16} vertical />
         </InteractionWrapper>
-      </div>
+      </div>}
     </>
   );
 

@@ -92,12 +92,9 @@ makeEditable({
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
+    hintText: isEAForum ? 'Write a new comment...' : undefined,
     order: 25,
     pingbacks: true,
-    hintText: isEAForum
-      ? "Write a new comment..."
-      : undefined,
-    hideControls: isEAForum,
   }
 })
 

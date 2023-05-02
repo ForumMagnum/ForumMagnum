@@ -228,7 +228,7 @@ const PostActions = ({post, closeMenu, classes}: {
   // thing.
   
   return (
-      <div className={classes.actions}>
+      <div className={classes.actions} >
         {editLink}
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
