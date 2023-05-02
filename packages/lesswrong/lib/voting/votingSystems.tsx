@@ -22,6 +22,7 @@ export interface VotingSystem {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
+  getCommentBottomComponent?: ()=>CommentVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -248,6 +249,7 @@ registerVotingSystem({
   name: "namesAttachedReactions",
   description: "Names-attached reactions",
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
+  getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;

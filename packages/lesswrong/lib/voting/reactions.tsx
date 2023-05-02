@@ -113,6 +113,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   //   Missed the Point (gust of wind over smiley's head)
   //   Make it concrete: picture of bricks ("make concrete")
   //   I hear you (picture of an ear)
+  //   I now have additional questions (elephant)
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
 

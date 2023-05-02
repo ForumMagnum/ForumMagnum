@@ -26,12 +26,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 24,
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
-    borderRadius: isEAForum ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
     verticalAlign: "bottom",
     paddingLeft: 4,
     paddingRight: 4,
+    
+    position: "absolute",
+    right: 20,
+    bottom: -8,
+    background: theme.palette.panelBackground.default,
+    borderRadius: 6,
   },
   addReactionButton: {
     verticalAlign: "middle",
@@ -57,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   paletteEntry: {
-    display: "inline-block",
+    //display: "inline-block",
     cursor: "pointer",
     padding: 4,
     "&:hover": {
@@ -113,13 +118,18 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
-    <NamesAttachedReactionsAxis
-      document={document}
-      hideKarma={hideKarma}
-      voteProps={voteProps}
-      classes={classes}
-    />
   </span>
+}
+
+const NamesAttachedReactionsCommentBottom = ({document, hideKarma=false, collection, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+
+  return <NamesAttachedReactionsAxis
+    document={document}
+    hideKarma={hideKarma}
+    voteProps={voteProps}
+    classes={classes}
+  />
 }
 
 const NamesAttachedReactionsAxis = ({document, hideKarma=false, voteProps, classes}: {
@@ -136,12 +146,12 @@ const NamesAttachedReactionsAxis = ({document, hideKarma=false, voteProps, class
   
   return <span className={classes.reactions} {...eventHandlers}>
     {!hideKarma && sortedReactionTypes.map(reactionType => <span key={reactionType}>
-      <ReactionIcon react={reactionType} classes={classes}/>
+      <ReactionIcon react={reactionType} onClick={()=>{}} classes={classes}/>
     </span>)}
     {(hideKarma || sortedReactionTypes.length===0) && <AddReactionButton classes={classes}/>}
     {hover && <PopperCard
       open={!!hover} anchorEl={anchorEl}
-      placement="bottom-start"
+      placement="bottom-end"
       allowOverflow={true}
       
     >
@@ -216,7 +226,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
     
     <div className={classes.moreReactions}>
       {namesAttachedReactions.map(reaction =>
-        <LWTooltip title={<>
+        <LWTooltip key={reaction.name} title={<>
           <div>
             <ReactionIcon react={reaction.name} classes={classes}/>
             <span className={classes.hoverBallotLabel}>{reaction.label}</span>
@@ -231,7 +241,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
             onClick={ev => toggleReaction(reaction.name)}
           >
             <ReactionIcon react={reaction.name} classes={classes}/>
-            {/*<span className={classes.hoverBallotLabel}>{reaction.label}</span>*/}
+            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
           </div>
         </LWTooltip>
       )}
@@ -239,8 +249,9 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   </div>
 }
 
-const ReactionIcon = ({react, classes}: {
+const ReactionIcon = ({react, onClick, classes}: {
   react: string,
+  onClick?: ()=>void,
   classes: ClassesType
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
@@ -288,9 +299,15 @@ const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAtt
   hocs: [withErrorBoundary]
 });
 
+const NamesAttachedReactionsCommentBottomComponent = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottom, {
+  styles,
+  hocs: [withErrorBoundary]
+});
+
 declare global {
   interface ComponentTypes {
     NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
+    NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
   }
 }
 
