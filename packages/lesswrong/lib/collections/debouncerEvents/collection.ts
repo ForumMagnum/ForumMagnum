@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const DebouncerEvents: DebouncerEventsCollection = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "switching",
   schema,
 });
 

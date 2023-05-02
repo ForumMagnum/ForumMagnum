@@ -1,8 +1,11 @@
 import {canMention, userMentionQuery, userMentionValue} from '../../lib/pingback'
 
-type ValidationResult = { valid: boolean, message?: string }
-export const checkEditorValid = (document: AnyBecauseTodo, currentUser: UsersCurrent | null): ValidationResult => {
-  if (!currentUser) return {valid: false, message: 'You must be logged in to post.'}
+type ValidationResult = { valid: boolean, message?: string, }
+export const checkEditorValid = (document: AnyBecauseTodo, currentUser: UsersCurrent | null, isCommentEditor?: boolean): ValidationResult => {
+  if (!currentUser) return {
+    valid: false,
+    message: isCommentEditor ? 'You must be logged in to comment.' : 'You must be logged in to post.'
+  }
 
   const verifyCanMention = canMention(currentUser, countMentions(document))
 
