@@ -30,7 +30,7 @@ export const addRemovedField = async <T extends DbObject>(
   collection: PgCollection<T>,
   fieldName: string,
 ): Promise<void> => {
-  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 
@@ -54,7 +54,7 @@ export const dropRemovedField = async <T extends DbObject>(
   collection: PgCollection<T>,
   fieldName: string,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 
