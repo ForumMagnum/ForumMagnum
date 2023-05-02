@@ -42,7 +42,7 @@ const getAlgoliaSearchClient = (): Client | null => {
   return searchClient;
 }
 
-const getPostgresSearchClient = (): Client | null => {
+const getNativeSearchClient = (): Client | null => {
   if (!searchClient) {
     searchClient = new NativeSearchClient();
   }
@@ -50,7 +50,7 @@ const getPostgresSearchClient = (): Client | null => {
 }
 
 export const getSearchClient = (): Client => {
-  const client = isEAForum ? getPostgresSearchClient() : getAlgoliaSearchClient();
+  const client = isEAForum ? getNativeSearchClient() : getAlgoliaSearchClient();
   if (!client) {
     throw new Error("Couldn't initialize search client");
   }

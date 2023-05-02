@@ -1,5 +1,9 @@
 import { Client } from "@elastic/elasticsearch";
-import type { SearchResponse, SearchHit } from "@elastic/elasticsearch/lib/api/types";
+import type {
+  SearchHit,
+  SearchResponse,
+  MappingRankFeatureProperty,
+} from "@elastic/elasticsearch/lib/api/types";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
@@ -23,7 +27,90 @@ export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 
+type Ranking = {
+  field: string,
+  order: "asc" | "desc",
+  expr?: string,
+}
+
+type IndexConfig = {
+  fields: string[],
+  snippet: string,
+  highlight?: string,
+  ranking?: Ranking[],
+}
+
+type Mappings = Record<string, MappingRankFeatureProperty>;
+
 class ElasticSearchClient {
+  private static readonly configs: Record<AlgoliaIndexCollectionName, IndexConfig> = {
+    Comments: {
+      fields: [
+        "body",
+        "authorDisplayName",
+        "objectID",
+      ],
+      snippet: "body",
+      highlight: "authorDisplayName",
+      ranking: [
+        {field: "baseScore", order: "desc"},
+      ],
+    },
+    Posts: {
+      fields: [
+        "title^3",
+        "authorDisplayName",
+        "body",
+        "objectID",
+      ],
+      snippet: "body",
+      highlight: "title",
+      ranking: [
+        {field: "order", order: "asc", expr: "abcd"/*TODO*/},
+        {field: "baseScore", order: "desc"},
+        {field: "score", order: "desc"},
+      ],
+    },
+    Users: {
+      fields: [
+        "displayName",
+        "objectID",
+        "bio",
+        "mapLocationAddress",
+        "jobTitle",
+        "organization",
+        "howICanHelpOthers",
+        "howOthersCanHelpMe",
+      ],
+      snippet: "bio",
+      ranking: [
+        {field: "karma", order: "desc"},
+        {field: "createdAt", order: "desc", expr: "abcd"/*TODO*/},
+      ],
+    },
+    Sequences: {
+      fields: [
+        "title^3",
+        "plaintextDescription",
+        "authorDisplayName",
+        "_id",
+      ],
+      snippet: "plaintextDescription",
+    },
+    Tags: {
+      fields: [
+        "name^3",
+        "description",
+        "objectID",
+      ],
+      snippet: "description",
+      ranking: [
+        {field: "core", order: "desc", expr: "abcd"/*TODO*/},
+        {field: "postCount", order: "desc"},
+      ],
+    },
+  };
+
   private client: Client;
 
   constructor() {
@@ -54,20 +141,23 @@ class ElasticSearchClient {
     preTag?: string,
     postTag?: string,
   }): Promise<ElasticSearchResponse> {
-    return this.client.search({
+    const collectionName = this.indexToCollectionName(index);
+    const config = ElasticSearchClient.configs[collectionName];
+    if (!config) {
+      throw new Error("Config not found for index " + index);
+    }
+    const tags = {
+      pre_tags: [preTag ?? "<em>"],
+      post_tags: [postTag ?? "</em>"],
+    };
+    return this.getClientOrThrow().search({
       index,
       query: {
         script_score: {
           query: {
             simple_query_string: {
               query: search,
-              fields: [
-                "title^3",
-                "body",
-                "authorDisplayName",
-                "authorFullName",
-                "authorSlug",
-              ],
+              fields: config.fields,
               default_operator: "and",
             },
           },
@@ -78,14 +168,8 @@ class ElasticSearchClient {
       },
       highlight: {
         fields: {
-          title: {
-            pre_tags: [preTag ?? "<em>"],
-            post_tags: [postTag ?? "</em>"],
-          },
-          body: {
-            pre_tags: [preTag ?? "<em>"],
-            post_tags: [postTag ?? "</em>"],
-          },
+          [config.snippet]: tags,
+          ...(config.highlight && {[config.highlight]: tags}),
         },
       },
       from: offset,
@@ -93,22 +177,138 @@ class ElasticSearchClient {
     });
   }
 
+  private compileRanking(ranking?: Ranking[]): {source: string} | null {
+    if (!ranking?.length) {
+      return null;
+    }
+
+    return {source: ""};
+  }
+
+  private indexToCollectionName(index: string): AlgoliaIndexCollectionName {
+    const data: Record<string, AlgoliaIndexCollectionName> = {
+      comments: "Comments",
+      posts: "Posts",
+      users: "Users",
+      sequences: "Sequences",
+      tags: "Tags",
+    };
+    if (!data[index]) {
+      throw new Error("Invalid index name: " + index);
+    }
+    return data[index];
+  }
+
+  async configureIndexes() {
+    for (const collectionName of algoliaIndexedCollectionNames) {
+      await this.initIndex(collectionName);
+    }
+  }
+
   async exportAll() {
     await Promise.all(algoliaIndexedCollectionNames.map(async (collectionName) => {
-      await this.initIndex(collectionName);
       await this.exportCollection(collectionName);
     }));
   }
 
-  async initIndex(collectionName: AlgoliaIndexCollectionName) {
+  /**
+   * In ElasticSearch, the schema of indexes (called "mappings") is write-only - ie;
+   * you can add new fields, but you can't remove fields or change the types of
+   * existing fields. This makes experimenting with changes very annoying.
+   *
+   * To remedy this, we create this indexes with a name tagged with the date of
+   * creation (so posts might actually be called posts_1683033972316) and then add an
+   * alias for the actual name pointing to the underlining index.
+   *
+   * To change the schema, we then:
+   *  1) Make the old index read-only
+   *  2) Reindex all of the existing data into a new index with the new schema
+   *  3) Mark the new index as writable
+   *  4) Update the alias to point to the new index
+   *  5) Delete the old index
+   */
+  private async initIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.getClientOrThrow();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
-    // eslint-disable-next-line no-console
-    console.log(`Creating index: ${collectionName}`);
-    await client.indices.create({
-      index: this.getIndexName(collection),
-    }, {ignore: [400]});
+
+    const aliasName = this.getIndexName(collection);
+    const newIndexName = `${aliasName}_${Date.now()}`;
+    const mappings = this.getCollectionMappings(collectionName);
+    const existing = await client.indices.getAlias({name: aliasName});
+    const oldIndexName = Object.keys(existing ?? {})[0];
+
+    if (oldIndexName) {
+      // eslint-disable-next-line no-console
+      console.log(`Reindexing index: ${collectionName}`);
+      await client.indices.putSettings({
+        index: oldIndexName,
+        body: {
+          "index.blocks.write": true,
+        },
+      });
+      await client.indices.create({
+        index: newIndexName,
+        body: {
+          mappings: {properties: mappings},
+        },
+      });
+      await client.reindex({
+        refresh: true,
+        body: {
+          source: {index: oldIndexName},
+          dest: {index: newIndexName},
+        },
+      });
+      await client.indices.putSettings({
+        index: newIndexName,
+        body: {
+          "index.blocks.write": false,
+        },
+      });
+      await client.indices.putAlias({
+        index: newIndexName,
+        name: aliasName,
+      });
+      await client.indices.delete({
+        index: oldIndexName,
+      });
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Creating index: ${collectionName}`);
+      await client.indices.create({
+        index: newIndexName,
+        body: {
+          mappings: {properties: mappings},
+        },
+      });
+      await client.indices.putAlias({
+        index: newIndexName,
+        name: aliasName,
+      });
+    }
+  }
+
+  private getCollectionMappings(collectionName: AlgoliaIndexCollectionName): Mappings {
+    const config = ElasticSearchClient.configs[collectionName];
+    if (!config) {
+      throw new Error("Config not found for collection " + collectionName);
+    }
+
+    const result: Record<string, MappingRankFeatureProperty> = {};
+    /*
+    const rankings = config.ranking ?? [];
+    for (const ranking of rankings) {
+      if (ranking.expr) {
+        continue;
+      }
+      result[ranking.field] = {
+        type: "rank_feature",
+        positive_score_impact: ranking.order === "desc",
+      };
+    }
+    */
+    return result;
   }
 
   private async exportCollection(collectionName: AlgoliaIndexCollectionName) {
@@ -220,6 +420,7 @@ class ElasticSearchClient {
   }
 }
 
+Globals.elasticConfigureIndexes = () => new ElasticSearchClient().configureIndexes();
 Globals.elasticExportAll = () => new ElasticSearchClient().exportAll();
 
 export default ElasticSearchClient;
