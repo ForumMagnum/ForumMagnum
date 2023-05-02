@@ -6,14 +6,12 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
-const SECONDARY_SPACING = 20
-const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
+const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({

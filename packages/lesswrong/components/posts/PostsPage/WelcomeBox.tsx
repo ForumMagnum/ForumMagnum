@@ -1,14 +1,13 @@
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import React, { ComponentProps } from 'react';
-import { useCookies } from 'react-cookie';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { HashLinkProps } from '../../common/HashLink';
-import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   welcomeBox: {
@@ -52,12 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     whiteSpace: 'pre'
   },
-});
-
-const HIDE_WELCOME_BOX_COOKIE = registerCookie({
-  name: "hide_welcome_box",
-  type: "functional",
-  description: "Controls whether the welcome box on a post page is hidden",
 });
 
 const WelcomeBox = ({ title, contents, classes }: {

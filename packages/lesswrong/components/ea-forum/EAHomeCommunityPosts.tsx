@@ -6,7 +6,7 @@ import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { registerCookie } from '../../lib/cookies/utils';
+import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -40,12 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     },
   }
-})
-
-const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
-  name: 'show_community_posts_section',
-  type: "functional",
-  description: "Whether to show the community posts section on the EA Forum home page",
 })
 
 const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {

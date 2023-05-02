@@ -62,8 +62,6 @@ const CookieTable = ({
 }) => {
   const { Typography } = Components;
 
-  console.log("CookiesTable", CookiesTable)
-
   const filteredCookies = Object.values(CookiesTable).filter(
     (cookie: CookieSignature) => cookie.type === type && cookie.thirdPartyName === thirdPartyName
   );

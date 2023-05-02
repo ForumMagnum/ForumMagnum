@@ -7,10 +7,8 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { registerCookie } from '../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-
-const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: 'functional', description: 'Controls whether job ads are hidden'});
+import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
 
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()

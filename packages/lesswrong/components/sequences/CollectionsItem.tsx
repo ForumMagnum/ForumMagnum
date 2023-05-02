@@ -8,8 +8,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
-import { registerCookie } from '../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -92,14 +92,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main
     }
   }
-});
-
-const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
-registerCookie({
-  name: `${HIDE_COLLECTION_ITEM_PREFIX}[*]`,
-  matches: (name: string) => name.startsWith(HIDE_COLLECTION_ITEM_PREFIX),
-  type: "functional",
-  description: "Stores whether a collection item has been hidden (for a specific collection item id)",
 });
 
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {

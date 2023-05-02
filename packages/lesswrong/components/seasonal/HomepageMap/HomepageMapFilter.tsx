@@ -11,8 +11,8 @@ import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -61,8 +61,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0
   }
 });
-
-export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "Stores whether the user has hidden the map from the frontpage."});
 
 const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],

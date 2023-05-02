@@ -21,7 +21,7 @@ import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
-import { HIDE_MAP_COOKIE } from './seasonal/HomepageMap/HomepageMapFilter';
+import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)

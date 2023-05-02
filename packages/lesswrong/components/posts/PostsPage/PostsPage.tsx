@@ -20,9 +20,9 @@ import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
-import { registerCookie } from '../../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
@@ -154,12 +154,6 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   comment: debateResponse,
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
-
-const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
-  name: "show_post_podcast_player",
-  type: "functional",
-  description: "Whether to show the podcast player on a posts pages",
-});
 
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,

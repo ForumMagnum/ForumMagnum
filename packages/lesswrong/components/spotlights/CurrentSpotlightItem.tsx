@@ -3,16 +3,8 @@ import React, { useCallback, useMemo } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { registerCookie } from '../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-
-const HIDE_SPOTLIGHT_ITEM_PREFIX = "hide_spotlight_item_";
-registerCookie({
-  name: `${HIDE_SPOTLIGHT_ITEM_PREFIX}[*]`,
-  matches: (name: string) => name.startsWith(HIDE_SPOTLIGHT_ITEM_PREFIX),
-  type: "functional",
-  description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
-});
+import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
 export const CurrentSpotlightItem = ({classes}: {
   classes: ClassesType,

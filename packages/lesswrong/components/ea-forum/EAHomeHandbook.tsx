@@ -8,8 +8,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { registerCookie } from '../../lib/cookies/utils';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
 const bannerHeight = 250
 
@@ -111,11 +111,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const HIDE_HANDBOOK_COOKIE = registerCookie({
-  name: "hide_home_handbook",
-  type: "functional",
-  description: "Whether to hide the EA Handbook on the EA Home page",
-});
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
