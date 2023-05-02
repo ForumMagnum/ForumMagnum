@@ -394,6 +394,11 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
       throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
     }
   }
+
+  if (!collection.isPostgres() && collection.collectionName === 'DebouncerEvents' && sortField === 'delayTime' && greaterThan instanceof Date) {
+    greaterThan = greaterThan.getTime();
+  }
+
   const selector = {
     ...filter,
     [sortField]: {

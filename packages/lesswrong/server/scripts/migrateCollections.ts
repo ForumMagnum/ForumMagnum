@@ -266,7 +266,9 @@ const makeCollectionFilter = (collectionName: string) => {
     case "Messages":
       return { contents: { $exists: true } };
     case "CronHistories":
-      return { intendedAt: {$ne: null} }
+      return { intendedAt: { $ne: null } };
+    case "DebouncerEvents":
+      return { upperBoundTime: { $ne: NaN } };
     default:
       return {};
   }
