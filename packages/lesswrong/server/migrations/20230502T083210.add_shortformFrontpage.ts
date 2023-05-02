@@ -38,6 +38,9 @@ import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
   if (Comments.isPostgres()) await addField(db, Comments, 'shortformFrontpage')
+
+  // Add default values for all existing comments
+  await db.any(`UPDATE "Comments" SET "shortformFrontpage" = TRUE;`)
 }
 
 export const down = async ({db}: MigrationContext) => {
