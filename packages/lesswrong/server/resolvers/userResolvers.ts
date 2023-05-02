@@ -162,6 +162,7 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
+    // TODO: Deprecated
     async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
       if (!currentUser) {
         throw new Error('Cannot accept terms of use while not logged in');
@@ -401,6 +402,7 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
+// TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
 )
