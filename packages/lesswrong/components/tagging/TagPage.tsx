@@ -126,6 +126,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
