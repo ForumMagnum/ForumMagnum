@@ -104,12 +104,14 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   // icon again when it's pinned open, it closes, and stays closed until
   // you move the mouse away and re-hover the same elmeent.
   const [pinned, setPinned] = useState<"open"|"closed"|"auto">("auto")
-  
+  // TODO: I can't tell under what circumstances this actually gets called
   const onClick = () => {
     if (pinned==="open") {
       setPinned("closed");
+      setSideCommentsActive(false)
     } else {
       setPinned("open");
+      setSideCommentsActive(true)
       //setSideCommentsActive(true);
     }
   }

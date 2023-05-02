@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
 import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -22,6 +22,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import Helmet from 'react-helmet';
+import { SidebarsContext } from '../../common/SidebarsWrapper';
 
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
@@ -292,11 +293,18 @@ const PostsPage = ({post, refetch, classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDebateResponseLink, commentId]);
 
+  const {setSideCommentsActive} = useContext(SidebarsContext)!;
+
   const onClickCommentOnSelection = useCallback((html: string) => {
+    setSideCommentsActive(true)
     openDialog({
       componentName:"ReplyCommentDialog",
       componentProps: {
-        post, initialHtml: html
+        post, initialHtml: html,
+        // TODO: figure out how to actually pass an onClose callback, because this wasn't it
+        onClose: () => { 
+          setSideCommentsActive(false) 
+        }
       },
       noClickawayCancel: true,
     })

@@ -5,6 +5,7 @@ import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
+const SIDE_COMMENT_TOC_MARGIN = 35
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 
@@ -41,10 +42,28 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  sideCommentsActive: {
-    gridTemplateColumns: `
-      1fr minmax(200px,270px) minmax(10px,25px) minmax(min-content,720px) minmax(10px, 25px) min-content 350px 1fr !important
-    `
+  tocActivatedSidecomments: {
+    // Check for support for template areas before applying
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateColumns: `
+        .15fr
+        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
+        minmax(0px, ${SIDE_COMMENT_TOC_MARGIN}px)
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+        minmax(0px, ${SIDE_COMMENT_TOC_MARGIN}px)
+        min-content
+        10px
+        1.5fr
+      `,
+      gridTemplateAreas: `
+        "... ... .... title   .... ....... .... ..."
+        "... toc gap1 content gap2 welcome gap3 ..."
+      `,
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -121,14 +140,14 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   classes: ClassesType,
   welcomeBox?: React.ReactNode,
 }) => {
-  const {sideCommentsActive} = useContext(SidebarsContext)!;
+  const sideProps = useContext(SidebarsContext)!;
   
   return (
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents || !!welcomeBox,
-        [classes.sideCommentsActive]: sideCommentsActive,
+        [classes.tocActivated]: (!!tableOfContents || !!welcomeBox) && !sideProps.sideCommentsActive,
+        [classes.tocActivatedSidecomments]: (!!tableOfContents || !!welcomeBox) && sideProps.sideCommentsActive
       }
     )}>
       <div className={classes.header}>
