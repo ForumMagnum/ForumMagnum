@@ -395,6 +395,7 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     }
   }
 
+  // Contrary to schema, these seem to have been stored as doubles, and the $gt comparison will fail since we pass it back in as a date
   if (!collection.isPostgres() && collection.collectionName === 'DebouncerEvents' && sortField === 'delayTime' && greaterThan instanceof Date) {
     greaterThan = greaterThan.getTime();
   }
