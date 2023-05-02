@@ -1,6 +1,38 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 
+const GET_USERS_BY_EMAIL_QUERY = `
+SELECT *
+FROM "Users"
+WHERE LOWER(email) = LOWER($1)
+UNION
+SELECT *
+FROM "Users"
+WHERE _id IN (
+  SELECT _id
+  FROM "Users", UNNEST(emails) unnested
+  WHERE UNNESTED->>'address' = $1
+)`;
+
+const GET_USER_BY_USERNAME_OR_EMAIL_QUERY = `
+SELECT *
+FROM "Users"
+WHERE username = $1
+UNION
+SELECT *
+FROM "Users"
+WHERE LOWER(email) = LOWER($1)
+UNION
+SELECT *
+FROM "Users"
+WHERE _id IN (
+  SELECT _id
+  FROM "Users", UNNEST(emails) unnested
+  WHERE UNNESTED->>'address' = $1
+)
+LIMIT 1
+`;
+
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -34,26 +66,16 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   getUserByEmail(email: string): Promise<DbUser | null> {
     return this.oneOrNone(`
-      SELECT *
-      FROM "Users"
-      WHERE (LOWER("email") = LOWER($1)
-      OR (_ID IN (
-        SELECT _ID
-        FROM "Users"
-        WHERE to_jsonb("emails") @> ('[{"address": "' || $1 || '"}]')::JSONB)))
+      ${GET_USERS_BY_EMAIL_QUERY}
       LIMIT 1
     `, [email]);
   }
 
   getAllUsersByEmail(email: string): Promise<DbUser[]> {
-    return this.any(`
-      SELECT *
-      FROM "Users"
-      WHERE (LOWER("email") = LOWER($1)
-      OR (_ID IN (
-        SELECT _ID
-        FROM "Users"
-        WHERE to_jsonb("emails") @> ('[{"address": "' || $1 || '"}]')::JSONB)))
-    `, [email]);
+    return this.any(GET_USERS_BY_EMAIL_QUERY, [email]);
+  }
+
+  getUserByUsernameOrEmail(usernameOrEmail: string): Promise<DbUser | null> {
+    return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 }
