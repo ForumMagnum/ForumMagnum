@@ -14,7 +14,7 @@ interface ExtendedUsersCollection extends UsersCollection {
 export const Users: ExtendedUsersCollection = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "switching",
   schema,
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
