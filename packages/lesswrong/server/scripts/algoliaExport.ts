@@ -66,10 +66,10 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
+      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED, rejected: {$ne :true}, authorIsUnreviewed: {$ne: true}})
       break
     case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}, rejected: {$ne: true}, authorIsUnreviewed: {$ne: true}})
       break
     case 'Users':
       await algoliaExport(Users, {deleted: {$ne: true}, deleteContent: {$ne: true}})
