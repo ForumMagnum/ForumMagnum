@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
-import { useUpdateCurrentUser } from "./useUpdateCurrentUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookies } from "react-cookie";
+import { useMutation, gql } from "@apollo/client";
 import moment from "moment";
 
 export type ExpandedFrontpageSections = NonNullable<DbUser["expandedFrontpageSections"]>;
@@ -16,6 +16,12 @@ export type UseExpandedFrontpageSectionProps = {
   onCollapseEvent?: string,
   cookieName?: string,
 }
+
+const expandFrontpageSectionMutation = gql`
+  mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {
+    UserExpandFrontpageSection(section: $section, expanded: $expanded)
+  }
+`;
 
 const isDefaultExpanded = (
   currentUser: UsersCurrent | null,
@@ -41,7 +47,11 @@ export const useExpandedFrontpageSection = ({
   cookieName ??= `expand_frontpage_section_${section}`;
 
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
+  const [expandFrontpageSection] = useMutation(expandFrontpageSectionMutation, {
+    errorPolicy: "all",
+    refetchQueries: ["getCurrentUser"],
+  });
+
   const {captureEvent} = useTracking();
   const [cookies, setCookie, removeCookie] = useCookies([cookieName]);
 
@@ -51,15 +61,15 @@ export const useExpandedFrontpageSection = ({
   const initialExpanded = userExpand ?? cookieExpand ?? defaultExpand ?? false;
   const [expanded, setExpanded] = useState(initialExpanded);
 
-  const toggleExpanded = () => {
+  const toggleExpanded = useCallback(() => {
     const newExpanded = !expanded;
     setExpanded(newExpanded);
     if (currentUser) {
-      void updateCurrentUser({
-        expandedFrontpageSections: {
-          ...currentUser?.expandedFrontpageSections,
-          [section]: newExpanded,
-        } as ExpandedFrontpageSections,
+      void expandFrontpageSection({
+        variables: {
+          section,
+          expanded: newExpanded,
+        },
       });
     }
     if (newExpanded && cookieName) {
@@ -71,7 +81,15 @@ export const useExpandedFrontpageSection = ({
     if (event) {
       captureEvent(event);
     }
-  }
+  }, [
+    section,
+    defaultExpanded,
+    onExpandEvent,
+    onCollapseEvent,
+    cookieName,
+    expanded,
+    currentUser,
+  ]);
 
   return {
     expanded,

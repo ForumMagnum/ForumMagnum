@@ -31,4 +31,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       ) < "nearbyEventsNotificationsRadius"
     `, [location.coordinates[0], location.coordinates[1]])
   }
+
+  setExpandFrontpageSection(userId: string, section: string, expanded: boolean) {
+    return this.none(`
+      UPDATE "Users"
+      SET "expandedFrontpageSections" =
+        COALESCE("expandedFrontpageSections", '{}'::JSONB) ||
+          fm_build_nested_jsonb(('{' || $2 || '}')::TEXT[], $3::JSONB)
+      WHERE "_id" = $1
+    `, [userId, section, String(expanded)]);
+  }
 }
