@@ -654,6 +654,7 @@ ensureIndex(Posts,
   }
 );
 
+
 Posts.addView("community-rss", (terms: PostsViewTerms) => ({
   selector: {
     frontpageDate: null,
@@ -722,6 +723,16 @@ Posts.addView("scheduled", (terms: PostsViewTerms) => ({
 }));
 // Covered by the same index as `new`
 
+Posts.addView("rejected", (terms: PostsViewTerms) => ({
+  selector: {
+    rejected: true,
+    authorIsUnreviewed: null
+  },
+  options: {
+    sort: {postedAt: -1}
+  }
+}));
+ensureIndex(Posts, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: -1 }));
 
 /**
  * @summary Draft view
