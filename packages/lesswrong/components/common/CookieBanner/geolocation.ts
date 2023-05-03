@@ -119,7 +119,6 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
   return countryCode;
 }
 
-
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
   if (!isEAForum) return false;
   if (isServer) return "unknown";
