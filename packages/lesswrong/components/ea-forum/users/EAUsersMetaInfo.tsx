@@ -8,8 +8,6 @@ import {
 
 
 // TODO
-import Tooltip from "@material-ui/core/Tooltip";
-import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
 
@@ -71,26 +69,28 @@ const EAUsersMetaInfo = ({user, classes}: {
     (field: SocialMediaProfileField) => user[field],
   );
 
-  const {ContentStyles, ForumIcon, FormatDate, SocialMediaLink} = Components;
+  const {
+    ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip,
+  } = Components;
 
   return (
     <ContentStyles contentType="comment" className={classes.iconsRow}>
-      <Tooltip title={`${userKarma} karma`}>
+      <LWTooltip title={`${userKarma} karma`}>
         <span className={classes.userMetaInfo}>
           <ForumIcon icon="Karma" className={classes.userMetaInfoIcon} />
           {userKarma}
         </span>
-      </Tooltip>
+      </LWTooltip>
+      <span className={classes.userMetaInfo}>
+        <ForumIcon icon="CalendarDays" className={classes.userMetaInfoIcon} />
+        <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
+      </span>
       {user.mapLocation &&
         <Link to="/community#individuals" className={classes.userMetaInfo}>
           <LocationIcon className={classes.userMetaInfoIcon} />
           {user.mapLocation.formatted_address}
         </Link>
       }
-      <span className={classes.userMetaInfo}>
-        <CalendarIcon className={classes.userMetaInfoIcon} />
-        <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
-      </span>
       {userHasSocialMedia &&
         <div className={classes.socialMediaIcons}>
           {Object

@@ -13,6 +13,7 @@ import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
@@ -61,6 +62,7 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "CalendarDays" |
   "Comment" |
   "Shortform" |
   "Warning" |
@@ -88,6 +90,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    CalendarDays: CalendarDaysIcon,
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
@@ -114,6 +117,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    CalendarDays: CalendarDaysIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
