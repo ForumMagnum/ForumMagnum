@@ -1,24 +1,37 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from './withUser';
+import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const styles = (_: ThemeType): JssStyles => ({
   subheader: {
     fontSize: 14,
   },
+  newFormWrapper: {
+    marginTop: 8,
+  }
 });
 
-const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, classes}: {
+const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
   itemsPerPage?: number,
   showTotal?: boolean,
   hideTag?: boolean,
+  shortformButton?: boolean,
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, ShortformListItem, LoadMore } = Components;
-  const { results, loading, count, totalCount, loadMoreProps } = useMulti({
+  const currentUser = useCurrentUser();
+  const [showShortformFeed, setShowShortformFeed] = useState(false);
+
+  const toggleShortformFeed = useCallback(() => {
+    setShowShortformFeed(!showShortformFeed);
+  }, [setShowShortformFeed, showShortformFeed]);
+
+  const { Loading, SectionTitle, ShortformListItem, LoadMore, SectionButton, ShortformSubmitForm } = Components;
+  const { results, loading, count, totalCount, loadMoreProps, refetch } = useMulti({
     terms: terms,
     limit: initialLimit,
     itemsPerPage,
@@ -36,7 +49,15 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
 
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
   return <>
-    <SectionTitle title={label} className={classes.subheader} />
+    <SectionTitle title={label} className={classes.subheader} >
+      {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
+        <SectionButton>
+          <AddBoxIcon />
+          New Shortform Post
+        </SectionButton>
+      </div>}
+    </SectionTitle>
+    {showShortformFeed && <div className={classes.newFormWrapper}><ShortformSubmitForm successCallback={refetch}/></div>}
     {results.map((comment) => {
       return <ShortformListItem
         comment={comment}
