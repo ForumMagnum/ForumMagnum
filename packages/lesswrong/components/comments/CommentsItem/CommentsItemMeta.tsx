@@ -135,7 +135,6 @@ export const CommentsItemMeta = ({
   treeOptions,
   comment,
   showCommentTitle,
-  showRejectInfo,
   isParentComment,
   parentCommentId,
   showParentState,
@@ -222,7 +221,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers, RejectedReason
+    ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
   return (
@@ -316,13 +315,6 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-
-      {/* {isLW && showRejectInfo &&
-        <span className={classes.rejectButton}>
-          <RejectedReason reason={comment.rejectedReason}/>
-          {userIsAdmin(currentUser) && <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} />}
-        </span>
-      } */}
 
       <span className={classes.rightSection}>
         {isEAForum &&
