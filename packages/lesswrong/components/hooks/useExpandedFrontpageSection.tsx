@@ -89,6 +89,10 @@ export const useExpandedFrontpageSection = ({
     cookieName,
     expanded,
     currentUser,
+    captureEvent,
+    expandFrontpageSection,
+    setCookie,
+    removeCookie,
   ]);
 
   return {
