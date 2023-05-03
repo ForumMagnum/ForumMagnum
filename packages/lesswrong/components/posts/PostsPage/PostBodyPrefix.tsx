@@ -81,7 +81,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     {post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       {currentUser?._id === post.userId
         ? "Because this is your first post, this post is awaiting moderator approval."
-        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to go through moderation."
+        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to be approved by a moderator."
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
