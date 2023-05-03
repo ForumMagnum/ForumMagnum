@@ -124,11 +124,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
     : {
       opacity: 0.35,
-    },
-  rejectButton: {
-    marginLeft: 'auto',
-    marginBottom: 2
-  }
+    }
 });
 
 export const CommentsItemMeta = ({
@@ -150,7 +146,6 @@ export const CommentsItemMeta = ({
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   showCommentTitle: boolean,
-  showRejectInfo?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
   showParentState: boolean,
