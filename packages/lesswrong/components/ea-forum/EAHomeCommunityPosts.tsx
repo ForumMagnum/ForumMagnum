@@ -6,6 +6,7 @@ import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
+import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -47,7 +48,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     onExpandEvent: "communityPostsSectionExpanded",
     onCollapseEvent: "communityPostsSectionCollapsed",
     defaultExpanded: "loggedIn",
-    cookieName: "show_community_posts_section",
+    cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
   const { timezone } = useTimezone()
 

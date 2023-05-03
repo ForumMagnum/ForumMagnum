@@ -1020,7 +1020,6 @@ interface DbUser extends DbObject {
     recommendations: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
-  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

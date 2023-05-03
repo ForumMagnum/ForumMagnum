@@ -863,3 +863,8 @@ importComponent("Book2019FrontpageWidget", () => require('../components/books/Bo
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
+
+importComponent("CookieBanner", () => require('../components/common/CookieBanner/CookieBanner'));
+importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
+importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
+importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));

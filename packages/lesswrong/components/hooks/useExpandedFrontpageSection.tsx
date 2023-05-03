@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { useCookies } from "react-cookie";
+import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { useMutation, gql } from "@apollo/client";
 import moment from "moment";
 
@@ -53,7 +53,7 @@ export const useExpandedFrontpageSection = ({
   });
 
   const {captureEvent} = useTracking();
-  const [cookies, setCookie, removeCookie] = useCookies([cookieName]);
+  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([cookieName]);
 
   const userExpand = currentUser?.expandedFrontpageSections?.[section];
   const cookieExpand = cookies[cookieName] && cookies[cookieName] !== "false";

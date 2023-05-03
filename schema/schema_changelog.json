@@ -190,8 +190,13 @@
     "timestamp": "2023-05-02T08:32:10.000Z"
   },
   {
-    "acceptsSchemaHash": "7739b9298aba2be85700bc9a3942fdcf",
-    "acceptedByMigration": "20230502T161545.add_expandedFrontpageSections_column.ts",
-    "timestamp": "2023-05-02T16:15:45.000Z"
+    "acceptsSchemaHash": "5d840ee3f919bdbf70df33e470b65666",
+    "acceptedByMigration": "20230502T160034.drop_noComicSans_from_Users.ts",
+    "timestamp": "2023-05-02T16:00:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "be2a53332cb5a42e9fafd13c2e7fde88",
+    "acceptedByMigration": "20230503T130447.add_expandedFrontpageSections_column.ts",
+    "timestamp": "2023-05-03T13:04:47.000Z"
   }
 ]

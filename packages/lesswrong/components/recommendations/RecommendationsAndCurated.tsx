@@ -9,6 +9,7 @@ import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
+import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 
 export const curatedUrl = "/recommendations"
 
@@ -118,7 +119,7 @@ const RecommendationsAndCurated = ({
     onExpandEvent: "recommendationsSectionExpanded",
     onCollapseEvent: "recommendationsSectionCollapsed",
     defaultExpanded: isEAForum ? "loggedIn" : "all",
-    cookieName: "show_recommendations_section",
+    cookieName: SHOW_RECOMMENDATIONS_SECTION_COOKIE,
   });
 
   const currentUser = useCurrentUser();

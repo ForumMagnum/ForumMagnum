@@ -1,7 +1,7 @@
 import Users from "../../lib/vulcan-users";
 import { addField, dropField } from "./meta/utils";
 
-export const acceptsSchemaHash = "7739b9298aba2be85700bc9a3942fdcf";
+export const acceptsSchemaHash = "be2a53332cb5a42e9fafd13c2e7fde88";
 
 const grandfatheredUsers = [
   "qPKDyyDp6Sue7hTCX",
