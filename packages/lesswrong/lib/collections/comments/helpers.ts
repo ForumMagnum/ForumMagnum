@@ -102,5 +102,5 @@ export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, pare
  */
 export const commentIsHidden = (comment: CommentsList|DbComment) => {
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
-  return hideSince && new Date(hideSince) < new Date(comment.postedAt) && comment.authorIsUnreviewed
+  return hideSince && new Date(hideSince) < new Date(comment.postedAt) && comment.authorIsUnreviewed && !comment.rejected
 }

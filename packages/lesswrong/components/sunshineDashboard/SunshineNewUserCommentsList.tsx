@@ -30,7 +30,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { CommentsNode, RejectContentButton, Row, RejectedReason } = Components
+  const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components
 
   if (!comments) return null 
 
@@ -40,7 +40,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
     <div className={classes.root}>
       {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={`sunshine-new-user-${comment._id}`}>
         <div className={classes.rejection}>
-          {comment.rejected && <RejectedReason reason={comment.rejectedReason}/>}
+          {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
           <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
         </div>
         <CommentsNode 

@@ -53,6 +53,9 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return true;
   } else if (post.isFuture || post.draft) {
     return false;
+    // TODO: consider getting rid of this clause entirely and instead just relying on default view filter, 
+    // since LW is now allowing people to see rejected content and preventing them from seeing 'not-yet-rejected
+    // content is kinda weird)
   } else if (post.authorIsUnreviewed && !post.rejected) {
     return false
   } else {

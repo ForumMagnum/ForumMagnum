@@ -268,7 +268,7 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && <SmallSideVote
+      {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
         collection={Comments}
         hideKarma={post?.hideCommentKarma}

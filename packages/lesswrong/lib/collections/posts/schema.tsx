@@ -17,7 +17,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { adminsGroup, userOwns } from '../../vulcan-users/permissions';
+import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";

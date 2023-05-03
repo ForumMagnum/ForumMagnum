@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const RejectedCommentsList = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { RejectedReason, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row } = Components
+  const { RejectedReasonDisplay, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -47,7 +47,7 @@ export const RejectedCommentsList = ({classes}: {
               </MetaInfo>
             </LWTooltip>
             <span className={classes.reason}>
-              <RejectedReason reason={comment.rejectedReason}/>
+              <RejectedReasonDisplay reason={comment.rejectedReason}/>
             </span>
           </Row>
           <CommentBody truncated={true} comment={comment} postPage={false} />

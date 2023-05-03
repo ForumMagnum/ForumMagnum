@@ -30,16 +30,16 @@ export const RejectedPostsList = ({classes}: {
     loadMore,
     loadMoreProps,
     itemProps,
-  }= usePostsList({terms:{view:'rejected'}, enableTotal: true});
+  } = usePostsList({terms:{view:'rejected'}, enableTotal: true});
 
-  const { SingleColumnSection, SectionFooter, LoadMore, PostsHighlight, RejectedReason, FormatDate, MetaInfo, Row } = Components
+  const { SingleColumnSection, SectionFooter, LoadMore, PostsHighlight, RejectedReasonDisplay, FormatDate, MetaInfo, Row } = Components
 
   return <SingleColumnSection className={classes.root}>
     {itemProps?.map(({post}) => <div key={post._id} className={classes.rejectedPost}>
       <Row justifyContent="space-between">
         <MetaInfo><FormatDate date={post.postedAt}/></MetaInfo>
         <span className={classes.reason}>
-          <RejectedReason reason={post.rejectedReason}/>
+          <RejectedReasonDisplay reason={post.rejectedReason}/>
         </span>
       </Row>
       <div className={classes.title}><Link to={postGetPageUrl(post)}>{post.title}</Link></div>
