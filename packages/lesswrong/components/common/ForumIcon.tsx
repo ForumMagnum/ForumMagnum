@@ -15,20 +15,22 @@ import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
+import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
-import MuiBellBorderIcon from '@material-ui/icons/NotificationsNone';
+import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
-import MuiNotesIcon from '@material-ui/icons/Notes';
-import MuiWarningIcon from '@material-ui/icons/Warning';
+import MuiNotesIcon from "@material-ui/icons/Notes";
+import MuiWarningIcon from "@material-ui/icons/Warning";
+import MuiLocationIcon from "@material-ui/icons/LocationOn";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -65,6 +67,7 @@ export type ForumIconName =
   "Close" |
   "CalendarDays" |
   "Work" |
+  "MapPin" |
   "Comment" |
   "Shortform" |
   "Warning" |
@@ -94,6 +97,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Close: CloseIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
+    MapPin: MuiLocationIcon,
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
@@ -122,6 +126,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Close: CloseIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
+    MapPin: MapPinIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,

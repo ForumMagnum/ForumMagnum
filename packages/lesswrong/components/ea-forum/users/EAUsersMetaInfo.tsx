@@ -1,16 +1,12 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
+import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
 } from "../../../lib/collections/users/schema";
-import { CAREER_STAGES } from '../../../lib/collections/users/schema';
-
-
-// TODO
-import LocationIcon from '@material-ui/icons/LocationOn'
-import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconsRow: {
@@ -89,27 +85,28 @@ const EAUsersMetaInfo = ({user, classes}: {
       {user.careerStage?.map((stage) =>
         <span className={classes.userMetaInfo} key={stage}>
           <ForumIcon icon="Work" className={classes.userMetaInfoIcon} />
-          <span>{CAREER_STAGES.find(s => s.value === stage)?.label}</span>
+          <span>{CAREER_STAGES.find(({value}) => value === stage)?.label}</span>
         </span>
       )}
       {user.mapLocation &&
         <Link to="/community#individuals" className={classes.userMetaInfo}>
-          <LocationIcon className={classes.userMetaInfoIcon} />
+          <ForumIcon icon="MapPin" className={classes.userMetaInfoIcon} />
           {user.mapLocation.formatted_address}
         </Link>
       }
       {userHasSocialMedia &&
         <div className={classes.socialMediaIcons}>
-          {Object
-            .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
-            .map((field: SocialMediaProfileField) =>
-              <SocialMediaLink
-                key={field}
-                user={user}
-                field={field}
-                className={classes.socialMediaIcon}
-              />
-            )
+          {
+            Object
+              .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
+              .map((field: SocialMediaProfileField) =>
+                <SocialMediaLink
+                  key={field}
+                  user={user}
+                  field={field}
+                  className={classes.socialMediaIcon}
+                />
+              )
           }
         </div>
       }
@@ -123,7 +120,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           <svg viewBox="0 0 24 24" className={classes.websiteIcon}>
             {socialMediaIconPaths.website}
           </svg>
-        {user.website}
+          {user.website}
         </a>
       }
     </ContentStyles>
