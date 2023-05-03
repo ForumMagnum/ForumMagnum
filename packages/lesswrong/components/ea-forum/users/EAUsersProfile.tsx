@@ -92,10 +92,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   profileImage: {
-    'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
-    '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    borderRadius: '50%',
     marginBottom: 14,
   },
   username: {
@@ -324,7 +320,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, ForumIcon,
+    ProfileShortform, ForumIcon, UsersProfileImage,
   } = Components
 
   if (loading) {
@@ -527,13 +523,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
-          {user.profileImageId && <Components.CloudinaryImage2
-            height={96}
-            width={96}
-            imgProps={{q: '100'}}
-            publicId={user.profileImageId}
+          <UsersProfileImage
+            user={user}
+            size={96}
             className={classes.profileImage}
-          />}
+          />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
           </Typography>
