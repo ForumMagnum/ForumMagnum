@@ -6,13 +6,15 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+  },
   dividerMargins: {
     marginTop: 150,
     marginBottom: 150,
   },
   permalinkLabel: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     marginBottom: theme.spacing.unit*2,
     marginLeft: 10,
@@ -21,8 +23,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   seeInContext: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
     textAlign: "right",
     color: theme.palette.lwTertiary.main,
     marginRight: 10
@@ -60,7 +60,17 @@ const CommentPermalink = ({ documentId, post, classes }: {
   if (!documentId) return null
   
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHidden(comment)) return null
+  if (commentIsHidden(comment)) return <div className={classes.root}>
+    <div className={classes.permalinkLabel}>
+      Comment Permalink 
+      <p>Error: Sorry, this comment is hidden</p>
+    </div>
+    {forumTypeSetting.get() !== "EAForum" && (
+      <div className={classes.dividerMargins}>
+        <Divider />
+      </div>
+    )}
+  </div>
 
   const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
   const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined
