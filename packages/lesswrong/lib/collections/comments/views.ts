@@ -328,10 +328,11 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
 
 Comments.addView("rejected", (terms: CommentsViewTerms) => {
   return {
-    selector: {rejected: true, authorIsUnreviewed: null},
+    selector: {...dontHideDeletedAndUnreviewed, rejected: true},
     options: {sort: { postedAt: -1}, limit: terms.limit || 20},
   };
 })
+ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, }));
 
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {

@@ -7,10 +7,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 4
   },
+  shortReason: {
+    maxWidth: 500,
+    overflow: "hidden"
+  },
   reasonTooltip: {
     paddingTop: 4,
     paddingBottom: 2,
-    paddingLeft: 0,
+    paddingLeft: 12,
     paddingRight: 16,
     width: 400,
     fontSize: '1rem',
@@ -39,7 +43,7 @@ export const RejectedReason = ({classes, reason}: {
         />
       </ContentStyles>
     </Card>}>
-      <MetaInfo>
+      <MetaInfo className={classes.shortReason}>
         {getShortRejectedReason(reason)}
       </MetaInfo>
     </LWTooltip>

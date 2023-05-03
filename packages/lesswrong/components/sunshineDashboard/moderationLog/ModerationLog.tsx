@@ -11,8 +11,6 @@ import { isMod } from '../../../lib/collections/users/helpers';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import type { Column } from '../../vulcan-core/Datatable';
 import { ModeratorActions } from '../../../lib/collections/moderatorActions'
-import { RejectedPosts } from './RejectedPosts';
-import { ToCColumn } from '../../posts/TableOfContents/ToCColumn';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -188,7 +186,7 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection, RejectedPosts, RecentComments, SectionTitle, ToCColumn, TableOfContents } = Components;
+  const { SingleColumnSection, RejectedPostsList, RejectedCommentsList, SectionTitle, ToCColumn, TableOfContents } = Components;
   
 
   const sectionData = {
@@ -298,13 +296,9 @@ const ModerationLog = ({classes}: {
         </>}
         <div>
           <SectionTitle title="Rejected Posts" anchor="rejected-posts"/>
-          <RejectedPosts />
+          <RejectedPostsList />
           <SectionTitle title="Rejected Comments" anchor="rejected-comments"/>
-          <RecentComments
-            terms={{view: 'rejected', authorIsUnreviewed: null, limit: 10}}
-            showPinnedOnProfile
-            truncated
-          />
+          <RejectedCommentsList />
         </div>
       </SingleColumnSection>
     </ToCColumn>
