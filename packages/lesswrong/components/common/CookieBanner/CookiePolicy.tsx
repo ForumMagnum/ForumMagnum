@@ -120,7 +120,7 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
       <Typography variant="body1">
         If you choose to reject cookies you are ultimately responsible for removing any that have already been set (such as if you
         previously accepted). See the instructions for doing so{" "}
-        <a href="https://support.google.com/chrome/answer/95647">here</a>.
+        <ExternalLink href="https://support.google.com/chrome/answer/95647">here</ExternalLink>.
       </Typography>
       <Typography variant="body1">
         This cookie notice is different to the cookie notice that covers other Effective Ventures Foundation websites.

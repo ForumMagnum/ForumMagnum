@@ -5,7 +5,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
-import { ALL_COOKIES, CookieType, CookiesTable } from "../../../lib/cookies/utils";
+import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
@@ -189,12 +189,12 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           stored in your browser as they are essential for the basic functionality of the website. We also use cookies
           for non-essential purposes such as remembering your preferences between visits, or for analytics. These
           cookies will be stored in your browser only with your consent. Read our full cookie policy{" "}
-          <a href="/cookiePolicy">here</a>.
+          <a target="_blank" rel="noreferrer" href="/cookiePolicy">here</a>.
         </Typography>
         <Typography variant="body2" className={classes.blurb}>
           If you have previously accepted cookies and are now rejecting them, you are responsible for removing any that
           have already been set. You can do so by refreshing the page and then following the instructions{" "}
-          <a href="https://support.google.com/chrome/answer/95647">here</a>.
+          <a target="_blank" rel="noreferrer" href="https://support.google.com/chrome/answer/95647">here</a>.
         </Typography>
         <CookieCategory
           title="Necessary"
