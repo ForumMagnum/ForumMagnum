@@ -178,7 +178,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
-  
+
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
@@ -187,7 +187,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     fetchPolicy: 'cache-and-network'
   });
   const user = getUserFromResults(results)
-  
+
   const { query } = useLocation()
   // track profile views in local storage
   useEffect(() => {
@@ -202,7 +202,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         from = from || profiles[profileUserIndex].from
         profiles.splice(profileUserIndex, 1)
       }
-      
+
       profiles.push({userId: user._id, ...(from && {from})})
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
@@ -210,7 +210,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
   }, [currentUser, user, query.from])
-  
+
   // although both the owner and admins can see the drafts section,
   // admins need to click a button to view it (so it's not distracting)
   const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(!user || (currentUser && user._id === currentUser._id))
@@ -219,10 +219,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
       setDraftsSectionExpanded(currentUser && user._id === currentUser._id)
     }
   }, [currentUser, user])
-  
+
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSettings] = useState(false)
-  
+
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
     collectionName: "Localgroups",
@@ -230,7 +230,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     enableTotal: false,
     skip: !user
   })
-  
+
   // count posts here rather than using user.postCount,
   // because the latter doesn't include posts where the user is a coauthor
   const { totalCount: userPostsCount } = useMulti({
@@ -281,7 +281,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       return <Components.Error404/>
     }
   }
-  
+
   const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
@@ -354,7 +354,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </>
     })
   }
-  
+
   const bioSectionTabs: Array<UserProfileTabType> = []
   if (user.biography?.html || user.howOthersCanHelpMe?.html || user.howICanHelpOthers?.html) {
     bioSectionTabs.push({
@@ -415,7 +415,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </>
     })
   }
-  
+
   const commentsSectionTabs: Array<UserProfileTabType> = []
   if (user.commentCount) {
     commentsSectionTabs.push({
@@ -514,16 +514,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account settings
             </Link>}
-            {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log out
-            </a>}
           </Typography>
         </div>
-        
+
         {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
           <SunshineNewUsersProfileInfo userId={user._id} />
         </div>}
-        
+
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
           <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
           <Button color="primary"
@@ -533,9 +530,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             Click to view drafts
           </Button>
         )}
-        
+
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
-        
+
         {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
@@ -557,7 +554,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
           </AnalyticsContext>
         </div>}
-        
+
         {!!user.sequenceCount && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
@@ -566,7 +563,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </div>
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
         </div>}
-        
+
         <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
       </SingleColumnSection>
 
