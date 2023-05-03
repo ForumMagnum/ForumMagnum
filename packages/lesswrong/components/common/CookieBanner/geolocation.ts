@@ -46,8 +46,8 @@ function getCountryCodeFromLocalStorage(): string | null {
   const currentTime = new Date().getTime();
   const timeDifference = currentTime - parseInt(cachedTimestamp);
 
-  // 24 hours
-  const cacheTTL = 24 * 60 * 60 * 1000;
+  // 48 hours
+  const cacheTTL = 48 * 60 * 60 * 1000;
   if (timeDifference > cacheTTL) {
     localStorage.removeItem('countryCode');
     localStorage.removeItem('countryCodeTimestamp');

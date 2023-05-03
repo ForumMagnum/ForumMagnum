@@ -58,7 +58,9 @@ export function isCookieAllowed(name: string, cookieTypesAllowed: CookieType[]):
       return cookieTypesAllowed.includes(CookiesTable[cookieName].type);
     }
   }
-  throw new Error(`Unknown cookie: ${name}, you must register it with registerCookie`);
+  // eslint-disable-next-line no-console
+  console.error(`Unknown cookie: ${name}, you must register it with registerCookie`);
+  return false;
 }
 
 /**
@@ -88,6 +90,11 @@ export async function getCookiePreferences(): Promise<{
   return { cookiePreferences, explicitConsentGiven };
 }
 
+/**
+ * Registers a cookie with the cookie policy. You must call this in `cookies.ts` (to make sure it is imported)
+ * for all new cookies that are added. Not doing so means the cookie won't be set if you use `useCookiesWithConsent`,
+ * and will be actively removed when the user changes their cookie preferences.
+ */
 export function registerCookie(cookie: CookieSignatureMinimum): string {
   if (cookie.name in CookiesTable && CookiesTable[cookie.name] !== cookie) {
     throw new Error(`Two cookies with the same name: ${cookie.name}`);

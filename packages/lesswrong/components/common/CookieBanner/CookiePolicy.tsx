@@ -118,8 +118,8 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
         <a onClick={() => openDialog({ componentName: "CookieDialog", componentProps: {} })}>here</a>.
       </Typography>
       <Typography variant="body1">
-        If you choose to reject cookies you are responsible for removing any that have already been set (such as if you
-        previously accepted, or you visited before our cookie policy was implemented), see the instructions for doing so{" "}
+        If you choose to reject cookies you are ultimately responsible for removing any that have already been set (such as if you
+        previously accepted). See the instructions for doing so{" "}
         <a href="https://support.google.com/chrome/answer/95647">here</a>.
       </Typography>
       <Typography variant="body1">
@@ -174,8 +174,7 @@ const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
       <br />
       <Typography variant="body1">
         <b>Functional cookies:</b> these cookies enable functionalities that are not strictly necessary for the website
-        to be usable. This includes remembering whether certain banners are hidden, or allowing you to contact us for
-        support via Intercom. These cookies expire after 24 months.
+        to be usable, such as allowing you to contact us for support via Intercom. These cookies expire after 24 months.
       </Typography>
       <Typography variant="body1" className={classes.cookiePreamble}>
         The cookies we use in this category are:

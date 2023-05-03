@@ -5,7 +5,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
-import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
+import { ALL_COOKIES, CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
@@ -114,7 +114,7 @@ const CookieCategory = ({
     necessary:
       "Necessary cookies are essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously. In general these cookies expire after 24 months.",
     functional:
-      "Functional cookies help to perform certain functionalities like remembering whether certain banners are hidden, or allowing you to contact us via Intercom. In general these cookies expire after 24 months.",
+      "Functional cookies are not strictly necessary but help to perform certain functionalities, such as allowing you to contact us via Intercom. In general these cookies expire after 24 months.",
     analytics:
       "Analytics cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc. In general these cookies expire after 24 months.",
   };
@@ -192,9 +192,9 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           <a href="/cookiePolicy">here</a>.
         </Typography>
         <Typography variant="body2" className={classes.blurb}>
-          If you choose to reject cookies, you are responsible for removing any that have already been set (such as if
-          you previously accepted, or you visited before our cookie policy was implemented). See the instructions for
-          doing so <a href="https://support.google.com/chrome/answer/95647">here</a>.
+          If you have previously accepted cookies and are now rejecting them, you are responsible for removing any that
+          have already been set. You can do so by refreshing the page and then following the instructions{" "}
+          <a href="https://support.google.com/chrome/answer/95647">here</a>.
         </Typography>
         <CookieCategory
           title="Necessary"

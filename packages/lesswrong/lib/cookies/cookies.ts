@@ -182,6 +182,14 @@ registerCookie({
 });
 
 registerCookie({
+  name: "_dc_gtm_UA[*]",
+  matches: (name: string) => name.startsWith("_dc_gtm_UA"),
+  type: "analytics",
+  thirdPartyName: "Google",
+  description: "Used by Google Tag Manager to control the loading of a Google Analytics script tag.",
+});
+
+registerCookie({
   name: "__Host-GAPS",
   type: "necessary",
   thirdPartyName: "Google",

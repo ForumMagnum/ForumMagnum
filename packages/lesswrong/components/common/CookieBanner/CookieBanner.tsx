@@ -85,7 +85,8 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
   return (
     <div className={classNames(classes.bannerContainer)}>
       <Typography variant="body2" className={classes.text}>
-        We use cookies to enhance your experience, by clicking "Accept all" you agree to their use. Customise your{" "}
+        We and our partners use cookies, including to review how our site is used and to improve our site's performance.
+        By clicking "Accept all" you agree to their use. Customise your{" "}
         <a
           onClick={() => {
             openDialog({ componentName: "CookieDialog", componentProps: {} });
@@ -96,11 +97,7 @@ const CookieBanner = ({ classes }: { classes: ClassesType }) => {
         for more control, or review our cookie policy <a href="/cookiePolicy">here</a>.
       </Typography>
       <div className={classes.buttonGroup}>
-        <Button
-          className={classNames(classes.button, classes.rejectButton)}
-          variant="contained"
-          onClick={handleReject}
-        >
+        <Button className={classNames(classes.button, classes.rejectButton)} variant="contained" onClick={handleReject}>
           Reject
         </Button>
         <Button className={classes.button} variant="contained" color="primary" onClick={handleAcceptAll}>
