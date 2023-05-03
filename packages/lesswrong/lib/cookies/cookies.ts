@@ -8,6 +8,12 @@ export const CLIENT_ID_COOKIE = registerCookie({
   description: "A unique identifier for this browser",
 });
 
+export const LOGIN_TOKEN_COOKIE = registerCookie({
+  name: "loginToken",
+  type: "necessary",
+  description: "The user's login token",
+});
+
 export const TIMEZONE_COOKIE = registerCookie({
   name: "timezone",
   type: "necessary",
