@@ -37,6 +37,7 @@ import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
+import { LotusIcon } from "../icons/lotusIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -49,6 +50,7 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "BellBorder" |
+  "Karma" |
   "Star" |
   "StarBorder" |
   "User" |
@@ -76,6 +78,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     BellBorder: MuiBellBorderIcon,
+    Karma: MuiStarIcon,
     Star: MuiStarIcon,
     StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
@@ -101,6 +104,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     BellBorder: BellOutlineIcon,
+    Karma: LotusIcon,
     Star: StarIcon,
     StarBorder: StarOutlineIcon,
     User: UserIcon,

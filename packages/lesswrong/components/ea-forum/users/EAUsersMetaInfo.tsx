@@ -77,7 +77,7 @@ const EAUsersMetaInfo = ({user, classes}: {
     <ContentStyles contentType="comment" className={classes.iconsRow}>
       <Tooltip title={`${userKarma} karma`}>
         <span className={classes.userMetaInfo}>
-          <ForumIcon icon="Star" className={classes.userMetaInfoIcon} />
+          <ForumIcon icon="Karma" className={classes.userMetaInfoIcon} />
           {userKarma}
         </span>
       </Tooltip>
