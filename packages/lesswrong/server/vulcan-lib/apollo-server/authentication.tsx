@@ -128,15 +128,19 @@ const VerifyEmailToken = new EmailTokenType({
   name: "verifyEmail",
   onUseAction: async (user) => {
     if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'emails.0.verified': true,
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().verifyEmail(user._id);
+    } else {
+      await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'emails.0.verified': true,
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your email has been verified" };
   },
   resultComponentName: "EmailTokenResult"
@@ -169,16 +173,20 @@ const ResetPasswordToken = new EmailTokenType({
     const validatePasswordResponse = validatePassword(password)
     if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'services.password.bcrypt': await createPasswordHash(password),
-        'services.resume.loginTokens': []
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
+    } else {
+      await updateMutator({ 
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'services.password.bcrypt': await createPasswordHash(password),
+          'services.resume.loginTokens': []
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your new password has been set. Try logging in again." };
   },
   resultComponentName: "EmailTokenResult",

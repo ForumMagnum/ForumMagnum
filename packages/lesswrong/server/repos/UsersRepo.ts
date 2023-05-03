@@ -78,4 +78,43 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<DbUser | null> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
+
+  clearLoginTokens(userId: string): Promise<null> {
+    return this.none(`
+      UPDATE "Users"
+      SET services = jsonb_set(
+        services,
+        '{resume, loginTokens}'::TEXT[],
+        '[]'::JSONB,
+        true
+      )
+      WHERE _id = $1
+    `, [userId]);
+  }
+
+  resetPassword(userId: string, hashedPassword: string): Promise<null> {
+    return this.none(`
+      UPDATE "Users"
+      SET services = jsonb_set(
+        jsonb_set(
+          services,
+          '{password, bcrypt}'::TEXT[],
+          to_jsonb($2::TEXT),
+          true
+        ),
+        '{resume, loginTokens}'::TEXT[],
+        '[]'::JSONB,
+        true
+      )
+      WHERE _id = $1
+    `, [userId, hashedPassword]);
+  }
+
+  verifyEmail(userId: string): Promise<null> {
+    return this.none(`
+      UPDATE "Users"
+      SET emails[1] = jsonb_set(emails[1], '{verified}', 'true'::JSONB, true)
+      WHERE _id = $1
+    `, [userId]);
+  }
 }
