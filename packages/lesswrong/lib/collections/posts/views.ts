@@ -732,7 +732,7 @@ Posts.addView("rejected", (terms: PostsViewTerms) => ({
     sort: {postedAt: -1}
   }
 }));
-//TODO: no room for more indexes rn
+ensureIndex(Posts, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: -1 }));
 
 /**
  * @summary Draft view

@@ -332,7 +332,7 @@ Comments.addView("rejected", (terms: CommentsViewTerms) => {
     options: {sort: { postedAt: -1}, limit: terms.limit || 20},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, }));
+ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: 1 }));
 
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
