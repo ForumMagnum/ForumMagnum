@@ -249,7 +249,7 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
           hideActionsMenu: true,
           isSideComment: true,
         },
-        ...(dontTruncateRoot ? {expandByDefault: true} : {}),
+        ...(dontTruncateRoot ? {forceUnTruncated: true} : {}),
       }}
     />
   </div>

@@ -732,6 +732,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
     },
+    {
+      name: 'CookiePolicy',
+      path: '/cookiePolicy',
+      componentName: 'CookiePolicy',
+      title: 'Cookie Policy',
+    },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
+    },
   ],
   LessWrong: [
     {

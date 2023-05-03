@@ -192,8 +192,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
     invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
     invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
+    primaryAlert: "#69886e",
     error: "#9b5e5e",
     error2: "#E04E4B",
+    warning: "#832013",
     red: "#ff0000",
     alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
@@ -300,6 +302,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
+    primaryTranslucent: "rgba(95,155,101,0.1)",
+    warningTranslucent: "rgba(255,152,0,0.1)",
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
@@ -354,7 +358,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
-    restoreSavedContentNotice: "rgba(255,0,0,.1)",
+    cookieBanner: shades.grey[800],
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -380,7 +384,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
-    
+    alwaysPrimary: "#5f9b65",
     startReadingButtonBackground: shades.greyAlpha(0.05),
     recentDiscussionSubscribeButtonText: "#fff",
     featuredResourceCTAtext: "#fff",

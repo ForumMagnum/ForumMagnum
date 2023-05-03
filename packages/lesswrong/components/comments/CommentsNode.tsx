@@ -45,7 +45,8 @@ export interface CommentsNodeProps {
    * Determines whether this specific comment is expanded, without passing that
    * expanded state to child comments
    */
-  expandByDefault?: boolean,
+  forceUnTruncated?: boolean,
+  forceUnCollapsed?: boolean,
   expandNewComments?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
@@ -88,7 +89,8 @@ const CommentsNode = ({
   shortform,
   nestingLevel=1,
   expandAllThreads,
-  expandByDefault,
+  forceUnTruncated,
+  forceUnCollapsed,
   expandNewComments=true,
   isChild,
   parentAnswerId,
@@ -109,9 +111,9 @@ const CommentsNode = ({
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!expandByDefault && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
+  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -182,8 +184,11 @@ const CommentsNode = ({
   }, [commentHash]);
 
   const toggleCollapse = useCallback(
-    () => setCollapsed(!collapsed),
-    [collapsed]
+    () => {
+      onToggleCollapsed?.();
+      setCollapsed(!collapsed)
+    },
+    [collapsed, onToggleCollapsed]
   );
 
   const isTruncated = ((): boolean => {
@@ -245,7 +250,7 @@ const CommentsNode = ({
             </AnalyticsContext>
           : <CommentsItem
               treeOptions={treeOptions}
-              truncated={isTruncated && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
+              truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
               nestingLevel={updatedNestingLevel}
               parentCommentId={parentCommentId}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}

@@ -74,7 +74,12 @@ const formatRole = (jobTitle?: string, organization?: string): string =>
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
 
-const formatBio = (bio?: string): string => htmlToText(bio ?? "");
+const formatBio = (bio?: string): string => htmlToText(bio ?? "", {
+  selectors: [
+    {selector: "a", options: {ignoreHref: true}},
+    {selector: "img", format: "skip"},
+  ],
+});
 
 const formatStat = (value?: number): string => {
   value ??= 0;

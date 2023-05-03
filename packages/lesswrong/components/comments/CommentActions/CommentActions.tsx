@@ -13,10 +13,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, 
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem,
           BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem,
           BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment,
-          PinToProfileMenuItem, LockThreadMenuItem } = Components
+          PinToProfileMenuItem, LockThreadMenuItem, ShortformFrontpageMenuItem } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -63,6 +63,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
+    <ShortformFrontpageMenuItem comment={comment}/>
     {/** DeleteCommentMenuItem will still be hidden under some circumstances.
      * It returns null if the user can't moderate their own comment (i.e. because it has children) */}
     {showDeleteCommentItem && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
