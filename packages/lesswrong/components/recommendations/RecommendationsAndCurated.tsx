@@ -8,8 +8,9 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const curatedUrl = "/recommendations"
 
@@ -107,8 +108,6 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 
 const isLW = forumTypeSetting.get() === 'LessWrong'
 
-const SHOW_RECOMMENDATIONS_SECTION_COOKIE = 'show_recommendations_section'
-
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -119,7 +118,7 @@ const RecommendationsAndCurated = ({
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
-  const [cookies, setCookie] = useCookies([SHOW_RECOMMENDATIONS_SECTION_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_RECOMMENDATIONS_SECTION_COOKIE]);
 
   const defaultExpanded = !isEAForum || !currentUser
   const [sectionExpanded, setSectionExpanded] = useState<boolean>(

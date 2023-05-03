@@ -2,17 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
-import { useCookies } from 'react-cookie';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { JOB_AD_DATA } from './TargetedJobAd';
-import union from 'lodash/union';
-import intersection from 'lodash/intersection';
-
-const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
 
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
@@ -20,7 +16,7 @@ const TargetedJobAdSection = () => {
   // we track when the user has seen the ad
   const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
-  const [cookies, setCookie] = useCookies([HIDE_JOB_AD_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_JOB_AD_COOKIE])
   
   // the AdvisorRequests collection is set to be deleted anyway, so reuse it for this job ad test,
   // as a way to track which users have seen and/or registered interest in the job ads
