@@ -209,9 +209,9 @@ export const CAREER_STAGES = [
   {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
   {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
   {value: 'otherDegree', label: "Pursuing other degree/diploma"},
-  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
-  {value: 'midCareer', label: "Working (6-15 years of experience)"},
-  {value: 'lateCareer', label: "Working (15+ years of experience)"},
+  {value: 'earlyCareer', label: "Working (0-5 years)"},
+  {value: 'midCareer', label: "Working (6-15 years)"},
+  {value: 'lateCareer', label: "Working (15+ years"},
   {value: 'seekingWork', label: "Seeking work"},
   {value: 'retired', label: "Retired"},
 ]

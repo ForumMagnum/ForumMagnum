@@ -14,7 +14,7 @@ import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
+import { PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
 import InfoIcon from '@material-ui/icons/Info'
@@ -110,13 +110,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   roleAndOrg: {
     fontSize: 16,
-  },
-  careerStage: {
-    display: "flex",
-    flexWrap: "wrap",
-    color: theme.palette.grey[600],
-    marginTop: 8,
-    ...separatorBulletStyles(theme)
   },
   btns: {
     display: 'flex',
@@ -469,13 +462,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
-          </ContentStyles>}
-          {!!user.careerStage?.length && <ContentStyles contentType="comment" className={classes.careerStage}>
-            {user.careerStage.map(stage => {
-              return <div key={stage}>
-                {CAREER_STAGES.find(s => s.value === stage)?.label}
-              </div>
-            })}
           </ContentStyles>}
           <EAUsersMetaInfo user={user} />
           {currentUser?._id != user._id && <div className={classes.btns}>

@@ -5,6 +5,7 @@ import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
 } from "../../../lib/collections/users/schema";
+import { CAREER_STAGES } from '../../../lib/collections/users/schema';
 
 
 // TODO
@@ -85,6 +86,12 @@ const EAUsersMetaInfo = ({user, classes}: {
         <ForumIcon icon="CalendarDays" className={classes.userMetaInfoIcon} />
         <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
       </span>
+      {user.careerStage?.map((stage) =>
+        <span className={classes.userMetaInfo} key={stage}>
+          <ForumIcon icon="Work" className={classes.userMetaInfoIcon} />
+          <span>{CAREER_STAGES.find(s => s.value === stage)?.label}</span>
+        </span>
+      )}
       {user.mapLocation &&
         <Link to="/community#individuals" className={classes.userMetaInfo}>
           <LocationIcon className={classes.userMetaInfoIcon} />
