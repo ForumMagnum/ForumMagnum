@@ -60,7 +60,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
   if (!documentId) return null
   
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHidden(comment)) return <div className={classes.root}>
+  if (commentIsHidden(comment) && !comment.rejected) return <div className={classes.root}>
     <div className={classes.permalinkLabel}>
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>

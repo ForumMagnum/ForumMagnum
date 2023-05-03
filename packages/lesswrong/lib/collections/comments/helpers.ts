@@ -104,5 +104,5 @@ export const commentIsHidden = (comment: CommentsList|DbComment) => {
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
   const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
   // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
-  return postedAfterGrandfatherDate && comment.authorIsUnreviewed && !comment.rejected
+  return postedAfterGrandfatherDate && comment.authorIsUnreviewed
 }
