@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { useCookies } from 'react-cookie';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
@@ -50,7 +49,6 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     defaultExpanded: "loggedIn",
     cookieName: "show_community_posts_section",
   });
-  const { captureEvent } = useTracking()
   const { timezone } = useTimezone()
 
   const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip, ForumIcon, SectionFooter } = Components

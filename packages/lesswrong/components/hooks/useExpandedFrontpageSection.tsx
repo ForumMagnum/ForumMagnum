@@ -46,7 +46,7 @@ export const useExpandedFrontpageSection = ({
   const [cookies, setCookie, removeCookie] = useCookies([cookieName]);
 
   const userExpand = currentUser?.expandedFrontpageSections?.[section];
-  const cookieExpand = cookies[cookieName];
+  const cookieExpand = cookies[cookieName] && cookies[cookieName] !== "false";
   const defaultExpand = isDefaultExpanded(currentUser, defaultExpanded);
   const initialExpanded = userExpand ?? cookieExpand ?? defaultExpand ?? false;
   const [expanded, setExpanded] = useState(initialExpanded);

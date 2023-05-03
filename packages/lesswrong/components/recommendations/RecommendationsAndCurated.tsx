@@ -8,8 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { useCookies } from 'react-cookie';
-import moment from 'moment';
+import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 
 export const curatedUrl = "/recommendations"
 
@@ -107,8 +106,6 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 
 const isLW = forumTypeSetting.get() === 'LessWrong'
 
-const SHOW_RECOMMENDATIONS_SECTION_COOKIE = 'show_recommendations_section'
-
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -116,25 +113,17 @@ const RecommendationsAndCurated = ({
   configName: string,
   classes: ClassesType,
 }) => {
+  const {expanded, toggleExpanded} = useExpandedFrontpageSection({
+    section: "recommendations",
+    onExpandEvent: "recommendationsSectionExpanded",
+    onCollapseEvent: "recommendationsSectionCollapsed",
+    defaultExpanded: isEAForum ? "loggedIn" : "all",
+    cookieName: "show_recommendations_section",
+  });
+
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
-  const [cookies, setCookie] = useCookies([SHOW_RECOMMENDATIONS_SECTION_COOKIE]);
-
-  const defaultExpanded = !isEAForum || !currentUser
-  const [sectionExpanded, setSectionExpanded] = useState<boolean>(
-    // if unset, use the default, otherwise use the explicitly set value
-    (cookies[SHOW_RECOMMENDATIONS_SECTION_COOKIE] && JSON.parse(cookies[SHOW_RECOMMENDATIONS_SECTION_COOKIE])) ??
-      defaultExpanded
-  );
-
-  const toggleSectionVisibility = () => {
-    const newVisibility = !sectionExpanded
-    setSectionExpanded(newVisibility)
-
-    setCookie(SHOW_RECOMMENDATIONS_SECTION_COOKIE, newVisibility, {expires: moment().add(2, 'years').toDate()})
-    captureEvent(newVisibility ? 'recommendationsSectionExpanded' : 'recommendationsSectionCollapsed')
-  }
 
   const {continueReading} = useContinueReading();
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
@@ -197,8 +186,8 @@ const RecommendationsAndCurated = ({
               )}
               {isEAForum && (
                 <ForumIcon
-                  icon={sectionExpanded ? "ThickChevronDown" : "ThickChevronRight"}
-                  onClick={toggleSectionVisibility}
+                  icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+                  onClick={toggleExpanded}
                   className={classes.expandIcon}
                 />
               )}
@@ -210,7 +199,7 @@ const RecommendationsAndCurated = ({
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
             </LWTooltip>
           )}
-          {isEAForum && sectionExpanded && (
+          {isEAForum && expanded && (
             <Link to="/recommendations" className={classes.readMoreLink}>
               View more
             </Link>
@@ -308,7 +297,7 @@ const RecommendationsAndCurated = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {(sectionExpanded || !isEAForum) && bodyNode}
+        {(expanded || !isEAForum) && bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }
