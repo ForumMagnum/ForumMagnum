@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, newReactKarmaThreshold, existingReactKarmaThreshold } from '../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
+import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
@@ -169,9 +170,11 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   const { LWTooltip } = Components;
   const currentUserExtendedVote = voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined;
 
-  function reactionIsSelected(name: string): boolean {
-    const reacts: string[] = currentUserExtendedVote?.reacts ?? [];
-    return !!reacts.find(r=>r===name);
+  function getCurrentUserReactionVote(name: string): VoteOnReactionType|null {
+    const reacts = currentUserExtendedVote?.reacts ?? [];
+    const relevantVoteIndex = reacts.findIndex(r=>r.react===name);
+    if (relevantVoteIndex < 0) return null;
+    return reacts[relevantVoteIndex].vote;
   }
 
   function toggleReaction(name: string) {
@@ -183,18 +186,23 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
       return;
     }
     
-    const oldReacts: string[] = currentUserExtendedVote?.reacts ?? [];
-    const newReacts: EmojiReactName[] = reactionIsSelected(name)
-      ? filter(oldReacts, r=>r!==name)
-      : [...oldReacts, name]
+    const oldReacts = currentUserExtendedVote?.reacts ?? [];
+    const initialVote = "created"; //TODO
+    const newReacts: UserVoteOnSingleReaction[] = !!getCurrentUserReactionVote(name)
+      ? filter(oldReacts, r=>r.react!==name)
+      : [...oldReacts, {
+          react: name,
+          vote: initialVote,
+        }]
+    const newExtendedVote: NamesAttachedReactionsVote = {
+      ...currentUserExtendedVote,
+      reacts: newReacts,
+    };
 
     voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
-      extendedVote: {
-        ...currentUserExtendedVote,
-        reacts: newReacts,
-      },
+      extendedVote: newExtendedVote,
       currentUser,
     });
   }
@@ -209,7 +217,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
       {alreadyUsedReactionTypesByKarma.map(r => <div
         key={r}
         className={classNames(classes.hoverBallotEntry, {
-          [classes.selected]: reactionIsSelected(r)
+          [classes.selected]: !!getCurrentUserReactionVote(r)
         })}
       >
         <ReactionIcon react={r} classes={classes}/>
@@ -238,7 +246,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
           <div
             key={reaction.name}
             className={classNames(classes.paletteEntry, {
-              [classes.selected]: reactionIsSelected(reaction.name)
+              [classes.selected]: !!getCurrentUserReactionVote(reaction.name)
             })}
             onClick={ev => toggleReaction(reaction.name)}
           >
