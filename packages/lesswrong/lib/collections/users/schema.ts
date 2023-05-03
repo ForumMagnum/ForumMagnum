@@ -237,6 +237,8 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   githubProfileURL: 'github.com/'
 }
 
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
 /**
  * @summary Users schema
  * @type {Object}

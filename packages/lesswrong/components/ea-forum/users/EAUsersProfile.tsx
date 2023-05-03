@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
@@ -14,16 +14,12 @@ import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
-import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
-import CalendarIcon from '@material-ui/icons/Today'
-import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -122,52 +118,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
-  iconsRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: 24,
-    rowGap: '10px',
-    color: theme.palette.grey[600],
-    fontSize: 14,
-    lineHeight: '14px',
-    marginTop: 10,
-    '& a': {
-      color: theme.palette.grey[600],
-      '&:hover': {
-        color: theme.palette.grey[600],
-      }
-    }
-  },
-  userMetaInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 5,
-  },
-  userMetaInfoIcon: {
-    fontSize: 18,
-  },
-  socialMediaIcons: {
-    display: 'flex',
-    columnGap: 10,
-  },
-  socialMediaIcon: {
-    flex: 'none',
-    height: 20,
-    fill: theme.palette.grey[600],
-  },
-  website: {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    wordBreak: 'break-all',
-    lineHeight: '20px',
-  },
-  websiteIcon: {
-    flex: 'none',
-    height: 20,
-    fill: theme.palette.grey[600],
-    marginRight: 4
-  },
   btns: {
     display: 'flex',
     columnGap: 20,
@@ -227,18 +177,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 20
   },
 })
-
-
-export const socialMediaIcon = (user: UsersProfile, field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS, className: string) => {
-  if (!user[field]) return null
-  return <a key={field}
-    href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <svg viewBox="0 0 24 24" className={className}>{socialMediaIconPaths[field]}</svg>
-  </a>
-}
 
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -318,9 +256,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
     SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-    Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
+    Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, ForumIcon, UsersProfileImage,
+    ProfileShortform, UsersProfileImage, EAUsersMetaInfo, LoadMore,
   } = Components
 
   if (loading) {
@@ -368,9 +306,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const username = userGetDisplayName(user)
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
-  
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
-  
+
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
     label: `${ownPage ? 'My' : `${username}'s`} Drafts`,
@@ -541,33 +477,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               </div>
             })}
           </ContentStyles>}
-          <ContentStyles contentType="comment" className={classes.iconsRow}>
-            <Tooltip title={`${userKarma} karma`}>
-              <span className={classes.userMetaInfo}>
-                <ForumIcon icon="Star" className={classes.userMetaInfoIcon} />
-                {userKarma}
-              </span>
-            </Tooltip>
-            {user.mapLocation && <Link to="/community#individuals" className={classes.userMetaInfo}>
-              <LocationIcon className={classes.userMetaInfoIcon} />
-              {user.mapLocation.formatted_address}
-            </Link>}
-            <span className={classes.userMetaInfo}>
-              <CalendarIcon className={classes.userMetaInfoIcon} />
-              <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
-            </span>
-            {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object
-                .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
-                .map((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => 
-                socialMediaIcon(user, field, classes.socialMediaIcon)
-            )}
-            </div>}
-            {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-              <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-              {user.website}
-            </a>}
-          </ContentStyles>
+          <EAUsersMetaInfo user={user} />
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
