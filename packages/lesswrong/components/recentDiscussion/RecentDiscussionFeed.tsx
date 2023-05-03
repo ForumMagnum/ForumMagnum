@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -57,11 +58,19 @@ const RecentDiscussionFeed = ({
       refetchRef.current();
   }, [refetchRef]);
 
+  const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} />
+          <SectionTitle title={title} >
+            {showShortformButton && <div onClick={toggleShortformFeed}>
+              <SectionButton>
+                <AddBoxIcon />
+                New Shortform Post
+              </SectionButton>
+            </div>}
+          </SectionTitle>
           {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
           <MixedTypeFeed
             firstPageSize={10}

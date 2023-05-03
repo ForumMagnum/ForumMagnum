@@ -8,8 +8,9 @@ const styles = (_: ThemeType): JssStyles => ({
   subheader: {
     fontSize: 14,
   },
-  newFormWrapper: {
-    marginTop: 8,
+  shortformSubmitForm: {
+    marginTop: 6,
+    marginBottom: 12,
   }
 });
 
@@ -53,11 +54,11 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
       {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
         <SectionButton>
           <AddBoxIcon />
-          New Shortform Post
+          New shortform
         </SectionButton>
       </div>}
     </SectionTitle>
-    {showShortformFeed && <div className={classes.newFormWrapper}><ShortformSubmitForm successCallback={refetch}/></div>}
+    {showShortformFeed && <ShortformSubmitForm successCallback={refetch} className={classes.shortformSubmitForm} />}
     {results.map((comment) => {
       return <ShortformListItem
         comment={comment}
