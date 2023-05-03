@@ -181,7 +181,11 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem } = Components
+  const {
+    MoveToDraft, BookmarkButton, SuggestCuratedDropdownItem, SuggestAlignment,
+    ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton,
+    SetSideCommentVisibility, MenuItem,
+  } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -310,7 +314,7 @@ const PostActions = ({post, closeMenu, classes}: {
               </MenuItem>
             </div>
         }
-        <SuggestCurated post={post}/>
+        <SuggestCuratedDropdownItem post={post} />
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>
         { userCanDo(currentUser, "posts.edit.all") &&

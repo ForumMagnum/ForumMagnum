@@ -79,6 +79,10 @@ importComponent("EditableUsersList", () => require('../components/editor/Editabl
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
+// Dropdowns
+importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
+importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/SuggestCuratedDropdownItem'));
+
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
 //importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
@@ -254,7 +258,6 @@ importComponent("PostsTimeframeList", () => require('../components/posts/PostsTi
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'));
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
-importComponent("SuggestCurated", () => require('../components/posts/SuggestCurated'));
 importComponent("DeleteDraft", () => require('../components/posts/DeleteDraft'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("HideFrontPagePostButton", () => require('../components/posts/HideFrontPagePostButton'));
