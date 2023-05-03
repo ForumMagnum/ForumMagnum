@@ -58,7 +58,7 @@ export const useExpandedFrontpageSection = ({
       void updateCurrentUser({
         expandedFrontpageSections: {
           ...currentUser?.expandedFrontpageSections,
-          [section]: expanded,
+          [section]: newExpanded,
         } as ExpandedFrontpageSections,
       });
     }
