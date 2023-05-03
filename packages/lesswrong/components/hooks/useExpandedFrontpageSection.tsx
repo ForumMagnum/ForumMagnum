@@ -83,7 +83,6 @@ export const useExpandedFrontpageSection = ({
     }
   }, [
     section,
-    defaultExpanded,
     onExpandEvent,
     onCollapseEvent,
     cookieName,
