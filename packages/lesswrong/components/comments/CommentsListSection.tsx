@@ -51,14 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main,
   },
-  header: {
-    fontWeight: 600,
-    fontSize: 24,
-    marginBottom: 18,
-    "& span": {
-      color: theme.palette.grey[600],
-    },
-  },
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
@@ -195,12 +187,6 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {isEAForum && (newForm || !!totalComments) && <div className={classes.commentsHeadline}>
         Comments{commentCountNode}
       </div>}
-
-      {isEAForum &&
-        <div className={classes.header}>
-          Comments <span>{totalComments}</span>
-        </div>
-      }
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
