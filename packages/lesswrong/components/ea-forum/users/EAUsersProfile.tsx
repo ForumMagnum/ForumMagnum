@@ -319,7 +319,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
     SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
@@ -574,7 +574,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
               {user.website}
             </a>}
           </ContentStyles>
-          {user.profileTagIds && <EAUsersProfileTags tags={user.profileTags} />}
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
