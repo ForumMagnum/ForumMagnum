@@ -188,5 +188,10 @@
     "acceptsSchemaHash": "a85cc326da77f34b19140ca908956227",
     "acceptedByMigration": "20230502T083210.add_shortformFrontpage.ts",
     "timestamp": "2023-05-02T08:32:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7739b9298aba2be85700bc9a3942fdcf",
+    "acceptedByMigration": "20230502T161545.add_expandedFrontpageSections_column.ts",
+    "timestamp": "2023-05-02T16:15:45.000Z"
   }
 ]
