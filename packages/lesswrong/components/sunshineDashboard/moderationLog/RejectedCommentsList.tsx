@@ -16,13 +16,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reason: {
     marginLeft: "auto"
+  },
+  linkIcon: {
+    fontSize: "0.9rem",
+    verticalAlign: "middle",
+    color: theme.palette.icon.dim,
+    margin: "0 2px",
+    position: "relative",
+    top: -2,
   }
 });
 
 export const RejectedCommentsList = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { RejectedReasonDisplay, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row } = Components
+  const { RejectedReasonDisplay, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row, ForumIcon } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -42,7 +50,7 @@ export const RejectedCommentsList = ({classes}: {
               <MetaInfo>
                 <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}
-                  {comment.post?.title}
+                  {comment.post?.title} <ForumIcon icon="Link" className={classes.linkIcon} />
                 </Link>
               </MetaInfo>
             </LWTooltip>

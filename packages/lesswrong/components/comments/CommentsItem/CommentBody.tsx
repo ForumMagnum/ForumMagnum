@@ -43,7 +43,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, RejectedReasonDisplay } = Components
+  const { ContentItemBody, CommentDeletedMetadata, ContentStyles } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -68,7 +68,6 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
 
   return (
     <ContentStyles contentType={contentType} className={classes.root}>
-      {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
       <ContentItemBody
         className={bodyClasses}
         dangerouslySetInnerHTML={{__html: innerHtml }}
