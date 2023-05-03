@@ -18,45 +18,45 @@ export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", d
 
 export const HIDE_FEATURED_RESOURCE_COOKIE = registerCookie({
   name: "hide_featured_resource",
-  type: "necessary",
+  type: "functional",
   description: "Controls whether the featured resource banner in the left sidebar is hidden",
 });
 
 export const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
   name: 'show_community_posts_section',
-  type: "necessary",
+  type: "functional",
   description: "Whether to show the community posts section on the EA Forum home page",
 })
 
 export const HIDE_HANDBOOK_COOKIE = registerCookie({
   name: "hide_home_handbook",
-  type: "necessary",
+  type: "functional",
   description: "Whether to hide the EA Handbook on the EA Home page",
 });
 
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
+export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "functional", description: 'Controls whether job ads are hidden'});
 
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
-  type: "necessary",
+  type: "functional",
   description: "Whether to show the podcast player on a posts pages",
 });
 
-export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "necessary", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
+export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
 
 export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
   name: "hide_welcome_box",
-  type: "necessary",
+  type: "functional",
   description: "Controls whether the welcome box on a post page is hidden",
 });
 
-export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
+export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "Stores whether the user has hidden the map from the frontpage."});
 
 export const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 registerCookie({
   name: `${HIDE_COLLECTION_ITEM_PREFIX}[*]`,
   matches: (name: string) => name.startsWith(HIDE_COLLECTION_ITEM_PREFIX),
-  type: "necessary",
+  type: "functional",
   description: "Stores whether a collection item has been hidden (for a specific collection item id)",
 });
 
@@ -64,13 +64,13 @@ export const HIDE_SPOTLIGHT_ITEM_PREFIX = "hide_spotlight_item_";
 registerCookie({
   name: `${HIDE_SPOTLIGHT_ITEM_PREFIX}[*]`,
   matches: (name: string) => name.startsWith(HIDE_SPOTLIGHT_ITEM_PREFIX),
-  type: "necessary",
+  type: "functional",
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   name: "show_recommendations_section",
-  type: "necessary",
+  type: "functional",
   description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
 });
 
