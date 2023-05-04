@@ -86,9 +86,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-
   profileImage: {
     marginBottom: 14,
+  },
+  editProfile: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    paddingTop: "inherit",
+    paddingRight: "inherit",
+  },
+  editProfileButtonWrapper: {
+  },
+  editProfileButton: {
+    textTransform: "none",
+    fontSize: 14,
+    fontWeight: 500,
+    background: theme.palette.grey[200],
+    height: 45,
+    "&:hover": {
+      opacity: 1,
+      background: theme.palette.grey[300],
+    },
+    "& .MuiButton-label": {
+      maxHeight: "100%",
+    },
   },
   username: {
     fontSize: 32,
@@ -441,7 +463,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
     })
   }
 
-
   return <div>
     <HeadTags
       description={metaDescription}
@@ -452,6 +473,17 @@ const EAUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
+          {userCanEditUser(currentUser, user) &&
+            <div className={classes.editProfile}>
+              <Button
+                type="submit"
+                href={`/profile/${user.slug}/edit`}
+                className={classes.editProfileButton}
+              >
+                Edit Profile
+              </Button>
+            </div>
+          }
           <UsersProfileImage
             user={user}
             size={96}
@@ -502,9 +534,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
                 </DialogGroup>
               </div>
             }
-            {userCanEditUser(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
-              Edit Profile
-            </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
               Manage subscriptions
             </Link>}
