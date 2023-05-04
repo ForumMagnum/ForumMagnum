@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
+import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
@@ -53,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 18,
     },
   },
+  reactOrAntireact: {
+    marginLeft: 12,
+  },
   hoverBallot: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     paddingTop: 12,
@@ -79,6 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotLabel: {
     verticalAlign: "middle",
     marginLeft: 6,
+  },
+  hoverBallotReactDescription: {
+    marginLeft: 25,
   },
   selected: {
     background: theme.palette.panelBackground.darken10,
@@ -176,7 +182,6 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const { LWTooltip } = Components;
   const currentUserExtendedVote = voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined;
 
   function getCurrentUserReactionVote(name: string): VoteOnReactionType|null {
@@ -223,66 +228,140 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   
   return <div className={classes.hoverBallot}>
     <div className={classes.alreadyUsedReactions}>
-      {alreadyUsedReactionTypesByKarma.map(r => <div
-        key={r}
-        className={classNames(classes.hoverBallotEntry, {
-          [classes.selected]: !!getCurrentUserReactionVote(r)
-        })}
-      >
-        <ReactionIcon react={r} classes={classes}/>
-        <span className={classes.hoverBallotLabel}>
-          {namesAttachedReactionsByName[r].label}
-        </span>
-        
-        <div className={classes.usersWhoReacted}>
-          <span className={classes.reactionsListLabel}>Reacted:</span>
-          {alreadyUsedReactions[r]!
-            .filter(r=>r.reactType!=="disagreed")
-            .map((userReactInfo,i) =>
-              <span key={userReactInfo.userId}>
-                {(i>0) && <span>{", "}</span>}
-                {userReactInfo.displayName}
-              </span>
-            )
-          }
-        </div>
-        <div className={classes.usersWhoDisagreed}>
-          <span className={classes.reactionsListLabel}>Disagreed:</span>
-          {alreadyUsedReactions[r]!
-            .filter(r=>r.reactType==="disagreed")
-            .map((userReactInfo,i) =>
-              <span key={userReactInfo.userId}>
-                {(i>0) && <span>{", "}</span>}
-                {userReactInfo.displayName}
-              </span>
-            )
-          }
-        </div>
-      </div>)}
-    </div>
-    
-    <div className={classes.moreReactions}>
-      {namesAttachedReactions.map(reaction =>
-        <LWTooltip key={reaction.name} title={<>
-          <div>
-            <ReactionIcon react={reaction.name} classes={classes}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-          <ReactionDescription reaction={reaction} classes={classes}/>
-        </>}>
-          <div
-            key={reaction.name}
-            className={classNames(classes.paletteEntry, {
-              [classes.selected]: !!getCurrentUserReactionVote(reaction.name)
-            })}
-            onClick={ev => toggleReaction(reaction.name)}
-          >
-            <ReactionIcon react={reaction.name} classes={classes}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-        </LWTooltip>
+      {alreadyUsedReactionTypesByKarma.map(r =>
+        <HoverBallotReactionRow
+          reactionName={r}
+          usersWhoReacted={alreadyUsedReactions[r]!}
+          getCurrentUserReactionVote={getCurrentUserReactionVote}
+          classes={classes}
+        />
       )}
     </div>
+    
+    <HoverBallotReactionPalette
+      getCurrentUserReactionVote={getCurrentUserReactionVote}
+      toggleReaction={toggleReaction}
+      classes={classes}
+    />
+  </div>
+}
+
+const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserReactionVote, classes}: {
+  reactionName: string,
+  usersWhoReacted: UserReactInfo[],
+  getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
+  classes: ClassesType,
+}) => {
+  return <div
+    key={reactionName}
+    className={classNames(classes.hoverBallotEntry, {
+      [classes.selected]: !!getCurrentUserReactionVote(reactionName)
+    })}
+  >
+    <ReactionIcon react={reactionName} classes={classes}/>
+    <span className={classes.hoverBallotLabel}>
+      {namesAttachedReactionsByName[reactionName].label}
+    </span>
+    
+    <ReactOrAntireactVote
+      reactionName={reactionName}
+      netReactionCount={usersWhoReacted.filter(r=>r.reactType!=="disagreed").length}
+      currentUserReaction={getCurrentUserReactionVote(reactionName)}
+      classes={classes}
+    />
+
+    <div className={classes.hoverBallotReactDescription}>
+      {namesAttachedReactionsByName[reactionName].description}
+    </div>
+    
+    <div className={classes.usersWhoReacted}>
+      <span className={classes.reactionsListLabel}>{"Reacted: "}</span>
+      {usersWhoReacted
+        .filter(r=>r.reactType!=="disagreed")
+        .map((userReactInfo,i) =>
+          <span key={userReactInfo.userId}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )
+      }
+    </div>
+    {usersWhoReacted.filter(r=>r.reactType==="disagreed").length > 0 &&
+      <div className={classes.usersWhoReacted}>
+        <span className={classes.reactionsListLabel}>{"Antireacted: "}</span>
+        {usersWhoReacted
+          .filter(r=>r.reactType==="disagreed")
+          .map((userReactInfo,i) =>
+            <span key={userReactInfo.userId}>
+              {(i>0) && <span>{", "}</span>}
+              {userReactInfo.displayName}
+            </span>
+          )
+        }
+      </div>
+    }
+  </div>
+}
+
+const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReaction, classes}: {
+  reactionName: string
+  netReactionCount: number
+  currentUserReaction: VoteOnReactionType|null
+  classes: ClassesType
+}) => {
+  const { VoteArrowIcon } = Components;
+
+  return <span className={classes.reactOrAntireact}>
+    <VoteArrowIcon
+      orientation="left"
+      color="primary"
+      voted={false}
+      eventHandlers={{}}
+      strongVoteDelay={1000}
+      bigVotingTransition={false} bigVoted={false}
+      bigVoteCompleted={false} alwaysColored={false}
+    />
+    {netReactionCount}
+    <VoteArrowIcon
+      orientation="right"
+      color="primary"
+      voted={false}
+      eventHandlers={{}}
+      strongVoteDelay={1000}
+      bigVotingTransition={false} bigVoted={false}
+      bigVoteCompleted={false} alwaysColored={false}
+    />
+  </span>
+}
+
+const HoverBallotReactionPalette = ({getCurrentUserReactionVote, toggleReaction, classes}: {
+  getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
+  toggleReaction: (reactionName: string)=>void,
+  classes: ClassesType
+}) => {
+  const { LWTooltip } = Components;
+
+  return <div className={classes.moreReactions}>
+    {namesAttachedReactions.map(reaction =>
+      <LWTooltip key={reaction.name} title={<>
+        <div>
+          <ReactionIcon react={reaction.name} classes={classes}/>
+          <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+        </div>
+        <ReactionDescription reaction={reaction} classes={classes}/>
+      </>}>
+        <div
+          key={reaction.name}
+          className={classNames(classes.paletteEntry, {
+            [classes.selected]: !!getCurrentUserReactionVote(reaction.name)
+          })}
+          onClick={ev => toggleReaction(reaction.name)}
+        >
+          <ReactionIcon react={reaction.name} classes={classes}/>
+          <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+        </div>
+      </LWTooltip>
+    )}
   </div>
 }
 
