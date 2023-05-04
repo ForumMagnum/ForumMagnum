@@ -80,6 +80,12 @@ export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
 });
 
+export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
+  name: "hide_import_eag_profile",
+  type: "functional",
+  description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
+});
+
 // Third party cookies
 
 // Intercom

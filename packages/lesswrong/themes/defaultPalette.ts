@@ -144,6 +144,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     grey,
     greyAlpha,
     inverseGreyAlpha,
+    primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     

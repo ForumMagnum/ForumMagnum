@@ -32,6 +32,7 @@ const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
+    primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
     fonts: {sansSerifStack, serifStack},
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
