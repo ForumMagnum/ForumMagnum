@@ -129,6 +129,10 @@ export const eaForumTheme: SiteThemeSpecification = {
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
+        cloudinaryFont: {
+          stack: "'Inter', sans-serif",
+          url: "https://fonts.googleapis.com/css?family=Inter",
+        },
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,

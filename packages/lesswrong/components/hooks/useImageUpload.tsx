@@ -5,6 +5,7 @@ import {
   cloudinaryCloudNameSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
+import { useTheme } from "../themes/useTheme";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",
@@ -213,6 +214,8 @@ export const useImageUpload = ({
   onUploadError,
   croppingAspectRatio,
 }: UseImageUploadProps) => {
+  const theme = useTheme();
+
   const uploadImage = useCallback(() => {
     if (!window.cloudinary) {
       throw new Error("Cloudinary is not loaded");
@@ -247,8 +250,8 @@ export const useImageUpload = ({
         },
         fonts: {
           default: null,
-          "'Merriweather', serif": {
-            url: "https://fonts.googleapis.com/css?family=Merriweather",
+          [theme.typography.cloudinaryFont.stack]: {
+            url: theme.typography.cloudinaryFont.url,
             active: true,
           },
         },

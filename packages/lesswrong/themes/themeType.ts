@@ -449,7 +449,11 @@ declare global {
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,
