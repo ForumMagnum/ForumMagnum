@@ -114,6 +114,22 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
+export const documentIsNotDeleted = <T extends DbObject>(
+  user: PermissionableUser|DbUser|null,
+  document: T,
+) => {
+  // Admins and mods can see deleted content
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  // Unfortunately, different collections use different field names
+  // to represent "deleted-ness"
+  return !(
+    (document as unknown as DbComment).deleted ||
+    (document as unknown as DbPost).deletedDraft ||
+    (document as unknown as DbSequence).isDeleted
+  );
+}
 
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
