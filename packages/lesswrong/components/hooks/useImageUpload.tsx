@@ -285,6 +285,8 @@ export const useImageUpload = ({
     imageType,
     onUploadSuccess,
     onUploadError,
+    theme.typography.cloudinaryFont.stack,
+    theme.typography.cloudinaryFont.url,
   ]);
 
   return {
