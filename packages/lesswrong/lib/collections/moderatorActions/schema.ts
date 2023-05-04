@@ -84,7 +84,7 @@ const schema: SchemaType<DbModeratorAction> = {
       collectionName: "Users",
       type: "User",
     }),
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
@@ -96,7 +96,7 @@ const schema: SchemaType<DbModeratorAction> = {
     control: 'select',
     allowedValues: Object.keys(MODERATOR_ACTION_TYPES),
     options: () => Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
   },
@@ -104,14 +104,14 @@ const schema: SchemaType<DbModeratorAction> = {
     type: Date,
     optional: true,
     nullable: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'datetime',
   },
   active: resolverOnlyField({
     type: Boolean,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     resolver: (doc) => isActionActive(doc)
   })
   // TODO: createdBy(?)

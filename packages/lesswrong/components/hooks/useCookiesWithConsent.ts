@@ -42,15 +42,16 @@ export function useCookiePreferences(): {
 
   // If the user had not given explicit consent, but the value of COOKIE_PREFERENCES_COOKIE is different to what we are
   // using in the code (fallbackPreferences), update the cookie. This is so that Google Tag Manager handles it correctly.
-  useEffect(() => {
-    if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
+  // TODO this is causing an infinite loop somehow, reenable once we figure out why.
+  // useEffect(() => {
+  //   if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
 
-    if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
-      setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/" });
-      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
+  //   if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
+  //     setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/" });
+  //     void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
   
   const updateCookiePreferences = useCallback(
     (newPreferences: CookieType[]) => {
