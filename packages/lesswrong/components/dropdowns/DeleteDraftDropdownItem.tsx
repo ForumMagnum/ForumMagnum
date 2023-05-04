@@ -3,8 +3,9 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
-const DeleteDraft = ({ post }: {
+const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
@@ -12,8 +13,8 @@ const DeleteDraft = ({ post }: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const { MenuItem } = Components;
-  
+  const {DropdownItem} = Components;
+
   const handleDelete = useCallback(() => {
     if (confirm("Are you sure you want to delete this post?")) {
       void updatePost({
@@ -24,20 +25,24 @@ const DeleteDraft = ({ post }: {
   }, [post, updatePost])
 
   if (currentUser && postCanDelete(currentUser, post)) {
-    return <div onClick={handleDelete}>
-      <MenuItem>
-        Delete Post
-      </MenuItem>
-    </div>
+    return (
+      <DropdownItem
+        title={preferredHeadingCase("Delete Post")}
+        onClick={handleDelete}
+      />
+    );
   } else {
     return null
   }
 }
 
-const DeleteDraftComponent = registerComponent('DeleteDraft', DeleteDraft);
+const DeleteDraftDropdownItemComponent = registerComponent(
+  'DeleteDraftDropdownItem',
+  DeleteDraftDropdownItem,
+);
 
 declare global {
   interface ComponentTypes {
-    DeleteDraft: typeof DeleteDraftComponent
+    DeleteDraftDropdownItem: typeof DeleteDraftDropdownItemComponent
   }
 }

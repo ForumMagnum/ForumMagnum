@@ -82,6 +82,9 @@ importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEdit
 // Dropdowns
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/SuggestCuratedDropdownItem'));
+importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/DeleteDraftDropdownItem'));
+importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/MoveToDraftDropdownItem'));
+importComponent("MarkAsReadDropdownItem", () => require('../components/dropdowns/MarkAsReadDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -258,10 +261,8 @@ importComponent("PostsTimeframeList", () => require('../components/posts/PostsTi
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'));
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
-importComponent("DeleteDraft", () => require('../components/posts/DeleteDraft'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("HideFrontPagePostButton", () => require('../components/posts/HideFrontPagePostButton'));
-importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft'));
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));

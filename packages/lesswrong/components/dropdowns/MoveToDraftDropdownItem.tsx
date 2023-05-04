@@ -3,18 +3,19 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
-const MoveToDraft = ({ post }: {
+const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
-  const { MenuItem } = Components;
+  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  
-  const handleMoveToDraft = useCallback(() => {
+
+  const handleMoveToDraftDropdownItem = useCallback(() => {
     void updatePost({
       selector: {_id: post._id},
       data: {draft:true}
@@ -22,20 +23,24 @@ const MoveToDraft = ({ post }: {
   }, [updatePost, post])
 
   if (!post.draft && currentUser && canUserEditPostMetadata(currentUser, post)) {
-    return <div onClick={handleMoveToDraft}>
-      <MenuItem>
-        Move to Draft
-      </MenuItem>
-    </div>
+    return (
+      <DropdownItem
+        title={preferredHeadingCase("Move to Draft")}
+        onClick={handleMoveToDraftDropdownItem}
+      />
+    );
   } else {
     return null
   }
 }
 
-const MoveToDraftComponent = registerComponent('MoveToDraft', MoveToDraft);
+const MoveToDraftDropdownItemComponent = registerComponent(
+  'MoveToDraftDropdownItem',
+  MoveToDraftDropdownItem,
+);
 
 declare global {
   interface ComponentTypes {
-    MoveToDraft: typeof MoveToDraftComponent
+    MoveToDraftDropdownItem: typeof MoveToDraftDropdownItemComponent
   }
 }

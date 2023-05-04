@@ -1,14 +1,12 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { useNamedMutation } from '../../../lib/crud/withMutation';
 import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
-import { useItemsRead } from '../../hooks/useRecordPostView';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -58,7 +56,6 @@ const PostActions = ({post, closeMenu, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {postsRead, setPostRead} = useItemsRead();
   const {openDialog} = useDialog();
   const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
   const {mutate: updatePost} = useUpdate({
@@ -70,43 +67,6 @@ const PostActions = ({post, closeMenu, classes}: {
     fragmentName: 'UsersCurrent',
   });
   const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
-  const {mutate: markAsReadOrUnread} = useNamedMutation<{
-    postId: string, isRead: boolean,
-  }>({
-    name: 'markAsReadOrUnread',
-    graphqlArgs: {postId: 'String', isRead: 'Boolean'},
-  });
-  
-  const handleMarkAsRead = () => {
-    void markAsReadOrUnread({
-      postId: post._id,
-      isRead: true,
-    });
-    setPostRead(post._id, true);
-  }
-
-  const handleMarkAsUnread = () => {
-    void markAsReadOrUnread({
-      postId: post._id,
-      isRead: false,
-    });
-    setPostRead(post._id, false);
-  }
-
-  const handleMoveToMeta = () => {
-    if (!currentUser) throw new Error("Cannot move to meta anonymously")
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        meta: true,
-        draft: false,
-        metaDate: new Date(),
-        frontpageDate: null,
-        curatedDate: null,
-        reviewedByUserId: currentUser._id,
-      },
-    })
-  }
 
   const handleMoveToFrontpage = () => {
     if (!currentUser) throw new Error("Cannot move to frontpage anonymously")
@@ -182,15 +142,15 @@ const PostActions = ({post, closeMenu, classes}: {
   }
 
   const {
-    MoveToDraft, BookmarkButton, SuggestCuratedDropdownItem, SuggestAlignment,
-    ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton,
-    SetSideCommentVisibility, MenuItem,
-  } = Components
+    MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
+    SuggestAlignment, ReportPostMenuItem, DeleteDraftDropdownItem, NotifyMeButton,
+    HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
+    MarkAsReadDropdownItem,
+  } = Components;
+
   if (!post) return null;
   const postAuthor = post.user;
 
-  const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-  
   let editLink: React.ReactNode|null = null;
   const isEditor = canUserEditPostMetadata(currentUser,post);
   const isPodcaster = userIsPodcaster(currentUser);
@@ -301,22 +261,11 @@ const PostActions = ({post, closeMenu, classes}: {
         
         {userHasAutosummarize(currentUser)
           && <Components.PostSummaryAction closeMenu={closeMenu} post={post}/>}
-        
-        { isRead
-          ? <div onClick={handleMarkAsUnread}>
-              <MenuItem>
-                Mark as Unread
-              </MenuItem>
-            </div>
-          : <div onClick={handleMarkAsRead}>
-              <MenuItem>
-                Mark as Read
-              </MenuItem>
-            </div>
-        }
+
+        <MarkAsReadDropdownItem post={post} />
         <SuggestCuratedDropdownItem post={post} />
-        <MoveToDraft post={post}/>
-        <DeleteDraft post={post}/>
+        <MoveToDraftDropdownItem post={post} />
+        <DeleteDraftDropdownItem post={post} />
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.frontpageDate &&

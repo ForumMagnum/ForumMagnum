@@ -5,6 +5,7 @@ import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { clone, without } from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -50,7 +51,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   if (!post?.frontpageDate) {
     return (
       <DropdownItem
-        title="Suggest Curation"
+        title={preferredHeadingCase("Suggest Curation")}
         sideMessage="Must be frontpage"
         disabled
       />
@@ -62,10 +63,12 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const isSuggested = post.suggestForCuratedUserIds?.includes(currentUser._id);
+  const title = isSuggested ? "Unsuggest Curation" : "Suggest Curation";
+  const onClick = isSuggested ? handleUnsuggestCurated : handleSuggestCurated;
   return (
     <DropdownItem
-      title={isSuggested ? "Unsuggest Curation" : "Suggest Curation"}
-      onClick={isSuggested ? handleUnsuggestCurated : handleSuggestCurated}
+      title={preferredHeadingCase(title)}
+      onClick={onClick}
     />
   );
 }
