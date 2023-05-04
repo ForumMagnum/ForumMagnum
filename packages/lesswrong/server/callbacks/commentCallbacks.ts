@@ -226,14 +226,15 @@ interface SendModerationPMParams {
   lwAccount: DbUser,
   comment: DbComment,
   noEmail: boolean,
-  onWhat?: string | null,
+  contentTitle?: string | null,
   sendSecondMessage?: boolean
 }
 
-async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action, sendSecondMessage=true }: SendModerationPMParams) {
+// TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
+async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, contentTitle, action, sendSecondMessage=true }: SendModerationPMParams) {
   const conversationData: CreateMutatorParams<DbConversation>['document'] = {
     participantIds: [comment.userId, lwAccount._id],
-    title: `Comment ${action} on ${onWhat}`,
+    title: `Comment ${action} on ${contentTitle}`,
     ...(action === 'rejected' ? { moderator: true } : {})
   };
 
@@ -285,18 +286,28 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
 }
 
 async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  const onWhat = comment.tagId
-    ? (await Tags.findOne(comment.tagId))?.name
-    : (comment.postId
-      ? (await Posts.findOne(comment.postId))?.title
-      : null
-    );
+  let rejectedContentLink = "[Error: content not found]"
+  let contentTitle: string|null = null
+
+  if (comment.tagId) {
+    const tag = await Tags.findOne(comment.tagId)
+    if (tag) {
+      contentTitle = tag.name
+      rejectedContentLink = `<a href="https://lesswrong.com/tag/${tag.slug}/discussion?commentId=${comment._id}">comment on ${tag.name}</a>`
+    }
+  } else if (comment.postId) {
+    const post = await Posts.findOne(comment.postId)
+    if (post) {
+      contentTitle = post.title
+      rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/discussion?commentId=${comment._id}">comment on ${post.title}</a>`
+    }
+  }
 
   const commentUser = await Users.findOne({_id: comment.userId})
 
   let firstMessageContents =
       // TODO: make link conditional on forum, or something
-      `Unfortunately, I rejected your comment on "${onWhat}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+      `Unfortunately, I rejected your ${rejectedContentLink}.  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
 
   if (comment.rejectedReason) {
     firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${comment.rejectedReason}`;
@@ -315,7 +326,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     firstMessageContents,
     lwAccount: currentUser,
     noEmail,
-    onWhat
+    contentTitle
   });
 }
 
@@ -327,7 +338,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
 
   const noPmDeletionReason = comment.deletedReason === noDeletionPmReason;
   if (commentDeletedByAnotherUser && !noPmDeletionReason) {
-    const onWhat = comment.tagId
+    const contentTitle = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
         ? (await Posts.findOne(comment.postId))?.title
@@ -338,7 +349,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     const commentUser = await Users.findOne({_id: comment.userId})
 
     let firstMessageContents =
-        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+        `One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
     if (comment.deletedReason && moderatingUser) {
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
@@ -354,7 +365,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       firstMessageContents,
       lwAccount,
       noEmail,
-      onWhat
+      contentTitle
     });
   
   }
