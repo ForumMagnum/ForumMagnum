@@ -222,16 +222,15 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
-  firstMessageContents: string,
+  messageContents: string,
   lwAccount: DbUser,
   comment: DbComment,
   noEmail: boolean,
-  contentTitle?: string | null,
-  sendSecondMessage?: boolean
+  contentTitle?: string | null
 }
 
 // TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
-async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, contentTitle, action, sendSecondMessage=true }: SendModerationPMParams) {
+async function sendModerationPM({ messageContents, lwAccount, comment, noEmail, contentTitle, action }: SendModerationPMParams) {
   const conversationData: CreateMutatorParams<DbConversation>['document'] = {
     participantIds: [comment.userId, lwAccount._id],
     title: `Comment ${action} on ${contentTitle}`,
@@ -245,12 +244,12 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
     validate: false
   });
 
-  const firstMessageData = {
+  const messageData = {
     userId: lwAccount._id,
     contents: {
       originalContents: {
         type: "html",
-        data: firstMessageContents
+        data: messageContents
       }
     },
     conversationId: conversation.data._id,
@@ -259,25 +258,10 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
 
   await createMutator({
     collection: Messages,
-    document: firstMessageData,
+    document: messageData,
     currentUser: lwAccount,
     validate: false
   });
-
-  if (sendSecondMessage) {
-    const secondMessageData = {
-      userId: lwAccount._id,
-      contents: comment.contents,
-      conversationId: conversation.data._id,
-      noEmail: noEmail
-    };
-    await createMutator({
-      collection: Messages,
-      document: secondMessageData,
-      currentUser: lwAccount,
-      validate: false
-    });
-  }
 
   if (!isAnyTest) {
     // eslint-disable-next-line no-console
@@ -305,15 +289,14 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
 
   const commentUser = await Users.findOne({_id: comment.userId})
 
-  let firstMessageContents =
+  let messageContents =
       // TODO: make link conditional on forum, or something
       `Unfortunately, I rejected your ${rejectedContentLink}.  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
 
   if (comment.rejectedReason) {
-    firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${comment.rejectedReason}`;
+    messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${comment.rejectedReason}`;
   }
   
-  firstMessageContents += `Your rejected content will be sent in another message below.`
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
@@ -323,7 +306,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
   await sendModerationPM({
     action: 'rejected',
     comment,
-    firstMessageContents,
+    messageContents,
     lwAccount: currentUser,
     noEmail,
     contentTitle
@@ -348,10 +331,16 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
 
-    let firstMessageContents =
-        `One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+    let messageContents =
+        `<div>
+          <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
+          <p>The contents of your message are here:</p>
+          <blockquote>
+            ${comment.contents.html}
+          </blockquote>
+        </div>`
     if (comment.deletedReason && moderatingUser) {
-      firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
+      messageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
@@ -362,7 +351,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     await sendModerationPM({
       action: 'deleted',
       comment,
-      firstMessageContents,
+      messageContents,
       lwAccount,
       noEmail,
       contentTitle

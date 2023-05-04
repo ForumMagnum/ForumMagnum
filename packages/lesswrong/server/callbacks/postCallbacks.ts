@@ -267,12 +267,12 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
   if (postRejected) {
     const postUser = await Users.findOne({_id: post.userId});
 
-    let firstMessageContents =
+    let messageContents =
         // TODO: make link conditional on forum, or something
         `Unfortunately, I rejected your post <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a>. (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
   
     if (post.rejectedReason) {
-      firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
+      messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
     }
 
     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
@@ -282,7 +282,7 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
   
     await sendPostRejectionPM({
       post,
-      messageContents: firstMessageContents,
+      messageContents: messageContents,
       lwAccount: currentUser ?? await getAdminTeamAccount(),
       noEmail,
     });  
