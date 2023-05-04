@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
@@ -26,6 +26,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     color: theme.palette.text.invertedBackgroundText,
   },
+  profileImageButton: {
+    margin: "10px 0",
+    fontSize: 14,
+    fontWeight: 500,
+    textTransform: "none",
+    background: theme.palette.primary.main,
+    color: "#fff", // Dark mode independent
+    "&:hover": {
+      background: theme.palette.primary.light,
+    },
+  },
   imageIcon: {
     fontSize: 18,
     marginRight: theme.spacing.unit
@@ -36,7 +47,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     color: theme.palette.icon.dim,
     marginLeft: 10
-  }
+  },
+  removeProfileImageButton: {
+    textTransform: "none",
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.primary.main,
+    marginLeft: 10,
+  },
 });
 
 const formPreviewSizeByImageType: Record<
@@ -77,14 +95,63 @@ const formPreviewSizeByImageType: Record<
   },
 }
 
+const TriggerButton: FC<{
+  imageType: ImageType,
+  imageId?: string,
+  uploadImage: () => void,
+  label?: string,
+  classes: ClassesType,
+}> = ({imageType, imageId, uploadImage, label, classes}) => {
+  let mainClass = classes.button;
+  let showIcon = true;
+  if (isEAForum && imageType === "profileImageId") {
+    label = "profile image";
+    mainClass = classes.profileImageButton;
+    showIcon = false;
+  }
+  return (
+    <Button
+      onClick={uploadImage}
+      className={classNames("image-upload-button", mainClass)}
+    >
+      {showIcon && <ImageIcon className={classes.imageIcon} />}
+      {imageId ? `Replace ${label}` : `Upload ${label}`}
+    </Button>
+  );
+}
+
+const RemoveButton: FC<{
+  imageType: ImageType,
+  imageId?: string,
+  removeImage: () => void,
+  classes: ClassesType,
+}> = ({imageType, imageId, removeImage, classes}) => {
+  if (!imageId) {
+    return null;
+  }
+  const mainClass = isEAForum && imageType === "profileImageId"
+    ? classes.removeProfileImageButton
+    : classes.removeButton;
+  return (
+    <Button
+      title="Remove"
+      onClick={removeImage}
+      className={mainClass}
+    >
+      Remove
+    </Button>
+  );
+}
+
 const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: FormComponentProps<string> & {
   clearField: Function,
   croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
+  const imageType = name as ImageType;
   const currentUser = useCurrentUser();
   const {uploadImage, ImageUploadScript} = useImageUpload({
-    imageType: name as ImageType,
+    imageType: imageType,
     onUploadSuccess: (publicImageId: string) => {
       setImageId(publicImageId);
       void updateCurrentValues({[name]: publicImageId});
@@ -133,14 +200,15 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
         <CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
-        /> }
-      <Button
-        onClick={uploadImage}
-        className={classNames("image-upload-button", classes.button)}
-      >
-        <ImageIcon className={classes.imageIcon}/>
-        {imageId ? `Replace ${label}` : `Upload ${label}`}
-      </Button>
+        />
+      }
+      <TriggerButton
+        imageType={imageType}
+        imageId={imageId}
+        uploadImage={uploadImage}
+        label={label}
+        classes={classes}
+      />
       {(name === 'eventImageId') && <Button
         variant="outlined"
         onClick={() => openDialog({
@@ -163,15 +231,14 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
           className={classes.chooseButton}
         >
           Choose from ours
-        </Button>}
-        {imageId && <Button
-          className={classes.removeButton}
-          title="Remove"
-          onClick={removeImg}
-        >
-          Remove
         </Button>
       }
+      <RemoveButton
+        imageType={imageType}
+        imageId={imageId}
+        removeImage={removeImg}
+        classes={classes}
+      />
     </div>
   );
 };
