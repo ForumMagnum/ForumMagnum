@@ -112,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   username: {
     fontSize: 32,
     lineHeight: '42px',
-    marginBottom: 16,
+    marginBottom: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
   },

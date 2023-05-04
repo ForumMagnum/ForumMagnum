@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontSize: 14,
     lineHeight: "14px",
-    marginTop: 10,
+    marginTop: 22,
     "& a": {
       color: theme.palette.grey[600],
       "&:hover": {
