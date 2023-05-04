@@ -1,5 +1,7 @@
+import { preferredHeadingCase } from "../../forumTypeUtils";
+import { isEAForum } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string,FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType>> = {
   default: {
     name: "default",
     order: 0,
@@ -7,7 +9,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   },
   siteCustomizations: {
     order: 1,
-    label: "Site customizations",
+    label: preferredHeadingCase("Site Customizations"),
     name: "siteCustomizations",
     startCollapsed: true,
   },
@@ -26,58 +28,58 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   privacy: {
     order: 16,
     name: "privacy",
-    label: "Privacy settings",
+    label: preferredHeadingCase("Privacy Settings"),
     startCollapsed: true,
   },
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: "Admin options",
+    label: preferredHeadingCase("Admin Options"),
     startCollapsed: true,
   },
   paymentInfo: {
     name: "paymentInfo",
-    label: "Prize/payment info",
+    label: preferredHeadingCase("Prize/Payment Info"),
     order: 35,
     startCollapsed: false,
   },
   disabledPrivileges: {
     order:40,
     name: "disabledPrivileges",
-    label: "Disabled privileges",
+    label: preferredHeadingCase("Disabled Privileges"),
     startCollapsed: true,
   },
   banUser: {
     order:50,
     name: "banUser",
-    label: "Ban & Purge User",
+    label: preferredHeadingCase("Ban & Purge User"),
     startCollapsed: true,
   },
   moderationGroup: {
     order:60,
     name: "moderation",
-    label: "Moderation & moderation guidelines",
+    label: preferredHeadingCase("Moderation & Moderation Guidelines"),
     startCollapsed: true,
   },
   aboutMe: {
     name: 'aboutMe',
     order: 100,
-    label: 'About Me'
+    label: preferredHeadingCase('About Me'),
   },
   socialMedia: {
     name: 'socialMedia',
     order: 110,
-    label: 'Social media'
+    label: isEAForum ? "Social media" : "My Social Media",
   },
   activity: {
     name: 'activity',
     order: 120,
-    label: 'Your activity'
+    label: isEAForum ? "Your activity" : "My Activity",
   },
   deactivate: {
     order: 130,
     name: "deactivate",
-    label: "Deactivate account",
+    label: preferredHeadingCase("Deactivate Account"),
     startCollapsed: true,
-  }
-}
+  },
+};
