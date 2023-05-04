@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
@@ -38,8 +38,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderRadius: 6,
   },
+  reactionCount: {
+    fontSize: 14,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.text.dim60,
+    marginRight: 6,
+  },
   addReactionButton: {
-    verticalAlign: "middle",
+    verticalAlign: "bottom",
+    marginLeft: 8,
     filter: "opacity(0.4)",
     "& svg": {
       width: 18,
@@ -118,38 +125,40 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
+    <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
 
-const NamesAttachedReactionsCommentBottom = ({document, hideKarma=false, collection, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+const NamesAttachedReactionsCommentBottom = ({
+  document, hideKarma=false, collection, votingSystem, classes
+}: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
-
-  return <NamesAttachedReactionsAxis
-    document={document}
-    hideKarma={hideKarma}
-    voteProps={voteProps}
-    classes={classes}
-  />
-}
-
-const NamesAttachedReactionsAxis = ({document, hideKarma=false, voteProps, classes}: {
-  document: VoteableTypeClient,
-  hideKarma?: boolean,
-  voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType
-}) => {
   const { hover, anchorEl, eventHandlers } = useHover()
   const { PopperCard } = Components;
+
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
   const reactions = extendedScore?.reacts;
   const reactionTypesUsed: string[] = reactions ? Object.keys(reactions): [];
-  const sortedReactionTypes = reactionTypesUsed; //TODO
+  
+  function reactionClicked(reaction: EmojiReactName) {
+    // TODO
+  }
+  
+  if (!reactionsShown.length) {
+    return null;
+  }
   
   return <span className={classes.reactions} {...eventHandlers}>
-    {!hideKarma && sortedReactionTypes.map(reactionType => <span key={reactionType}>
-      <ReactionIcon react={reactionType} onClick={()=>{}} classes={classes}/>
+    {!hideKarma && reactionsShown.map(({react, numberShown}) => <span key={react}>
+      <ReactionIcon
+        react={react}
+        onClick={()=>{reactionClicked(react)}}
+        classes={classes}
+      />
+      <span className={classes.reactionCount}>{numberShown}</span>
     </span>)}
-    {(hideKarma || sortedReactionTypes.length===0) && <AddReactionButton classes={classes}/>}
+    {hideKarma && <InsertEmoticonOutlined/>}
     {hover && <PopperCard
       open={!!hover} anchorEl={anchorEl}
       placement="bottom-end"
@@ -221,15 +230,33 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
         })}
       >
         <ReactionIcon react={r} classes={classes}/>
-        <span className={classes.hoverBallotLabel}>{namesAttachedReactionsByName[r].label}</span>
+        <span className={classes.hoverBallotLabel}>
+          {namesAttachedReactionsByName[r].label}
+        </span>
         
         <div className={classes.usersWhoReacted}>
-          {alreadyUsedReactions[r]!.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )}
+          <span className={classes.reactionsListLabel}>Reacted:</span>
+          {alreadyUsedReactions[r]!
+            .filter(r=>r.reactType!=="disagreed")
+            .map((userReactInfo,i) =>
+              <span key={userReactInfo.userId}>
+                {(i>0) && <span>{", "}</span>}
+                {userReactInfo.displayName}
+              </span>
+            )
+          }
+        </div>
+        <div className={classes.usersWhoDisagreed}>
+          <span className={classes.reactionsListLabel}>Disagreed:</span>
+          {alreadyUsedReactions[r]!
+            .filter(r=>r.reactType==="disagreed")
+            .map((userReactInfo,i) =>
+              <span key={userReactInfo.userId}>
+                {(i>0) && <span>{", "}</span>}
+                {userReactInfo.displayName}
+              </span>
+            )
+          }
         </div>
       </div>)}
     </div>
@@ -276,18 +303,33 @@ const ReactionIcon = ({react, onClick, classes}: {
     return <PlaceholderIcon classes={classes}/>;
   }
 }
+
 const PlaceholderIcon = ({classes}: {
   classes: ClassesType
 }) => {
-  return <span className={classes.reactionEmoji}>😀</span>
+  return <span className={classes.reactionEmoji}>
+    <InsertEmoticonOutlined/>
+  </span>
 }
 
-const AddReactionButton = ({classes}: {
+const AddReactionButton = ({voteProps, classes}: {
+  voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
 }) => {
-  //return <span className={classes.addReactionButton}>😀</span>
-  return <span className={classes.addReactionButton}>
+  const { hover, anchorEl, eventHandlers } = useHover()
+  const { PopperCard } = Components;
+
+  return <span {...eventHandlers} className={classes.addReactionButton}>
     <InsertEmoticonOutlined/>
+
+    {hover && <PopperCard
+      open={!!hover} anchorEl={anchorEl}
+      placement="bottom-start"
+      allowOverflow={false}
+      
+    >
+      <NamesAttachedReactionsHoverBallot voteProps={voteProps} classes={classes}/>
+    </PopperCard>}
   </span>
 }
 

@@ -196,3 +196,23 @@ function removeReactsVote(old: NamesAttachedReactionsList|undefined, currentUser
   ) : {};
   return updatedReactions;
 }
+
+export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReactionsList|null): {react: EmojiReactName, numberShown: number}[] {
+  if (!reactions)
+    return [];
+
+  let result: {react: EmojiReactName, numberShown: number}[] = [];
+  for(let react of Object.keys(reactions)) {
+    const netReaction = sumBy(reactions[react],
+      r => r.reactType==="disagreed" ? -1 : 1
+    );
+    if (netReaction > 0) {
+      result.push({
+        react,
+        numberShown: netReaction
+      });
+    }
+  }
+  
+  return result;
+}
