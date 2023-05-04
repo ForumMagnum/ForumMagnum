@@ -1,5 +1,10 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { userCanEditUser } from "../../../lib/collections/users/helpers";
+import { useCurrentUser } from "../../common/withUser";
+import { useImageUpload } from "../../hooks/useImageUpload";
+import { useMessages } from "../../common/withMessages";
+import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const SIZE = 96;
 
@@ -31,10 +36,32 @@ const EAUsersProfileImage = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const {flash} = useMessages();
+  const {uploadImage, ImageUploadScript} = useImageUpload({
+    imageType: "profileImageId",
+    onUploadSuccess: (publicImageId: string) => {
+      void updateCurrentUser({
+        profileImageId: publicImageId,
+      });
+      flash("Profile image uploaded");
+    },
+    onUploadError: (error: Error) => {
+      flash(error.message);
+    },
+  });
   const {ForumIcon, UsersProfileImage} = Components;
 
+  if (!userCanEditUser(currentUser, user)) {
+    return (
+      <UsersProfileImage user={user} size={SIZE} />
+    );
+  }
+
   return (
-    <div className={classes.root}>
+    <div className={classes.root} onClick={uploadImage}>
+      <ImageUploadScript />
       <div className={classes.hoverOver}>
         <ForumIcon icon="Pencil" />
       </div>
