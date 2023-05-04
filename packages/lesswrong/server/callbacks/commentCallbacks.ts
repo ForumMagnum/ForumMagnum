@@ -226,10 +226,11 @@ interface SendModerationPMParams {
   lwAccount: DbUser,
   comment: DbComment,
   noEmail: boolean,
-  onWhat?: string | null
+  onWhat?: string | null,
+  sendSecondMessage?: boolean
 }
 
-async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action }: SendModerationPMParams) {
+async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action, sendSecondMessage=true }: SendModerationPMParams) {
   const conversationData: CreateMutatorParams<DbConversation>['document'] = {
     participantIds: [comment.userId, lwAccount._id],
     title: `Comment ${action} on ${onWhat}`,
@@ -255,13 +256,6 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
     noEmail: noEmail
   };
 
-  const secondMessageData = {
-    userId: lwAccount._id,
-    contents: comment.contents,
-    conversationId: conversation.data._id,
-    noEmail: noEmail
-  };
-
   await createMutator({
     collection: Messages,
     document: firstMessageData,
@@ -269,12 +263,20 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
     validate: false
   });
 
-  await createMutator({
-    collection: Messages,
-    document: secondMessageData,
-    currentUser: lwAccount,
-    validate: false
-  });
+  if (sendSecondMessage) {
+    const secondMessageData = {
+      userId: lwAccount._id,
+      contents: comment.contents,
+      conversationId: conversation.data._id,
+      noEmail: noEmail
+    };
+    await createMutator({
+      collection: Messages,
+      document: secondMessageData,
+      currentUser: lwAccount,
+      validate: false
+    });
+  }
 
   if (!isAnyTest) {
     // eslint-disable-next-line no-console

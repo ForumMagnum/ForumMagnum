@@ -269,7 +269,7 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
 
     let firstMessageContents =
         // TODO: make link conditional on forum, or something
-        `Unfortunately, I rejected your post "${post.title}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+        `Unfortunately, I rejected your post <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a>. (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
   
     if (post.rejectedReason) {
       firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
