@@ -9,6 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { isEAForum } from '../../lib/instanceSettings';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -93,6 +94,25 @@ const formPreviewSizeByImageType: Record<
     width: 345,
     height: 234
   },
+}
+
+const FormProfileImage: FC<{
+  document: Partial<UsersMinimumInfo>,
+  profileImageId: string,
+  size: number,
+}> = ({document, profileImageId, size}) => {
+  const {document: user} = useSingle({
+    collectionName: "Users",
+    fragmentName: "UsersMinimumInfo",
+    fetchPolicy: "cache-and-network",
+    documentId: document._id,
+  });
+  return (
+    <Components.UsersProfileImage
+      user={user ? {...user, profileImageId} : undefined}
+      size={size}
+    />
+  );
 }
 
 const TriggerButton: FC<{
@@ -186,18 +206,18 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
 
   const showUserProfileImage = isEAForum && name === "profileImageId";
 
-  const {UsersProfileImage, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       <ImageUploadScript />
       {showUserProfileImage &&
-        <UsersProfileImage
-          user={document}
+        <FormProfileImage
+          document={document}
+          profileImageId={imageId}
           size={formPreviewSize.height}
         />
       }
       {imageId && !showUserProfileImage &&
-        <CloudinaryImage2
+        <Components.CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
         />
