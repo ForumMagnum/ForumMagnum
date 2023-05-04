@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
+import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -103,7 +104,7 @@ const EditProfileForm = ({classes}: {
     </div>
   }
 
-  const showEAGImport = isEAForum &&
+  const showEAGImport = userHasEagProfileImport(currentUser) &&
     cookies[HIDE_IMPORT_EAG_PROFILE] !== "true" &&
     (terms.slug === currentUser.slug || terms.documentId === currentUser._id);
 
