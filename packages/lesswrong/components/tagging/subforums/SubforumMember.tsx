@@ -210,6 +210,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
             .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
             .map((field: SocialMediaProfileField) =>
               <SocialMediaLink
+                key={field}
                 user={user}
                 field={field}
                 className={classes.socialMediaIcon}

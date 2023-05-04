@@ -2,10 +2,10 @@ import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
-import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
+  CAREER_STAGES,
 } from "../../../lib/collections/users/schema";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,12 +82,17 @@ const EAUsersMetaInfo = ({user, classes}: {
         <ForumIcon icon="CalendarDays" className={classes.userMetaInfoIcon} />
         <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
       </span>
-      {user.careerStage?.map((stage) =>
-        <span className={classes.userMetaInfo} key={stage}>
-          <ForumIcon icon="Work" className={classes.userMetaInfoIcon} />
-          <span>{CAREER_STAGES.find(({value}) => value === stage)?.label}</span>
-        </span>
-      )}
+      {user.careerStage?.map((stage) => {
+        const data = CAREER_STAGES.find(({value}) => value === stage);
+        return data
+          ? (
+            <span className={classes.userMetaInfo} key={stage}>
+              <ForumIcon icon={data.icon} className={classes.userMetaInfoIcon} />
+              <span>{data.label}</span>
+            </span>
+          )
+          : null;
+      })}
       {user.mapLocation &&
         <Link to="/community#individuals" className={classes.userMetaInfo}>
           <ForumIcon icon="MapPin" className={classes.userMetaInfoIcon} />
