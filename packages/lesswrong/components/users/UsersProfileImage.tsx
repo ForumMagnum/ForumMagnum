@@ -12,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   wrapper: {
     display: "flex",
     alignItems: "center",
+    marginBottom: 8,
   },
   "@keyframes profile-image-loader": {
     "0%": {

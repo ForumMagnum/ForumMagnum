@@ -7,7 +7,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   },
   siteCustomizations: {
     order: 1,
-    label: "Site Customizations",
+    label: "Site customizations",
     name: "siteCustomizations",
     startCollapsed: true,
   },
@@ -26,25 +26,25 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   privacy: {
     order: 16,
     name: "privacy",
-    label: "Privacy Settings",
+    label: "Privacy settings",
     startCollapsed: true,
   },
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: "Admin Options",
+    label: "Admin options",
     startCollapsed: true,
   },
   paymentInfo: {
     name: "paymentInfo",
-    label: "Prize/Payment Info",
+    label: "Prize/payment info",
     order: 35,
     startCollapsed: false,
   },
   disabledPrivileges: {
     order:40,
     name: "disabledPrivileges",
-    label: "Disabled Privileges",
+    label: "Disabled privileges",
     startCollapsed: true,
   },
   banUser: {
@@ -56,7 +56,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   moderationGroup: {
     order:60,
     name: "moderation",
-    label: "Moderation & Moderation Guidelines",
+    label: "Moderation & moderation guidelines",
     startCollapsed: true,
   },
   aboutMe: {
@@ -67,17 +67,17 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   socialMedia: {
     name: 'socialMedia',
     order: 110,
-    label: 'My Social Media'
+    label: 'Social media'
   },
   activity: {
     name: 'activity',
     order: 120,
-    label: 'My Activity'
+    label: 'Your activity'
   },
   deactivate: {
     order: 130,
     name: "deactivate",
-    label: "Deactivate Account",
+    label: "Deactivate account",
     startCollapsed: true,
   }
 }

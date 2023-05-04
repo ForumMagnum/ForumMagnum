@@ -100,7 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     fontWeight: 500,
     background: theme.palette.grey[200],
-    height: 45,
+    height: 40,
     "&:hover": {
       opacity: 1,
       background: theme.palette.grey[300],
@@ -477,7 +477,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
                 href={`/profile/${user.slug}/edit`}
                 className={classes.editProfileButton}
               >
-                Edit Profile
+                Edit profile
               </Button>
             </div>
           }

@@ -35,8 +35,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     color: theme.palette.primary.main,
     background: theme.palette.primaryAlpha(0.05),
-    padding: "12px 16px",
-    margin: "20px 0 30px 0",
+    padding: 16,
+    margin: "16px 0",
     borderRadius: theme.borderRadius.default,
   },
   importTextDesktop: {
