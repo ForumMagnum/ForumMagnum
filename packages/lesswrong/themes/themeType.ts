@@ -290,6 +290,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,

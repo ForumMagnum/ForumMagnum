@@ -593,9 +593,20 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   */
   UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
-    const needReset = !!RESET_PROPS.find(prop => !isEqual(this.props[prop], nextProps[prop]));
-    if (needReset) {
-      this.setState(getInitialStateFromProps(nextProps));
+    for (const prop of RESET_PROPS) {
+      const prev = this.props[prop];
+      const next = nextProps[prop];
+      if (!isEqual(prev, next)) {
+        if (
+          prop === "currentUser" &&
+          prev._id === next._id &&
+          prev.acceptedTos !== next.acceptedTos
+        ) {
+          continue;
+        }
+        this.setState(getInitialStateFromProps(nextProps));
+        break;
+      }
     }
   }
 

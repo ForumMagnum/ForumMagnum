@@ -1,17 +1,16 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
-import { useCookies } from 'react-cookie';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-
-const HIDE_SPOTLIGHT_ITEM_PREFIX = 'hide_spotlight_item_';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
 export const CurrentSpotlightItem = ({classes}: {
   classes: ClassesType,
 }) => {
   const { SpotlightItem } = Components
-  const { captureEvent } = useTracking()  
+  const { captureEvent } = useTracking()
 
   const { results: [spotlight] = [] } = useMulti({
     collectionName: 'Spotlights',
@@ -23,7 +22,7 @@ export const CurrentSpotlightItem = ({classes}: {
   });
 
   const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlight?.document._id}`, [spotlight]); //hiding in one place, hides everywhere
-  const [cookies, setCookie] = useCookies([cookieName]);
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
 
@@ -35,7 +34,7 @@ export const CurrentSpotlightItem = ({classes}: {
         path: "/"
       });
     captureEvent("spotlightItemHideItemClicked", { document: spotlight.document })
-  }, [setCookie, cookieName, spotlight, captureEvent]);  
+  }, [setCookie, cookieName, spotlight, captureEvent]);
 
   if (spotlight && !isHidden) {
     return <SpotlightItem key={spotlight._id} spotlight={spotlight} hideBanner={hideBanner}/>
