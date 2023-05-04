@@ -1,6 +1,9 @@
 import { isServer } from "../../../lib/executionEnvironment";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { DatabasePublicSetting } from "../../../lib/publicSettings";
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
+
+const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
 
 const GDPR_COUNTRY_CODES: string[] = [
   "AT", // Austria
@@ -75,6 +78,8 @@ function getCachedUserCountryCode() {
   return null;
 }
 
+let inFlightRequest: Promise<string | null> | null = null;
+
 async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
   if (isServer) return null;
 
@@ -83,15 +88,34 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
     return cachedCountryCode;
   }
 
-  const response = await fetch('https://ipapi.co/json/', { signal });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching user country: ${response.statusText}`);
+  if (inFlightRequest) {
+    // If there's an in-flight request, wait for it to finish and return the result
+    const countryCode = await inFlightRequest;
+    return countryCode;
   }
 
-  const data = await response.json();
-  const countryCode = data.country;
-  setCountryCodeToLocalStorage(countryCode);
+  const apiKey = ipApiKeySetting.get();
+  const ipapiUrl = apiKey ? `https://ipapi.co/json/?key=${apiKey}` : 'https://ipapi.co/json/';
+
+  inFlightRequest = (async () => {
+    try {
+      const response = await fetch(ipapiUrl, { signal });
+
+      if (!response.ok) {
+        throw new Error(`Error fetching user country: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const countryCode = data.country;
+      setCountryCodeToLocalStorage(countryCode);
+      return countryCode;
+    } finally {
+      // Reset the in-flight request to null after completion
+      inFlightRequest = null;
+    }
+  })();
+
+  const countryCode = await inFlightRequest;
   return countryCode;
 }
 
