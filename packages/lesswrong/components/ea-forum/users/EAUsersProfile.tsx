@@ -86,9 +86,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-  profileImage: {
-    marginBottom: 14,
-  },
   editProfile: {
     position: "absolute",
     top: 0,
@@ -273,7 +270,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, UsersProfileImage, EAUsersMetaInfo, LoadMore,
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, LoadMore,
   } = Components
 
   if (loading) {
@@ -484,11 +481,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               </Button>
             </div>
           }
-          <UsersProfileImage
-            user={user}
-            size={96}
-            className={classes.profileImage}
-          />
+          <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
           </Typography>

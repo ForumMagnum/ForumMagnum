@@ -48,6 +48,7 @@ importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJ
 importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
 importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
 importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
+importComponent("EAUsersProfileImage", () => require('../components/ea-forum/users/EAUsersProfileImage'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 

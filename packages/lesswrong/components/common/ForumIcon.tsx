@@ -16,6 +16,7 @@ import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
+import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
@@ -69,6 +70,7 @@ export type ForumIconName =
   "Work" |
   "School" |
   "MapPin" |
+  "Pencil" |
   "Comment" |
   "Shortform" |
   "Warning" |
@@ -100,6 +102,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
+    Pencil: PencilIcon,
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
@@ -130,6 +133,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
+    Pencil: PencilIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
