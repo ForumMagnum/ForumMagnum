@@ -7,8 +7,6 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
-import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
-import { separatorBulletStyles } from '../../common/SectionFooter';
 import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
@@ -22,9 +20,6 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import CopyIcon from '@material-ui/icons/FileCopy'
-import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -154,30 +149,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 4,
     padding: '8px 16px',
   },
-  links: {
-    display: "flex",
-    flexWrap: "wrap",
-    color: theme.palette.lwTertiary.main,
-    marginTop: 20,
-    ...separatorBulletStyles(theme)
-  },
-  copyLink: {
-    verticalAlign: 'text-top'
-  },
-  copyIcon: {
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
-  registerRssLink: {
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
   privateSectionIcon: {
     fontSize: 20,
     color: theme.palette.grey[500],
@@ -196,8 +167,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const { flash } = useMessages()
-
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
@@ -266,11 +235,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
   })
 
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
-    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, LoadMore,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, LoadMore,
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
   } = Components
 
   if (loading) {
@@ -506,37 +475,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               asButton
             />
           </div>}
-          <Typography variant="body2" className={classes.links}>
-            {currentUser?.isAdmin &&
-              <div>
-                <LWTooltip title="Click to copy userId" placement="bottom" className={classes.copyLink}>
-                  <CopyToClipboard text={user._id} onCopy={() => flash({messageString: "userId copied!"})}>
-                    <CopyIcon className={classes.copyIcon} />
-                  </CopyToClipboard>
-                </LWTooltip>
-              </div>
-            }
-            {currentUser?.isAdmin &&
-              <div className={classes.registerRssLink}>
-                <DialogGroup
-                  actions={[]}
-                  trigger={<a>Register RSS</a>}
-                >
-                  { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                  <div><Components.newFeedButton user={user} /></div>
-                </DialogGroup>
-              </div>
-            }
-            {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage subscriptions
-            </Link>}
-            {currentUser && currentUser._id === user._id && <Link to="/history">
-              Read history
-            </Link>}
-            {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-              Account settings
-            </Link>}
-          </Typography>
+          <EAUsersProfileLinks user={user} />
         </div>
 
         {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>

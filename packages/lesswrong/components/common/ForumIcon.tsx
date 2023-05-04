@@ -4,6 +4,7 @@ import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
+import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
@@ -42,7 +43,6 @@ import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
-import { LotusIcon, LotusOutlineIcon } from "../icons/lotusIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -119,8 +119,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     BellBorder: BellOutlineIcon,
-    Karma: LotusIcon,
-    KarmaOutline: LotusOutlineIcon,
+    Karma: StarIcon,
+    KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
     Bell: BellIcon,

@@ -75,7 +75,7 @@ const EAUsersMetaInfo = ({user, classes}: {
       <LWTooltip title={`${userKarma} karma`}>
         <span className={classes.userMetaInfo}>
           <ForumIcon icon="Karma" className={classes.userMetaInfoIcon} />
-          {userKarma}
+          {userKarma} karma
         </span>
       </LWTooltip>
       <span className={classes.userMetaInfo}>
