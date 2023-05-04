@@ -15,10 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 4,
     marginLeft: 8,
-    "& img": {
-      display: "block",
-      marginBottom: 8,
-    },
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  img: {
+    flexBasis: "100%",
+    marginBottom: 10,
   },
   button: {
     background: theme.palette.buttons.imageUpload.background,
@@ -209,19 +211,21 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   return (
     <div className={classes.root}>
       <ImageUploadScript />
-      {showUserProfileImage &&
-        <FormProfileImage
-          document={document}
-          profileImageId={imageId}
-          size={formPreviewSize.height}
-        />
-      }
-      {imageId && !showUserProfileImage &&
-        <Components.CloudinaryImage2
-          publicId={imageId}
-          {...formPreviewSize}
-        />
-      }
+      <div className={classes.img}>
+        {showUserProfileImage &&
+          <FormProfileImage
+            document={document}
+            profileImageId={imageId}
+            size={formPreviewSize.height}
+          />
+        }
+        {imageId && !showUserProfileImage &&
+          <Components.CloudinaryImage2
+            publicId={imageId}
+            {...formPreviewSize}
+          />
+        }
+      </div>
       <TriggerButton
         imageType={imageType}
         imageId={imageId}
