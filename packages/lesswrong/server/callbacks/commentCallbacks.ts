@@ -283,7 +283,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     const post = await Posts.findOne(comment.postId)
     if (post) {
       contentTitle = post.title
-      rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/discussion?commentId=${comment._id}">comment on ${post.title}</a>`
+      rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${post.title}</a>`
     }
   }
 
@@ -294,7 +294,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
       `Unfortunately, I rejected your ${rejectedContentLink}.  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
 
   if (comment.rejectedReason) {
-    messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${comment.rejectedReason}`;
+    messageContents += ` <p>Your post didn't meet the bar for at least the following reason(s):</p><p>${comment.rejectedReason}</p>`;
   }
   
   
