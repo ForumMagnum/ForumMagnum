@@ -19,6 +19,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
     position: "absolute",
     width: "100%",
     height: "100%",
+    color: "#fff", // These colors are dark-mode independent
     background: "rgba(0, 0, 0, 0.5)",
     borderRadius: "50%",
     display: "flex",

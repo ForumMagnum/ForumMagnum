@@ -1,8 +1,35 @@
 import React, { useCallback } from "react";
 import Helmet from "react-helmet";
-import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { requireCssVar } from "../../themes/cssVars";
-import { cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from "../form-components/ImageUpload";
+import {
+  cloudinaryCloudNameSetting,
+  DatabasePublicSetting,
+} from "../../lib/publicSettings";
+
+const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
+  "cloudinary.uploadPresetGridImage",
+  "tz0mgw2s",
+);
+const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>(
+  "cloudinary.uploadPresetBanner",
+  "navcjwf7",
+);
+const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetProfile",
+  null,
+);
+const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetSocialPreview",
+  null,
+);
+const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetEventImage",
+  null,
+);
+const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetSpotlight",
+  "yjgxmsio",
+);
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -231,7 +258,7 @@ export const useImageUpload = ({
       croppingAspectRatio,
     }, (error, result) => {
       if (error) {
-        onUploadError?.(new Error(error?.statusText ?? "Failed to upload image"));
+        void onUploadError?.(new Error(error?.statusText ?? "Failed to upload image"));
         return;
       }
 
@@ -245,12 +272,17 @@ export const useImageUpload = ({
 
       const publicId = result?.info?.public_id;
       if (publicId) {
-        onUploadSuccess?.(publicId as string);
+        void onUploadSuccess?.(publicId as string);
       } else {
-        onUploadError?.(new Error("Failed to upload image"));
+        void onUploadError?.(new Error("Failed to upload image"));
       }
     });
-  }, []);
+  }, [
+    croppingAspectRatio,
+    imageType,
+    onUploadSuccess,
+    onUploadError,
+  ]);
 
   return {
     uploadImage,
