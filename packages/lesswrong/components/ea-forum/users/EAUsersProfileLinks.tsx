@@ -50,7 +50,6 @@ const EAUsersProfileLinks = ({user, classes}: {
     return null;
   }
 
-  console.log("mark", hasLinks, currentUser?.isAdmin, userCanEditUser(currentUser, user));
   return (
     <Typography variant="body2" className={classes.links}>
       {currentUser?.isAdmin &&
