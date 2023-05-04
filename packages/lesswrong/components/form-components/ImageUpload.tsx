@@ -8,6 +8,7 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -81,6 +82,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
+  const currentUser = useCurrentUser();
   const {uploadImage, ImageUploadScript} = useImageUpload({
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {
@@ -115,11 +117,20 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
+  const showUserProfileImage = isEAForum && name === "profileImageId";
+
+  const {UsersProfileImage, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       <ImageUploadScript />
-      {imageId &&
-        <Components.CloudinaryImage2
+      {showUserProfileImage &&
+        <UsersProfileImage
+          user={document}
+          size={formPreviewSize.height}
+        />
+      }
+      {imageId && !showUserProfileImage &&
+        <CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
         /> }
@@ -140,25 +151,27 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
       >
         Choose from ours
       </Button>}
-      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
-        variant="outlined"
-        onClick={() => openDialog({
-          componentName: "ImageUploadDefaultsDialog",
-          componentProps: {
-            onSelect: chooseDefaultImg,
-            type: "Profile"}
-        })}
-        className={classes.chooseButton}
-      >
-        Choose from ours
-      </Button>}
-      {imageId && <Button
-        className={classes.removeButton}
-        title="Remove"
-        onClick={removeImg}
-      >
-        Remove
-      </Button>}
+      {userHasDefaultProfilePhotos(currentUser) && name === 'profileImageId' &&
+        <Button
+          variant="outlined"
+          onClick={() => openDialog({
+            componentName: "ImageUploadDefaultsDialog",
+            componentProps: {
+              onSelect: chooseDefaultImg,
+              type: "Profile"}
+          })}
+          className={classes.chooseButton}
+        >
+          Choose from ours
+        </Button>}
+        {imageId && <Button
+          className={classes.removeButton}
+          title="Remove"
+          onClick={removeImg}
+        >
+          Remove
+        </Button>
+      }
     </div>
   );
 };
