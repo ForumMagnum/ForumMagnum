@@ -10,7 +10,6 @@ import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
-import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
@@ -42,7 +41,7 @@ import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
-import { LotusIcon } from "../icons/lotusIcon";
+import { LotusIcon, LotusOutlineIcon } from "../icons/lotusIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -56,8 +55,8 @@ export type ForumIconName =
   "BookmarkBorder" |
   "BellBorder" |
   "Karma" |
+  "KarmaOutline" |
   "Star" |
-  "StarBorder" |
   "User" |
   "Bell" |
   "BellBorder" |
@@ -88,8 +87,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BookmarkBorder: MuiBookmarkBorderIcon,
     BellBorder: MuiBellBorderIcon,
     Karma: MuiStarIcon,
+    KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
-    StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
     Bell: MuiNotificationsIcon,
     Link: MuiLinkIcon,
@@ -118,8 +117,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BookmarkBorder: BookmarkOutlineIcon,
     BellBorder: BellOutlineIcon,
     Karma: LotusIcon,
+    KarmaOutline: LotusOutlineIcon,
     Star: StarIcon,
-    StarBorder: StarOutlineIcon,
     User: UserIcon,
     Bell: BellIcon,
     Link: LinkIcon,
