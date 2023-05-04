@@ -6,7 +6,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null) => {
@@ -46,7 +46,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
 export const Comments: ExtendedCommentsCollection = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),

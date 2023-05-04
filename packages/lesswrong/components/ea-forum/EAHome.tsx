@@ -1,5 +1,5 @@
 import React from 'react'
-import { PublicInstanceSetting } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -18,7 +18,7 @@ const EAHome = () => {
   const {
     RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts
+    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -29,6 +29,10 @@ const EAHome = () => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
+
+  const shortformTerms = {
+    view: "shortformFrontpage" as const
+  };
 
   return (
     <AnalyticsContext pageContext="homePage">
@@ -48,9 +52,19 @@ const EAHome = () => {
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+          {isEAForum && (
+            <SingleColumnSection>
+              <CommentsListCondensed
+                label={"Shortform"}
+                terms={shortformTerms}
+                initialLimit={5}
+                shortformButton
+              />
+            </SingleColumnSection>
+          )}
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
-            title="Recent comments"
+            title="Recent discussion"
             af={false}
             commentsLimit={recentDiscussionCommentsPerPost}
             maxAgeHours={18}

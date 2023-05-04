@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.5
   },
   form: {
-    padding: 10,
+    padding: isEAForum ? 12 : 10,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -79,6 +79,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   cancelButton: {
     color: isEAForum ? undefined : theme.palette.grey[400],
   },
+  submitButton: isEAForum ? {
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  } : {},
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
@@ -251,7 +260,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       <Button
         type="submit"
         id="new-comment-submit"
-        className={formButtonClass}
+        className={classNames(formButtonClass, classes.submitButton)}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
@@ -346,7 +355,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum ? 'Add comment' : 'Submit'}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
             />
           </div>
         </div>

@@ -3,11 +3,10 @@ import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
-import { useCookies } from 'react-cookie'
 import moment from 'moment';
 import {forumTypeSetting} from '../../lib/instanceSettings';
-
-const THEME_COOKIE_NAME = "theme";
+import { THEME_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -91,7 +90,7 @@ export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const [_cookies, setCookie, removeCookie] = useCookies([THEME_COOKIE_NAME]);
+  const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
@@ -101,11 +100,11 @@ export const ThemeContextProvider = ({options, children}: {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (forumTypeSetting.get() === "EAForum") {
-        removeCookie(THEME_COOKIE_NAME, {path: "/"});
+        removeCookie(THEME_COOKIE, {path: "/"});
       } else {
-        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+        setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
           path: "/",
-          expires: moment().add(9999, 'days').toDate(),
+          expires: moment().add(2, 'years').toDate(),
         });
       }
       const stylesId = "main-styles";

@@ -11,6 +11,7 @@ export type DbTestObject = {
       e: string,
     },
   },
+  d?: string[],
   schemaVersion: number,
 }
 
@@ -29,6 +30,12 @@ export const TestCollection = {
     },
     c: {
       type: Object,
+    },
+    d: {
+      type: Array
+    },
+    'd.$': {
+      type: String
     },
     schemaVersion: {
       type: Number,

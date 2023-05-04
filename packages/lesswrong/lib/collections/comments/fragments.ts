@@ -54,6 +54,7 @@ registerFragment(`
     postVersion
     reviewedByUserId
     shortform
+    shortformFrontpage
     lastSubthreadActivity
     moderatorHat
     hideModeratorHat
@@ -68,6 +69,7 @@ registerFragment(`
     isPinnedOnProfile
     debateResponse
     rejected
+    rejectedReason
     modGPTRecommendation
   }
 `);

@@ -54,6 +54,7 @@ import './server/scripts/legacyKarma_aggregate2';
 import './server/scripts/removeObsoleteIndexes';
 import './server/scripts/fillMissing';
 import './server/scripts/recomputeDenormalized';
+import './server/scripts/recomputeReceivedVoteCounts';
 import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';

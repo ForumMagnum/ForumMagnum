@@ -137,6 +137,7 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   descendentCount: number
   shortform: boolean
+  shortformFrontpage: boolean
   nominatedForReview: string
   reviewingForReview: string
   lastSubthreadActivity: Date
@@ -1015,7 +1016,6 @@ interface DbUser extends DbObject {
   noCollapseCommentsFrontpage: boolean
   hideCommunitySection: boolean
   showCommunityInRecentDiscussion: boolean
-  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

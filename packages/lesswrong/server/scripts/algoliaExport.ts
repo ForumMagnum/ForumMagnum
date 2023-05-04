@@ -17,7 +17,7 @@ import * as _ from 'underscore';
 import moment from 'moment';
 import take from 'lodash/take';
 
-async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
+async function algoliaExport<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, selector?: MongoSelector<T>, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
@@ -45,8 +45,8 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
     filter: computedSelector,
     batchSize: 100,
     loadFactor: 0.5,
-    callback: async (documents: AlgoliaIndexedDbObject[]) => {
-      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+    callback: async (documents: T[]) => {
+      await algoliaIndexDocumentBatch<T>({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
       
       exportedSoFar += documents.length;
       // eslint-disable-next-line no-console
@@ -66,10 +66,10 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
+      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED, rejected: {$ne :true}, authorIsUnreviewed: {$ne: true}})
       break
     case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}, rejected: {$ne: true}, authorIsUnreviewed: {$ne: true}})
       break
     case 'Users':
       await algoliaExport(Users, {deleted: {$ne: true}, deleteContent: {$ne: true}})

@@ -191,6 +191,22 @@ ensureIndex(Comments,
   { name: "comments.top_comments" }
 );
 
+Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, lastSubthreadActivity: -1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.recent_replies" }
+);
+
 Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
   return {
     selector: {
@@ -309,6 +325,14 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
+
+Comments.addView("rejected", (terms: CommentsViewTerms) => {
+  return {
+    selector: {...dontHideDeletedAndUnreviewed, rejected: true},
+    options: {sort: { postedAt: -1}, limit: terms.limit || 20},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: 1 }));
 
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
@@ -474,11 +498,12 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
   return {
     selector: {
       shortform: true,
+      shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+      postedAt: {$gt: moment().subtract(4, 'days').toDate()}
     },
-    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
 });
 

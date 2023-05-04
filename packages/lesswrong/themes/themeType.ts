@@ -200,6 +200,7 @@ declare global {
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -290,6 +291,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
@@ -315,6 +317,7 @@ declare global {
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,

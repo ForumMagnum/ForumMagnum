@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -16,11 +16,15 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
-import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import Helmet from 'react-helmet';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
+
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -32,6 +36,8 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
+
+const TYPE_III_DATE_CUTOFF = new Date('2023-04-01')
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
@@ -150,8 +156,6 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
-
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: ()=>void,
@@ -164,12 +168,13 @@ const PostsPage = ({post, refetch, classes}: {
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const showTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
 
   const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -328,7 +333,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -346,6 +351,9 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <Helmet>
+      {showTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
+    </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -358,6 +366,8 @@ const PostsPage = ({post, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
+        {/* @ts-ignore */}
+        {showTypeIIIPlayer && <type-3-player></type-3-player>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>

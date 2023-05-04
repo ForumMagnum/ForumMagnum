@@ -777,21 +777,6 @@ const schema: SchemaType<DbUser> = {
     label: "Show Community posts in Recent Discussion"
   },
   
-  // Used for EAF 4/1/2023
-  noComicSans: {
-    order: 95,
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    group: formGroups.siteCustomizations,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Opt out of Comic Sans on April 1"
-  },
-  
   petrovOptOut: {
     order: 96,
     type: Boolean,
@@ -1830,7 +1815,6 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     denormalized: true,
     optional: true,
-    label: "Small Upvote Count",
     canRead: [userOwns, 'admins', 'sunshineRegiment'],
   },
 
@@ -1995,6 +1979,9 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
+    group: formGroups.adminOptions,
   },
   oldSlugs: {
     type: Array,
