@@ -93,8 +93,10 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
 };
 
+export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;
+
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -114,12 +116,16 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
-export const documentIsNotDeleted = <T extends DbObject>(
+export const documentIsNotDeleted = (
   user: PermissionableUser|DbUser|null,
-  document: T,
+  document: OwnableDocument,
 ) => {
   // Admins and mods can see deleted content
   if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  // Authors can see their deleted content
+  if (userOwns(user, document)) {
     return true;
   }
   // Unfortunately, different collections use different field names
