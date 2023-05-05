@@ -62,18 +62,19 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     
     let mergedReacts: NamesAttachedReactionsList = {};
     for (let vote of votes) {
+      const extendedVote: NamesAttachedReactionsVote|null = vote.extendedVoteType;
       const userInfo = {
         userId: vote.userId,
         displayName: usersById[vote.userId].displayName,
         karma: usersById[vote.userId].karma,
       };
-      if (vote.extendedVoteType?.reacts) {
-        for (let reaction of vote.extendedVoteType?.reacts) {
+      if (extendedVote?.reacts) {
+        for (let reaction of extendedVote.reacts) {
           const userInfoWithType = {...userInfo, reactType: reaction.vote};
-          if (mergedReacts[reaction]) {
-            mergedReacts[reaction]!.push(userInfoWithType);
+          if (mergedReacts[reaction.react]) {
+            mergedReacts[reaction.react]!.push(userInfoWithType);
           } else {
-            mergedReacts[reaction] = [userInfoWithType];
+            mergedReacts[reaction.react] = [userInfoWithType];
           }
         }
       }
@@ -90,20 +91,20 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   isAllowedExtendedVote: (user: UsersCurrent|DbUser, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
     // Are there any reacts in this vote?
     if (extendedVote?.reacts && extendedVote.reacts.length>0) {
+      // If the user is disagreeing with a react, they need at least
+      // downvoteExistingReactKarmaThreshold karma
+      if (user.karma < downvoteExistingReactKarmaThreshold.get()
+        && some(extendedVote.reacts, r=>r.vote==="disagreed"))
+      {
+        return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to antireact`};
+      }
+
       // If the user is using any react at all, they need at least
       // existingReactKarmaThreshold karma for it to be a valid vote.
       if (user.karma<addNameToExistingReactKarmaThreshold.get()) {
         return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
       }
       
-      // If the user is disagreeing with a react, they need at least
-      // downvoteExistingReactKarmaThreshold karma
-      if (user.karma < downvoteExistingReactKarmaThreshold.get()
-        && some(extendedVote.reacts, r=>r.vote==="disagreed"))
-      {
-        return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to disagree with reacts`};
-      }
-
       // If the user is using a react which no one else has used on this comment
       // before, they need at least newReactKarmaThreshold karma for it to be a
       // valid vote.
@@ -149,7 +150,7 @@ export type NamesAttachedReactionsVote = {
   agreement?: string,
   reacts?: UserVoteOnSingleReaction[],
 }
-type UserReactInfo = {
+export type UserReactInfo = {
   userId: string
   reactType: VoteOnReactionType
   displayName: string
