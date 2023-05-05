@@ -138,7 +138,6 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
   const oldLocation = oldPost.googleLocation?.geometry?.location;
   const newLocation = newPost.googleLocation?.geometry?.location;
   if (!!oldLocation !== !!newLocation) {
-    console.log({ oldLocation, newLocation }, '!!oldLocation !== !!newLocation');
     //Location added or removed
     return true;
   }
@@ -148,7 +147,6 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     // dumb thing inside the mutation callback handlers mixes up null vs
     // undefined, causing callbacks to get a spurious change from null to
     // undefined which should not trigger a notification.
-    console.log({ oldLocation, newLocation }, 'oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)');
     return true;
   }
 
