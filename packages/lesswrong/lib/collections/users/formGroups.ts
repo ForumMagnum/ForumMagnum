@@ -64,7 +64,7 @@ export const formGroups: Partial<Record<string, FormGroupType>> = {
   aboutMe: {
     name: 'aboutMe',
     order: 100,
-    label: preferredHeadingCase('About Me'),
+    label: isEAForum ? "About you" : "About Me",
   },
   socialMedia: {
     name: 'socialMedia',
