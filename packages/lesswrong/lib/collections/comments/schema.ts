@@ -786,7 +786,7 @@ const schema: SchemaType<DbComment> = {
       collectionName: "Users",
       type: "User"
     }),
-    canRead: ['members'],
+    canRead: ['guests'],
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",

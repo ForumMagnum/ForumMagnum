@@ -200,6 +200,7 @@ declare global {
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
