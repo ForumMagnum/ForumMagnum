@@ -135,7 +135,6 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
-  console.log('in eventHasRelevantChangeForNotification');
   const oldLocation = oldPost.googleLocation?.geometry?.location;
   const newLocation = newPost.googleLocation?.geometry?.location;
   if (!!oldLocation !== !!newLocation) {
@@ -182,7 +181,6 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
 }
 
 getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
-  console.log('in eventUpdatedNotifications callback');
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
   // only send notifications if the event was already published *before* being edited
