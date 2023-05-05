@@ -95,6 +95,7 @@ importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/E
 importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/ReportPostDropdownItem'));
 importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/HideFrontpagePostDropdownItem'));
 importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/BookmarkDropdownItem'));
+importComponent("EditPostDropdownItem", () => require('../components/dropdowns/EditPostDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));

@@ -19,6 +19,7 @@ import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
+import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -34,6 +35,7 @@ import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
 import MuiReportIcon from "@material-ui/icons/ReportOutlined";
 import MuiVisibilityOff from "@material-ui/icons/VisibilityOff";
 import MuiVisibility from "@material-ui/icons/Visibility";
+import MuiEditIcon from "@material-ui/icons/Edit";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -73,6 +75,7 @@ export type ForumIconName =
   "Eye" |
   "EyeOutline" |
   "Tag" |
+  "Edit" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -103,6 +106,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Tag: MuiTagIcon,
     Eye: MuiVisibility,
     EyeOutline: MuiVisibilityOff,
+    Edit: MuiEditIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -132,6 +136,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Tag: TagIcon,
     Eye: EyeIcon,
     EyeOutline: EyeOutlineIcon,
+    Edit: PencilIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,

@@ -1,7 +1,6 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { userIsPodcaster } from '../../../lib/vulcan-users/permissions';
-import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
+import { userGetDisplayName } from '../../../lib/collections/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -35,27 +34,11 @@ const PostActions = ({post, closeMenu, classes}: {
     NotifyMeButton, HideFrontpagePostDropdownItem, SetSideCommentVisibility, MenuItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
-    EditTagsDropdownItem,
+    EditTagsDropdownItem, EditPostDropdownItem,
   } = Components;
 
   if (!post) return null;
   const postAuthor = post.user;
-
-  let editLink: React.ReactNode|null = null;
-  const isEditor = canUserEditPostMetadata(currentUser,post);
-  const isPodcaster = userIsPodcaster(currentUser);
-  const isShared = userIsSharedOn(currentUser, post);
-  if (isEditor || isPodcaster || isShared) {
-    const link = (isEditor || isPodcaster) ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
-    editLink = <Link to={link}>
-      <MenuItem>
-        <ListItemIcon>
-          <EditIcon />
-        </ListItemIcon>
-        Edit
-      </MenuItem>
-    </Link>
-  }
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
@@ -69,7 +52,7 @@ const PostActions = ({post, closeMenu, classes}: {
 
   return (
       <div className={classes.actions} >
-        {editLink}
+        <EditPostDropdownItem post={post} />
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>

@@ -1,7 +1,9 @@
-import React, { MouseEvent } from "react";
+import React, { FC, MouseEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
+import { Link } from "../../lib/reactRouterWrapper";
+import type { HashLinkProps } from "../common/HashLink";
 
 const styles = (theme: ThemeType): JssStyles => ({
   afterIcon: {
@@ -19,31 +21,38 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export type DropdownItemConfig = {
+export type DropdownItemAction = {
+  onClick: (event: MouseEvent) => void | Promise<void>,
+  to?: never,
+} | {
+  onClick?: never,
+  to: HashLinkProps["to"],
+}
+
+export type DropdownItemProps = DropdownItemAction & {
+  title: string,
+  sideMessage?: string,
+  icon?: ForumIconName,
+  afterIcon?: ForumIconName,
   disabled?: boolean,
 }
 
-export type DropdownItemProps = DropdownItemConfig & {
-  title: string,
-  sideMessage?: string,
-  onClick?: (event: MouseEvent) => void | Promise<void>,
-  icon?: ForumIconName,
-  afterIcon?: ForumIconName,
-  classes: ClassesType,
-}
+const DummyLink: FC<{to: HashLinkProps["to"]}> = ({children}) => <>{children}</>;
 
 const DropdownItem = ({
   title,
   sideMessage,
   onClick,
+  to,
   icon,
   afterIcon,
   disabled,
   classes,
-}: DropdownItemProps) => {
+}: DropdownItemProps & {classes: ClassesType}) => {
+  const Wrapper = to ? Link : DummyLink;
   const {MenuItem, ForumIcon} = Components;
   return (
-    <div>
+    <Wrapper to={to!}>
       <MenuItem
         onClick={onClick}
         disabled={disabled}
@@ -61,7 +70,7 @@ const DropdownItem = ({
           </div>
         }
       </MenuItem>
-    </div>
+    </Wrapper>
   );
 }
 
