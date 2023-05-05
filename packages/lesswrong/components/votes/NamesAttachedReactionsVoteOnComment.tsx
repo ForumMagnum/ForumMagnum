@@ -92,6 +92,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     background: theme.palette.panelBackground.darken10,
   },
+  selectedAnti: {
+    background: "rgb(255, 189, 189, .23)", //TODO themeify
+  },
   reactionEmoji: {
     fontSize: 18,
     verticalAlign: "middle",
@@ -115,6 +118,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 12,
   },
   reactionDescription: {
+  },
+
+
+  reactionVoteCount: {
+    display: "inline-block",
+    verticalAlign: "middle",
+  },
+  voteArrow: {
+    color: theme.palette.grey[400],
+  },
+  voteArrowIcon: {
+    fontSize: 'inherit',
+    padding: 0,
+    width: 24,
+    height: 24,
+    verticalAlign: "middle",
+  },
+  voteArrowLeft: {
+    transform: 'rotate(-90deg)',
+    marginRight: -4,
+  },
+  voteArrowRight: {
+    transform: 'rotate(-270deg)',
+    marginLeft: -4,
   },
 })
 
@@ -310,9 +337,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
 
   return <div
     key={reactionName}
-    className={classNames(classes.hoverBallotEntry, {
-      [classes.selected]: !!getCurrentUserReactionVote(reactionName)
-    })}
+    className={classNames(classes.hoverBallotEntry)}
   >
     <ReactionIcon react={reactionName} classes={classes}/>
     <span className={classes.hoverBallotLabel}>
@@ -367,8 +392,6 @@ const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReacti
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null)=>void
   classes: ClassesType
 }) => {
-  const { VoteArrowIcon } = Components;
-  
   const onClick = (reaction: "reacted"|"disagreed") => {
     if (reaction === "reacted") {
       if (currentUserReaction === "created" || currentUserReaction === "seconded") {
@@ -386,28 +409,41 @@ const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReacti
   }
 
   return <span className={classes.reactOrAntireact}>
-    <VoteArrowIcon
+    <ReactionVoteArrow
       orientation="left"
-      color={currentUserReaction==="disagreed" ? "error" : "secondary"}
-      voted={false}
-      eventHandlers={{
-        handleMouseDown: () => onClick("disagreed")
-      }}
-      strongVoteDelay={1000}
-      bigVotingTransition={false} bigVoted={false}
-      bigVoteCompleted={false} alwaysColored={false}
+      onClick={() => onClick("disagreed")}
+      classes={classes}
+      color={currentUserReaction==="disagreed" ? "error" : "inherit"}
     />
-    {netReactionCount}
-    <VoteArrowIcon
+    <span className={classes.reactionVoteCount}>
+      {netReactionCount}
+    </span>
+    <ReactionVoteArrow
       orientation="right"
-      color={currentUserReaction==="disagreed" ? "primary" : "secondary"}
-      voted={false}
-      eventHandlers={{
-        handleMouseDown: () => onClick("reacted")
-      }}
-      strongVoteDelay={1000}
-      bigVotingTransition={false} bigVoted={false}
-      bigVoteCompleted={false} alwaysColored={false}
+      onClick={() => onClick("reacted")}
+      classes={classes}
+      color={(currentUserReaction==="created"||currentUserReaction==="seconded") ? "primary" : "inherit"}
+    />
+  </span>
+}
+
+const ReactionVoteArrow = ({orientation, onClick, color, classes}: {
+  orientation: "left"|"right",
+  onClick: ()=>void,
+  color: "inherit"|"primary"|"error",
+  classes: ClassesType,
+}) => {
+  return <span className={classes.voteArrow}>
+    <UpArrowIcon
+      onClick={onClick}
+      color={color}
+      className={classNames(
+        classes.voteArrowIcon,
+        {
+          [classes.voteArrowLeft]: orientation==="left",
+          [classes.voteArrowRight]: orientation==="right",
+        },
+      )}
     />
   </span>
 }
@@ -420,26 +456,30 @@ const HoverBallotReactionPalette = ({getCurrentUserReactionVote, toggleReaction,
   const { LWTooltip } = Components;
 
   return <div className={classes.moreReactions}>
-    {namesAttachedReactions.map(reaction =>
-      <LWTooltip key={reaction.name} title={<>
-        <div>
-          <ReactionIcon react={reaction.name} classes={classes}/>
-          <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-        </div>
-        <ReactionDescription reaction={reaction} classes={classes}/>
-      </>}>
-        <div
-          key={reaction.name}
-          className={classNames(classes.paletteEntry, {
-            [classes.selected]: !!getCurrentUserReactionVote(reaction.name)
-          })}
-          onClick={_ev => toggleReaction(reaction.name)}
-        >
-          <ReactionIcon react={reaction.name} classes={classes}/>
-          <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-        </div>
-      </LWTooltip>
-    )}
+    {namesAttachedReactions.map(reaction => {
+      const currentUserVote = getCurrentUserReactionVote(reaction.name);
+      return (
+        <LWTooltip key={reaction.name} title={<>
+          <div>
+            <ReactionIcon react={reaction.name} classes={classes}/>
+            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+          </div>
+          <ReactionDescription reaction={reaction} classes={classes}/>
+        </>}>
+          <div
+            key={reaction.name}
+            className={classNames(classes.paletteEntry, {
+              [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+              [classes.selectedAnti]: currentUserVote==="disagreed",
+            })}
+            onClick={_ev => toggleReaction(reaction.name)}
+          >
+            <ReactionIcon react={reaction.name} classes={classes}/>
+            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+          </div>
+        </LWTooltip>
+      )
+    })}
   </div>
 }
 
