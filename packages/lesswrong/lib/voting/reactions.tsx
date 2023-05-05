@@ -120,7 +120,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   
   // TODO pick icons for:
-  //   Thanks
+  //   Too Harsh (cactus?)
+  //   Thanks (crossed hands)
   //   Missed the Point (gust of wind over smiley's head)
   //   Make it concrete: picture of bricks ("make concrete")
   //   I hear you (picture of an ear)
