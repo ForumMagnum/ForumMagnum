@@ -194,75 +194,34 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
 }
 
 /**
+ * Check if the user has a commenting rate limit due to having low karma.
+ */
+const checkLowKarmaCommentRateLimit = (user: DbUser): boolean => {
+  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
+  return karmaThreshold !== null && user.karma < karmaThreshold
+}
+
+/**
  * Check if the user has a commenting rate limit due to having a high % of their received votes be downvotes.
  */
 const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
   const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
   const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
-
   const voteCountsAreValid = user.voteReceivedCount > 0
     && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
   
   const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
-
   // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
   const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
   const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
   const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
 
-  return aboveDownvoteRatioThreshold;
-};
-
-
-/**
- * Check if the user has a commenting rate limit due to having low karma.
- */
-const checkLowKarmaCommentRateLimit = (user: DbUser): boolean => {
-  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
-  const belowKarmaThreshold = karmaThreshold !== null && user.karma < karmaThreshold
-  return belowKarmaThreshold;
-
-  // const voteCountsAreValid = user.voteReceivedCount > 0 && !(user.smallDownvoteReceivedCount < 0) && !(user.bigDownvoteReceivedCount < 0)
-  // const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
-  // const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
-
-  // const voteCountsAreValid = user.voteReceivedCount > 0
-  //   && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
-  
-  // const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
-
-  // // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
-  // const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
-  // const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
-  // const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
-
-  // if (belowKarmaThreshold) {
-  //   const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-  //     user,
-  //     collection: Comments,
-  //     n: 4,
-  //     cutoffHours: 0.5,
-  //   })
-  //   if (!fourthMostRecentCommentDate) return null
-  //   // if the user has hit the limit, then they are eligible to comment again
-  //   // 30 min after their fourth most recent comment
-  //   return moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
-  // }
-  // return null
+  return aboveDownvoteRatioThreshold
 }
-
-const getFourthMostRecentCommentDate = async (user: DbUser): Promise<Date | null> => {
-  const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-    user,
-    collection: Comments,
-    n: 4,
-    cutoffHours: 0.5,
-  })
-  if (!fourthMostRecentCommentDate) return null
-  // if the user has hit the limit, then they are eligible to comment again
-  // 30 min after their fourth most recent comment
-  return moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
-};
 
 type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
@@ -310,8 +269,16 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const hasLowKarma = checkLowKarmaCommentRateLimit(user)
   const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
   if (hasLowKarma || hasHighDownvoteRatio) {
-    const nextEligible = await getFourthMostRecentCommentDate(user);
-    if (nextEligible) {
+    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+      user,
+      collection: Comments,
+      n: 4,
+      cutoffHours: 0.5,
+    })
+    if (fourthMostRecentCommentDate) {
+      // if the user has hit the limit, then they are eligible to comment again
+      // 30 min after their fourth most recent comment
+      const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
       const rateLimitType: RateLimitReason = hasLowKarma ? "lowKarma" : "downvoteRatio";
 
       return {
