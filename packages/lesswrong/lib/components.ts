@@ -92,6 +92,9 @@ importComponent("MoveToAlignmentDropdownItem", () => require('../components/drop
 importComponent("ShortformDropdownItem", () => require('../components/dropdowns/ShortformDropdownItem'));
 importComponent("ApproveNewUserDropdownItem", () => require('../components/dropdowns/ApproveNewUserDropdownItem'));
 importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/EditTagsDropdownItem'));
+importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/ReportPostDropdownItem'));
+importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/HideFrontpagePostDropdownItem'));
+importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/BookmarkDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -269,7 +272,6 @@ importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
-importComponent("HideFrontPagePostButton", () => require('../components/posts/HideFrontPagePostButton'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
@@ -324,7 +326,6 @@ importComponent("PostsUserAndCoauthors", () => require('../components/posts/Post
 importComponent("TruncatedAuthorsList", () => require('../components/posts/TruncatedAuthorsList'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
-importComponent("ReportPostMenuItem", () => require('../components/posts/ReportPostMenuItem'));
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate'));
 importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'));
 

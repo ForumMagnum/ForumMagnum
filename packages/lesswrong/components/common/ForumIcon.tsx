@@ -17,6 +17,8 @@ import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
+import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
+import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -29,6 +31,9 @@ import MuiLinkIcon from "@material-ui/icons/Link";
 import MuiNotesIcon from '@material-ui/icons/Notes';
 import MuiWarningIcon from '@material-ui/icons/Warning';
 import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
+import MuiReportIcon from "@material-ui/icons/ReportOutlined";
+import MuiVisibilityOff from "@material-ui/icons/VisibilityOff";
+import MuiVisibility from "@material-ui/icons/Visibility";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -64,6 +69,9 @@ export type ForumIconName =
   "Comment" |
   "Shortform" |
   "Warning" |
+  "Report" |
+  "Eye" |
+  "EyeOutline" |
   "Tag" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
@@ -91,7 +99,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    Report: MuiReportIcon,
     Tag: MuiTagIcon,
+    Eye: MuiVisibility,
+    EyeOutline: MuiVisibilityOff,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -117,7 +128,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    Report: MuiReportIcon,
     Tag: TagIcon,
+    Eye: EyeIcon,
+    EyeOutline: EyeOutlineIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,

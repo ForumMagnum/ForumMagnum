@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -26,7 +26,7 @@ export type DropdownItemConfig = {
 export type DropdownItemProps = DropdownItemConfig & {
   title: string,
   sideMessage?: string,
-  onClick?: () => void | Promise<void>,
+  onClick?: (event: MouseEvent) => void | Promise<void>,
   icon?: ForumIconName,
   afterIcon?: ForumIconName,
   classes: ClassesType,

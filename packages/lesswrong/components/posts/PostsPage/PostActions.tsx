@@ -12,8 +12,9 @@ import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-// We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
-export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
+// We use a context here vs. passing in a boolean prop because we'd need to pass
+// through ~4 layers of hierarchy
+export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false);
 
 const styles = (_theme: ThemeType): JssStyles => ({
   actions: {
@@ -27,12 +28,11 @@ const PostActions = ({post, closeMenu, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
 
   const {
-    MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
-    SuggestAlignmentPostDropdownItem, ReportPostMenuItem, DeleteDraftDropdownItem,
-    NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
+    MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
+    SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
+    NotifyMeButton, HideFrontpagePostDropdownItem, SetSideCommentVisibility, MenuItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
     EditTagsDropdownItem,
@@ -129,13 +129,10 @@ const PostActions = ({post, closeMenu, classes}: {
           unsubscribeMessage="Unsubscribe from comments"
         />}
 
-        <BookmarkButton post={post} menuItem/>
+        <BookmarkDropdownItem post={post} />
         <SetSideCommentVisibility />
-
-        {allowHidingPosts && <HideFrontPagePostButton post={post} />}
-
-        <ReportPostMenuItem post={post}/>
-
+        <HideFrontpagePostDropdownItem post={post} />
+        <ReportPostDropdownItem post={post}/>
         <EditTagsDropdownItem post={post} closeMenu={closeMenu} />
         <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
         <MarkAsReadDropdownItem post={post} />
