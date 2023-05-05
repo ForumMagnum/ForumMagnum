@@ -85,6 +85,7 @@ importComponent("SuggestCuratedDropdownItem", () => require('../components/dropd
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/DeleteDraftDropdownItem'));
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/MoveToDraftDropdownItem'));
 importComponent("MarkAsReadDropdownItem", () => require('../components/dropdowns/MarkAsReadDropdownItem'));
+importComponent("SummarizeDropdownItem", () => require('../components/dropdowns/SummarizeDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -754,7 +755,7 @@ importComponent("PrefixedInput", () => require('../components/form-components/Pr
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
 
-importComponent(["PostSummaryAction","PostSummaryDialog"], () => require('../components/languageModels/PostSummaryAction'));
+importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
 importComponent(["CommentOnSelectionPageWrapper","SelectedTextToolbar","CommentOnSelectionContentWrapper"], () => require('../components/comments/CommentOnSelection'));
 importComponent("PopupCommentEditor", () => require('../components/comments/PopupCommentEditor'));

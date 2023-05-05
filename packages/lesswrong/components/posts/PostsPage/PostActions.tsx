@@ -19,7 +19,6 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { userHasAutosummarize } from '../../../lib/betas';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
@@ -145,7 +144,7 @@ const PostActions = ({post, closeMenu, classes}: {
     MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
     SuggestAlignment, ReportPostMenuItem, DeleteDraftDropdownItem, NotifyMeButton,
     HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
-    MarkAsReadDropdownItem,
+    MarkAsReadDropdownItem, SummarizeDropdownItem,
   } = Components;
 
   if (!post) return null;
@@ -258,10 +257,8 @@ const PostActions = ({post, closeMenu, classes}: {
             Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
-        
-        {userHasAutosummarize(currentUser)
-          && <Components.PostSummaryAction closeMenu={closeMenu} post={post}/>}
 
+        <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
         <MarkAsReadDropdownItem post={post} />
         <SuggestCuratedDropdownItem post={post} />
         <MoveToDraftDropdownItem post={post} />
