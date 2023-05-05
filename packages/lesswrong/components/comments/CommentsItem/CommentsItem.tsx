@@ -237,7 +237,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // if you're banned.
       // @ts-ignore
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
-      (!commentHidden || userIsAdmin(currentUser))
+      (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
     )
 
     const showInlineCancel = showReplyState && isMinimalist
