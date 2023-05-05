@@ -284,6 +284,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const parentDocumentId = post?._id || tag?._id
   
   // TODO: probably include postSpecificRateLimit in rateLimitNextAbleToComment so we don't need both
+  // TODO: also, probably make this use a max instead of a coalesce
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
   const lastRateLimitExpiry: Date|null =

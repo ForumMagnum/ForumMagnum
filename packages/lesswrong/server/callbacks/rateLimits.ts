@@ -216,6 +216,19 @@ const checkLowKarmaCommentRateLimit = async (user: DbUser): Promise<Date|null> =
 
 type RateLimitReason = "moderator"|"lowKarma"|"universal"
 
+
+export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<{
+  nextEligible: Date,
+  rateLimit: RateLimitReason
+}|null> {
+  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user)
+
+  return ({
+    nextEligible: new Date,
+    rateLimit: "moderator"
+  })
+}
+
 /**
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
