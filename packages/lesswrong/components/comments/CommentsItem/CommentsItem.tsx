@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -237,7 +237,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // if you're banned.
       // @ts-ignore
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
-      !commentHidden
+      (!commentHidden || userIsAdmin(currentUser))
     )
 
     const showInlineCancel = showReplyState && isMinimalist
