@@ -86,6 +86,7 @@ importComponent("DeleteDraftDropdownItem", () => require('../components/dropdown
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/MoveToDraftDropdownItem'));
 importComponent("MarkAsReadDropdownItem", () => require('../components/dropdowns/MarkAsReadDropdownItem'));
 importComponent("SummarizeDropdownItem", () => require('../components/dropdowns/SummarizeDropdownItem'));
+importComponent("MoveToFrontpageDropdownItem", () => require('../components/dropdowns/MoveToFrontpageDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));

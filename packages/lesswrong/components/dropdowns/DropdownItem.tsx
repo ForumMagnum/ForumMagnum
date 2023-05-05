@@ -1,7 +1,12 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { ForumIconName } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  afterIcon: {
+    fontSize: 20,
+    marginLeft: 4,
+  },
   sideMessage: {
     position: "absolute",
     right: 12,
@@ -21,6 +26,8 @@ export type DropdownItemProps = DropdownItemConfig & {
   title: string,
   sideMessage?: string,
   onClick?: () => void | Promise<void>,
+  icon?: ForumIconName,
+  afterIcon?: ForumIconName,
   classes: ClassesType,
 }
 
@@ -28,11 +35,13 @@ const DropdownItem = ({
   title,
   sideMessage,
   onClick,
+  icon,
+  afterIcon,
   disabled,
   classes,
 }: DropdownItemProps) => {
-  const {MenuItem} = Components;
-
+  const {MenuItem, ForumIcon} = Components;
+  void icon; // TODO
   return (
     <div>
       <MenuItem
@@ -40,6 +49,7 @@ const DropdownItem = ({
         disabled={disabled}
       >
         {title}
+        {afterIcon && <ForumIcon icon={afterIcon} className={classes.afterIcon} />}
         {sideMessage &&
           <div className={classes.sideMessage}>
             {sideMessage}

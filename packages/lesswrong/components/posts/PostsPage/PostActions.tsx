@@ -8,45 +8,22 @@ import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { Link } from '../../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import GraphIcon from '@material-ui/icons/ShowChart'
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
-import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
-import { forumSelect } from '../../../lib/forumTypeUtils';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
 
-const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
-  {' '}<WarningIcon fontSize='inherit' />
-</div>
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   actions: {
     minWidth: 300,
   },
-  root: { //FIXME orphaned styles
-    margin: 0,
-    ...theme.typography.display3,
-    ...theme.typography.postStyle,
-    ...theme.typography.headerStyle,
-    color: theme.palette.text.primary,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '2.5rem',
-      marginBottom: 10,
-      maxWidth: '80%'
-    }
-  },
-  promoteWarning: {
-    fontSize: 20,
-    marginLeft: 4,
-  }
 })
 
 const PostActions = ({post, closeMenu, classes}: {
@@ -57,41 +34,11 @@ const PostActions = ({post, closeMenu, classes}: {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
   const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
-
-  const handleMoveToFrontpage = () => {
-    if (!currentUser) throw new Error("Cannot move to frontpage anonymously")
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        frontpageDate: new Date(),
-        meta: false,
-        draft: false,
-        reviewedByUserId: currentUser._id,
-      },
-    })
-  }
-
-  const handleMoveToPersonalBlog = () => {
-    if (!currentUser) throw new Error("Cannot move to personal blog anonymously")
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        draft: false,
-        meta: false,
-        frontpageDate: null,
-        reviewedByUserId: currentUser._id,
-      },
-    })
-  }
 
   const handleMakeShortform = () => {
     void updateUser({
@@ -144,7 +91,7 @@ const PostActions = ({post, closeMenu, classes}: {
     MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
     SuggestAlignment, ReportPostMenuItem, DeleteDraftDropdownItem, NotifyMeButton,
     HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
-    MarkAsReadDropdownItem, SummarizeDropdownItem,
+    MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
   } = Components;
 
   if (!post) return null;
@@ -165,11 +112,6 @@ const PostActions = ({post, closeMenu, classes}: {
       </MenuItem>
     </Link>
   }
-
-  const defaultLabel = forumSelect({
-    EAForum:'This post may appear on the Frontpage',
-    default: 'Moderators may promote to Frontpage'
-  })
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
@@ -263,30 +205,10 @@ const PostActions = ({post, closeMenu, classes}: {
         <SuggestCuratedDropdownItem post={post} />
         <MoveToDraftDropdownItem post={post} />
         <DeleteDraftDropdownItem post={post} />
+        <MoveToFrontpageDropdownItem post={post} />
+
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
-            { !post.frontpageDate &&
-              <div onClick={handleMoveToFrontpage}>
-                <Tooltip placement="left" title={
-                  post.submitToFrontpage ?
-                    '' :
-                    `user did not select ${defaultLabel} option`
-                }>
-                  <MenuItem>
-                    Move to Frontpage
-                    {!post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
-                  </MenuItem>
-                </Tooltip>
-              </div>
-            }
-            { (post.frontpageDate || post.meta || post.curatedDate) &&
-               <div onClick={handleMoveToPersonalBlog}>
-                 <MenuItem>
-                   Move to Personal Blog
-                 </MenuItem>
-               </div>
-            }
-
             { !post.shortform &&
                <div onClick={handleMakeShortform}>
                  <MenuItem>
