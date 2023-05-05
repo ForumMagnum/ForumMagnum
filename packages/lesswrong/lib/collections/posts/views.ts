@@ -654,6 +654,7 @@ ensureIndex(Posts,
   }
 );
 
+
 Posts.addView("community-rss", (terms: PostsViewTerms) => ({
   selector: {
     frontpageDate: null,
@@ -722,6 +723,16 @@ Posts.addView("scheduled", (terms: PostsViewTerms) => ({
 }));
 // Covered by the same index as `new`
 
+Posts.addView("rejected", (terms: PostsViewTerms) => ({
+  selector: {
+    rejected: true,
+    authorIsUnreviewed: null
+  },
+  options: {
+    sort: {postedAt: -1}
+  }
+}));
+ensureIndex(Posts, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: -1 }));
 
 /**
  * @summary Draft view
@@ -970,7 +981,13 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   
   let query = {
     selector: {
-      globalEvent: true,
+      $or: [
+        {globalEvent: true},
+        {$and: [
+          {onlineEvent: true},
+          {mongoLocation: {$exists: false}},
+        ]},
+      ],
       isEvent: true,
       groupId: null,
       eventType: terms.eventType ? {$in: terms.eventType} : null,
@@ -1035,6 +1052,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
             }
           }
         },
+        {$and: [{mongoLocation: {$exists: false}}, {onlineEvent: true}]},
         {globalEvent: true} // also include events that are open to everyone around the world
       ]
     },

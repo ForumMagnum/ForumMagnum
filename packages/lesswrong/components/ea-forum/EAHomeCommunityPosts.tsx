@@ -3,9 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { useCookies } from 'react-cookie';
 import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -41,10 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = 'show_community_posts_section'
-
 const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
-  const [cookies, setCookie, removeCookie] = useCookies([SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
+  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
   // default to collapsing the section
   const [sectionExpanded, setSectionExpanded] = useState(cookies[SHOW_COMMUNITY_POSTS_SECTION_COOKIE])
   const { captureEvent } = useTracking()
@@ -57,7 +56,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
       removeCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE)
       captureEvent('communityPostsSectionCollapsed')
     } else {
-      setCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE, "true", {expires: moment().add(10, 'years').toDate()})
+      setCookie(SHOW_COMMUNITY_POSTS_SECTION_COOKIE, "true", {expires: moment().add(2, 'years').toDate()})
       captureEvent('communityPostsSectionExpanded')
     }
   }

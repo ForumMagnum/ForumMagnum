@@ -269,6 +269,16 @@ const schema: SchemaType<DbComment> = {
     }),
   },
 
+  shortformFrontpage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(true)
+  },
+
   // users can write comments nominating posts for a particular review period.
   // this field is generally set by a custom dialog,
   // set to the year of the review period (i.e. '2018')

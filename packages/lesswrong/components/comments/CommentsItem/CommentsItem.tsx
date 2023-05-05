@@ -280,7 +280,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta,
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
   } = Components
   
   const votingSystemName = comment.votingSystem || "default";
@@ -366,6 +366,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
+          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
