@@ -141,6 +141,7 @@ registerCookie({
 
 registerCookie({
   name: "_hjSessionUser_[*]",
+  matches: (name: string) => name.startsWith("_hjSessionUser_"),
   type: "functional",
   thirdPartyName: "Hotjar",
   description:
@@ -201,3 +202,14 @@ registerCookie({
   thirdPartyName: "Google",
   description: "This cookie name is associated with Google. It is set by Google to identify the user and is used in support of the Google Identity application.",
 });
+
+// Google Recaptcha
+registerCookie({
+  name: "(various)",
+  type: "analytics",
+  thirdPartyName: "Google ReCaptcha",
+  description: "Google ReCaptcha may set a number of cookies under the 'google.com' domain in order to check for suspicious activity. " +
+               "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
+               "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
+});
+
