@@ -14,6 +14,7 @@ import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import withErrorBoundary from '../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
+import sumBy from 'lodash/sumBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -305,6 +306,8 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null)=>void
   classes: ClassesType,
 }) => {
+  const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
+
   return <div
     key={reactionName}
     className={classNames(classes.hoverBallotEntry, {
@@ -318,7 +321,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
     
     <ReactOrAntireactVote
       reactionName={reactionName}
-      netReactionCount={usersWhoReacted.filter(r=>r.reactType!=="disagreed").length}
+      netReactionCount={netReactionCount}
       currentUserReaction={getCurrentUserReactionVote(reactionName)}
       setCurrentUserReaction={setCurrentUserReaction}
       classes={classes}
