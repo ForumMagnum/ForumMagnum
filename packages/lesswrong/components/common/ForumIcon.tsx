@@ -36,6 +36,7 @@ import MuiReportIcon from "@material-ui/icons/ReportOutlined";
 import MuiVisibilityOff from "@material-ui/icons/VisibilityOff";
 import MuiVisibility from "@material-ui/icons/Visibility";
 import MuiEditIcon from "@material-ui/icons/Edit";
+import MuiShowChartIcon from "@material-ui/icons/ShowChart";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -76,6 +77,7 @@ export type ForumIconName =
   "EyeOutline" |
   "Tag" |
   "Edit" |
+  "Analytics" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -107,6 +109,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Eye: MuiVisibility,
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
+    Analytics: MuiShowChartIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -137,6 +140,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Eye: EyeIcon,
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
+    Analytics: MuiShowChartIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
