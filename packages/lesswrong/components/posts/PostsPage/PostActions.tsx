@@ -89,9 +89,10 @@ const PostActions = ({post, closeMenu, classes}: {
 
   const {
     MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
-    SuggestAlignment, ReportPostMenuItem, DeleteDraftDropdownItem, NotifyMeButton,
-    HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
+    SuggestAlignmentPostDropdownItem, ReportPostMenuItem, DeleteDraftDropdownItem,
+    NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
+    MoveToAlignmentDropdownItem,
   } = Components;
 
   if (!post) return null;
@@ -122,7 +123,7 @@ const PostActions = ({post, closeMenu, classes}: {
   // click area to the right of the item which looks like you've
   // selected the thing, and closes the menu, but doesn't do the
   // thing.
-  
+
   return (
       <div className={classes.actions} >
         {editLink}
@@ -187,7 +188,7 @@ const PostActions = ({post, closeMenu, classes}: {
 
         <BookmarkButton post={post} menuItem/>
         <SetSideCommentVisibility />
-        
+
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
         <ReportPostMenuItem post={post}/>
@@ -226,23 +227,9 @@ const PostActions = ({post, closeMenu, classes}: {
             }
           </span>
         }
-        {forumTypeSetting.get() !== "EAForum" && <>
-          <SuggestAlignment post={post}/>
-          { userCanMakeAlignmentPost(currentUser, post) && !post.af && 
-            <div onClick={handleMoveToAlignmentForum }>
-              <MenuItem>
-                Ω Move to Alignment
-              </MenuItem>
-            </div>
-          }
-          { userCanMakeAlignmentPost(currentUser, post) && post.af &&
-            <div onClick={handleRemoveFromAlignmentForum}>
-              <MenuItem>
-                Ω Remove Alignment
-              </MenuItem>
-            </div>
-          }
-        </>}
+
+        <SuggestAlignmentPostDropdownItem post={post}/>
+        <MoveToAlignmentDropdownItem post={post}/>
       </div>
   )
 }
