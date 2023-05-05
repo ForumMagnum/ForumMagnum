@@ -193,6 +193,9 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   }
 }
 
+/**
+ * Check if the user has a commenting rate limit due to having a high % of their received votes be downvotes.
+ */
 const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
   const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
   const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
@@ -212,9 +215,7 @@ const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
 
 
 /**
- * Check if the user has hit the commenting rate limit for low karma users.
- * (Currently, this is 4 comments every 30 min.)
- * If so, then return the date at which the rate limit will expire.
+ * Check if the user has a commenting rate limit due to having low karma.
  */
 const checkLowKarmaCommentRateLimit = (user: DbUser): boolean => {
   const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
@@ -304,8 +305,8 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
     }
   }
   
-  // If less than 30 karma, or ratio of received downvotes to total votes is too high,
-  // you are also limited to no more than 4 comments per 0.5 hours.
+  // If the user has low karma, or their ratio of received downvotes to total votes is too high,
+  // they are limited to no more than 4 comments per 0.5 hours.
   const hasLowKarma = checkLowKarmaCommentRateLimit(user)
   const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
   if (hasLowKarma || hasHighDownvoteRatio) {
@@ -316,7 +317,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
       return {
         nextEligible,
         rateLimitType
-      };  
+      }
     }
   }
 
