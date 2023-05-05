@@ -135,9 +135,11 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
+  console.log('in eventHasRelevantChangeForNotification');
   const oldLocation = oldPost.googleLocation?.geometry?.location;
   const newLocation = newPost.googleLocation?.geometry?.location;
   if (!!oldLocation !== !!newLocation) {
+    console.log({ oldLocation, newLocation }, '!!oldLocation !== !!newLocation');
     //Location added or removed
     return true;
   }
@@ -147,12 +149,30 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     // dumb thing inside the mutation callback handlers mixes up null vs
     // undefined, causing callbacks to get a spurious change from null to
     // undefined which should not trigger a notification.
+    console.log({ oldLocation, newLocation }, 'oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)');
     return true;
   }
 
+  /* 
+   * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
+   * We can't check moment(null).isSame(moment(null)), since that always returns false.
+   * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
+   * We shouldn't send a notification in those cases, obviously.
+   */
+  const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
+  const { startTime: newStartTime, endTime: newEndTime } = newPost;
+
+  const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
+  const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
+
+  const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
+  const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
+
   if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
-    || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
-    || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
+    || startTimeAddedOrRemoved
+    || startTimeChanged
+    || endTimeAddedOrRemoved
+    || endTimeChanged
   ) {
     // Link, start time, or end time changed
     return true;
@@ -162,6 +182,7 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
 }
 
 getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  console.log('in eventUpdatedNotifications callback');
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
   // only send notifications if the event was already published *before* being edited
