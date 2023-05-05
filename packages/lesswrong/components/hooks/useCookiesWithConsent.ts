@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
+import moment from "moment";
 
 /**
  * Fetches the current cookie preferences and allows the user to update them.
@@ -47,7 +48,7 @@ export function useCookiePreferences(): {
   //   if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
 
   //   if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
-  //     setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/" });
+  //     setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/", expires: moment().add(2, 'years').toDate()  });
   //     void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
   //   }
   // // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,8 +59,8 @@ export function useCookiePreferences(): {
       captureEvent("cookiePreferencesUpdated", {
         cookiePreferences: newPreferences,
       })
-      setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/" });
-      setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/" });
+      setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/", expires: moment().add(2, 'years').toDate() });
+      setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/", expires: moment().add(2, 'years').toDate() });
       void cookiePreferencesChangedCallbacks.runCallbacks({iterator: newPreferences, properties: []});
     },
     [captureEvent, setCookie]
