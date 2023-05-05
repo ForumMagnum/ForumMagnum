@@ -8,11 +8,9 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import GraphIcon from '@material-ui/icons/ShowChart'
-import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
-import { useDialog } from '../../common/withDialog';
-import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
@@ -29,18 +27,7 @@ const PostActions = ({post, closeMenu, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {openDialog} = useDialog();
   const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
-
-  const handleOpenTagDialog = async () => {
-    openDialog({
-      componentName: "EditTagsDialog",
-      componentProps: {
-        post
-      }
-    });
-    closeMenu();
-  }
 
   const {
     MoveToDraftDropdownItem, BookmarkButton, SuggestCuratedDropdownItem,
@@ -48,6 +35,7 @@ const PostActions = ({post, closeMenu, classes}: {
     NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
+    EditTagsDropdownItem,
   } = Components;
 
   if (!post) return null;
@@ -147,15 +135,8 @@ const PostActions = ({post, closeMenu, classes}: {
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
         <ReportPostMenuItem post={post}/>
-        <div onClick={handleOpenTagDialog}>
-          <MenuItem>
-            <ListItemIcon>
-              <LocalOfferOutlinedIcon />
-            </ListItemIcon>
-            Edit {taggingNamePluralCapitalSetting.get()}
-          </MenuItem>
-        </div>
 
+        <EditTagsDropdownItem post={post} closeMenu={closeMenu} />
         <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
         <MarkAsReadDropdownItem post={post} />
         <SuggestCuratedDropdownItem post={post} />

@@ -91,6 +91,7 @@ importComponent("SuggestAlignmentPostDropdownItem", () => require('../components
 importComponent("MoveToAlignmentDropdownItem", () => require('../components/dropdowns/MoveToAlignmentDropdownItem'));
 importComponent("ShortformDropdownItem", () => require('../components/dropdowns/ShortformDropdownItem'));
 importComponent("ApproveNewUserDropdownItem", () => require('../components/dropdowns/ApproveNewUserDropdownItem'));
+importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/EditTagsDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));

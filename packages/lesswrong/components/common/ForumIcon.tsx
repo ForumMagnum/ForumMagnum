@@ -16,6 +16,7 @@ import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
+import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -27,6 +28,7 @@ import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import MuiNotesIcon from '@material-ui/icons/Notes';
 import MuiWarningIcon from '@material-ui/icons/Warning';
+import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -62,6 +64,7 @@ export type ForumIconName =
   "Comment" |
   "Shortform" |
   "Warning" |
+  "Tag" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -88,6 +91,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    Tag: MuiTagIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -113,6 +117,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    Tag: TagIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,

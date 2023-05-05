@@ -1,6 +1,7 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   afterIcon: {
@@ -41,13 +42,17 @@ const DropdownItem = ({
   classes,
 }: DropdownItemProps) => {
   const {MenuItem, ForumIcon} = Components;
-  void icon; // TODO
   return (
     <div>
       <MenuItem
         onClick={onClick}
         disabled={disabled}
       >
+        {icon &&
+          <ListItemIcon>
+            <ForumIcon icon={icon} />
+          </ListItemIcon>
+        }
         {title}
         {afterIcon && <ForumIcon icon={afterIcon} className={classes.afterIcon} />}
         {sideMessage &&
