@@ -1,12 +1,9 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useUpdate } from '../../../lib/crud/withUpdate';
-import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
+import { userIsPodcaster } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
-import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
-import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { Link } from '../../../lib/reactRouterWrapper';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
@@ -34,48 +31,6 @@ const PostActions = ({post, closeMenu, classes}: {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
-  const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
-
-  const handleMakeShortform = () => {
-    void updateUser({
-      selector: { _id: post.userId },
-      data: {
-        shortformFeedId: post._id
-      },
-    });
-  }
-
-  const handleMoveToAlignmentForum = () => {
-    void setAlignmentPostMutation({
-      postId: post._id,
-      af: true,
-    })
-  }
-
-  const handleRemoveFromAlignmentForum = () => {
-    void setAlignmentPostMutation({
-      postId: post._id,
-      af: false,
-    })
-  }
-
-  // TODO refactor this so it shares code with ModeratorActions and doens't get out of sync
-  const handleApproveUser = async () => {
-    await updateUser({
-      selector: {_id: post.userId},
-      data: {
-        reviewedByUserId: currentUser?._id, 
-        sunshineFlagged: false,
-        reviewedAt: new Date(),
-        needsReview: false,
-        snoozedUntilContentCount: null
-      }
-    })
-  }
 
   const handleOpenTagDialog = async () => {
     openDialog({
@@ -92,7 +47,7 @@ const PostActions = ({post, closeMenu, classes}: {
     SuggestAlignmentPostDropdownItem, ReportPostMenuItem, DeleteDraftDropdownItem,
     NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
-    MoveToAlignmentDropdownItem,
+    MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
   } = Components;
 
   if (!post) return null;
@@ -207,27 +162,8 @@ const PostActions = ({post, closeMenu, classes}: {
         <MoveToDraftDropdownItem post={post} />
         <DeleteDraftDropdownItem post={post} />
         <MoveToFrontpageDropdownItem post={post} />
-
-        { userCanDo(currentUser, "posts.edit.all") &&
-          <span>
-            { !post.shortform &&
-               <div onClick={handleMakeShortform}>
-                 <MenuItem>
-                   Set as user's Shortform Post
-                 </MenuItem>
-               </div>
-            }
-
-            { post.authorIsUnreviewed &&
-               <div onClick={handleApproveUser}>
-                 <MenuItem>
-                   Approve New User
-                 </MenuItem>
-               </div>
-            }
-          </span>
-        }
-
+        <ShortformDropdownItem post={post} />
+        <ApproveNewUserDropdownItem post={post} />
         <SuggestAlignmentPostDropdownItem post={post}/>
         <MoveToAlignmentDropdownItem post={post}/>
       </div>

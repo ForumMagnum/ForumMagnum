@@ -89,6 +89,8 @@ importComponent("SummarizeDropdownItem", () => require('../components/dropdowns/
 importComponent("MoveToFrontpageDropdownItem", () => require('../components/dropdowns/MoveToFrontpageDropdownItem'));
 importComponent("SuggestAlignmentPostDropdownItem", () => require('../components/dropdowns/SuggestAlignmentPostDropdownItem'));
 importComponent("MoveToAlignmentDropdownItem", () => require('../components/dropdowns/MoveToAlignmentDropdownItem'));
+importComponent("ShortformDropdownItem", () => require('../components/dropdowns/ShortformDropdownItem'));
+importComponent("ApproveNewUserDropdownItem", () => require('../components/dropdowns/ApproveNewUserDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
