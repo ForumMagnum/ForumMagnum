@@ -51,18 +51,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
     {!content.rejected && content.authorIsUnreviewed && <span className={classes.button}>
       <RejectedIcon className={classes.icon} onClick={() => setShowRejectionDialog(true)}/> <MetaInfo>Reject</MetaInfo>
     </span>}
-    {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
-      <LWPopper
-        open={showRejectionDialog}
-        anchorEl={anchorEl}
-        className={classes.popper}
-        clickable={true}
-        allowOverflow={true}
-        placement={"bottom-start"}
-      >
-        <ContentRejectionDialog rejectContent={handleRejectContent}/>
-      </LWPopper>
-    </ClickAwayListener>}
+    {showRejectionDialog && <ContentRejectionDialog rejectContent={handleRejectContent}/>}
   </span>
 }
 
