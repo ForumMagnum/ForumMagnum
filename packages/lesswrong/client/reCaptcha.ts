@@ -1,4 +1,5 @@
 import { getCookiePreferences } from '../lib/cookies/utils';
+import { isServer } from '../lib/executionEnvironment';
 import { reCaptchaSiteKeySetting } from '../lib/publicSettings';
 
 let reCaptchaInitialized = false;
@@ -9,7 +10,7 @@ let reCaptchaInitialized = false;
  * but it will still work outside GDPR countries at least.
  */
 export async function initReCaptcha() {
-  if (reCaptchaInitialized) {
+  if (isServer || reCaptchaInitialized) {
     return;
   }
 
@@ -30,5 +31,3 @@ export async function initReCaptcha() {
 
   reCaptchaInitialized = true;
 }
-
-void initReCaptcha();
