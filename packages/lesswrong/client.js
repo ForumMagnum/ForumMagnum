@@ -10,7 +10,7 @@ import './client/ga';
 import './client/datadogStart';
 
 // Then import google reCaptcha v3
-import './client/reCaptcha'
+import './client/reCaptchaStart'
 
 // Then do the rest
 import './client/autoRefresh';
