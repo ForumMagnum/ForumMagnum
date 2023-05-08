@@ -84,7 +84,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           </div>
           
           {isLW && <span className={classes.rejectButton}>
-            <RejectedReasonDisplay reason={post.rejectedReason}/>
+            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
             <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
           </span>}
           
