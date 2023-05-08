@@ -14,7 +14,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   showEdit: ()=>void,
 }) => {
   const {
-    EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem,
+    EditCommentDropdownItem, ReportCommentMenuItem, DeleteCommentMenuItem,
     RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
     MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
     BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton,
@@ -22,7 +22,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     DropdownMenu,
   } = Components;
 
-  const { document: postDetails } = useSingle({
+  const {document: postDetails} = useSingle({
     skip: !post,
     documentId: post?._id,
     collectionName: "Posts",
@@ -33,7 +33,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   const showDeleteCommentItem = !!(postDetails||tag);
 
   // WARNING: Clickable items in this menu must be full-width, and
-  // ideally should use the <MenuItem> component. In particular,
+  // ideally should use the <DropdownItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
   // onClick handler; the onClick handler should either be on the
   // MenuItem, or on something outside of it. Putting an onClick
@@ -43,7 +43,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   // thing.
 
   return <DropdownMenu>
-    <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
+    <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
     {post && (currentUser._id === comment.userId || currentUser.isAdmin) && <PinToProfileMenuItem comment={comment}/>}
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) && 
       <NotifyMeButton asMenuItem document={post} showIcon
