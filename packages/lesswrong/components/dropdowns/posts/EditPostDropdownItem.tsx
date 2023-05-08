@@ -1,9 +1,9 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { userIsPodcaster } from "../../lib/vulcan-users";
-import { userIsSharedOn } from "../../lib/collections/users/helpers";
-import { useCurrentUser } from "../common/withUser";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
+import { userIsPodcaster } from "../../../lib/vulcan-users";
+import { userIsSharedOn } from "../../../lib/collections/users/helpers";
+import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 
 const EditPostDropdownItem = ({post}: {post: PostsBase}) => {

@@ -1,11 +1,11 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 import React from 'react';
-import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
+import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

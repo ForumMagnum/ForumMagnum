@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { useDialog } from "../common/withDialog";
-import { preferredHeadingCase } from "../../lib/forumTypeUtils";
-import { taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { useDialog } from "../../common/withDialog";
+import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
 
 const EditTagsDropdownItem = ({post, closeMenu}: {
   post: PostsBase,

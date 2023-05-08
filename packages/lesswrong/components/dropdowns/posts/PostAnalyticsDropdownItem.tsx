@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { useCurrentUser } from "../common/withUser";
-import { isEAForum } from "../../lib/instanceSettings";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
+import { useCurrentUser } from "../../common/withUser";
+import { isEAForum } from "../../../lib/instanceSettings";
 import qs from "qs";
 
 const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {

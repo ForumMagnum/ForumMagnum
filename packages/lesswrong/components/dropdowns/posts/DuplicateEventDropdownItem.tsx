@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { preferredHeadingCase } from "../../lib/forumTypeUtils";
-import { useCurrentUser } from "../common/withUser";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
+import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 
 const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {

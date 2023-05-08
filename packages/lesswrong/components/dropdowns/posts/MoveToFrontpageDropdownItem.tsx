@@ -1,9 +1,9 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { preferredHeadingCase } from "../../lib/forumTypeUtils";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { userCanDo } from "../../lib/vulcan-users";
-import { useCurrentUser } from "../common/withUser";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+import { useUpdate } from "../../../lib/crud/withUpdate";
+import { userCanDo } from "../../../lib/vulcan-users";
+import { useCurrentUser } from "../../common/withUser";
 
 const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

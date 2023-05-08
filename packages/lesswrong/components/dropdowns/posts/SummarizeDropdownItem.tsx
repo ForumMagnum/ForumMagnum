@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { userHasAutosummarize } from "../../lib/betas";
-import { useCurrentUser } from "../common/withUser";
-import { useDialog } from "../common/withDialog";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { userHasAutosummarize } from "../../../lib/betas";
+import { useCurrentUser } from "../../common/withUser";
+import { useDialog } from "../../common/withDialog";
 
 const SummarizeDropdownItem = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,

@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog'
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../../common/withUser';
+import { useDialog } from '../../common/withDialog'
 
 const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

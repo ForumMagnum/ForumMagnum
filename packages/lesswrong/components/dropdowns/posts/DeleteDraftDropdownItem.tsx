@@ -1,9 +1,9 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
-import { postCanDelete } from '../../lib/collections/posts/helpers';
-import { useCurrentUser } from '../common/withUser';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { postCanDelete } from '../../../lib/collections/posts/helpers';
+import { useCurrentUser } from '../../common/withUser';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase

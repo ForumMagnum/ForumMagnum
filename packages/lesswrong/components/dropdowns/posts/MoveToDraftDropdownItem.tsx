@@ -1,9 +1,9 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
-import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { useCurrentUser } from '../common/withUser';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
+import { useCurrentUser } from '../../common/withUser';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase

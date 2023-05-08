@@ -1,9 +1,9 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
-import { userCanMakeAlignmentPost } from "../../lib/alignment-forum/users/helpers";
-import { useCurrentUser } from "../common/withUser";
-import { useSetAlignmentPost } from "../alignment-forum/withSetAlignmentPost";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { isEAForum } from "../../../lib/instanceSettings";
+import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/helpers";
+import { useCurrentUser } from "../../common/withUser";
+import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 
 const MoveToAlignmentDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

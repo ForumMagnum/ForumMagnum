@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
-import { userCanSuggestPostForAlignment } from '../../lib/alignment-forum/users/helpers';
-import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib/alignment-forum/posts/helpers';
+import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
+import { useCurrentUser } from '../../common/withUser';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

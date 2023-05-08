@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { useTracking } from '../../lib/analyticsEvents';
+import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
+import { useCurrentUser } from '../../common/withUser';
+import { useTracking } from '../../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
-import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
-import withErrorBoundary from '../common/withErrorBoundary';
+import { AllowHidingFrontPagePostsContext } from '../../posts/PostsPage/PostActions';
+import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import some from 'lodash/some';
