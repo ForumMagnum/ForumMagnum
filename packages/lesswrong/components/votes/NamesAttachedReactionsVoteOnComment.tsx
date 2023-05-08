@@ -635,8 +635,7 @@ const ReactionIcon = ({react, classes}: {
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
-  const desaturate = reactionType.filter?.desaturate ?? defaultFilter.desaturate;
-  const saturation = 1.0-desaturate;
+  const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
 
   return <img
     src={reactionType.svg}
