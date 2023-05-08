@@ -84,12 +84,9 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
   user: DbUser|UsersCurrent,
   voteId?: string,
 }): Partial<DbVote> => {
-  if (!document.userId)
-    throw new Error("Voted-on document does not have an author userId?");
-
-  const coauthors = collectionName === "Posts"
-    ? getConfirmedCoauthorIds(document as DbPost)
-    : [];
+  let authorIds = document.userId ? [document.userId] : []
+  if (collectionName === "Posts")
+    authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -102,7 +99,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
-    authorIds: [document.userId, ...coauthors],
+    authorIds,
     cancelled: false,
     documentIsAf: !!(document.af),
   }
