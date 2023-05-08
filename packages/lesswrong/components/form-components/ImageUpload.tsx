@@ -56,7 +56,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.primary.main,
-    marginLeft: 10,
+    margin: "10px 0 10px 20px",
+    padding: 0,
+    "&:hover": {
+      color: theme.palette.primary.dark,
+      background: "transparent",
+    },
   },
 });
 
