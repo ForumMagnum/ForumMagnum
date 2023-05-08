@@ -6,6 +6,9 @@ import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  title: {
+    flexGrow: 1,
+  },
   afterIcon: {
     fontSize: 20,
     marginLeft: 4,
@@ -18,6 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
+  },
+  tooltip: {
+    display: "block",
   },
 });
 
@@ -34,10 +40,12 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName,
   afterIcon?: ForumIconName,
+  tooltip?: string,
   disabled?: boolean,
+  loading?: boolean,
 }
 
-const DummyLink: FC<{to: HashLinkProps["to"]}> = ({children}) => <>{children}</>;
+const DummyWrapper: FC = ({children}) => <>{children}</>;
 
 const DropdownItem = ({
   title,
@@ -46,31 +54,43 @@ const DropdownItem = ({
   to,
   icon,
   afterIcon,
+  tooltip,
   disabled,
+  loading,
   classes,
 }: DropdownItemProps & {classes: ClassesType}) => {
-  const Wrapper = to ? Link : DummyLink;
-  const {MenuItem, ForumIcon} = Components;
+  const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
+  const LinkWrapper = to ? Link : DummyWrapper;
+  const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
   return (
-    <Wrapper to={to!}>
-      <MenuItem
-        onClick={onClick}
-        disabled={disabled}
-      >
-        {icon &&
-          <ListItemIcon>
-            <ForumIcon icon={icon} />
-          </ListItemIcon>
-        }
-        {title}
-        {afterIcon && <ForumIcon icon={afterIcon} className={classes.afterIcon} />}
-        {sideMessage &&
-          <div className={classes.sideMessage}>
-            {sideMessage}
-          </div>
-        }
-      </MenuItem>
-    </Wrapper>
+    <LinkWrapper to={to!}>
+      <TooltipWrapper title={tooltip!} className={classes.tooltip}>
+        <MenuItem
+          onClick={onClick}
+          disabled={disabled}
+        >
+          {loading &&
+            <ListItemIcon>
+              <Loading />
+            </ListItemIcon>
+          }
+          {icon && !loading &&
+            <ListItemIcon>
+              <ForumIcon icon={icon} />
+            </ListItemIcon>
+          }
+          <span className={classes.title}>{title}</span>
+          {afterIcon &&
+            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+          }
+          {sideMessage &&
+            <div className={classes.sideMessage}>
+              {sideMessage}
+            </div>
+          }
+        </MenuItem>
+      </TooltipWrapper>
+    </LinkWrapper>
   );
 }
 

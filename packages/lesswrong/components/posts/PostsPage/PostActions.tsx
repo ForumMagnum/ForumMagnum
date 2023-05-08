@@ -9,7 +9,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false);
 
 const styles = (_theme: ThemeType): JssStyles => ({
-  actions: {
+  root: {
     minWidth: 300,
   },
 })
@@ -24,7 +24,7 @@ const PostActions = ({post, closeMenu, classes}: {
   const {
     MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
     SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
-    NotifyMeButton, HideFrontpagePostDropdownItem, SetSideCommentVisibility,
+    HideFrontpagePostDropdownItem, SetSideCommentVisibility, NotifyMeDropdownItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
@@ -35,7 +35,7 @@ const PostActions = ({post, closeMenu, classes}: {
   const postAuthor = post.user;
 
   // WARNING: Clickable items in this menu must be full-width, and
-  // ideally should use the <MenuItem> component. In particular,
+  // ideally should use the <DropdownItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
   // onClick handler; the onClick handler should either be on the
   // MenuItem, or on something outside of it. Putting an onClick
@@ -45,52 +45,42 @@ const PostActions = ({post, closeMenu, classes}: {
   // thing.
 
   return (
-    <div className={classes.actions} >
+    <div className={classes.root} >
       <EditPostDropdownItem post={post} />
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
-
-      {currentUser && post.group &&
-        <NotifyMeButton asMenuItem
-          document={post.group} showIcon
-          subscribeMessage={"Subscribe to "+post.group.name}
-          unsubscribeMessage={"Unsubscribe from "+post.group.name}
-        />
-      }
-
-      {currentUser && post.shortform && (post.userId !== currentUser._id) &&
-        <NotifyMeButton asMenuItem document={post} showIcon
-          subscriptionType={subscriptionTypes.newShortform}
-          subscribeMessage={`Subscribe to ${post.title}`}
-          unsubscribeMessage={`Unsubscribe from ${post.title}`}
-        />
-      }
-
-      {currentUser && postAuthor && postAuthor._id !== currentUser._id &&
-        <NotifyMeButton asMenuItem document={postAuthor} showIcon
-          subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
-          unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}
-        />
-      }
-
-      {currentUser && post.debate &&
-        <NotifyMeButton
-          asMenuItem
-          showIcon
-          document={post}
-          subscriptionType={subscriptionTypes.newDebateComments}
-          subscribeMessage="Subscribe to dialogue"
-          unsubscribeMessage="Unsubscribe from dialogue"
-          tooltip="Notifies you when there is new activity in the dialogue"
-        />
-      }
-
-      {currentUser && <NotifyMeButton asMenuItem
-        document={post} showIcon
+      <NotifyMeDropdownItem
+        document={post.group}
+        enabled={!!post.group}
+        subscribeMessage={`Subscribe to ${post.group?.name}`}
+        unsubscribeMessage={`Unsubscribe from ${post.group?.name}`}
+      />
+      <NotifyMeDropdownItem
+        document={post}
+        enabled={post.shortform && post.userId !== currentUser?._id}
+        subscribeMessage={`Subscribe to ${post.title}`}
+        unsubscribeMessage={`Unsubscribe from ${post.title}`}
+        subscriptionType={subscriptionTypes.newShortform}
+      />
+      <NotifyMeDropdownItem
+        document={postAuthor}
+        enabled={!!postAuthor && postAuthor._id !== currentUser?._id}
+        subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
+        unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
+      />
+      <NotifyMeDropdownItem
+        document={post}
+        enabled={!!post.debate}
+        subscribeMessage="Subscribe to dialogue"
+        unsubscribeMessage="Unsubscribe from dialogue"
+        subscriptionType={subscriptionTypes.newDebateComments}
+        tooltip="Notifies you when there is new activity in the dialogue"
+      />
+      <NotifyMeDropdownItem
+        document={post}
         subscribeMessage="Subscribe to comments"
         unsubscribeMessage="Unsubscribe from comments"
-      />}
-
+      />
       <BookmarkDropdownItem post={post} />
       <SetSideCommentVisibility />
       <HideFrontpagePostDropdownItem post={post} />

@@ -98,6 +98,7 @@ importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/B
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/EditPostDropdownItem'));
 importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/DuplicateEventDropdownItem'));
 importComponent("PostAnalyticsDropdownItem", () => require('../components/dropdowns/PostAnalyticsDropdownItem'));
+importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
