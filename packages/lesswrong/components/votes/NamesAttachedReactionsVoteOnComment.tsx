@@ -1,8 +1,8 @@
-import React, { useRef, Ref } from 'react';
+import React, { useRef, RefObject } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
-import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType } from '../../lib/voting/reactions';
+import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType, defaultFilter } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -20,19 +20,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     whiteSpace: "nowrap",
   },
-  reactions: {
+  footerReactions: {
     display: "inline-block",
     fontSize: 25,
     marginLeft: 10,
     lineHeight: 0.6,
     height: 24,
-    paddingTop: 2,
     outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     whiteSpace: "nowrap",
-    verticalAlign: "bottom",
-    paddingLeft: 4,
-    paddingRight: 4,
     
     position: "absolute",
     right: 20,
@@ -40,12 +36,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderRadius: 6,
   },
+  footerReaction: {
+    height: 24,
+    display: "inline-block",
+    paddingTop: 2,
+    paddingLeft: 3,
+    paddingRight: 3,
+    "&:first-child": {
+      paddingLeft: 7,
+    },
+    "&:last-child": {
+      paddingRight: 7,
+    },
+    "&:hover": {
+      background: theme.palette.panelBackground.darken04,
+    },
+  },
   reactionCount: {
     fontSize: 14,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.dim60,
     marginLeft: 3,
-    marginRight: 6,
+    verticalAlign: "middle",
   },
   addReactionButton: {
     verticalAlign: "bottom",
@@ -66,6 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 350,
   },
   hoverBallotEntry: {
+    fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
     paddingTop: 4,
     paddingBottom: 4,
@@ -97,15 +110,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   selectedAnti: {
     background: "rgb(255, 189, 189, .23)", //TODO themeify
   },
-  reactionEmoji: {
-    fontSize: 18,
-    verticalAlign: "middle",
-    filter: "opacity(0.3)",
-  },
   reactionSvg: {
     width: 18,
     height: 18,
-    filter: "opacity(0.3)",
     verticalAlign: "middle",
   },
   usersWhoReacted: {
@@ -146,6 +153,104 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClient>): {
+  currentUserExtendedVote: NamesAttachedReactionsVote|null,
+  getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
+  toggleReaction: (name: string) => void
+  setCurrentUserReaction: (name: string, reaction: VoteOnReactionType|null) => void,
+}=> {
+  const { openDialog } = useDialog()
+  const currentUser = useCurrentUser()
+  const currentUserExtendedVote = (voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined) ?? null;
+
+  function getCurrentUserReactionVote(name: string): VoteOnReactionType|null {
+    const reacts = currentUserExtendedVote?.reacts ?? [];
+    const relevantVoteIndex = reacts.findIndex(r=>r.react===name);
+    if (relevantVoteIndex < 0) return null;
+    return reacts[relevantVoteIndex].vote;
+  }
+
+  function openLoginDialog() {
+    openDialog({
+      componentName: "LoginPopup",
+      componentProps: {}
+    })
+  }
+
+  function toggleReaction(name: string) {
+    if (!currentUser) {
+      openLoginDialog();
+      return;
+    }
+    
+    if (getCurrentUserReactionVote(name)) {
+      clearCurrentUserReaction(name);
+    } else {
+      const initialVote = "created"; //TODO: "created" vs "seconded"
+      addCurrentUserReaction(name, initialVote);
+    }
+  }
+  
+  function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType) {
+    if (!currentUser) {
+      openLoginDialog();
+      return;
+    }
+    
+    const oldReacts = currentUserExtendedVote?.reacts ?? [];
+    const newReacts: UserVoteOnSingleReaction[] = [
+      ...filter(oldReacts, r=>r.react!==reactionName),
+      {
+        react: reactionName,
+        vote: vote,
+      }
+    ]
+    const newExtendedVote: NamesAttachedReactionsVote = {
+      ...currentUserExtendedVote,
+      reacts: newReacts,
+    };
+
+    voteProps.vote({
+      document: voteProps.document,
+      voteType: voteProps.document.currentUserVote || null,
+      extendedVote: newExtendedVote,
+      currentUser,
+    });
+  }
+  
+  function clearCurrentUserReaction(reactionName: string) {
+    if (!currentUser) {
+      openLoginDialog();
+      return;
+    }
+    
+    const oldReacts = currentUserExtendedVote?.reacts ?? [];
+    const newExtendedVote: NamesAttachedReactionsVote = {
+      ...currentUserExtendedVote,
+      reacts: filter(oldReacts, r=>r.react!==reactionName)
+    };
+
+    voteProps.vote({
+      document: voteProps.document,
+      voteType: voteProps.document.currentUserVote || null,
+      extendedVote: newExtendedVote,
+      currentUser,
+    });
+  }
+  
+  function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null) {
+    if (reaction) {
+      addCurrentUserReaction(reactionName, reaction);
+    } else {
+      clearCurrentUserReaction(reactionName);
+    }
+  }
+
+  return {
+    currentUserExtendedVote, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction
+  };
+}
+
 const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
@@ -179,22 +284,23 @@ const NamesAttachedReactionsCommentBottom = ({
     return null;
   }
   
-  return <span className={classes.reactions} ref={anchorEl}>
-    {!hideKarma && reactionsShown.map(({react, numberShown}) => <span key={react}>
+  return <span className={classes.footerReactions} ref={anchorEl}>
+    {!hideKarma && reactionsShown.map(({react, numberShown}) =>
       <HoverableReactionIcon
+        key={react}
         anchorEl={anchorEl}
         react={react}
         numberShown={numberShown}
         voteProps={voteProps}
         classes={classes}
       />
-    </span>)}
+    )}
     {hideKarma && <InsertEmoticonOutlined/>}
   </span>
 }
 
 const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes}: {
-  anchorEl: Ref<AnyBecauseTodo>,
+  anchorEl: RefObject<AnyBecauseTodo>,
   react: string,
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -202,21 +308,24 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
 }) => {
   const { hover, eventHandlers } = useHover();
   const { PopperCard } = Components;
+  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function reactionClicked(reaction: EmojiReactName) {
-    // TODO
+    toggleReaction(reaction);
   }
   
-  return <span {...eventHandlers}>
+  return <span
+    {...eventHandlers} className={classes.footerReaction}
+    onMouseDown={()=>{reactionClicked(react)}}
+  >
     <ReactionIcon
       react={react}
-      onClick={()=>{reactionClicked(react)}}
       classes={classes}
     />
     <span className={classes.reactionCount}>{numberShown}</span>
 
-    {hover && <PopperCard
-      open={!!hover} anchorEl={anchorEl.current!}
+    {hover && anchorEl?.current && <PopperCard
+      open={!!hover} anchorEl={anchorEl.current}
       placement="bottom-end"
       allowOverflow={true}
       
@@ -232,14 +341,8 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const currentUserExtendedVote = voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined;
+  const { currentUserExtendedVote, getCurrentUserReactionVote } = useNamesAttachedReactionsVoting(voteProps);
 
-  function getCurrentUserReactionVote(name: string): VoteOnReactionType|null {
-    const reacts = currentUserExtendedVote?.reacts ?? [];
-    const relevantVoteIndex = reacts.findIndex(r=>r.react===name);
-    if (relevantVoteIndex < 0) return null;
-    return reacts[relevantVoteIndex].vote;
-  }
 
   function openLoginDialog() {
     openDialog({
@@ -353,95 +456,9 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser()
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const { openDialog } = useDialog()
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
-  const currentUserExtendedVote = voteProps.document?.currentUserExtendedVote as NamesAttachedReactionsVote|undefined;
-  
-  // TODO refactr: Commonize these functions with NamesAttachedReactionsHoverBallot
-  function getCurrentUserReactionVote(name: string): VoteOnReactionType|null {
-    const reacts = currentUserExtendedVote?.reacts ?? [];
-    const relevantVoteIndex = reacts.findIndex(r=>r.react===name);
-    if (relevantVoteIndex < 0) return null;
-    return reacts[relevantVoteIndex].vote;
-  }
-
-  function openLoginDialog() {
-    openDialog({
-      componentName: "LoginPopup",
-      componentProps: {}
-    })
-  }
-
-  function toggleReaction(name: string) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    if (getCurrentUserReactionVote(name)) {
-      clearCurrentUserReaction(name);
-    } else {
-      const initialVote = "created"; //TODO: "created" vs "seconded"
-      addCurrentUserReaction(name, initialVote);
-    }
-  }
-  
-  function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    const newReacts: UserVoteOnSingleReaction[] = [
-      ...filter(oldReacts, r=>r.react!==reactionName),
-      {
-        react: reactionName,
-        vote: vote,
-      }
-    ]
-    const newExtendedVote: NamesAttachedReactionsVote = {
-      ...currentUserExtendedVote,
-      reacts: newReacts,
-    };
-
-    voteProps.vote({
-      document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
-      extendedVote: newExtendedVote,
-      currentUser,
-    });
-  }
-  
-  function clearCurrentUserReaction(reactionName: string) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    const newExtendedVote: NamesAttachedReactionsVote = {
-      ...currentUserExtendedVote,
-      reacts: filter(oldReacts, r=>r.react!==reactionName)
-    };
-
-    voteProps.vote({
-      document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
-      extendedVote: newExtendedVote,
-      currentUser,
-    });
-  }
-  
-  function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null) {
-    if (reaction) {
-      addCurrentUserReaction(reactionName, reaction);
-    } else {
-      clearCurrentUserReaction(reactionName);
-    }
-  }
+  const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   return <div>
     <HoverBallotReactionRow
@@ -612,30 +629,20 @@ const HoverBallotReactionPalette = ({getCurrentUserReactionVote, toggleReaction,
   </div>
 }
 
-const ReactionIcon = ({react, onClick, classes}: {
+const ReactionIcon = ({react, classes}: {
   react: string,
-  onClick?: ()=>void,
   classes: ClassesType
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
-  if (!reactionType) {
-    return <PlaceholderIcon classes={classes}/>;
-  }
-  if (reactionType.svg) {
-    return <img src={reactionType.svg} className={classes.reactionSvg}/>;
-  } else if (reactionType.emoji) {
-    return <span className={classes.reactionEmoji}>{reactionType.emoji}</span>;
-  } else {
-    return <PlaceholderIcon classes={classes}/>;
-  }
-}
+  const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
+  const desaturate = reactionType.filter?.desaturate ?? defaultFilter.desaturate;
+  const saturation = 1.0-desaturate;
 
-const PlaceholderIcon = ({classes}: {
-  classes: ClassesType
-}) => {
-  return <span className={classes.reactionEmoji}>
-    <InsertEmoticonOutlined/>
-  </span>
+  return <img
+    src={reactionType.svg}
+    style={{filter: `opacity(${opacity}) saturate(${saturation})`}}
+    className={classes.reactionSvg}
+  />;
 }
 
 const AddReactionButton = ({voteProps, classes}: {

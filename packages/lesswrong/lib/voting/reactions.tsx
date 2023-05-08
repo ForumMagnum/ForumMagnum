@@ -3,27 +3,28 @@ import keyBy from 'lodash/keyBy';
 export type NamesAttachedReactionType = {
   name: string,
   label: string,
-  svg?: string,
-  emoji?: string,
+  svg: string,
+  filter?: {
+    opacity?: number,
+    desaturate?: number,
+  },
   description: string|((contentType:string)=>string),
 }
 
 /**
  * Reactions available.
  *
- * A reaction image should either be an image file (SVG preferred,
- * PNG is acceptable) in /public/reactionImages, or a Unicode emoji. Note
- * that Unicode emojis are provided by the font-stack, and are much-more-likely
- * than normal text to be falling back on system fonts; so if you use a Unicode
- * emoji, you need to separately test that it displays correctly on every major
- * platform: MacOS, Windows, Android Chrome, iOS, Ubuntu. So if you've found
- * a Unicode emoji you like, you probably want to get an image version from one
- * of these sources:
+ * A reaction image should be an SVG image in /public/reactionImages. We don't
+ * get emojis directly from fonts because there's too much variability between
+ * platforms in how they look, but appropriately-licensed fonts like Noto Emoji
+ * and OpenMoji are good sources of images to use.
+ *
  *     Noto Emoji: https://fonts.google.com/noto/specimen/Noto+Emoji
  *     OpenMoji: https://openmoji.org/library/
+ *
  * When you add a downloaded image, record where you got it in
  * `public/reactionImages/sources.txt`. This is required to be able to meet the
- * attribution requirement of the licenses. If you get an image from a source
+ * attribution requirement of many licenses. If you get an image from a source
  * that hasn't been used before, you have to check its license and make sure
  * it's suitable.
  */
@@ -39,14 +40,12 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "hitsTheMark",
     label: "On Point",
     svg: "/reactionImages/target.svg", //picture of a target
-    emoji: "🎯",
     description: (contentType) => `This ${contentType} gets to the core of the issue, and is particularly on point.`,
   },
   {
     name: "clear",
     label: "Clear",
     svg: "/reactionImages/gem.svg", //picture of a gem
-    emoji: "💎",
     description: (contentType) => `This ${contentType} clarifies things.`,
   },
   {
@@ -65,7 +64,6 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "key",
     label: "Key insight",
     svg: "/reactionImages/key.svg", //picture of a key
-    emoji: "🔑",
     description: "This is a key insight",
   },
   {
@@ -84,38 +82,37 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "combative",
     label: "Combative",
     svg: "/reactionImages/swords.svg", //picture of crossed swords
-    emoji: "⚔️",
     description: "This seemed combative",
   },
   {
     name: "excitement",
     label: "Exciting",
-    emoji: "🎉",
+    svg: "/reactionImages/partypopper.svg",
     description: "This is exciting!",
   },
 
   {
     name: "skeptical",
     label: "Skeptical",
-    emoji: "🤨",
+    svg: "/reactionImages/skeptical.svg",
     description: "I'm skeptical of this claim but don't necessarily have a refutation",
   },
   {
     name: "empathy",
     label: "Empathy",
-    emoji: "❤️",
+    svg: "/reactionImages/heart.svg",
     description: (contentType) => `I feel warmth towards the author of this ${contentType}`,
   },
   {
     name: "surprise",
     label: "Surprise",
-    emoji: "😮",
+    svg: "/reactionImages/surprise.svg",
     description: `I found this surprising`,
   },
   {
     name: "seen",
     label: "I saw this",
-    emoji: "👀",
+    svg: "/reactionImages/eyes.svg",
     description: "I saw this",
   },
   
@@ -128,6 +125,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   //   I now have additional questions (elephant)
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
+
+export const defaultFilter = {
+  opacity: 0.4,
+  desaturate: 0.4,
+}
 
 export const namesAttachedReactionsPalette: string[][] = [
   ["verified", "error", "key"],

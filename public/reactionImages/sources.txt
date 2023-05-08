@@ -8,3 +8,9 @@ binoculars.svg: https://openclipart.org/download/170639/binoculars.svg
 swords.svg: https://openclipart.org/download/211404/swords.svg
 check.svg: https://openclipart.org/download/253846/1467299975.svg
 x.svg: https://openclipart.org/download/196797/mono-checkmark.svg
+partypopper.svg: https://openmoji.org/data/color/svg/1F389.svg
+skeptical.svg: https://openmoji.org/data/color/svg/1F389.svg
+heart.svg: https://openmoji.org/data/color/svg/2764.svg
+surprise.svg: https://openmoji.org/library/emoji-1F62E/
+eyes.svg: https://openmoji.org/data/color/svg/1F440.svg
+
