@@ -86,9 +86,9 @@ const cloudinaryArgsByImageType = {
   },
   eventImageId: {
     minImageHeight: 270,
-    minImageWidth: 480,
-    croppingAspectRatio: 1.78,
-    croppingDefaultSelectionRatio: 1.78,
+    minImageWidth: 500,
+    croppingAspectRatio: 1.91,
+    croppingDefaultSelectionRatio: 1.91,
     uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
   },
   spotlightImageId: {
@@ -127,8 +127,8 @@ const formPreviewSizeByImageType = {
     height: 80
   },
   eventImageId: {
-    width: 320,
-    height: 180
+    width: 373,
+    height: 195
   },
   spotlightImageId: {
     width: 345,
