@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
   },
   title: {
-    paddingTop: 24,
+    paddingTop: 20,
     paddingLeft: PADDING,
   },
   item: {

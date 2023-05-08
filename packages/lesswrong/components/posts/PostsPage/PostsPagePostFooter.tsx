@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 40,
+    marginBottom: isEAForum ? 24 : 40,
     "@media print": { display: "none" },
   },
   bottomNavigation: {

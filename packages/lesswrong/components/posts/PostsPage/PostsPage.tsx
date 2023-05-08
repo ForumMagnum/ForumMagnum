@@ -111,7 +111,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: isEAForum ? 50 : undefined
+    paddingTop: isEAForum ? 16 : undefined
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths

@@ -22,12 +22,12 @@ const styles = (theme: ThemeType) => ({
   },
   button: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     color: theme.palette.primary.main,
     cursor: "pointer",
     "&:hover": {
-      color: theme.palette.primary.light,
+      color: theme.palette.primary.dark,
     },
   },
 });

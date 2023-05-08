@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,10 +17,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: isEAForum ? theme.palette.primary.main : theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
-    marginBottom: -4
+    marginBottom: -4,
+    fontWeight: isEAForum ? 600 : undefined,
+    marginTop: isEAForum ? 12 : undefined,
+    "&:hover": {
+      color: isEAForum ? theme.palette.primary.dark !important : undefined, 
+    },
   },
   list: {
     marginTop: theme.spacing.unit
