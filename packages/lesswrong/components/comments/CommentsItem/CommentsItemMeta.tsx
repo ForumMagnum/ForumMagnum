@@ -124,19 +124,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
     : {
       opacity: 0.35,
-    },
-  rejectedIcon: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  rejectedLabel: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  }
+    }
 });
 
 export const CommentsItemMeta = ({
@@ -228,7 +216,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, RejectContentButton, UserCommentMarkers,
+    ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
   return (
@@ -280,7 +268,7 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && <SmallSideVote
+      {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
         collection={Comments}
         hideKarma={post?.hideCommentKarma}
@@ -322,10 +310,6 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-
-      {isLW && userIsAdmin(currentUser) &&
-        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
-      }
 
       <span className={classes.rightSection}>
         {isEAForum &&

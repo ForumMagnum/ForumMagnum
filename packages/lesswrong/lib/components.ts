@@ -516,7 +516,10 @@ importComponent("ModerationDashboard", () => require('../components/sunshineDash
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
 importComponent("ModerationTemplateItem", () => require('../components/moderationTemplates/ModerationTemplateItem'));
 importComponent("ModGPTDashboard", () => require('../components/sunshineDashboard/ModGPTDashboard'));
-importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
+importComponent("ModerationLog", () => require('../components/sunshineDashboard/moderationLog/ModerationLog'));
+importComponent("RejectedPostsList", () => require('../components/sunshineDashboard/moderationLog/RejectedPostsList'));
+importComponent("RejectedCommentsList", () => require('../components/sunshineDashboard/moderationLog/RejectedCommentsList'));
+importComponent("RejectedReasonDisplay", () => require('../components/sunshineDashboard/RejectedReasonDisplay'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
@@ -863,3 +866,8 @@ importComponent("Book2019FrontpageWidget", () => require('../components/books/Bo
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
+
+importComponent("CookieBanner", () => require('../components/common/CookieBanner/CookieBanner'));
+importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
+importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
+importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));

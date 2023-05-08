@@ -349,6 +349,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: preferredHeadingCase('Contact Us'),
       link: '/contact',
       subItem: true,
+    }, {
+      id: 'cookies',
+      title: preferredHeadingCase('Cookie Policy'),
+      link: '/cookiePolicy',
+      subItem: true,
     }
   ],
   default: [

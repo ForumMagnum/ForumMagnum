@@ -58,12 +58,13 @@ const EAHome = () => {
                 label={"Shortform"}
                 terms={shortformTerms}
                 initialLimit={5}
+                shortformButton
               />
             </SingleColumnSection>
           )}
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed
-            title="Recent comments"
+            title="Recent discussion"
             af={false}
             commentsLimit={recentDiscussionCommentsPerPost}
             maxAgeHours={18}

@@ -2469,10 +2469,10 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     nullable: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    hidden: true
+    hidden: true,
   },
 
   rejectedByUserId: {

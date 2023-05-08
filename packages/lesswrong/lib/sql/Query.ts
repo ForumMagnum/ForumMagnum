@@ -382,14 +382,32 @@ abstract class Query<T extends DbObject> {
             ? fieldType.subtype
             : fieldType;
           const hint = this.getTypeHint(hintType) ?? "";
-          const args = value[comparer].length
+          const args: (string | Arg)[] = value[comparer].length
             ? value[comparer].flatMap((item: any) => [
               ",", new Arg(item), hint,
             ]).slice(1)
             : [`SELECT NULL${hint}`];
-          return comparer === "$all"
-            ? [field, "@> ARRAY[", ...args, "]"]
-            : [field, hint, "IN (", ...args, ")"];
+
+          if (comparer === "$all") {
+            return [field, "@> ARRAY[", ...args, "]"];
+          }
+
+          /**
+           * For $in comparisons on array-typed fields.  Only tested with string arrays.
+           * We filter out the hints because they'll incorrectly be `::TEXT[]`, rather than `::TEXT`
+           * That's because we only take the subtype above for $all comparers.  (Not sure why, so...)
+           * 
+           * We use `&&` to do an intersection ("any values in the field match any values passed in") rather than "contains the entire subset"
+           * As far as I can tell this case is only used for meetup types and we should avoid doing this elsewhere (and just hand-write some SQL)
+           */
+          if (fieldType?.isArray()) {
+            return [field, hint, "&& ARRAY[", ...args.filter((arg) => arg !== hint), "]"]
+          }
+
+          /**
+           * For all $in comparisons on regular (not array) fields, which is the overwhelming majority of them.
+           */
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
