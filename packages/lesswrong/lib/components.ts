@@ -80,6 +80,7 @@ importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => requ
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
 // Dropdowns
+importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/SuggestCuratedDropdownItem'));
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/DeleteDraftDropdownItem'));

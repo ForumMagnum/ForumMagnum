@@ -28,7 +28,7 @@ const PostActions = ({post, closeMenu, classes}: {
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
-    PostAnalyticsDropdownItem,
+    PostAnalyticsDropdownItem, DropdownMenu,
   } = Components;
 
   if (!post) return null;
@@ -45,7 +45,7 @@ const PostActions = ({post, closeMenu, classes}: {
   // thing.
 
   return (
-    <div className={classes.root} >
+    <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
@@ -96,7 +96,7 @@ const PostActions = ({post, closeMenu, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentDropdownItem post={post}/>
-    </div>
+    </DropdownMenu>
   );
 }
 

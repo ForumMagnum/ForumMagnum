@@ -13,11 +13,15 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem,
-          BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem,
-          BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment,
-          PinToProfileMenuItem, LockThreadMenuItem, ShortformFrontpageMenuItem } = Components
-  
+  const {
+    EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem,
+    RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
+    MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
+    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton,
+    ToggleIsModeratorComment, PinToProfileMenuItem, LockThreadMenuItem,
+    DropdownMenu,
+  } = Components;
+
   const { document: postDetails } = useSingle({
     skip: !post,
     documentId: post?._id,
@@ -37,8 +41,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   // click area to the right of the item which looks like you've
   // selected the thing, and closes the menu, but doesn't do the
   // thing.
-  
-  return <>
+
+  return <DropdownMenu>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
     {post && (currentUser._id === comment.userId || currentUser.isAdmin) && <PinToProfileMenuItem comment={comment}/>}
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) && 
@@ -73,7 +77,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
     <ToggleIsModeratorComment comment={comment}/>
-  </>
+  </DropdownMenu>
 }
 
 const CommentActionsComponent = registerComponent("CommentActions", CommentActions);
