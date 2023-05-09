@@ -36,9 +36,6 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       background: theme.palette.grey[100],
     },
-    "&:hover .PostsPageRecommendationItem-actions": {
-      opacity: 0.2,
-    },
   },
   karma: {
     display: "flex",
@@ -65,23 +62,6 @@ const styles = (theme: ThemeType) => ({
   },
   coauthors: {
     marginLeft: 3,
-  },
-  actions: {
-    opacity: 0,
-    position: "absolute",
-    top: 2,
-    right: -35,
-    paddingLeft: 22,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-    "& *": {
-      cursor: "pointer",
-    },
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
-    },
   },
   interactionWrapper: {
     "&:hover": {
@@ -194,8 +174,8 @@ const PostsPageRecommendationItem = ({
           }
         </InteractionWrapper>
       </div>
-      <div className={classes.actions}>
-        <InteractionWrapper className={classes.interactionWrapper}>
+      <div>
+        <InteractionWrapper>
           <PostActionsButton post={post} vertical />
         </InteractionWrapper>
       </div>

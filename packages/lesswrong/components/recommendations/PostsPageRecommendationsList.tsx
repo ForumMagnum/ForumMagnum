@@ -22,8 +22,8 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: PADDING,
   },
   item: {
+    // We don't pad right here in order to not over-pad the triple-dot menu
     paddingLeft: PADDING,
-    paddingRight: PADDING,
   },
 });
 
