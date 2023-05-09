@@ -37,14 +37,14 @@ voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}
   }
 
   // Increment the count for the person casting the vote
-  const casterField = vote.voteType + "Count"
+  const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
     void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}});
   }
 
   // Increment the count for the person receiving the vote
-  const receiverField = vote.voteType + "ReceivedCount"
+  const receiverField = `${vote.voteType}ReceivedCount`
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds
@@ -57,14 +57,14 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
     return;
   }
 
-  const casterField = vote.voteType + "Count"
+  const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
     void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}});
   }
 
   // Increment the count for the person receiving the vote
-  const receiverField = vote.voteType + "ReceivedCount"
+  const receiverField = `${vote.voteType}ReceivedCount`
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds

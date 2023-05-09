@@ -18,45 +18,60 @@ const DEFAULT_USER_VOTE_FIELDS: UserVoteFields = {
   smallDownvoteReceivedCount: 0,
   bigUpvoteReceivedCount: 0,
   bigDownvoteReceivedCount: 0
-};
+}
 
+/**
+ * Recalculates the following fields on the Users table for all users, related to how many votes they've received:
+ *
+ * voteReceivedCount
+ * smallUpvoteReceivedCount
+ * bigUpvoteReceivedCount
+ * smallDownvoteReceivedCount
+ * bigDownvoteReceivedCount
+ */
 async function recalculateReceivedVoteCounts() {
   await migrateDocuments({
     collection: Users,
     batchSize: 100,
     migrate: async (users) => {
       const userIds = users.map(user => user._id);
+      // get all the votes on the given batch of users,
+      // ignoring votes on collections that don't affect karma
       const userVotes = await Votes.find({
         authorIds: { $in: userIds },
         cancelled: { $ne: true },
         collectionName: { $in: collectionsThatAffectKarma }
       }).fetch();
-
+      // filter out votes that are self votes
       const filteredUserVotes = userVotes.filter(vote => !vote.authorIds.includes(vote.userId));
       const userIdSet = new Set(userIds);
 
+      // calculate the vote received counts for each user in the batch
       const batchUserVoteCounts = filteredUserVotes.reduce((agg, vote) => {
+        // make sure to only make changes to users in the *current* batch
+        // (ex. we ignore other post authors since we didn't get all their received votes above)
         const authorsInBatch = vote.authorIds.filter(authorId => userIdSet.has(authorId));
 
+        // update each vote author (i.e. the users who received the vote)
         authorsInBatch.forEach(authorId => {
-          const previousAuthorVoteCounts = agg[authorId] ?? { ...DEFAULT_USER_VOTE_FIELDS };
+          const voteCounts = agg[authorId] ?? { ...DEFAULT_USER_VOTE_FIELDS };
           switch (vote.voteType) {
             case 'smallUpvote':
-              previousAuthorVoteCounts.smallUpvoteReceivedCount++;
+              voteCounts.smallUpvoteReceivedCount++;
               break;
             case 'smallDownvote':
-              previousAuthorVoteCounts.smallDownvoteReceivedCount++;
+              voteCounts.smallDownvoteReceivedCount++;
               break;
             case 'bigUpvote':
-              previousAuthorVoteCounts.bigUpvoteReceivedCount++;
+              voteCounts.bigUpvoteReceivedCount++;
               break;
             case 'bigDownvote':
-              previousAuthorVoteCounts.bigDownvoteReceivedCount++;
+              voteCounts.bigDownvoteReceivedCount++;
               break;
           }
-          previousAuthorVoteCounts.voteReceivedCount++;
+          voteCounts.voteReceivedCount++;
 
-          agg[authorId] = previousAuthorVoteCounts;
+          agg[authorId] = voteCounts;
         });
 
         return agg;
@@ -74,7 +89,8 @@ async function recalculateReceivedVoteCounts() {
       });
 
       if (batchUpdates.length > 0) {
-        console.log({ batchSize: batchUpdates.length, firstUserId: batchUpdates[0].updateOne.filter._id });
+        // eslint-disable-next-line no-console
+        console.log(`Updating batch of ${batchUpdates.length} users, _id of first user is ${batchUpdates[0].updateOne.filter._id}`);
         await Users.rawCollection().bulkWrite(
           batchUpdates,
           { ordered: false }
