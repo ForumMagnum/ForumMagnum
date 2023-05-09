@@ -57,7 +57,6 @@ class ElasticSearchExporter {
 
     const aliasName = this.getIndexName(collection);
     const newIndexName = `${aliasName}_${Date.now()}`;
-    const mappings = this.getCollectionMappings(collectionName);
     const existing = await client.indices.getAlias({name: aliasName});
     const oldIndexName = Object.keys(existing ?? {})[0];
 
@@ -70,12 +69,7 @@ class ElasticSearchExporter {
           "index.blocks.write": true,
         },
       });
-      await client.indices.create({
-        index: newIndexName,
-        body: {
-          mappings: {properties: mappings},
-        },
-      });
+      await this.createIndex(newIndexName, collectionName);
       await client.reindex({
         refresh: true,
         body: {
@@ -99,17 +93,44 @@ class ElasticSearchExporter {
     } else {
       // eslint-disable-next-line no-console
       console.log(`Creating index: ${collectionName}`);
-      await client.indices.create({
-        index: newIndexName,
-        body: {
-          mappings: {properties: mappings},
-        },
-      });
+      await this.createIndex(newIndexName, collectionName);
       await client.indices.putAlias({
         index: newIndexName,
         name: aliasName,
       });
     }
+  }
+
+  private async createIndex(
+    indexName: string,
+    collectionName: AlgoliaIndexCollectionName,
+  ): Promise<void> {
+    const client = this.client.getClientOrThrow();
+    const mappings = this.getCollectionMappings(collectionName);
+    await client.indices.create({
+      index: indexName,
+      body: {
+        settings: {
+          analysis: {
+            // analyzer: {
+              // default: {
+                // type: "language",
+                // language: "English",
+                // stem_exclusion: [],
+              // },
+            // },
+            filter: {
+              default: {
+                type: "porter_stem",
+              },
+            },
+          },
+        },
+        mappings: {
+          properties: mappings,
+        },
+      },
+    });
   }
 
   private getCollectionMappings(

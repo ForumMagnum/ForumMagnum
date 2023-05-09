@@ -3,7 +3,6 @@ import { AlgoliaIndexCollectionName } from "../../lib/search/algoliaUtil";
 export type Ranking = {
   field: string,
   order: "asc" | "desc",
-  expr?: string,
 }
 
 export type IndexConfig = {
@@ -36,7 +35,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "title",
     ranking: [
-      {field: "order", order: "asc", expr: "abcd"/*TODO*/},
+      {field: "order", order: "asc"},
       {field: "baseScore", order: "desc"},
       {field: "score", order: "desc"},
     ],
@@ -55,7 +54,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "bio",
     ranking: [
       {field: "karma", order: "desc"},
-      {field: "createdAt", order: "desc", expr: "abcd"/*TODO*/},
+      // {field: "createdAt", order: "desc"},
     ],
   },
   Sequences: {
@@ -75,7 +74,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "description",
     ranking: [
-      {field: "core", order: "desc", expr: "abcd"/*TODO*/},
+      // {field: "core", order: "desc"},
       {field: "postCount", order: "desc"},
     ],
   },

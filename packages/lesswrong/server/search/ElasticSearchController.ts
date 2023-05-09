@@ -30,7 +30,12 @@ class ElasticSearchController {
     if (!isValidSearchQuery(query)) {
       throw new Error("Invalid query");
     }
-    return this.searchService.runQuery(query);
+    try {
+      return this.searchService.runQuery(query);
+    } catch (e) {
+      console.error("Search error:", e);
+      throw e;
+    }
   }
 }
 

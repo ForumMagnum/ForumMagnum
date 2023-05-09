@@ -21,7 +21,6 @@ class ElasticSearchService {
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
     });
-    console.log(require("util").inspect(result, {depth: null}));
 
     const nbHits = typeof result.hits.total === "number"
       ? result.hits.total
