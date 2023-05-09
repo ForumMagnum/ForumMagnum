@@ -1,4 +1,4 @@
-import { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
+import { StrategySettings, StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
 import {
@@ -9,6 +9,11 @@ import {
 export type RecommendationStrategyConfig = {
   maxRecommendationCount: number,
   minimumBaseScore: number,
+}
+
+export type RecommendationResult = {
+  posts: DbPost[],
+  settings: StrategySettings,
 }
 
 /**
@@ -32,7 +37,7 @@ abstract class RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
-  ): Promise<DbPost[]>;
+  ): Promise<RecommendationResult>;
 
   /**
    * Create SQL query fragments that filter out posts that the user has already

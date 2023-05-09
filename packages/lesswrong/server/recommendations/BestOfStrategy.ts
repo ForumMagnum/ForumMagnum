@@ -1,5 +1,6 @@
 import FeatureStrategy from "./FeatureStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
+import { RecommendationResult } from "./RecommendationStrategy";
 
 /**
  * A recommendation strategy that returns the highest voted posts that the user
@@ -11,7 +12,7 @@ class BestOfStrategy extends FeatureStrategy {
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
-  ): Promise<DbPost[]> {
+  ): Promise<RecommendationResult> {
     return super.recommend(
       currentUser,
       count,

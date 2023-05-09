@@ -1,4 +1,4 @@
-import RecommendationStrategy from "./RecommendationStrategy";
+import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 
@@ -24,18 +24,19 @@ class MoreFromTagStrategy extends RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     {postId}: StrategySpecification,
-  ): Promise<DbPost[]> {
+  ): Promise<RecommendationResult> {
     const tag = await this.chooseTagForPost(postId);
     if (!tag) {
       throw new Error("Couldn't choose a relevant tag for post " + postId);
     }
-    return this.recommendDefaultWithPostFilter(
+    const posts = await this.recommendDefaultWithPostFilter(
       currentUser,
       count,
       postId,
       `("p"."tagRelevance"->$(tagId))::INTEGER >= 1`,
       {tagId: tag._id},
     );
+    return {posts, settings: {}};
   };
 
   private async chooseTagForPost(postId: string): Promise<{_id: string} | null> {

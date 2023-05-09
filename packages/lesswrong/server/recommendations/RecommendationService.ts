@@ -7,7 +7,7 @@ import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import BestOfStrategy from "./BestOfStrategy";
 import CollabFilterStrategy from "./CollabFilterStrategy";
 import TagWeightedCollabFilterStrategy from "./TagWeightedCollabFilter";
-import RecommendationStrategy from "./RecommendationStrategy";
+import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
 import FeatureStrategy from "./FeatureStrategy";
@@ -48,21 +48,18 @@ class RecommendationService {
     }
 
     const strategies = this.getStrategyStack(strategy.name);
-    const strategySettings = {
-      bias: strategy.bias,
-      features: strategy.features,
-    };
     let posts: DbPost[] = [];
 
     while (count > 0 && strategies.length) {
       this.logger("Recommending for", strategy.postId, "with", strategies[0]);
       const start = Date.now();
-      const newPosts = (await this.recommendWithStrategyName(
+      const result = await this.recommendWithStrategyName(
         currentUser,
         count,
         strategy,
         strategies[0],
-      )).filter(
+      );
+      const newPosts = result.posts.filter(
         ({_id}) => !posts.some((post) => post._id === _id),
       );
       const time = Date.now() - start;
@@ -72,7 +69,7 @@ class RecommendationService {
         currentUser,
         clientId,
         strategies[0],
-        strategySettings,
+        result.settings,
         newPosts,
       );
 
@@ -100,7 +97,7 @@ class RecommendationService {
     count: number,
     strategy: StrategySpecification,
     strategyName: RecommendationStrategyName,
-  ): Promise<DbPost[]> {
+  ): Promise<RecommendationResult> {
     const Provider = this.strategies[strategyName];
     if (!Provider) {
       throw new Error("Invalid recommendation strategy name: " + strategyName);
@@ -110,7 +107,11 @@ class RecommendationService {
       return await source.recommend(currentUser, count, strategy);
     } catch (e) {
       this.logger("Recommendation error:", e.message);
-      return [];
+      const settings = {
+        bias: strategy.bias,
+        features: strategy.features,
+      };
+      return {posts: [], settings};
     }
   }
 

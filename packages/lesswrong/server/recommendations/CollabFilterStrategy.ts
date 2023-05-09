@@ -3,6 +3,7 @@ import type {
   StrategySpecification,
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
+import { RecommendationResult } from "./RecommendationStrategy";
 
 /**
  * This class implements a simple item-item collaborative filtering algorithm for
@@ -18,7 +19,7 @@ class CollabFilterStrategy extends FeatureStrategy {
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
-  ): Promise<DbPost[]> {
+  ): Promise<RecommendationResult> {
     const features: WeightedFeature[] = [
       {feature: "karma", weight: 0.8},
       {feature: "curated", weight: 0.075},

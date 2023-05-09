@@ -38,11 +38,14 @@ export type WeightedFeature = {
   weight: number,
 }
 
-export interface StrategySpecification {
-  name: RecommendationStrategyName,
-  postId: string,
+export interface StrategySettings {
   bias?: number,
   features?: WeightedFeature[],
+}
+
+export interface StrategySpecification extends StrategySettings {
+  name: RecommendationStrategyName,
+  postId: string,
   forceLoggedOutView?: boolean,
 }
 

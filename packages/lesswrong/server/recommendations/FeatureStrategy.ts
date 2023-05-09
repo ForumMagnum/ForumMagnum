@@ -1,4 +1,4 @@
-import RecommendationStrategy from "./RecommendationStrategy";
+import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { featureRegistry } from "./Feature";
@@ -14,7 +14,7 @@ class FeatureStrategy extends RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     {postId, features}: StrategySpecification,
-  ): Promise<DbPost[]> {
+  ): Promise<RecommendationResult> {
     if (!features) {
       throw new Error("No features supplied to FeatureStrategy");
     }
@@ -39,7 +39,7 @@ class FeatureStrategy extends RecommendationStrategy {
       args = {...args, ...feature.getArgs(), [weightName]: weight};
     }
 
-    return db.any(`
+    const posts = await db.any(`
       SELECT p.*
       FROM "Posts" p
       ${userFilter.join}
@@ -61,7 +61,9 @@ class FeatureStrategy extends RecommendationStrategy {
       postId,
       count,
     });
-  };
+
+    return {posts, settings: {features}};
+  }
 }
 
 export default FeatureStrategy;

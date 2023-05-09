@@ -3,10 +3,8 @@ import PostRecommendations from "../../lib/collections/postRecommendations/colle
 import { randomId } from "../../lib/random";
 import type {
   RecommendationStrategyName,
-  StrategySpecification,
+  StrategySettings,
 } from "../../lib/collections/users/recommendationSettings";
-
-export type StrategySettings = Pick<StrategySpecification, "bias" | "features">;
 
 export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommendation> {
   constructor() {
@@ -44,7 +42,8 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
         COALESCE("clientId", ''),
         "postId"
       ) DO UPDATE SET
-        "strategyName" = $4,
+        "strategyName" = $5,
+        "strategySettings" = $6,
         "lastRecommendedAt" = CURRENT_TIMESTAMP
     `, [randomId(), userId, clientId, postId, strategyName, strategySettings])));
   }
