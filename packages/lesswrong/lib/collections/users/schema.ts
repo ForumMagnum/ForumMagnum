@@ -237,6 +237,8 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   githubProfileURL: 'github.com/'
 }
 
+export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
+
 /**
  * @summary Users schema
  * @type {Object}
@@ -2640,7 +2642,7 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: Date,
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,

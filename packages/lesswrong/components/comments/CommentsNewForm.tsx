@@ -287,9 +287,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
   const lastRateLimitExpiry: Date|null =
-    (userNextAbleToComment && new Date(userNextAbleToComment))
+    (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible))
     ?? (postNextAbleToComment && new Date(postNextAbleToComment))
     ?? null;
+  const rateLimitReason = userNextAbleToComment ? userNextAbleToComment.rateLimitType : null
   
   // Disable the form if there's a rate limit and it's more than 1 minute until it
   // expires. (If the user is rate limited but it will expire sooner than that,
@@ -303,7 +304,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
     if (formDisabledDueToRateLimit && (userNextAbleToComment || postNextAbleToComment)) {
       const timeLeftOnUserRateLimitMS = userNextAbleToComment
-        ? new Date(userNextAbleToComment).getTime() - new Date().getTime()
+        ? new Date(userNextAbleToComment.nextEligible).getTime() - new Date().getTime()
         : 0;
       const timeLeftOnPostRateLimitMS = postNextAbleToComment
         ? new Date(postNextAbleToComment).getTime() - new Date().getTime()
@@ -326,7 +327,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitReason={rateLimitReason} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()

@@ -11,6 +11,7 @@ import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
+import { RateLimitReason } from '../../lib/collections/users/schema';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -22,6 +23,7 @@ const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPo
 
 // Rate limit the number of comments a user can post per 30 min if they have under this much karma
 const commentRateLimitKarmaThresholdSetting = new DatabasePublicSetting<number|null>('commentRateLimitKarmaThreshold', null)
+// Rate limit the number of comments a user can post per 30 min if their ratio of downvotes received : total votes received is higher than this
 const commentRateLimitDownvoteRatioSetting = new DatabasePublicSetting<number|null>('commentRateLimitDownvoteRatio', null)
 
 // Post rate limiting
@@ -223,8 +225,6 @@ const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
   return aboveDownvoteRatioThreshold
 }
 
-type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
-
 /**
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
@@ -262,28 +262,28 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
         }
       }
     }
-  }
-  
-  // If the user has low karma, or their ratio of received downvotes to total votes is too high,
-  // they are limited to no more than 4 comments per 0.5 hours.
-  const hasLowKarma = checkLowKarmaCommentRateLimit(user)
-  const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
-  if (hasLowKarma || hasHighDownvoteRatio) {
-    const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-      user,
-      collection: Comments,
-      n: 4,
-      cutoffHours: 0.5,
-    })
-    if (fourthMostRecentCommentDate) {
-      // if the user has hit the limit, then they are eligible to comment again
-      // 30 min after their fourth most recent comment
-      const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
-      const rateLimitType: RateLimitReason = hasLowKarma ? "lowKarma" : "downvoteRatio";
+    
+    // If the user has low karma, or their ratio of received downvotes to total votes is too high,
+    // they are limited to no more than 4 comments per 0.5 hours.
+    const hasLowKarma = checkLowKarmaCommentRateLimit(user)
+    const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
+    if (hasLowKarma || hasHighDownvoteRatio) {
+      const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+        user,
+        collection: Comments,
+        n: 4,
+        cutoffHours: 0.5,
+      })
+      if (fourthMostRecentCommentDate) {
+        // if the user has hit the limit, then they are eligible to comment again
+        // 30 min after their fourth most recent comment
+        const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
+        const rateLimitType: RateLimitReason = hasLowKarma ? "lowKarma" : "downvoteRatio";
 
-      return {
-        nextEligible,
-        rateLimitType
+        return {
+          nextEligible,
+          rateLimitType
+        }
       }
     }
   }
