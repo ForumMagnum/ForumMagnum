@@ -1282,7 +1282,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     resolveAs: {
       fieldName: 'coauthors',
-      type: '[User!]!',
+      type: '[User!]',
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
