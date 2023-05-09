@@ -52,6 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.darken04,
     },
   },
+  footerReactionHover: {
+    width: 300,
+  },
   reactionCount: {
     fontSize: 14,
     fontFamily: theme.typography.commentStyle.fontFamily,
@@ -152,6 +155,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -4,
   },
 })
+
 
 const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClient>): {
   currentUserExtendedVote: NamesAttachedReactionsVote|null,
@@ -460,7 +464,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
-  return <div>
+  return <div className={classes.footerReactionHover}>
     <HoverBallotReactionRow
       key={react}
       reactionName={react}

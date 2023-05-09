@@ -6,7 +6,7 @@ export type NamesAttachedReactionType = {
   svg: string,
   filter?: {
     opacity?: number,
-    desaturate?: number,
+    saturate?: number,
   },
   description: string|((contentType:string)=>string),
 }
@@ -40,6 +40,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "hitsTheMark",
     label: "On Point",
     svg: "/reactionImages/target.svg", //picture of a target
+    filter: { saturate: 0 },
     description: (contentType) => `This ${contentType} gets to the core of the issue, and is particularly on point.`,
   },
   {
@@ -58,12 +59,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "support",
     label: "Support",
     svg: "/reactionImages/pillar.svg", //picture of a pillar
+    filter: {opacity: .7, saturate: 0},
     description: `I am expressing supportiveness towards this`,
   },
   {
     name: "key",
     label: "Key insight",
     svg: "/reactionImages/key.svg", //picture of a key
+    filter: { opacity: 1.0, saturate: 0.5 },
     description: "This is a key insight",
   },
   {
@@ -88,6 +91,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "excitement",
     label: "Exciting",
     svg: "/reactionImages/partypopper.svg",
+    filter: {opacity: .7, saturate: .4},
     description: "This is exciting!",
   },
 
@@ -95,24 +99,28 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "skeptical",
     label: "Skeptical",
     svg: "/reactionImages/skeptical.svg",
+    filter: {opacity: .8, saturate: .5},
     description: "I'm skeptical of this claim but don't necessarily have a refutation",
   },
   {
     name: "empathy",
     label: "Empathy",
     svg: "/reactionImages/heart.svg",
+    filter: {opacity: .7, saturate: .4},
     description: (contentType) => `I feel warmth towards the author of this ${contentType}`,
   },
   {
     name: "surprise",
     label: "Surprise",
     svg: "/reactionImages/surprise.svg",
+    filter: {opacity: .8, saturate: .5},
     description: `I found this surprising`,
   },
   {
     name: "seen",
     label: "I saw this",
     svg: "/reactionImages/eyes.svg",
+    filter: {opacity: .6, saturate: 0},
     description: "I saw this",
   },
   
@@ -128,7 +136,7 @@ export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.n
 
 export const defaultFilter = {
   opacity: 0.4,
-  desaturate: 0.4,
+  saturate: 0.6,
 }
 
 export const namesAttachedReactionsPalette: string[][] = [
