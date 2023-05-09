@@ -78,6 +78,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly hideCommunitySection: boolean,
+  readonly expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
@@ -2396,6 +2400,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly hideCommunitySection: boolean,
+  readonly expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,

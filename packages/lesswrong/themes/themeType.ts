@@ -68,6 +68,7 @@ declare global {
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
+    primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -449,7 +450,11 @@ declare global {
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,

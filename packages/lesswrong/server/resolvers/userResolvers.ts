@@ -5,7 +5,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
@@ -188,6 +188,21 @@ addGraphQLResolvers({
         validate: false,
       })).data;
       return updatedUser.acceptedTos;
+    },
+    async UserExpandFrontpageSection(
+      _root: void,
+      {section, expanded}: {section: string, expanded: boolean},
+      {currentUser, repos}: ResolverContext,
+    ) {
+      if (!Users.isPostgres()) {
+        throw new Error("Expanding frontpage sections requires Postgres");
+      }
+      if (!currentUser) {
+        throw new Error("You must login to do this");
+      }
+      expanded = Boolean(expanded);
+      await repos.users.setExpandFrontpageSection(currentUser._id, section, expanded);
+      return expanded;
     },
     async UserUpdateSubforumMembership(root: void, { tagId, member }: {tagId: string, member: boolean}, context: ResolverContext) {
       const { currentUser } = context
@@ -417,6 +432,9 @@ addGraphQLMutation(
 // TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
