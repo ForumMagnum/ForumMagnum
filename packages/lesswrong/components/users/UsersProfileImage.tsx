@@ -106,12 +106,27 @@ const InitialFallback: FC<{
 });
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
-  user: UsersMinimumInfo,
+  user?: UsersMinimumInfo,
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
   classes: ClassesType,
 }) => {
+  if (!user) {
+    return (
+      <picture className={classes.wrapper}>
+        <div
+          className={classNames(
+            classes.root,
+            classes.loadingPlaceholder,
+            className,
+          )}
+          style={{width: size, height: size}}
+        />
+      </picture>
+    );
+  }
+
   if (user.profileImageId) {
     return (
       <Components.CloudinaryImage2

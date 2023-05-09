@@ -9,7 +9,7 @@ const COLLAPSED_SECTION_HEIGHT = 200
 
 export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   background: theme.palette.grey[0],
-  padding: '24px 32px',
+  padding: '24px 24px',
   marginBottom: 24,
   borderRadius: theme.borderRadius.default,
   fontFamily: theme.palette.fonts.sansSerifStack,
