@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   editIcon: {
     height: 12,
     color: theme.palette.grey[500],
-    opacity: .3
+    opacity: .2
   }
 });
 
