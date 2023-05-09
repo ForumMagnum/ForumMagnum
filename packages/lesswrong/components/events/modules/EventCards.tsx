@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardContent: {
     position: 'relative',
-    height: 170,
+    height: 175,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -68,6 +68,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardTitle: {
     ...theme.typography.headline,
     fontSize: 20,
+    fontWeight: 600,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -96,7 +97,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    marginTop: 10,
+    marginTop: 20,
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -110,7 +111,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardImage: {
     borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
-    height: 200,
+    height: 195,
     width: 373,
   },
 }))
@@ -148,7 +149,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
-          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} /> :
+          <CloudinaryImage2 height={195} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} className={classes.eventCardImage} /> :
           <img src={getDefaultEventImg(373)} className={classes.eventCardImage} />}
       </Link>
       {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
