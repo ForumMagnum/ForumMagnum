@@ -22,13 +22,6 @@ import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits'
 import GraphQLJSON from 'graphql-type-json';
 import { RateLimitReason } from '../../lib/collections/users/schema';
 
-addGraphQLSchema(`
-  type UserRateLimit {
-    nextEligible: Date,
-    rateLimitType: String
-  }
-`)
-
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
     ...denormalizedField({
