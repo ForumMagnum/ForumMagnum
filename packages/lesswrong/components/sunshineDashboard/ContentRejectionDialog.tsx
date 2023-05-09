@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card'
+import EditIcon from '@material-ui/icons/Edit'
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogContent: {
@@ -32,6 +34,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   card: {
     padding: 12,
     width: 500,
+  },
+  reason: {
+    '&:hover $editIcon': {
+      opacity: 1
+    }
+  },
+  editIcon: {
+    height: 12,
+    color: theme.palette.grey[500],
+    opacity: .3
   }
 });
 
@@ -74,23 +86,23 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   };
 
   const dialogContent = <div className={classes.rejectionCheckboxes}>
-    {Object.entries(rejectionReasons).map(([label, description]) => {
-      return <span key={`rejection-reason-${label}`}>
+    {results.map((template) => {
+      return <div key={`rejection-reason-${template.name}`} className={classes.reason}>
         <LWTooltip placement="right-end" tooltip={false} title={<Card className={classes.card}>
           <ContentStyles contentType='comment'>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: description || ""}} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html || ""}} />
           </ContentStyles>
         </Card>}>
           <div>
             <Checkbox
-              checked={selections[label]}
-              onChange={(_, checked) => composeRejectedReason(label, checked)}
+              checked={selections[template.name]}
+              onChange={(_, checked) => composeRejectedReason(template.name, checked)}
               className={classes.checkbox}
             />
-            {label}
+            {template.name} <Link to={`/admin/moderationTemplates#${template._id}`} target="_blank"><EditIcon className={classes.editIcon}/></Link>
           </div>
         </LWTooltip>
-      </span>
+      </div>
     })}
     <TextField
       id="comment-moderation-rejection-reason"
