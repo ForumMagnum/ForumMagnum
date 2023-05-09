@@ -195,7 +195,7 @@
     "timestamp": "2023-05-02T16:00:34.000Z"
   },
   {
-    "acceptsSchemaHash": "9f4ba49ceedbc502e6d30b03fb1b54df",
+    "acceptsSchemaHash": "abf1fe6538e00cc705f96b4ce8b981ff",
     "acceptedByMigration": "20230509T114346.create_PostRecommendations_table.ts",
     "timestamp": "2023-05-09T11:43:46.000Z"
   }

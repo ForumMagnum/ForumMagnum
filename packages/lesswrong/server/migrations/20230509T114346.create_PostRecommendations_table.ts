@@ -1,7 +1,7 @@
 import PostRecommendations from "../../lib/collections/postRecommendations/collection";
 import { createTable, dropTable } from "./meta/utils";
 
-export const acceptsSchemaHash = "9f4ba49ceedbc502e6d30b03fb1b54df";
+export const acceptsSchemaHash = "abf1fe6538e00cc705f96b4ce8b981ff";
 
 export const up = async ({db}: MigrationContext) => {
   if (PostRecommendations.isPostgres()) {

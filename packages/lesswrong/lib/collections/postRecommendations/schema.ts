@@ -11,7 +11,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
       type: "User",
       nullable: false,
     }),
-    optional: false,
+    optional: true,
     nullable: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
@@ -22,7 +22,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
    */
   clientId: {
     type: String,
-    optional: false,
+    optional: true,
     nullable: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
@@ -38,6 +38,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
       nullable: false,
     }),
     optional: false,
+    nullable: false,
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],
