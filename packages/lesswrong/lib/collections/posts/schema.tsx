@@ -2094,7 +2094,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members'],
     control: "ImageUpload",
     group: formGroups.event,
-    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
+    tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)"
   },
 
   types: {
