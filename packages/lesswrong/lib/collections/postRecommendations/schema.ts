@@ -18,7 +18,11 @@ export const schema: SchemaType<DbPostRecommendation> = {
     canCreate: ["admins"],
   },
   /**
-   * The client id of logged out users - this is null when user id is set.
+   * The client id of logged out users. This is null when user id is set in order to
+   * make sure that our unique index contraints for `ON CONFLICT` work correctly. We
+   * don't currently try to unify recommendations made to a logged out client id that
+   * subsequently logs in and can be associated with a user id, but this would be a
+   * good improvement for the future.
    */
   clientId: {
     type: String,

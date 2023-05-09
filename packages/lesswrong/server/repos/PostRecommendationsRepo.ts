@@ -39,7 +39,11 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
         "createdAt"
       ) VALUES (
         $1, $2, $3, $4, $5, $6, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-      ) ON CONFLICT ("userId", "clientId", "postId") DO UPDATE SET
+      ) ON CONFLICT (
+        COALESCE("userId", ''),
+        COALESCE("clientId", ''),
+        "postId"
+      ) DO UPDATE SET
         "strategyName" = $4,
         "lastRecommendedAt" = CURRENT_TIMESTAMP
     `, [randomId(), userId, clientId, postId, strategyName, strategySettings])));
