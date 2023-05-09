@@ -210,6 +210,29 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
     return null;
   
   const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (getModRateLimit()) => {
+    
+  }
+
+  
+  if () => {
+
+  }
+    
+    getModeratorRateLimit(user) 
+
+
+
+
+
+
+
+
+
+
+
+
+  const moderatorRateLimit = await getModeratorRateLimit(user)
   if (moderatorRateLimit) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
@@ -226,6 +249,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   
   // check that the user doesn't post more than Y posts per day
   if(numberOfPostsInPast24Hours >= maxPostsPer24HoursSetting.get()) {
+
     throw new Error(`Sorry, you cannot submit more than ${maxPostsPer24HoursSetting.get()} posts per day.`);
   }
   // check that user waits more than X seconds between posts
