@@ -44,7 +44,7 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
-import ElasticSearchController from './search/ElasticSearchController';
+import ElasticSearchController from './search/elastic/ElasticSearchController';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");

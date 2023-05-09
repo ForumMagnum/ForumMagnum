@@ -174,4 +174,4 @@ import './server/search/utils';
 import './server/search/callbacks';
 import './server/search/algoliaCron';
 
-import './server/search/ElasticSearchExporter';
+import './server/search/elastic/ElasticSearchExporter';
