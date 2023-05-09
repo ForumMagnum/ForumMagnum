@@ -39,6 +39,7 @@ class RecommendationService {
 
   async recommend(
     currentUser: DbUser|null,
+    clientId: string|null,
     count: number,
     strategy: StrategySpecification,
   ): Promise<DbPost[]> {
@@ -47,6 +48,10 @@ class RecommendationService {
     }
 
     const strategies = this.getStrategyStack(strategy.name);
+    const strategySettings = {
+      bias: strategy.bias,
+      features: strategy.features,
+    };
     let posts: DbPost[] = [];
 
     while (count > 0 && strategies.length) {
@@ -63,9 +68,13 @@ class RecommendationService {
       const time = Date.now() - start;
       this.logger("...found", newPosts.length, "posts in", time, "milliseconds");
 
-      if (currentUser) {
-        void this.repo.recordRecommendations(currentUser, strategies[0], newPosts);
-      }
+      void this.repo.recordRecommendations(
+        currentUser,
+        clientId,
+        strategies[0],
+        strategySettings,
+        newPosts,
+      );
 
       posts = posts.concat(newPosts);
       count -= newPosts.length;
@@ -106,19 +115,33 @@ class RecommendationService {
   }
 
   async markRecommendationAsObserved(
-    {_id: userId}: DbUser,
+    currentUser: DbUser|null,
+    clientId: string|null,
     postId: string,
   ): Promise<void> {
-    this.logger("Marking recommendation as observed:", {userId, postId});
-    await this.repo.markRecommendationAsObserved(userId, postId);
+    const userId = currentUser?._id ?? null;
+    if (userId) {
+      clientId = null;
+    } else if (!clientId) {
+      return;
+    }
+    this.logger("Marking recommendation as observed:", {userId, clientId, postId});
+    await this.repo.markRecommendationAsObserved(userId, clientId, postId);
   }
 
   async markRecommendationAsClicked(
-    {_id: userId}: DbUser,
+    currentUser: DbUser|null,
+    clientId: string|null,
     postId: string,
   ): Promise<void> {
-    this.logger("Marking recommendation as clicked:", {userId, postId});
-    await this.repo.markRecommendationAsClicked(userId, postId);
+    const userId = currentUser?._id ?? null;
+    if (userId) {
+      clientId = null;
+    } else if (!clientId) {
+      return;
+    }
+    this.logger("Marking recommendation as clicked:", {userId, clientId, postId});
+    await this.repo.markRecommendationAsClicked(userId, clientId, postId);
   }
 }
 

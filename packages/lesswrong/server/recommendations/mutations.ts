@@ -7,13 +7,10 @@ addGraphQLResolvers({
     async observeRecommendation(
       _: void,
       {postId}: {postId: string},
-      {currentUser}: ResolverContext,
+      {currentUser, clientId}: ResolverContext,
     ): Promise<boolean> {
-      if (!currentUser) {
-        throw new Error("User is not logged in");
-      }
       const service = new RecommendationService();
-      await service.markRecommendationAsObserved(currentUser, postId);
+      await service.markRecommendationAsObserved(currentUser, clientId, postId);
       return true;
     }
   }
@@ -25,13 +22,10 @@ addGraphQLResolvers({
     async clickRecommendation(
       _: void,
       {postId}: {postId: string},
-      {currentUser}: ResolverContext,
+      {currentUser, clientId}: ResolverContext,
     ): Promise<boolean> {
-      if (!currentUser) {
-        throw new Error("User is not logged in");
-      }
       const service = new RecommendationService();
-      await service.markRecommendationAsClicked(currentUser, postId);
+      await service.markRecommendationAsClicked(currentUser, clientId, postId);
       return true;
     }
   }

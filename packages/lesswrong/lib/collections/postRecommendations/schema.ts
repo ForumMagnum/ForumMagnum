@@ -2,7 +2,7 @@ import { foreignKeyField } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
 
 export const schema: SchemaType<DbPostRecommendation> = {
-  /** The user who the recommendation was generated for */
+  /** The user who the recommendation was generated for. */
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -12,11 +12,23 @@ export const schema: SchemaType<DbPostRecommendation> = {
       nullable: false,
     }),
     optional: false,
+    nullable: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],
   },
-  /** The post used as a seed for this recommendation */
+  /**
+   * The client id of logged out users - this is null when user id is set.
+   */
+  clientId: {
+    type: String,
+    optional: false,
+    nullable: true,
+    canRead: ["admins"],
+    canUpdate: ["admins"],
+    canCreate: ["admins"],
+  },
+  /** The post used as a seed for this recommendation. */
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
@@ -31,13 +43,25 @@ export const schema: SchemaType<DbPostRecommendation> = {
     canCreate: ["admins"],
   },
   /**
-   * The strategy used to generate this recommendation
-   * (See server/recommendations/Strategy.ts)
+   * The strategy used to generate this recommendation.
+   * See server/recommendations/Strategy.ts.
    */
   strategyName: {
     type: String,
     optional: false,
     nullable: false,
+    canRead: ["admins"],
+    canUpdate: ["admins"],
+    canCreate: ["admins"],
+  },
+  /**
+   * The settings fed into the above strategy to generate the recommendation.
+   */
+  strategySettings: {
+    type: Object,
+    optional: true,
+    nullable: true,
+    blackbox: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],
@@ -56,7 +80,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
     canUpdate: ["admins"],
     canCreate: ["admins"],
   },
-  /** The date of the last time this recommendation was generated */
+  /** The date of the last time this recommendation was generated. */
   lastRecommendedAt: {
     type: Date,
     optional: false,
@@ -65,7 +89,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
     canUpdate: ["admins"],
     canCreate: ["admins"],
   },
-  /** The date of the last time this recommendation was clicked */
+  /** The date of the last time this recommendation was clicked. */
   clickedAt: {
     type: Date,
     optional: true,

@@ -381,11 +381,11 @@ addGraphQLResolvers({
     },
 
     async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
-      const { currentUser } = context;
+      const { currentUser, clientId } = context;
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        return service.recommend(currentUser, count, algorithm.strategy);
+        return service.recommend(currentUser, clientId, count, algorithm.strategy);
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})

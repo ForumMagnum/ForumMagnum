@@ -12,6 +12,6 @@ export const PostRecommendations: PostRecommendationsCollection = createCollecti
 });
 addUniversalFields({collection: PostRecommendations});
 
-ensureIndex(PostRecommendations, {userId: 1, postId: 1}, {unique: true});
+ensureIndex(PostRecommendations, {userId: 1, clientId: 1, postId: 1}, {unique: true});
 
 export default PostRecommendations;
