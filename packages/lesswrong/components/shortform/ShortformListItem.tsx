@@ -62,6 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tag: {
     marginLeft: 10,
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    }
   },
   preview: {
     marginLeft: 6,

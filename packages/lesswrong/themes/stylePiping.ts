@@ -422,7 +422,7 @@ export const smallPostStyles = (theme: ThemeType) => {
       ...theme.typography.postStyle,
       fontSize: "1.28rem",
       lineHeight: "1.8rem",
-    },
+    }
   };
 }
 

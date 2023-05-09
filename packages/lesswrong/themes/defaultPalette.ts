@@ -144,6 +144,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     grey,
     greyAlpha,
     inverseGreyAlpha,
+    primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     
@@ -252,6 +253,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
     sprout: '#69886e',
+    yellow: '#ffc500',
     
     commentsBubble: {
       commentCount: "#fff",

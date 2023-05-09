@@ -90,6 +90,10 @@ export const baseTheme: BaseThemeSpecification = {
         small: 3,
       },
       typography: {
+        cloudinaryFont: {
+          stack: "'Merriweather', serif",
+          url: "https://fonts.googleapis.com/css?family=Merriweather",
+        },
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
         },

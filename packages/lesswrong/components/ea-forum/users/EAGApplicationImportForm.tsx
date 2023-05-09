@@ -713,7 +713,7 @@ const EAGApplicationImportForm = ({classes}: {
   return <AnalyticsContext pageContext="eagApplicationImportForm">
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        Import Your Profile
+        Import your profile
       </Typography>
 
       {formLoading ? <Loading /> : body}

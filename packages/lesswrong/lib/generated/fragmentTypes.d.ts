@@ -962,6 +962,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
+  readonly rejectedReason: string | null,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -1233,6 +1234,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
+  readonly rejectedReason: string | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -1354,6 +1356,7 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
 }
 
