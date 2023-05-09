@@ -17,15 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.commentStyle,
-    color: isEAForum ? theme.palette.primary.main : theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: -4,
-    fontWeight: isEAForum ? 600 : undefined,
-    marginTop: isEAForum ? 12 : undefined,
-    "&:hover": {
-      color: isEAForum ? theme.palette.primary.dark !important : undefined, 
-    },
+    ...(isEAForum
+      ? {
+        fontWeight: 600,
+        marginTop: 12,
+        color: theme.palette.primary.main,
+        "&:hover": {
+          color: theme.palette.primary.dark,
+          opacity: 1,
+        },
+      }
+      : {
+        color: theme.palette.lwTertiary.main,
+      }),
   },
   list: {
     marginTop: theme.spacing.unit
@@ -67,7 +74,7 @@ const PingbacksList = ({classes, postId, limit=5}: {
           </LWTooltip>
         </div>
         <div className={classes.list}>
-          {results.map((post, i) =>
+          {results.map((post) =>
             <div key={post._id} >
               <Pingback post={post}/>
             </div>
