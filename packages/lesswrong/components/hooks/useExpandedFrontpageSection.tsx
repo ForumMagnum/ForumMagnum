@@ -7,7 +7,7 @@ import moment from "moment";
 
 export type ExpandedFrontpageSections = NonNullable<DbUser["expandedFrontpageSections"]>;
 export type ExpandedFrontpageSection = keyof ExpandedFrontpageSections;
-export type DefaultExpandedType = "all" | "none" | "loggedIn";
+export type DefaultExpandedType = "all" | "none" | "loggedIn" | "loggedOut";
 
 export type UseExpandedFrontpageSectionProps = {
   section: ExpandedFrontpageSection,
@@ -34,6 +34,8 @@ const isDefaultExpanded = (
       return true;
   case "loggedIn":
       return !!currentUser;
+  case "loggedOut":
+      return !currentUser;
   }
 }
 

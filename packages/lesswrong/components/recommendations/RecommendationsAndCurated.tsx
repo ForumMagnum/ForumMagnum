@@ -118,7 +118,7 @@ const RecommendationsAndCurated = ({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",
     onCollapseEvent: "recommendationsSectionCollapsed",
-    defaultExpanded: isEAForum ? "loggedIn" : "all",
+    defaultExpanded: isEAForum ? "loggedOut" : "all",
     cookieName: SHOW_RECOMMENDATIONS_SECTION_COOKIE,
   });
 
