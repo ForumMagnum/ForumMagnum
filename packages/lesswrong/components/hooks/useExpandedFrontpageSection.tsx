@@ -14,7 +14,7 @@ export type UseExpandedFrontpageSectionProps = {
   defaultExpanded: DefaultExpandedType,
   onExpandEvent?: string,
   onCollapseEvent?: string,
-  cookieName?: string,
+  cookieName: string,
 }
 
 const expandFrontpageSectionMutation = gql`
@@ -44,8 +44,6 @@ export const useExpandedFrontpageSection = ({
   onCollapseEvent,
   cookieName,
 }: UseExpandedFrontpageSectionProps) => {
-  cookieName ??= `expand_frontpage_section_${section}`;
-
   const currentUser = useCurrentUser();
   const [expandFrontpageSection] = useMutation(expandFrontpageSectionMutation, {
     errorPolicy: "all",
