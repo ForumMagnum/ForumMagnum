@@ -36,7 +36,7 @@ class MoreFromTagStrategy extends RecommendationStrategy {
       `("p"."tagRelevance"->$(tagId))::INTEGER >= 1`,
       {tagId: tag._id},
     );
-    return {posts, settings: {}};
+    return {posts, settings: {postId}};
   };
 
   private async chooseTagForPost(postId: string): Promise<{_id: string} | null> {

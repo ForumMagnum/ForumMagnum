@@ -16,7 +16,7 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       postId,
       `p."userId" = (SELECT "userId" FROM "Posts" WHERE "_id" = $(postId))`,
     );
-    return {posts, settings: {}};
+    return {posts, settings: {postId}};
   };
 }
 

@@ -39,13 +39,13 @@ export type WeightedFeature = {
 }
 
 export interface StrategySettings {
+  postId: string,
   bias?: number,
   features?: WeightedFeature[],
 }
 
 export interface StrategySpecification extends StrategySettings {
   name: RecommendationStrategyName,
-  postId: string,
   forceLoggedOutView?: boolean,
 }
 

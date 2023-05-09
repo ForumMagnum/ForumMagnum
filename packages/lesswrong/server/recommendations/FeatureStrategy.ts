@@ -62,7 +62,7 @@ class FeatureStrategy extends RecommendationStrategy {
       count,
     });
 
-    return {posts, settings: {features}};
+    return {posts, settings: {postId, features}};
   }
 }
 

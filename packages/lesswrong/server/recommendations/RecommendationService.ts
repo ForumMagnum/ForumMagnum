@@ -108,6 +108,7 @@ class RecommendationService {
     } catch (e) {
       this.logger("Recommendation error:", e.message);
       const settings = {
+        postId: strategy.postId,
         bias: strategy.bias,
         features: strategy.features,
       };
