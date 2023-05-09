@@ -103,7 +103,7 @@ const PostsPageRecommendationItem = ({
         },
       });
     }
-  }, [currentUser, post._id, observeRecommendation, disableAnalytics]);
+  }, [post._id, observeRecommendation, disableAnalytics]);
 
   const ref = useObserver<HTMLDivElement>({
     onEnter: onObserve,
@@ -111,7 +111,7 @@ const PostsPageRecommendationItem = ({
   });
 
   const onClicked = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    if (currentUser && !disableAnalytics) {
+    if (!disableAnalytics) {
       void clickRecommendation({
         variables: {
           postId: post._id,
@@ -119,7 +119,7 @@ const PostsPageRecommendationItem = ({
       });
     }
     onClick(e);
-  }, [currentUser, post._id, clickRecommendation, disableAnalytics, onClick]);
+  }, [post._id, clickRecommendation, disableAnalytics, onClick]);
 
   const {
     PostsItemTooltipWrapper, PostsItemKarma, PostsTitle, UsersName, LWTooltip,
