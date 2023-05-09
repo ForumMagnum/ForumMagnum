@@ -97,7 +97,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       const {sql, args} = query.compile();
       if (!quiet) {
         // eslint-disable-next-line no-console
-        console.error(`SQL Error for ${collectionName} at position ${error.position}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
+        // console.error(`SQL Error for ${collectionName} at position ${error.position}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
       }
       throw error;
     } finally {

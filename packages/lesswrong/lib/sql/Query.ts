@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -19,6 +19,7 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
+      console.log({ argTypeHint: this.typehint, valPreview: JSON.stringify(value, null, 2).slice(0, 50) }, 'typhint when creating Arg')
     }
   }
 }
@@ -182,6 +183,9 @@ abstract class Query<T extends DbObject> {
    * `typeHint` is assumed to be the value we are getting the type for.
    */
   protected getTypeHint(typeHint?: any): string {
+    if (this.resolveTableName().toLowerCase() === 'rssfeeds') {
+      console.log({ typeHint }, 'passed in typehint');
+    }
     if (typeHint === null || typeHint === undefined) {
       return "";
     }
@@ -275,12 +279,13 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField)?.toConcrete();
-    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    const concreteFieldType = fieldType?.toConcrete();
+    if (concreteFieldType?.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }
@@ -307,6 +312,9 @@ abstract class Query<T extends DbObject> {
       }
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
+      }
+      if (!(fieldType instanceof NotNullType) && op === "<>") {
+        return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
