@@ -34,12 +34,13 @@ async function recalculateReceivedVoteCounts() {
     collection: Users,
     batchSize: 100,
     migrate: async (users) => {
-      const userIds = users.map(user => user._id);
+      const userIds = users.map(user => user._id)
       // get all the votes on the given batch of users,
       // ignoring votes on collections that don't affect karma
       const userVotes = await Votes.find({
         authorIds: { $in: userIds },
         cancelled: { $ne: true },
+        voteType: { $ne: 'neutral' },
         collectionName: { $in: collectionsThatAffectKarma }
       }).fetch();
       // filter out votes that are self votes
