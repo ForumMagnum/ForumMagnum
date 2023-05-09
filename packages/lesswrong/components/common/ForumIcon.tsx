@@ -4,29 +4,35 @@ import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
+import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
-import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
+import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
+import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
+import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
+import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
-import MuiBellBorderIcon from '@material-ui/icons/NotificationsNone';
+import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
-import MuiNotesIcon from '@material-ui/icons/Notes';
-import MuiWarningIcon from '@material-ui/icons/Warning';
+import MuiNotesIcon from "@material-ui/icons/Notes";
+import MuiWarningIcon from "@material-ui/icons/Warning";
+import MuiLocationIcon from "@material-ui/icons/LocationOn";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -49,8 +55,9 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "BellBorder" |
+  "Karma" |
+  "KarmaOutline" |
   "Star" |
-  "StarBorder" |
   "User" |
   "Bell" |
   "BellBorder" |
@@ -59,6 +66,11 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "CalendarDays" |
+  "Work" |
+  "School" |
+  "MapPin" |
+  "Pencil" |
   "Comment" |
   "Shortform" |
   "Warning" |
@@ -76,8 +88,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     BellBorder: MuiBellBorderIcon,
+    Karma: MuiStarIcon,
+    KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
-    StarBorder: MuiStarBorderIcon,
     User: MuiPersonIcon,
     Bell: MuiNotificationsIcon,
     Link: MuiLinkIcon,
@@ -85,6 +98,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    CalendarDays: CalendarDaysIcon,
+    Work: BriefcaseIcon,
+    School: AcademicCapIcon,
+    MapPin: MuiLocationIcon,
+    Pencil: PencilIcon,
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
@@ -101,8 +119,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     BellBorder: BellOutlineIcon,
+    Karma: StarIcon,
+    KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
-    StarBorder: StarOutlineIcon,
     User: UserIcon,
     Bell: BellIcon,
     Link: LinkIcon,
@@ -110,6 +129,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    CalendarDays: CalendarDaysIcon,
+    Work: BriefcaseIcon,
+    School: AcademicCapIcon,
+    MapPin: MapPinIcon,
+    Pencil: PencilIcon,
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
