@@ -154,7 +154,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison on an array field",
       getQuery: () => new SelectQuery(testTable, {d: {$in: ['foo', 'bar']}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "d" ::TEXT[] && ARRAY[ $1 , $2 ]',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "d" ::TEXT[] && ARRAY[ $1 ::TEXT , $2 ::TEXT ]',
       expectedArgs: ['foo', 'bar'],
     },
     {
