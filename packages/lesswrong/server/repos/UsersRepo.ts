@@ -64,7 +64,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [location.coordinates[0], location.coordinates[1]])
   }
 
-<<<<<<< HEAD
   getUserByEmail(email: string): Promise<DbUser | null> {
     return this.oneOrNone(`
       ${GET_USERS_BY_EMAIL_QUERY}
@@ -117,7 +116,8 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       SET emails[1] = jsonb_set(emails[1], '{verified}', 'true'::JSONB, true)
       WHERE _id = $1
     `, [userId]);
-=======
+  }
+  
   setExpandFrontpageSection(userId: string, section: string, expanded: boolean) {
     return this.none(`
       UPDATE "Users"
@@ -126,6 +126,5 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           fm_build_nested_jsonb(('{' || $2 || '}')::TEXT[], $3::JSONB)
       WHERE "_id" = $1
     `, [userId, section, String(expanded)]);
->>>>>>> origin/master
   }
 }
