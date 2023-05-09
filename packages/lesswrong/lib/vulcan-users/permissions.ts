@@ -93,8 +93,10 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
 };
 
+export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;
+
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -114,6 +116,26 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
+export const documentIsNotDeleted = (
+  user: PermissionableUser|DbUser|null,
+  document: OwnableDocument,
+) => {
+  // Admins and mods can see deleted content
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  // Authors can see their deleted content
+  if (userOwns(user, document)) {
+    return true;
+  }
+  // Unfortunately, different collections use different field names
+  // to represent "deleted-ness"
+  return !(
+    (document as unknown as DbComment).deleted ||
+    (document as unknown as DbPost).deletedDraft ||
+    (document as unknown as DbSequence).isDeleted
+  );
+}
 
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
