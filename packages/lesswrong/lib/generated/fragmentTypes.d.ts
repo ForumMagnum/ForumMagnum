@@ -983,6 +983,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
   readonly rejectedReason: string | null,
+  readonly disableRecommendation: boolean,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,

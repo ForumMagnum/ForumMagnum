@@ -205,6 +205,7 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -574,7 +575,6 @@ registerFragment(`
       moderatorActions {
         ...ModeratorActionDisplay
       }
-
     }
   }
 `)
