@@ -186,11 +186,13 @@ const RecommendationsAndCurated = ({
                 </LWTooltip>
               )}
               {isEAForum && (
-                <ForumIcon
-                  icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-                  onClick={toggleExpanded}
-                  className={classes.expandIcon}
-                />
+                <LWTooltip title={expanded ? "Collapse" : "Expand"} hideOnTouchScreens>
+                  <ForumIcon
+                    icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+                    onClick={toggleExpanded}
+                    className={classes.expandIcon}
+                  />
+                </LWTooltip>
               )}
             </>
           }
