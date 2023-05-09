@@ -96,7 +96,7 @@ const PostsPageRecommendationItem = ({
   );
 
   const onObserve = useCallback(() => {
-    if (currentUser && !disableAnalytics) {
+    if (!disableAnalytics) {
       void observeRecommendation({
         variables: {
           postId: post._id,

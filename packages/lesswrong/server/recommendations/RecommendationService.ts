@@ -121,11 +121,6 @@ class RecommendationService {
     postId: string,
   ): Promise<void> {
     const userId = currentUser?._id ?? null;
-    if (userId) {
-      clientId = null;
-    } else if (!clientId) {
-      return;
-    }
     this.logger("Marking recommendation as observed:", {userId, clientId, postId});
     await this.repo.markRecommendationAsObserved(userId, clientId, postId);
   }
@@ -136,11 +131,6 @@ class RecommendationService {
     postId: string,
   ): Promise<void> {
     const userId = currentUser?._id ?? null;
-    if (userId) {
-      clientId = null;
-    } else if (!clientId) {
-      return;
-    }
     this.logger("Marking recommendation as clicked:", {userId, clientId, postId});
     await this.repo.markRecommendationAsClicked(userId, clientId, postId);
   }
