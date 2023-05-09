@@ -72,6 +72,19 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
         }
       }
     }
+
+    if (user.emails && !Array.isArray(user.emails) && '0' in user.emails) {
+      user.emails = Object.values(user.emails);
+    }
+
+    if (typeof user.banned === 'boolean') {
+      user.banned = new Date('01-01-3023');
+    }
+
+    if (typeof user.needsReview !== 'boolean') {
+      user.needsReview = false;
+    }
+
     user.emails = user.emails?.map((email) => {
       return typeof email === "string"
         ? { address: email, verified: false }

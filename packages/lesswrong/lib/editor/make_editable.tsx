@@ -1,4 +1,4 @@
-import { userOwns } from '../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
@@ -69,7 +69,7 @@ const defaultOptions: MakeEditableOptions = {
   // }
   getLocalStorageId: null,
   permissions: {
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members']
   },
