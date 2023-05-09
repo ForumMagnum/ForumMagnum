@@ -14,6 +14,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
+import type { ForumIconName } from '../../../components/common/ForumIcon';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -144,6 +145,11 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
+const expandedFrontpageSectionsSettings = new SimpleSchema({
+  community: {type: Boolean, optional: true, nullable: true},
+  recommendations: {type: Boolean, optional: true, nullable: true},
+});
+
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
@@ -201,19 +207,25 @@ const userTheme = new SimpleSchema({
   },
 });
 
-export const CAREER_STAGES = [
-  {value: 'highSchool', label: "In high school"},
-  {value: 'associateDegree', label: "Pursuing an associate's degree"},
-  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
-  {value: 'professionalDegree', label: "Pursuing a professional degree"},
-  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
-  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
-  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
-  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
-  {value: 'midCareer', label: "Working (6-15 years of experience)"},
-  {value: 'lateCareer', label: "Working (15+ years of experience)"},
-  {value: 'seekingWork', label: "Seeking work"},
-  {value: 'retired', label: "Retired"},
+type CareerStage = {
+  value: string,
+  label: string,
+  icon: ForumIconName,
+}
+
+export const CAREER_STAGES: CareerStage[] = [
+  {value: 'highSchool', label: "In high school", icon: "School"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
+  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
+  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
+  {value: 'lateCareer', label: "Working (15+ years", icon: "Work"},
+  {value: 'seekingWork', label: "Seeking work", icon: "Work"},
+  {value: 'retired', label: "Retired", icon: "Work"},
 ]
 
 export const PROGRAM_PARTICIPATION = [
@@ -236,6 +248,8 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
+
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 /**
  * @summary Users schema
@@ -762,6 +776,16 @@ const schema: SchemaType<DbUser> = {
     label: "Hide community section from the frontpage",
   },
 
+  expandedFrontpageSections: {
+    type: expandedFrontpageSectionsSettings,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+  },
+
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
   showCommunityInRecentDiscussion: {
     order: 94,
@@ -775,21 +799,6 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     control: 'checkbox',
     label: "Show Community posts in Recent Discussion"
-  },
-  
-  // Used for EAF 4/1/2023
-  noComicSans: {
-    order: 95,
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    group: formGroups.siteCustomizations,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Opt out of Comic Sans on April 1"
   },
   
   petrovOptOut: {
@@ -1959,6 +1968,9 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
+    group: formGroups.adminOptions,
   },
   oldSlugs: {
     type: Array,

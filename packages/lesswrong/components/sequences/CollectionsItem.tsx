@@ -7,8 +7,9 @@ import { CoreReadingCollection } from './LWCoreReading';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -93,8 +94,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
-
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
@@ -105,7 +104,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   const { firstPost } = collection;
   
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
-  const [cookies, setCookie] = useCookies([cookieName]);
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   if (cookies[cookieName]) {
     return null;

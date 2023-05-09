@@ -181,13 +181,14 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR }: {
+export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR, projection }: {
   description?: string,
   collection: CollectionBase<T>,
   batchSize?: number,
   unmigratedDocumentQuery?: any,
   migrate: (documents: Array<T>) => Promise<void>,
   loadFactor?: number,
+  projection?: MongoProjection<T>
 })
 {
   // Validate arguments
@@ -206,7 +207,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   if (!unmigratedDocumentQuery) {
     // eslint-disable-next-line no-console
     console.log(`No unmigrated-document query found, migrating all documents in ${collection.collectionName}`)
-    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor})
+    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor, projection})
     // eslint-disable-next-line no-console
     console.log(`Finished migration step ${description} for all documents`)
     return
@@ -219,7 +220,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   // eslint-disable-next-line no-constant-condition
   while(!done) {
     await runThenSleep(loadFactor, async () => {
-      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
+      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize, ...(projection ? { projection } : {})}).fetch();
 
       if (!documents.length) {
         done = true;
@@ -295,10 +296,12 @@ const getFirstBatchById = async <T extends DbObject>({
   collection,
   batchSize,
   filter,
+  projection
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
 }): Promise<T[]> => {
   // As described in the docstring, we need to be able to query on the _id.
   // Without this check, someone trying to use _id in the filter would overwrite
@@ -311,6 +314,7 @@ const getFirstBatchById = async <T extends DbObject>({
     {
       sort: getBatchSort(),
       limit: batchSize,
+      ...(projection ? { projection } : {})
     }
   ).fetch();
 }
@@ -319,11 +323,13 @@ const getNextBatchById = <T extends DbObject>({
   collection,
   batchSize,
   filter,
+  projection,
   lastRows,
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
   lastRows: T[],
 }): Promise<T[]> => {
   return collection.find(
@@ -333,7 +339,8 @@ const getNextBatchById = <T extends DbObject>({
     },
     {
       sort: getBatchSort(),
-      limit: batchSize
+      limit: batchSize,
+      ...(projection ? { projection } : {})
     }
   ).fetch();
 }
@@ -342,11 +349,13 @@ const getFirstBatchByCreatedAt = async <T extends DbObject>({
   collection,
   batchSize,
   filter,
+  projection,
   overrideCreatedAt
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
   overrideCreatedAt?: keyof T & string
 }): Promise<T[]> => {
   const sortField = overrideCreatedAt ?? 'createdAt';
@@ -356,6 +365,7 @@ const getFirstBatchByCreatedAt = async <T extends DbObject>({
     {
       sort: getBatchSort(sortField),
       limit: batchSize,
+      ...(projection ? { projection } : {})
     }
   ).fetch();
 }
@@ -368,12 +378,14 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   collection,
   batchSize,
   filter,
+  projection,
   lastRows,
   overrideCreatedAt
 }: {
   collection: CollectionBase<T>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
   lastRows: T[],
   overrideCreatedAt?: keyof T & string
 }): Promise<T[]> => {
@@ -410,7 +422,8 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
 
   const opts = {
     sort: getBatchSort<T>(sortField),
-    limit: batchSize
+    limit: batchSize,
+    ...(projection ? { projection } : {})
   };
 
   return collection.find(selector, opts).fetch();
@@ -442,6 +455,7 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   collection,
   batchSize=1000,
   filter=null,
+  projection,
   callback,
   loadFactor=1.0,
   useCreatedAt=false,
@@ -450,17 +464,18 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   collection: CollectionBase<T>,
   batchSize?: number,
   filter?: MongoSelector<T> | null,
+  projection?: MongoProjection<T>,
   callback: (batch: T[]) => void | Promise<void>,
   loadFactor?: number,
   useCreatedAt?: boolean,
   overrideCreatedAt?: keyof T & string
 }): Promise<void> {
   const {getFirst, getNext} = getBatchProviders(useCreatedAt);
-  let rows = await getFirst({collection, batchSize, filter, overrideCreatedAt});
+  let rows = await getFirst({collection, batchSize, filter, projection, overrideCreatedAt});
   while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
       await timedFunc('migrationCallback', () => callback(rows));
-      rows = await timedFunc('getNext', () => getNext({collection, batchSize, filter, lastRows: rows, overrideCreatedAt}));
+      rows = await timedFunc('getNext', () => getNext({collection, batchSize, filter, projection, lastRows: rows, overrideCreatedAt}));
     });
   }
 }

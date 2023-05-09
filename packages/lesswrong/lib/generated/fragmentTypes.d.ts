@@ -78,8 +78,11 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly hideCommunitySection: boolean,
+  readonly expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null,
   readonly showCommunityInRecentDiscussion: boolean,
-  readonly noComicSans: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -364,6 +367,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly directChildrenCount: number,
   readonly descendentCount: number,
   readonly shortform: boolean,
+  readonly shortformFrontpage: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly lastSubthreadActivity: Date,
@@ -958,6 +962,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
+  readonly rejectedReason: string | null,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -1229,6 +1234,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
+  readonly rejectedReason: string | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -1337,6 +1343,7 @@ interface CommentsList { // fragment on Comments
   readonly postVersion: string,
   readonly reviewedByUserId: string,
   readonly shortform: boolean,
+  readonly shortformFrontpage: boolean,
   readonly lastSubthreadActivity: Date,
   readonly moderatorHat: boolean,
   readonly hideModeratorHat: boolean | null,
@@ -1349,6 +1356,7 @@ interface CommentsList { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,
+  readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
 }
 
@@ -2387,6 +2395,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly hideCommunitySection: boolean,
+  readonly expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
