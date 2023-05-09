@@ -1,24 +1,24 @@
 /**
- * Generated on 2023-04-27T15:06:14.864Z by `yarn makemigrations`
+ * Generated on 2023-05-09T23:20:44.403Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
- * diff --git a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
- * index 59c1109f8a..16d680adff 100644
- * --- a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql
- * +++ b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
+ * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
+ * index 0a90e954d5..e8257a0d49 100644
+ * --- a/Users/sarah/EAForum/schema/accepted_schema.sql
+ * +++ b/Users/sarah/EAForum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: c4afbf05797c266012f5ba5ae0119c87
+ * --- Overall schema hash: be2a53332cb5a42e9fafd13c2e7fde88
  * -
- * --- Accepted on 2023-04-24T20:04:07.000Z by 20230424T200407.add_ignore_rate_limits.ts
- * +-- Overall schema hash: 29bdc1abc9c47e853a02b9a41225de0f
+ * --- Accepted on 2023-05-03T13:04:47.000Z by 20230503T130447.add_expandedFrontpageSections_column.ts
+ * +-- Overall schema hash: 2ee026734ffd3d5441f9249f716ee2d3
  *  
- * @@ -914,3 +912,3 @@ CREATE TABLE "UserTagRels" (
+ * @@ -915,3 +913,3 @@ CREATE TABLE "UserTagRels" (
  *  
- * --- Schema for "Users", hash: 9386b171feef6628a604069fe9619525
- * +-- Schema for "Users", hash: b84def6bbcd6842e5e62ab7b9c4c1fdc
+ * --- Schema for "Users", hash: 0bf1273a99c64bc40372f77a38d6ef9d
+ * +-- Schema for "Users", hash: e49b49b98b4c7140a66c7a31c8df5ee0
  *  CREATE TABLE "Users" (
- * @@ -1042,2 +1040,7 @@ CREATE TABLE "Users" (
+ * @@ -1043,2 +1041,7 @@ CREATE TABLE "Users" (
  *      "bigDownvoteCount" double precision,
  * +    "voteReceivedCount" double precision,
  * +    "smallUpvoteReceivedCount" double precision,
@@ -35,7 +35,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "29bdc1abc9c47e853a02b9a41225de0f";
+export const acceptsSchemaHash = "2ee026734ffd3d5441f9249f716ee2d3";
 
 import Users from "../../lib/collections/users/collection"
 import { addField, dropField } from "./meta/utils"
