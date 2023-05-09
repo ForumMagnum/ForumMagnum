@@ -59,6 +59,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.headline,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     fontSize: 40,

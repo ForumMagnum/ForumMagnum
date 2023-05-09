@@ -93,8 +93,8 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
             </Components.SectionButton>
           </Link>
         </div>}
-        <div className={classes.sortButton} onClick={() => setShowSettings(!showSettings)}>
-          <Components.SortButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
     </Components.SectionTitle>}

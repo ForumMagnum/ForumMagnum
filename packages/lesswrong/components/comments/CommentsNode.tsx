@@ -113,7 +113,7 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -184,8 +184,11 @@ const CommentsNode = ({
   }, [commentHash]);
 
   const toggleCollapse = useCallback(
-    () => setCollapsed(!collapsed),
-    [collapsed]
+    () => {
+      onToggleCollapsed?.();
+      setCollapsed(!collapsed)
+    },
+    [collapsed, onToggleCollapsed]
   );
 
   const isTruncated = ((): boolean => {

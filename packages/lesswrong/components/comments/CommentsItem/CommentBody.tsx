@@ -5,6 +5,7 @@ import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
+import { RejectedReasonDisplay } from '../../sunshineDashboard/RejectedReasonDisplay';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {

@@ -4,13 +4,20 @@ import type { AlgoliaIndexCollectionName } from "../../lib/search/algoliaUtil";
 export const getAlgoliaFilter = (collectionName: AlgoliaIndexCollectionName) => {
   switch (collectionName) {
     case 'Posts':
-     return {
-       baseScore: {$gte: 0},
-       draft: {$ne: true},
-       status: postStatuses.STATUS_APPROVED,
-     };
+      return {
+        baseScore: {$gte: 0},
+        draft: {$ne: true},
+        status: postStatuses.STATUS_APPROVED,
+        rejected: {$ne: true},
+        authorIsUnreviewed: {$ne: true},
+      };
     case 'Comments':
-      return {baseScore: {$gt: 0}, deleted: {$ne: true}};
+      return {
+        baseScore: {$gt: 0},
+        deleted: {$ne: true},
+        rejected: {$ne: true},
+        authorIsUnreviewed: {$ne: true},
+      };
     case 'Users':
       return {deleted: {$ne: true}, deleteContent: {$ne: true}};
     case 'Sequences':

@@ -62,8 +62,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export interface ChecklistTag {
+  _id: string;
+  name: string;
+  parentTag?: ChecklistTag;
+}
+
 interface TagsChecklistItem {
-  tag: TagFragment,
+  tag: ChecklistTag,
   selected: boolean,
 }
 
@@ -84,7 +90,7 @@ const TagsChecklist = ({
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
   classes: ClassesType;
   selectedTagIds?: Array<string | undefined>;
-  tags: TagFragment[];
+  tags: {_id: string, name: string}[];
   displaySelected?: "highlight" | "hide";
   tooltips?: boolean;
   truncate?: boolean;
