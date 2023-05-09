@@ -163,18 +163,18 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const updateValue = this.compileUpdateExpression(value);
-
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
       if (field.includes(".")) {
+        const updateValue = this.compileUpdateExpression(value, true);
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
           ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
         );
       }
-
+  
+      const updateValue = this.compileUpdateExpression(value);
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
@@ -183,13 +183,16 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private compileUpdateExpression(value: unknown): Atom<T>[] {
+  private compileUpdateExpression(value: unknown, skipTypeHint?: boolean): Atom<T>[] {
     if (typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")) {
       return this.compileExpression(value);
     } else {
       const arg = this.createArg(value);
       if (!arg.typehint) {
         arg.typehint = this.getTypeHint(value);
+      }
+      if (skipTypeHint) {
+        arg.typehint = "" 
       }
       return [arg];
     }
