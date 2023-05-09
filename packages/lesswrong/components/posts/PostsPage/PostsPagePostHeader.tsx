@@ -6,12 +6,12 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
-const SECONDARY_SPACING = 20
-const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -185,14 +185,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton,
     NewFeaturePulse, ForumIcon} = Components;
-  const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
 
   useEffect(() => {
     if(!cachedTooltipSeen) {
       setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
-        expires: moment().add(10, 'years').toDate(),
+        expires: moment().add(2, 'years').toDate(),
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps 

@@ -185,8 +185,18 @@
     "timestamp": "2023-04-24T20:04:07.000Z"
   },
   {
-    "acceptsSchemaHash": "ccf166b73b25877ca82e4fe4da4238e9",
-    "acceptedByMigration": "20230427T174102.create_PostRecommendations_table.ts",
-    "timestamp": "2023-04-27T17:41:02.000Z"
+    "acceptsSchemaHash": "a85cc326da77f34b19140ca908956227",
+    "acceptedByMigration": "20230502T083210.add_shortformFrontpage.ts",
+    "timestamp": "2023-05-02T08:32:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5d840ee3f919bdbf70df33e470b65666",
+    "acceptedByMigration": "20230502T160034.drop_noComicSans_from_Users.ts",
+    "timestamp": "2023-05-02T16:00:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9f4ba49ceedbc502e6d30b03fb1b54df",
+    "acceptedByMigration": "20230509T114346.create_PostRecommendations_table.ts",
+    "timestamp": "2023-05-09T11:43:46.000Z"
   }
 ]

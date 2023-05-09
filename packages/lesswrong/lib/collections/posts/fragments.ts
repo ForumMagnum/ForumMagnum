@@ -204,7 +204,7 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
-    disableRecommendation
+    rejectedReason
     moderationGuidelines {
       _id
       html
@@ -543,6 +543,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id

@@ -120,12 +120,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     marginTop: 16,
     marginBottom: 8,
-    borderTop: theme.palette.border.extraFaint
+    borderTop: theme.palette.border.extraFaint,
+    maxHeight: '90vh',
+    overflowY: "scroll"
   },
   expandButton: {
     display: "flex",
-    justifyContent: "right",
-    color: theme.palette.grey[500]
+    justifyContent: "center",
+    color: theme.palette.grey[500],
+    borderRadius: 2,
+    '&:hover': {
+      background: theme.palette.grey[100]
+    }
   },
   contentCollapsed: {
     maxHeight: 300,

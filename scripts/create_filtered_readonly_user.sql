@@ -79,7 +79,7 @@ SELECT 	"_id", "username", "emails", "email", "isAdmin", "displayName", "slug",
 	"moderationGuidelines_latest", "howOthersCanHelpMe", "howOthersCanHelpMe_latest", "howICanHelpOthers",
 	"howICanHelpOthers_latest", "biography", "biography_latest", "recommendationSettings",
 	"hideFrontpageFilterSettingsDesktop", "usersContactedBeforeReview", "showCommunityInRecentDiscussion",
-	"allPostsHideCommunity", "noComicSans", "notificationDebateCommentsOnSubscribedPost",
+	"allPostsHideCommunity", "notificationDebateCommentsOnSubscribedPost",
 	"notificationDebateReplies"
 FROM "Users";
 

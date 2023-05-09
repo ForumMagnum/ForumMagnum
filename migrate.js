@@ -1,8 +1,10 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|prod]
+ * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [lw]
  *
  * If no environment is specified, you can use the environment variables PG_URL,
  * MONGO_URL and SETTINGS_FILE
+ * 
+ * Runs for the EA Forum by default.  Add `lw` as the last argument to run for LW.  Requires that you provide an environment explicitly.
  */
 require("ts-node/register");
 const { readFile } = require("fs").promises;
@@ -28,12 +30,31 @@ const fetchImports = (args, isProd) => {
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
-const credentialsFile = (fileName) => {
+const credentialsFile = (fileName, forum) => {
   const base = process.env.GITHUB_WORKSPACE ?? "..";
-  return `${base}/ForumCredentials/${fileName}`;
+  const repoName = forum === 'lw' ? 'LessWrong-Credentials/connectionStrings' : 'ForumCredentials';
+  return `${base}/${repoName}/${fileName}`;
 }
 
-const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName))).toString().trim();
+const settingsFilePath = (fileName, forum) => {
+  const base = process.env.GITHUB_WORKSPACE ?? "..";
+  const repoName = forum === 'lw' ? 'LessWrong-Credentials' : 'ForumCredentials';
+  return `${base}/${repoName}/${fileName}`;
+}
+
+const readUrlFile = async (fileName, forum) => (await readFile(credentialsFile(fileName, forum))).toString().trim();
+
+const mongoFileName = (mode, forum) => forum === 'lw' ? `${mode}-db.txt` : `${mode}-db-conn.txt`;
+const postgresFileName = (mode, forum) => forum === 'lw' ? `pg-${mode}-db.txt` : `${mode}-pg-conn.txt`;
+const settingsFileName = (mode, forum) => {
+  if (forum === 'lw') {
+    if (mode === 'prod') {
+      return 'settings-production-lesswrong.json';
+    }
+    return 'settings-local-dev-devdb.json'
+  }
+  return `settings-${mode}.json`;  
+};
 
 (async () => {
   const command = process.argv[2];
@@ -52,6 +73,9 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
     mode = "dev";
   }
 
+  const forum = process.argv[4];
+  const isLW = forum === 'lw';
+
   const args = {
     mongoUrl: process.env.MONGO_URL,
     postgresUrl: process.env.PG_URL,
@@ -61,11 +85,11 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
 
   if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);
-    args.mongoUrl = await readUrlFile(`${mode}-db-conn.txt`);
-    args.postgresUrl = await readUrlFile(`${mode}-pg-conn.txt`);
-    args.settingsFileName = credentialsFile(`settings-${mode}.json`);
+    args.mongoUrl = await readUrlFile(mongoFileName(mode, forum), forum);
+    args.postgresUrl = await readUrlFile(postgresFileName(mode, forum), forum);
+    args.settingsFileName = settingsFilePath(settingsFileName(mode, forum), forum);
     if (command !== "create") {
-      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
+      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(isLW ? 5 : 4));
     }
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');

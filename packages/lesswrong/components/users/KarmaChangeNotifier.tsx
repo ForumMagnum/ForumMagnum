@@ -268,9 +268,9 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
         <div ref={anchorEl}>
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
-              ? <ForumIcon icon="StarBorder" className={classes.starIcon}/>
+              ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
               : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                  <ForumIcon icon="Star" className={classes.starIcon}/>
+                  <ForumIcon icon="Karma" className={classes.starIcon}/>
                 </Badge>
             }
           </IconButton>

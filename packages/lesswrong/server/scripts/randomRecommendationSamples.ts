@@ -37,7 +37,7 @@ const randomRecommendationSamples = async () => {
 
   for (const algorithm of algorithms) {
     const recommendations = await Promise.all(posts.map(({_id}) =>
-      service.recommend(null, count, algorithm(_id)),
+      service.recommend(null, null, count, algorithm(_id)),
     ));
 
     let result = "";

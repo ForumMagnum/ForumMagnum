@@ -137,6 +137,7 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   descendentCount: number
   shortform: boolean
+  shortformFrontpage: boolean
   nominatedForReview: string
   reviewingForReview: string
   lastSubthreadActivity: Date
@@ -484,9 +485,11 @@ interface PostRecommendationsCollection extends CollectionBase<DbPostRecommendat
 
 interface DbPostRecommendation extends DbObject {
   __collectionName?: "PostRecommendations"
-  userId: string
+  userId: string | null
+  clientId: string | null
   postId: string
   strategyName: string
+  strategySettings: any /*{"definitions":[{"blackbox":true}]}*/
   recommendationCount: number
   lastRecommendedAt: Date
   clickedAt: Date | null
@@ -1030,7 +1033,6 @@ interface DbUser extends DbObject {
   noCollapseCommentsFrontpage: boolean
   hideCommunitySection: boolean
   showCommunityInRecentDiscussion: boolean
-  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
