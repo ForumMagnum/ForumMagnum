@@ -2,7 +2,7 @@ import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe, getUserItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
 import Comments from '../../lib/collections/comments/collection';
 import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, postAndCommentRateLimits, RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
@@ -11,6 +11,7 @@ import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
+import { sortBy } from 'underscore';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -103,34 +104,13 @@ export const getNthMostRecentItemDate = async function<
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
 async function enforcePostRateLimit (user: DbUser) {
-  // Admins and Sunshines aren't rate-limited
-  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
-    return;
-  
-  const moderatorRateLimit = await getModeratorRateLimit(user)
-  if (moderatorRateLimit) {
-    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
-
-    const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, hours)
-  
-    if (postsInPastTimeframe > 0) {
-      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+  const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+  if (rateLimit) {
+    const {nextEligible, rateLimit:_} = rateLimit;
+    if (nextEligible > new Date()) {
+      throw new Error(`Rate limit: You cannot comment until ${nextEligible}`);
     }
   }
-
-  const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
-  const numberOfPostsInPast24Hours = await userNumberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
-  
-  // check that the user doesn't post more than Y posts per day
-  if(numberOfPostsInPast24Hours >= maxPostsPer24HoursSetting.get()) {
-    throw new Error(`Sorry, you cannot submit more than ${maxPostsPer24HoursSetting.get()} posts per day.`);
-  }
-  // check that user waits more than X seconds between posts
-  if(timeSinceLastPost < postIntervalSetting.get()) {
-    throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
-  }
-
-
 }
 
 const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
@@ -139,6 +119,7 @@ const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, ho
     userId: user._id,
     createdAt: {
       $gte: mNow.subtract(hours, 'hours').toDate(),
+       
     },
   }).fetch();
   const postIds = comments.map(comment => comment.postId)
@@ -221,12 +202,44 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   nextEligible: Date,
   rateLimit: RateLimitReason
 }|null> {
-  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user)
+  let nextEligible: Date|null
+  let rateLimit: RateLimitReason|null
 
-  return ({
-    nextEligible: new Date,
-    rateLimit: "moderator"
-  })
+  // Admins and Sunshines aren't rate-limited
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
+    return null;
+  
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+
+    const postsInPastTimeframe = await getUserItemsInPastTimeframe(user, Posts, hours, sortBy)
+  
+    if (postsInPastTimeframe.length > 0) {
+      nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
+  }
+
+  const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
+  const numberOfPostsInPast24Hours = await userNumberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
+  
+  // check that the user doesn't post more than Y posts per day
+  if(numberOfPostsInPast24Hours >= maxPostsPer24HoursSetting.get()) {
+    throw new Error(`Sorry, you cannot submit more than ${maxPostsPer24HoursSetting.get()} posts per day.`);
+  }
+  // check that user waits more than X seconds between posts
+  if(timeSinceLastPost < postIntervalSetting.get()) {
+    throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
+  }
+
+  if (nextEligible && isInFuture(nextEligible) && rateLimit) {
+    return ({
+      nextEligible: nextEligible,
+      rateLimit: rateLimit
+    }) 
+  }
+  return null
 }
 
 /**
@@ -242,7 +255,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
   
   if (!ignoreRateLimits) {
-    // If moderators have imposed a rate limit on this user, enforce that
+    // If moderators have imposed a rate limit on this user, enforce that 
     const moderatorRateLimit = await getModeratorRateLimit(user)
     if (moderatorRateLimit) {
       const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
