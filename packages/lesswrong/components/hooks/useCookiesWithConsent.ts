@@ -1,11 +1,17 @@
 import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
-import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
+import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, cookiePreferencesAutoUpdated, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
+
+const disableCookiePreferenceAutoUpdateSetting = new DatabasePublicSetting<boolean>('disableCookiePreferenceAutoUpdate', false)
+/** Global variable storing the last time the cookie preferences were updated automatically, to prevent several instances
+ * of this hook from updating the cookie preferences at the same time. */
+let cookiePreferencesAutoUpdatedTime: Date | null = null
 
 /**
  * Fetches the current cookie preferences and allows the user to update them.
@@ -43,16 +49,21 @@ export function useCookiePreferences(): {
 
   // If the user had not given explicit consent, but the value of COOKIE_PREFERENCES_COOKIE is different to what we are
   // using in the code (fallbackPreferences), update the cookie. This is so that Google Tag Manager handles it correctly.
-  // TODO this is causing an infinite loop somehow, reenable once we figure out why.
-  // useEffect(() => {
-  //   if (explicitConsentRequired === "unknown" || explicitConsentGiven) return;
+  useEffect(() => {
+    // TODO: this was previously causing an infinite loop for an unknown reason, if this happens again, we should
+    // turn this setting on. Remove this once the bug is definitely fixed.
+    if (disableCookiePreferenceAutoUpdateSetting.get()) return
 
-  //   if (JSON.stringify(cookiePreferences) !== JSON.stringify(preferencesCookieValue)) {
-  //     setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/", expires: moment().add(2, 'years').toDate()  });
-  //     void cookiePreferencesChangedCallbacks.runCallbacks({iterator: cookiePreferences, properties: []});
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
+    const canAutoUpdate = cookiePreferencesAutoUpdatedTime === null || moment().diff(cookiePreferencesAutoUpdatedTime, 'seconds') > 30
+    if (!canAutoUpdate || explicitConsentRequired === "unknown" || explicitConsentGiven) return;
+
+    if (JSON.stringify(fallbackPreferences) !== JSON.stringify(preferencesCookieValue)) {
+      cookiePreferencesAutoUpdatedTime = new Date();
+      setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/", expires: moment().add(2, 'years').toDate()  });
+      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: { cookiePreferences, explicitlyChanged: false }, properties: []});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
   
   const updateCookiePreferences = useCallback(
     (newPreferences: CookieType[]) => {
@@ -61,7 +72,7 @@ export function useCookiePreferences(): {
       })
       setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/", expires: moment().add(2, 'years').toDate() });
       setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/", expires: moment().add(2, 'years').toDate() });
-      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: newPreferences, properties: []});
+      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: { cookiePreferences: newPreferences, explicitlyChanged: true }, properties: []});
     },
     [captureEvent, setCookie]
   );
