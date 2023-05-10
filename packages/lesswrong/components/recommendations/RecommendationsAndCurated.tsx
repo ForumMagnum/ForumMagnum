@@ -273,7 +273,7 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={"/bookmarks"}>
+                <Link to={isEAForum ? "/saved" : "/bookmarks"}>
                   <SectionSubtitle>{isEAForum ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
                 </Link>
               </LWTooltip>
