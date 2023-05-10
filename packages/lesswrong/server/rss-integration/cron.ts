@@ -83,7 +83,7 @@ const runRSSImport = async () => {
 
 addCronJob({
   name: 'addNewRSSPosts',
-  interval: 'every 2 minutes',
+  interval: 'every 10 minutes',
   job: runRSSImport
 });
 
