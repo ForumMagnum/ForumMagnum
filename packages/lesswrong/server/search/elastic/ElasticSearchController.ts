@@ -22,20 +22,17 @@ class ElasticSearchController {
       const results = await Promise.all(body.map(this.onQuery.bind(this)));
       res.status(200).send(results);
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Search error:", JSON.stringify(e, null, 2));
       res.status(400).send(e.message);
     }
   }
 
-  private async onQuery(query: unknown) {
+  private onQuery(query: unknown) {
     if (!isValidSearchQuery(query)) {
       throw new Error("Invalid query");
     }
-    try {
-      return this.searchService.runQuery(query);
-    } catch (e) {
-      console.error("Search error:", e);
-      throw e;
-    }
+    return this.searchService.runQuery(query);
   }
 }
 
