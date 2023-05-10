@@ -1,8 +1,9 @@
-import { AlgoliaIndexCollectionName } from "../../lib/search/algoliaUtil";
+import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
 
 export type Ranking = {
   field: string,
   order: "asc" | "desc",
+  pivot: number,
 }
 
 export type IndexConfig = {
@@ -22,7 +23,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "authorDisplayName",
     ranking: [
-      {field: "baseScore", order: "desc"},
+      {field: "baseScore", order: "desc", pivot: 20},
     ],
   },
   Posts: {
@@ -35,9 +36,8 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "title",
     ranking: [
-      {field: "order", order: "asc"},
-      {field: "baseScore", order: "desc"},
-      {field: "score", order: "desc"},
+      {field: "order", order: "asc", pivot: 2},
+      {field: "baseScore", order: "desc", pivot: 20},
     ],
   },
   Users: {
@@ -53,7 +53,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "bio",
     ranking: [
-      {field: "karma", order: "desc"},
+      {field: "karma", order: "desc", pivot: 20},
       // {field: "createdAt", order: "desc"},
     ],
   },
@@ -75,7 +75,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "description",
     ranking: [
       // {field: "core", order: "desc"},
-      {field: "postCount", order: "desc"},
+      {field: "postCount", order: "desc", pivot: 10},
     ],
   },
 };

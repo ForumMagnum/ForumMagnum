@@ -1,21 +1,19 @@
+import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
+import type { MappingRankFeatureProperty } from "@elastic/elasticsearch/lib/api/types";
 import ElasticSearchClient from "./ElasticSearchClient";
-import type {
-  MappingRankFeatureProperty,
-} from "@elastic/elasticsearch/lib/api/types";
+import { elasticSearchConfig } from "./ElasticSearchConfig";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
-} from "../../lib/search/algoliaUtil";
+} from "../../../lib/search/algoliaUtil";
 import {
   AlgoliaIndexedCollection,
   AlgoliaIndexedDbObject,
-} from "./utils";
-import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
-import { getAlgoliaFilter } from "./algoliaFilters";
-import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
-import { getCollection } from "../../lib/vulcan-lib/getCollection";
-import { elasticSearchConfig } from "./ElasticSearchConfig";
-import Globals from "../../lib/vulcan-lib/config";
+} from "../utils";
+import { forEachDocumentBatchInCollection } from "../../manualMigrations/migrationUtils";
+import { getAlgoliaFilter } from "../algoliaFilters";
+import { getCollection } from "../../../lib/vulcan-lib/getCollection";
+import Globals from "../../../lib/vulcan-lib/config";
 
 export type Mappings = Record<string, MappingRankFeatureProperty>;
 

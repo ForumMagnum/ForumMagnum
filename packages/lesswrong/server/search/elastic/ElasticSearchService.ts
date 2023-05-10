@@ -1,7 +1,7 @@
 import ElasticSearchClient, { ElasticSearchHit } from "./ElasticSearchClient";
 import type { SearchQuery } from "./searchQuery";
 import type { SearchResult } from "./searchResult";
-import { algoliaPrefixSetting } from "../../lib/publicSettings";
+import { algoliaPrefixSetting } from "../../../lib/publicSettings";
 
 class ElasticSearchService {
   constructor(
