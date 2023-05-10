@@ -284,9 +284,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 
     const footnotes = body.querySelector(".footnotes");
     if (footnotes) {
+      let innerHTML = footnotes.innerHTML;
+      if (footnotes.tagName !== "SECTION") {
+        innerHTML = `<section>${innerHTML}</section>`;
+      }
       const collapsedFootnotes = (
         <Components.CollapsedFootnotes
-          footnotesHtml={footnotes.innerHTML}
+          footnotesHtml={innerHTML}
           attributes={this.forwardAttributes(footnotes)}
         />
       );
