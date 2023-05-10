@@ -31,17 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   vote: {
     marginRight: 10
   },
-  rejectedIcon: {
+  rejectButton: {
     marginLeft: 'auto',
-    marginTop: 4,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  rejectedLabel: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
   }
 })
 
