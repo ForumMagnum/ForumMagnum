@@ -326,6 +326,14 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
   };
 });
 
+Comments.addView("rejected", (terms: CommentsViewTerms) => {
+  return {
+    selector: {...dontHideDeletedAndUnreviewed, rejected: true},
+    options: {sort: { postedAt: -1}, limit: terms.limit || 20},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: 1 }));
+
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
   // The forum has fewer comments, and so wants a more expansive definition of
@@ -490,11 +498,12 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
   return {
     selector: {
       shortform: true,
+      shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+      postedAt: {$gt: moment().subtract(4, 'days').toDate()}
     },
-    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
 });
 

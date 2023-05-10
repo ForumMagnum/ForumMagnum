@@ -16,12 +16,13 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
-import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
@@ -155,8 +156,6 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
-
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: ()=>void,
@@ -169,7 +168,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -276,7 +275,7 @@ const PostsPage = ({post, refetch, classes}: {
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewImageUrl
   if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
@@ -329,7 +328,7 @@ const PostsPage = ({post, refetch, classes}: {
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
-              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              imgProps={{ar: '191:100', w: '682', q: '100'}}
               className={classes.headerImage}
             />
           </div>}

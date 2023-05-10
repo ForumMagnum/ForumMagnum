@@ -202,6 +202,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
 
   if (!post) return true
   if (post.commentsLocked) return false
+  if (post.rejected) return false 
   if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
