@@ -15,8 +15,6 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { useABTest } from '../../lib/abTestImpl';
-import { slowerFrontpageABTest } from '../../lib/abTests';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -84,8 +82,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
-  // required for side-effect of including this in analytics events
-  const abTestGroup = useABTest(slowerFrontpageABTest);
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
