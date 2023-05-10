@@ -250,7 +250,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
       </a>
       {currentUser && <div className={classes.postActions}>
         <InteractionWrapper classes={classes}>
-          <PostActionsButton post={post} popperGap={16} vertical />
+          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
       </div>}
     </>
