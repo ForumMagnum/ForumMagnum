@@ -15,7 +15,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
@@ -272,6 +272,12 @@ const PostsPage = ({post, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
+  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
+  const showRecommendations = isEAForum &&
+    !post.question &&
+    !sequenceId &&
+    recommendationsTestGroup === "recommended";
+
   const commentId = query.commentId || params.commentId
 
   const description = getPostDescription(post)
@@ -395,7 +401,7 @@ const PostsPage = ({post, refetch, classes}: {
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
-      {isEAForum && !post.question && !sequenceId &&
+      {showRecommendations &&
         <div className={classes.recommendations}>
           <PostsPageRecommendationsList
             strategy="tagWeightedCollabFilter"
