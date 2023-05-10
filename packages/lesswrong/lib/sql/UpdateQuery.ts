@@ -163,8 +163,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const isArrayInJsonbField = this.getField(field)?.isArray() && this.getField(field)?.toConcrete() instanceof JsonType;
-      const typeForArg = isArrayInJsonbField ? new JsonType() : undefined;
+      const fieldType = this.getField(field);
+      const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
+      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
       const updateValue = this.compileUpdateExpression(value, typeForArg);
 
       // If we're updating the value of a JSON blob without totally replacing

@@ -12,9 +12,6 @@ const runRSSImport = async () => {
   console.log(`Refreshing ${feeds.length} RSS feeds`);
   await asyncForeachSequential(feeds, async feed => {
     try {
-      if (feed._id === 'JNZHjbcj7y5bR2Ev5') {
-        console.log({ previousPostGuids: feed.rawFeed.map(r => r.guid) });
-      }
       // create array of all posts in current rawFeed object
       let previousPosts = feed.rawFeed || [];
 
@@ -86,7 +83,7 @@ const runRSSImport = async () => {
 
 addCronJob({
   name: 'addNewRSSPosts',
-  interval: 'every 10 seconds',
+  interval: 'every 2 minutes',
   job: runRSSImport
 });
 

@@ -19,7 +19,6 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
-      console.log({ argTypeHint: this.typehint, valPreview: JSON.stringify(value, null, 2).slice(0, 50) }, 'typhint when creating Arg')
     }
   }
 }
@@ -183,9 +182,6 @@ abstract class Query<T extends DbObject> {
    * `typeHint` is assumed to be the value we are getting the type for.
    */
   protected getTypeHint(typeHint?: any): string {
-    if (this.resolveTableName().toLowerCase() === 'rssfeeds') {
-      console.log({ typeHint }, 'passed in typehint');
-    }
     if (typeHint === null || typeHint === undefined) {
       return "";
     }
@@ -313,6 +309,12 @@ abstract class Query<T extends DbObject> {
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
       }
+      /**
+       * `<>` returns null if either of the compared values are null
+       * This is generally not the result you want when checking whether a field is $ne to a specific value
+       * So for nullable fields (most of them, so far) use `IS DISTINCT FROM`
+       * This will return records where e.g. the field is null and you want everything not equal to 5.
+       */
       if (!(fieldType instanceof NotNullType) && op === "<>") {
         return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
       }
