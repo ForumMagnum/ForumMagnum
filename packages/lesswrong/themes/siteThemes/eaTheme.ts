@@ -375,10 +375,14 @@ export const eaForumTheme: SiteThemeSpecification = {
             fontFamily: sansSerifStack,
             fontWeight: 500,
             fontSize: "1.1rem",
+            color: palette.grey[900],
           }
         },
         MuiListItemIcon: {
-          marginRight: 12,
+          root: {
+            color: palette.grey[700],
+            marginRight: 12,
+          }
         },
       }
     }

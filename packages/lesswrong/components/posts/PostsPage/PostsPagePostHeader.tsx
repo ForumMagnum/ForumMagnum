@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: isEAForum ? 25 : theme.spacing.unit*2,
   },
   headerLeft: {
     width:"100%"
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:0,
   },
   secondaryInfo: {
-    fontSize: isEAForum ? theme.typography.body1.fontSize : theme.typography.body2.fontSize, // TODO: '1.4rem'?
+    fontSize: isEAForum ? theme.typography.body1.fontSize : '1.4rem',
     fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
@@ -44,17 +44,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
   },
   secondaryInfoLink: {
-    marginRight: SECONDARY_SPACING,
     display: "inline-block",
     fontWeight: isEAForum ? 450 : undefined,
     fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    marginRight: SECONDARY_SPACING,
     "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
@@ -243,16 +243,16 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           {post.question && <a className={classes.secondaryInfoLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-            <a className={classes.secondaryInfoLink} href={"#comments"}>
-              {isEAForum ?
-                <>
-                  <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-                </> :
-                <>
-                  {postGetCommentCountStr(post, commentCount)}
-                </>
-              }
-            </a>
+          <a className={classes.secondaryInfoLink} href={"#comments"}>
+            {isEAForum ?
+              <>
+                <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+              </> :
+              <>
+                {postGetCommentCountStr(post, commentCount)}
+              </>
+            }
+          </a>
           {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
