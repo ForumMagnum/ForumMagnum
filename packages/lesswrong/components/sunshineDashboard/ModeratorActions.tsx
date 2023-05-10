@@ -21,6 +21,8 @@ import { getNewModActionNotes, getSignature, getSignatureWithNote } from '../../
 import Menu from '@material-ui/core/Menu'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { isEAForum } from '../../lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -336,6 +338,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     refetch();
   };
 
+  const disableRemoveFromQueue = hideUnreviewedAuthorCommentsSettings.get() && isEAForum;
 
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
@@ -344,7 +347,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     <LWTooltip title="Snooze and Approve 1 (Appear in sidebar on next post or comment. User's future posts are autoapproved)" placement="top">
       <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
     </LWTooltip>
-    {user.needsReview && <LWTooltip title="Remove from queue (i.e. snooze without approving posts)">
+    {!disableRemoveFromQueue && user.needsReview && <LWTooltip title="Remove from queue (i.e. snooze without approving posts)">
       <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
