@@ -195,8 +195,13 @@
     "timestamp": "2023-05-02T16:00:34.000Z"
   },
   {
-    "acceptsSchemaHash": "abf1fe6538e00cc705f96b4ce8b981ff",
-    "acceptedByMigration": "20230509T114346.create_PostRecommendations_table.ts",
-    "timestamp": "2023-05-09T11:43:46.000Z"
+    "acceptsSchemaHash": "be2a53332cb5a42e9fafd13c2e7fde88",
+    "acceptedByMigration": "20230503T130447.add_expandedFrontpageSections_column.ts",
+    "timestamp": "2023-05-03T13:04:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f38ed1e13515715dfc7ea5a8d6ea01df",
+    "acceptedByMigration": "20230510T142344.create_PostRecommendations_table.ts",
+    "timestamp": "2023-05-10T14:23:44.000Z"
   }
 ]

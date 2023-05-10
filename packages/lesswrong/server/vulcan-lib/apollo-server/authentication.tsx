@@ -21,8 +21,9 @@ import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../../commonQueries";
 import { ClientIds } from "../../../lib/collections/clientIds/collection";
+import { UsersRepo } from '../../repos';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -42,7 +43,10 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]});
+  const user = await (Users.isPostgres()
+    ? new UsersRepo().getUserByUsernameOrEmail(username)
+    : Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]}));
+
   if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
@@ -124,15 +128,19 @@ const VerifyEmailToken = new EmailTokenType({
   name: "verifyEmail",
   onUseAction: async (user) => {
     if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'emails.0.verified': true,
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().verifyEmail(user._id);
+    } else {
+      await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'emails.0.verified': true,
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your email has been verified" };
   },
   resultComponentName: "EmailTokenResult"
@@ -165,16 +173,20 @@ const ResetPasswordToken = new EmailTokenType({
     const validatePasswordResponse = validatePassword(password)
     if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'services.password.bcrypt': await createPasswordHash(password),
-        'services.resume.loginTokens': []
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
+    } else {
+      await updateMutator({ 
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'services.password.bcrypt': await createPasswordHash(password),
+          'services.resume.loginTokens': []
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your new password has been set. Try logging in again." };
   },
   resultComponentName: "EmailTokenResult",
