@@ -32,7 +32,11 @@ class ElasticSearchQuery {
   }
 
   private compileRanking({field, order, pivot}: Ranking): string {
-    const expr = `saturation(Math.max(0, doc['${field}'].value), ${pivot})`;
+    const expr = `(
+      doc['${field}'].size() == 0
+        ? 0
+        : saturation(Math.max(0, doc['${field}'].value), ${pivot})
+    )`;
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 
