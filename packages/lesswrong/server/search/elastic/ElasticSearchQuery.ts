@@ -31,12 +31,20 @@ class ElasticSearchQuery {
     return data[index];
   }
 
-  private compileRanking({field, order, pivot}: Ranking): string {
-    const expr = `(
-      doc['${field}'].size() == 0
-        ? 0
-        : saturation(Math.max(0, doc['${field}'].value), ${pivot})
-    )`;
+  private compileRanking({field, order, scoring}: Ranking): string {
+    let expr: string;
+    switch (scoring.type) {
+    case "numeric":
+      expr = `saturation(Math.max(0, doc['${field}'].value), ${scoring.pivot}L)`;
+      break;
+    case "date":
+      const start = new Date("2014-06-01T01:00:00Z");
+      const delta = Date.now() - start.getTime();
+      const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
+      expr = `1 - decayDateLinear('${start.toISOString()}', '${dayRange}d', '0', 0.5, doc['${field}'].value)`;
+      break;
+    }
+    expr = `(doc['${field}'].size() == 0 ? 0 : ${expr})`;
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 
@@ -71,6 +79,8 @@ class ElasticSearchQuery {
             [config.snippet]: tags,
             ...(config.highlight && {[config.highlight]: tags}),
           },
+          fragment_size: 120,
+          no_match_size: 120,
         },
         query: {
           script_score: {
@@ -98,11 +108,8 @@ class ElasticSearchQuery {
           },
         },
         sort: [
-          {
-            _score: {
-              order: "desc",
-            },
-          },
+          {_score: {order: "desc"}},
+          {[config.tiebreaker]: {order: "desc"}},
         ],
       },
     };

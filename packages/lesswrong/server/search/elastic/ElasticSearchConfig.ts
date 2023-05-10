@@ -3,7 +3,12 @@ import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
 export type Ranking = {
   field: string,
   order: "asc" | "desc",
-  pivot: number,
+  scoring: {
+    type: "numeric",
+    pivot: number,
+  } | {
+    type: "date",
+  },
 }
 
 export type IndexConfig = {
@@ -11,6 +16,7 @@ export type IndexConfig = {
   snippet: string,
   highlight?: string,
   ranking?: Ranking[],
+  tiebreaker: string,
 }
 
 export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
@@ -23,8 +29,9 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "authorDisplayName",
     ranking: [
-      {field: "baseScore", order: "desc", pivot: 20},
+      {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
     ],
+    tiebreaker: "publicDateMs",
   },
   Posts: {
     fields: [
@@ -36,9 +43,10 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "title",
     ranking: [
-      {field: "order", order: "asc", pivot: 2},
-      {field: "baseScore", order: "desc", pivot: 20},
+      {field: "order", order: "asc", scoring: {type: "numeric", pivot: 2}},
+      {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
     ],
+    tiebreaker: "publicDateMs",
   },
   Users: {
     fields: [
@@ -53,18 +61,20 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "bio",
     ranking: [
-      {field: "karma", order: "desc", pivot: 20},
-      // {field: "createdAt", order: "desc"},
+      {field: "karma", order: "desc", scoring: {type: "numeric", pivot: 20}},
+      {field: "createdAt", order: "desc", scoring: {type: "date"}},
     ],
+    tiebreaker: "publicDateMs",
   },
   Sequences: {
     fields: [
       "title^3",
       "plaintextDescription",
       "authorDisplayName",
-      "_id",
+      "objectID",
     ],
     snippet: "plaintextDescription",
+    tiebreaker: "publicDateMs",
   },
   Tags: {
     fields: [
@@ -75,7 +85,8 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "description",
     ranking: [
       // {field: "core", order: "desc"},
-      {field: "postCount", order: "desc", pivot: 10},
+      {field: "postCount", order: "desc", scoring: {type: "numeric", pivot: 10}},
     ],
+    tiebreaker: "postCount",
   },
 };
