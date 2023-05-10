@@ -301,10 +301,18 @@ const PostsPage = ({post, refetch, classes}: {
     })
   }, [openDialog, post]);
 
-  const tableOfContents = sectionData
+  const isCrosspostedQuestion = post.question &&
+    post.fmCrosspost?.isCrosspost &&
+    !post.fmCrosspost?.hostedHere;
+
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const tableOfContents = sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
-  
+
   const header = <>
     {!commentId && <>
       <HeadTags
