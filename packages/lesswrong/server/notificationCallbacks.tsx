@@ -5,7 +5,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
-import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
@@ -150,9 +150,26 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     return true;
   }
 
+  /* 
+   * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
+   * We can't check moment(null).isSame(moment(null)), since that always returns false.
+   * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
+   * We shouldn't send a notification in those cases, obviously.
+   */
+  const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
+  const { startTime: newStartTime, endTime: newEndTime } = newPost;
+
+  const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
+  const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
+
+  const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
+  const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
+
   if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
-    || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
-    || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
+    || startTimeAddedOrRemoved
+    || startTimeChanged
+    || endTimeAddedOrRemoved
+    || endTimeChanged
   ) {
     // Link, start time, or end time changed
     return true;
@@ -440,7 +457,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
     documentId: comment.postId,
     collectionName: "Posts",
     type: subscriptionTypes.newComments,
-    potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+    potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
     userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
   })
   userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);

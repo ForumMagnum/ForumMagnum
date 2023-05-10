@@ -3,9 +3,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import RejectedIcon from "@material-ui/icons/NotInterested";
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,17 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   vote: {
     marginRight: 10
   },
-  rejectedIcon: {
+  rejectButton: {
     marginLeft: 'auto',
-    marginTop: 4,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  rejectedLabel: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
   }
 })
 
@@ -52,19 +41,8 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-  });
-
-  const setPostRejectedStatus = (post: SunshinePostsList, rejected: boolean) => () => {
-    void updatePost({
-      selector: { _id: post._id },
-      data: { rejected }
-    });
-  };
  
   if (!posts) return null
 
@@ -96,7 +74,10 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             </div>
           </div>
           
-          {isLW && <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} classNames={classes} />}
+          {isLW && <span className={classes.rejectButton}>
+            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
+            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
+          </span>}
           
           <PostActionsButton post={post} />
         </div>

@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -16,11 +16,15 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
-import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import Helmet from 'react-helmet';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
+
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -32,6 +36,8 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
+
+const TYPE_III_DATE_CUTOFF = new Date('2023-04-01')
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
@@ -87,7 +93,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: CENTRAL_COLUMN_WIDTH, 
+    maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
@@ -101,7 +107,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
-    position: "relative"
+    position: "relative",
+    paddingTop: isEAForum ? 50 : undefined
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -149,8 +156,6 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
-
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: ()=>void,
@@ -163,12 +168,13 @@ const PostsPage = ({post, refetch, classes}: {
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const showTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
 
   const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -269,7 +275,7 @@ const PostsPage = ({post, refetch, classes}: {
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewImageUrl
   if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
@@ -295,10 +301,18 @@ const PostsPage = ({post, refetch, classes}: {
     })
   }, [openDialog, post]);
 
-  const tableOfContents = sectionData
+  const isCrosspostedQuestion = post.question &&
+    post.fmCrosspost?.isCrosspost &&
+    !post.fmCrosspost?.hostedHere;
+
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const tableOfContents = sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
-  
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -322,12 +336,12 @@ const PostsPage = ({post, refetch, classes}: {
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
-              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              imgProps={{ar: '191:100', w: '682', q: '100'}}
               className={classes.headerImage}
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -345,6 +359,9 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <Helmet>
+      {showTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
+    </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -357,6 +374,8 @@ const PostsPage = ({post, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
+        {/* @ts-ignore */}
+        {showTypeIIIPlayer && <type-3-player></type-3-player>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>

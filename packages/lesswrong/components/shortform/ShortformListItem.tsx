@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
@@ -7,6 +7,7 @@ import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -62,6 +63,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tag: {
     marginLeft: 10,
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    }
   },
   preview: {
     marginLeft: 6,
@@ -80,13 +84,24 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   hideTag?: boolean,
   classes: ClassesType,
 }) => {
+  const { captureEvent } = useTracking();
+
   const [expanded, setExpanded] = useState(false)
+  const wrappedSetExpanded = useCallback((value: boolean) => {
+    setExpanded(value);
+    captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
+  }, [captureEvent, setExpanded]);
+
   const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "shortformItemTooltip",
     commentId: comment._id,
   });
 
-  const treeOptions = {post: comment.post || undefined};
+  const treeOptions = {
+    post: comment.post || undefined,
+    showCollapseButtons: true,
+    onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+  };
 
   const {
     LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
@@ -112,7 +127,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   return (
     <div
       className={classes.root}
-      onClick={() => setExpanded(true)}
+      onClick={() => wrappedSetExpanded(true)}
       {...eventHandlers}
     >
       <div className={classes.karma}>

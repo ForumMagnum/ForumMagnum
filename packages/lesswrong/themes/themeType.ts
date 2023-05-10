@@ -68,6 +68,7 @@ declare global {
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
+    primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -141,8 +142,10 @@ declare global {
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
       invertedBackgroundText4: ColorString,
+      primaryAlert: ColorString,
       error: ColorString,
       error2: ColorString,
+      warning: ColorString,
       red: ColorString,
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
@@ -198,6 +201,7 @@ declare global {
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -288,7 +292,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
-      restoreSavedContentNotice: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
@@ -308,11 +312,13 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,
@@ -378,6 +384,8 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryTranslucent: ColorString,
+      warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
     },
@@ -442,7 +450,11 @@ declare global {
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,

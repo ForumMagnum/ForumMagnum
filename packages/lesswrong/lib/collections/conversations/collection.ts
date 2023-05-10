@@ -35,7 +35,7 @@ const options: MutationOptions<DbConversation> = {
 export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Conversations'),
   mutations: getDefaultMutations('Conversations', options)

@@ -40,7 +40,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     top: 20,
     left: 25,
     ...theme.typography.commentStyle,
-    ...theme.typography.italic,
+    fontStyle: "italic",
     fontSize: 14,
     opacity: 0.7
   },
@@ -81,6 +81,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
+    fontWeight: 600,
     color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     marginBottom: 10,

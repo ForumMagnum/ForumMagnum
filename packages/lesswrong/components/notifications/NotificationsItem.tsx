@@ -126,6 +126,14 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   
   return (
     <span {...eventHandlers}>
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="left-start"
+        allowOverflow
+      >
+        <span className={classes.preview}>{renderPreview()}</span>
+      </LWPopper>
       <a
         href={notificationLink}
         className={classNames(
@@ -165,19 +173,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           }
         }}
       >
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          placement="left-start"
-          allowOverflow
-        >
-          <span className={classes.preview}>{renderPreview()}</span>
-        </LWPopper>
-        {notificationType.getIcon()}
-        <div className={classes.notificationLabel}>
-          {renderMessage()}
-        </div>
-      </a>
+      {notificationType.getIcon()}
+      <div className={classes.notificationLabel}>
+        {renderMessage()}
+      </div>
+    </a>
     </span>
   )
 }

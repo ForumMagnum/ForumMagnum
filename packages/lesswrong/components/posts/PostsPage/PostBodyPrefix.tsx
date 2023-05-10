@@ -22,6 +22,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     maxWidth: 600,
   },
+  rejectionNotice: {
+    ...theme.typography.contentNotice,
+    ...theme.typography.postStyle,
+    maxWidth: 600,
+    opacity: .75,
+    marginBottom: 40
+  },
   infoIcon: {
     width: 16,
     height: 16,
@@ -58,7 +65,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton } = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -78,10 +85,16 @@ const PostBodyPrefix = ({post, query, classes}: {
       it, pick Edit from the menu above, then click Publish.
     </div>}
 
-    {post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
+    {post.rejected && <div className={classes.rejectionNotice}>
+      <p>This post was rejected{post.rejectedReason && " for the following reason(s):"}</p>
+      <ContentStyles contentType="postHighlight">
+        <ContentItemBody dangerouslySetInnerHTML={{__html: post.rejectedReason || "" }}/>
+      </ContentStyles>
+    </div>}
+    {!post.rejected && post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       {currentUser?._id === post.userId
         ? "Because this is your first post, this post is awaiting moderator approval."
-        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to go through moderation."
+        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to be approved by a moderator."
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.

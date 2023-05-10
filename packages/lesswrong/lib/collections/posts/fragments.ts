@@ -105,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -193,6 +195,7 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
     moderationGuidelines {
       _id
       html
@@ -531,6 +534,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id
@@ -601,5 +605,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostWithRateLimit on Post {
+    _id
+    postSpecificRateLimit
   }
 `);

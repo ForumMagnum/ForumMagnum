@@ -5,8 +5,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 12,
-    paddingRight: 12,
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     borderRadius: 3,
@@ -26,18 +24,20 @@ const ShortformSubmitForm = ({
   cancelCallback,
   prefilledProps,
   noDefaultStyles,
+  className,
   classes,
 }: {
   successCallback?: (comment: CommentsList, otherArgs: any) => (void | Promise<void>),
   cancelCallback?: any,
   prefilledProps?: any,
   noDefaultStyles?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const { CommentsNewForm } = Components;
 
   return (
-    <div className={classNames({[classes.root]: !noDefaultStyles})}>
+    <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>
       <CommentsNewForm
         prefilledProps={{
           ...prefilledProps,

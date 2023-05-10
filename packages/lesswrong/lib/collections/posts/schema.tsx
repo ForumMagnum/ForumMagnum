@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -17,7 +17,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userOwns } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -373,7 +373,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
@@ -392,7 +392,7 @@ const schema: SchemaType<DbPost> = {
     }),
     optional: true,
     control: 'text',
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     tooltip: 'The user id of the author',
@@ -519,7 +519,7 @@ const schema: SchemaType<DbPost> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
@@ -1262,7 +1262,9 @@ const schema: SchemaType<DbPost> = {
             false,
           );
         }
-        return data.frontpageDate ?? oldDocument.frontpageDate;
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
   },
@@ -1280,7 +1282,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     resolveAs: {
       fieldName: 'coauthors',
-      type: '[User!]!',
+      type: '[User!]',
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
@@ -1289,7 +1291,7 @@ const schema: SchemaType<DbPost> = {
       },
       addOriginalField: true,
     },
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     canCreate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
@@ -1350,7 +1352,7 @@ const schema: SchemaType<DbPost> = {
     }),
     optional: true,
     nullable: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
     control: "FMCrosspostControl",
@@ -1798,7 +1800,7 @@ const schema: SchemaType<DbPost> = {
       collectionName: "Users",
       type: "User"
     }),
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
@@ -1821,7 +1823,7 @@ const schema: SchemaType<DbPost> = {
       type: "Localgroup",
       nullable: true,
     }),
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     optional: true,
@@ -1991,7 +1993,7 @@ const schema: SchemaType<DbPost> = {
 
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     hidden: true,
     blackbox: true,
     optional: true,
@@ -2010,7 +2012,7 @@ const schema: SchemaType<DbPost> = {
       stringVersionFieldName: "location",
     },
     hidden: (props) => !props.eventForm,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     label: "Event Location",
@@ -2022,7 +2024,7 @@ const schema: SchemaType<DbPost> = {
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
@@ -2032,7 +2034,7 @@ const schema: SchemaType<DbPost> = {
   contactInfo: {
     type: String,
     hidden: (props) => !props.eventForm,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members'],
     label: "Contact Info",
@@ -2044,7 +2046,7 @@ const schema: SchemaType<DbPost> = {
   facebookLink: {
     type: String,
     hidden: (props) => !props.eventForm,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
@@ -2058,7 +2060,7 @@ const schema: SchemaType<DbPost> = {
   meetupLink: {
     type: String,
     hidden: (props) => !props.eventForm,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     label: "Meetup.com Event",
@@ -2072,7 +2074,7 @@ const schema: SchemaType<DbPost> = {
   website: {
     type: String,
     hidden: (props) => !props.eventForm,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: "MuiTextField",
@@ -2087,12 +2089,12 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: (props) => !props.eventForm || !isEAForum,
     label: "Event Image",
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members'],
     control: "ImageUpload",
     group: formGroups.event,
-    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
+    tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)"
   },
 
   types: {
@@ -2155,7 +2157,7 @@ const schema: SchemaType<DbPost> = {
   shareWithUsers: {
     type: Array,
     order: 15,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
@@ -2192,6 +2194,14 @@ const schema: SchemaType<DbPost> = {
     type: String,
     foreignKey: "Users",
     optional: true
+  },
+  
+  postSpecificRateLimit: {
+    type: Date,
+    nullable: true,
+    canRead: ['members'],
+    optional: true, hidden: true,
+    // Implementation in postResolvers.ts
   },
   
   
@@ -2327,6 +2337,19 @@ const schema: SchemaType<DbPost> = {
       }
     },
   },
+
+  ignoreRateLimits: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: isEAForum,
+    tooltip: "Allow rate-limited users to comment freely on this post",
+    group: formGroups.moderationGroup,
+    canRead: ["guests"],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    order: 60
+  },
   
   // On a post, do not show comment karma
   hideCommentKarma: {
@@ -2446,10 +2469,10 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     nullable: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    hidden: true
+    hidden: true,
   },
 
   rejectedByUserId: {

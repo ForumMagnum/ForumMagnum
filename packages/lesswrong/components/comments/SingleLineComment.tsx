@@ -8,6 +8,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -24,6 +25,7 @@ export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   paddingRight: theme.spacing.unit,
   color: theme.palette.text.dim60,
   whiteSpace: "nowrap",
+  fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -188,7 +190,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
-        <CommentUserName comment={comment} simple={true} hideSprout className={classes.username} />
+        <CommentUserName
+          comment={comment}
+          simple
+          className={classes.username}
+        />
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}

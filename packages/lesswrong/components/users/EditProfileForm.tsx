@@ -1,11 +1,14 @@
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/vulcan-users';
 import { userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
+import { userHasEagProfileImport } from '../../lib/betas';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,22 +28,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 40
   },
+  eagImport: {
+    display: "flex",
+    alignItems: "center",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.primary.main,
+    background: theme.palette.primaryAlpha(0.05),
+    padding: 16,
+    margin: "16px 0",
+    borderRadius: theme.borderRadius.default,
+  },
   importTextDesktop: {
+    flexGrow: 1,
     marginLeft: 6,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
-    }
+    },
   },
   importTextMobile: {
+    flexGrow: 1,
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'inline',
       marginLeft: 6,
-    }
+    },
   },
   importLink: {
-    color: theme.palette.primary.main
-  }
+    textDecoration: "underline",
+  },
+  dismissImport: {
+    height: 16,
+    cursor: "pointer",
+  },
 })
 
 const EditProfileForm = ({classes}: {
@@ -49,9 +70,12 @@ const EditProfileForm = ({classes}: {
   const currentUser = useCurrentUser()
   const { history } = useNavigation()
   const { params } = useLocation()
-  
-  const { Typography, WrappedSmartForm } = Components
-  
+  const [cookies, setCookie] = useCookiesWithConsent([
+    HIDE_IMPORT_EAG_PROFILE,
+  ]);
+
+  const {Typography, ForumIcon, WrappedSmartForm} = Components
+
   let terms: {slug?: string, documentId?: string} = {}
   if (params.slug) {
     terms.slug = params.slug
@@ -79,22 +103,47 @@ const EditProfileForm = ({classes}: {
       Sorry, you do not have permission to do this at this time.
     </div>
   }
-  
+
+  const showEAGImport = userHasEagProfileImport(currentUser) &&
+    cookies[HIDE_IMPORT_EAG_PROFILE] !== "true" &&
+    (terms.slug === currentUser.slug || terms.documentId === currentUser._id);
+
+  const dismissEAGImport = () => {
+    setCookie(HIDE_IMPORT_EAG_PROFILE, "true", {
+      expires: moment().add(30, 'days').toDate(),
+      path: "/",
+    });
+  }
+
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        Edit Public Profile
+        {isEAForum ? "Edit profile" : "Edit Public Profile"}
       </Typography>
-      <div className={classes.subheading}>
-        All fields are optional.
-        {forumTypeSetting.get() === 'EAForum' && (terms.slug === currentUser.slug || terms.documentId === currentUser._id) && <>
+
+      {!isEAForum &&
+        <div className={classes.subheading}>
+          All fields are optional.
+        </div>
+      }
+
+      {showEAGImport &&
+        <div className={classes.eagImport}>
           <span className={classes.importTextDesktop}>
-            You may also <Link to="/profile/import" className={classes.importLink}>import profile data from your latest EA Global application</Link>.
+            You can <Link to="/profile/import" className={classes.importLink}>import profile data</Link>
+            {" "}from your latest EA Global application.
           </span>
-          <span className={classes.importTextMobile}>To import EA Global data, please view this page on desktop.</span>
-        </>}
-      </div>
-      
+          <span className={classes.importTextMobile}>
+            To import EA Global data, please view this page on desktop.
+          </span>
+          <ForumIcon
+            icon="Close"
+            onClick={dismissEAGImport}
+            className={classes.dismissImport}
+          />
+        </div>
+      }
+
       <WrappedSmartForm
         collectionName="Users"
         {...terms}

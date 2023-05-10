@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -237,7 +237,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // if you're banned.
       // @ts-ignore
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
-      !commentHidden
+      (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -277,7 +277,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta,
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
   } = Components
 
   if (!comment) {
@@ -359,6 +359,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
+          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>

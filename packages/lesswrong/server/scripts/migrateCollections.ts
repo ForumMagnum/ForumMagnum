@@ -15,6 +15,9 @@ import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collect
 import { LWEvents } from "../../lib/collections/lwevents";
 import { inspect } from "util";
 import { CollectionFilters } from './collectionMigrationFilters';
+import { timedFunc } from "../../lib/helpers";
+import Posts from "../../lib/collections/posts/collection";
+import Users from "../../lib/collections/users/collection";
 
 type Transaction = ITask<{}>;
 
@@ -25,9 +28,18 @@ const extractObjectId = (value: Record<string, any>): Record<string, any> => {
   return value;
 }
 
+
+const sanitizeNullTerminatingChars = (value: DbRevision['originalContents']) => {
+  if (value.type !== 'markdown') return value;
+  value.data = value.data.replace(/\0/g, '');
+  return value;
+}
+
+const VALID_ID_LENGTHS = new Set([17, 24]);
+
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
-const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject>> = {
+const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject | Promise<DbObject | undefined>>> = {
   Posts: (post: DbPost): DbPost => {
     const scoreThresholds = [2, 30, 45, 75, 125, 200] as const;
     for (const threshold of scoreThresholds) {
@@ -60,6 +72,19 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
         }
       }
     }
+
+    if (user.emails && !Array.isArray(user.emails) && '0' in user.emails) {
+      user.emails = Object.values(user.emails);
+    }
+
+    if (typeof user.banned === 'boolean') {
+      user.banned = new Date('01-01-3023');
+    }
+
+    if (typeof user.needsReview !== 'boolean') {
+      user.needsReview = false;
+    }
+
     user.emails = user.emails?.map((email) => {
       return typeof email === "string"
         ? { address: email, verified: false }
@@ -94,6 +119,66 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
       spotlight.showAuthor = false;
     }
     return spotlight;
+  },
+  Comments: (comment: DbComment): DbComment => {
+    if (comment.contents?.originalContents) {
+      comment.contents.originalContents = sanitizeNullTerminatingChars(comment.contents.originalContents);
+    }
+    return comment;
+  },
+  Messages: async (message: DbMessage): Promise<DbMessage | undefined> => {
+    if (message.contents?.originalContents) {
+      message.contents.originalContents = sanitizeNullTerminatingChars(message.contents.originalContents);
+    }
+    if (!VALID_ID_LENGTHS.has(message.userId.length)) {
+      const maybeSlug = message.userId.toLowerCase();
+      console.log(`Message with invalid userId ${maybeSlug}, checking if it's a slug`);
+      const userBySlug = await Users.findOne({ slug: maybeSlug });
+      if (userBySlug) {
+        console.log(`Found user with slug ${maybeSlug}, id: ${userBySlug._id}`);
+        message.userId = userBySlug._id;
+      } else {
+        // These cases are annoying to handle via collection query filters, so just filter them out here
+        return undefined;
+      }
+    }
+    return message;
+  },
+  Revisions: (revision: DbRevision): DbRevision => {
+    if (revision.originalContents) {
+      revision.originalContents = sanitizeNullTerminatingChars(revision.originalContents);
+    }
+    return revision;
+  },
+  ReadStatuses: async (readStatus: DbReadStatus): Promise<DbReadStatus | undefined> => {
+    if (readStatus.postId && !VALID_ID_LENGTHS.has(readStatus.postId.length)) {
+      const maybeSlug = readStatus.postId;
+      if (maybeSlug !== 'null' && maybeSlug !== 'undefined') {
+        console.log(`ReadStatus with invalid postId ${maybeSlug}, checking if it's a slug`);
+        const postBySlug = await Posts.findOne({ slug: maybeSlug });
+        if (postBySlug) {
+          console.log(`Found post with slug ${maybeSlug}, id: ${postBySlug._id}`);
+          readStatus.postId = postBySlug._id;
+        } else {
+          // These cases are annoying to handle via collection query filters, so just filter them out here
+          return undefined;
+        }
+      } else {
+        return undefined;
+      }
+    }
+    return readStatus;
+  },
+  Votes: (vote: DbVote): DbVote => {
+    if (typeof vote.userId !== 'string') {
+      if (!('_str' in vote.userId)) {
+        throw new Error(`Unrecognized vote userId: ${JSON.stringify(vote.userId)}`);
+      }
+
+      // @ts-ignore - LW had some legacy imported data where userId was an object shaped like { _str: string }
+      vote.userId = vote.userId._str;
+    }
+    return vote;
   }
 };
 
@@ -172,21 +257,31 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
   if (!createdSince) {
     return {};
   }
-  return collectionName === "cronHistory"
-    ? { startedAt: { $gte: createdSince } }
-    : { createdAt: { $gte: createdSince } };
+
+  switch (collectionName) {
+    case 'cronHistory': return { startedAt: { $gte: createdSince } };
+    // It seems like we create cookies that expire after 10 years, by default?
+    case 'Sessions': return { expires: { $gte: createdSince.setUTCFullYear(createdSince.getUTCFullYear() + 10) } };
+    default: return { createdAt: { $gte: createdSince } };
+  }
 }
 
 const makeCollectionFilter = (collectionName: string) => {
   switch (collectionName) {
     case "DatabaseMetadata":
-      return { name: { $ne: "databaseId" } };
+      return { name: { $nin: ["databaseId", "expectedDatabaseId"] } };
     case "Books":
       return CollectionFilters['Books'];
     case "Sequences":
       return CollectionFilters['Sequences'];
     case "Collections":
       return { deleted: { $ne: true } };
+    case "Messages":
+      return { contents: { $exists: true } };
+    case "CronHistories":
+      return { intendedAt: { $ne: null } };
+    case "DebouncerEvents":
+      return { upperBoundTime: { $ne: NaN } };
     default:
       return {};
   }
@@ -195,6 +290,10 @@ const makeCollectionFilter = (collectionName: string) => {
 const isNonIdSortField = (collectionName: string) => {
   switch (collectionName) {
     case 'EmailTokens': return false;
+    case 'Posts': return false;
+    case 'ReadStatuses': return false;
+    case 'CronHistories': return false;
+    case 'Images': return false;
     default: return true;
   }
 };
@@ -203,15 +302,15 @@ const getCollectionSortField = (collectionName: string) => {
   switch (collectionName) {
     case 'DebouncerEvents': return 'delayTime';
     case 'Migrations': return 'started';
-    case 'ReadStatuses': return 'lastUpdated';
-    case 'Revisions': return 'editedAt';
     case 'Votes': return 'votedAt';
+    case 'Sessions': return 'expires';
     default: return 'createdAt';
   }
 };
 
 const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
+  const expectedDatabaseId = await DatabaseMetadata.findOne({name: "expectedDatabaseId"});
   if (databaseId) {
     extractObjectId(databaseId);
     await sql.none(`
@@ -220,6 +319,16 @@ const copyDatabaseId = async (sql: Transaction) => {
       ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
       SET "value" = TO_JSONB($3::TEXT)
     `, [databaseId._id, databaseId.name, databaseId.value]);
+  }
+
+  if (expectedDatabaseId) {
+    extractObjectId(expectedDatabaseId);
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [expectedDatabaseId._id, expectedDatabaseId.name, expectedDatabaseId.value]);
   }
 }
 
@@ -264,10 +373,11 @@ const copyData = async (
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
         count += batchSize;
-        const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
+        const formattedDocuments = (await Promise.all(documents.map(formatter))).filter((doc): doc is DbObject => !!doc);
+        const query = new InsertQuery(table, formattedDocuments, {}, {conflictStrategy: "ignore"});
         const compiled = query.compile();
         try {
-          await sql.none(compiled.sql, compiled.args);
+          await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
         } catch (e) {
           console.log(documents);
           console.error(e);

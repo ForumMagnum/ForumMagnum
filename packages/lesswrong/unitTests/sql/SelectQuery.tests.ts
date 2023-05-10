@@ -152,6 +152,12 @@ describe("SelectQuery", () => {
       expectedArgs: [],
     },
     {
+      name: "can build select query with in comparison on an array field",
+      getQuery: () => new SelectQuery(testTable, {d: {$in: ['foo', 'bar']}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "d" ::TEXT[] && ARRAY[ $1 , $2 ]',
+      expectedArgs: ['foo', 'bar'],
+    },
+    {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION ) )',
@@ -290,7 +296,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select with fields excluded through projection",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {b: 0}}),
-      expectedSql: 'SELECT "_id", "a", "c", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
+      expectedSql: 'SELECT "_id", "a", "c", "d", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
       expectedArgs: [3],
     },
     {
@@ -308,7 +314,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select with _id excluded through projection",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {_id: 0}}),
-      expectedSql: 'SELECT "a", "b", "c", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
+      expectedSql: 'SELECT "a", "b", "c", "d", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
       expectedArgs: [3],
     },
     {
