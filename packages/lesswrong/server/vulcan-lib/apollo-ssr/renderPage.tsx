@@ -83,7 +83,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 
   const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
   const abTestGroups = getAllUserABTestGroups(user, clientId);
-  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
+  if (!isHealthCheck && (user || isExcludedFromPageCache(url))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
@@ -136,7 +136,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+function isExcludedFromPageCache(path: string): boolean {
   if (isEAForum && path === "/" && frontpageAlgoCacheDisabled.get()) {
     return true;
   }
