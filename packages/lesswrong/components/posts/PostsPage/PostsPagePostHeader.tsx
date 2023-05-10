@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   actions: {
     display: 'inline-block',
-    color: theme.palette.icon.dim600,
+    color: theme.palette.grey[500],
     "@media print": { display: "none" },
   },
   authors: {
@@ -247,10 +247,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             {isEAForum ?
               <>
                 <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-              </> :
-              <>
-                {postGetCommentCountStr(post, commentCount)}
-              </>
+              </> : postGetCommentCountStr(post, commentCount)
             }
           </a>
           {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}

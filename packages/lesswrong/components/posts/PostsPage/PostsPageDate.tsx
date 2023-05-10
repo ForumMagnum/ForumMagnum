@@ -1,12 +1,12 @@
 import React from 'react';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {
@@ -21,7 +21,6 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   classes: ClassesType,
 }) => {
   const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
