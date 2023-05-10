@@ -85,13 +85,9 @@ const CollapsedFootnotes = ({
 
   const {preview, rest, totalCount} = splitFootnotes(footnotesHtml, previewCount);
 
-  if (totalCount < 1) {
-    return null;
-  }
-
   if (totalCount <= previewCount) {
     return (
-      <ol {...attributes} dangerouslySetInnerHTML={{__html: preview}} />
+      <ol {...attributes} dangerouslySetInnerHTML={{__html: footnotesHtml}} />
     );
   }
 
