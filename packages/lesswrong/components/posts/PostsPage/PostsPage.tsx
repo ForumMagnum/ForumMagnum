@@ -301,7 +301,11 @@ const PostsPage = ({post, refetch, classes}: {
     })
   }, [openDialog, post]);
 
-  const tableOfContents = sectionData
+  const isCrosspostedQuestion = post.question &&
+    post.fmCrosspost?.isCrosspost &&
+    !post.fmCrosspost?.hostedHere;
+
+  const tableOfContents = sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
   
