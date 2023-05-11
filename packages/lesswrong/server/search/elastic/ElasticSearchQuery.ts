@@ -3,6 +3,17 @@ import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/
 import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
 import { elasticSearchConfig, Ranking } from "./ElasticSearchConfig";
 
+export type QueryFilter = {
+  field: string,
+} & ({
+  type: "facet",
+  value: boolean | string,
+} | {
+  type: "numeric",
+  value: number,
+  operator: "gt" | "gte" | "lt" | "lte" | "eq",
+});
+
 export type QueryData = {
   index: string,
   search: string
@@ -10,6 +21,7 @@ export type QueryData = {
   limit?: number,
   preTag?: string,
   postTag?: string,
+  filters: QueryFilter[],
 }
 
 class ElasticSearchQuery {
@@ -59,8 +71,35 @@ class ElasticSearchQuery {
     return expr;
   }
 
+  // TODO: This doesn't work for fields like `tags` that contain ids
+  // because they get tokenized - we need to fix the mappings
+  // https://www.elastic.co/guide/en/elasticsearch/reference/8.7/query-dsl-term-query.html#avoid-term-query-text-fields
+  private compileFilters(filters: QueryFilter[]) {
+    const terms = [];
+    for (const filter of filters) {
+      switch (filter.type) {
+      case "facet":
+        terms.push({
+          term: {
+            [filter.field]: filter.value,
+          },
+        });
+        break;
+      }
+    }
+    return terms.length ? terms : undefined;
+  }
+
   compile(): SearchRequestInfo | SearchRequestBody {
-    const {index, search, offset = 0, limit = 10, preTag, postTag} = this.queryData;
+    const {
+      index,
+      search,
+      offset = 0,
+      limit = 10,
+      preTag,
+      postTag,
+      filters,
+    } = this.queryData;
     const collectionName = this.indexToCollectionName(index);
     const config = elasticSearchConfig[collectionName];
     if (!config) {
@@ -70,6 +109,7 @@ class ElasticSearchQuery {
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
     };
+    const compiledFilters = this.compileFilters(filters);
     return {
       index,
       from: offset,
@@ -103,6 +143,7 @@ class ElasticSearchQuery {
                   },
                 },
                 should: [],
+                filter: compiledFilters,
               },
             },
             script: {

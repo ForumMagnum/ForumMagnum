@@ -2,6 +2,7 @@ import ElasticSearchClient, { ElasticSearchHit } from "./ElasticSearchClient";
 import type { SearchQuery } from "./searchQuery";
 import type { SearchResult } from "./searchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
+import type { QueryFilter } from "./ElasticSearchQuery";
 
 class ElasticSearchService {
   constructor(
@@ -20,6 +21,7 @@ class ElasticSearchService {
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
+      filters: this.parseFacetFilters(params.facetFilters),
     });
 
     const nbHits = typeof result.hits.total === "number"
@@ -52,6 +54,35 @@ class ElasticSearchService {
       },
       serverTimeMS: timeMS,
     };
+  }
+
+  private parseFacetFilters(facets?: string[][]): QueryFilter[] {
+    const result: QueryFilter[] = [];
+    for (const group of facets ?? []) {
+      for (const facet of group) {
+        const [field, value] = facet.split(":");
+        if (!field || !value) {
+          throw new Error("Invalid facet: " + facet);
+        }
+        result.push({
+          type: "facet",
+          field,
+          value: this.parseFacetValue(value),
+        });
+      }
+    }
+    return result;
+  }
+
+  private parseFacetValue(value: string): boolean | string {
+    switch (value) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    default:
+      return value;
+    }
   }
 
   private urlEncode(params: Record<string, unknown>): string {
