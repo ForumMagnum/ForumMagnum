@@ -7,6 +7,8 @@ import './server/cronUtil';
 
 import './server/startupSanityChecks';
 
+import './server/postgresView';
+
 import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
@@ -61,6 +63,7 @@ import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
+import "./server/scripts/randomRecommendationSamples";
 import "./server/scripts/languageModels/generateTaggingPostSets";
 import "./server/scripts/languageModels/testModGPTOnComments";
 import './server/manualMigrations';
@@ -92,6 +95,8 @@ import './server/notificationCallbacks';
 import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
+import './server/recommendations/mutations';
+import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';

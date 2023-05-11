@@ -5,7 +5,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';

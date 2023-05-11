@@ -17,7 +17,7 @@ import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
-import {userFindOneByEmail, usersFindAllByEmail} from "../lib/collections/users/commonQueries";
+import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
