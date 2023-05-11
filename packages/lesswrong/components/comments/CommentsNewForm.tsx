@@ -194,7 +194,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
         noClickawayCancel: true
       });
     }
-    setShowGuidelines(true);
+    if (!isEAForum) {
+      setShowGuidelines(true);
+    }
   }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {

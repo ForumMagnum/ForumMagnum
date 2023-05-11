@@ -1,10 +1,17 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
-import md5 from "md5";
 import { isAnyTest } from "../lib/executionEnvironment";
+import { queryWithLock } from "./queryWithLock";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
+  error: (err, ctx) => {
+    // If it's a syntax error, print the bad query for debugging
+    if (typeof err.code === "string" && err.code.startsWith("42")) {
+      // eslint-disable-next-line no-console
+      console.error("SQL syntax error:", err.message, ctx.query);
+    }
+  },
   // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);
@@ -29,10 +36,12 @@ const pgPromiseLib = pgp({
 const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
-  type SqlClient = IDatabase<{}> & {
+  type RawSqlClient = IDatabase<{}>;
+  type SqlClient = RawSqlClient & {
     // We can't use `T extends DbObject` here because DbObject isn't available to the
     // migration bootstrapping code - `any` will do for now
     concat: (queries: Query<any>[]) => string;
+    isTestingClient: boolean;
   };
 }
 
@@ -51,6 +60,8 @@ const onConnectQueries: string[] = [
   `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
   // Enable the earthdistance extension - this is used for finding nearby events
   `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
+  // Enable the intarray extension - this is used for collab filtering recommendations
+  `CREATE EXTENSION IF NOT EXISTS "intarray" CASCADE`,
   // Build a nested JSON object from a path and a value - this is a dependency of
   // fm_add_to_set below
   `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
@@ -102,15 +113,35 @@ const onConnectQueries: string[] = [
     )
     END;'
   `,
+  // Calculate the similarity between the tags on two posts from 0 to 1, where 0 is
+  // totally dissimilar and 1 is identical. The algorithm used here is a weighted
+  // Jaccard index.
+  `CREATE OR REPLACE FUNCTION fm_post_tag_similarity(
+    post_id_a TEXT,
+    post_id_b TEXT
+  )
+    RETURNS FLOAT LANGUAGE sql IMMUTABLE AS
+   'SELECT
+      COALESCE(SUM(LEAST(a, b))::FLOAT / SUM(GREATEST(a, b))::FLOAT, 0) AS similarity
+    FROM (
+      SELECT
+        GREATEST((a."tagRelevance"->"tagId")::INTEGER, 0) AS a,
+        GREATEST((b."tagRelevance"->"tagId")::INTEGER, 0) AS b
+      FROM (
+        SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+        FROM "Posts"
+        WHERE "_id" IN (post_id_a, post_id_b)
+      ) "allTags"
+      JOIN "Posts" a ON a."_id" = post_id_a
+      JOIN "Posts" b ON b."_id" = post_id_b
+    ) "tagRelevance";'
+  `,
 ];
 
-/**
- * pg_advisory_xact_lock takes a 64-bit integer as an argument. Generate this from the query
- * string to ensure that each query gets a unique lock key.
- */
-const getLockKey = (query: string) => parseInt(md5(query), 16) / 1e20
-
-export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
+export const createSqlConnection = async (
+  url?: string,
+  isTestingClient = false,
+): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
     throw new Error("PG_URL not configured");
@@ -121,21 +152,7 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     max: MAX_CONNECTIONS,
   });
 
-  try {
-    await Promise.all(onConnectQueries.map((query) => {
-      return db.tx(async (transaction) => {
-        // Set advisory lock to ensure only one server runs each query at a time
-        await transaction.any(`SET LOCAL lock_timeout = '10s';`);
-        await transaction.any(`SELECT pg_advisory_xact_lock(${getLockKey(query)});`);
-        await transaction.any(query)
-      })
-    }));
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to run Postgres onConnectQuery:", e);
-  }
-
-  return {
+  const client: SqlClient = {
     ...db,
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
     concat: (queries: Query<any>[]): string => {
@@ -145,5 +162,15 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
       });
       return pgPromiseLib.helpers.concat(compiled);
     },
+    isTestingClient,
   };
+
+  try {
+    await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to run Postgres onConnectQuery:", e);
+  }
+
+  return client;
 }

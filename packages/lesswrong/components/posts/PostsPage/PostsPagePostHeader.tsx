@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -148,6 +148,29 @@ const getResponseCounts = (
   };
 };
 
+const CommentsLink: FC<{
+  anchor: string,
+  children: React.ReactNode,
+  className?: string,
+}> = ({anchor, children, className}) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.querySelector(anchor);
+    if (elem) {
+      // Match the scroll behaviour from TableOfContentsList
+      window.scrollTo({
+        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
+        behavior: "smooth",
+      });
+    }
+  }
+  return (
+    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+      {children}
+    </a>
+  );
+}
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
@@ -242,14 +265,18 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          {post.question && <a className={classes.secondaryInfoLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.secondaryInfoLink} href={"#comments"}>
+          {post.question &&
+            <CommentsLink anchor="#answers" className={classes.commentsLink}>
+              {postGetAnswerCountStr(answerCount)}
+            </CommentsLink>
+          }
+          <CommentsLink anchor="#comments" className={classes.commentsLink}>
             {isEAForum ?
               <>
                 <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
               </> : postGetCommentCountStr(post, commentCount)
             }
-          </a>
+          </CommentsLink>
           {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?

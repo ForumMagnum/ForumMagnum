@@ -727,6 +727,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'EA Forum Wrapped',
     },
     {
+      name: 'recommendationsSample',
+      path: '/admin/recommendationsSample',
+      componentName: 'RecommendationsSamplePage',
+      title: "Recommendations Sample"
+    },
+    {
       name: 'CookiePolicy',
       path: '/cookiePolicy',
       componentName: 'CookiePolicy',
