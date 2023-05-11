@@ -1282,7 +1282,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     resolveAs: {
       fieldName: 'coauthors',
-      type: '[User!]!',
+      type: '[User!]',
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
@@ -2094,7 +2094,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members'],
     control: "ImageUpload",
     group: formGroups.event,
-    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
+    tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)"
   },
 
   types: {

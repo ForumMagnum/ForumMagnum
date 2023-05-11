@@ -90,8 +90,8 @@ const formPreviewSizeByImageType: Record<
     height: 80
   },
   eventImageId: {
-    width: 320,
-    height: 180
+    width: 373,
+    height: 195
   },
   spotlightImageId: {
     width: 345,

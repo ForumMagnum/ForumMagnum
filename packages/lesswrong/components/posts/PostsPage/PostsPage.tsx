@@ -275,7 +275,7 @@ const PostsPage = ({post, refetch, classes}: {
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewImageUrl
   if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
@@ -301,10 +301,18 @@ const PostsPage = ({post, refetch, classes}: {
     })
   }, [openDialog, post]);
 
-  const tableOfContents = sectionData
+  const isCrosspostedQuestion = post.question &&
+    post.fmCrosspost?.isCrosspost &&
+    !post.fmCrosspost?.hostedHere;
+
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const tableOfContents = sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
-  
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -328,7 +336,7 @@ const PostsPage = ({post, refetch, classes}: {
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
-              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              imgProps={{ar: '191:100', w: '682', q: '100'}}
               className={classes.headerImage}
             />
           </div>}
