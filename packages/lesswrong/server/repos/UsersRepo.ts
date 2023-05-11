@@ -141,7 +141,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   async getSearchDocuments(
     limit: number,
     offset: number,
-  ): Promise<Array<AlgoliaPost>> {
+  ): Promise<AlgoliaUser[]> {
     return this.getRawDb().any(`
       SELECT
         u."_id",
@@ -155,7 +155,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         fm_strip_html(u."biography"->>'html') AS "bio",
         fm_strip_html(u."howOthersCanHelpMe"->>'html') AS "howOthersCanHelpMe",
         fm_strip_html(u."howICanHelpOthers"->>'html') AS "howICanHelpOthers",
-        u."karma",
+        COALESCE(u."karma", 0) AS "karma",
         u."slug",
         u."jobTitle",
         u."organization",

@@ -9,7 +9,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
   async getSearchDocuments(
     limit: number,
     offset: number,
-  ): Promise<Array<AlgoliaPost>> {
+  ): Promise<AlgoliaSequence[]> {
     return this.getRawDb().any(`
       SELECT
         s."_id",
@@ -25,7 +25,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         author."slug" AS "authorSlug",
         fm_strip_html(s."contents"->>'html') AS "plainTextDescription"
       FROM "Sequences" s
-      JOIN "Users" author on s."userId" = author."_id"
+      LEFT JOIN "Users" author on s."userId" = author."_id"
       WHERE
         s."isDeleted" IS NOT TRUE AND
         s."draft" IS NOT TRUE AND

@@ -9,18 +9,18 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
   getSearchDocuments(
     limit: number,
     offset: number,
-  ): Promise<Array<AlgoliaPost>> {
+  ): Promise<AlgoliaTag[]> {
     return this.getRawDb().any(`
       SELECT
         t."_id",
         t."_id" AS "objectID",
         t."name",
         t."slug",
-        t."core",
+        COALESCE(t."core", FALSE) AS "core",
         EXTRACT(EPOCH FROM t."createdAt") * 1000 AS "publicDateMs",
-        t."defaultOrder",
+        COALESCE(t."defaultOrder", 0) AS "defaultOrder",
         t."suggestedAsFilter",
-        t."postCount",
+        COALESCE(t."postCount", 0) AS "postCount",
         t."wikiOnly",
         t."isSubforum",
         t."bannerImageId",

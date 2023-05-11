@@ -9,13 +9,13 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   async getSearchDocuments(
     limit: number,
     offset: number,
-  ): Promise<Array<AlgoliaPost>> {
+  ): Promise<AlgoliaComment[]> {
     return this.getRawDb().any(`
       SELECT
         c."_id",
         c."_id" AS "objectID",
         c."userId",
-        c."baseScore",
+        COALESCE(c."baseScore", 0) AS "baseScore",
         c."deleted" AS "isDeleted",
         c."deleted",
         c."retracted",

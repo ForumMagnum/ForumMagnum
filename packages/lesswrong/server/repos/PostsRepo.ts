@@ -75,7 +75,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   async getSearchDocuments(
     limit: number,
     offset: number,
-  ): Promise<Array<AlgoliaPost>> {
+  ): Promise<AlgoliaPost[]> {
     return this.getRawDb().any(`
       SELECT
         p."_id",
@@ -84,16 +84,16 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."url",
         p."title",
         p."slug",
-        p."baseScore",
+        COALESCE(p."baseScore", 0) AS "baseScore",
         p."status",
         p."curatedDate" IS NOT NULL AND "curatedDate" < NOW() AS "curated",
         p."legacy",
-        p."commentCount",
+        COALESCE(p."commentCount", 0) AS "commentCount",
         p."postedAt",
         EXTRACT(EPOCH FROM p."postedAt") * 1000 AS "publicDateMs",
         p."isFuture",
         p."isEvent",
-        p."viewCount",
+        COALESCE(p."viewCount", 0) AS "viewCount",
         p."lastCommentedAt",
         p."draft",
         p."af",

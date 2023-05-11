@@ -1,7 +1,6 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
-import type { MappingRankFeatureProperty } from "@elastic/elasticsearch/lib/api/types";
 import ElasticSearchClient from "./ElasticSearchClient";
-import { elasticSearchConfig } from "./ElasticSearchConfig";
+import { elasticSearchConfig, Mappings } from "./ElasticSearchConfig";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
@@ -19,8 +18,6 @@ import {
 } from "../../repos";
 import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
-
-export type Mappings = Record<string, MappingRankFeatureProperty>;
 
 class ElasticSearchExporter {
   private client = new ElasticSearchClient();
@@ -60,8 +57,7 @@ class ElasticSearchExporter {
 
     const aliasName = this.getIndexName(collection);
     const newIndexName = `${aliasName}_${Date.now()}`;
-    const existing = await client.indices.getAlias({name: aliasName});
-    const oldIndexName = Object.keys(existing ?? {})[0];
+    const oldIndexName = await this.getExistingAliasTarget(aliasName);
 
     if (oldIndexName) {
       // eslint-disable-next-line no-console
@@ -104,6 +100,17 @@ class ElasticSearchExporter {
     }
   }
 
+  private async getExistingAliasTarget(aliasName: string): Promise<string | null> {
+    try {
+      const client = this.client.getClientOrThrow();
+      const existing = await client.indices.getAlias({name: aliasName});
+      const oldIndexName = Object.keys(existing ?? {})[0];
+      return oldIndexName ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   private async createIndex(
     indexName: string,
     collectionName: AlgoliaIndexCollectionName,
@@ -143,7 +150,10 @@ class ElasticSearchExporter {
     if (!config) {
       throw new Error("Config not found for collection " + collectionName);
     }
-    const result: Record<string, MappingRankFeatureProperty> = {};
+    const result: Mappings = {
+      objectID: {type: "keyword"},
+      publicDateMs: {type: "long"},
+    };
     return result;
   }
 
@@ -164,7 +174,7 @@ class ElasticSearchExporter {
     }
   }
 
-  private async exportCollection(collectionName: AlgoliaIndexCollectionName) {
+  async exportCollection(collectionName: AlgoliaIndexCollectionName) {
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
     const repo = this.getRepoByCollectionName(collectionName);
@@ -174,7 +184,7 @@ class ElasticSearchExporter {
     // eslint-disable-next-line no-console
     console.log(`Exporting ${collectionName} (${total} documents)`);
 
-    const batchSize = 500;
+    const batchSize = 1000;
     const totalBatches = Math.ceil(total / batchSize);
     const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
     for (let i = 0; ; i++) {
@@ -208,10 +218,6 @@ class ElasticSearchExporter {
     if (!documents.length) {
       return [];
     }
-
-    // eslint-disable-next-line no-console
-    console.log("...pushing", documents.length, "documents");
-
     const _index = this.getIndexName(collection);
     const erroredDocuments: OnDropDocument<AlgoliaDocument>[] = [];
     await this.client.getClientOrThrow().helpers.bulk({
@@ -228,19 +234,6 @@ class ElasticSearchExporter {
     });
     return erroredDocuments;
   }
-
-  // TODO
-  /*
-  private async deleteDocuments(
-    collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
-    documentIds: string[],
-  ) {
-    if (!documentIds.length) {
-      return;
-    }
-    void collection;
-  }
-  */
 }
 
 Globals.elasticConfigureIndexes = () =>
@@ -248,5 +241,8 @@ Globals.elasticConfigureIndexes = () =>
 
 Globals.elasticExportAll = () =>
   new ElasticSearchExporter().exportAll();
+
+Globals.elasticExportCollection = (collectionName: AlgoliaIndexCollectionName) =>
+  new ElasticSearchExporter().exportCollection(collectionName);
 
 export default ElasticSearchExporter;

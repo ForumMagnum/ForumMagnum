@@ -1,3 +1,4 @@
+import type { MappingProperty } from "@elastic/elasticsearch/lib/api/types";
 import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
 
 export type Ranking = {
@@ -13,12 +14,15 @@ export type Ranking = {
   },
 }
 
+export type Mappings = Record<string, MappingProperty>;
+
 export type IndexConfig = {
   fields: string[],
   snippet: string,
   highlight?: string,
   ranking?: Ranking[],
   tiebreaker: string,
+  mappings?: Mappings,
 }
 
 export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
@@ -34,6 +38,13 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
       {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
     ],
     tiebreaker: "publicDateMs",
+    mappings: {
+      authorSlug: {type: "keyword"},
+      postGroupId: {type: "keyword"},
+      postSlug: {type: "keyword"},
+      tags: {type: "keyword"},
+      userId: {type: "keyword"},
+    },
   },
   Posts: {
     fields: [
@@ -45,10 +56,17 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "title",
     ranking: [
-      {field: "order", order: "asc", scoring: {type: "numeric", pivot: 2}},
       {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
     ],
     tiebreaker: "publicDateMs",
+    mappings: {
+      authorSlug: {type: "keyword"},
+      feedLink: {type: "keyword"},
+      slug: {type: "keyword"},
+      tags: {type: "keyword"},
+      url: {type: "keyword"},
+      userId: {type: "keyword"},
+    },
   },
   Users: {
     fields: [
@@ -67,6 +85,14 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
       {field: "createdAt", order: "desc", scoring: {type: "date"}},
     ],
     tiebreaker: "publicDateMs",
+    mappings: {
+      careerStage: {type: "keyword"},
+      groups: {type: "keyword"},
+      slug: {type: "keyword"},
+      website: {type: "keyword"},
+      profileImageId: {type: "keyword"},
+      profileTagIds: {type: "keyword"},
+    },
   },
   Sequences: {
     fields: [
@@ -77,6 +103,11 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "plaintextDescription",
     tiebreaker: "publicDateMs",
+    mappings: {
+      userId: {type: "keyword"},
+      authorSlug: {type: "keyword"},
+      bannerImageId: {type: "keyword"},
+    },
   },
   Tags: {
     fields: [
@@ -90,5 +121,10 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
       {field: "postCount", order: "desc", scoring: {type: "numeric", pivot: 10}},
     ],
     tiebreaker: "postCount",
+    mappings: {
+      bannerImageId: {type: "keyword"},
+      parentTagId: {type: "keyword"},
+      slug: {type: "keyword"},
+    },
   },
 };
