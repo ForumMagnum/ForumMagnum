@@ -7,8 +7,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  subtitle: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   deleteWithoutTrace: {
     marginRight:"auto"
   },
@@ -63,7 +67,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
           What is your reason for deleting this comment?
         </DialogTitle>
         <DialogContent>
-          <p><em>
+          <p className={classes.subtitle}><em>
             (If you delete without a trace, the reason will be sent to the
             author of the comment privately. Otherwise it will be publicly
             displayed below the comment.)

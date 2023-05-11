@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     fontWeight: 600,
     fontSize: "1.2rem",
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   tableContainer: {
     borderTopLeftRadius: theme.borderRadius.default,

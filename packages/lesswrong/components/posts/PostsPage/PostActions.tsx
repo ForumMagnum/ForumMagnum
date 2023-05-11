@@ -181,6 +181,15 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
+  const handleToggleDisableRecommendations = () => {
+    void updatePost({
+      selector: {_id: post._id},
+      data: {
+        disableRecommendation: !post.disableRecommendation,
+      },
+    });
+  }
+
   const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem } = Components
   if (!post) return null;
   const postAuthor = post.user;
@@ -352,6 +361,16 @@ const PostActions = ({post, closeMenu, classes}: {
                  </MenuItem>
                </div>
             }
+
+             <div onClick={handleToggleDisableRecommendations}>
+               <MenuItem>
+                 {
+                   post.disableRecommendation
+                     ? "Include in recommendations"
+                     : "Exclude from recommendations"
+                 }
+               </MenuItem>
+             </div>
           </span>
         }
         {forumTypeSetting.get() !== "EAForum" && <>

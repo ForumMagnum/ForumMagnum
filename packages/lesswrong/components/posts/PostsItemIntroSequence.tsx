@@ -7,6 +7,7 @@ import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -14,6 +15,7 @@ const IMAGE_HEIGHT = 96;
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
@@ -136,7 +138,7 @@ const PostsItemIntroSequence = ({
 }: {
   post: PostsList,
   chapter?: any,
-  sequence: SequencesPageFragment,
+  sequence?: SequencesPageFragment,
   showBottomBorder?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -151,7 +153,7 @@ const PostsItemIntroSequence = ({
 
   const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
-  const postLink = postGetPageUrl(post, false, sequence._id);
+  const postLink = postGetPageUrl(post, false, sequence?._id);
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>
@@ -196,7 +198,7 @@ const PostsItemIntroSequence = ({
 
           <div className={classes.mobileSecondRowSpacer}/>
 
-          {withImage && sequence.gridImageId && <div className={classes.sequenceImage}>
+          {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
               src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
