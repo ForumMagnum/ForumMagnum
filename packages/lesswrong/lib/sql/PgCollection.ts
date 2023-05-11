@@ -13,6 +13,7 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 
+const logAllQueries = false;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let executingQueries = 0;
@@ -82,14 +83,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
-      const startTime = new Date().getTime();
-      result = await client.any(sql, args);
-      const endTime = new Date().getTime();
-      const milliseconds = endTime - startTime;
-      if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-        // eslint-disable-next-line no-console
-        console.trace(`Slow Postgres query detected (${milliseconds} ms): ${sql}: ${JSON.stringify(args)}`);
-      }
+      
+      result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
+
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
       const {collectionName} = this;
@@ -300,6 +296,23 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       };
     },
   });
+}
+
+export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: ()=>string, quiet?: boolean) {
+  const startTime = new Date().getTime();
+  const result = await execute()
+  const endTime = new Date().getTime();
+
+  const milliseconds = endTime - startTime;
+  if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${describe()}`);
+  } else if (logAllQueries) {
+    // eslint-disable-next-line no-console
+    console.log(`Ran Postgres query (${milliseconds} ms): ${describe()}`);
+  }
+
+  return result;
 }
 
 export default PgCollection;

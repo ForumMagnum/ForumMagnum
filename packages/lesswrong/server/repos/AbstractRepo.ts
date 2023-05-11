@@ -1,6 +1,6 @@
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { getSqlClient } from "../../lib/sql/sqlClient";
-import PgCollection from "../../lib/sql/PgCollection";
+import PgCollection, { logIfSlow } from "../../lib/sql/PgCollection";
 
 /**
  * abstractRepo provides the superclass from which all of our collection
@@ -51,27 +51,45 @@ export default abstract class AbstractRepo<T extends DbObject> {
   }
 
   protected none(sql: string, args: unknown[] = []): Promise<null> {
-    return this.db.none(sql, args);
+    return logIfSlow(
+      () => this.db.none(sql, args),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   protected one(sql: string, args: unknown[] = []): Promise<T> {
-    return this.postProcess(this.db.one(sql, args));
+    return logIfSlow(
+      () => this.postProcess(this.db.one(sql, args)),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   protected oneOrNone(sql: string, args: unknown[] = []): Promise<T | null> {
-    return this.postProcess(this.db.oneOrNone(sql, args));
+    return logIfSlow(
+      () => this.postProcess(this.db.oneOrNone(sql, args)),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   protected any(sql: string, args: unknown[] = []): Promise<T[]> {
-    return this.postProcess(this.db.any(sql, args));
+    return logIfSlow(
+      () => this.postProcess(this.db.any(sql, args)),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   protected many(sql: string, args: unknown[] = []): Promise<T[]> {
-    return this.postProcess(this.db.many(sql, args));
+    return logIfSlow(
+      () => this.postProcess(this.db.many(sql, args)),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   protected manyOrNone(sql: string, args: unknown[] = []): Promise<T[]> {
-    return this.postProcess(this.db.manyOrNone(sql, args));
+    return logIfSlow(
+      () => this.postProcess(this.db.manyOrNone(sql, args)),
+      () => `${sql}: ${JSON.stringify(args)}`
+    );
   }
 
   private postProcess(promise: Promise<T>): Promise<T>;
