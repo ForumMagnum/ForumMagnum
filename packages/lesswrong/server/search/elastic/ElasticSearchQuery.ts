@@ -43,6 +43,9 @@ class ElasticSearchQuery {
       const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
       expr = `1 - decayDateLinear('${start.toISOString()}', '${dayRange}d', '0', 0.5, doc['${field}'].value)`;
       break;
+    case "bool":
+      expr = `doc['${field}'].value == true ? 0.75 : 0.25`;
+      break;
     }
     expr = `(doc['${field}'].size() == 0 ? 0 : ${expr})`;
     return order === "asc" ? `(1 - ${expr})` : expr;

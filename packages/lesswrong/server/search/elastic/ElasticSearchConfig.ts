@@ -8,6 +8,8 @@ export type Ranking = {
     pivot: number,
   } | {
     type: "date",
+  } | {
+    type: "bool",
   },
 }
 
@@ -84,7 +86,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "description",
     ranking: [
-      // {field: "core", order: "desc"},
+      {field: "core", order: "desc", scoring: {type: "bool"}},
       {field: "postCount", order: "desc", scoring: {type: "numeric", pivot: 10}},
     ],
     tiebreaker: "postCount",
