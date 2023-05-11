@@ -443,6 +443,19 @@ interface DbNotification extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface PageCacheCollection extends CollectionBase<DbPageCacheEntry, "PageCache"> {
+}
+
+interface DbPageCacheEntry extends DbObject {
+  __collectionName?: "PageCache"
+  path: string
+  abTestGroups: string
+  startDate: Date
+  ttlMs: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch, "PetrovDayLaunchs"> {
 }
 
@@ -1388,6 +1401,7 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
+  PageCache: PageCacheCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
@@ -1438,6 +1452,7 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
+  PageCache: DbPageCacheEntry
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast

@@ -20,6 +20,11 @@ import sumBy from 'lodash/sumBy';
 //   3. When a page that is getting a lot of traffic expires from the page
 //      cache, we don't want to start many rerenders of it in parallel
 
+// TODO:
+// - Add table RequestCache for shared cache
+// - Simplest and lowest risk thing to do is to patch in a db read/write in cacheLookup and cacheStore, that way it can just be used as a fallback so
+//   should be no worse than the current situation
+
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 const maxCacheAgeMs = 90*1000;
 
@@ -54,6 +59,8 @@ const jsonSerializableEstimateSize = (obj: any) => {
 // removed when they should still be in cachedABtestsIndex; current iteration
 // has duplicate entries accumulate over time.
 
+// TODO: remove this note. For a given cacheKey (which is effectively the path, not really the full cache key), this should store
+// a list of ab test groups for which it has been rendered
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
 let keysToCheckForExpiredEntries: Array<string> = [];
 
@@ -133,7 +140,8 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
     delete inProgressRenders[cacheKey];
-  
+
+  // TODO: remove note. This just clears expired entries from cachedABtestsIndex, the actual page cache is an LRU() so it's cleared automatically
   clearExpiredCacheEntries();
   
   return {
@@ -160,6 +168,8 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
         return lookupResult;
     }
   }
+  // TODO add lookup from db here, and maybe replace in memory cache lookup
+
   // eslint-disable-next-line no-console
   console.log(`Cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
   return null;
@@ -174,6 +184,7 @@ const objIsSubset = <A extends Record<string, any>, B extends Record<string, any
 }
 
 const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+  // TODO add db write here, and maybe replace in memory cache write
   pageCache.set(JSON.stringify({
     cacheKey: cacheKey,
     abTestGroups: abTestGroups

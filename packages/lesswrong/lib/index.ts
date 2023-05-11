@@ -141,6 +141,9 @@ import './collections/userMostValuablePosts/views';
 import './collections/useractivities/collection';
 import './collections/useractivities/schema';
 
+import './collections/pagecache/collection';
+import './collections/pagecache/schema';
+
 
 // Subscriptions
 import './collections/subscriptions';
