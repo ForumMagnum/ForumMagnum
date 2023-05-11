@@ -55,6 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: SECONDARY_SPACING,
     fontWeight: isEAForum ? 450 : undefined,
     fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default',
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
@@ -232,6 +233,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  
+  const commentCountNode = <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+    {isEAForum ?
+      <>
+        <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+      </> : postGetCommentCountStr(post, commentCount)
+    }
+  </CommentsLink>
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -266,17 +275,13 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           {post.question &&
-            <CommentsLink anchor="#answers" className={classes.commentsLink}>
+            <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
               {postGetAnswerCountStr(answerCount)}
             </CommentsLink>
           }
-          <CommentsLink anchor="#comments" className={classes.commentsLink}>
-            {isEAForum ?
-              <>
-                <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-              </> : postGetCommentCountStr(post, commentCount)
-            }
-          </CommentsLink>
+          {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+            {commentCountNode}
+          </LWTooltip> : commentCountNode}
           {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?

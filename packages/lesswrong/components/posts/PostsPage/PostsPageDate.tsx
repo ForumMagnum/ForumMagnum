@@ -7,6 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.text.dim3,
     fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {
