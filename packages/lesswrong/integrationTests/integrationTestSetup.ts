@@ -15,6 +15,11 @@ import {
   dropTestingDatabases,
 } from '../lib/sql/tests/testingSqlClient';
 import { isEAForum } from '../lib/instanceSettings';
+import { AbortSignal } from "node-abort-controller";
+
+// Fix for Reference error AbortSignal in `lru-cache`
+// See https://github.com/isaacs/node-lru-cache/issues/239
+global.AbortSignal = AbortSignal as AnyBecauseHard;
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
