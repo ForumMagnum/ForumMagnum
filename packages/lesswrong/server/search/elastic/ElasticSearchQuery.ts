@@ -51,7 +51,7 @@ class ElasticSearchQuery {
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 
-  private compiileScoreExpression(rankings?: Ranking[]): string {
+  private compileScoreExpression(rankings?: Ranking[]): string {
     let expr = "_score";
     for (const ranking of rankings ?? []) {
       expr += " * " + this.compileRanking(ranking);
@@ -106,7 +106,7 @@ class ElasticSearchQuery {
               },
             },
             script: {
-              source: this.compiileScoreExpression(config.ranking),
+              source: this.compileScoreExpression(config.ranking),
             },
           },
         },
