@@ -11,6 +11,7 @@ export const Sessions: SessionsCollection = createCollection({
   logChanges: false,
 });
 
+ensureIndex(Sessions, {_id:1, expires:1});
 ensureIndex(Sessions, {expires: 1});
 
 Sessions.checkAccess = async (
