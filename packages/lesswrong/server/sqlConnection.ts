@@ -136,6 +136,25 @@ const onConnectQueries: string[] = [
       JOIN "Posts" b ON b."_id" = post_id_b
     ) "tagRelevance";'
   `,
+  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(
+    post_id TEXT
+  )
+    RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
+   'SELECT ARRAY_AGG(tags."tagId")
+    FROM "Posts" p
+    JOIN (
+      SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+      FROM "Posts"
+      WHERE "_id" = post_id
+    ) tags ON p."_id" = post_id
+    WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
+  `,
+  `CREATE OR REPLACE FUNCTION fm_strip_html(
+    html TEXT
+  )
+    RETURNS TEXT LANGUAGE sql IMMUTABLE AS
+    $$ SELECT REGEXP_REPLACE(html, E'<[^>]+>', '', 'gi') $$
+  `,
 ];
 
 export const createSqlConnection = async (

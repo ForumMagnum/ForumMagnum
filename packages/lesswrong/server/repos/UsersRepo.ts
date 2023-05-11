@@ -117,7 +117,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       WHERE _id = $1
     `, [userId]);
   }
-  
+
   setExpandFrontpageSection(userId: string, section: string, expanded: boolean): Promise<null> {
     return this.none(`
       UPDATE "Users"
@@ -136,5 +136,54 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         "afKarma" = "afKarma" - $2
       WHERE _id = $1
     `, [userId, reduceAFKarma]);
+  }
+
+  async getSearchDocuments(
+    limit: number,
+    offset: number,
+  ): Promise<Array<AlgoliaPost>> {
+    return this.getRawDb().any(`
+      SELECT
+        u."_id",
+        u."_id" AS "objectID",
+        u."username",
+        u."displayName",
+        u."createdAt",
+        EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
+        u."isAdmin",
+        u."profileImageId",
+        fm_strip_html(u."biography"->>'html') AS "bio",
+        fm_strip_html(u."howOthersCanHelpMe"->>'html') AS "howOthersCanHelpMe",
+        fm_strip_html(u."howICanHelpOthers"->>'html') AS "howICanHelpOthers",
+        u."karma",
+        u."slug",
+        u."jobTitle",
+        u."organization",
+        u."careerStage",
+        u."website",
+        u."groups",
+        u."groups" @> ARRAY['alignmentForum'] AS "af",
+        u."profileTagIds",
+        u."mapLocation"->'geometry'->'location' AS "_geoloc",
+        u."mapLocation"->'formatted_address' AS "mapLocationAddress"
+      FROM "Users" u
+      WHERE
+        u."deleted" IS NOT TRUE AND
+        u."deleteContent" IS NOT TRUE
+      ORDER BY u."createdAt" DESC
+      LIMIT $1
+      OFFSET $2
+    `, [limit, offset]);
+  }
+
+  async countSearchDocuments(): Promise<number> {
+    const result = await this.getRawDb().one(`
+      SELECT COUNT(*)
+      FROM "Users" u
+      WHERE
+        u."deleted" IS NOT TRUE AND
+        u."deleteContent" IS NOT TRUE
+    `);
+    return result.count;
   }
 }

@@ -1,6 +1,6 @@
-import { postStatuses } from "../../lib/collections/posts/constants";
 import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
+import { postStatuses } from "../../lib/collections/posts/constants";
 
 export type MeanPostKarma = {
   _id: number,
@@ -71,37 +71,61 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `)
     return results
   }
-  
-  async getSearchDocuments(limit: number, offset: number): Promise<Array<AlgoliaPost>> {
-    const results = await this.getRawDb().many(`
+
+  async getSearchDocuments(
+    limit: number,
+    offset: number,
+  ): Promise<Array<AlgoliaPost>> {
+    return this.getRawDb().any(`
       SELECT
-        p._id AS "objectID",
-        p._id,
+        p."_id",
+        p."_id" AS "objectID",
         p."userId",
-        p.url,
-        p.title,
-        p.slug,
+        p."url",
+        p."title",
+        p."slug",
         p."baseScore",
-        p.status,
-        p."curatedDate" is not null AND "curatedDate" < NOW() as curated,
-        p.legacy,
+        p."status",
+        p."curatedDate" IS NOT NULL AND "curatedDate" < NOW() AS "curated",
+        p."legacy",
         p."commentCount",
         p."postedAt",
-        EXTRACT(EPOCH FROM p."postedAt") * 1000 as "publicDateMs",
-        p."isFuture", -- TODO; should be handled by other stuff
+        EXTRACT(EPOCH FROM p."postedAt") * 1000 AS "publicDateMs",
+        p."isFuture",
         p."isEvent",
-        p."viewCount", -- TODO; shouldn't pass this to the user
+        p."viewCount",
         p."lastCommentedAt",
-        p.draft, -- TODO; should be handled by other stuff
-        af,
-        ARRAY(SELECT jsonb_object_keys("tagRelevancy")) AS tags,
-        author.slug AS "authorSlug",
+        p."draft",
+        p."af",
+        fm_post_tag_ids(p."_id") AS "tags",
+        author."slug" AS "authorSlug",
         author."displayName" AS "authorDisplayName",
         author."fullName" AS "authorFullName",
-        rss."feedName",
-        rss."feedLink",
-        p.contents->>html as body,
+        rss."nickname" AS "feedName",
+        p."feedLink",
+        fm_strip_html(p."contents"->>'html') AS "body"
+      FROM "Posts" p
+      LEFT JOIN "Users" author ON p."userId" = author."_id"
+      LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
+      WHERE
+        p."status" = $1 AND
+        p."authorIsUnreviewed" IS NOT TRUE AND
+        p."rejected" IS NOT TRUE
+      ORDER BY p."createdAt" DESC
+      LIMIT $2
+      OFFSET $3
+    `, [postStatuses.STATUS_APPROVED, limit, offset]);
+  }
 
-    `);
-    return results;
+  async countSearchDocuments(): Promise<number> {
+    const result = await this.getRawDb().one(`
+      SELECT COUNT(*)
+      FROM "Posts" p
+      WHERE
+        p."status" = $1 AND
+        p."authorIsUnreviewed" IS NOT TRUE AND
+        p."rejected" IS NOT TRUE
+    `, [postStatuses.STATUS_APPROVED]);
+    return result.count;
+  }
 }

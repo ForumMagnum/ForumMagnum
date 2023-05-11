@@ -10,8 +10,13 @@ import {
   AlgoliaIndexedCollection,
   AlgoliaIndexedDbObject,
 } from "../utils";
-import { forEachDocumentBatchInCollection } from "../../manualMigrations/migrationUtils";
-import { getAlgoliaFilter } from "../algoliaFilters";
+import {
+  CommentsRepo,
+  PostsRepo,
+  SequencesRepo,
+  TagsRepo,
+  UsersRepo,
+} from "../../repos";
 import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
 
@@ -138,71 +143,50 @@ class ElasticSearchExporter {
     if (!config) {
       throw new Error("Config not found for collection " + collectionName);
     }
-
     const result: Record<string, MappingRankFeatureProperty> = {};
-    /*
-    const rankings = config.ranking ?? [];
-    for (const ranking of rankings) {
-      if (ranking.expr) {
-        continue;
-      }
-      result[ranking.field] = {
-        type: "rank_feature",
-        positive_score_impact: ranking.order === "desc",
-      };
-    }
-    */
     return result;
+  }
+
+  private getRepoByCollectionName(collectionName: AlgoliaIndexCollectionName) {
+    switch (collectionName) {
+    case "Posts":
+      return new PostsRepo();
+    case "Comments":
+      return new CommentsRepo();
+    case "Users":
+      return new UsersRepo();
+    case "Sequences":
+      return new SequencesRepo();
+    case "Tags":
+      return new TagsRepo();
+    default:
+      throw new Error("Can't find repo for collection " + collectionName);
+    }
   }
 
   private async exportCollection(collectionName: AlgoliaIndexCollectionName) {
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
-    const filter = getAlgoliaFilter(collectionName);
+    const repo = this.getRepoByCollectionName(collectionName);
 
-    customPostgresQuery.run
-    // const total = await collection.find(filter).count();
+    const total = await repo.countSearchDocuments();
 
-    // // eslint-disable-next-line no-console
-    // console.log(`Exporting ${collectionName}`);
+    // eslint-disable-next-line no-console
+    console.log(`Exporting ${collectionName} (${total} documents)`);
 
-    // const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
-    // let exportedSoFar = 0;
-    // await forEachDocumentBatchInCollection({
-    //   collection,
-    //   filter,
-    //   batchSize: 500,
-    //   loadFactor: 0.5,
-    //   callback: async (documents: AlgoliaIndexedDbObject[]) => {
-    //     const importBatch: AlgoliaDocument[] = [];
-    //     const itemsToDelete: string[] = [];
-
-    //     for (const document of documents) {
-    //       const canAccess = collection.checkAccess
-    //         ? await collection.checkAccess(null, document, null)
-    //         : true;
-    //       const entries: AlgoliaDocument[]|null = canAccess
-    //         ? await collection.toAlgolia(document)
-    //         : null;
-
-    //       if (entries?.length) {
-    //         importBatch.push.apply(importBatch, entries);
-    //       } else {
-    //         itemsToDelete.push(document._id);
-    //       }
-    //     }
-
-    //     const erroredDocuments = await this.pushDocuments(collection, importBatch);
-    //     totalErrors.push.apply(totalErrors, erroredDocuments);
-
-    //     await this.deleteDocuments(collection, itemsToDelete);
-
-    //     exportedSoFar += documents.length;
-
-    //     // eslint-disable-next-line no-console
-    //     console.log(`Exported ${exportedSoFar}/${total} from ${collectionName}`);
-    //   }
-    // });
+    const batchSize = 500;
+    const totalBatches = Math.ceil(total / batchSize);
+    const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
+    for (let i = 0; ; i++) {
+      const offset = batchSize * i;
+      console.log(`...starting ${collectionName} batch ${i} of ${totalBatches}`);
+      const documents = await repo.getSearchDocuments(batchSize, offset);
+      if (documents.length < 1) {
+        break;
+      }
+      const erroredDocuments = await this.pushDocuments(collection, documents);
+      totalErrors.push.apply(totalErrors, erroredDocuments);
+    }
 
     if (totalErrors.length) {
       // eslint-disable-next-line no-console
@@ -245,6 +229,8 @@ class ElasticSearchExporter {
     return erroredDocuments;
   }
 
+  // TODO
+  /*
   private async deleteDocuments(
     collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
     documentIds: string[],
@@ -252,10 +238,9 @@ class ElasticSearchExporter {
     if (!documentIds.length) {
       return;
     }
-
-    // TODO
     void collection;
   }
+  */
 }
 
 Globals.elasticConfigureIndexes = () =>
