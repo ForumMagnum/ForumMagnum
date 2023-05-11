@@ -71,4 +71,37 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `)
     return results
   }
+  
+  async getSearchDocuments(limit: number, offset: number): Promise<Array<AlgoliaPost>> {
+    const results = await this.getRawDb().many(`
+      SELECT
+        p._id AS "objectID",
+        p._id,
+        p."userId",
+        p.url,
+        p.title,
+        p.slug,
+        p."baseScore",
+        p.status,
+        p."curatedDate" is not null AND "curatedDate" < NOW() as curated,
+        p.legacy,
+        p."commentCount",
+        p."postedAt",
+        EXTRACT(EPOCH FROM p."postedAt") * 1000 as "publicDateMs",
+        p."isFuture", -- TODO; should be handled by other stuff
+        p."isEvent",
+        p."viewCount", -- TODO; shouldn't pass this to the user
+        p."lastCommentedAt",
+        p.draft, -- TODO; should be handled by other stuff
+        af,
+        ARRAY(SELECT jsonb_object_keys("tagRelevancy")) AS tags,
+        author.slug AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."fullName" AS "authorFullName",
+        rss."feedName",
+        rss."feedLink",
+        p.contents->>html as body,
+
+    `);
+    return results;
 }

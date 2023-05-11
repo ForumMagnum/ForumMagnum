@@ -160,48 +160,49 @@ class ElasticSearchExporter {
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
     const filter = getAlgoliaFilter(collectionName);
 
-    const total = await collection.find(filter).count();
+    customPostgresQuery.run
+    // const total = await collection.find(filter).count();
 
-    // eslint-disable-next-line no-console
-    console.log(`Exporting ${collectionName}`);
+    // // eslint-disable-next-line no-console
+    // console.log(`Exporting ${collectionName}`);
 
-    const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
-    let exportedSoFar = 0;
-    await forEachDocumentBatchInCollection({
-      collection,
-      filter,
-      batchSize: 500,
-      loadFactor: 0.5,
-      callback: async (documents: AlgoliaIndexedDbObject[]) => {
-        const importBatch: AlgoliaDocument[] = [];
-        const itemsToDelete: string[] = [];
+    // const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
+    // let exportedSoFar = 0;
+    // await forEachDocumentBatchInCollection({
+    //   collection,
+    //   filter,
+    //   batchSize: 500,
+    //   loadFactor: 0.5,
+    //   callback: async (documents: AlgoliaIndexedDbObject[]) => {
+    //     const importBatch: AlgoliaDocument[] = [];
+    //     const itemsToDelete: string[] = [];
 
-        for (const document of documents) {
-          const canAccess = collection.checkAccess
-            ? await collection.checkAccess(null, document, null)
-            : true;
-          const entries: AlgoliaDocument[]|null = canAccess
-            ? await collection.toAlgolia(document)
-            : null;
+    //     for (const document of documents) {
+    //       const canAccess = collection.checkAccess
+    //         ? await collection.checkAccess(null, document, null)
+    //         : true;
+    //       const entries: AlgoliaDocument[]|null = canAccess
+    //         ? await collection.toAlgolia(document)
+    //         : null;
 
-          if (entries?.length) {
-            importBatch.push.apply(importBatch, entries);
-          } else {
-            itemsToDelete.push(document._id);
-          }
-        }
+    //       if (entries?.length) {
+    //         importBatch.push.apply(importBatch, entries);
+    //       } else {
+    //         itemsToDelete.push(document._id);
+    //       }
+    //     }
 
-        const erroredDocuments = await this.pushDocuments(collection, importBatch);
-        totalErrors.push.apply(totalErrors, erroredDocuments);
+    //     const erroredDocuments = await this.pushDocuments(collection, importBatch);
+    //     totalErrors.push.apply(totalErrors, erroredDocuments);
 
-        await this.deleteDocuments(collection, itemsToDelete);
+    //     await this.deleteDocuments(collection, itemsToDelete);
 
-        exportedSoFar += documents.length;
+    //     exportedSoFar += documents.length;
 
-        // eslint-disable-next-line no-console
-        console.log(`Exported ${exportedSoFar}/${total} from ${collectionName}`);
-      }
-    });
+    //     // eslint-disable-next-line no-console
+    //     console.log(`Exported ${exportedSoFar}/${total} from ${collectionName}`);
+    //   }
+    // });
 
     if (totalErrors.length) {
       // eslint-disable-next-line no-console
