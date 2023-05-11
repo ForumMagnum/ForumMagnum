@@ -217,7 +217,7 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const {document: {rateLimitNextAbleToPost}} = useSingle({
+  const {document: userWithRateLimit} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UsersCurrentPostRateLimit",
@@ -238,7 +238,7 @@ const PostsNewForm = ({classes}: {
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
-        <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitReason={rateLimitNextAbleToPost.rateLimitReason}  />
+        <RateLimitWarning lastRateLimitExpiry={userWithRateLimit?.rateLimitNextAbleToPost?.nextEligible} rateLimitMessage={userWithRateLimit?.rateLimitNextAbleToPost?.rateLimitMessage}  />
         {postWillBeHidden && <NewPostModerationWarning />}
         <NoSSR>
           <WrappedSmartForm

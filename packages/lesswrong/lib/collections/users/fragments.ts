@@ -219,7 +219,7 @@ registerFragment(`
     rateLimitNextAbleToComment(postId: $postId)  {
       nextEligible
       rateLimitType
-      rateLimitReason
+      rateLimitMessage
     }
   }
 `);
@@ -230,7 +230,7 @@ registerFragment(`
     rateLimitNextAbleToPost {
       nextEligible
       rateLimitType
-      rateLimitReason
+      rateLimitMessage
     }
   }
 `);

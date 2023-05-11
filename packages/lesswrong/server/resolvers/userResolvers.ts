@@ -84,7 +84,7 @@ addGraphQLSchema(`
   type RateLimitInfo {
     nextEligible: Date,
     rateLimitType: String,
-    rateLimitReason: String
+    rateLimitMessage: String
   }
 `)
 

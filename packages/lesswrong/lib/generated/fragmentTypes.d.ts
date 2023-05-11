@@ -346,6 +346,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: Date,
+  readonly rateLimitNextAbleToPost: any /*RateLimitInfo*/,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2524,9 +2525,14 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allowDatadogSessionReplay: boolean | null,
 }
 
-interface UsersCurrentRateLimit { // fragment on Users
+interface UsersCurrentCommentRateLimit { // fragment on Users
   readonly _id: string,
-  readonly rateLimitNextAbleToComment: Date,
+  readonly rateLimitNextAbleToComment: any,
+}
+
+interface UsersCurrentPostRateLimit { // fragment on Users
+  readonly _id: string,
+  readonly rateLimitNextAbleToPost: any,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -3344,7 +3350,8 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
-  UsersCurrentRateLimit: "Users"
+  UsersCurrentCommentRateLimit: "Users"
+  UsersCurrentPostRateLimit: "Users"
   UserBookmarkedPosts: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
