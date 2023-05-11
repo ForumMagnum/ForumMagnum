@@ -148,7 +148,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const userWithRateLimit = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
-    fragmentName: "UsersCurrentRateLimit",
+    fragmentName: "UsersCurrentCommentRateLimit",
     extraVariables: { postId: 'String' },
     extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
@@ -278,18 +278,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
-    currentUser && !currentUser.isReviewed
+    currentUser && !currentUser.isReviewed 
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
   
   // TODO: probably include postSpecificRateLimit in rateLimitNextAbleToComment so we don't need both
   // TODO: also, probably make this use a max instead of a coalesce
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
-  const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
-  const lastRateLimitExpiry: Date|null =
-    (userNextAbleToComment && new Date(userNextAbleToComment))
-    ?? (postNextAbleToComment && new Date(postNextAbleToComment))
-    ?? null;
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment?.nextEligible;
+  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment)) ?? null;
   
   // Disable the form if there's a rate limit and it's more than 1 minute until it
   // expires. (If the user is rate limited but it will expire sooner than that,
@@ -301,21 +297,15 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
-    if (formDisabledDueToRateLimit && (userNextAbleToComment || postNextAbleToComment)) {
-      const timeLeftOnUserRateLimitMS = userNextAbleToComment
-        ? new Date(userNextAbleToComment).getTime() - new Date().getTime()
-        : 0;
-      const timeLeftOnPostRateLimitMS = postNextAbleToComment
-        ? new Date(postNextAbleToComment).getTime() - new Date().getTime()
-        : 0;
-      const timeLeftMS = Math.max(timeLeftOnUserRateLimitMS, timeLeftOnPostRateLimitMS);
+    if (formDisabledDueToRateLimit && (userNextAbleToComment)) {
+      const timeLeftOnUserRateLimitMS = new Date(userNextAbleToComment).getTime() - new Date().getTime()
       const timer = setTimeout(() => {
         setForceRefreshState((n) => (n+1));
-      }, timeLeftMS);
+      }, timeLeftOnUserRateLimitMS);
       
       return () => clearTimeout(timer);
     }
-  }, [userNextAbleToComment, postNextAbleToComment, formDisabledDueToRateLimit]);
+  }, [userNextAbleToComment, formDisabledDueToRateLimit]);
   
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {

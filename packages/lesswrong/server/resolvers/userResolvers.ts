@@ -18,7 +18,7 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -64,7 +64,29 @@ augmentFieldsDict(Users, {
       }
     },
   },
+  rateLimitNextAbleToPost: {
+    nullable: true,
+    resolveAs: {
+      type: "RateLimitInfo",
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        if (rateLimit) {
+          return rateLimit
+        } else {
+          return null
+        }
+      }
+    }
+  }
 });
+
+addGraphQLSchema(`
+  type RateLimitInfo {
+    nextEligible: Date,
+    rateLimitType: String,
+    rateLimitReason: String
+  }
+`)
 
 addGraphQLSchema(`
   type NewUserCompletedProfile {

@@ -2640,6 +2640,13 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  rateLimitNextAbleToPost: {
+    type: Date,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
+  },
 };
 
 export default schema;

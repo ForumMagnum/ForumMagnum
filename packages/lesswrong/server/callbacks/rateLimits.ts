@@ -193,19 +193,21 @@ const checkLowKarmaCommentRateLimit = async (user: DbUser): Promise<Date|null> =
   return null
 }
 
-function getNextPostDate (posts: Array<DbPost>, intervalType: "seconds"|"hours", intervalAmount: number): Date|null {
+function getNextAbleToPostDate (posts: Array<DbPost>, intervalType: "seconds"|"hours", intervalAmount: number): Date|null {
   const latestPostInInterval = posts.filter(post => post.postedAt > moment().subtract(intervalAmount, intervalType).toDate()).pop()
   if (!latestPostInInterval) return null
   return moment(latestPostInInterval.postedAt).add(intervalAmount, intervalType).toDate()
 }
 
-type RateLimitCategory = "moderator"|"lowKarma"|"universal"
+type RateLimitType = "moderator"|"lowKarma"|"universal"
 
-export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<{
+export type RateLimitInfo = {
   nextEligible: Date,
-  rateLimitType: RateLimitCategory,
+  rateLimitType: RateLimitType,
   rateLimitMessage: string,
-}|null> {
+}
+
+export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
   const highestStandardRateLimitHours = 24
 
   // Admins and Sunshines aren't rate-limited
@@ -226,12 +228,12 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
     postedAt: {$gte: moment().subtract(maxTimeframe, 'hours').toDate()}
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 
-  const modLimitNextPostDate = moderatorRateLimitHours && getNextPostDate(postsInTimeframe, "hours", moderatorRateLimitHours)
-  const dailyLimitNextPostDate = getNextPostDate(postsInTimeframe, "hours", maxPostsPer24HoursSetting.get())
-  const doublePostLimitNextPostDate = getNextPostDate(postsInTimeframe, "seconds", postIntervalSetting.get())
-  const newPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
+  const modLimitNextPostDate = moderatorRateLimitHours ? getNextAbleToPostDate(postsInTimeframe, "hours", moderatorRateLimitHours) : null
+  const dailyLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "hours", maxPostsPer24HoursSetting.get())
+  const doublePostLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "seconds", postIntervalSetting.get())
+  const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
 
-  if (modLimitNextPostDate && newPostDates.every(date => modLimitNextPostDate >= (date ?? new Date()))) {
+  if (modLimitNextPostDate && nextAbleToPostDates.every(date => modLimitNextPostDate >= (date ?? new Date()))) {
     return {
       nextEligible: modLimitNextPostDate,
       rateLimitMessage: "A moderator has rate limited you.",
@@ -239,7 +241,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
     }
   }
 
-  if (dailyLimitNextPostDate && newPostDates.every(date => dailyLimitNextPostDate >= (date ?? new Date()))) {
+  if (dailyLimitNextPostDate && nextAbleToPostDates.every(date => dailyLimitNextPostDate >= (date ?? new Date()))) {
     return {
       nextEligible: dailyLimitNextPostDate,
       rateLimitMessage: `Users cannot submit more than ${maxPostsPer24HoursSetting.get()} per day.`,
@@ -247,7 +249,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
     }
   }
 
-  if (doublePostLimitNextPostDate && newPostDates.every(date => doublePostLimitNextPostDate >= (date ?? new Date()))) {
+  if (doublePostLimitNextPostDate && nextAbleToPostDates.every(date => doublePostLimitNextPostDate >= (date ?? new Date()))) {
     return {
       nextEligible: doublePostLimitNextPostDate,
       rateLimitMessage: `Users cannot submit more than 1 post per ${postIntervalSetting.get()} seconds.`,
@@ -263,7 +265,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
  */
 export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<{
   nextEligible: Date,
-  rateLimitType: RateLimitCategory
+  rateLimitType: RateLimitType
 }|null> {
   // if this user is a mod/admin or (on non-EAF forums) is the post author,
   // then they are exempt from all rate limits except for the "universal" 8 sec one
@@ -325,7 +327,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
 
 export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<{
   nextEligible: Date,
-  rateLimitType: RateLimitCategory,
+  rateLimitType: RateLimitType,
 }|null> {
   if (await shouldIgnoreCommentRateLimit(user, postId)) {
     return null

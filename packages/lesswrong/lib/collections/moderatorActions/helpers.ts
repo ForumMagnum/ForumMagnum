@@ -1,12 +1,12 @@
 import moment from "moment";
 import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, RateLimitModActionType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
  */
-export function getTimeframeForRateLimit(type: RateLimitType) {
+export function getTimeframeForRateLimit(type: RateLimitModActionType) {
   let hours 
   switch(type) {
     case RATE_LIMIT_ONE_PER_DAY:
@@ -40,7 +40,7 @@ export function getModeratorRateLimit(user: DbUser) {
     sort: {
       createdAt: -1
     }
-  }) as Promise<DbModeratorAction & {type:RateLimitType} | null>
+  }) as Promise<DbModeratorAction & {type:RateLimitModActionType} | null>
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {

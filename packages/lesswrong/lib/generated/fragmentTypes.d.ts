@@ -3156,7 +3156,8 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
-  UsersCurrentRateLimit: UsersCurrentRateLimit
+  UsersCurrentCommentRateLimit: UsersCurrentCommentRateLimit
+  UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
   UserBookmarkedPosts: UserBookmarkedPosts
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
