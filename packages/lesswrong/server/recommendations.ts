@@ -7,14 +7,17 @@ import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUti
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
-import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import {
+  DefaultRecommendationsAlgorithm,
+  RecommendationsAlgorithm,
+  recommendationsAlgorithmHasStrategy,
+} from '../lib/collections/users/recommendationSettings';
+import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "../lib/sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+import RecommendationService from './recommendations/RecommendationService';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -70,7 +73,7 @@ const pipelineFilterUnread = ({currentUser}: {
 // to define a table of possible exclusion criteria and you can
 // deterministically combine them without writing out each individual case
 // combinatorially. . ... Yeah .... Sometimes life is hard.
-const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
+const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   if (algorithm.coronavirus) {
     return {
       ["tagRelevance.tNsqhzTibgGJKPEWB"]: {$gte: 1},
@@ -133,7 +136,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
+const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => {
   let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
@@ -175,7 +178,7 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // already read are filtered out.
 const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
     const joinHook = algorithm.onlyUnread && currentUser
@@ -223,7 +226,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
   count: number,
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   scoreFn: (post: DbPost)=>number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
@@ -257,7 +260,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
 const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   count: number,
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   sampleWeightFn: (post: DbPost)=>number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
@@ -286,7 +289,7 @@ const getModifierName = (post: DbPost) => {
 
 const getRecommendedPosts = async ({count, algorithm, currentUser}: {
   count: number,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   currentUser: DbUser|null
 }) => {
   const scoreFn = (post: DbPost) => {
@@ -378,7 +381,13 @@ addGraphQLResolvers({
     },
 
     async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
-      const { currentUser } = context;
+      const { currentUser, clientId } = context;
+
+      if (recommendationsAlgorithmHasStrategy(algorithm)) {
+        const service = new RecommendationService();
+        return service.recommend(currentUser, clientId, count, algorithm.strategy);
+      }
+
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
       const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
