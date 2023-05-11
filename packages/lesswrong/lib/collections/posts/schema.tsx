@@ -2301,7 +2301,7 @@ const schema: SchemaType<DbPost> = {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await context.Users.findOne({_id: post.userId});
+          const author = await context.loaders.Users.load(post.userId);
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
