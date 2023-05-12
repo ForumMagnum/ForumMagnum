@@ -12,7 +12,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   // (which shows how long you have until you can comment again), and then on the EA Forum, show the
   // particular copy that our product team wants. In the future we probably want to pass in the reason
   // that the user is currently rate-limited, to display the appropriate message.
-  if (!lastRateLimitExpiry) return null
+  if (!isEAForum && !lastRateLimitExpiry) return null
 
   const diffInMin = moment(lastRateLimitExpiry).diff(moment(), 'minutes')
   const fromNow = moment(lastRateLimitExpiry).fromNow()
