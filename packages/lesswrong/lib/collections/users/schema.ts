@@ -97,6 +97,19 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+const rateLimitInfoSchema = new SimpleSchema({
+  nextEligible: {
+    type: Date
+  },
+  rateLimitType: {
+    type: String,
+    allowedValues: ["moderator", "lowKarma", "universal"]
+  },
+  rateLimitMessage: {
+    type: String
+  },
+})
+
 export interface KarmaChangeSettingsType {
   updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
   timeOfDayGMT: number
@@ -2635,14 +2648,14 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: Date,
+    type: rateLimitInfoSchema,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,
   },
 
   rateLimitNextAbleToPost: {
-    type: Date,
+    type: rateLimitInfoSchema,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,

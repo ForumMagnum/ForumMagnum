@@ -205,7 +205,7 @@ const PostsNewForm = ({classes}: {
     fragmentName: "UsersCurrentPostRateLimit",
     skip: !currentUser,
   });
-  const showRateLimitWarning = !!userWithRateLimit?.rateLimitNextAbleToPost?.nextEligible
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
     return (<WrappedLoginForm />);
@@ -237,7 +237,7 @@ const PostsNewForm = ({classes}: {
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
-        {showRateLimitWarning && <RateLimitWarning lastRateLimitExpiry={userWithRateLimit?.rateLimitNextAbleToPost?.nextEligible} rateLimitMessage={userWithRateLimit?.rateLimitNextAbleToPost?.rateLimitMessage}  />}
+        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         {postWillBeHidden && <NewPostModerationWarning />}
         <NoSSR>
           <WrappedSmartForm

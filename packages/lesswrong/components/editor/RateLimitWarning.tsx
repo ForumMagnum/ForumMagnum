@@ -6,8 +6,8 @@ import { RateLimitType } from '../../server/callbacks/rateLimits';
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
 const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, rateLimitType}: {
-  lastRateLimitExpiry: Date|null,
-  rateLimitMessage?: string|null,
+  lastRateLimitExpiry: Date,
+  rateLimitMessage?: string,
   rateLimitType?: RateLimitType
 }) => {
   // default message tells the user how long they have to wait

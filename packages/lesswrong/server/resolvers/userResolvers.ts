@@ -49,7 +49,6 @@ augmentFieldsDict(Users, {
       }
     }
   },
-  // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
@@ -64,18 +63,6 @@ augmentFieldsDict(Users, {
       }
     },
   },
-    // // TODO: probably refactor this + rateLimitNextAbleToComment to only use one resolver, since we don't really need two
-    // postSpecificRateLimit: {
-    //   resolveAs: {
-    //     type: "Date",
-    //     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
-    //       const { currentUser } = context;
-    //       if (!currentUser) return null;
-          
-    //       return rateLimit?.nextEligible ?? null;
-    //     },
-    //   },
-    // },
   rateLimitNextAbleToPost: {
     nullable: true,
     resolveAs: {
