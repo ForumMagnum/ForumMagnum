@@ -171,24 +171,27 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   }
 }
 
+
 /**
  * Check if the user has hit the commenting rate limit for low karma users.
  * (Currently, this is 4 comments every 30 min.)
  * If so, then return the date at which the rate limit will expire.
  */
+const LOW_KARMA_USER_COMMENT_RATE_LIMIT_COMMENT_COUNT = 4
+const LOW_KARMA_USER_COMMENT_RATE_LIMIT_MINUTE_COUNT = 30
 const checkLowKarmaCommentRateLimit = async (user: DbUser): Promise<Date|null> => {
   const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
   if (karmaThreshold !== null && user.karma < karmaThreshold) {
     const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
       user,
       collection: Comments,
-      n: 4,
-      cutoffHours: 0.5,
+      n: LOW_KARMA_USER_COMMENT_RATE_LIMIT_COMMENT_COUNT,
+      cutoffHours: LOW_KARMA_USER_COMMENT_RATE_LIMIT_MINUTE_COUNT,
     })
     if (!fourthMostRecentCommentDate) return null
     // if the user has hit the limit, then they are eligible to comment again
     // 30 min after their fourth most recent comment
-    return moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
+    return moment(fourthMostRecentCommentDate).add(LOW_KARMA_USER_COMMENT_RATE_LIMIT_MINUTE_COUNT, 'minutes').toDate()
   }
   return null
 }
@@ -263,10 +266,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
  */
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<{
-  nextEligible: Date,
-  rateLimitType: RateLimitType
-}|null> {
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<RateLimitInfo|null> {
   // if this user is a mod/admin or (on non-EAF forums) is the post author,
   // then they are exempt from all rate limits except for the "universal" 8 sec one
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
@@ -293,6 +293,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
         return {
           nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
           rateLimitType: "moderator",
+          rateLimitMessage: "A moderator has rate limited you."
         }
       }
     }
@@ -304,6 +305,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
       return {
         nextEligible,
         rateLimitType: "lowKarma",
+        rateLimitMessage: `Users with less than ${commentRateLimitKarmaThresholdSetting.get()} karma can't write more than ${LOW_KARMA_USER_COMMENT_RATE_LIMIT_COMMENT_COUNT} comments per ${LOW_KARMA_USER_COMMENT_RATE_LIMIT_MINUTE_COUNT} minutes`
       };
     }
   }
@@ -319,16 +321,15 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
     return {
       nextEligible: moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate(),
       rateLimitType: "universal",
+      rateLimitMessage: `All users need to wait ${commentInterval} seconds between comments to prevent double-commenting`
     };
   }
+  
   
   return null;
 }
 
-export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<{
-  nextEligible: Date,
-  rateLimitType: RateLimitType,
-}|null> {
+export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<RateLimitInfo|null> {
   if (await shouldIgnoreCommentRateLimit(user, postId)) {
     return null
   }
@@ -346,6 +347,7 @@ export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId:
       return {
         nextEligible: moment(thirdMostRecentCommentDate).add(hours, 'hours').toDate(),
         rateLimitType: "moderator",
+        rateLimitMessage: "A moderator has rate limited your ability to comment more than three times per post per week."
       };
     }
   }

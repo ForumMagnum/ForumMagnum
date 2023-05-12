@@ -2196,15 +2196,6 @@ const schema: SchemaType<DbPost> = {
     optional: true
   },
   
-  postSpecificRateLimit: {
-    type: Date,
-    nullable: true,
-    canRead: ['members'],
-    optional: true, hidden: true,
-    // Implementation in postResolvers.ts
-  },
-  
-  
   commentSortOrder: {
     type: String,
     canRead: ['guests'],

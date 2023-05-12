@@ -153,12 +153,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
   });
-  const postWithRateLimit = useSingle({
-    documentId: post?._id,
-    collectionName: "Posts",
-    fragmentName: "PostWithRateLimit",
-    skip: !post,
-  });
   
   const {flash} = useMessages();
   prefilledProps = {
@@ -209,7 +203,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     }
     setLoading(false)
     userWithRateLimit.refetch();
-    postWithRateLimit.refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {

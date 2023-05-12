@@ -657,7 +657,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
-  readonly postSpecificRateLimit: Date,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
   readonly tableOfContents: any,
@@ -1320,11 +1319,6 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
-}
-
-interface PostWithRateLimit { // fragment on Posts
-  readonly _id: string,
-  readonly postSpecificRateLimit: Date,
 }
 
 interface CommentsList { // fragment on Comments
@@ -3083,7 +3077,6 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
-  PostWithRateLimit: PostWithRateLimit
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3273,7 +3266,6 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
-  PostWithRateLimit: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"

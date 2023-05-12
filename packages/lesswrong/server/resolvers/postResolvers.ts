@@ -72,18 +72,6 @@ augmentFieldsDict(Posts, {
       },
     }
   },
-  // TODO: probably refactor this + rateLimitNextAbleToComment to only use one resolver, since we don't really need two
-  postSpecificRateLimit: {
-    resolveAs: {
-      type: "Date",
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
-        const { currentUser } = context;
-        if (!currentUser) return null;
-        const rateLimit = await rateLimitGetPostSpecificCommentLimit(currentUser, post._id);
-        return rateLimit?.nextEligible ?? null;
-      },
-    },
-  },
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,

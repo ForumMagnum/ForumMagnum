@@ -18,7 +18,7 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, rateLimitGetPostSpecificCommentLimit, RateLimitInfo } from '../callbacks/rateLimits';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -55,15 +55,27 @@ augmentFieldsDict(Users, {
     resolveAs: {
       type: "Date",
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
         const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
-        if (rateLimit) {
-          return rateLimit.nextEligible;
-        }
-        return null;
+        const postSpecificRateLimit = args.postId ? await rateLimitGetPostSpecificCommentLimit(user, args.postId) : null
+        if (!postSpecificRateLimit && rateLimit) return rateLimit
+        if (rateLimit && postSpecificRateLimit) return rateLimit?.nextEligible > postSpecificRateLimit.nextEligible ? rateLimit : postSpecificRateLimit
+        return null
       }
     },
   },
+    // // TODO: probably refactor this + rateLimitNextAbleToComment to only use one resolver, since we don't really need two
+    // postSpecificRateLimit: {
+    //   resolveAs: {
+    //     type: "Date",
+    //     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Date|null> => {
+    //       const { currentUser } = context;
+    //       if (!currentUser) return null;
+          
+    //       return rateLimit?.nextEligible ?? null;
+    //     },
+    //   },
+    // },
   rateLimitNextAbleToPost: {
     nullable: true,
     resolveAs: {
