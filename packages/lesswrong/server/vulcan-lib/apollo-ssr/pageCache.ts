@@ -150,6 +150,9 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   };
 }
 
+// const memoryCacheLookup = current thing
+
+// const dbCacheLookup = new thing
 
 const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex)) {
@@ -169,6 +172,7 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
     }
   }
   // TODO add lookup from db here, and maybe replace in memory cache lookup
+  // PageCache.fetch({path: cacheKey, relevantAbTestGroups: complicated_query(abTestGroups))})
 
   // eslint-disable-next-line no-console
   console.log(`Cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
@@ -189,6 +193,8 @@ const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation,
     cacheKey: cacheKey,
     abTestGroups: abTestGroups
   }), rendered);
+
+  // PageCache.rawInsert({path: cacheKey, relevantAbTestGroups: abTestGroups})
   
   if (cacheKey in cachedABtestsIndex)
     cachedABtestsIndex[cacheKey].push(abTestGroups);
