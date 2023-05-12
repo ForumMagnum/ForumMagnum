@@ -176,8 +176,3 @@ export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("dis
 export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
-
-// ElasticSearch
-export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>("elasticsearch.cloudId", null, "optional");
-export const elasticUsernameSetting = new PublicInstanceSetting<string|null>("elasticsearch.username", null, "optional");
-export const elasticPasswordSetting = new PublicInstanceSetting<string|null>("elasticsearch.password", null, "optional");

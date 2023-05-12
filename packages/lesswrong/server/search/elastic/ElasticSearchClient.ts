@@ -1,11 +1,23 @@
 import { Client } from "@elastic/elasticsearch";
 import type { SearchHit, SearchResponse } from "@elastic/elasticsearch/lib/api/types";
-import {
-  elasticCloudIdSetting,
-  elasticUsernameSetting,
-  elasticPasswordSetting,
-} from "../../../lib/instanceSettings";
+import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 import ElasticSearchQuery, { QueryData } from "./ElasticSearchQuery";
+
+const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
+  "elasticsearch.cloudId",
+  null,
+  "optional",
+);
+const elasticUsernameSetting = new PublicInstanceSetting<string|null>(
+  "elasticsearch.username",
+  null,
+  "optional",
+);
+const elasticPasswordSetting = new PublicInstanceSetting<string|null>(
+  "elasticsearch.password",
+  null,
+  "optional",
+);
 
 export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -24,7 +36,7 @@ class ElasticSearchClient {
     }
 
     // eslint-disable-next-line no-console
-    console.log("Connecting to ElasticSearch...");
+    console.log("Connecting to Elasticsearch...");
     this.client = new Client({
       cloud: {id: cloudId},
       auth: {
@@ -42,7 +54,7 @@ class ElasticSearchClient {
 
   getClientOrThrow() {
     if (!this.client) {
-      throw new Error("ElasticSearch client not connected");
+      throw new Error("Elasticsearch client not connected");
     }
     return this.client;
   }
