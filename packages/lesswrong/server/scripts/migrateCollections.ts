@@ -21,6 +21,7 @@ import Users from "../../lib/collections/users/collection";
 import { ClientIds } from "../../lib/collections/clientIds/collection";
 import { createReadStream } from "fs";
 import { createInterface } from "readline";
+import { once } from "events";
 
 type Transaction = ITask<{}>;
 
@@ -582,10 +583,13 @@ const migrateClientIds = async (lastDate?: Date) => {
     const batch: DbClientId[] = [];
     const inStream = createReadStream('./clientids.json');
     let count = 0;
-    return new Promise((resolve, reject) => {
-      createInterface({
+    return new Promise(async (resolve, reject) => {
+      await once(inStream, 'open');
+      const rl = createInterface({
         input: inStream
-      }).on('line', async (line) => {
+      });
+    
+      for await (const line of rl) {
         try {
           const parsedClientId = JSON.parse(line);
           parsedClientId.createdAt = new Date(parsedClientId.createdAt['$date']);
@@ -594,11 +598,8 @@ const migrateClientIds = async (lastDate?: Date) => {
           }
           batch.push(parsedClientId);
           count++;
-
-          if (batch.length > 7500) {
-            inStream.pause();
-            console.log({ id: batch.at(-1)?._id, createdAt: batch.at(-1)?.createdAt, batchSize: batch.length }, 'last clientId in batch')
-
+    
+          if (batch.length >= 8000) {
             const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
             const compiled = query.compile();
             try {
@@ -609,28 +610,26 @@ const migrateClientIds = async (lastDate?: Date) => {
               reject(new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`));
             }
             console.log(`Migrated ${count} clientIds from file`);
-            batch.length = 0;
-            inStream.resume();
+            batch.length = 0;  
           }
         } catch (err) {
           console.log({ err });
           reject(new Error(err));
         }
-      }).on('close', async () => {
-        const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
-        const compiled = query.compile();
-        try {
-          await timedFunc('sql.none', () => transaction.none(compiled.sql, compiled.args));
-        } catch (e) {
-          console.log(batch);
-          console.error(e);
-          reject(new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`));
-        }
-        console.log(`Migrated ${count} clientIds from file`);
-        console.log('Done migrating clientIds from file.');
-        batch.length = 0;
-        resolve();
-      });
+      }
+    
+      const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
+      const compiled = query.compile();
+      try {
+        await timedFunc('sql.none', () => transaction.none(compiled.sql, compiled.args));
+      } catch (e) {
+        console.log(batch);
+        console.error(e);
+        reject(new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`));
+      }
+      console.log(`Migrated ${count} clientIds from file`);
+      batch.length = 0;  
+      resolve();
     });
   });
 }
