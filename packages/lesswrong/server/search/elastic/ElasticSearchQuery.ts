@@ -1,7 +1,6 @@
 import type { SearchRequest as SearchRequestInfo } from "@elastic/elasticsearch/lib/api/types";
 import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
-import { elasticSearchConfig, Ranking } from "./ElasticSearchConfig";
+import { indexNameToConfig, Ranking } from "./ElasticSearchConfig";
 
 export type QueryFilter = {
   field: string,
@@ -29,21 +28,7 @@ class ElasticSearchQuery {
     private queryData: QueryData,
   ) {}
 
-  private indexToCollectionName(index: string): AlgoliaIndexCollectionName {
-    const data: Record<string, AlgoliaIndexCollectionName> = {
-      comments: "Comments",
-      posts: "Posts",
-      users: "Users",
-      sequences: "Sequences",
-      tags: "Tags",
-    };
-    if (!data[index]) {
-      throw new Error("Invalid index name: " + index);
-    }
-    return data[index];
-  }
-
-  private compileRanking({field, order, scoring}: Ranking): string {
+  private compileRanking({field, order, weight, scoring}: Ranking): string {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
@@ -58,6 +43,9 @@ class ElasticSearchQuery {
     case "bool":
       expr = `doc['${field}'].value == true ? 0.75 : 0.25`;
       break;
+    }
+    if (weight) {
+      expr = `((${expr}) * ${weight})`;
     }
     expr = `(doc['${field}'].size() == 0 ? 0 : ${expr})`;
     return order === "asc" ? `(1 - ${expr})` : expr;
@@ -100,11 +88,7 @@ class ElasticSearchQuery {
       postTag,
       filters,
     } = this.queryData;
-    const collectionName = this.indexToCollectionName(index);
-    const config = elasticSearchConfig[collectionName];
-    if (!config) {
-      throw new Error("Config not found for index " + index);
-    }
+    const config = indexNameToConfig(index);
     const tags = {
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
@@ -137,6 +121,14 @@ class ElasticSearchQuery {
                           query: search,
                           fields: config.fields,
                           fuzziness: "AUTO",
+                        },
+                      },
+                      {
+                        prefix: {
+                          [config.fields[0].split("^")[0]]: {
+                            value: search,
+                            case_insensitive: true,
+                          },
                         },
                       },
                     ],

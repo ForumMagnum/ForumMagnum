@@ -1,6 +1,6 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import ElasticSearchClient from "./ElasticSearchClient";
-import { elasticSearchConfig, Mappings } from "./ElasticSearchConfig";
+import { collectionNameToConfig, Mappings } from "./ElasticSearchConfig";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,
@@ -24,7 +24,7 @@ class ElasticSearchExporter {
 
   async configureIndexes() {
     for (const collectionName of algoliaIndexedCollectionNames) {
-      await this.initIndex(collectionName);
+      await this.configureIndex(collectionName);
     }
   }
 
@@ -50,7 +50,7 @@ class ElasticSearchExporter {
    *  4) Update the alias to point to the new index
    *  5) Delete the old index
    */
-  private async initIndex(collectionName: AlgoliaIndexCollectionName) {
+  async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClientOrThrow();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
@@ -146,13 +146,11 @@ class ElasticSearchExporter {
   private getCollectionMappings(
     collectionName: AlgoliaIndexCollectionName,
   ): Mappings {
-    const config = elasticSearchConfig[collectionName];
-    if (!config) {
-      throw new Error("Config not found for collection " + collectionName);
-    }
+    const config = collectionNameToConfig(collectionName);
     const result: Mappings = {
       objectID: {type: "keyword"},
       publicDateMs: {type: "long"},
+      ...config.mappings,
     };
     return result;
   }
@@ -226,6 +224,7 @@ class ElasticSearchExporter {
         const {_id} = document;
         // @ts-ignore
         delete document._id;
+        document.publicDateMs = Number(document.publicDateMs);
         return {
           create: {_index, _id},
         };
@@ -236,13 +235,16 @@ class ElasticSearchExporter {
   }
 }
 
+Globals.elasticConfigureIndex = (collectionName: AlgoliaIndexCollectionName) =>
+  new ElasticSearchExporter().configureIndex(collectionName);
+
 Globals.elasticConfigureIndexes = () =>
   new ElasticSearchExporter().configureIndexes();
 
-Globals.elasticExportAll = () =>
-  new ElasticSearchExporter().exportAll();
-
 Globals.elasticExportCollection = (collectionName: AlgoliaIndexCollectionName) =>
   new ElasticSearchExporter().exportCollection(collectionName);
+
+Globals.elasticExportAll = () =>
+  new ElasticSearchExporter().exportAll();
 
 export default ElasticSearchExporter;

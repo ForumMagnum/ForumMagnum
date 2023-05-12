@@ -4,6 +4,7 @@ import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
 export type Ranking = {
   field: string,
   order: "asc" | "desc",
+  weight?: number,
   scoring: {
     type: "numeric",
     pivot: number,
@@ -25,7 +26,7 @@ export type IndexConfig = {
   mappings?: Mappings,
 }
 
-export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
+const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
@@ -35,7 +36,11 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "authorDisplayName",
     ranking: [
-      {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
+      {
+        field: "baseScore",
+        order: "desc",
+        scoring: {type: "numeric", pivot: 20},
+      },
     ],
     tiebreaker: "publicDateMs",
     mappings: {
@@ -48,7 +53,7 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
   },
   Posts: {
     fields: [
-      "title^3",
+      "title^2",
       "authorDisplayName",
       "body",
       "objectID",
@@ -56,7 +61,12 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     snippet: "body",
     highlight: "title",
     ranking: [
-      {field: "baseScore", order: "desc", scoring: {type: "numeric", pivot: 20}},
+      {
+        field: "baseScore",
+        order: "desc",
+        weight: 2,
+        scoring: {type: "numeric", pivot: 20},
+      },
     ],
     tiebreaker: "publicDateMs",
     mappings: {
@@ -81,8 +91,16 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "bio",
     ranking: [
-      {field: "karma", order: "desc", scoring: {type: "numeric", pivot: 20}},
-      {field: "createdAt", order: "desc", scoring: {type: "date"}},
+      {
+        field: "karma",
+        order: "desc",
+        scoring: {type: "numeric", pivot: 20},
+      },
+      {
+        field: "createdAt",
+        order: "desc",
+        scoring: {type: "date"},
+      },
     ],
     tiebreaker: "publicDateMs",
     mappings: {
@@ -117,8 +135,16 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     ],
     snippet: "description",
     ranking: [
-      {field: "core", order: "desc", scoring: {type: "bool"}},
-      {field: "postCount", order: "desc", scoring: {type: "numeric", pivot: 10}},
+      {
+        field: "core",
+        order: "desc",
+        scoring: {type: "bool"},
+      },
+      {
+        field: "postCount",
+        order: "desc",
+        scoring: {type: "numeric", pivot: 10},
+      },
     ],
     tiebreaker: "postCount",
     mappings: {
@@ -128,3 +154,33 @@ export const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig
     },
   },
 };
+
+
+const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
+  const data: Record<string, AlgoliaIndexCollectionName> = {
+    comments: "Comments",
+    posts: "Posts",
+    users: "Users",
+    sequences: "Sequences",
+    tags: "Tags",
+  };
+  if (!data[index]) {
+    throw new Error("Invalid index name: " + index);
+  }
+  return data[index];
+}
+
+export const collectionNameToConfig = (
+  collectionName: AlgoliaIndexCollectionName,
+): IndexConfig => {
+  const config = elasticSearchConfig[collectionName];
+  if (!config) {
+    throw new Error("Config not found for collection: " + collectionName);
+  }
+  return config;
+}
+
+export const indexNameToConfig = (indexName: string): IndexConfig => {
+  const collectionName = indexToCollectionName(indexName);
+  return collectionNameToConfig(collectionName);
+}

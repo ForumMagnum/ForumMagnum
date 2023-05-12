@@ -37,6 +37,7 @@ class ElasticSearchClient {
   search(queryData: QueryData): Promise<ElasticSearchResponse> {
     const query = new ElasticSearchQuery(queryData);
     const request = query.compile();
+    console.log("request", require("util").inspect(request, {depth: null}));
     return this.getClientOrThrow().search(request);
   }
 

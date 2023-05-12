@@ -2,6 +2,7 @@ import ElasticSearchClient, { ElasticSearchHit } from "./ElasticSearchClient";
 import type { SearchQuery } from "./searchQuery";
 import type { SearchResult } from "./searchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
+import { indexNameToConfig } from "./ElasticSearchConfig";
 import type { QueryFilter } from "./ElasticSearchQuery";
 
 class ElasticSearchService {
@@ -12,10 +13,11 @@ class ElasticSearchService {
   async runQuery({indexName, params}: SearchQuery): Promise<SearchResult> {
     const start = Date.now();
 
+    const index = this.sanitizeIndexName(indexName);
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
     const result = await this.client.search({
-      index: this.sanitizeIndexName(indexName),
+      index,
       search: params.query,
       offset: page * hitsPerPage,
       limit: hitsPerPage,
@@ -32,7 +34,7 @@ class ElasticSearchService {
     const timeMS = end - start;
 
     return {
-      hits: this.getHits(result.hits.hits),
+      hits: this.getHits(index, result.hits.hits),
       nbHits,
       page,
       nbPages: Math.ceil(nbHits / hitsPerPage),
@@ -97,22 +99,25 @@ class ElasticSearchService {
       : indexName;
   }
 
-  private getHits(hits: ElasticSearchHit[]): AlgoliaDocument[] {
+  private getHits(indexName: string, hits: ElasticSearchHit[]): AlgoliaDocument[] {
+    const config = indexNameToConfig(indexName);
     return hits.map(({_id, _source, highlight}) => ({
       ..._source,
       _id,
       _snippetResult: {
-        body: {
-          value: highlight?.body?.[0],
-          matchLevel: highlight?.body?.[0] ? "full" : "none",
+        [config.snippet]: {
+          value: highlight?.[config.snippet]?.[0],
+          matchLevel: highlight?.[config.snippet]?.[0] ? "full" : "none",
         },
       },
-      _highlightResult: {
-        title: {
-          value: highlight?.title?.[0],
-          matchLevel: highlight?.title?.[0] ? "full" : "none",
+      ...(config.highlight && {
+        _highlightResult: {
+          [config.highlight]: {
+            value: highlight?.[config.highlight]?.[0],
+            matchLevel: highlight?.[config.highlight]?.[0] ? "full" : "none",
+          },
         },
-      },
+      }),
     }));
   }
 }
