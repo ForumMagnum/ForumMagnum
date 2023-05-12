@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { ITask } from "pg-promise";
-import { Vulcan, getCollection, Globals } from "../vulcan-lib";
+import { Vulcan, getCollection } from "../vulcan-lib";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import Table from "../../lib/sql/Table";
@@ -557,4 +557,3 @@ const migrateLWEvents = async (resumeTime?: Date) => {
 }
 
 Vulcan.migrateLWEvents = migrateLWEvents;
-
