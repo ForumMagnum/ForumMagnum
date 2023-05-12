@@ -33,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     margin: 30 - PADDING,
     padding: PADDING,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   heading: {
     paddingTop: 20,

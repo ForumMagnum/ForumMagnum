@@ -1,9 +1,12 @@
 import * as _ from 'underscore';
 import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
 import { disableEnsureIndexSetting } from './instanceSettings';
+import { getSqlClientOrThrow } from './sql/sqlClient';
 
 
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
+
+export const expectedCustomPgIndexes: string[] = [];
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
@@ -51,9 +54,29 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
   void ensureIndexAsync(collection, index, options);
 }
 
+const canEnsureIndexes = () =>
+  isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get();
+
+/*
+ * If running a normal server, defer index creation until 15s after
+ * startup. This speeds up testing in the common case, where indexes haven't
+ * meaningfully changed (but sending a bunch of no-op ensureIndex commands
+ * to the database is still expensive).
+ * In unit tests, build indexes immediately, because (a) indexes probably
+ * don't exist yet, and (b) building indexes in the middle of a later test
+ * risks making that test time out.
+ */
+const commitIndex = async (buildIndex: () => Promise<void>) => {
+  if (isAnyTest) {
+    await buildIndex();
+  } else {
+    setTimeout(buildIndex, 15000);
+  }
+}
+
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get()) {
+  if (canEnsureIndexes()) {
     const buildIndex = async () => {
       if (!collection.isConnected())
         return;
@@ -72,19 +95,22 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
         console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
       }
     };
-    
-    // If running a normal server, defer index creation until 15s after
-    // startup. This speeds up testing in the common case, where indexes haven't
-    // meaningfully changed (but sending a bunch of no-op ensureIndex commands
-    // to the database is still expensive).
-    // In unit tests, build indexes immediately, because (a) indexes probably
-    // don't exist yet, and (b) building indexes in the middle of a later test
-    // risks making that test time out.
-    if (isAnyTest) {
-      await buildIndex();
-    } else {
-      setTimeout(buildIndex, 15000);
+
+    await commitIndex(buildIndex);
+  }
+}
+
+export const ensureCustomPgIndex = (sql: string) => {
+  if (expectedCustomPgIndexes.includes(sql)) {
+    return;
+  }
+  expectedCustomPgIndexes.push(sql);
+  if (canEnsureIndexes()) {
+    const buildIndex = async () => {
+      const db = getSqlClientOrThrow();
+      await db.any(sql);
     }
+    void commitIndex(buildIndex);
   }
 }
 
