@@ -396,8 +396,8 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           }}
         );
       }
-      const sourceEmailsEmail = (sourceUser.emails.length > 0) && sourceUser.emails[0]
-      const targetEmailsEmail = (targetUser.emails.length > 0) && targetUser.emails[0]
+      const sourceEmailsEmail = (sourceUser.emails?.length > 0) && sourceUser.emails[0]
+      const targetEmailsEmail = (targetUser.emails?.length > 0) && targetUser.emails[0]
       if (sourceEmailsEmail === targetEmailsEmail) {
         await Users.rawUpdateOne(
           {_id: sourceUserId},
