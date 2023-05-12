@@ -136,9 +136,9 @@ const onConnectQueries: string[] = [
       JOIN "Posts" b ON b."_id" = post_id_b
     ) "tagRelevance";'
   `,
-  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(
-    post_id TEXT
-  )
+  // Extract an array of strings containing all of the tag ids that are attached to a
+  // post. Only tags with a relevance score >= 1 are included..
+  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
     RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
    'SELECT ARRAY_AGG(tags."tagId")
     FROM "Posts" p
@@ -149,11 +149,30 @@ const onConnectQueries: string[] = [
     ) tags ON p."_id" = post_id
     WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
   `,
-  `CREATE OR REPLACE FUNCTION fm_strip_html(
-    html TEXT
-  )
+  // Strip HTML tags leaving just a content string. This is a simple regex solution
+  // to the problem and it is far from fool-proof. If a robust conversion is required
+  // then it should be done in code instead. This should only be used when a fast
+  // approximation is needed. It simply strips tags and HTML entities, then replaces
+  // all consecutive whitespace with a single space.
+  // A better conversion could be done by using plperlu or plpythonu but this isn't
+  // allowed in AWS RDS.
+  `CREATE OR REPLACE FUNCTION fm_strip_html(html TEXT)
     RETURNS TEXT LANGUAGE sql IMMUTABLE AS
-    $$ SELECT REGEXP_REPLACE(html, E'<[^>]+>', '', 'gi') $$
+    $$
+    SELECT
+      TRIM(
+        REGEXP_REPLACE(
+          REGEXP_REPLACE(
+            REGEXP_REPLACE(
+              REGEXP_REPLACE(
+                html,
+                E'<[^>]+>', ' ', 'gi'
+              ), E'&[a-zA-Z0-9#]{0,5};', ' ', 'g'
+            ), '\\s+', ' ', 'g'
+          ), ' \\.', '.', 'g'
+        )
+      )
+    $$
   `,
 ];
 
