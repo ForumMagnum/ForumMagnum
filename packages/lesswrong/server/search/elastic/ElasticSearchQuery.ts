@@ -1,6 +1,6 @@
 import type { SearchRequest as SearchRequestInfo } from "@elastic/elasticsearch/lib/api/types";
 import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { indexNameToConfig, Ranking } from "./ElasticSearchConfig";
+import { IndexConfig, indexNameToConfig, Ranking } from "./ElasticSearchConfig";
 
 export type QueryFilter = {
   field: string,
@@ -59,11 +59,8 @@ class ElasticSearchQuery {
     return expr;
   }
 
-  // TODO: This doesn't work for fields like `tags` that contain ids
-  // because they get tokenized - we need to fix the mappings
-  // https://www.elastic.co/guide/en/elasticsearch/reference/8.7/query-dsl-term-query.html#avoid-term-query-text-fields
-  private compileFilters(filters: QueryFilter[]) {
-    const terms = [];
+  private compileFilters(config: IndexConfig, filters: QueryFilter[]) {
+    const terms = [...(config.filters ?? [])];
     for (const filter of filters) {
       switch (filter.type) {
       case "facet":
@@ -93,7 +90,7 @@ class ElasticSearchQuery {
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
     };
-    const compiledFilters = this.compileFilters(filters);
+    const compiledFilters = this.compileFilters(config, filters);
     return {
       index,
       from: offset,
@@ -124,14 +121,23 @@ class ElasticSearchQuery {
                         },
                       },
                       {
-                        prefix: {
+                        multi_match: {
+                          query: search,
+                          fields: config.fields,
+                          type: "phrase",
+                          slop: 5,
+                        },
+                      },
+                      {
+                        match_phrase_prefix: {
                           [config.fields[0].split("^")[0]]: {
-                            value: search,
-                            case_insensitive: true,
+                            query: search,
+                            slop: 5,
                           },
                         },
                       },
                     ],
+                    minimum_should_match: 1,
                   },
                 },
                 should: [],

@@ -1,5 +1,9 @@
-import type { MappingProperty } from "@elastic/elasticsearch/lib/api/types";
+import type {
+  MappingProperty,
+  QueryDslQueryContainer,
+} from "@elastic/elasticsearch/lib/api/types";
 import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
+import { postStatuses } from "../../../lib/collections/posts/constants";
 
 export type Ranking = {
   field: string,
@@ -23,6 +27,7 @@ export type IndexConfig = {
   highlight?: string,
   ranking?: Ranking[],
   tiebreaker: string,
+  filters?: QueryDslQueryContainer[],
   mappings?: Mappings,
 }
 
@@ -43,6 +48,12 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       },
     ],
     tiebreaker: "publicDateMs",
+    filters: [
+      {term: {isDeleted: false}},
+      {term: {deleted: false}},
+      {term: {retracted: false}},
+      {term: {spam: false}},
+    ],
     mappings: {
       authorSlug: {type: "keyword"},
       postGroupId: {type: "keyword"},
@@ -64,11 +75,17 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "baseScore",
         order: "desc",
-        weight: 2,
+        weight: 10,
         scoring: {type: "numeric", pivot: 20},
       },
     ],
     tiebreaker: "publicDateMs",
+    filters: [
+      {term: {isFuture: false}},
+      {term: {draft: false}},
+      {term: {status: postStatuses.STATUS_APPROVED}},
+      {range: {baseScore: {gte: 0}}},
+    ],
     mappings: {
       authorSlug: {type: "keyword"},
       feedLink: {type: "keyword"},
@@ -103,6 +120,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       },
     ],
     tiebreaker: "publicDateMs",
+    filters: [
+      {range: {karma: {gte: 0}}},
+    ],
     mappings: {
       careerStage: {type: "keyword"},
       groups: {type: "keyword"},

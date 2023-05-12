@@ -187,6 +187,7 @@ class ElasticSearchExporter {
     const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
     for (let i = 0; ; i++) {
       const offset = batchSize * i;
+      // eslint-disable-next-line no-console
       console.log(`...starting ${collectionName} batch ${i} of ${totalBatches}`);
       const documents = await repo.getSearchDocuments(batchSize, offset);
       if (documents.length < 1) {
