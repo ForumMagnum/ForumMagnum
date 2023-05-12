@@ -3,7 +3,7 @@ import ModerationTemplates from './collection';
 
 declare global {
   type ModerationTemplatesViewTerms = Omit<ViewTermsBase, 'view'> & ({
-    view?: 'moderationTemplatesPage' | 'moderationTemplatesQuickview' | 'rejectionModerationTemplates',
+    view?: 'moderationTemplatesPage' | 'rejectionModerationTemplates' | 'messageModerationTemplates',
   })
 }
 
@@ -14,15 +14,14 @@ ModerationTemplates.addView('moderationTemplatesPage', function (terms: Moderati
 })
 ensureIndex(ModerationTemplates, { order: 1 })
 
-ModerationTemplates.addView('moderationTemplatesQuickview', function (terms: ModerationTemplatesViewTerms) {
-  return {
-    selector: { deleted: false },
-    options: { sort: { order: 1 } }
-  };
-})
-
 ModerationTemplates.addView('rejectionModerationTemplates', function (terms) {
   return {
     selector: { collectionName: 'Rejections' }
+  };
+});
+
+ModerationTemplates.addView('messageModerationTemplates', function (terms) {
+  return {
+    selector: { collectionName: 'Messages' }
   };
 });

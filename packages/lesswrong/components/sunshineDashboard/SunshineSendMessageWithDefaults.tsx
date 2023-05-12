@@ -57,7 +57,7 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
   const { results: defaultResponses } = useMulti({
-    terms:{view:"moderationTemplatesQuickview"},
+    terms:{view:"messageModerationTemplates"},
     collectionName: "ModerationTemplates",
     fragmentName: 'ModerationTemplateFragment',
     limit: 50
