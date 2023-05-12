@@ -6,5 +6,6 @@ Globals.findToSQL = ({ tableName, selector, options }: { tableName: CollectionNa
   const table = Table.fromCollection(getCollectionByTableName(tableName));
   const select = new SelectQuery<DbObject>(table, selector, options);
   const { sql, args } = select.compile();
+  // eslint-disable-next-line no-console
   console.log({ sql, args });
 };
