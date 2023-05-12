@@ -18,10 +18,6 @@ import { CollectionFilters } from './collectionMigrationFilters';
 import { timedFunc } from "../../lib/helpers";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
-import { ClientIds } from "../../lib/collections/clientIds/collection";
-import { createReadStream } from "fs";
-import { createInterface } from "readline";
-import { once } from "events";
 
 type Transaction = ITask<{}>;
 
@@ -416,7 +412,7 @@ const writeCollectionTargets = async (
   });
 }
 
-export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date, passTx?: (tx: ITask<{}>) => Promise<void>) => {
+export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date) => {
   console.log(`=== Migrating collections '${collectionNames}' from Mongo to Postgres ===`);
 
   console.log("...Preparing collections");
@@ -439,16 +435,12 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     await sql.tx(async (transaction) => {
       // Create the tables
       await createTables(transaction, collections);
-      // await createIndexes(transaction, collections);
+      await createIndexes(transaction, collections);
       await setLogged(transaction, collections, false);
 
       // Copy the initial data - this can take a *long* time depending on the collection
       const copyStart = new Date();
       await copyData(transaction, collections, 1, maxCopyAge);
-      if (passTx) {
-        await passTx(transaction);
-      }
-      await createIndexes(transaction, collections);
       await setLogged(transaction, collections, true);
 
       // Copy anything that was inserted during the first copy - this should be ~instant
@@ -566,72 +558,3 @@ const migrateLWEvents = async (resumeTime?: Date) => {
 
 Vulcan.migrateLWEvents = migrateLWEvents;
 
-const migrateClientIds = async (lastDate?: Date) => {
-  if (!lastDate) {
-    throw new Error("Last clientId createdAt required");
-  }
-
-  await migrateCollections(["ClientIds"], lastDate, async (transaction) => {
-    const collection = ClientIds;
-    if (!(collection instanceof SwitchingCollection)) {
-      throw new Error("ClientIds is not a switching collection");
-    }
-
-    const table = collection.getPgCollection().table;
-    const formatter = getCollectionFormatter(collection);
-
-    const batch: DbClientId[] = [];
-    const inStream = createReadStream('./clientids.json');
-    let count = 0;
-    return new Promise(async (resolve, reject) => {
-      await once(inStream, 'open');
-      const rl = createInterface({
-        input: inStream
-      });
-    
-      for await (const line of rl) {
-        try {
-          const parsedClientId = JSON.parse(line);
-          parsedClientId.createdAt = new Date(parsedClientId.createdAt['$date']);
-          if (isNaN(parsedClientId.createdAt)) {
-            reject(new Error(`Invalid date from line ${line}`));
-          }
-          batch.push(parsedClientId);
-          count++;
-    
-          if (batch.length >= 8000) {
-            const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
-            const compiled = query.compile();
-            try {
-              await timedFunc('sql.none', () => transaction.none(compiled.sql, compiled.args));
-            } catch (e) {
-              console.log(batch);
-              console.error(e);
-              reject(new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`));
-            }
-            console.log(`Migrated ${count} clientIds from file`);
-            batch.length = 0;  
-          }
-        } catch (err) {
-          console.log({ err });
-          reject(new Error(err));
-        }
-      }
-    
-      const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
-      const compiled = query.compile();
-      try {
-        await timedFunc('sql.none', () => transaction.none(compiled.sql, compiled.args));
-      } catch (e) {
-        console.log(batch);
-        console.error(e);
-        reject(new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`));
-      }
-      console.log(`Migrated ${count} clientIds from file`);
-      batch.length = 0;  
-      resolve();
-    });
-  });
-}
-
-Globals.migrateClientIds = migrateClientIds;

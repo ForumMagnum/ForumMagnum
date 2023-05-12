@@ -63,7 +63,7 @@ export const addSentryMiddlewares = (addConnectHandler: (handler: any)=>void) =>
 }
 
 const gigabytes = 1024*1024*1024;
-const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 4.5*gigabytes);
+const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
 const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
 const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
 
