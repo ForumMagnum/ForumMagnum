@@ -82,10 +82,10 @@ describe("UpdateQuery", () => {
       expectedArgs: [4, 3],
     },
     {
-      name: "can add a correct type hint for native arrays of JSON",
+      name: "can add a correct type hint for native arrays of JSON in a JSONB (rather than JSONB[]) field",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {c: [{d: "test"}]}}),
-      expectedSql: `UPDATE "TestCollection" SET "c" = $1::JSONB[] WHERE "a" = $2 RETURNING "_id"`,
-      expectedArgs: [[{d: "test"}], 3],
+      expectedSql: `UPDATE "TestCollection" SET "c" = $1::JSONB WHERE "a" = $2 RETURNING "_id"`,
+      expectedArgs: ['[{"d":"test"}]', 3],
     },
   ]);
 });

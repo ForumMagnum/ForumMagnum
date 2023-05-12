@@ -135,11 +135,11 @@ const EAUserTooltipContent = ({user, classes}: {
         </div>
         <div className={classes.stat}>
           <div>{formatStat(postCount)}</div>
-          <div>Posts</div>
+          <div>{postCount === 1 ? "Post" : "Posts"}</div>
         </div>
         <div className={classes.stat}>
           <div>{formatStat(commentCount)}</div>
-          <div>Comments</div>
+          <div>{commentCount === 1 ? "Comment" : "Comments"}</div>
         </div>
       </div>
     </div>

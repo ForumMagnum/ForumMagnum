@@ -53,14 +53,16 @@ const EAHome = () => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && (
-            <SingleColumnSection>
-              <CommentsListCondensed
-                label={"Shortform"}
-                terms={shortformTerms}
-                initialLimit={5}
-                shortformButton
-              />
-            </SingleColumnSection>
+            <AnalyticsContext pageSectionContext="frontpageShortform">
+              <SingleColumnSection>
+                <CommentsListCondensed
+                  label={"Shortform"}
+                  terms={shortformTerms}
+                  initialLimit={5}
+                  shortformButton
+                />
+              </SingleColumnSection>
+            </AnalyticsContext>
           )}
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
           <RecentDiscussionFeed

@@ -27,7 +27,7 @@ const options: MutationOptions<DbRSSFeed> = {
 export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('RSSFeeds'),
   mutations: getDefaultMutations('RSSFeeds', options),

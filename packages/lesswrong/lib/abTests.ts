@@ -98,3 +98,18 @@ export const slowerFrontpageABTest = new ABTest({
     },
   },
 });
+
+export const postsPageRecommendationsABTest = new ABTest({
+  name: "postsPageRecommendations",
+  description: "Puts recommendations on the posts page",
+  groups: {
+    control: {
+      description: "No recommendations on the posts page",
+      weight: 9,
+    },
+    recommended: {
+      description: "Recommendations on the posts page",
+      weight: 1,
+    },
+  },
+});
