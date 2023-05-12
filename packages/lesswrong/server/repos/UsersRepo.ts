@@ -150,7 +150,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."displayName",
         u."createdAt",
         EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
-        u."isAdmin",
+        COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         u."profileImageId",
         fm_strip_html(u."biography"->>'html') AS "bio",
         fm_strip_html(u."howOthersCanHelpMe"->>'html') AS "howOthersCanHelpMe",

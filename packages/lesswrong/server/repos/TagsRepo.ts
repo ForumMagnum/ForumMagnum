@@ -19,10 +19,10 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
         COALESCE(t."core", FALSE) AS "core",
         EXTRACT(EPOCH FROM t."createdAt") * 1000 AS "publicDateMs",
         COALESCE(t."defaultOrder", 0) AS "defaultOrder",
-        t."suggestedAsFilter",
+        COALESCE(t."suggestedAsFilter", FALSE) AS "suggestedAsFilter",
         COALESCE(t."postCount", 0) AS "postCount",
-        t."wikiOnly",
-        t."isSubforum",
+        COALESCE(t."wikiOnly", FALSE) AS "wikiOnly",
+        COALESCE(t."isSubforum", FALSE) AS "isSubforum",
         t."bannerImageId",
         t."parentTagId",
         fm_strip_html(t."description"->>'html') AS "description"
