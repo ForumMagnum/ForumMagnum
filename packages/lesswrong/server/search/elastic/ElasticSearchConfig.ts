@@ -49,8 +49,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     ],
     tiebreaker: "publicDateMs",
     filters: [
-      {term: {isDeleted: false}},
       {term: {deleted: false}},
+      {term: {rejected: false}},
+      {term: {authorIsUnreviewed: false}},
       {term: {retracted: false}},
       {term: {spam: false}},
     ],
@@ -83,6 +84,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     filters: [
       {term: {isFuture: false}},
       {term: {draft: false}},
+      {term: {rejected: false}},
+      {term: {authorIsUnreviewed: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       {range: {baseScore: {gte: 0}}},
     ],
@@ -122,6 +125,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     tiebreaker: "publicDateMs",
     filters: [
       {range: {karma: {gte: 0}}},
+      {term: {deleted: false}},
+      {term: {deleteContent: false}},
     ],
     mappings: {
       careerStage: {type: "keyword"},
@@ -141,6 +146,11 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     ],
     snippet: "plaintextDescription",
     tiebreaker: "publicDateMs",
+    filters: [
+      {term: {isDeleted: false}},
+      {term: {draft: false}},
+      {term: {hidden: false}},
+    ],
     mappings: {
       userId: {type: "keyword"},
       authorSlug: {type: "keyword"},
@@ -167,6 +177,10 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       },
     ],
     tiebreaker: "postCount",
+    filters: [
+      {term: {deleted: false}},
+      {term: {adminOnly: false}},
+    ],
     mappings: {
       bannerImageId: {type: "keyword"},
       parentTagId: {type: "keyword"},
@@ -174,7 +188,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     },
   },
 };
-
 
 const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
   const data: Record<string, AlgoliaIndexCollectionName> = {

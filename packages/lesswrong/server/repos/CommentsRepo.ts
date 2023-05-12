@@ -6,25 +6,23 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     super(Comments);
   }
 
-  async getSearchDocuments(
-    limit: number,
-    offset: number,
-  ): Promise<AlgoliaComment[]> {
-    return this.getRawDb().any(`
+  private getSearchDocumentQuery(): string {
+    return `
       SELECT
         c."_id",
         c."_id" AS "objectID",
         c."userId",
         COALESCE(c."baseScore", 0) AS "baseScore",
-        COALESCE(c."deleted", FALSE) AS "isDeleted",
         COALESCE(c."deleted", FALSE) AS "deleted",
+        COALESCE(c."rejected", FALSE) AS "rejected",
+        COALESCE(c."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
         COALESCE(c."retracted", FALSE) AS "retracted",
         COALESCE(c."spam", FALSE) AS "spam",
         c."legacy",
         c."createdAt",
         c."postedAt",
         EXTRACT(EPOCH FROM c."postedAt") * 1000 AS "publicDateMs",
-        c."af",
+        COALESCE(c."af", FALSE) AS "af",
         author."slug" AS "authorSlug",
         author."displayName" AS "authorDisplayName",
         author."username" AS "authorUserName",
@@ -42,10 +40,19 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       FROM "Comments" c
       LEFT JOIN "Users" author ON c."userId" = author."_id"
       LEFT JOIN "Posts" post on c."postId" = post."_id"
-      WHERE
-        c."deleted" IS NOT TRUE AND
-        c."rejected" IS NOT TRUE AND
-        c."authorIsUnreviewed" IS NOT TRUE
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaComment> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE c."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
       ORDER BY c."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -53,14 +60,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const result = await this.getRawDb().one(`
-      SELECT COUNT(*)
-      FROM "Comments" c
-      WHERE
-        c."deleted" IS NOT TRUE AND
-        c."rejected" IS NOT TRUE AND
-        c."authorIsUnreviewed" IS NOT TRUE
-    `);
-    return result.count;
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Comments"`);
+    return count;
   }
 }

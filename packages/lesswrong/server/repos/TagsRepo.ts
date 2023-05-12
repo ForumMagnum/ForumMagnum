@@ -6,11 +6,8 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
     super(Tags);
   }
 
-  getSearchDocuments(
-    limit: number,
-    offset: number,
-  ): Promise<AlgoliaTag[]> {
-    return this.getRawDb().any(`
+  private getSearchDocumentQuery(): string {
+    return `
       SELECT
         t."_id",
         t."_id" AS "objectID",
@@ -22,14 +19,26 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
         COALESCE(t."suggestedAsFilter", FALSE) AS "suggestedAsFilter",
         COALESCE(t."postCount", 0) AS "postCount",
         COALESCE(t."wikiOnly", FALSE) AS "wikiOnly",
+        COALESCE(t."adminOnly", FALSE) AS "adminOnly",
+        COALESCE(t."deleted", FALSE) AS "deleted",
         COALESCE(t."isSubforum", FALSE) AS "isSubforum",
         t."bannerImageId",
         t."parentTagId",
         fm_strip_html(t."description"->>'html') AS "description"
       FROM "Tags" t
-      WHERE
-        t."deleted" IS NOT TRUE AND
-        t."adminOnly" IS NOT TRUE
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaTag> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE p."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaTag[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
       ORDER BY t."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -37,13 +46,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const result = await this.getRawDb().one(`
-      SELECT COUNT(*)
-      FROM "Tags" t
-      WHERE
-        t."deleted" IS NOT TRUE AND
-        t."adminOnly" IS NOT TRUE
-    `);
-    return result.count;
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Tags"`);
+    return count;
   }
 }

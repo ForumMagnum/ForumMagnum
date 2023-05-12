@@ -100,6 +100,22 @@ class ElasticSearchExporter {
     }
   }
 
+  async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
+    const client = this.client.getClientOrThrow();
+    const collection = getCollection(collectionName) as
+      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+
+    const aliasName = this.getIndexName(collection);
+    const indexName = await this.getExistingAliasTarget(aliasName);
+    if (!indexName) {
+      throw new Error("Can't find backing index for collection " + collectionName);
+    }
+
+    await client.indices.delete({
+      index: indexName,
+    });
+  }
+
   private async getExistingAliasTarget(aliasName: string): Promise<string | null> {
     try {
       const client = this.client.getClientOrThrow();
@@ -122,13 +138,11 @@ class ElasticSearchExporter {
       body: {
         settings: {
           analysis: {
-            // analyzer: {
-              // default: {
-                // type: "language",
-                // language: "English",
-                // stem_exclusion: [],
-              // },
-            // },
+            analyzer: {
+              default: {
+                type: "standard",
+              },
+            },
             filter: {
               default: {
                 type: "porter_stem",
@@ -193,7 +207,7 @@ class ElasticSearchExporter {
       if (documents.length < 1) {
         break;
       }
-      const erroredDocuments = await this.pushDocuments(collection, documents);
+      const erroredDocuments = await this.createDocuments(collection, documents);
       totalErrors.push.apply(totalErrors, erroredDocuments);
     }
 
@@ -210,7 +224,7 @@ class ElasticSearchExporter {
     return collection.collectionName.toLowerCase();
   }
 
-  private async pushDocuments(
+  private async createDocuments(
     collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
     documents: AlgoliaDocument[],
   ): Promise<OnDropDocument<AlgoliaDocument>[]> {
@@ -247,5 +261,8 @@ Globals.elasticExportCollection = (collectionName: AlgoliaIndexCollectionName) =
 
 Globals.elasticExportAll = () =>
   new ElasticSearchExporter().exportAll();
+
+Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
+  new ElasticSearchExporter().deleteIndex(collectionName);
 
 export default ElasticSearchExporter;

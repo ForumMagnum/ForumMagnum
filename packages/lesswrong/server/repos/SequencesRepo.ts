@@ -6,11 +6,8 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     super(Sequences);
   }
 
-  async getSearchDocuments(
-    limit: number,
-    offset: number,
-  ): Promise<AlgoliaSequence[]> {
-    return this.getRawDb().any(`
+  private getSearchDocumentQuery(): string {
+    return `
       SELECT
         s."_id",
         s."_id" AS "objectID",
@@ -18,7 +15,10 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         s."userId",
         s."createdAt",
         EXTRACT(EPOCH FROM s."createdAt") * 1000 AS "publicDateMs",
-        s."af",
+        COALESCE(s."isDeleted", FALSE) AS "isDeleted",
+        COALESCE(s."draft", FALSE) AS "draft",
+        COALESCE(s."hidden", FALSE) AS "hidden",
+        COALESCE(s."af", FALSE) AS "af",
         s."bannerImageId",
         author."displayName" AS "authorDisplayName",
         author."username" AS "authorUserName",
@@ -26,10 +26,19 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         fm_strip_html(s."contents"->>'html') AS "plaintextDescription"
       FROM "Sequences" s
       LEFT JOIN "Users" author on s."userId" = author."_id"
-      WHERE
-        s."isDeleted" IS NOT TRUE AND
-        s."draft" IS NOT TRUE AND
-        s."hidden" IS NOT TRUE
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE p."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaSequence[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
       ORDER BY s."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -37,14 +46,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const result = await this.getRawDb().one(`
-      SELECT COUNT(*)
-      FROM "Sequences" s
-      WHERE
-        s."isDeleted" IS NOT TRUE AND
-        s."draft" IS NOT TRUE AND
-        s."hidden" IS NOT TRUE
-    `);
-    return result.count;
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Sequences"`);
+    return count;
   }
 }

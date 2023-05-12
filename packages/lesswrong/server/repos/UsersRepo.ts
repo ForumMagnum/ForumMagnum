@@ -138,11 +138,8 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [userId, reduceAFKarma]);
   }
 
-  async getSearchDocuments(
-    limit: number,
-    offset: number,
-  ): Promise<AlgoliaUser[]> {
-    return this.getRawDb().any(`
+  private getSearchDocumentQuery(): string {
+    return `
       SELECT
         u."_id",
         u."_id" AS "objectID",
@@ -151,6 +148,8 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."createdAt",
         EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
+        COALESCE(u."deleted", FALSE) AS "deleted",
+        COALESCE(u."deleteContent", FALSE) AS "deleteContent",
         u."profileImageId",
         fm_strip_html(u."biography"->>'html') AS "bio",
         fm_strip_html(u."howOthersCanHelpMe"->>'html') AS "howOthersCanHelpMe",
@@ -167,9 +166,19 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."mapLocation"->'geometry'->'location' AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress"
       FROM "Users" u
-      WHERE
-        u."deleted" IS NOT TRUE AND
-        u."deleteContent" IS NOT TRUE
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE p."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
       ORDER BY u."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -177,13 +186,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const result = await this.getRawDb().one(`
-      SELECT COUNT(*)
-      FROM "Users" u
-      WHERE
-        u."deleted" IS NOT TRUE AND
-        u."deleteContent" IS NOT TRUE
-    `);
-    return result.count;
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Users"`);
+    return count;
   }
 }
