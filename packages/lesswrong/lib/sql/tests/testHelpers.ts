@@ -76,7 +76,8 @@ export const testTable2 = Table.fromCollection(TestCollection2);
 
 export type DbTestObject3 = {
   _id: string,
-  notNullData: string
+  notNullData: string,
+  schemaVersion: number
 };
 
 export const TestCollection3 = {
@@ -88,9 +89,12 @@ export const TestCollection3 = {
     notNullData: {
       type: String,
       nullable: false
+    },
+    schemaVersion: {
+      type: Number,
     }
   }
-} as unknown as CollectionBase<DbTestObject>;
+} as unknown as CollectionBase<DbTestObject3>;
 
 export const testTable3 = Table.fromCollection(TestCollection3);
 
