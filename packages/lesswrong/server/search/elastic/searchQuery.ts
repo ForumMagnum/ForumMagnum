@@ -9,6 +9,7 @@ const querySchema = z.object({
     hitsPerPage: z.optional(z.number().int().nonnegative()),
     page: z.optional(z.number().int().nonnegative()),
     facetFilters: z.optional(z.array(z.array(z.string()))),
+    numericFilters: z.optional(z.array(z.string())),
   }),
 });
 

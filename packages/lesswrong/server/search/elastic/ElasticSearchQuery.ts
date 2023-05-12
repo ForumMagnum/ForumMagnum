@@ -2,6 +2,16 @@ import type { SearchRequest as SearchRequestInfo } from "@elastic/elasticsearch/
 import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
 import { IndexConfig, indexNameToConfig, Ranking } from "./ElasticSearchConfig";
 
+/**
+ * There a couple of places where we need a rough origin date
+ * for scaling/faceting/etc. which is defined here. Thie needn't
+ * be exact - just a date a little older than the oldest searchable
+ * records.
+ */
+export const SEARCH_ORIGIN_DATE = new Date("2014-06-01T01:00:00Z");
+
+export type QueryFilterOperator = "gt" | "gte" | "lt" | "lte" | "eq";
+
 export type QueryFilter = {
   field: string,
 } & ({
@@ -10,7 +20,7 @@ export type QueryFilter = {
 } | {
   type: "numeric",
   value: number,
-  operator: "gt" | "gte" | "lt" | "lte" | "eq",
+  op: QueryFilterOperator,
 });
 
 export type QueryData = {
@@ -35,7 +45,7 @@ class ElasticSearchQuery {
       expr = `saturation(Math.max(0, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
-      const start = new Date("2014-06-01T01:00:00Z");
+      const start = SEARCH_ORIGIN_DATE;
       const delta = Date.now() - start.getTime();
       const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
       expr = `1 - decayDateLinear('${start.toISOString()}', '${dayRange}d', '0', 0.5, doc['${field}'].value)`;
@@ -67,6 +77,15 @@ class ElasticSearchQuery {
         terms.push({
           term: {
             [filter.field]: filter.value,
+          },
+        });
+        break;
+      case "numeric":
+        terms.push({
+          range: {
+            [filter.field]: {
+              [filter.op]: filter.value,
+            },
           },
         });
         break;

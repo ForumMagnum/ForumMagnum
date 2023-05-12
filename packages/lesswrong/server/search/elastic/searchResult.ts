@@ -22,4 +22,6 @@ export type SearchResult = {
     },
   },
   serverTimeMS: number,
+  facets_stats?: Record<string, {min: number, max: number}>,
+  facets?: Record<string, Record<string | number, number>>,
 }

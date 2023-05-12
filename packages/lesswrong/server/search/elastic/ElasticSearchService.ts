@@ -3,7 +3,12 @@ import type { SearchQuery } from "./searchQuery";
 import type { SearchResult } from "./searchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
 import { indexNameToConfig } from "./ElasticSearchConfig";
-import type { QueryFilter } from "./ElasticSearchQuery";
+import {
+  QueryFilter,
+  QueryFilterOperator,
+  SEARCH_ORIGIN_DATE,
+} from "./ElasticSearchQuery";
+import moment from "moment";
 
 class ElasticSearchService {
   constructor(
@@ -23,7 +28,7 @@ class ElasticSearchService {
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
-      filters: this.parseFacetFilters(params.facetFilters),
+      filters: this.parseFilters(params.facetFilters, params.numericFilters),
     });
 
     const nbHits = typeof result.hits.total === "number"
@@ -32,6 +37,11 @@ class ElasticSearchService {
 
     const end = Date.now();
     const timeMS = end - start;
+
+    const pastDay = moment().subtract(24, "hours").valueOf();
+    const pastWeek = moment().subtract(7, "days").valueOf();
+    const pastMonth = moment().subtract(1, "months").valueOf();
+    const pastYear = moment().subtract(1, "years").valueOf();
 
     return {
       hits: this.getHits(index, result.hits.hits),
@@ -55,12 +65,36 @@ class ElasticSearchService {
         },
       },
       serverTimeMS: timeMS,
+      /**
+       * `facets` and `facets_stats` are needed to tell the frontend it should enable
+       * controls for choose facets (most notably, publicDateMs). For now we're just
+       * passing in dummy values, but maybe we should calculate the actual amount?
+       * It's probably not worth the performance hit though...
+       */
+      facets: {
+        publicDateMs: {
+          [pastDay]: 1,
+          [pastWeek]: 1,
+          [pastMonth]: 1,
+          [pastYear]: 1,
+        },
+      },
+      facets_stats: {
+        publicDateMs: {
+          min: SEARCH_ORIGIN_DATE.getTime(),
+          max: new Date().getTime(),
+        },
+      },
     };
   }
 
-  private parseFacetFilters(facets?: string[][]): QueryFilter[] {
+  private parseFilters(
+    facetFilters?: string[][],
+    numericFilters?: string[],
+  ): QueryFilter[] {
     const result: QueryFilter[] = [];
-    for (const group of facets ?? []) {
+
+    for (const group of facetFilters ?? []) {
       for (const facet of group) {
         const [field, value] = facet.split(":");
         if (!field || !value) {
@@ -73,6 +107,39 @@ class ElasticSearchService {
         });
       }
     }
+
+    for (const numeric of numericFilters ?? []) {
+      let op: QueryFilterOperator = "lt";
+      let opIndex = numeric.indexOf("<");
+      let opLength = 1;
+      if (opIndex < 0) {
+        op = "gt";
+        opIndex = numeric.indexOf(">");
+        if (opIndex < 0) {
+          op = "eq";
+          opIndex = numeric.indexOf("=");
+          if (opIndex < 0) {
+            throw new Error("Invalid numeric: " + numeric);
+          }
+        }
+      }
+      if (op !== "eq" && numeric[opIndex + 1] === "=") {
+        op = (op + "e") as QueryFilterOperator;
+        opLength = 2;
+      }
+      const field = numeric.slice(0, opIndex);
+      const value = numeric.slice(opIndex + opLength);
+      if (!field || !value) {
+        throw new Error("Invalid numeric: " + numeric);
+      }
+      result.push({
+        type: "numeric",
+        field,
+        value: this.parseNumericValue(value),
+        op,
+      });
+    }
+
     return result;
   }
 
@@ -85,6 +152,14 @@ class ElasticSearchService {
     default:
       return value;
     }
+  }
+
+  private parseNumericValue(value: string): number {
+    const parsed = parseInt(value);
+    if (!Number.isSafeInteger(parsed)) {
+      throw new Error("Invalid numeric value: " + value);
+    }
+    return parsed;
   }
 
   private urlEncode(params: Record<string, unknown>): string {
