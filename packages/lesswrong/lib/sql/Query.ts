@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -275,12 +275,13 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField)?.toConcrete();
-    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    const concreteFieldType = fieldType?.toConcrete();
+    if (concreteFieldType?.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }
@@ -307,6 +308,15 @@ abstract class Query<T extends DbObject> {
       }
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
+      }
+      /**
+       * `<>` returns null if either of the compared values are null
+       * This is generally not the result you want when checking whether a field is $ne to a specific value
+       * So for nullable fields (most of them, so far) use `IS DISTINCT FROM`
+       * This will return records where e.g. the field is null and you want everything not equal to 5.
+       */
+      if (!(fieldType instanceof NotNullType) && op === "<>") {
+        return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
