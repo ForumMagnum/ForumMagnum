@@ -2,24 +2,24 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
+import { RateLimitType } from '../../server/callbacks/rateLimits';
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
-  lastRateLimitExpiry?: Date|null,
-  rateLimitMessage?: string|null
+const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, rateLimitType}: {
+  lastRateLimitExpiry: Date|null,
+  rateLimitMessage?: string|null,
+  rateLimitType?: RateLimitType
 }) => {
-  // Sorry this is not great. Basically, I wanted to keep the previous functionality for the default case
-  // (which shows how long you have until you can comment again), and then on the EA Forum, show the
-  // particular copy that our product team wants. In the future we probably want to pass in the reason
-  // that the user is currently rate-limited, to display the appropriate message.
-  if (!isEAForum && !lastRateLimitExpiry) return null
-
-  const diffInMin = moment(lastRateLimitExpiry).diff(moment(), 'minutes')
+  // default message tells the user how long they have to wait
   const fromNow = moment(lastRateLimitExpiry).fromNow()
-  const eaForumMessage = `You've written more than 3 comments in the last 30 min. Please wait ${diffInMin} min before commenting again. You'll be able to post more comments as your karma increases.`
-  const defaultMessage = `Please wait ${fromNow} before commenting again. ${rateLimitMessage ?? ''}`
-  const message = isEAForum ? eaForumMessage : defaultMessage
-    
+  let message = `Please wait ${fromNow} before commenting again. ${rateLimitMessage ?? ''}`
+
+  if (isEAForum) {
+    const diffInMin = moment(lastRateLimitExpiry).diff(moment(), 'minutes')
+    const reason = rateLimitType === 'lowKarma' ? " You'll be able to post more comments as your karma increases." : ""
+    message = `You've written more than 3 comments in the last 30 min. Please wait ${diffInMin} min before commenting again.${reason}`
+  }
+
   return <Components.WarningBanner message={message} />
 }
 

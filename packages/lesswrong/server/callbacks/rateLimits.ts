@@ -202,7 +202,7 @@ function getNextAbleToPostDate (posts: Array<DbPost>, intervalType: "seconds"|"h
   return moment(latestPostInInterval.postedAt).add(intervalAmount, intervalType).toDate()
 }
 
-type RateLimitType = "moderator"|"lowKarma"|"universal"
+export type RateLimitType = "moderator"|"lowKarma"|"universal"
 
 export type RateLimitInfo = {
   nextEligible: Date,

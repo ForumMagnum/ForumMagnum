@@ -14,8 +14,6 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
-import { Link } from '../../lib/reactRouterWrapper';
-import { NewPostModerationWarning } from '../sunshineDashboard/NewPostModerationWarning';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -201,6 +199,14 @@ const PostsNewForm = ({classes}: {
     }
   }
 
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    skip: !currentUser,
+  });
+  const showRateLimitWarning = !!userWithRateLimit?.rateLimitNextAbleToPost?.nextEligible
+
   if (!currentUser) {
     return (<WrappedLoginForm />);
   }
@@ -216,14 +222,6 @@ const PostsNewForm = ({classes}: {
   if (templateId && templateLoading) {
     return <Loading />
   }
-
-  const {document: userWithRateLimit} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
-    skip: !currentUser,
-  });
-  const showRateLimitWarning = !!userWithRateLimit?.rateLimitNextAbleToPost?.nextEligible
 
   const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
