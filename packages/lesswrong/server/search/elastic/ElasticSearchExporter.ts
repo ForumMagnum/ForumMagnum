@@ -20,7 +20,9 @@ import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
 
 class ElasticSearchExporter {
-  private client = new ElasticSearchClient();
+  constructor(
+    private client = new ElasticSearchClient(),
+  ) {}
 
   async configureIndexes() {
     for (const collectionName of algoliaIndexedCollectionNames) {
@@ -113,6 +115,27 @@ class ElasticSearchExporter {
 
     await client.indices.delete({
       index: indexName,
+    });
+  }
+
+  private formatDocument(document: AlgoliaDocument) {
+    const id = document._id;
+    // @ts-ignore
+    delete document._id;
+    document.publicDateMs = Number(document.publicDateMs);
+    return {id, document};
+  }
+
+  async updateDocument(
+    collectionName: AlgoliaIndexCollectionName,
+    document: DbObject,
+  ): Promise<void> {
+    const index = collectionName.toLowerCase();
+    const repo = this.getRepoByCollectionName(collectionName);
+    const searchDocument = await repo.getSearchDocumentById(document._id);
+    await this.client.getClientOrThrow().index({
+      index,
+      ...this.formatDocument(searchDocument),
     });
   }
 
@@ -236,10 +259,7 @@ class ElasticSearchExporter {
     await this.client.getClientOrThrow().helpers.bulk({
       datasource: documents,
       onDocument: (document: AlgoliaDocument) => {
-        const {_id} = document;
-        // @ts-ignore
-        delete document._id;
-        document.publicDateMs = Number(document.publicDateMs);
+        const {id: _id} = this.formatDocument(document);
         return {
           create: {_index, _id},
         };

@@ -46,6 +46,10 @@ class ElasticSearchClient {
     });
   }
 
+  isConnected(): boolean {
+    return Boolean(this.client);
+  }
+
   search(queryData: QueryData): Promise<ElasticSearchResponse> {
     const query = new ElasticSearchQuery(queryData);
     const request = query.compile();

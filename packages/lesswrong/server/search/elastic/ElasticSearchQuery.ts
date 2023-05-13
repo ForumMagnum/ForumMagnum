@@ -42,7 +42,7 @@ class ElasticSearchQuery {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
-      expr = `saturation(Math.max(0, doc['${field}'].value), ${scoring.pivot}L)`;
+      expr = `saturation(Math.max(1, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
       const start = SEARCH_ORIGIN_DATE;
@@ -152,6 +152,7 @@ class ElasticSearchQuery {
                           [config.fields[0].split("^")[0]]: {
                             query: search,
                             slop: 5,
+                            boost: 2,
                           },
                         },
                       },
