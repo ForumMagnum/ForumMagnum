@@ -1,10 +1,15 @@
 import type { SearchRequest as SearchRequestInfo } from "@elastic/elasticsearch/lib/api/types";
 import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { IndexConfig, indexNameToConfig, Ranking } from "./ElasticSearchConfig";
+import {
+  collectionNameToConfig,
+  indexNameToConfig,
+  IndexConfig,
+  Ranking,
+} from "./ElasticSearchConfig";
 
 /**
  * There a couple of places where we need a rough origin date
- * for scaling/faceting/etc. which is defined here. Thie needn't
+ * for scaling/faceting/etc. which is defined here. This needn't
  * be exact - just a date a little older than the oldest searchable
  * records.
  */
@@ -74,6 +79,9 @@ class ElasticSearchQuery {
     for (const filter of filters) {
       switch (filter.type) {
       case "facet":
+        if (config === collectionNameToConfig("Users") && filter.field === "tags") {
+          filter.field = "profileTagIds";
+        }
         terms.push({
           term: {
             [filter.field]: filter.value,
