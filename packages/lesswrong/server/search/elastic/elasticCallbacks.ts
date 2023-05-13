@@ -1,11 +1,14 @@
-import { AlgoliaIndexCollectionName, algoliaIndexedCollectionNames } from "../../../lib/search/algoliaUtil";
+import {
+  AlgoliaIndexCollectionName,
+  algoliaIndexedCollectionNames,
+} from "../../../lib/search/algoliaUtil";
 import { getCollectionHooks } from "../../mutationCallbacks";
 import ElasticSearchClient from "./ElasticSearchClient";
 import ElasticSearchExporter from "./ElasticSearchExporter";
 
-const syncDocument = (
+export const elasticSyncDocument = (
   collectionName: AlgoliaIndexCollectionName,
-  document: DbObject,
+  documentId: string,
 ) => {
   try {
     const client = new ElasticSearchClient();
@@ -13,7 +16,7 @@ const syncDocument = (
       return;
     }
     const exporter = new ElasticSearchExporter(client);
-    void exporter.updateDocument(collectionName, document);
+    void exporter.updateDocument(collectionName, documentId);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`[${collectionName}] Failed to index Elasticsearch document:`, e);
@@ -21,7 +24,7 @@ const syncDocument = (
 }
 
 for (const collectionName of algoliaIndexedCollectionNames) {
-  const callback = syncDocument.bind(null, collectionName);
+  const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
   getCollectionHooks(collectionName).createAfter.add(callback);
   getCollectionHooks(collectionName).updateAfter.add(callback);
 }

@@ -148,11 +148,11 @@ class ElasticSearchExporter {
 
   async updateDocument(
     collectionName: AlgoliaIndexCollectionName,
-    document: DbObject,
+    documentId: string,
   ): Promise<void> {
     const index = collectionName.toLowerCase();
     const repo = this.getRepoByCollectionName(collectionName);
-    const searchDocument = await repo.getSearchDocumentById(document._id);
+    const searchDocument = await repo.getSearchDocumentById(documentId);
     await this.client.getClientOrThrow().index({
       index,
       ...this.formatDocument(searchDocument),

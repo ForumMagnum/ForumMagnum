@@ -5,7 +5,7 @@ import {
   algoliaSearchKeySetting,
   algoliaPrefixSetting,
 } from '../publicSettings';
-import { isEAForum } from "../instanceSettings";
+import { userHasElasticsearch } from "../betas";
 
 export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
@@ -50,7 +50,9 @@ const getNativeSearchClient = (): Client | null => {
 }
 
 export const getSearchClient = (): Client => {
-  const client = isEAForum ? getNativeSearchClient() : getAlgoliaSearchClient();
+  const client = userHasElasticsearch(null)
+    ? getNativeSearchClient()
+    : getAlgoliaSearchClient();
   if (!client) {
     throw new Error("Couldn't initialize search client");
   }

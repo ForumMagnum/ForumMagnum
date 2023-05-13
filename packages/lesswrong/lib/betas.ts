@@ -44,6 +44,8 @@ export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
 
+export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
