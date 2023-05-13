@@ -44,6 +44,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "baseScore",
         order: "desc",
+        weight: 0.5,
         scoring: {type: "numeric", pivot: 20},
       },
     ],

@@ -149,7 +149,7 @@ class ElasticSearchQuery {
                           fields: config.fields,
                           type: "phrase",
                           slop: 2,
-                          boost: 4,
+                          boost: 2,
                         },
                       },
                       {
