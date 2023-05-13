@@ -36,10 +36,15 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           THEN fm_post_tag_ids(post."_id")
           ELSE ARRAY(SELECT c."tagId")
         END AS "tags",
+        c."tagId",
+        tag."name" AS "tagName",
+        tag."slug" AS "tagSlug",
+        c."tagCommentType",
         fm_strip_html(c."contents"->>'html') AS "body"
       FROM "Comments" c
       LEFT JOIN "Users" author ON c."userId" = author."_id"
       LEFT JOIN "Posts" post on c."postId" = post."_id"
+      LEFT JOIN "Tags" tag on c."tagId" = tag."_id"
     `;
   }
 

@@ -59,8 +59,11 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       authorSlug: {type: "keyword"},
       postGroupId: {type: "keyword"},
       postSlug: {type: "keyword"},
-      tags: {type: "keyword"},
       userId: {type: "keyword"},
+      tags: {type: "keyword"},
+      tagId: {type: "keyword"},
+      tagSlug: {type: "keyword"},
+      tagCommentType: {type: "keyword"},
     },
   },
   Posts: {
