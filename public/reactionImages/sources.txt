@@ -14,3 +14,27 @@ heart.svg: https://openmoji.org/data/color/svg/2764.svg
 surprise.svg: https://openmoji.org/library/emoji-1F62E/
 eyes.svg: https://openmoji.org/data/color/svg/1F440.svg
 
+Noun Project
+
+binoculars.svg: https://thenounproject.com/icon/camping-3341154/
+bullseye.svg: https://thenounproject.com/icon/target-1644977/
+bricks.svg: https://thenounproject.com/icon/bricks-1205737/
+cactus.svg: https://thenounproject.com/icon/cactus-2190621/
+check.svg: https://thenounproject.com/icon/check-2410845/
+clarity.svg: https://thenounproject.com/icon/diamond-4299025/
+complex.svg: https://thenounproject.com/icon/complex-249373/
+eyes.svg: https://thenounproject.com/icon/eyes-363349/
+handshake.svg: https://thenounproject.com/icon/greetings-5575331/
+inaccurate.svg: https://thenounproject.com/icon/inaccurate-2286876/
+key.svg: https://thenounproject.com/icon/key-5683852/
+pillar.svg: https://thenounproject.com/icon/pillar-1759106/
+scholarship.svg: https://thenounproject.com/icon/scholarship-4146333/
+swords.svg: https://thenounproject.com/icon/swords-1464313/
+x.svg: https://thenounproject.com/icon/x-3584118/
+splat.svg: https://thenounproject.com/icon/splash-1476283/
+partpopper.svg: https://thenounproject.com/icon/party-popper-4483429/
+skeptical.svg: https://thenounproject.com/icon/raised-eyebrow-4210612/
+heart.svg: https://thenounproject.com/icon/heart-5714493/
+elephant.svg: https://thenounproject.com/icon/elephant-body-1591846/
+surprise.svg: https://thenounproject.com/icon/surprise-1341826/
+

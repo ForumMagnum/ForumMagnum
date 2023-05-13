@@ -640,10 +640,14 @@ const ReactionIcon = ({react, classes}: {
   const reactionType = namesAttachedReactionsByName[react];
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
+  const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;
 
   return <img
     src={reactionType.svg}
-    style={{filter: `opacity(${opacity}) saturate(${saturation})`}}
+    style={{
+      filter: `opacity(${opacity}) saturate(${saturation})`,
+      padding,
+    }}
     className={classes.reactionSvg}
   />;
 }

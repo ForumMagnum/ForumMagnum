@@ -5,6 +5,7 @@ export type NamesAttachedReactionType = {
   label: string,
   svg: string,
   filter?: {
+    padding?: number,
     opacity?: number,
     saturate?: number,
   },
@@ -19,6 +20,7 @@ export type NamesAttachedReactionType = {
  * platforms in how they look, but appropriately-licensed fonts like Noto Emoji
  * and OpenMoji are good sources of images to use.
  *
+ *     The Noun Project: https://thenounproject.com/
  *     Noto Emoji: https://fonts.google.com/noto/specimen/Noto+Emoji
  *     OpenMoji: https://openmoji.org/library/
  *
@@ -28,7 +30,9 @@ export type NamesAttachedReactionType = {
  * that hasn't been used before, you have to check its license and make sure
  * it's suitable.
  */
-export const namesAttachedReactions: NamesAttachedReactionType[] = [
+
+// OpenClipart and OpenMoji
+/*export const namesAttachedReactions: NamesAttachedReactionType[] = [
   // Positive
   {
     name: "verified",
@@ -131,6 +135,143 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   //   Make it concrete: picture of bricks ("make concrete")
   //   I hear you (picture of an ear)
   //   I now have additional questions (elephant)
+  
+  // Incorporate:
+  //   complex.svg
+  //   bricks.svg
+  //   handshake.svg
+  //   inaccurate.svg
+];*/
+
+// Noun Project
+export const namesAttachedReactions: NamesAttachedReactionType[] = [
+  {
+    name: "scout",
+    label: "Scout Mindset",
+    svg: "/reactionImages/nounproject/binoculars.svg",
+    description: (contentType) => `This ${contentType} exhibits Scout Mindset.`,
+  },
+  {
+    name: "concrete",
+    label: "Concrete",
+    svg: "/reactionImages/nounproject/bricks.svg",
+    description: "This makes things more concrete",
+  },
+  {
+    name: "harsh",
+    label: "Too Harsh",
+    svg: "/reactionImages/nounproject/cactus.svg",
+    description: "This seems unnecessarily harsh",
+  },
+  {
+    name: "verified",
+    label: "Verified",
+    svg: "/reactionImages/nounproject/check.svg",
+    description: "I checked this",
+  },
+  {
+    name: "clear",
+    label: "Clear",
+    svg: "/reactionImages/nounproject/clarity.svg",
+    description: (contentType) => `This ${contentType} clarifies things.`,
+  },
+  {
+    name: "complex",
+    label: "Overcomplicated",
+    svg: "/reactionImages/nounproject/complex.svg",
+    description: "This seems overcomplicated",
+  },
+  {
+    name: "seen",
+    label: "I saw this",
+    svg: "/reactionImages/nounproject/eyes.svg",
+    description: "I saw this",
+  },
+  {
+    name: "handshake",
+    label: "I agree to this",
+    svg: "/reactionImages/nounproject/handshake.svg",
+    description: "",
+  },
+  {
+    name: "miss",
+    label: "Missed the point",
+    svg: "/reactionImages/nounproject/inaccurate.svg",
+    description: "",
+  },
+  {
+    name: "key",
+    label: "Key insight",
+    svg: "/reactionImages/nounproject/key.svg",
+    description: "This is a key insight",
+  },
+  {
+    name: "support",
+    label: "Support",
+    svg: "/reactionImages/nounproject/pillar.svg",
+    description: `I am expressing supportiveness towards this`,
+  },
+  {
+    name: "scholarship",
+    label: "Virtue of Scholarship",
+    svg: "/reactionImages/nounproject/scholarship.svg",
+    description: "This exhibits the Virtue of Scholarship",
+  },
+  {
+    name: "combative",
+    label: "Combative",
+    svg: "/reactionImages/nounproject/swords.svg",
+    description: "This seems combative",
+    filter: { padding: 2 },
+  },
+  {
+    name: "hitsTheMark",
+    label: "Hits the Mark",
+    svg: "/reactionImages/nounproject/bullseye.svg",
+    description: "This hits the mark",
+  },
+  {
+    name: "error",
+    label: "Wrong",
+    svg: "/reactionImages/nounproject/x.svg",
+    description: "This seems wrong",
+  },
+  {
+    name: "muddled",
+    label: "Muddled",
+    svg: "/reactionImages/nounproject/splat.svg",
+    description: "I had trouble with the pedagogical clarity of this",
+  },
+  {
+    name: "excitement",
+    label: "Exciting",
+    svg: "/reactionImages/nounproject/partypopper.svg",
+    description: "This is exciting!",
+  },
+  {
+    name: "skeptical",
+    label: "Skeptical",
+    svg: "/reactionImages/nounproject/skeptical.svg",
+    description: "I'm skeptical of this",
+  },
+  {
+    name: "empathy",
+    label: "Empathy",
+    svg: "/reactionImages/nounproject/heart.svg",
+    description: "I feel empathy towards this",
+  },
+  {
+    name: "surprise",
+    label: "Surprise",
+    svg: "/reactionImages/nounproject/surprise.svg",
+    description: "I am surprised",
+  },
+  {
+    name: "additionalQuestions",
+    label: "Additional questions",
+    svg: "/reactionImages/nounproject/elephant.svg",
+    description: "I now have additional questions",
+  },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
 
