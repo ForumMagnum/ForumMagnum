@@ -87,6 +87,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."legacy",
         COALESCE(p."commentCount", 0) AS "commentCount",
         p."postedAt",
+        p."createdAt",
         EXTRACT(EPOCH FROM p."postedAt") * 1000 AS "publicDateMs",
         COALESCE(p."isFuture", FALSE) AS "isFuture",
         COALESCE(p."isEvent", FALSE) AS "isEvent",
