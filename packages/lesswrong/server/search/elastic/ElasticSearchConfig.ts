@@ -76,7 +76,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "baseScore",
         order: "desc",
-        weight: 10,
+        weight: 8,
         scoring: {type: "numeric", pivot: 20},
       },
     ],
@@ -114,6 +114,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "karma",
         order: "desc",
+        weight: 8,
         scoring: {type: "numeric", pivot: 20},
       },
       {
@@ -168,11 +169,13 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "core",
         order: "desc",
+        weight: 0.5,
         scoring: {type: "bool"},
       },
       {
         field: "postCount",
         order: "desc",
+        weight: 0.25,
         scoring: {type: "numeric", pivot: 10},
       },
     ],
