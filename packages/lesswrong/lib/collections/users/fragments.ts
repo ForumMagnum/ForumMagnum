@@ -111,6 +111,7 @@ registerFragment(`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
+    expandedFrontpageSections
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop

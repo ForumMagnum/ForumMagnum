@@ -8,7 +8,7 @@ import { registerFragment } from '../../vulcan-lib/fragments';
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
   typeName: "ClientId",
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('ClientIds'),
 });
