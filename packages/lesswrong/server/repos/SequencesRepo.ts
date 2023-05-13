@@ -23,7 +23,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         author."displayName" AS "authorDisplayName",
         author."username" AS "authorUserName",
         author."slug" AS "authorSlug",
-        fm_strip_html(s."contents"->>'html') AS "plaintextDescription"
+        s."contents"->>'html' AS "plaintextDescription"
       FROM "Sequences" s
       LEFT JOIN "Users" author on s."userId" = author."_id"
     `;

@@ -103,7 +103,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         author."fullName" AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        fm_strip_html(p."contents"->>'html') AS "body"
+        p."contents"->>'html' AS "body"
       FROM "Posts" p
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"

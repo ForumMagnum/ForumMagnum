@@ -1,4 +1,5 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
+import { htmlToText } from "html-to-text";
 import ElasticSearchClient from "./ElasticSearchClient";
 import { collectionNameToConfig, Mappings } from "./ElasticSearchConfig";
 import {
@@ -18,6 +19,15 @@ import {
 } from "../../repos";
 import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
+
+const HTML_FIELDS = [
+  "body",
+  "bio",
+  "howOthersCanHelpMe",
+  "howICanHelpOthers",
+  "plaintextDescription",
+  "description",
+];
 
 class ElasticSearchExporter {
   constructor(
@@ -123,6 +133,16 @@ class ElasticSearchExporter {
     // @ts-ignore
     delete document._id;
     document.publicDateMs = Number(document.publicDateMs);
+    for (const field of HTML_FIELDS) {
+      if (field in document) {
+        document[field] = htmlToText(document[field] ?? "", {
+          selectors: [
+            {selector: "a", options: {ignoreHref: true}},
+            {selector: "img", format: "skip"},
+          ],
+        });
+      }
+    }
     return {id, document};
   }
 

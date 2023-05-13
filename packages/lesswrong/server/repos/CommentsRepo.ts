@@ -40,7 +40,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         tag."name" AS "tagName",
         tag."slug" AS "tagSlug",
         c."tagCommentType",
-        fm_strip_html(c."contents"->>'html') AS "body"
+        c."contents"->>'html' AS "body"
       FROM "Comments" c
       LEFT JOIN "Users" author ON c."userId" = author."_id"
       LEFT JOIN "Posts" post on c."postId" = post."_id"

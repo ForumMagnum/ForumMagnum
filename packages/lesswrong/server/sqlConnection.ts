@@ -149,31 +149,6 @@ const onConnectQueries: string[] = [
     ) tags ON p."_id" = post_id
     WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
   `,
-  // Strip HTML tags leaving just a content string. This is a simple regex solution
-  // to the problem and it is far from fool-proof. If a robust conversion is required
-  // then it should be done in code instead. This should only be used when a fast
-  // approximation is needed. It simply strips tags and HTML entities, then replaces
-  // all consecutive whitespace with a single space.
-  // A better conversion could be done by using plperlu or plpythonu but this isn't
-  // allowed in AWS RDS.
-  `CREATE OR REPLACE FUNCTION fm_strip_html(html TEXT)
-    RETURNS TEXT LANGUAGE sql IMMUTABLE AS
-    $$
-    SELECT
-      TRIM(
-        REGEXP_REPLACE(
-          REGEXP_REPLACE(
-            REGEXP_REPLACE(
-              REGEXP_REPLACE(
-                html,
-                E'<[^>]+>', ' ', 'gi'
-              ), E'&[a-zA-Z0-9#]{0,5};', ' ', 'g'
-            ), '\\s+', ' ', 'g'
-          ), ' \\.', '.', 'g'
-        )
-      )
-    $$
-  `,
 ];
 
 export const createSqlConnection = async (

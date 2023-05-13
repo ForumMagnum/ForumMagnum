@@ -24,7 +24,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
         COALESCE(t."isSubforum", FALSE) AS "isSubforum",
         t."bannerImageId",
         t."parentTagId",
-        fm_strip_html(t."description"->>'html') AS "description"
+        t."description"->>'html' AS "description"
       FROM "Tags" t
     `;
   }
