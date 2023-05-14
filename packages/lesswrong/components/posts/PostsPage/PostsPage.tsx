@@ -274,7 +274,10 @@ const PostsPage = ({post, refetch, classes}: {
 
   const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
   const showRecommendations = isEAForum &&
+    !post.draft &&
+    !post.deletedDraft &&
     !post.question &&
+    !post.debate &&
     !sequenceId &&
     recommendationsTestGroup === "recommended";
 
