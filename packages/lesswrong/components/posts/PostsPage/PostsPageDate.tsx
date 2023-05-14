@@ -1,12 +1,13 @@
 import React from 'react';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {
@@ -41,7 +42,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   return (<React.Fragment>
     <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
-          <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
+          <FormatDate date={post.postedAt} format={isEAForum ? "D MMM YYYY" : "Do MMM YYYY"} tooltip={false} />
         </span>
     </LWTooltip>
   </React.Fragment>);
