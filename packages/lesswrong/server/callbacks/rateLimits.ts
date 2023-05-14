@@ -11,10 +11,6 @@ import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 
-const countsTowardsRateLimitFilter = {
-  draft: false,
-};
-
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
 const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
@@ -106,7 +102,7 @@ async function enforcePostRateLimit (user: DbUser) {
   if (rateLimit) {
     const {nextEligible} = rateLimit;
     if (nextEligible > new Date()) {
-      throw new Error(`Rate limit: You cannot comment until ${nextEligible}`);
+      throw new Error(`Rate limit: You cannot post until ${nextEligible}`);
     }
   }
 }
@@ -235,7 +231,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   const dailyLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "hours", maxPostsPer24HoursSetting.get())
   const doublePostLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "seconds", postIntervalSetting.get())
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
-
+  console.log(nextAbleToPostDates)
   if (modLimitNextPostDate && nextAbleToPostDates.every(date => modLimitNextPostDate >= (date ?? new Date()))) {
     return {
       nextEligible: modLimitNextPostDate,
