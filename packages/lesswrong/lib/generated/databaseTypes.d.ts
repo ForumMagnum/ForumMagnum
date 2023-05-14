@@ -480,6 +480,23 @@ interface DbPodcast extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface PostRecommendationsCollection extends CollectionBase<DbPostRecommendation, "PostRecommendations"> {
+}
+
+interface DbPostRecommendation extends DbObject {
+  __collectionName?: "PostRecommendations"
+  userId: string | null
+  clientId: string | null
+  postId: string
+  strategyName: string
+  strategySettings: any /*{"definitions":[{"blackbox":true}]}*/
+  recommendationCount: number
+  lastRecommendedAt: Date
+  clickedAt: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
 }
 
@@ -1379,6 +1396,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1428,6 +1446,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

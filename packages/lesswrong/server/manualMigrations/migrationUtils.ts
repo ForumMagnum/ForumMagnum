@@ -401,7 +401,7 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     } else if (filter[sortField].$gte) {
       const gt = Math.max(filter[sortField].$gte.getTime() - 1, 0);
       greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
-      delete filter[sortField].$gte;
+      delete filter[sortField];
     } else {
       throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
     }

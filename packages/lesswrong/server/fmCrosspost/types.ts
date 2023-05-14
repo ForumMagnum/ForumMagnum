@@ -61,7 +61,8 @@ const DenormalizedCrosspostValidator = t.strict({
   draft: t.boolean,
   deletedDraft: t.boolean,
   title: t.string,
-  isEvent: t.boolean
+  isEvent: t.boolean,
+  question: t.boolean,
 });
 
 /**

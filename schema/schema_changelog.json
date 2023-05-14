@@ -200,8 +200,13 @@
     "timestamp": "2023-05-03T13:04:47.000Z"
   },
   {
-    "acceptsSchemaHash": "2ee026734ffd3d5441f9249f716ee2d3",
-    "acceptedByMigration": "20230509T232044.add_voteReceivedCounts.ts",
-    "timestamp": "2023-05-09T23:20:44.000Z"
+    "acceptsSchemaHash": "f38ed1e13515715dfc7ea5a8d6ea01df",
+    "acceptedByMigration": "20230510T142344.create_PostRecommendations_table.ts",
+    "timestamp": "2023-05-10T14:23:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "922ce375a3ed4de843e0f4f9cc50dd08",
+    "acceptedByMigration": "20230514T104640.add_voteReceivedCounts.ts",
+    "timestamp": "2023-05-14T10:46:40.000Z"
   }
 ]

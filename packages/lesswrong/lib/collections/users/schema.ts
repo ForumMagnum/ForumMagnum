@@ -223,7 +223,7 @@ export const CAREER_STAGES: CareerStage[] = [
   {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
   {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
   {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
-  {value: 'lateCareer', label: "Working (15+ years", icon: "Work"},
+  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work"},
   {value: 'seekingWork', label: "Seeking work", icon: "Work"},
   {value: 'retired', label: "Retired", icon: "Work"},
 ]

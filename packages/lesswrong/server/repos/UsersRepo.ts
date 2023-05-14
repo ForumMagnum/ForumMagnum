@@ -118,7 +118,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [userId]);
   }
   
-  setExpandFrontpageSection(userId: string, section: string, expanded: boolean) {
+  setExpandFrontpageSection(userId: string, section: string, expanded: boolean): Promise<null> {
     return this.none(`
       UPDATE "Users"
       SET "expandedFrontpageSections" =
@@ -126,5 +126,15 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           fm_build_nested_jsonb(('{' || $2 || '}')::TEXT[], $3::JSONB)
       WHERE "_id" = $1
     `, [userId, section, String(expanded)]);
+  }
+
+  removeAlignmentGroupAndKarma(userId: string, reduceAFKarma: number): Promise<null> {
+    return this.none(`
+      UPDATE "Users"
+      SET
+        "groups" = array_remove("groups", 'alignmentVoters'),
+        "afKarma" = "afKarma" - $2
+      WHERE _id = $1
+    `, [userId, reduceAFKarma]);
   }
 }
