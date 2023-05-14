@@ -25,7 +25,7 @@ clarity.svg: https://thenounproject.com/icon/diamond-4299025/
 complex.svg: https://thenounproject.com/icon/complex-249373/
 eyes.svg: https://thenounproject.com/icon/eyes-363349/
 handshake.svg: https://thenounproject.com/icon/greetings-5575331/
-inaccurate.svg: https://thenounproject.com/icon/inaccurate-2286876/
+inaccurate.svg: https://thenounproject.com/icon/miss-76657/
 key.svg: https://thenounproject.com/icon/key-5683852/
 pillar.svg: https://thenounproject.com/icon/pillar-1759106/
 scholarship.svg: https://thenounproject.com/icon/scholarship-4146333/
