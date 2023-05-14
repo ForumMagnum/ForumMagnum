@@ -272,6 +272,30 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/elephant.svg",
     description: "I now have additional questions",
   },
+  {
+    name: "strawman",
+    label: "Strawman",
+    svg: "/reactionImages/nounproject/scarecrow.svg",
+    description: "I think this misrepresents the thing that it argues against",
+  },
+  {
+    name: "thanks",
+    label: "Thank You",
+    svg: "/reactionImages/nounproject/thankyou.svg",
+    description: "I appreciate this",
+  },
+  {
+    name: "important",
+    label: "Important",
+    svg: "/reactionImages/nounproject/exclamation.svg",
+    description: "This is important information",
+  },
+  {
+    name: "insightful",
+    label: "Insightful",
+    svg: "/reactionImages/nounproject/lightbulb.svg",
+    description: (contentType) => `This ${contentType} adds insight to the conversation`,
+  },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
 

@@ -37,4 +37,8 @@ skeptical.svg: https://thenounproject.com/icon/raised-eyebrow-4210612/
 heart.svg: https://thenounproject.com/icon/heart-5714493/
 elephant.svg: https://thenounproject.com/icon/elephant-body-1591846/
 surprise.svg: https://thenounproject.com/icon/surprise-1341826/
+scarecrow.svg: https://thenounproject.com/icon/scarecrow-4651621/
+thankyou.svg: https://thenounproject.com/icon/thank-you-4065766/
+exclamation.svg: https://thenounproject.com/icon/exclamation-2686892/
+lightbulb.svg: https://thenounproject.com/icon/lightbulb-589680/
 
