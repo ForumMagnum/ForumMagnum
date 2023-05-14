@@ -41,4 +41,8 @@ scarecrow.svg: https://thenounproject.com/icon/scarecrow-4651621/
 thankyou.svg: https://thenounproject.com/icon/thank-you-4065766/
 exclamation.svg: https://thenounproject.com/icon/exclamation-2686892/
 lightbulb.svg: https://thenounproject.com/icon/lightbulb-589680/
-
+shrug.svg: https://thenounproject.com/icon/shrug-3460554/
+laugh.svg: https://thenounproject.com/icon/laugh-1471852/
+scales.svg: https://thenounproject.com/icon/scales-2099026/
+thinking.svg: https://thenounproject.com/icon/thinking-4306084/
+delta.svg: https://thenounproject.com/icon/delta-4334125/

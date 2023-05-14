@@ -296,6 +296,36 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/lightbulb.svg",
     description: (contentType) => `This ${contentType} adds insight to the conversation`,
   },
+  {
+    name: "shrug",
+    label: "Shrug",
+    svg: "shrug.svg",
+    description: "I am indifferent to this",
+  },
+  {
+    name: "laugh",
+    label: "Laugh",
+    svg: "laugh.svg",
+    description: "This is humorous",
+  },
+  {
+    name: "scales",
+    label: "Scales",
+    svg: "scales.svg",
+    description: "The evidence seems balanced",
+  },
+  {
+    name: "thinking",
+    label: "Thinking",
+    svg: "thinking.svg",
+    description: "Food for thought",
+  },
+  {
+    name: "changemind",
+    label: "Changemind",
+    svg: "delta.svg",
+    description: "Changed my mind",
+  },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
 
