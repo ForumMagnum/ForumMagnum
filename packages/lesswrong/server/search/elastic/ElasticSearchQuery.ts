@@ -1,11 +1,17 @@
-import type { SearchRequest as SearchRequestInfo } from "@elastic/elasticsearch/lib/api/types";
-import type { SearchRequest as SearchRequestBody } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
+import type {
+  QueryDslQueryContainer,
+  SearchRequest as SearchRequestInfo,
+} from "@elastic/elasticsearch/lib/api/types";
+import type {
+  SearchRequest as SearchRequestBody,
+} from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
 import {
   collectionNameToConfig,
   indexNameToConfig,
   IndexConfig,
   Ranking,
 } from "./ElasticSearchConfig";
+import QueryParser, { QueryToken } from "./QueryParser";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -102,6 +108,99 @@ class ElasticSearchQuery {
     return terms.length ? terms : undefined;
   }
 
+  private compileSimpleQuery(
+    config: IndexConfig,
+    search: string,
+  ): QueryDslQueryContainer {
+    return {
+      bool: {
+        should: [
+          {
+            multi_match: {
+              query: search,
+              fields: config.fields,
+              fuzziness: "AUTO",
+              max_expansions: 10,
+              prefix_length: 2,
+              minimum_should_match: "75%",
+              operator: "and",
+            },
+          },
+          {
+            multi_match: {
+              query: search,
+              fields: config.fields,
+              type: "phrase",
+              slop: 2,
+              boost: 2,
+            },
+          },
+          {
+            match_phrase_prefix: {
+              [config.fields[0].split("^")[0]]: {
+                query: search,
+                slop: 2,
+                boost: 2,
+              },
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  private compileAdvancedQuery(
+    config: IndexConfig,
+    tokens: QueryToken[],
+  ): QueryDslQueryContainer {
+    const must: QueryDslQueryContainer[] = [];
+    const must_not: QueryDslQueryContainer[] = [];
+    const should: QueryDslQueryContainer[] = [];
+
+    for (const {type, token} of tokens) {
+      switch (type) {
+      case "must":
+        must.push({
+          multi_match: {
+            query: token,
+            fields: config.fields,
+            type: "phrase",
+          },
+        });
+        break;
+      case "not":
+        must_not.push({
+          multi_match: {
+            query: token,
+            fields: config.fields,
+          },
+        });
+        break;
+      case "should":
+        should.push({
+          multi_match: {
+            query: token,
+            fields: config.fields,
+            fuzziness: "AUTO",
+            max_expansions: 10,
+            prefix_length: 2,
+            minimum_should_match: "75%",
+            operator: "and",
+          },
+        });
+        break;
+      }
+    }
+
+    return {
+      bool: {
+        must,
+        must_not,
+        should,
+      },
+    };
+  }
+
   compile(): SearchRequestInfo | SearchRequestBody {
     const {
       index,
@@ -118,6 +217,11 @@ class ElasticSearchQuery {
       post_tags: [postTag ?? "</em>"],
     };
     const compiledFilters = this.compileFilters(config, filters);
+    const {tokens, isAdvanced} = new QueryParser(search).parse();
+    const compiledQuery = isAdvanced
+      ? this.compileAdvancedQuery(config, tokens)
+      : this.compileSimpleQuery(config, search);
+    console.log("mark", isAdvanced, tokens, compiledQuery);
     return {
       index,
       from: offset,
@@ -137,41 +241,7 @@ class ElasticSearchQuery {
           script_score: {
             query: {
               bool: {
-                must: {
-                  bool: {
-                    should: [
-                      {
-                        multi_match: {
-                          query: search,
-                          fields: config.fields,
-                          fuzziness: "AUTO",
-                          max_expansions: 10,
-                          prefix_length: 2,
-                          minimum_should_match: "75%",
-                          operator: "and",
-                        },
-                      },
-                      {
-                        multi_match: {
-                          query: search,
-                          fields: config.fields,
-                          type: "phrase",
-                          slop: 2,
-                          boost: 2,
-                        },
-                      },
-                      {
-                        match_phrase_prefix: {
-                          [config.fields[0].split("^")[0]]: {
-                            query: search,
-                            slop: 2,
-                            boost: 2,
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
+                must: compiledQuery,
                 should: [],
                 filter: compiledFilters,
               },
