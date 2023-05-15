@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
+import some from 'lodash/some';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
     paddingLeft: 12,
     paddingRight: 12,
+  },
+  searchBox: {
+    border: theme.palette.border.faint,
+    borderRadius: 3,
+    width: "100%",
+    padding: 2,
+    marginBottom: 12,
   },
   hoverBallotLabel: {
     verticalAlign: "middle",
@@ -37,9 +45,21 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
   classes: ClassesType
 }) => {
   const { ReactionIcon, LWTooltip } = Components;
+  const [searchText,setSearchText] = useState("");
+  
+  const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
 
   return <div className={classes.moreReactions}>
-    {namesAttachedReactions.map(reaction => {
+    <div className={classes.searchBoxWrapper}>
+      <input
+        type="text" className={classes.searchBox}
+        value={searchText}
+        placeholder="Search"
+        onChange={(ev) => setSearchText(ev.currentTarget.value)}
+      />
+    </div>
+
+    {reactionsToShow.map(reaction => {
       const currentUserVote = getCurrentUserReactionVote(reaction.name);
       return (
         <LWTooltip key={reaction.name} title={<>
@@ -77,6 +97,16 @@ const ReactionDescription = ({reaction, classes}: {
   } else {
     return <div className={classes.reactioNDescription}>{reaction.description("comment")}</div>
   }
+}
+
+function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
+  if (!searchText || !searchText.length)
+    return candidates;
+  
+  return candidates.filter(
+    reaction => reaction.name.startsWith(searchText)
+      || some(reaction.searchTerms, searchTerm=>searchTerm.startsWith(searchText))
+  );
 }
 
 
