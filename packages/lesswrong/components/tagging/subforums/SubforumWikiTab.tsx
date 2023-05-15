@@ -8,7 +8,7 @@ import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { tagPostTerms } from '../TagPage';
+import { tagPageHeaderStyles, tagPostTerms } from '../TagPage';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
@@ -33,19 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
   },
-  postListMeta: {
-    display: "flex",
-    alignItems: "center",
-  },
-  relevance: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[600],
-    fontWeight: 500,
-    textAlign: "right",
-    flexGrow: 1,
-    marginRight: 8,
-  },
-})
+  ...tagPageHeaderStyles(theme),
+});
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
