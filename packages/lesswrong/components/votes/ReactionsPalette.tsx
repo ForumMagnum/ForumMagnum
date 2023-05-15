@@ -64,7 +64,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       return (
         <LWTooltip key={reaction.name} title={<>
           <div>
-            <ReactionIcon react={reaction.name}/>
+            <ReactionIcon inverted={true} react={reaction.name}/>
             <span className={classes.hoverBallotLabel}>{reaction.label}</span>
           </div>
           <ReactionDescription reaction={reaction} classes={classes}/>

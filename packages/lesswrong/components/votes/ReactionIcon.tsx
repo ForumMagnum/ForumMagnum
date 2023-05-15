@@ -8,10 +8,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18,
     verticalAlign: "middle",
   },
+  inverted: {
+    color: theme.palette.icon.inverted
+  },
 })
 
-const ReactionIcon = ({react, classes}: {
+const ReactionIcon = ({react, inverted=false, classes}: {
   react: string,
+  inverted?: boolean,
   classes: ClassesType
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
@@ -22,7 +26,9 @@ const ReactionIcon = ({react, classes}: {
   return <img
     src={reactionType.svg}
     style={{
-      filter: `opacity(${opacity}) saturate(${saturation})`,
+      filter: inverted
+        ? `opacity(${opacity}) saturate(${saturation}) invert(1)`
+        : `opacity(${opacity}) saturate(${saturation})`,
       padding,
     }}
     className={classes.reactionSvg}

@@ -97,6 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hoverBallotReactDescription: {
     marginLeft: 25,
+    marginBottom: 6,
   },
   usersWhoReacted: {
     marginLeft: 24,
