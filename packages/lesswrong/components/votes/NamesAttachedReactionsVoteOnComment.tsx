@@ -583,7 +583,7 @@ const AddReactionButton = ({voteProps, classes}: {
     {hover && <PopperCard
       open={!!hover} anchorEl={anchorEl}
       placement="bottom-start"
-      allowOverflow={false}
+      allowOverflow={true}
       
     >
       <NamesAttachedReactionsHoverBallot voteProps={voteProps} classes={classes}/>

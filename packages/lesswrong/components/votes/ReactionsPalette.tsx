@@ -16,6 +16,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     padding: 2,
     marginBottom: 12,
+
+    "&:focus": {
+      border: theme.palette.border.normal,
+    },
   },
   hoverBallotLabel: {
     verticalAlign: "middle",
@@ -36,6 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: "rgb(255, 189, 189, .23)", //TODO themeify
   },
   reactionDescription: {
+  },
+  reactionPaletteScrollRegion: {
+    width: 350,
+    maxHeight: 300,
+    overflowY: "scroll",
   },
 })
 
@@ -59,30 +68,32 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       />
     </div>
 
-    {reactionsToShow.map(reaction => {
-      const currentUserVote = getCurrentUserReactionVote(reaction.name);
-      return (
-        <LWTooltip key={reaction.name} title={<>
-          <div>
-            <ReactionIcon inverted={true} react={reaction.name}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-          <ReactionDescription reaction={reaction} classes={classes}/>
-        </>}>
-          <div
-            key={reaction.name}
-            className={classNames(classes.paletteEntry, {
-              [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-              [classes.selectedAnti]: currentUserVote==="disagreed",
-            })}
-            onClick={_ev => toggleReaction(reaction.name)}
-          >
-            <ReactionIcon react={reaction.name}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-        </LWTooltip>
-      )
-    })}
+    <div className={classes.reactionPaletteScrollRegion}>
+      {reactionsToShow.map(reaction => {
+        const currentUserVote = getCurrentUserReactionVote(reaction.name);
+        return (
+          <LWTooltip key={reaction.name} title={<>
+            <div>
+              <ReactionIcon inverted={true} react={reaction.name}/>
+              <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+            </div>
+            <ReactionDescription reaction={reaction} classes={classes}/>
+          </>}>
+            <div
+              key={reaction.name}
+              className={classNames(classes.paletteEntry, {
+                [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+                [classes.selectedAnti]: currentUserVote==="disagreed",
+              })}
+              onClick={_ev => toggleReaction(reaction.name)}
+            >
+              <ReactionIcon react={reaction.name}/>
+              <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+            </div>
+          </LWTooltip>
+        )
+      })}
+    </div>
   </div>
 }
 
