@@ -163,10 +163,11 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
+      const updateValue = this.compileUpdateExpression(value, true);
+      
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
       if (field.includes(".")) {
-        const updateValue = this.compileUpdateExpression(value, true);
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
@@ -174,7 +175,6 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         );
       }
   
-      const updateValue = this.compileUpdateExpression(value);
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
