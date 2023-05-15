@@ -97,10 +97,12 @@ importComponent("ShortformDropdownItem", () => require('../components/dropdowns/
 importComponent("ApproveNewUserDropdownItem", () => require('../components/dropdowns/posts/ApproveNewUserDropdownItem'));
 importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/posts/EditTagsDropdownItem'));
 importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/posts/ReportPostDropdownItem'));
+importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/posts/DuplicateEventDropdownItem'));
 importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/posts/HideFrontpagePostDropdownItem'));
 importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/posts/BookmarkDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
-importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/posts/DuplicateEventDropdownItem'));
+importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
+importComponent("ExcludeFromRecommendationsDropdownItem", () => require('../components/dropdowns/posts/ExcludeFromRecommendationsDropdownItem'));
 importComponent("PostAnalyticsDropdownItem", () => require('../components/dropdowns/posts/PostAnalyticsDropdownItem'));
 importComponent("EditCommentDropdownItem", () => require('../components/dropdowns/comments/EditCommentDropdownItem'));
 

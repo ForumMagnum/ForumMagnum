@@ -29,7 +29,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
-    PostAnalyticsDropdownItem, DropdownMenu,
+    PostAnalyticsDropdownItem, DropdownMenu, ExcludeFromRecommendationsDropdownItem,
   } = Components;
 
 
@@ -95,6 +95,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />
       <ShortformDropdownItem post={post} />
+      <ExcludeFromRecommendationsDropdownItem post={post} />
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentDropdownItem post={post}/>
