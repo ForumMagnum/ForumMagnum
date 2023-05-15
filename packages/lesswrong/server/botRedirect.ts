@@ -21,6 +21,16 @@ const botSiteUserAgentRegexesSetting = new DatabasePublicSetting<Record<string, 
 
 const botSiteRedirectEnabledSetting = new PublicInstanceSetting<boolean>('botSite.redirectEnabled', false, 'optional');
 
+const getBaseUrl = () => {
+  const botSiteBaseUrl = botSiteUrlSetting.get();
+  if (botSiteBaseUrl && !botSiteBaseUrl.startsWith('http://') && !botSiteBaseUrl.startsWith('https://')) {
+    // eslint-disable-next-line no-console
+    console.error("Invalid botSiteBaseUrl configuration: URL must start with http:// or https://");
+    return null;
+  }
+  return botSiteBaseUrl;
+}
+
 /**
  * Middleware function to redirect bot requests to a separate bot site.
  *
@@ -31,7 +41,7 @@ const botSiteRedirectEnabledSetting = new PublicInstanceSetting<boolean>('botSit
  */
 export const botRedirectMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const userAgent = req.headers["user-agent"];
-  const botSiteBaseUrl = botSiteUrlSetting.get();
+  const botSiteBaseUrl = getBaseUrl();
 
   if (!botSiteRedirectEnabledSetting.get() || !botSiteBaseUrl || !userAgent) {
     return next();
