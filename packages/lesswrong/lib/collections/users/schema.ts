@@ -248,8 +248,9 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
-
 export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
 /**
  * @summary Users schema
@@ -1799,6 +1800,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
   },
 
+  // see votingCallbacks.ts for more info
   voteCount: {
     type: Number,
     denormalized: true,
@@ -1806,33 +1808,61 @@ const schema: SchemaType<DbUser> = {
     label: "Small Upvote Count",
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  // see votingCallbacks.ts and recomputeReceivedVoteCounts.ts for more info
+  voteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
   },
 
   usersContactedBeforeReview: {
@@ -2635,7 +2665,7 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: Date,
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,

@@ -83,7 +83,9 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
       if (!profileId) {
         throw new Error('OAuth profile does not have a profile ID')
       }
-      let user = await Users.findOne({[`${profilePath}.id`]: profileId})
+      // TODO: We use a string representation of the profileId because we have Github IDs stored as strings but we get them as numbers
+      // And our query builder can't yet handle that case correctly
+      let user = await Users.findOne({[`${profilePath}.id`]: `${profileId}`})
       if (!user) {
         const email = profile.emails?.[0]?.value 
         
