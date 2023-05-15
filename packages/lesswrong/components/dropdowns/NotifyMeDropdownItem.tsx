@@ -42,7 +42,7 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemProps> = ({
 }
 
 const NotifyMeDropdownItem = (props: NotifyMeDropdownItemProps) =>
-  props.document && props.enabled
+  props.document && (props.enabled ?? true)
     ? <NotifyMeDropdownItemInternal {...props} />
     : null;
 
