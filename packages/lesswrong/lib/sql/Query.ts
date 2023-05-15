@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -275,12 +275,13 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField)?.toConcrete();
-    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    const concreteFieldType = fieldType?.toConcrete();
+    if (concreteFieldType?.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }
@@ -307,6 +308,15 @@ abstract class Query<T extends DbObject> {
       }
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
+      }
+      /**
+       * `<>` returns null if either of the compared values are null
+       * This is generally not the result you want when checking whether a field is $ne to a specific value
+       * So for nullable fields (most of them, so far) use `IS DISTINCT FROM`
+       * This will return records where e.g. the field is null and you want everything not equal to 5.
+       */
+      if (!(fieldType instanceof NotNullType) && op === "<>") {
+        return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
@@ -378,18 +388,36 @@ abstract class Query<T extends DbObject> {
             throw new Error(`${comparer} expects an array`);
           }
           const fieldType = this.getField(fieldName)?.toConcrete();
-          const hintType = fieldType?.isArray() && comparer === "$all"
+          const hintType = fieldType?.isArray()
             ? fieldType.subtype
             : fieldType;
+          const originalFieldTypeHint = this.getTypeHint(fieldType) ?? "";
           const hint = this.getTypeHint(hintType) ?? "";
-          const args = value[comparer].length
+          const args: (string | Arg)[] = value[comparer].length
             ? value[comparer].flatMap((item: any) => [
               ",", new Arg(item), hint,
             ]).slice(1)
             : [`SELECT NULL${hint}`];
-          return comparer === "$all"
-            ? [field, "@> ARRAY[", ...args, "]"]
-            : [field, hint, "IN (", ...args, ")"];
+
+          if (comparer === "$all") {
+            return [field, "@> ARRAY[", ...args, "]"];
+          }
+
+          /**
+           * For $in comparisons on array-typed fields.  Only tested with string arrays.
+           * We use the original type hint, rather then subtype, because otherwise array fields will have the wrong hint
+           * 
+           * We use `&&` to do an intersection ("any values in the field match any values passed in") rather than "contains the entire subset"
+           * As far as I can tell this case is only used for meetup types and we should avoid doing this elsewhere (and just hand-write some SQL)
+           */
+          if (fieldType?.isArray()) {
+            return [field, originalFieldTypeHint, "&& ARRAY[", ...args, "]"]
+          }
+
+          /**
+           * For all $in comparisons on regular (not array) fields, which is the overwhelming majority of them.
+           */
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];

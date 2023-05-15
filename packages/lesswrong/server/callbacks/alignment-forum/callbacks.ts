@@ -7,6 +7,7 @@ import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
 import { ensureIndex } from "../../../lib/collectionIndexUtils";
+import { UsersRepo } from "../../repos";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -60,17 +61,24 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
   if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")
-    const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
+    const karmaUpdate = (vote.afPower || 0) * multiplier;
+    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
-      await Users.rawUpdateOne({_id:newDocument.userId}, {
-        $set: {afKarma: newAfKarma },
-        $pull: {groups: 'alignmentVoters'}
-      })
+      // Splitting this because $pull isn't implemented in postgres
+      if (Users.isPostgres()) {
+        // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+        await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId, Math.abs(karmaUpdate));
+      } else {
+        await Users.rawUpdateOne({_id:newDocument.userId}, {
+          $set: {afKarma: newAfKarma },
+          $pull: {groups: 'alignmentVoters'}
+        });  
+      }
     }
   }
 }
@@ -105,14 +113,21 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
   } else if (!document.af && oldDocument.af) {
     const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
-    const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
+    const karmaUpdate = -document.afBaseScore || 0;
+    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
-      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore || 0}})
+      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})
     } else {
-      await Users.rawUpdateOne({_id:document.userId}, {
-        $inc: {afKarma: -document.afBaseScore || 0},
-        $pull: {groups: 'alignmentVoters'}
-      })
+      // Splitting this because $pull isn't implemented in postgres
+      if (Users.isPostgres()) {
+        // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+        await new UsersRepo().removeAlignmentGroupAndKarma(document.userId, Math.abs(karmaUpdate));
+      } else {
+        await Users.rawUpdateOne({_id:document.userId}, {
+          $inc: {afKarma: karmaUpdate},
+          $pull: {groups: 'alignmentVoters'}
+        })
+      }
     }
     await Votes.rawUpdateMany({documentId: document._id}, {
       $set: {documentIsAf: false}

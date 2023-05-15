@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useRef } from "react";
+import React, { FC, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -7,7 +7,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
-import { useClickableCell } from "../common/useClickableCell";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -172,22 +172,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-/**
- * By default, clicking anywhere on the post item will navigate to
- * the posts page. If an element needs to be clickable without doing
- * this it should be wrapped in an InteractionWrapper.
- */
-const InteractionWrapper: FC<{
-  children: ReactNode,
-  classes: ClassesType,
-}> = ({children, classes}) => (
-  <a
-    onClick={(e) => e.stopPropagation()}
-    className={classes.interactionWrapper}
-  >
-    {children}
-  </a>
-);
 
 export type EAPostsItemProps = PostsItemConfig & {
   classes: ClassesType,
@@ -226,7 +210,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
-  const currentUser = useCurrentUser()
+  const currentUser = useCurrentUser();
 
   if (isRepeated) {
     return null;
@@ -248,13 +232,13 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         {commentCount}
       </a>
       {currentUser && <div className={classes.postActions}>
-        <InteractionWrapper classes={classes}>
-          <PostActionsButton post={post} popperPlacement="left-start" vertical />
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
       </div>}
       {tagRel &&
         <div className={classes.tagRelWrapper}>
-          <InteractionWrapper classes={classes}>
+          <InteractionWrapper className={classes.interactionWrapper}>
             <EAPostsItemTagRelevance tagRel={tagRel} />
           </InteractionWrapper>
         </div>
@@ -336,7 +320,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 */}
               <SecondaryInfo />
             </div>
-            <InteractionWrapper classes={classes}>
+            <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
                 {...{
                   post,

@@ -32,6 +32,7 @@ const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
+    primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
     fonts: {sansSerifStack, serifStack},
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
@@ -52,9 +53,17 @@ export const eaForumTheme: SiteThemeSpecification = {
     error: {
       main: "#bf360c",
     },
+    warning: {
+      main: "#ffad08"
+    },
+    text: {
+      primaryAlert: "#137283"
+    },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
       primaryDim: '#e2f1f4',
+      primaryTranslucent: "rgba(12, 134, 155, 0.05)",
+      warningTranslucent: "rgba(255, 173, 8, 0.1)",
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
@@ -77,6 +86,9 @@ export const eaForumTheme: SiteThemeSpecification = {
       commentHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
       addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
+    },
+    buttons: {
+      alwaysPrimary: '#0c869b',
     },
     tag: {
       text: shadePalette.grey[1000],
@@ -117,6 +129,10 @@ export const eaForumTheme: SiteThemeSpecification = {
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
+        cloudinaryFont: {
+          stack: "'Inter', sans-serif",
+          url: "https://fonts.googleapis.com/css?family=Inter",
+        },
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,
@@ -353,7 +369,21 @@ export const eaForumTheme: SiteThemeSpecification = {
           root: {
             backgroundColor: palette.lwTertiary.main
           }
-        }
+        },
+        MuiMenuItem: {
+          root: {
+            fontFamily: sansSerifStack,
+            fontWeight: 500,
+            fontSize: "1.1rem",
+            color: palette.grey[900],
+          }
+        },
+        MuiListItemIcon: {
+          root: {
+            color: palette.grey[700],
+            marginRight: 12,
+          }
+        },
       }
     }
   }

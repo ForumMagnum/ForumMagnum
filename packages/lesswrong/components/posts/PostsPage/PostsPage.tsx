@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
+import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -15,13 +15,14 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
-import { useCookies } from 'react-cookie';
+import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
@@ -92,12 +93,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: CENTRAL_COLUMN_WIDTH, 
+    maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
   postContent: {}, //Used by a Cypress test
+  recommendations: {
+    maxWidth: MAX_COLUMN_WIDTH,
+    margin: "0 auto 40px",
+  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -106,7 +111,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
-    position: "relative"
+    position: "relative",
+    paddingTop: isEAForum ? 16 : undefined
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -154,8 +160,6 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
-
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: ()=>void,
@@ -168,7 +172,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -241,7 +245,8 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
+    PostsPageRecommendationsList,
   } = Components
 
   useEffect(() => {
@@ -267,6 +272,12 @@ const PostsPage = ({post, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
+  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
+  const showRecommendations = isEAForum &&
+    !post.question &&
+    !sequenceId &&
+    recommendationsTestGroup === "recommended";
+
   const commentId = query.commentId || params.commentId
 
   const description = getPostDescription(post)
@@ -275,7 +286,7 @@ const PostsPage = ({post, refetch, classes}: {
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewImageUrl
   if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
@@ -301,10 +312,18 @@ const PostsPage = ({post, refetch, classes}: {
     })
   }, [openDialog, post]);
 
-  const tableOfContents = sectionData
+  const isCrosspostedQuestion = post.question &&
+    post.fmCrosspost?.isCrosspost &&
+    !post.fmCrosspost?.hostedHere;
+
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const tableOfContents = sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
-  
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -328,12 +347,12 @@ const PostsPage = ({post, refetch, classes}: {
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
-              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              imgProps={{ar: '191:100', w: '682', q: '100'}}
               className={classes.headerImage}
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -389,6 +408,14 @@ const PostsPage = ({post, refetch, classes}: {
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
+
+      {showRecommendations &&
+        <div className={classes.recommendations}>
+          <PostsPageRecommendationsList
+            strategy="tagWeightedCollabFilter"
+          />
+        </div>
+      }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
         {/* Answers Section */}

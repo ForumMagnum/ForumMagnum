@@ -21,6 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
+    fontFamily: theme.palette.fonts.sansSerifStack,
     '& input.geosuggest__input': {
       width: '100%'
     }
@@ -472,7 +473,7 @@ const EAGApplicationImportForm = ({classes}: {
           <Typography variant="display3" className={classes.heading} gutterBottom>
             Welcome to the &#10024; <span className={classes.loggedOutMessageHighlight}>Effective Altruism Forum</span> &#10024;
           </Typography>
-          <Typography variant="body1" className={classes.loggedOutMessage}>
+          <Typography variant="body2" className={classes.loggedOutMessage}>
             <a href={`/auth/auth0?returnTo=${pathname}`} className={classes.loggedOutLink}>Login</a> or <a href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.loggedOutLink}>Sign Up</a> to
             import information from your EA Global application to your EA Forum profile.
           </Typography>
@@ -482,20 +483,20 @@ const EAGApplicationImportForm = ({classes}: {
   }
     
   const body = !importedData ? <>
-    <Typography variant="body1" className={classes.noAppText}>
+    <Typography variant="body2" className={classes.noAppText}>
       Sorry, we found no EA Global applications matching your EA Forum account's email address.
     </Typography>
-    <Typography variant="body1" className={classes.subheading}>
+    <Typography variant="body2" className={classes.subheading}>
       If you feel that this is in error, please <Link to="/contact" className={classes.contactUs}>contact us</Link>.
     </Typography>
   </> : <>
-    <Typography variant="body1" className={classes.subheading}>
+    <Typography variant="body2" className={classes.subheading}>
       We've found your application data from {event}.
     </Typography>
     
     <AnalyticsContext pageSectionContext="overwriteCallout">
       <div className={classes.callout}>
-        <Typography variant="body1" className={classes.overwriteText}>
+        <Typography variant="body2" className={classes.overwriteText}>
           Would you like to overwrite your EA Forum profile data?
         </Typography>
         <div>
@@ -506,7 +507,7 @@ const EAGApplicationImportForm = ({classes}: {
           >
             Overwrite and Submit
           </button>
-          <Typography variant="body1" className={classes.overwriteBtnAltText}>
+          <Typography variant="body2" className={classes.overwriteBtnAltText}>
             or see details and make changes below
           </Typography>
         </div>
@@ -713,7 +714,7 @@ const EAGApplicationImportForm = ({classes}: {
   return <AnalyticsContext pageContext="eagApplicationImportForm">
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        Import Your Profile
+        Import your profile
       </Typography>
 
       {formLoading ? <Loading /> : body}

@@ -1,7 +1,7 @@
 import React, { FC, useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { forumTypeSetting } from "../../lib/instanceSettings";
-import { gql, useMutation } from "@apollo/client";
+import { isEAForum } from "../../lib/instanceSettings";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@material-ui/core/Checkbox';
@@ -37,11 +37,8 @@ const PostsAcceptTos = ({currentUser, classes}: {
   classes: ClassesType,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [acceptTos] = useMutation(gql`
-    mutation AcceptTos {
-      UserAcceptTos
-    }
-  `, {refetchQueries: ['getCurrentUser']})
+  const [accepted, setAccepted] = useState(currentUser.acceptedTos);
+  const updateCurrentUser = useUpdateCurrentUser();
   const {flash} = useMessages();
 
   const onAccept = useCallback(async () => {
@@ -50,17 +47,20 @@ const PostsAcceptTos = ({currentUser, classes}: {
     }
 
     setLoading(true);
-    const result = await acceptTos();
-    const accepted = result?.data?.UserAcceptTos;
+    const result = await updateCurrentUser({
+      acceptedTos: true,
+    });
+    const accepted = result?.data?.updateUser?.data?.acceptedTos;
     if (accepted) {
       flash("Thank you for accepting the terms of use");
+      setAccepted(true);
     } else {
       flash("Error: Something went wrong, please try again");
       setLoading(false);
     }
-  }, [loading, setLoading, flash, acceptTos]);
+  }, [loading, setLoading, flash, updateCurrentUser]);
 
-  if (forumTypeSetting.get() !== "EAForum" || currentUser.acceptedTos) {
+  if (!isEAForum || accepted) {
     return null;
   }
 

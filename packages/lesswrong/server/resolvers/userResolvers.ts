@@ -5,7 +5,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
@@ -19,6 +19,8 @@ import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import GraphQLJSON from 'graphql-type-json';
+import { RateLimitReason } from '../../lib/collections/users/schema';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -53,12 +55,15 @@ augmentFieldsDict(Users, {
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
-      type: "Date",
+      type: GraphQLJSON,
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<{
+        nextEligible: Date,
+        rateLimitType: RateLimitReason
+      }|null> => {
         const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
         if (rateLimit) {
-          return rateLimit.nextEligible;
+          return rateLimit
         }
         return null;
       }
@@ -162,6 +167,7 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
+    // TODO: Deprecated
     async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
       if (!currentUser) {
         throw new Error('Cannot accept terms of use while not logged in');
@@ -175,6 +181,21 @@ addGraphQLResolvers({
         validate: false,
       })).data;
       return updatedUser.acceptedTos;
+    },
+    async UserExpandFrontpageSection(
+      _root: void,
+      {section, expanded}: {section: string, expanded: boolean},
+      {currentUser, repos}: ResolverContext,
+    ) {
+      if (!Users.isPostgres()) {
+        throw new Error("Expanding frontpage sections requires Postgres");
+      }
+      if (!currentUser) {
+        throw new Error("You must login to do this");
+      }
+      expanded = Boolean(expanded);
+      await repos.users.setExpandFrontpageSection(currentUser._id, section, expanded);
+      return expanded;
     },
     async UserUpdateSubforumMembership(root: void, { tagId, member }: {tagId: string, member: boolean}, context: ResolverContext) {
       const { currentUser } = context
@@ -401,8 +422,12 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
+// TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'

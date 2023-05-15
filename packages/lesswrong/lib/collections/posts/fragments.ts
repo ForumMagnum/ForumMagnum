@@ -162,6 +162,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
     ...PostsListBase
     currentUserVote
@@ -195,6 +204,8 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -533,6 +544,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id

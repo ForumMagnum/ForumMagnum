@@ -137,6 +137,7 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   descendentCount: number
   shortform: boolean
+  shortformFrontpage: boolean
   nominatedForReview: string
   reviewingForReview: string
   lastSubthreadActivity: Date
@@ -475,6 +476,23 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostRecommendationsCollection extends CollectionBase<DbPostRecommendation, "PostRecommendations"> {
+}
+
+interface DbPostRecommendation extends DbObject {
+  __collectionName?: "PostRecommendations"
+  userId: string | null
+  clientId: string | null
+  postId: string
+  strategyName: string
+  strategySettings: any /*{"definitions":[{"blackbox":true}]}*/
+  recommendationCount: number
+  lastRecommendedAt: Date
+  clickedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1014,8 +1032,11 @@ interface DbUser extends DbObject {
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
   hideCommunitySection: boolean
+  expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null
   showCommunityInRecentDiscussion: boolean
-  noComicSans: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
@@ -1210,6 +1231,11 @@ interface DbUser extends DbObject {
   smallDownvoteCount: number
   bigUpvoteCount: number
   bigDownvoteCount: number
+  voteReceivedCount: number
+  smallUpvoteReceivedCount: number
+  smallDownvoteReceivedCount: number
+  bigUpvoteReceivedCount: number
+  bigDownvoteReceivedCount: number
   usersContactedBeforeReview: Array<string>
   fullName: string
   shortformFeedId: string
@@ -1370,6 +1396,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1419,6 +1446,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed
