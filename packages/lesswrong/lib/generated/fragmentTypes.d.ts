@@ -287,6 +287,11 @@ interface UsersDefaultFragment { // fragment on Users
   readonly smallDownvoteCount: number,
   readonly bigUpvoteCount: number,
   readonly bigDownvoteCount: number,
+  readonly voteReceivedCount: number,
+  readonly smallUpvoteReceivedCount: number,
+  readonly smallDownvoteReceivedCount: number,
+  readonly bigUpvoteReceivedCount: number,
+  readonly bigDownvoteReceivedCount: number,
   readonly usersContactedBeforeReview: Array<string>,
   readonly fullName: string,
   readonly shortformFeedId: string,
@@ -356,7 +361,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly reviewForAlignmentForumUserId: string,
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
-  readonly rateLimitNextAbleToComment: Date,
+  readonly rateLimitNextAbleToComment: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2551,7 +2556,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
 
 interface UsersCurrentRateLimit { // fragment on Users
   readonly _id: string,
-  readonly rateLimitNextAbleToComment: Date,
+  readonly rateLimitNextAbleToComment: any,
 }
 
 interface UserBookmarkedPosts { // fragment on Users

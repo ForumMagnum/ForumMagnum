@@ -19,6 +19,8 @@ import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import GraphQLJSON from 'graphql-type-json';
+import { RateLimitReason } from '../../lib/collections/users/schema';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -53,12 +55,15 @@ augmentFieldsDict(Users, {
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
-      type: "Date",
+      type: GraphQLJSON,
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<{
+        nextEligible: Date,
+        rateLimitType: RateLimitReason
+      }|null> => {
         const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
         if (rateLimit) {
-          return rateLimit.nextEligible;
+          return rateLimit
         }
         return null;
       }
