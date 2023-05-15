@@ -12,7 +12,7 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
@@ -380,8 +380,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     console.log(e);
   });
 });
-
-const isLW = forumTypeSetting.get() === 'LessWrong'
 
 const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
