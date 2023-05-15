@@ -26,7 +26,7 @@ const EditCommentDropdownItem = ({comment, showEdit}: {
   );
 };
 
-const EditCommentMenuDropdownItemComponent = registerComponent(
+const EditCommentDropdownItemComponent = registerComponent(
   'EditCommentDropdownItem',
   EditCommentDropdownItem,
 );
@@ -34,6 +34,6 @@ const EditCommentMenuDropdownItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    EditCommentDropdownItem: typeof EditCommentMenuDropdownItemComponent
+    EditCommentDropdownItem: typeof EditCommentDropdownItemComponent
   }
 }

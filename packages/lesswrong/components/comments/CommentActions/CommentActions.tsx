@@ -18,7 +18,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
     MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
     BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton,
-    ToggleIsModeratorComment, PinToProfileMenuItem, LockThreadMenuItem,
+    ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadMenuItem,
     DropdownMenu,
   } = Components;
 
@@ -44,7 +44,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
 
   return <DropdownMenu>
     <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
-    {post && (currentUser._id === comment.userId || currentUser.isAdmin) && <PinToProfileMenuItem comment={comment}/>}
+    <PinToProfileDropdownItem comment={comment} post={post} />
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) && 
       <NotifyMeButton asMenuItem document={post} showIcon
         subscriptionType={subscriptionTypes.newShortform}
