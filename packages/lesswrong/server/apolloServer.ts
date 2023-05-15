@@ -6,7 +6,7 @@ import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr
 
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
+import { graphiqlTimeoutMiddleware, graphiqlUIMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
@@ -169,6 +169,7 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', graphiqlTimeoutMiddleware)
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -223,7 +224,7 @@ export function startWebserver() {
     endpointUrl: config.path,
   }));
   // Setup GraphiQL
-  app.use("/graphiql", graphiqlMiddleware({
+  app.use("/graphiql", graphiqlUIMiddleware({
     endpointURL: config.path,
     passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
   }));

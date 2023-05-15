@@ -4,6 +4,9 @@
 // This is the only way to get graphiql to work
 
 import url from 'url';
+import { DatabasePublicSetting } from '../../../lib/publicSettings';
+import { Request, Response, NextFunction } from 'express';
+import { getIpFromRequest } from '../../utils/httpUtil';
 
 // @seehttps://github.com/apollographql/apollo-server/blob/v1.4.0/packages/apollo-server-module-graphiql/src/resolveGraphiQLString.ts
 
@@ -280,7 +283,7 @@ async function resolveGraphiQLString(query: any, options: any, ...args: any) {
  * - (optional) result: the result of the query to pre-fill in the GraphiQL UI
  */
 
-export const graphiqlMiddleware = (options: any) => {
+export const graphiqlUIMiddleware = (options: any) => {
   const graphiqlHandler = (req: any, res: any, next: any) => {
     const query = req.url && url.parse(req.url, true).query;
     resolveGraphiQLString(query, options, req).then(
@@ -293,4 +296,24 @@ export const graphiqlMiddleware = (options: any) => {
     );
   };
   return graphiqlHandler;
+};
+
+const graphiqlTimeoutSetting = new DatabasePublicSetting<number|null>('graphiqlTimeout', 20000);
+
+export const graphiqlTimeoutMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const referer = req.headers["referer"] || "";
+  const timeout = graphiqlTimeoutSetting.get();
+
+  if (referer.includes("graphiql") && timeout !== null) {
+    res.setTimeout(timeout, () => {
+      const ip = getIpFromRequest(req);
+      const userAgent = req.headers["user-agent"];
+      // eslint-disable-next-line no-console
+      console.warn(`GraphiQL request timed out for ${ip} with user agent ${userAgent}`);
+
+      res.status(408).end("Request timed out");
+    });
+  }
+
+  next();
 };
