@@ -63,7 +63,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   tagRelWrapper: {
-    marginLeft: 10,
+    position: "relative",
+    transform: "translateY(1px)",
+    marginLeft: 44,
+    marginRight: 14,
   },
   voteArrow: {
     color: theme.palette.grey[400],
@@ -218,7 +221,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   const {
     PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
-    TruncatedAuthorsList, EAPostsItemTagRelevance, PostsItemTooltipWrapper,
+    TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
 
@@ -239,7 +242,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
       {tagRel &&
         <div className={classes.tagRelWrapper}>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <EAPostsItemTagRelevance tagRel={tagRel} />
+            <PostsItemTagRelevance tagRel={tagRel} />
           </InteractionWrapper>
         </div>
       }
