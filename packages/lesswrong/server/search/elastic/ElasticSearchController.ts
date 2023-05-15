@@ -8,7 +8,7 @@ class ElasticSearchController {
     private searchService = new ElasticSearchService(),
   ) {
     const route = "/api/search";
-    app.use(route, json({ limit: "1mb" }));
+    app.use(route, json({limit: "1mb"}));
     app.post(route, this.onSearch.bind(this));
   }
 

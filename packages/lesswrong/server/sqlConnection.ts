@@ -137,7 +137,7 @@ const onConnectQueries: string[] = [
     ) "tagRelevance";'
   `,
   // Extract an array of strings containing all of the tag ids that are attached to a
-  // post. Only tags with a relevance score >= 1 are included..
+  // post. Only tags with a relevance score >= 1 are included.
   `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
     RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
    'SELECT ARRAY_AGG(tags."tagId")
