@@ -221,7 +221,6 @@ class ElasticSearchQuery {
     const compiledQuery = isAdvanced
       ? this.compileAdvancedQuery(config, tokens)
       : this.compileSimpleQuery(config, search);
-    console.log("mark", isAdvanced, tokens, compiledQuery);
     return {
       index,
       from: offset,

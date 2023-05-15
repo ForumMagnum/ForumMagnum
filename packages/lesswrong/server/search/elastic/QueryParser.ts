@@ -1,4 +1,4 @@
-import { trim } from "lodash";
+import trim from "lodash/trim";
 
 export type QueryToken = {
   type: "should" | "must" | "not",
@@ -21,9 +21,12 @@ class QueryParser {
     const query = this.query.trim();
     const tokens: QueryToken[] = [];
     let isAdvanced = false;
-    let matched: RegExpExecArray | null;
 
-    while (matched = QueryParser.pattern.exec(query)) {
+    for (
+      let matched = QueryParser.pattern.exec(query);
+      matched;
+      matched = QueryParser.pattern.exec(query)
+    ) {
       const prefix = matched[1];
       let token = matched[2];
       let type: QueryToken["type"] = "should";
