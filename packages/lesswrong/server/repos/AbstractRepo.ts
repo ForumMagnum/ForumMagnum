@@ -1,6 +1,6 @@
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { getSqlClient } from "../../lib/sql/sqlClient";
-import PgCollection, { logIfSlow } from "../../lib/sql/PgCollection";
+import { getSqlClient, logIfSlow } from "../../lib/sql/sqlClient";
+import PgCollection from "../../lib/sql/PgCollection";
 
 /**
  * abstractRepo provides the superclass from which all of our collection

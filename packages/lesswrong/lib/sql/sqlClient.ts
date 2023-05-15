@@ -1,4 +1,7 @@
-import { logIfSlow } from "../../lib/sql/PgCollection";
+import { isAnyTest } from "../executionEnvironment";
+
+const logAllQueries = false;
+const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let sql: SqlClient | null = null;
 
@@ -26,4 +29,21 @@ export const runSqlQuery = async (query: string, args?: any) => {
     () => client.any(query, args),
     () => `${query}: ${JSON.stringify(args)}`
   );
+}
+
+export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: ()=>string, quiet?: boolean) {
+  const startTime = new Date().getTime();
+  const result = await execute()
+  const endTime = new Date().getTime();
+
+  const milliseconds = endTime - startTime;
+  if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${describe()}`);
+  } else if (logAllQueries) {
+    // eslint-disable-next-line no-console
+    console.log(`Ran Postgres query (${milliseconds} ms): ${describe()}`);
+  }
+
+  return result;
 }

@@ -1,6 +1,5 @@
 import { MongoCollection } from "../mongoCollection";
-import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
-import { isAnyTest } from "../executionEnvironment";
+import { getSqlClient, getSqlClientOrThrow, logIfSlow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -12,9 +11,6 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
-
-const logAllQueries = false;
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let executingQueries = 0;
 
@@ -296,23 +292,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       };
     },
   });
-}
-
-export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: ()=>string, quiet?: boolean) {
-  const startTime = new Date().getTime();
-  const result = await execute()
-  const endTime = new Date().getTime();
-
-  const milliseconds = endTime - startTime;
-  if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${describe()}`);
-  } else if (logAllQueries) {
-    // eslint-disable-next-line no-console
-    console.log(`Ran Postgres query (${milliseconds} ms): ${describe()}`);
-  }
-
-  return result;
 }
 
 export default PgCollection;
