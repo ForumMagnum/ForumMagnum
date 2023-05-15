@@ -35,6 +35,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * This component contains a new redesign of the posts item tag relevance vote.
+ * It is not currently used as we haven't decided how to visually handle strong
+ * votes yet, but most of the logic is in place. Once the design is finished, this
+ * is a drop-in replacement for `PostsItemTagRelevance` in `EAPostsItem`.
+ */
 const EAPostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType,
