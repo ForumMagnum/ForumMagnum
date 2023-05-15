@@ -1,8 +1,8 @@
 import React, { useRef, RefObject } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, addNewReactKarmaThreshold, addNameToExistingReactKarmaThreshold, downvoteExistingReactKarmaThreshold, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
-import { namesAttachedReactions, namesAttachedReactionsByName, NamesAttachedReactionType, defaultFilter } from '../../lib/voting/reactions';
+import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
+import { namesAttachedReactionsByName } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -91,15 +91,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.darken04,
     },
   },
-  paletteEntry: {
-    //display: "inline-block",
-    cursor: "pointer",
-    width: 150,
-    padding: 4,
-    "&:hover": {
-      background: theme.palette.panelBackground.darken04,
-    },
-  },
   hoverBallotLabel: {
     verticalAlign: "middle",
     marginLeft: 6,
@@ -107,30 +98,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotReactDescription: {
     marginLeft: 25,
   },
-  selected: {
-    background: theme.palette.panelBackground.darken10,
-  },
-  selectedAnti: {
-    background: "rgb(255, 189, 189, .23)", //TODO themeify
-  },
-  reactionSvg: {
-    width: 18,
-    height: 18,
-    verticalAlign: "middle",
-  },
   usersWhoReacted: {
     marginLeft: 24,
   },
   alreadyUsedReactions: {
     marginBottom: 12,
   },
-  moreReactions: {
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  reactionDescription: {
-  },
-
 
   reactionVoteCount: {
     display: "inline-block",
@@ -311,7 +284,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
   classes: ClassesType,
 }) => {
   const { hover, eventHandlers } = useHover();
-  const { PopperCard } = Components;
+  const { ReactionIcon, PopperCard } = Components;
   const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function reactionClicked(reaction: EmojiReactName) {
@@ -322,10 +295,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     {...eventHandlers} className={classes.footerReaction}
     onMouseDown={()=>{reactionClicked(react)}}
   >
-    <ReactionIcon
-      react={react}
-      classes={classes}
-    />
+    <ReactionIcon react={react} />
     <span className={classes.reactionCount}>{numberShown}</span>
 
     {hover && anchorEl?.current && <PopperCard
@@ -346,6 +316,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
   const { currentUserExtendedVote, getCurrentUserReactionVote } = useNamesAttachedReactionsVoting(voteProps);
+  const { ReactionsPalette } = Components;
 
 
   function openLoginDialog() {
@@ -447,10 +418,9 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
       </div>
     }
     
-    <HoverBallotReactionPalette
+    <ReactionsPalette
       getCurrentUserReactionVote={getCurrentUserReactionVote}
       toggleReaction={toggleReaction}
-      classes={classes}
     />
   </div>
 }
@@ -483,13 +453,14 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null)=>void
   classes: ClassesType,
 }) => {
+  const { ReactionIcon } = Components;
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
 
   return <div
     key={reactionName}
     className={classNames(classes.hoverBallotEntry)}
   >
-    <ReactionIcon react={reactionName} classes={classes}/>
+    <ReactionIcon react={reactionName}/>
     <span className={classes.hoverBallotLabel}>
       {namesAttachedReactionsByName[reactionName].label}
     </span>
@@ -598,60 +569,6 @@ const ReactionVoteArrow = ({orientation, onClick, color, classes}: {
   </span>
 }
 
-const HoverBallotReactionPalette = ({getCurrentUserReactionVote, toggleReaction, classes}: {
-  getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string)=>void,
-  classes: ClassesType
-}) => {
-  const { LWTooltip } = Components;
-
-  return <div className={classes.moreReactions}>
-    {namesAttachedReactions.map(reaction => {
-      const currentUserVote = getCurrentUserReactionVote(reaction.name);
-      return (
-        <LWTooltip key={reaction.name} title={<>
-          <div>
-            <ReactionIcon react={reaction.name} classes={classes}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-          <ReactionDescription reaction={reaction} classes={classes}/>
-        </>}>
-          <div
-            key={reaction.name}
-            className={classNames(classes.paletteEntry, {
-              [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-              [classes.selectedAnti]: currentUserVote==="disagreed",
-            })}
-            onClick={_ev => toggleReaction(reaction.name)}
-          >
-            <ReactionIcon react={reaction.name} classes={classes}/>
-            <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-          </div>
-        </LWTooltip>
-      )
-    })}
-  </div>
-}
-
-const ReactionIcon = ({react, classes}: {
-  react: string,
-  classes: ClassesType
-}) => {
-  const reactionType = namesAttachedReactionsByName[react];
-  const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
-  const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
-  const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;
-
-  return <img
-    src={reactionType.svg}
-    style={{
-      filter: `opacity(${opacity}) saturate(${saturation})`,
-      padding,
-    }}
-    className={classes.reactionSvg}
-  />;
-}
-
 const AddReactionButton = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
@@ -671,19 +588,6 @@ const AddReactionButton = ({voteProps, classes}: {
       <NamesAttachedReactionsHoverBallot voteProps={voteProps} classes={classes}/>
     </PopperCard>}
   </span>
-}
-
-const ReactionDescription = ({reaction, classes}: {
-  reaction: NamesAttachedReactionType,
-  classes: ClassesType,
-}) => {
-  if (!reaction.description) {
-    return null;
-  } else if (typeof reaction.description === "string") {
-    return <div className={classes.reactionDescription}>{reaction.description}</div>
-  } else {
-    return <div className={classes.reactioNDescription}>{reaction.description("comment")}</div>
-  }
 }
 
 const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
