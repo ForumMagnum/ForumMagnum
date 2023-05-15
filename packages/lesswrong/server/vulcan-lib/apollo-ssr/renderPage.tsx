@@ -21,13 +21,12 @@ import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { getCookieFromReq, getIpFromRequest, getPathFromReq } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
-import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
