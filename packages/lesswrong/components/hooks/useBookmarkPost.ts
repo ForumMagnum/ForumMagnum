@@ -5,12 +5,28 @@ import { pluck } from "underscore";
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from "@apollo/client";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
+import { isEAForum } from "../../lib/instanceSettings";
 import type { ForumIconName } from "../common/ForumIcon";
 
 export type BookmarkPost = {
   icon: ForumIconName,
-  title: string,
+  labelText: string,
+  hoverText: string,
   toggleBookmark: (event: MouseEvent) => void,
+}
+
+const getLabelText = (bookmarked: boolean) => {
+  if (isEAForum) {
+    return bookmarked ? "Saved" : "Save";
+  }
+  return bookmarked ? "Un-bookmark" : "Bookmark";
+}
+
+const getHoverText = (bookmarked: boolean) => {
+  if (isEAForum) {
+    return bookmarked ? "Remove from saved posts" : "Save post for later";
+  }
+  return bookmarked ? "Un-bookmark" : "Bookmark";
 }
 
 export const useBookmarkPost = (post: PostsBase): BookmarkPost => {
@@ -51,7 +67,8 @@ export const useBookmarkPost = (post: PostsBase): BookmarkPost => {
 
   return {
     icon: bookmarked ? "Bookmark" : "BookmarkBorder",
-    title: bookmarked ? "Un-bookmark" : "Bookmark",
+    labelText: getLabelText(bookmarked),
+    hoverText: getHoverText(bookmarked),
     toggleBookmark,
   };
 }

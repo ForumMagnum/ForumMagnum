@@ -3,8 +3,58 @@ import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
-export interface RecommendationsAlgorithm {
+export const recommendationStrategyNames = new TupleSet([
+  "moreFromAuthor",
+  "moreFromTag",
+  "bestOf",
+  "tagWeightedCollabFilter",
+  "collabFilter",
+  "feature",
+] as const);
+
+export const isRecommendationStrategyName =
+  (name: string): name is RecommendationStrategyName =>
+    recommendationStrategyNames.has(name);
+
+export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNames>;
+
+export const recommendationFeatureNames = new TupleSet([
+  "karma",
+  "curated",
+  "tagSimilarity",
+  "collabFilter",
+] as const);
+
+export const isRecommendationFeatureName =
+  (name: string): name is RecommendationFeatureName =>
+    recommendationFeatureNames.has(name);
+
+export type RecommendationFeatureName = UnionOf<typeof recommendationFeatureNames>;
+
+export type WeightedFeature = {
+  feature: RecommendationFeatureName,
+  weight: number,
+}
+
+export interface StrategySettings {
+  postId: string,
+  bias?: number,
+  features?: WeightedFeature[],
+}
+
+export interface StrategySpecification extends StrategySettings {
+  name: RecommendationStrategyName,
+  forceLoggedOutView?: boolean,
+}
+
+export interface RecommendationsAlgorithmWithStrategy {
+  strategy: StrategySpecification,
+  count?: number,
+}
+
+export interface DefaultRecommendationsAlgorithm {
   method: "top"|"sample"
   count?: number
   scoreOffset: number
@@ -23,14 +73,23 @@ export interface RecommendationsAlgorithm {
   curatedModifier?: number
   frontpageModifier?: number
   personalBlogpostModifier?: number
-  
+
   hideFrontpage?: boolean,
   hideContinueReading?: boolean,
   hideBookmarks?: boolean,
   hideReview?: boolean,
 }
 
-export const defaultAlgorithmSettings: RecommendationsAlgorithm = {
+export type RecommendationsAlgorithm =
+  RecommendationsAlgorithmWithStrategy |
+  DefaultRecommendationsAlgorithm;
+
+export const recommendationsAlgorithmHasStrategy = (
+  algorithm: RecommendationsAlgorithm,
+): algorithm is RecommendationsAlgorithmWithStrategy =>
+  "strategy" in algorithm;
+
+export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   method: "top",
   count: 10,
   scoreOffset: 0,

@@ -48,8 +48,8 @@ export const RejectContentButton = ({contentWrapper, classes}: {
           <ReplayIcon className={classes.icon} onClick={unrejectContent}/>
         </LWTooltip>
     </span>}
-    {!content.rejected && content.authorIsUnreviewed && <span className={classes.button}>
-      <RejectedIcon className={classes.icon} onClick={() => setShowRejectionDialog(true)}/> <MetaInfo>Reject</MetaInfo>
+    {!content.rejected && content.authorIsUnreviewed && <span className={classes.button} onClick={() => setShowRejectionDialog(true)}>
+      <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
     </span>}
     {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
       <LWPopper

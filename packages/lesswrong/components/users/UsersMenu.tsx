@@ -210,12 +210,12 @@ const UsersMenu = ({classes}: {
                 {preferredHeadingCase("Private Messages")}
               </MenuItem>
             </Link>
-            {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
+            {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={isEAForum ? "/saved" : "/bookmarks"}>
               <MenuItem>
                 <ListItemIcon>
                   <BookmarksIcon className={classes.icon}/>
                 </ListItemIcon>
-                Bookmarks
+                {isEAForum ? "Saved posts" : "Bookmarks"}
               </MenuItem>
             </Link>}
             {currentUser.shortformFeedId &&

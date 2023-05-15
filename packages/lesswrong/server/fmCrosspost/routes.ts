@@ -76,9 +76,12 @@ export const addCrosspostRoutes = (app: Application) => {
       } catch (e) {
           // eslint-disable-next-line no-console
         console.error('Error when making cross-site GET request', { route: route.path, error: e });
+        const errorCode = e instanceof ApiError ? e.code : 501;
+        // Return a 200 to avoid this triggering a health check failure,
+        // the error is still handled in makeCrossSiteRequest on the server making the request
         return res
-          .status(e instanceof ApiError ? e.code : 501)
-          .send({error: e.message ?? "An unknown error occurred"})
+          .status(200)
+          .send({error: {message: e.message ?? "An unknown error occurred", code: errorCode}})
       }
 
       const decodedResponse = route.responseValidator.decode(response);
@@ -86,7 +89,9 @@ export const addCrosspostRoutes = (app: Application) => {
       if (isLeft(decodedResponse)) {
           // eslint-disable-next-line no-console
         console.error('Invalid response body when making cross-site GET request', { response, errors: decodedResponse.left.flatMap(e => e.context) });
-        return res.status(501).send({ error: 'An unknown error occurred' });
+        // Return a 200 to avoid this triggering a health check failure,
+        // the error is still handled in makeCrossSiteRequest on the server making the request
+        return res.status(200).send({ error: {message: 'An unknown error occurred' , code: 501 }});
       }
 
       return res.send(response);
@@ -108,9 +113,12 @@ export const addCrosspostRoutes = (app: Application) => {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error when making cross-site POST request', { route: route.path, error: e });
+        const errorCode = e instanceof ApiError ? e.code : 501;
+        // Return a 200 to avoid this triggering a health check failure,
+        // the error is still handled in makeCrossSiteRequest on the server making the request
         return res
-          .status(e instanceof ApiError ? e.code : 501)
-          .send({error: e.message ?? "An unknown error occurred"})
+          .status(200)
+          .send({error: {message: e.message ?? "An unknown error occurred", code: errorCode }})
       }
 
       const decodedResponse = route.responseValidator.decode(response);
@@ -118,7 +126,9 @@ export const addCrosspostRoutes = (app: Application) => {
       if (isLeft(decodedResponse)) {
         // eslint-disable-next-line no-console
         console.error('Invalid response body when making cross-site GET request', { response, errors: decodedResponse.left.flatMap(e => e.context) });
-        return res.status(501).send({ error: 'An unknown error occurred' });
+        // Return a 200 to avoid this triggering a health check failure,
+        // the error is still handled in makeCrossSiteRequest on the server making the request
+        return res.status(200).send({ error: {message: 'An unknown error occurred', code: 501 }});
       }
 
       return res.send(response);

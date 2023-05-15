@@ -7,7 +7,7 @@ import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
-
+import { max } from "underscore";
 
 //////////////////
 // Link Helpers //
@@ -335,4 +335,17 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
 
 export const isNotHostedHere = (post: PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
+}
+
+const mostRelevantTag = (
+  tags: TagPreviewFragment[],
+  tagRelevance: Record<string, number>,
+): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+
+export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
+  const {tags, tagRelevance} = post;
+  const core = tags.filter(({core}) => core);
+  const potentialTags = core.length < 1 && includeNonCore ? tags : core;
+  const result = mostRelevantTag(potentialTags, tagRelevance);
+  return typeof result === "object" ? result : undefined;
 }

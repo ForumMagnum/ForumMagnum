@@ -23,22 +23,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, popperGap, classes}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
+  autoPlace?: boolean,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
-  
+
   // This is fine with SSR because the popper will only be rendered after use
   // interaction
   const isDesktopWatched = useIsAboveBreakpoint('xl');
 
-  const popperPlacement: PopperPlacementType = isDesktopWatched ? 'right-start' : 'left-start'
+  const popperPlacement: PopperPlacementType = isDesktopWatched || !autoPlace
+    ? 'right-start'
+    : 'left-start';
   let gapStyle: CSSProperties | undefined
   if (popperGap) {
     switch (popperPlacement) {
@@ -50,7 +54,7 @@ const PostActionsButton = ({post, vertical, popperGap, classes}: {
         break;
     }
   }
-  
+
   const handleSetOpen = (open: boolean) => {
     captureEvent("tripleDotClick", {open, itemType: "post", postId: post._id})
     setIsOpen(open);
@@ -73,7 +77,7 @@ const PostActionsButton = ({post, vertical, popperGap, classes}: {
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <PostActions post={post} closeMenu={() => handleSetOpen(false)}/>
+        <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>

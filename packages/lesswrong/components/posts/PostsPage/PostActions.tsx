@@ -14,9 +14,10 @@ const styles = (_theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActions = ({post, closeMenu, classes}: {
+const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: ()=>void,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -30,6 +31,7 @@ const PostActions = ({post, closeMenu, classes}: {
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, DropdownMenu,
   } = Components;
+
 
   if (!post) return null;
   const postAuthor = post.user;
@@ -81,7 +83,7 @@ const PostActions = ({post, closeMenu, classes}: {
         subscribeMessage="Subscribe to comments"
         unsubscribeMessage="Unsubscribe from comments"
       />
-      <BookmarkDropdownItem post={post} />
+      {includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideCommentVisibility />
       <HideFrontpagePostDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>

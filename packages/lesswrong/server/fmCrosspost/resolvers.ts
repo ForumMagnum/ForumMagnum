@@ -66,7 +66,7 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   // Assertion is safe because either we got a result or we threw an error or returned
   const json = await result!.json();
   const validatedResponse = route.responseValidator.decode(json);
-  if (isLeft(validatedResponse)) {
+  if (isLeft(validatedResponse) || 'error' in json) {
     // eslint-disable-next-line no-console
     console.error("Cross-site request failed:", json);
     let errorMessage = onErrorMessage;

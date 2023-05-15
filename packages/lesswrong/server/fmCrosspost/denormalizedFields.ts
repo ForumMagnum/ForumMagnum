@@ -11,19 +11,22 @@ import pick from "lodash/pick";
  * in database selectors (but these rules aren't strict).
  *
  * When adding a new field here, make sure to also update isValidDenormalizedData
+ * and DenormalizedCrosspostValidator.
  */
 export const denormalizedFieldKeys = [
   "draft",
   "deletedDraft",
   "title",
   "isEvent",
+  "question",
 ] as const;
 
 export const isValidDenormalizedData = (payload: unknown): payload is DenormalizedCrosspostData =>
   hasBooleanParam(payload, "draft") &&
   hasBooleanParam(payload, "deletedDraft") &&
   hasStringParam(payload, "title") &&
-  hasBooleanParam(payload, "isEvent");
+  hasBooleanParam(payload, "isEvent") &&
+  hasBooleanParam(payload, "question");
 
 export type DenormalizedCrosspostData = Pick<DbPost, typeof denormalizedFieldKeys[number]>;
 

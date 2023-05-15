@@ -32,6 +32,7 @@ const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
+    primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
     fonts: {sansSerifStack, serifStack},
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
@@ -128,6 +129,10 @@ export const eaForumTheme: SiteThemeSpecification = {
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
+        cloudinaryFont: {
+          stack: "'Inter', sans-serif",
+          url: "https://fonts.googleapis.com/css?family=Inter",
+        },
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,
@@ -364,7 +369,21 @@ export const eaForumTheme: SiteThemeSpecification = {
           root: {
             backgroundColor: palette.lwTertiary.main
           }
-        }
+        },
+        MuiMenuItem: {
+          root: {
+            fontFamily: sansSerifStack,
+            fontWeight: 500,
+            fontSize: "1.1rem",
+            color: palette.grey[900],
+          }
+        },
+        MuiListItemIcon: {
+          root: {
+            color: palette.grey[700],
+            marginRight: 12,
+          }
+        },
       }
     }
   }

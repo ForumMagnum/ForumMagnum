@@ -8,6 +8,7 @@ import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
 import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
+import { ensurePostgresViewsExist } from "../../../server/postgresView";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -65,6 +66,8 @@ const buildTables = async (client: SqlClient) => {
       }
     }
   }
+
+  await ensurePostgresViewsExist(client);
 }
 
 const makeDbName = (id?: string) => {
@@ -82,7 +85,7 @@ const createTemporaryConnection = async () => {
   if (!PG_URL) {
     throw new Error("Can't initialize test DB - PG_URL not set");
   }
-  client = await createSqlConnection(PG_URL);
+  client = await createSqlConnection(PG_URL, true);
   setSqlClient(client);
   return client;
 }
@@ -110,7 +113,7 @@ export const createTestingSqlClient = async (
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
-  sql = await createSqlConnection(testUrl);
+  sql = await createSqlConnection(testUrl, true);
   await buildTables(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
@@ -133,7 +136,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   let sql = await createTemporaryConnection();
   await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
-  sql = await createSqlConnection(testUrl);
+  sql = await createSqlConnection(testUrl, true);
   setSqlClient(sql);
   return {
     sql,

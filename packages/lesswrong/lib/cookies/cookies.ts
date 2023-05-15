@@ -80,6 +80,12 @@ export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
 });
 
+export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
+  name: "hide_import_eag_profile",
+  type: "functional",
+  description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
+});
+
 // Third party cookies
 
 // Intercom
@@ -141,6 +147,7 @@ registerCookie({
 
 registerCookie({
   name: "_hjSessionUser_[*]",
+  matches: (name: string) => name.startsWith("_hjSessionUser_"),
   type: "functional",
   thirdPartyName: "Hotjar",
   description:
@@ -201,3 +208,14 @@ registerCookie({
   thirdPartyName: "Google",
   description: "This cookie name is associated with Google. It is set by Google to identify the user and is used in support of the Google Identity application.",
 });
+
+// Google Recaptcha
+registerCookie({
+  name: "(various)",
+  type: "analytics",
+  thirdPartyName: "Google ReCaptcha",
+  description: "Google ReCaptcha may set a number of cookies under the 'google.com' domain in order to check for suspicious activity. " +
+               "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
+               "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
+});
+
