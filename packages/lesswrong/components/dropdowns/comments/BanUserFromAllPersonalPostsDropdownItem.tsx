@@ -5,23 +5,31 @@ import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import * as _ from 'underscore';
+import { clone } from 'underscore';
 
-const BanUserFromAllPersonalPostsMenuItem = ({comment, post}: {
+const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,
-  post: PostsBase,
+  post?: PostsBase,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {flash} = useMessages();
-  const { MenuItem } = Components;
-  
+
+  if (
+    !post ||
+    !userCanModeratePost(currentUser, post) ||
+    post.frontpageDate ||
+    !userOwns(currentUser, post)
+  ) {
+    return null;
+  }
+
   const handleBanUserFromAllPosts = (event: React.MouseEvent) => {
     if (!currentUser) return;
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your personal blog posts?")) {
       const commentUserId = comment.userId
-      let bannedPersonalUserIds = _.clone(currentUser.bannedPersonalUserIds) || []
+      let bannedPersonalUserIds = clone(currentUser.bannedPersonalUserIds) || []
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)
       }
@@ -31,20 +39,22 @@ const BanUserFromAllPersonalPostsMenuItem = ({comment, post}: {
     }
   }
 
-  if (userCanModeratePost(currentUser, post) && !post.frontpageDate && userOwns(currentUser, post)) {
-    return <MenuItem onClick={handleBanUserFromAllPosts}>
-      Ban from all your personal blog posts
-    </MenuItem>
-  } else {
-    return null
-  }
+  const {DropdownItem} = Components;
+  return (
+    <DropdownItem
+      title="Ban from all your personal blog posts"
+      onClick={handleBanUserFromAllPosts}
+    />
+  );
 }
 
-const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent('BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem);
+const BanUserFromAllPersonalPostsDropdownItemComponent = registerComponent(
+  'BanUserFromAllPersonalPostsDropdownItem', BanUserFromAllPersonalPostsDropdownItem,
+);
 
 declare global {
   interface ComponentTypes {
-    BanUserFromAllPersonalPostsMenuItem: typeof BanUserFromAllPersonalPostsMenuItemComponent,
+    BanUserFromAllPersonalPostsDropdownItem: typeof BanUserFromAllPersonalPostsDropdownItemComponent,
   }
 }
 

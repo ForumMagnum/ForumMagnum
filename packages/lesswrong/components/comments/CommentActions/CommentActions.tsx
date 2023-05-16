@@ -13,11 +13,12 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
 }) => {
   const {
     EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
-    RetractCommentDropdownItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
+    RetractCommentDropdownItem, BanUserFromAllPostsDropdownItem,
     MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
-    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersDropdownItem,
-    ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadDropdownItem,
+    BanUserFromAllPersonalPostsDropdownItem, MoveToAnswersDropdownItem,
+    ToggleIsModeratorCommentDropdownItem, PinToProfileDropdownItem,
     DropdownMenu, NotifyMeDropdownItem, ShortformFrontpageDropdownItem,
+    BanUserFromPostDropdownItem, LockThreadDropdownItem,
   } = Components;
 
   const {document: postDetails} = useSingle({
@@ -84,11 +85,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
     <RetractCommentDropdownItem comment={comment} />
     <LockThreadDropdownItem comment={comment} />
-
-    {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
-    {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
-    {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
-    <ToggleIsModeratorComment comment={comment}/>
+    <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
+    <BanUserFromAllPostsDropdownItem comment={comment} post={postDetails} />
+    <BanUserFromAllPersonalPostsDropdownItem comment={comment} post={postDetails} />
+    <ToggleIsModeratorCommentDropdownItem comment={comment} />
   </DropdownMenu>
 }
 

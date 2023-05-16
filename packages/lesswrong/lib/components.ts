@@ -119,6 +119,10 @@ importComponent("DeleteCommentDropdownItem", () => require('../components/dropdo
 importComponent("RetractCommentDropdownItem", () => require('../components/dropdowns/comments/RetractCommentDropdownItem'));
 importComponent("LockThreadDropdownItem", () => require('../components/dropdowns/comments/LockThreadDropdownItem'));
 importComponent("LockThreadDialog", () => require('../components/dropdowns/comments/LockThreadDialog'));
+importComponent("BanUserFromPostDropdownItem", () => require('../components/dropdowns/comments/BanUserFromPostDropdownItem'));
+importComponent("BanUserFromAllPostsDropdownItem", () => require('../components/dropdowns/comments//BanUserFromAllPostsDropdownItem'));
+importComponent("BanUserFromAllPersonalPostsDropdownItem", () => require('../components/dropdowns/comments/BanUserFromAllPersonalPostsDropdownItem'));
+importComponent("ToggleIsModeratorCommentDropdownItem", () => require('../components/dropdowns/comments/ToggleIsModeratorCommentDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -456,9 +460,6 @@ importComponent("CommentsItemMeta", () => require('../components/comments/Commen
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));
-importComponent("BanUserFromPostMenuItem", () => require('../components/comments/CommentActions/BanUserFromPostMenuItem'));
-importComponent("BanUserFromAllPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPostsMenuItem'));
-importComponent("BanUserFromAllPersonalPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPersonalPostsMenuItem'));
 importComponent("DeleteCommentDialog", () => require('../components/comments/CommentActions/DeleteCommentDialog'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
@@ -467,7 +468,6 @@ importComponent("CommentsMenu", () => require('../components/comments/CommentsIt
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
-importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
 importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));

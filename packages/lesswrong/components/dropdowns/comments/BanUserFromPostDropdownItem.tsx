@@ -4,25 +4,28 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import * as _ from 'underscore';
+import { clone } from 'underscore';
 
-const BanUserFromPostMenuItem = ({ comment, post }: {
+const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,
-  post: PostsDetails,
+  post?: PostsDetails,
 }) => {
   const currentUser = useCurrentUser();
-  const { flash } = useMessages();
-  const { MenuItem } = Components;
+  const {flash} = useMessages();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsPage',
   });
 
+  if (!post || !userCanModeratePost(currentUser, post)) {
+    return null;
+  }
+
   const handleBanUserFromPost = (event: React.MouseEvent) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
       const commentUserId = comment.userId
-      let bannedUserIds = _.clone(post.bannedUserIds) || []
+      let bannedUserIds = clone(post.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
@@ -36,20 +39,22 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
     }
   }
 
-  if (userCanModeratePost(currentUser, post)) {
-    return <MenuItem onClick={handleBanUserFromPost}>
-      Ban user from this post
-    </MenuItem>
-  } else {
-    return null
-  }
+  const {DropdownItem} = Components;
+  return (
+    <DropdownItem
+      title="Ban user from this post"
+      onClick={handleBanUserFromPost}
+    />
+  );
 };
 
-const BanUserFromPostMenuItemComponent = registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem);
+const BanUserFromPostDropdownItemComponent = registerComponent(
+  'BanUserFromPostDropdownItem', BanUserFromPostDropdownItem,
+);
 
 declare global {
   interface ComponentTypes {
-    BanUserFromPostMenuItem: typeof BanUserFromPostMenuItemComponent,
+    BanUserFromPostDropdownItem: typeof BanUserFromPostDropdownItemComponent,
   }
 }
 
