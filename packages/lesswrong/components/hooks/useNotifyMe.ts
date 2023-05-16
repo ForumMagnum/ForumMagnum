@@ -82,7 +82,7 @@ export const useNotifyMe = ({
   });
 
   // Get existing subscription, if there is one
-  const {results, loading} = useMulti({
+  const {results, loading, invalidateCache} = useMulti({
     terms: {
       view: "subscriptionState",
       documentId: document._id,
@@ -151,6 +151,12 @@ export const useNotifyMe = ({
       } as const;
 
       await createSubscription({data: newSubscription});
+
+      // We have to manually invalidate the cache as this hook can sometimes be
+      // unmounted before the create mutation has finished (eg; when used inside
+      // a dropdown item) which means that the automatic cache invalidation code
+      // won't be able to find the relevant query
+      invalidateCache();
 
       // Success message will be for example posts.subscribed
       flash({messageString: `Successfully ${
