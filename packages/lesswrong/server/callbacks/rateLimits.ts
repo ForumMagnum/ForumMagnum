@@ -154,7 +154,7 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
-      throw new Error(`Rate limit: You cannot comment until ${nextEligible}`);
+      throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
     }
   }
   
@@ -273,7 +273,6 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // if this user is a mod/admin or (on non-EAF forums) is the post author,
   // then they are exempt from all rate limits except for the "universal" 8 sec one
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
-  console.log({ignoreRateLimits})
   
   if (!ignoreRateLimits) {
     // If moderators have imposed a rate limit on this user, enforce that 

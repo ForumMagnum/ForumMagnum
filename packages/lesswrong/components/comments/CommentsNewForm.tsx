@@ -153,7 +153,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
   });
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment?.nextEligible;
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
   const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
