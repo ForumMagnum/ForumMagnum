@@ -1,9 +1,14 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
+import { isEAForum } from "../../lib/instanceSettings";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...(isEAForum && {
+      padding: 6,
+      borderRadius: theme.borderRadius.default,
+    }),
   },
 });
 

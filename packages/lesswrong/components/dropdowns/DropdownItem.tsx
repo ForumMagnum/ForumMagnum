@@ -9,6 +9,20 @@ import { isEAForum } from "../../lib/instanceSettings";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...(isEAForum && {
+      "&:hover": {
+        opacity: 1,
+      },
+    }),
+  },
+  main: {
+    ...(isEAForum && {
+      borderRadius: theme.borderRadius.default,
+      "&:hover": {
+        background: theme.palette.grey[100],
+        "& svg": {
+          color: theme.palette.grey[1000],
+        },
+      },
     }),
   },
   title: {
@@ -50,7 +64,8 @@ export type DropdownItemProps = DropdownItemAction & {
   loading?: boolean,
 }
 
-const DummyWrapper: FC = ({children}) => <>{children}</>;
+const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
+  <div className={className}>{children}</div>;
 
 const DropdownItem = ({
   title,
@@ -68,12 +83,12 @@ const DropdownItem = ({
   const LinkWrapper = to ? Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
   return (
-    <LinkWrapper to={to!}>
+    <LinkWrapper to={to!} className={classes.root}>
       <TooltipWrapper title={tooltip!} className={classes.tooltip}>
         <MenuItem
           onClick={onClick}
           disabled={disabled}
-          className={classes.root}
+          className={classes.main}
         >
           {loading &&
             <ListItemIcon>
