@@ -114,6 +114,11 @@ importComponent("ReportCommentDropdownItem", () => require('../components/dropdo
 importComponent("MoveToAlignmentCommentDropdownItem", () => require('../components/dropdowns/comments/MoveToAlignmentCommentDropdownItem'));
 importComponent("SuggestAlignmentCommentDropdownItem", () => require('../components/dropdowns/comments/SuggestAlignmentCommentDropdownItem'));
 importComponent("MoveToAnswersDropdownItem", () => require('../components/dropdowns/comments/MoveToAnswersDropdownItem'));
+importComponent("ShortformFrontpageDropdownItem", () => require('../components/dropdowns/comments/ShortformFrontpageDropdownItem'));
+importComponent("DeleteCommentDropdownItem", () => require('../components/dropdowns/comments/DeleteCommentDropdownItem'));
+importComponent("RetractCommentDropdownItem", () => require('../components/dropdowns/comments/RetractCommentDropdownItem'));
+importComponent("LockThreadDropdownItem", () => require('../components/dropdowns/comments/LockThreadDropdownItem'));
+importComponent("LockThreadDialog", () => require('../components/dropdowns/comments/LockThreadDialog'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -449,15 +454,11 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
 importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
-importComponent("RetractCommentMenuItem", () => require('../components/comments/CommentActions/RetractCommentMenuItem'));
-importComponent("ShortformFrontpageMenuItem", () => require('../components/comments/CommentActions/ShortformFrontpageMenuItem'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));
-importComponent(["LockThreadMenuItem","LockThreadDialog"], () => require('../components/comments/CommentActions/LockThreadMenuItem'));
 importComponent("BanUserFromPostMenuItem", () => require('../components/comments/CommentActions/BanUserFromPostMenuItem'));
 importComponent("BanUserFromAllPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPostsMenuItem'));
 importComponent("BanUserFromAllPersonalPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPersonalPostsMenuItem'));
-importComponent("DeleteCommentMenuItem", () => require('../components/comments/CommentActions/DeleteCommentMenuItem'));
 importComponent("DeleteCommentDialog", () => require('../components/comments/CommentActions/DeleteCommentDialog'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));

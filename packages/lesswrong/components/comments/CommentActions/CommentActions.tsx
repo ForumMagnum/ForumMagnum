@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useSingle } from '../../../lib/crud/withSingle';
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
@@ -13,12 +12,12 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   showEdit: ()=>void,
 }) => {
   const {
-    EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentMenuItem,
-    RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
+    EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
+    RetractCommentDropdownItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
     MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
     BanUserFromAllPersonalPostsMenuItem, MoveToAnswersDropdownItem,
-    ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadMenuItem,
-    DropdownMenu, NotifyMeDropdownItem, ShortformFrontpageMenuItem,
+    ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadDropdownItem,
+    DropdownMenu, NotifyMeDropdownItem, ShortformFrontpageDropdownItem,
   } = Components;
 
   const {document: postDetails} = useSingle({
@@ -28,8 +27,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
   });
-
-  const showDeleteCommentItem = !!(postDetails||tag);
 
   const enableSubscribeToPost = Boolean(
     post &&
@@ -83,13 +80,11 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     }
 
     <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
+    <ShortformFrontpageDropdownItem comment={comment} />
+    <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
+    <RetractCommentDropdownItem comment={comment} />
+    <LockThreadDropdownItem comment={comment} />
 
-    <ShortformFrontpageMenuItem comment={comment}/>
-    {/** DeleteCommentMenuItem will still be hidden under some circumstances.
-     * It returns null if the user can't moderate their own comment (i.e. because it has children) */}
-    {showDeleteCommentItem && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
-    <RetractCommentMenuItem comment={comment}/>
-    {userIsAdminOrMod(currentUser) && <LockThreadMenuItem comment={comment}/>}
     {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
