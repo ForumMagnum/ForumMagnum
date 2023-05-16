@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isLW, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
@@ -86,13 +86,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (isEAForum) {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
       count: haveCurrentUser ? 3 : 5
     }
   }
-  if (forumTypeSetting.get() === "LessWrong") {
+  if (isLW) {
     return {
       lwRationalityOnly: true,
       method: 'sample',
@@ -104,8 +104,6 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
     count: haveCurrentUser ? 3 : 2
   }
 }
-
-const isLW = forumTypeSetting.get() === 'LessWrong'
 
 const RecommendationsAndCurated = ({
   configName,
@@ -149,14 +147,14 @@ const RecommendationsAndCurated = ({
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've bookmarked</div>
+      <div>Individual posts that you've {isEAForum ? 'saved' : 'bookmarked'}</div>
       <div><em>(Click to see all)</em></div>
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        {forumTypeSetting.get() === 'EAForum' ?
+        {isEAForum ?
           'Assorted suggested reading, including some of the ' :
           'Recently curated posts, as well as a random sampling of '}
         top-rated posts of all time
@@ -220,7 +218,7 @@ const RecommendationsAndCurated = ({
         )}
 
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && forumTypeSetting.get() === "LessWrong" && (
+        {!currentUser && isLW && (
           <div>
             {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
@@ -244,7 +242,7 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {forumTypeSetting.get() !== "EAForum" && (
+            {isEAForum && (
               <div className={classes.curated}>
                 <CuratedPostsList />
               </div>
@@ -275,8 +273,8 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={"/bookmarks"}>
-                  <SectionSubtitle>Bookmarks</SectionSubtitle>
+                <Link to={isEAForum ? "/saved" : "/bookmarks"}>
+                  <SectionSubtitle>{isEAForum ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />

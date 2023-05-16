@@ -287,6 +287,11 @@ interface UsersDefaultFragment { // fragment on Users
   readonly smallDownvoteCount: number,
   readonly bigUpvoteCount: number,
   readonly bigDownvoteCount: number,
+  readonly voteReceivedCount: number,
+  readonly smallUpvoteReceivedCount: number,
+  readonly smallDownvoteReceivedCount: number,
+  readonly bigUpvoteReceivedCount: number,
+  readonly bigDownvoteReceivedCount: number,
   readonly usersContactedBeforeReview: Array<string>,
   readonly fullName: string,
   readonly shortformFeedId: string,
@@ -356,8 +361,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly reviewForAlignmentForumUserId: string,
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
-  readonly rateLimitNextAbleToComment: Date,
   readonly rateLimitNextAbleToPost: any /*RateLimitInfo*/,
+  readonly rateLimitNextAbleToComment: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
