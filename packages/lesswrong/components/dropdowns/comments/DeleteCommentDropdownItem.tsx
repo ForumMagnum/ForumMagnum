@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
-import { useModerateComment } from '../../comments/CommentActions/withModerateComment';
+import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
