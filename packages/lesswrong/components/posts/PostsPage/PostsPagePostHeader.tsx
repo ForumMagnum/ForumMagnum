@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: isEAForum ? 25 : theme.spacing.unit*2,
   },
   headerLeft: {
     width:"100%"
@@ -34,30 +34,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:0,
   },
   secondaryInfo: {
-    fontSize: '1.4rem',
+    fontSize: isEAForum ? theme.typography.body1.fontSize : '1.4rem',
     fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
+    color: theme.palette.text.dim3,
   },
   groupLinks: {
     display: 'inline-block',
-    marginRight: 20
-  },
-  commentsLink: {
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
+  },
+  secondaryInfoLink: {
     display: "inline-block",
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    marginRight: SECONDARY_SPACING,
     "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default',
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
@@ -72,18 +70,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   actions: {
     display: 'inline-block',
-    color: theme.palette.icon.dim600,
+    color: theme.palette.grey[500],
     "@media print": { display: "none" },
   },
   authors: {
+    fontSize: theme.typography.body1.fontSize,
     display: 'inline-block',
     marginRight: SECONDARY_SPACING
   },
   feedName: {
-    fontSize: theme.typography.body2.fontSize,
     marginRight: SECONDARY_SPACING,
     display: 'inline-block',
-    color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -97,6 +94,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft:0,
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
+  },
+  commentIcon: {
+    fontSize: "1.4em",
+    marginRight: 1,
+    transform: "translateY(5px)",
   },
 });
 
@@ -147,6 +149,29 @@ const getResponseCounts = (
   };
 };
 
+const CommentsLink: FC<{
+  anchor: string,
+  children: React.ReactNode,
+  className?: string,
+}> = ({anchor, children, className}) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.querySelector(anchor);
+    if (elem) {
+      // Match the scroll behaviour from TableOfContentsList
+      window.scrollTo({
+        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
+        behavior: "smooth",
+      });
+    }
+  }
+  return (
+    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+      {children}
+    </a>
+  );
+}
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
@@ -160,7 +185,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton,
+    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
     NewFeaturePulse, ForumIcon} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -208,6 +233,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  
+  const commentCountNode = <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+    {isEAForum ?
+      <>
+        <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+      </> : postGetCommentCountStr(post, commentCount)
+    }
+  </CommentsLink>
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -241,8 +274,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
+          {post.question &&
+            <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
+              {postGetAnswerCountStr(answerCount)}
+            </CommentsLink>
+          }
+          {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+            {commentCountNode}
+          </LWTooltip> : commentCountNode}
+          {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
@@ -259,13 +299,13 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
               </NewFeaturePulse>
             )
           }
-          <div className={classes.commentsLink}>
-            <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
-          </div>
+          {post.startTime && <div className={classes.secondaryInfoLink}>
+            <AddToCalendarButton post={post} label="Add to calendar" hideTooltip={true} />
+          </div>}
           {!hideMenu &&
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} />
+                <PostActionsButton post={post} includeBookmark={!isEAForum} />
               </AnalyticsContext>
             </span>
           }

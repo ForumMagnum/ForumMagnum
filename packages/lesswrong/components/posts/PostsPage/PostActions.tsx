@@ -52,9 +52,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostActions = ({post, closeMenu, classes}: {
+const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: ()=>void,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -181,6 +182,15 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
+  const handleToggleDisableRecommendations = () => {
+    void updatePost({
+      selector: {_id: post._id},
+      data: {
+        disableRecommendation: !post.disableRecommendation,
+      },
+    });
+  }
+
   const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility, MenuItem } = Components
   if (!post) return null;
   const postAuthor = post.user;
@@ -280,7 +290,7 @@ const PostActions = ({post, closeMenu, classes}: {
           unsubscribeMessage="Unsubscribe from comments"
         />}
 
-        <BookmarkButton post={post} menuItem/>
+        {includeBookmark && <BookmarkButton post={post} variant='menuItem' />}
         <SetSideCommentVisibility />
         
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}
@@ -352,6 +362,16 @@ const PostActions = ({post, closeMenu, classes}: {
                  </MenuItem>
                </div>
             }
+
+             <div onClick={handleToggleDisableRecommendations}>
+               <MenuItem>
+                 {
+                   post.disableRecommendation
+                     ? "Include in recommendations"
+                     : "Exclude from recommendations"
+                 }
+               </MenuItem>
+             </div>
           </span>
         }
         {forumTypeSetting.get() !== "EAForum" && <>

@@ -15,7 +15,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
@@ -99,6 +99,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit *3
   },
   postContent: {}, //Used by a Cypress test
+  recommendations: {
+    maxWidth: MAX_COLUMN_WIDTH,
+    margin: "0 auto 40px",
+  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -108,7 +112,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: isEAForum ? 50 : undefined
+    paddingTop: isEAForum ? 16 : undefined
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -241,7 +245,8 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
+    PostsPageRecommendationsList,
   } = Components
 
   useEffect(() => {
@@ -266,6 +271,16 @@ const PostsPage = ({post, refetch, classes}: {
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
+
+  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
+  const showRecommendations = isEAForum &&
+    !post.shortform &&
+    !post.draft &&
+    !post.deletedDraft &&
+    !post.question &&
+    !post.debate &&
+    !sequenceId &&
+    recommendationsTestGroup === "recommended";
 
   const commentId = query.commentId || params.commentId
 
@@ -397,6 +412,14 @@ const PostsPage = ({post, refetch, classes}: {
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
+
+      {showRecommendations &&
+        <div className={classes.recommendations}>
+          <PostsPageRecommendationsList
+            strategy="tagWeightedCollabFilter"
+          />
+        </div>
+      }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
         {/* Answers Section */}

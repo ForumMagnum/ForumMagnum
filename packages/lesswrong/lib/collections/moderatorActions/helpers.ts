@@ -106,12 +106,19 @@ export function getReasonForReview(user: DbUser | SunshineUsersList, override?: 
   if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
-  const neverReviewed = !user.reviewedByUserId && !user.reviewedAt;
+  /**
+   * This covers several cases
+   * 1) never reviewed users
+   * 2) users who were removed from the review queue and weren't previously reviewed
+   * 3) users who were removed from the review queue and *were* previously reviewed
+   * 1 & 2 look indistinguishable, 3 will have a non-null reviewedAt date
+   */ 
+  const unreviewed = !user.reviewedByUserId;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
 
   if (fullyReviewed) return 'alreadyApproved';
 
-  if (neverReviewed) {
+  if (unreviewed) {
     if (user.mapLocation && isEAForum) return 'mapLocation';
     if (user.postCount) return 'firstPost';
     if (user.commentCount) return 'firstComment';

@@ -414,7 +414,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               }
             )}
           >
-            {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
+            {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classes.karma}>
               {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
             </PostsItem2MetaInfo>}
