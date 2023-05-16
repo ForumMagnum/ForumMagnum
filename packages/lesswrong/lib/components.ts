@@ -110,6 +110,7 @@ importComponent("ExcludeFromRecommendationsDropdownItem", () => require('../comp
 importComponent("PostAnalyticsDropdownItem", () => require('../components/dropdowns/posts/PostAnalyticsDropdownItem'));
 
 // Comment dropdown items
+importComponent("CommentsMenu", () => require('../components/dropdowns/comments/CommentsMenu'));
 importComponent("CommentActions", () => require('../components/dropdowns/comments/CommentActions'));
 importComponent("EditCommentDropdownItem", () => require('../components/dropdowns/comments/EditCommentDropdownItem'));
 importComponent("PinToProfileDropdownItem", () => require('../components/dropdowns/comments/PinToProfileDropdownItem'));
@@ -464,7 +465,6 @@ importComponent("CommentShortformIcon", () => require('../components/comments/Co
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
-importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
