@@ -59,7 +59,7 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
 
   const { results } = useMulti({
     collectionName: 'ModerationTemplates',
-    terms: { view: 'rejectionModerationTemplates' },
+    terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
     fragmentName: 'ModerationTemplateFragment'
   });
 

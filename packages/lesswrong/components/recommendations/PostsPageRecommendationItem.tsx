@@ -1,6 +1,5 @@
 import React, { FC, MouseEvent, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
 import { gql, useMutation } from "@apollo/client";
 import { useObserver } from "../hooks/useObserver";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
@@ -48,17 +47,30 @@ const styles = (theme: ThemeType) => ({
     transform: "translateY(-2px)",
     color: theme.palette.grey[400],
   },
+  titleContainer: {
+    flexGrow: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    display: "flex",
+    alignItems: "flex-start",
+    [theme.breakpoints.down("xs")]: {
+      whiteSpace: "unset",
+      flexDirection: "column",
+    },
+  },
   title: {
     fontSize: 16,
     fontWeight: 600,
     color: theme.palette.grey[1000],
     flexGrow: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
   },
   author: {
     textAlign: "right",
     whiteSpace: "nowrap",
+    [theme.breakpoints.down("xs")]: {
+      marginTop: 4,
+    },
   },
   coauthors: {
     marginLeft: 3,
@@ -85,7 +97,6 @@ const PostsPageRecommendationItem = ({
 }) => {
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
   const {onClick} = useClickableCell(postLink);
-  const currentUser = useCurrentUser();
   const [observeRecommendation] = useMutation(
     observeRecommendationMutation,
     {errorPolicy: "all"},
@@ -146,37 +157,38 @@ const PostsPageRecommendationItem = ({
           <SoftUpArrowIcon />
         </div>
       </div>
-      <div className={classes.title}>
+      <div className={classes.titleContainer}>
         <PostsTitle
           post={post}
           Wrapper={TitleWrapper}
           isLink={false}
           curatedIconLeft
+          className={classes.title}
         />
-      </div>
-      <div className={classes.author}>
-        <InteractionWrapper className={classes.interactionWrapper}>
-          <UsersName user={post.user} />
-          {post.coauthors.length > 0 &&
-            <LWTooltip
-              title={
-                <div>
-                  {post.coauthors.map((coauthor, i) =>
-                    <div key={i}>
-                      <UsersName user={coauthor} />
-                    </div>
-                  )}
-                </div>
-              }
-            >
-              <span className={classes.coauthors}>+{post.coauthors.length} more</span>
-            </LWTooltip>
-          }
-        </InteractionWrapper>
+        <div className={classes.author}>
+          <InteractionWrapper className={classes.interactionWrapper}>
+            <UsersName user={post.user} />
+            {post.coauthors.length > 0 &&
+              <LWTooltip
+                title={
+                  <div>
+                    {post.coauthors.map((coauthor, i) =>
+                      <div key={i}>
+                        <UsersName user={coauthor} />
+                      </div>
+                    )}
+                  </div>
+                }
+              >
+                <span className={classes.coauthors}>+{post.coauthors.length} more</span>
+              </LWTooltip>
+            }
+          </InteractionWrapper>
+        </div>
       </div>
       <div>
         <InteractionWrapper>
-          <PostActionsButton post={post} vertical />
+          <PostActionsButton post={post} vertical autoPlace />
         </InteractionWrapper>
       </div>
     </div>

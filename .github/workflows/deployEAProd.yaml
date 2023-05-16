@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
-        environment: [EAForum-Production-2]
+        environment: [EAForum-Production-2, EAForum-Api]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v2
