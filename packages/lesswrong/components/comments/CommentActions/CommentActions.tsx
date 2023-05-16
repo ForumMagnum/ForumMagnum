@@ -15,10 +15,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   const {
     EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentMenuItem,
     RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
-    MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
-    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem,
+    MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
+    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersDropdownItem,
     ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadMenuItem,
-    DropdownMenu, NotifyMeDropdownItem,
+    DropdownMenu, NotifyMeDropdownItem, ShortformFrontpageMenuItem,
   } = Components;
 
   const {document: postDetails} = useSingle({
@@ -75,13 +75,15 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
     />
     <ReportCommentDropdownItem comment={comment} post={post} />
+    <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
+    <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
 
-    {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
-    {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user &&
+      <Divider />
+    }
 
-    {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
+    <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
 
-    {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
     <ShortformFrontpageMenuItem comment={comment}/>
     {/** DeleteCommentMenuItem will still be hidden under some circumstances.
      * It returns null if the user can't moderate their own comment (i.e. because it has children) */}

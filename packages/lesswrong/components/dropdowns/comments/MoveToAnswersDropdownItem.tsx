@@ -5,21 +5,29 @@ import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
-const MoveToAnswersMenuItem = ({comment, post}: {
+const MoveToAnswersDropdownItem = ({comment, post}: {
   comment: CommentsList,
-  post: PostsBase,
+  post?: PostsBase,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const client = useApolloClient();
-  const { MenuItem } = Components;
 
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
-  
+
+  if (
+    comment.topLevelCommentId ||
+    !post?.question ||
+    !(userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)))
+  {
+    return null;
+  }
+
   const handleMoveToAnswers = async () => {
     await updateComment({
       selector: { _id: comment._id},
@@ -42,32 +50,30 @@ const MoveToAnswersMenuItem = ({comment, post}: {
     await client.resetStore()
   }
 
-  if (!comment.topLevelCommentId && post.question &&
-    (userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)))
-  {
-    if (comment.answer) {
-      return (
-        <MenuItem onClick={handleMoveToComments}>
-          Move To Comments
-        </MenuItem>
-      )
-    } else {
-      return (
-        <MenuItem onClick={handleMoveToAnswers}>
-          Move To Answers
-        </MenuItem>
-      )
-    }
-  } else {
-    return null
+  const {DropdownItem} = Components;
+  if (comment.answer) {
+    return (
+      <DropdownItem
+        title={preferredHeadingCase("Move To Comments")}
+        onClick={handleMoveToComments}
+      />
+    );
   }
+
+  return (
+    <DropdownItem
+      title={preferredHeadingCase("Move To Answers")}
+      onClick={handleMoveToAnswers}
+    />
+  );
 }
 
-const MoveToAnswersMenuItemComponent = registerComponent(
-  'MoveToAnswersMenuItem', MoveToAnswersMenuItem);
+const MoveToAnswersDropdownItemComponent = registerComponent(
+  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItem,
+);
 
 declare global {
   interface ComponentTypes {
-    MoveToAnswersMenuItem: typeof MoveToAnswersMenuItemComponent
+    MoveToAnswersDropdownItem: typeof MoveToAnswersDropdownItemComponent
   }
 }

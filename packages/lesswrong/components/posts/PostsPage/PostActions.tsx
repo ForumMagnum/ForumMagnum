@@ -27,9 +27,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
     HideFrontpagePostDropdownItem, SetSideCommentVisibility, NotifyMeDropdownItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
-    MoveToAlignmentDropdownItem, ShortformDropdownItem, ApproveNewUserDropdownItem,
+    MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
-    PostAnalyticsDropdownItem, DropdownMenu, ExcludeFromRecommendationsDropdownItem,
+    PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
+    ApproveNewUserDropdownItem,
   } = Components;
 
 
@@ -98,7 +99,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ExcludeFromRecommendationsDropdownItem post={post} />
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
-      <MoveToAlignmentDropdownItem post={post}/>
+      <MoveToAlignmentPostDropdownItem post={post}/>
     </DropdownMenu>
   );
 }

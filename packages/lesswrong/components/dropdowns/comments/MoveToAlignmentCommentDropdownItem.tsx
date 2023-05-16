@@ -31,9 +31,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MoveToAlignmentMenuItem = ({comment, post, classes}: {
+const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
-  post: PostsBase,
+  post?: PostsBase,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -43,8 +43,8 @@ const MoveToAlignmentMenuItem = ({comment, post, classes}: {
     collectionName: "Comments",
     fragmentName: 'CommentsList',
   });
-  
-  const handleMoveToAlignmentForum = async () => {
+
+  const handleMoveToAlignmentCommentForum = async () => {
     if (!currentUser) return;
     await updateComment({
       selector: { _id: comment._id},
@@ -72,47 +72,45 @@ const MoveToAlignmentMenuItem = ({comment, post, classes}: {
     flash("Comment and its children removed from AI Alignment Forum")
   }
 
-  const render = () => {
-    const { MenuItem, OmegaIcon } = Components
-    if (post.af && userCanDo(currentUser, 'comments.alignment.move.all')) {
-      if (!comment.af) {
-        return (
-          <MenuItem onClick={handleMoveToAlignmentForum}>
-            <ListItemIcon>
-              <span className={classes.iconRoot}>
-                <OmegaIcon className={classes.omegaIcon}/>
-                <ArrowRightAlt className={classes.moveIcon}/>
-              </span>
-            </ListItemIcon>
-            Move to Alignment
-          </MenuItem>
-        )
-      } else {
-        return (
-          <MenuItem onClick={handleRemoveFromAlignmentForum}>
-            <ListItemIcon>
-              <span className={classes.iconRoot}>
-                <OmegaIcon className={classes.omegaIcon} />
-                <Undo className={classes.undoIcon}/>
-              </span>
-            </ListItemIcon>
-            Remove from Alignment
-          </MenuItem>
-        )
-      }
-    } else  {
-      return null
-    }
+  if (!post?.af || !userCanDo(currentUser, 'comments.alignment.move.all')) {
+    return null;
   }
-  return render();
+
+  const {DropdownItem, OmegaIcon} = Components
+  if (!comment.af) {
+    return (
+      <DropdownItem
+        title="Move to Alignment"
+        onClick={handleMoveToAlignmentCommentForum}
+        icon={() => (
+          <span className={classes.iconRoot}>
+            <OmegaIcon className={classes.omegaIcon}/>
+            <ArrowRightAlt className={classes.moveIcon}/>
+          </span>
+        )}
+      />
+    );
+  }
+  return (
+    <DropdownItem
+      title="Remove from Alignment"
+      onClick={handleRemoveFromAlignmentForum}
+      icon={() => (
+        <span className={classes.iconRoot}>
+          <OmegaIcon className={classes.omegaIcon} />
+          <Undo className={classes.undoIcon}/>
+        </span>
+      )}
+    />
+  );
 }
 
-const MoveToAlignmentMenuItemComponent = registerComponent(
-  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {styles}
+const MoveToAlignmentCommentDropdownItemComponent = registerComponent(
+  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItem, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    MoveToAlignmentMenuItem: typeof MoveToAlignmentMenuItemComponent
+    MoveToAlignmentCommentDropdownItem: typeof MoveToAlignmentCommentDropdownItemComponent
   }
 }

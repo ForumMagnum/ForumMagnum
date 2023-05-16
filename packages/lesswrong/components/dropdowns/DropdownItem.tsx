@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC, ReactElement, MouseEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -38,7 +38,7 @@ export type DropdownItemAction = {
 export type DropdownItemProps = DropdownItemAction & {
   title: string,
   sideMessage?: string,
-  icon?: ForumIconName,
+  icon?: ForumIconName | (() => ReactElement),
   afterIcon?: ForumIconName,
   tooltip?: string,
   disabled?: boolean,
@@ -76,7 +76,10 @@ const DropdownItem = ({
           }
           {icon && !loading &&
             <ListItemIcon>
-              <ForumIcon icon={icon} />
+              {typeof icon === "string"
+                ? <ForumIcon icon={icon} />
+                : icon()
+              }
             </ListItemIcon>
           }
           <span className={classes.title}>{title}</span>
