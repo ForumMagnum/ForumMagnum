@@ -322,12 +322,6 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
-  {
-    name: 'bookmarks',
-    path: '/bookmarks',
-    componentName: 'BookmarksPage',
-    title: 'Bookmarks',
-  },
 
   // Tags redirects
   {
@@ -745,6 +739,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Cookie Policy',
     },
     {
+      name: 'bookmarksRedirect',
+      path: '/bookmarks',
+      redirect: () => '/saved'
+    },
+    {
+      name: 'savedPosts',
+      path: '/saved',
+      componentName: 'BookmarksPage',
+      title: 'Saved Posts',
+    },
+    {
       name: 'readHistory',
       path: '/history',
       componentName: 'ReadHistoryPage',
@@ -814,6 +819,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'Curated',
       path: '/curated',
       redirect: () => `/recommendations`,
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
     {
       name: 'Walled Garden',
@@ -1073,6 +1084,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
+    },
   ],
   default: [
     {
@@ -1103,6 +1120,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
   ],
 })

@@ -23,11 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, classes}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
   autoPlace?: boolean,
+  includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -76,7 +77,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, classes}: {
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <PostActions post={post} closeMenu={() => handleSetOpen(false)}/>
+        <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
