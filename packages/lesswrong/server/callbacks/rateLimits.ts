@@ -109,22 +109,28 @@ async function enforcePostRateLimit (user: DbUser) {
   }
 }
 
-const userNumberOfCommentsOnOthersPostsInPastTimeframe = async (user: DbUser, hours: number) => {
+async function getCommentsInTimeframe (userId: string, maxTimeframe: number, postId?: string) {
+  const commentsInTimeframe = await Comments.find(
+    { userId: userId, 
+      postId: postId ? postId : null,
+      postedAt: {$gte: moment().subtract(maxTimeframe, 'hours').toDate()}
+    }, {
+      sort: {postedAt: -1}, 
+      projection: {postId: 1, postedAt: 1}
+    }
+  ).fetch()
+  return commentsInTimeframe
+}
+
+const userCommentsOnOthersPostsInPastTimeframe = async (comments: Array<DbComment>, user: DbUser, hours: number) => {
   const mNow = moment();
-  const comments = await Comments.find({
-    userId: user._id,
-    createdAt: {
-      $gte: mNow.subtract(hours, 'hours').toDate(),
-       
-    },
-  }).fetch();
   const postIds = comments.map(comment => comment.postId)
   const postsNotAuthoredByCommenter = await Posts.find(
     { _id: {$in: postIds}, $or: [{userId: {$ne: user._id}}, {"coauthorStatuses.userId": {$ne: user._id}}]}, {projection: {_id:1}
   }).fetch()
   const postsNotAuthoredByCommenterIds = postsNotAuthoredByCommenter.map(post => post._id)
   const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
-  return commentsOnNonauthorPosts.length
+  return commentsOnNonauthorPosts
 }
 
 /**
@@ -205,7 +211,9 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 
   const modLimitNextPostDate = moderatorRateLimitHours ? getNextAbleToPostDate(postsInTimeframe, "hours", moderatorRateLimitHours) : null
+  
   const dailyLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "hours", maxPostsPer24HoursSetting.get())
+  
   const doublePostLimitNextPostDate = getNextAbleToPostDate(postsInTimeframe, "seconds", postIntervalSetting.get())
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
 
@@ -232,6 +240,25 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
       rateLimitType: "universal"
     }
   }
+  return null
+}
+
+export async function rateLimitDateWhenUserNextAbleToComment2(user: DbUser, postId?: string): Promise<RateLimitInfo|null> {
+  const highestStandardRateLimitHours = 24
+
+  // does the user have a moderator-assigned rate limit?
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+  const moderatorRateLimitHours = moderatorRateLimit ? getTimeframeForRateLimit(moderatorRateLimit?.type) : 0
+
+  // what's the longest rate limit timeframe being evaluated?
+  const maxTimeframe = moderatorRateLimit ? moderatorRateLimitHours : highestStandardRateLimitHours
+
+  // fetch the comments from within the maxTimeframe
+  
+
+  const commentsInTimeframe = getCommentsInTimeframe(user._id, maxTimeframe, postId)
+  
+
   return null
 }
 
@@ -281,9 +308,9 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
       const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
       // moderatorRateLimits should only apply to comments on posts by people other than the comment author
-      const commentsInPastTimeframe = await userNumberOfCommentsOnOthersPostsInPastTimeframe(user, hours)
+      const commentsInPastTimeframe = await userCommentsOnOthersPostsInPastTimeframe(user, hours)
     
-      if (commentsInPastTimeframe > 0) {
+      if (commentsInPastTimeframe.length > 0) {
         throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
       }
 
