@@ -290,7 +290,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
-    if (formDisabledDueToRateLimit && (userNextAbleToComment)) {
+    if (formDisabledDueToRateLimit && userNextAbleToComment) {
       const timeLeftOnUserRateLimitMS = new Date(userNextAbleToComment).getTime() - new Date().getTime()
       const timer = setTimeout(() => {
         setForceRefreshState((n) => (n+1));
