@@ -110,6 +110,7 @@ importComponent("PostAnalyticsDropdownItem", () => require('../components/dropdo
 // Comment dropdown items
 importComponent("EditCommentDropdownItem", () => require('../components/dropdowns/comments/EditCommentDropdownItem'));
 importComponent("PinToProfileDropdownItem", () => require('../components/dropdowns/comments/PinToProfileDropdownItem'));
+importComponent("ReportCommentDropdownItem", () => require('../components/dropdowns/comments/ReportCommentDropdownItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -456,7 +457,6 @@ importComponent("BanUserFromAllPostsMenuItem", () => require('../components/comm
 importComponent("BanUserFromAllPersonalPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPersonalPostsMenuItem'));
 importComponent("DeleteCommentMenuItem", () => require('../components/comments/CommentActions/DeleteCommentMenuItem'));
 importComponent("DeleteCommentDialog", () => require('../components/comments/CommentActions/DeleteCommentDialog'));
-importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));

@@ -20,6 +20,7 @@ import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
+import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
@@ -158,7 +159,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
-    Report: MuiReportIcon,
+    Report: ReportIcon,
     Tag: TagIcon,
     Eye: EyeIcon,
     EyeOutline: EyeOutlineIcon,

@@ -4,7 +4,6 @@ import Divider from '@material-ui/core/Divider';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -14,10 +13,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   showEdit: ()=>void,
 }) => {
   const {
-    EditCommentDropdownItem, ReportCommentMenuItem, DeleteCommentMenuItem,
+    EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentMenuItem,
     RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem,
     MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
-    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton,
+    BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem,
     ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadMenuItem,
     DropdownMenu, NotifyMeDropdownItem,
   } = Components;
@@ -75,11 +74,13 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
       unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
     />
+    <ReportCommentDropdownItem comment={comment} post={post} />
 
-    {post && <ReportCommentMenuItem comment={comment}/>}
     {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
+
     {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
+
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
     <ShortformFrontpageMenuItem comment={comment}/>
     {/** DeleteCommentMenuItem will still be hidden under some circumstances.
