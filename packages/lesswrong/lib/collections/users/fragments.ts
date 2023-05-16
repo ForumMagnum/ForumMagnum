@@ -216,22 +216,14 @@ registerFragment(`
 registerFragment(`
   fragment UsersCurrentCommentRateLimit on User {
     _id
-    rateLimitNextAbleToComment(postId: $postId)  {
-      nextEligible
-      rateLimitType
-      rateLimitMessage
-    }
+    rateLimitNextAbleToComment(postId: $postId)
   }
 `);
 
 registerFragment(`
   fragment UsersCurrentPostRateLimit on User {
     _id
-    rateLimitNextAbleToPost {
-      nextEligible
-      rateLimitType
-      rateLimitMessage
-    }
+    rateLimitNextAbleToPost
   }
 `);
 

@@ -67,7 +67,7 @@ augmentFieldsDict(Users, {
   rateLimitNextAbleToPost: {
     nullable: true,
     resolveAs: {
-      type: "RateLimitInfo",
+      type: GraphQLJSON,
       resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
         const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
         if (rateLimit) {
@@ -79,14 +79,6 @@ augmentFieldsDict(Users, {
     }
   }
 });
-
-addGraphQLSchema(`
-  type RateLimitInfo {
-    nextEligible: Date,
-    rateLimitType: String,
-    rateLimitMessage: String
-  }
-`)
 
 addGraphQLSchema(`
   type NewUserCompletedProfile {

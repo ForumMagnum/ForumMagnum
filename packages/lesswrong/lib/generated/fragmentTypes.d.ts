@@ -362,7 +362,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: any,
-  readonly rateLimitNextAbleToPost: any /*RateLimitInfo*/,
+  readonly rateLimitNextAbleToPost: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments

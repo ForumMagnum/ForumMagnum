@@ -2678,14 +2678,14 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: rateLimitInfoSchema,
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,
   },
 
   rateLimitNextAbleToPost: {
-    type: rateLimitInfoSchema,
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,

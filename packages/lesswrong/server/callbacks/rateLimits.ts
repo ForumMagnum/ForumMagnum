@@ -10,7 +10,6 @@ import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
-import { RateLimitReason } from '../../lib/collections/users/schema';
 
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
@@ -274,6 +273,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // if this user is a mod/admin or (on non-EAF forums) is the post author,
   // then they are exempt from all rate limits except for the "universal" 8 sec one
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
+  console.log({ignoreRateLimits})
   
   if (!ignoreRateLimits) {
     // If moderators have imposed a rate limit on this user, enforce that 
