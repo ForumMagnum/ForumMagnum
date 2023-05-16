@@ -192,13 +192,6 @@ const PostsListHeading: FC<{
       </>
     );
   }
-  if (tag.sequence) {
-    return (
-      <SectionTitle title={`Posts tagged ${tag.name}`}>
-        <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-      </SectionTitle>
-    );
-  }
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
