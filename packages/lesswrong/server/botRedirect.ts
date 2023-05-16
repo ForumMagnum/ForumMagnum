@@ -42,14 +42,9 @@ const getBaseUrl = () => {
 export const botRedirectMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const userAgent = req.headers["user-agent"];
   const botSiteBaseUrl = getBaseUrl();
-
-  if (!botSiteRedirectEnabledSetting.get() || !botSiteBaseUrl || !userAgent) {
-    return next();
-  }
-
   const userAgentRegexes = botSiteUserAgentRegexesSetting.get();
 
-  if (!userAgentRegexes) {
+  if (!botSiteRedirectEnabledSetting.get() || !botSiteBaseUrl || !userAgent || !userAgentRegexes) {
     return next();
   }
 
