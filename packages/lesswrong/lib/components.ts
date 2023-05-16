@@ -23,7 +23,6 @@ import { importComponent } from './vulcan-lib';
 // A few directories have `index.ts` files containing `importComponent` calls
 // for only the things in that directory. Those are imported here. This is not
 // required and we mostly haven't been doing it.
-import '../components/posts/PostActions';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
 import '../components/vulcan-core/vulcan-core-components';
@@ -87,6 +86,9 @@ importComponent("DropdownItem", () => require('../components/dropdowns/DropdownI
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
 
 // Post dropdown items
+importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
+importComponent("PostActionsButton", () => require('../components/dropdowns/posts/PostActionsButton'));
+importComponent("SetSideCommentVisibility", () => require('../components/dropdowns/posts/SetSideCommentVisibility'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/posts/SuggestCuratedDropdownItem'));
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/posts/DeleteDraftDropdownItem'));
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/posts/MoveToDraftDropdownItem'));
@@ -359,8 +361,6 @@ importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate'));
 importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'));
-
-importComponent("SetSideCommentVisibility", () => require('../components/posts/PostActions/SetSideCommentVisibility'));
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));

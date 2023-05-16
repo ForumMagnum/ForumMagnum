@@ -4,8 +4,13 @@ import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
+import { isEAForum } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    ...(isEAForum && {
+    }),
+  },
   title: {
     flexGrow: 1,
   },
@@ -68,6 +73,7 @@ const DropdownItem = ({
         <MenuItem
           onClick={onClick}
           disabled={disabled}
+          className={classes.root}
         >
           {loading &&
             <ListItemIcon>

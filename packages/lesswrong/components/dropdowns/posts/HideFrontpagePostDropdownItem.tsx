@@ -3,7 +3,7 @@ import { registerComponent, Components, fragmentTextForQuery } from '../../../li
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
-import { AllowHidingFrontPagePostsContext } from '../../posts/PostsPage/PostActions';
+import { AllowHidingFrontPagePostsContext } from './PostActions';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
