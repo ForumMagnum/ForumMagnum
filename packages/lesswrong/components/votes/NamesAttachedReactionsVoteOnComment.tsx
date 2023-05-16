@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   footerReactionHover: {
-    width: 170,
+    width: 300,
   },
   reactionCount: {
     fontSize: 14,
@@ -97,13 +97,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotLabel: {
     verticalAlign: "middle",
     marginLeft: 6,
+    display: "inline-block",
+    minWidth: 80,
   },
   hoverBallotReactDescription: {
     marginLeft: 25,
     marginBottom: 6,
+    fontSize: 11,
   },
   usersWhoReacted: {
-    marginLeft: 24,
+    marginLeft: 25,
+    fontSize: 11,
   },
   alreadyUsedReactions: {
     marginBottom: 12,
@@ -583,6 +587,7 @@ const AddReactionButton = ({voteProps, classes}: {
 
   return <LWTooltip
     disabled={open}
+    inlineBlock={false}
     title={<>Click to react to this comment</>}
   >
     <span

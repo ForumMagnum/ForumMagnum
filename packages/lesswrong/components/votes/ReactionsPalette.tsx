@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
-import some from 'lodash/some';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -43,8 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 300,
+    maxHeight: 170,
     overflowY: "scroll",
+    marginBottom: 12,
   },
 })
 
@@ -114,9 +114,12 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   if (!searchText || !searchText.length)
     return candidates;
   
+  searchText = searchText.toLowerCase();
+
   return candidates.filter(
-    reaction => reaction.name.startsWith(searchText)
-      || some(reaction.searchTerms, searchTerm=>searchTerm.startsWith(searchText))
+    reaction => reaction.name.toLowerCase().startsWith(searchText)
+      || reaction.label.toLowerCase().startsWith(searchText)
+      || reaction.searchTerms?.some(searchTerm => searchTerm.toLowerCase().startsWith(searchText))
   );
 }
 

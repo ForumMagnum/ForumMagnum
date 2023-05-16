@@ -183,11 +183,33 @@ export type NamesAttachedReactionType = {
 // Noun Project
 export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
+    name: "changemind",
+    label: "Changed Mind",
+    searchTerms: ["delta"],
+    svg: "/reactionImages/nounproject/delta.svg",
+    filter: { opacity: 0.6 },
+    description: "Changed my mind",
+  },
+  {
+    name: "insightful",
+    label: "Insightful",
+    searchTerms: ["lightbulb"],
+    svg: "/reactionImages/nounproject/lightbulb.svg",
+    description: (contentType) => `This ${contentType} adds insight to the conversation`,
+  },
+  {
     name: "scout",
     label: "Scout Mindset",
     searchTerms: ["binoculars"],
     svg: "/reactionImages/nounproject/binoculars.svg",
     description: (contentType) => `This ${contentType} exhibits Scout Mindset.`,
+  },
+  {
+    name: "scholarship",
+    label: "Virtue of Scholarship",
+    searchTerms: ["cited"],
+    svg: "/reactionImages/nounproject/scholarship.svg",
+    description: "This exhibits the Virtue of Scholarship",
   },
   {
     name: "concrete",
@@ -198,11 +220,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "This makes things more concrete by bringing in specifics or examples.",
   },
   {
-    name: "harsh",
-    label: "Too Harsh",
-    searchTerms: ["cactus","prickly"],
-    svg: "/reactionImages/nounproject/cactus.svg",
-    description: "This seems too harsh.",
+    name: "key",
+    label: "Key insight",
+    searchTerms: ["insight"],
+    svg: "/reactionImages/nounproject/key.svg",
+    description: "This is a key insight",
   },
   {
     name: "verified",
@@ -210,6 +232,27 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check","correct"],
     svg: "/reactionImages/nounproject/check.svg",
     description: "I checked this.",
+  },
+  {
+    name: "error",
+    label: "Wrong",
+    searchTerms: ["x","wrong","mistaken"],
+    svg: "/reactionImages/nounproject/x.svg",
+    description: "This seems wrong",
+  },
+  {
+    name: "support",
+    label: "Support",
+    searchTerms: ["pillar"],
+    svg: "/reactionImages/nounproject/pillar.svg",
+    description: `I am expressing supportiveness towards this`,
+  },
+  {
+    name: "harsh",
+    label: "Too Harsh",
+    searchTerms: ["cactus","prickly"],
+    svg: "/reactionImages/nounproject/cactus.svg",
+    description: "This seems too harsh.",
   },
   {
     name: "clear",
@@ -243,31 +286,17 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "React to signal agreement (in the negotiation-y sense of the word)",
   },
   {
+    name: "hitsTheMark",
+    label: "Hits the Mark",
+    searchTerms: ["bullseye","accurate"],
+    svg: "/reactionImages/nounproject/bullseye.svg",
+    description: "This hits the mark",
+  },
+  {
     name: "miss",
     label: "Missed the point",
     svg: "/reactionImages/nounproject/inaccurate.svg",
     description: "This seemed to focus in the wrong places, not on the core of the issue under discussion.",
-  },
-  {
-    name: "key",
-    label: "Key insight",
-    searchTerms: ["insight"],
-    svg: "/reactionImages/nounproject/key.svg",
-    description: "This is a key insight",
-  },
-  {
-    name: "support",
-    label: "Support",
-    searchTerms: ["pillar"],
-    svg: "/reactionImages/nounproject/pillar.svg",
-    description: `I am expressing supportiveness towards this`,
-  },
-  {
-    name: "scholarship",
-    label: "Virtue of Scholarship",
-    searchTerms: ["cited"],
-    svg: "/reactionImages/nounproject/scholarship.svg",
-    description: "This exhibits the Virtue of Scholarship",
   },
   {
     name: "combative",
@@ -276,20 +305,6 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/swords.svg",
     description: "This seems combative",
     filter: { padding: 2 },
-  },
-  {
-    name: "hitsTheMark",
-    label: "Hits the Mark",
-    searchTerms: ["bullseye","accurate"],
-    svg: "/reactionImages/nounproject/bullseye.svg",
-    description: "This hits the mark",
-  },
-  {
-    name: "error",
-    label: "Wrong",
-    searchTerms: ["x","wrong","mistaken"],
-    svg: "/reactionImages/nounproject/x.svg",
-    description: "This seems wrong",
   },
   {
     name: "muddled",
@@ -356,13 +371,6 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "This is important information",
   },
   {
-    name: "insightful",
-    label: "Insightful",
-    searchTerms: ["lightbulb"],
-    svg: "/reactionImages/nounproject/lightbulb.svg",
-    description: (contentType) => `This ${contentType} adds insight to the conversation`,
-  },
-  {
     name: "shrug",
     label: "Shrug",
     svg: "/reactionImages/nounproject/shrug.svg",
@@ -376,24 +384,16 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "scales",
-    label: "Scales",
+    label: "Seems Borderline",
     searchTerms: ["balanced"],
     svg: "/reactionImages/nounproject/scales.svg",
-    description: "The evidence seems balanced",
+    description: "I think this could go either way",
   },
   {
     name: "thinking",
     label: "Thinking",
     svg: "/reactionImages/nounproject/thinking.svg",
     description: "Food for thought",
-  },
-  {
-    name: "changemind",
-    label: "Changed Mind",
-    searchTerms: ["delta"],
-    svg: "/reactionImages/nounproject/delta.svg",
-    filter: { opacity: 0.6 },
-    description: "Changed my mind",
   },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
