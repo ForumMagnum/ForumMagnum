@@ -22,7 +22,7 @@ class CollabFilterStrategy extends FeatureStrategy {
   ): Promise<RecommendationResult> {
     const features: WeightedFeature[] = [
       {feature: "karma", weight: 0.8},
-      {feature: "curated", weight: 0.075},
+      {feature: "curated", weight: 0.06},
     ];
 
     if (this.weightByTagSimilarity) {

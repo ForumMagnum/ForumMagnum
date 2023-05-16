@@ -660,6 +660,7 @@ importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'))
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
+importComponent("EAPostsItemTagRelevance", () => require('../components/tagging/EAPostsItemTagRelevance'));
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));

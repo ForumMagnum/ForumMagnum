@@ -64,7 +64,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tagRelWrapper: {
     position: "relative",
-    marginLeft: 30,
+    transform: "translateY(1px)",
+    marginLeft: 44,
+    marginRight: 14,
   },
   voteArrow: {
     color: theme.palette.grey[400],
@@ -237,6 +239,13 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
           <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
       </div>}
+      {tagRel &&
+        <div className={classes.tagRelWrapper}>
+          <InteractionWrapper className={classes.interactionWrapper}>
+            <PostsItemTagRelevance tagRel={tagRel} />
+          </InteractionWrapper>
+        </div>
+      }
     </>
   );
 
@@ -257,19 +266,10 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <div className={classes.expandedCommentsWrapper}>
           <div className={classes.container} onClick={onClick}>
             <div className={classes.karma}>
-              {tagRel
-                ? <div className={classes.tagRelWrapper}>
-                  <InteractionWrapper className={classes.interactionWrapper}>
-                    <PostsItemTagRelevance tagRel={tagRel} post={post} />
-                  </InteractionWrapper>
-                </div>
-                : <>
-                  <div className={classes.voteArrow}>
-                    <SoftUpArrowIcon />
-                  </div>
-                  <PostsItemKarma post={post} />
-                </>
-              }
+              <div className={classes.voteArrow}>
+                <SoftUpArrowIcon />
+              </div>
+              <PostsItemKarma post={post} />
             </div>
             <div className={classes.details}>
               <PostsTitle

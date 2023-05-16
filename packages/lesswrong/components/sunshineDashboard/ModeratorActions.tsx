@@ -188,8 +188,14 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       selector: {_id: user._id},
       data: {
         needsReview: false,
-        reviewedByUserId: null, // this is necessary so that their next post/comment won't appear without being approved by a moderator
-        reviewedAt: new Date(), // this is necessary so it shows up that they appear in the "recently reviewed" list
+        // this is necessary so that their next post/comment won't appear without being approved by a moderator
+        reviewedByUserId: null,
+        /* 
+         * this is necessary so it shows up that they appear in the "recently reviewed" list
+         * for users who've been reviewed before, we update the date.  for users we haven't, we don't.
+         * see comment in `getReasonForReview` for more details
+         */
+        reviewedAt: user.reviewedAt ? new Date() : null,
         sunshineNotes: newNotes
       }
     })    

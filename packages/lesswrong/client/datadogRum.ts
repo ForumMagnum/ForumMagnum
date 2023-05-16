@@ -3,6 +3,7 @@ import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
+import { isServer } from '../lib/executionEnvironment';
 
 let datadogInitialized = false;
 
@@ -11,7 +12,7 @@ export async function initDatadog() {
 
   const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
-  if (forumTypeSetting.get() !== 'EAForum') return
+  if (isServer || forumTypeSetting.get() !== 'EAForum') return
   if (!analyticsCookiesAllowed) {
     // eslint-disable-next-line no-console
     console.log("Not initializing datadog because analytics cookies are not allowed")
