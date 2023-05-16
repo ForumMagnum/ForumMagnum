@@ -153,7 +153,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
   });
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment?.nextEligible;
+  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
+  const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
+  // Disable the form if there's a rate limit and it's more than 1 minute until it
+  // expires. (If the user is rate limited but it will expire sooner than that,
+  // don't disable the form; it'll probably expire before they finish typing their
+  // comment anyways, and this avoids an awkward interaction with the 15-second
+  // rate limit that's only supposed to be there to prevent accidental double posts.
+  // TODO
+  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
+
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
@@ -276,18 +287,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     currentUser && !currentUser.isReviewed 
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
-  
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment?.nextEligible;
-  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment)) ?? null;
-  const rateLimitType = userNextAbleToComment ? userNextAbleToComment.rateLimitType : null
-  
-  // Disable the form if there's a rate limit and it's more than 1 minute until it
-  // expires. (If the user is rate limited but it will expire sooner than that,
-  // don't disable the form; it'll probably expire before they finish typing their
-  // comment anyways, and this avoids an awkward interaction with the 15-second
-  // rate limit that's only supposed to be there to prevent accidental double posts.
-  // TODO
-  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
@@ -310,7 +309,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitType={rateLimitType} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()

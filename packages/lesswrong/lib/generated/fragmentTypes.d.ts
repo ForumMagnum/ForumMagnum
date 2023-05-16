@@ -361,8 +361,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly reviewForAlignmentForumUserId: string,
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
-  readonly rateLimitNextAbleToPost: any /*RateLimitInfo*/,
   readonly rateLimitNextAbleToComment: any,
+  readonly rateLimitNextAbleToPost: any /*RateLimitInfo*/,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
