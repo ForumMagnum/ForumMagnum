@@ -36,8 +36,8 @@ const getBaseUrl = () => {
  *
  * This function inspects the user agent and path of incoming requests. If the user agent matches
  * a certain pattern and the bot site redirect setting is enabled, it redirects the request to
- * the bot site. The redirect is a 307 (temporary) redirect to try and prevent search engines
- * from permanently indexing the bot site if we mess this up
+ * the bot site. The redirect is a 307 (temporary) redirect to try and prevent search engines and
+ * browser caches from permanently saving the bot site if we mess this up
  */
 export const botRedirectMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const userAgent = req.headers["user-agent"];
