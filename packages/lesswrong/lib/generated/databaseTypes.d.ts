@@ -980,6 +980,20 @@ interface DbUserMostValuablePost extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface UserRateLimitsCollection extends CollectionBase<DbUserRateLimit, "UserRateLimits"> {
+}
+
+interface DbUserRateLimit extends DbObject {
+  __collectionName?: "UserRateLimits"
+  userId: string
+  type: "allComments" | "allPosts"
+  intervalMs: number
+  actionsPerInterval: number
+  endedAt: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
 }
 
@@ -1413,6 +1427,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
+  UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1463,6 +1478,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
+  UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

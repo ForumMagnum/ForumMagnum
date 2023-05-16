@@ -12,6 +12,7 @@ import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 import { RateLimitReason } from '../../lib/collections/users/schema';
+import UserRateLimits from '../../lib/collections/userRateLimits/collection';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -102,6 +103,22 @@ export const getNthMostRecentItemDate = async function<
 
 };
 
+function getUserRateLimits(user: DbUser) {
+  return UserRateLimits.find({
+    userId: user._id,
+    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+  }, {
+    sort: {
+      createdAt: -1
+    }
+  }).fetch();
+}
+
+const isUserRateLimitOfType = <T extends DbUserRateLimit['type']>(type: T) => {
+  return (userRateLimit: DbUserRateLimit): userRateLimit is DbUserRateLimit & { type: T } => userRateLimit.type === type;
+};
+
+const MS_IN_HOUR = 1000 * 60 * 60;
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
@@ -110,7 +127,7 @@ async function enforcePostRateLimit (user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
     return;
   
-  const moderatorRateLimit = await getModeratorRateLimit(user)
+  const [moderatorRateLimit, userRateLimits] = await Promise.all([getModeratorRateLimit(user), getUserRateLimits(user)]);
   if (moderatorRateLimit) {
     const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
@@ -118,6 +135,18 @@ async function enforcePostRateLimit (user: DbUser) {
   
     if (postsInPastTimeframe > 0) {
       throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
+  }
+
+  const userPostRateLimit = userRateLimits.find(isUserRateLimitOfType('allPosts'));
+  if (userPostRateLimit) {
+    const intervalHours = userPostRateLimit.intervalMs / MS_IN_HOUR;
+    const allowedPostsPerInterval = userPostRateLimit.actionsPerInterval;
+
+    const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, intervalHours);
+    if (postsInPastTimeframe > allowedPostsPerInterval) {
+      // TODO: maybe something to show [x] days if >24 hours (or [x] weeks, [y] days if > 168 hours?)
+      throw new Error(`Sorry, you cannot submit more than ${allowedPostsPerInterval} posts per ${intervalHours} hours.`);
     }
   }
 
