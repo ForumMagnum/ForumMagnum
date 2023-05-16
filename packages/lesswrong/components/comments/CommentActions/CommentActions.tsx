@@ -19,7 +19,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, ShortformFrontpageMenuItem,
     BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton,
     ToggleIsModeratorComment, PinToProfileDropdownItem, LockThreadMenuItem,
-    DropdownMenu,
+    DropdownMenu, NotifyMeDropdownItem,
   } = Components;
 
   const {document: postDetails} = useSingle({
@@ -31,6 +31,19 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   });
 
   const showDeleteCommentItem = !!(postDetails||tag);
+
+  const enableSubscribeToPost = Boolean(
+    post &&
+    comment.shortform &&
+    !comment.topLevelCommentId &&
+    (comment.user?._id && (comment.user._id !== currentUser._id))
+  );
+
+  const enableSubscribeToCommentUser = Boolean(
+    comment.user?._id &&
+    (comment.user._id !== currentUser._id) &&
+    !comment.deleted
+  );
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
@@ -45,23 +58,24 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   return <DropdownMenu>
     <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
     <PinToProfileDropdownItem comment={comment} post={post} />
-    {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) && 
-      <NotifyMeButton asMenuItem document={post} showIcon
-        subscriptionType={subscriptionTypes.newShortform}
-        subscribeMessage={`Subscribe to ${post.title}`}
-        unsubscribeMessage={`Unsubscribe from ${post.title}`}
-      />
-    }
-    <NotifyMeButton asMenuItem document={comment} showIcon
+    <NotifyMeDropdownItem
+      document={post}
+      enabled={enableSubscribeToPost}
+      subscribeMessage={`Subscribe to ${post?.title}`}
+      unsubscribeMessage={`Unsubscribe from ${post?.title}`}
+    />
+    <NotifyMeDropdownItem
+      document={comment}
       subscribeMessage="Subscribe to comment replies"
       unsubscribeMessage="Unsubscribe from comment replies"
     />
-    {comment.user?._id && (comment.user._id !== currentUser._id) && !comment.deleted &&
-      <NotifyMeButton asMenuItem document={comment.user} showIcon
-        subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
-        unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
-      />
-    }
+    <NotifyMeDropdownItem
+      document={comment.user}
+      enabled={enableSubscribeToCommentUser}
+      subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
+      unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
+    />
+
     {post && <ReportCommentMenuItem comment={comment}/>}
     {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
