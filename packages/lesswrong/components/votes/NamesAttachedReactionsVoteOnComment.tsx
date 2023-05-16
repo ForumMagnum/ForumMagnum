@@ -1,4 +1,4 @@
-import React, { useRef, RefObject } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   footerReactionHover: {
-    width: 300,
+    width: 170,
   },
   reactionCount: {
     fontSize: 14,
@@ -69,6 +69,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& svg": {
       width: 18,
       height: 18,
+    },
+    "&:hover": {
+      filter: "opacity(0.8)",
     },
   },
   reactOrAntireact: {
@@ -404,6 +407,11 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   );
   
   return <div className={classes.hoverBallot}>
+    <ReactionsPalette
+      getCurrentUserReactionVote={getCurrentUserReactionVote}
+      toggleReaction={toggleReaction}
+    />
+
     {alreadyUsedReactionTypesByKarma.length>0 &&
       <div className={classes.alreadyUsedReactions}>
         {alreadyUsedReactionTypesByKarma.map(r =>
@@ -418,11 +426,6 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
         )}
       </div>
     }
-    
-    <ReactionsPalette
-      getCurrentUserReactionVote={getCurrentUserReactionVote}
-      toggleReaction={toggleReaction}
-    />
   </div>
 }
 
@@ -483,7 +486,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
       {usersWhoReacted
         .filter(r=>r.reactType!=="disagreed")
         .map((userReactInfo,i) =>
-          <span key={userReactInfo.userId}>
+          <span key={userReactInfo.userId} className={classes.userWhoReacted}>
             {(i>0) && <span>{", "}</span>}
             {userReactInfo.displayName}
           </span>
@@ -496,7 +499,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
         {usersWhoReacted
           .filter(r=>r.reactType==="disagreed")
           .map((userReactInfo,i) =>
-            <span key={userReactInfo.userId}>
+            <span key={userReactInfo.userId} className={classes.userWhoReacted}>
               {(i>0) && <span>{", "}</span>}
               {userReactInfo.displayName}
             </span>
@@ -574,21 +577,33 @@ const AddReactionButton = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
 }) => {
-  const { hover, anchorEl, eventHandlers } = useHover()
-  const { PopperCard } = Components;
+  const [open,setOpen] = useState(false);
+  const buttonRef = useRef<HTMLElement|null>(null);
+  const { PopperCard, LWClickAwayListener, LWTooltip } = Components;
 
-  return <span {...eventHandlers} className={classes.addReactionButton}>
-    <InsertEmoticonOutlined/>
-
-    {hover && <PopperCard
-      open={!!hover} anchorEl={anchorEl}
-      placement="bottom-start"
-      allowOverflow={true}
-      
+  return <LWTooltip
+    disabled={open}
+    title={<>Click to react to this comment</>}
+  >
+    <span
+      ref={buttonRef}
+      onClick={ev => setOpen(true)}
+      className={classes.addReactionButton}
     >
-      <NamesAttachedReactionsHoverBallot voteProps={voteProps} classes={classes}/>
-    </PopperCard>}
-  </span>
+      <InsertEmoticonOutlined/>
+  
+      {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        <PopperCard
+          open={open} anchorEl={buttonRef.current}
+          placement="bottom-start"
+          allowOverflow={true}
+          
+        >
+          <NamesAttachedReactionsHoverBallot voteProps={voteProps} classes={classes}/>
+        </PopperCard>
+      </LWClickAwayListener>}
+    </span>
+  </LWTooltip>
 }
 
 const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
