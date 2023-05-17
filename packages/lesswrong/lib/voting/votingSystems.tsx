@@ -245,6 +245,47 @@ registerVotingSystem({
   },
 });
 
+registerVotingSystem({
+  name: "threeAxisEmojis",
+  description: "Two-axis approve and agree, plus emoji reactions",
+  getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {
+    oldExtendedScore: any,
+    extendedVote: any,
+    currentUser: UsersCurrent,
+  }): any => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      const hasReaction = !!extendedVote?.[reaction];
+      return [reaction, (oldExtendedScore?.[reaction]||0) + (hasReaction?1:0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {
+    oldExtendedScore: any,
+    cancelledExtendedVote: any,
+    currentUser: UsersCurrent,
+  }): any => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      return [reaction, oldExtendedScore?.[reaction] - (oldVote?1:0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      return [reaction, sumBy(votes, v => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) return false;
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key]!=="neutral")
+        return true;
+    }
+    return false;
+  },
+});
 
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
