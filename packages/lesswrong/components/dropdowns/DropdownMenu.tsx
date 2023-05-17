@@ -18,7 +18,7 @@ const DropdownMenu = ({children, className, classes}: {
   classes: ClassesType,
 }) => {
   return (
-    <div className={classNames(classes.root, className)} >
+    <div className={classNames(classes.root, className)}>
       {children}
     </div>
   );

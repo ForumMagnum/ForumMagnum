@@ -58,6 +58,7 @@ export type DropdownItemProps = DropdownItemAction & {
   title: string,
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
+  iconClassName?: string,
   afterIcon?: ForumIconName,
   tooltip?: string,
   disabled?: boolean,
@@ -73,6 +74,7 @@ const DropdownItem = ({
   onClick,
   to,
   icon,
+  iconClassName,
   afterIcon,
   tooltip,
   disabled,
@@ -98,7 +100,7 @@ const DropdownItem = ({
           {icon && !loading &&
             <ListItemIcon>
               {typeof icon === "string"
-                ? <ForumIcon icon={icon} />
+                ? <ForumIcon icon={icon} className={iconClassName} />
                 : icon()
               }
             </ListItemIcon>

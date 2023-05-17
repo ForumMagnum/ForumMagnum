@@ -27,9 +27,13 @@ import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
+import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import MuiBookmarksIcon from "@material-ui/icons/Bookmarks";
 import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
@@ -45,6 +49,10 @@ import MuiShowChartIcon from "@material-ui/icons/ShowChart";
 import MuiNotesIcon from "@material-ui/icons/Notes";
 import MuiWarningIcon from "@material-ui/icons/Warning";
 import MuiLocationIcon from "@material-ui/icons/LocationOn";
+import MuiSettingsIcon from "@material-ui/icons/Settings";
+import MuiEmailIcon from "@material-ui/icons/Email";
+import MuiPuzzleIcon from "@material-ui/icons/Extension";
+import MuiCheckIcon from "@material-ui/icons/Check";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -66,6 +74,7 @@ export type ForumIconName =
   "VolumeUp" |
   "Bookmark" |
   "BookmarkBorder" |
+  "Bookmarks" |
   "BellBorder" |
   "Karma" |
   "KarmaOutline" |
@@ -100,13 +109,17 @@ export type ForumIconName =
   "Card" |
   "List" |
   "PlusSmall" |
-  "MinusSmall";
+  "MinusSmall" |
+  "Settings" |
+  "Email" |
+  "Puzzle";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
+    Bookmarks: MuiBookmarksIcon,
     BellBorder: MuiBellBorderIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
@@ -138,7 +151,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
-    Check: CheckIcon,
+    Settings: MuiSettingsIcon,
+    Email: MuiEmailIcon,
+    Puzzle: MuiPuzzleIcon,
+    Check: MuiCheckIcon,
     Card: CardIcon,
     List: ListIcon,
   },
@@ -146,6 +162,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
+    Bookmarks: BookmarkIcon,
     BellBorder: BellOutlineIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
@@ -177,6 +194,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Settings: SettingsIcon,
+    Email: EmailIcon,
+    Puzzle: PuzzleIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
