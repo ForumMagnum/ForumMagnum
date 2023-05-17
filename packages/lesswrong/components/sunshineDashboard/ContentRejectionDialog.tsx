@@ -44,6 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 12,
     color: theme.palette.grey[500],
     opacity: .2
+  },
+  loadMore: {
+    paddingTop: 6,
+    paddingLeft: 12,
+    paddingBottom: 20
   }
 });
 
@@ -61,7 +66,8 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     collectionName: 'ModerationTemplates',
     terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
     fragmentName: 'ModerationTemplateFragment',
-    enableTotal: true
+    enableTotal: true,
+    limit: 6
   });
 
   if (!results) return null;
@@ -105,7 +111,9 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
         </LWTooltip>
       </div>
     })}
-    <LoadMore {...loadMoreProps} />
+    <div className={classes.loadMore}>
+      <LoadMore {...loadMoreProps} />
+    </div>
     <TextField
       id="comment-moderation-rejection-reason"
       label="Full message"
