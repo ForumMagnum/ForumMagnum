@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -10,7 +11,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    minWidth: 300,
+    minWidth: isEAForum ? undefined : 300,
   },
 })
 
