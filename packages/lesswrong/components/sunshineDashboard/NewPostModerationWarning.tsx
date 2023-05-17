@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
+export const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

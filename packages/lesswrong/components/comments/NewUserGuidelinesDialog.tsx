@@ -1,17 +1,19 @@
 import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { forumSelect } from '../../lib/forumTypeUtils';
+import { useSingle } from "../../lib/crud/withSingle";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+
+const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
 const styles = (theme: ThemeType): JssStyles => ({
   moderationGuidelines: {
     ...theme.typography.body2,
+    padding: 30,
     fontFamily: theme.typography.postStyle.fontFamily,
     '& a': {
       color: theme.palette.primary.main,
@@ -25,7 +27,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
-  const { LWDialog } = Components;
+  const { LWDialog, ContentItemBody, ContentStyles, Loading } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
@@ -45,33 +47,36 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
 
     onClose();
   }
-
-  const dialogContent = forumSelect({
-    LessWrong: <>
-      <DialogTitle>
-        Read this before commenting
-      </DialogTitle>
-      <DialogContent className={classes.moderationGuidelines}>
-        <p>Welcome to LessWrong!</p>
-        <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
-        <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
-        <p>We especially advise reading <Link to="/rationality">R:A-Z</Link> and <Link to="/codex">The Codex</Link>, since they help set the tone and standard for the site broadly.</p>
-        <p>For more detail on LessWrong's purpose and values, see our <Link to="/about">About</Link> page.</p>
-        <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
-      </DialogContent>
-    </>,
-    default: <></>
+  
+  const documentId = firstCommentAcknowledgeMessageCommentIdSetting.get()
+  
+  const {document, loading} = useSingle({
+    documentId,
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+    skip: !documentId
   });
   
+  const { html = "" } = document?.contents || {}
+  
   return (
-    <LWDialog open={true}>
-      {dialogContent}
-      <DialogActions>
-        <Button onClick={handleClick}>
-          Acknowledge
-        </Button>
-      </DialogActions>
-    </LWDialog>
+    <AnalyticsContext pageSectionContext="firstCommentAcknowledgeDialog">
+      <LWDialog open={true}>
+        <ContentStyles contentType="post" className={classes.moderationGuidelines}>
+          {loading && <Loading/>}
+          {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
+          {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
+        </ContentStyles>
+        <DialogActions>
+          <Button>
+            This was your father's rock
+          </Button>
+          <Button onClick={handleClick}>
+            I have read and understood
+          </Button>
+        </DialogActions>
+      </LWDialog>
+    </AnalyticsContext>
   )
 };
 
