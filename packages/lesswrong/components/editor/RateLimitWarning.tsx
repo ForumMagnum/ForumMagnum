@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
-import { RateLimitType } from '../../server/callbacks/rateLimits';
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
 const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
@@ -10,7 +9,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
 }) => {
   // default message tells the user how long they have to wait
   const fromNow = moment(lastRateLimitExpiry).fromNow()
-  let message = `Please wait ${fromNow} before commenting again. ${rateLimitMessage ?? ''}`
+  let message = `Please wait ${fromNow} before posting again. ${rateLimitMessage ?? ''}`
 
   return <Components.WarningBanner message={message} />
 }

@@ -3,9 +3,8 @@ import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions'
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
 import Comments from '../../lib/collections/comments/collection';
-import { MODERATOR_ACTION_TYPES, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
-import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
@@ -104,7 +103,7 @@ async function enforcePostRateLimit (user: DbUser) {
   if (rateLimit) {
     const {nextEligible} = rateLimit;
     if (nextEligible > new Date()) {
-      throw new Error(`Rate limit: You cannot post until ${nextEligible}`);
+      throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
     }
   }
 }
@@ -219,7 +218,7 @@ function isStrictestRateLimit(rateLimitDate: Date | null, allPossibleDates: Arra
 function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
   // for each rate limit, get the next date that user could post
   const modLimitNextPostDate = (modRateLimitHours > 0) ? getNextAbleToSubmitDate(postsInTimeframe, "hours", modRateLimitHours, 1) : null
-  const dailyLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "hours", maxPostsPer24HoursSetting.get(), 1)
+  const dailyLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "hours", 24, maxPostsPer24HoursSetting.get())
   const doublePostLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "seconds", postIntervalSetting.get(), 1)
 
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
@@ -280,17 +279,17 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
   const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0) && !!postId;
   const commentsOnSpecificPostInTimeframe = relevantCommentsInTimeframe.filter(comment => postId && comment.postId === postId);
   const modLimitNextCommentOnPostDate = eligibleForCommentOnSpecificPostRateLimit
-    ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modRateLimitHours, 3)
+    ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modPostSpecificRateLimitHours, 3)
     : null;
 
   const hasLowKarmaRateLimit = checkLowKarmaCommentRateLimit(user);
   const lowKarmaNextCommentDate = hasLowKarmaRateLimit
-    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", modRateLimitHours, 1)
+    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", .5, 4)
     : null;
 
   const hasDownvoteRatioRateLimit = checkDownvoteRatioCommentRateLimit(user);
   const highDownvoteRatioNextCommentDate = hasDownvoteRatioRateLimit
-    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", modRateLimitHours, 1)
+    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", .5, 4)
     : null;
 
   const doubleCommentLimitNextCommentDate = getNextAbleToSubmitDate(commentsInTimeframe, "seconds", commentIntervalSetting.get(), 1);
