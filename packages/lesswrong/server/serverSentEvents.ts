@@ -25,7 +25,6 @@ export function addServerSentEventsEndpoint(app: Express) {
     }
     
     const userId = currentUser._id;
-    console.log(`Opened notification channel for user ${userId}`); //DEBUG
     if (!(userId in openConnections)) {
       openConnections[userId] = [{res, newestNotificationTimestamp: null}];
     } else {
@@ -34,7 +33,6 @@ export function addServerSentEventsEndpoint(app: Express) {
 
     // If client closes connection, stop sending events
     res.on('close', () => {
-      console.log(`Notification channel for user ${userId} disconnected`); //DEBUG
       openConnections[userId] = openConnections[userId].filter(r => r.res!==res);
       if (!openConnections[userId].length)
         delete openConnections[userId];
@@ -48,6 +46,11 @@ export function addServerSentEventsEndpoint(app: Express) {
 let lastNotificationCheck = new Date();
 
 async function checkForNotifications() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
   const newNotifications = await Notifications.find({
     createdAt: {$gt: lastNotificationCheck}
   }, {
