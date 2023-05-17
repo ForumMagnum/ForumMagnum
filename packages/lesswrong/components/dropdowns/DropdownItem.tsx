@@ -23,6 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
           color: theme.palette.grey[1000],
         },
       },
+      "& .ForumIcon-root": {
+        fontSize: isEAForum ? 20 : undefined,
+      },
     }),
   },
   title: {
