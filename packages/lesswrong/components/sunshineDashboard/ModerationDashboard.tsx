@@ -136,7 +136,7 @@ const ModerationDashboard = ({ classes }: {
   };
   
   const { results: usersToReview = [], totalCount: totalUsersToReviewCount, loadMoreProps, refetch, loading } = useMulti({
-    terms: {view: "sunshineNewUsers", limit: 10},
+    terms: {view: "sunshineNewUsers", limit: 10, sunshineFlagged: true},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,

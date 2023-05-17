@@ -4,7 +4,7 @@ import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarn
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
-import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import { viewFieldAllowAny, viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -24,7 +24,8 @@ declare global {
     lng?: number
     lat?: number,
     profileTagId?: string,
-    hasBio?: boolean
+    hasBio?: boolean,
+    sunshineFlagged?: boolean
   }
 }
 
@@ -130,6 +131,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
     selector: {
       needsReview: true,
       banned: viewFieldNullOrMissing,
+      sunshineFlagged: terms.sunshineFlagged ? viewFieldAllowAny : false,
       reviewedByUserId: null,
       $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
     },
