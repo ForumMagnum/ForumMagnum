@@ -267,6 +267,15 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
         });
       }
     }
+    
+    const votingSystem = await getVotingSystemForDocument(document, context);
+    if (extendedVote && votingSystem.isAllowedExtendedVote) {
+      const oldExtendedScore = document.extendedScore;
+      const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, oldExtendedScore, extendedVote)
+      if (!extendedVoteCheckResult.allowed) {
+        throw new Error(extendedVoteCheckResult.reason);
+      }
+    }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
