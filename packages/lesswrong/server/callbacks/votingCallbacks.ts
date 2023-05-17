@@ -72,10 +72,6 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
   }
 });
 
-voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
-  return triggerReviewIfNeeded(document.vote.userId)
-});
-
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
   if (forumTypeSetting.get() === 'LessWrong') {
     void triggerAutomodIfNeeded(newDocument.userId)
