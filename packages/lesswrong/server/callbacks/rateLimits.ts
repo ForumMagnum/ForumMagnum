@@ -264,9 +264,9 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
 
   // we check that postId exists because we only want to do this when commenting on posts, not tags
   const commentsOnSpecificPostInTimeframe = commentsInTimeframe.filter(comment => postId && comment.postId === postId)
-  const modLimitNextCommentOnPostDate = (modPostSpecificRateLimitHours > 0 && postId && comment.postId === postId) ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modRateLimitHours, 1) : null
+  const modLimitNextCommentOnPostDate = (modPostSpecificRateLimitHours > 0 && postId && submittedComment.postId === postId) ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modRateLimitHours, 1) : null
 
-  const lowKarmaNextCommentDate = checkLowKarmaCommentRateLimit(user) ? getNextAbleToSubmitDate(commentsInTimeframe, "hours", modRateLimitHours, 1) : null
+  const lowKarmaNextCommentDate = checkLowKarmaCommentRateLimit(user) ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1) : null
   const highDownvoteRatioNextCommentDate =
   const doubleCommentLimitNextCommentDate =
   
