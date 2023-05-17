@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     paddingTop: 6,
     paddingLeft: 12,
-    paddingBottom: 20
+    paddingBottom: 12
   }
 });
 
