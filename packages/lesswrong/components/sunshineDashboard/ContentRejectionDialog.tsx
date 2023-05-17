@@ -51,16 +51,17 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   classes: ClassesType,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles } = Components;
+  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
 
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
 
-  const { results } = useMulti({
+  const { results, loadMoreProps } = useMulti({
     collectionName: 'ModerationTemplates',
     terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
-    fragmentName: 'ModerationTemplateFragment'
+    fragmentName: 'ModerationTemplateFragment',
+    enableTotal: true
   });
 
   if (!results) return null;
@@ -104,6 +105,7 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
         </LWTooltip>
       </div>
     })}
+    <LoadMore {...loadMoreProps} />
     <TextField
       id="comment-moderation-rejection-reason"
       label="Full message"
