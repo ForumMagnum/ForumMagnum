@@ -7,8 +7,7 @@ import { RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from '../../lib/collectio
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from '../../lib/collections/moderatorActions/helpers';
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
-import { captureEvent } from '..
-/../lib/analyticsEvents';
+import { captureEvent } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 
 
@@ -65,6 +64,9 @@ getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbC
   }
 })
 
+
+
+
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
 async function enforcePostRateLimit (user: DbUser) {
@@ -112,8 +114,7 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null)
   }
   if (postId) {
     const post = await Posts.findOne({_id: postId}, undefined, { userId: 1, ignoreRateLimits: 1 });
-    const commenterIsPostAuthor = post && user._id === post.userId;
-    if (post?.ignoreRateLimits || (!isEAForum && commenterIsPostAuthor)) {
+    if (post?.ignoreRateLimits) {
       return true;
     }
   }
@@ -342,14 +343,13 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // fetch the comments from within the maxTimeframe
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
-  const strictestRateLimitInfo = await getStrictestCommentRateLimitInfo({
+  return await getStrictestCommentRateLimitInfo({
     commentsInTimeframe, 
     user, 
     modRateLimitHours, 
     modPostSpecificRateLimitHours, 
     postId
   });
-  if (strictestRateLimitInfo?.rateLimitType === "moderator")
 }
 
 /**
