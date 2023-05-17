@@ -44,6 +44,7 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
+import { addServerSentEventsEndpoint } from "./serverSentEvents";
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -253,6 +254,8 @@ export function startWebserver() {
       process.kill(estrellaPid, 'SIGQUIT');
     })
   }
+
+  addServerSentEventsEndpoint(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
