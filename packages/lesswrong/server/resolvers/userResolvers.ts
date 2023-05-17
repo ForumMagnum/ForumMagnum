@@ -18,7 +18,7 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, rateLimitGetPostSpecificCommentLimit, RateLimitInfo } from '../callbacks/rateLimits';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
 import GraphQLJSON from 'graphql-type-json';
 
 augmentFieldsDict(Users, {
@@ -56,11 +56,7 @@ augmentFieldsDict(Users, {
       type: GraphQLJSON,
       arguments: 'postId: String',
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
-        const postSpecificRateLimit = args.postId ? await rateLimitGetPostSpecificCommentLimit(user, args.postId) : null
-        if (!postSpecificRateLimit && rateLimit) return rateLimit
-        if (rateLimit && postSpecificRateLimit) return rateLimit?.nextEligible > postSpecificRateLimit.nextEligible ? rateLimit : postSpecificRateLimit
-        return null
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
       }
     },
   },

@@ -10,7 +10,6 @@ import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
-import { rateLimitGetPostSpecificCommentLimit } from '../callbacks/rateLimits';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';

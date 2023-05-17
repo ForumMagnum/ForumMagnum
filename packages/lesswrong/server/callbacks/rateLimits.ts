@@ -121,7 +121,7 @@ async function getCommentsInTimeframe (userId: string, maxTimeframe: number) {
   return commentsInTimeframe
 }
 
-const getCommentsOnOthersPosts = async (comments: Array<DbComment>, userId: string) => {
+async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: string) {
   const postIds = comments.map(comment => comment.postId)
   const postsNotAuthoredByCommenter = await Posts.find(
     { _id: {$in: postIds}, $or: [{userId: {$ne: userId}}, {"coauthorStatuses.userId": {$ne: userId}}]}, {projection: {_id:1}
@@ -138,23 +138,23 @@ const getCommentsOnOthersPosts = async (comments: Array<DbComment>, userId: stri
  * If the post has "ignoreRateLimits" set, then all users are exempt.
  * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
-async function shouldIgnoreCommentRateLimit (user: DbUser, postId: string | null): Promise<boolean> {
+async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
-    return true
+    return true;
   }
   if (postId) {
-    const post = await Posts.findOne({_id: postId})
-    const commenterIsPostAuthor = post && user._id === post.userId
+    const post = await Posts.findOne({_id: postId}, undefined, { userId: 1, ignoreRateLimits: 1 });
+    const commenterIsPostAuthor = post && user._id === post.userId;
     if (post?.ignoreRateLimits || (!isEAForum && commenterIsPostAuthor)) {
-      return true
+      return true;
     }
   }
-  return false
+  return false;
 }
 
 
 async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment2(user, comment);
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
@@ -162,18 +162,18 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
     }
   }
   
-  if (comment.postId) {
-    const postSpecificRateLimit = await rateLimitGetPostSpecificCommentLimit(user, comment.postId);
-    if (postSpecificRateLimit) {
-      const {nextEligible, rateLimitType:_} = postSpecificRateLimit;
-      if (nextEligible > new Date()) {
-        throw new Error(`Rate limit: You cannot comment on this post until ${nextEligible}`);
-      }
-    }
-  }
+  // if (comment.postId) {
+  //   const postSpecificRateLimit = await rateLimitGetPostSpecificCommentLimit(user, comment.postId);
+  //   if (postSpecificRateLimit) {
+  //     const {nextEligible, rateLimitType:_} = postSpecificRateLimit;
+  //     if (nextEligible > new Date()) {
+  //       throw new Error(`Rate limit: You cannot comment on this post until ${nextEligible}`);
+  //     }
+  //   }
+  // }
 }
 
-function getNextAbleToSubmitDate (documents: Array<DbPost|DbComment>, intervalType:  "seconds"|"hours", intervalAmount: number, itemsPerInterval:number): Date|null {
+function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, intervalType:  "seconds"|"hours", intervalAmount: number, itemsPerInterval:number): Date|null {
   // make sure documents are sorted by descending date
   const sortedDocs = documents.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
   const docsInInterval = sortedDocs.filter(doc => doc.postedAt > moment().subtract(intervalAmount, intervalType).toDate())
@@ -212,6 +212,10 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
 
+function isStrictestRateLimit(rateLimitDate: Date | null, allPossibleDates: Array<Date | null>): rateLimitDate is Date {
+  return !!rateLimitDate && allPossibleDates.every(date => rateLimitDate >= (date ?? new Date()));
+}
+
 function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
   // for each rate limit, get the next date that user could post
   const modLimitNextPostDate = (modRateLimitHours > 0) ? getNextAbleToSubmitDate(postsInTimeframe, "hours", modRateLimitHours, 1) : null
@@ -220,7 +224,7 @@ function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateL
 
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
 
-  if (modLimitNextPostDate && nextAbleToPostDates.every(date => modLimitNextPostDate >= (date ?? new Date()))) {
+  if (isStrictestRateLimit(modLimitNextPostDate, nextAbleToPostDates)) {
     return {
       nextEligible: modLimitNextPostDate,
       rateLimitMessage: "A moderator has rate limited you.",
@@ -228,7 +232,7 @@ function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateL
     }
   }
 
-  if (dailyLimitNextPostDate && nextAbleToPostDates.every(date => dailyLimitNextPostDate >= (date ?? new Date()))) {
+  if (isStrictestRateLimit(dailyLimitNextPostDate, nextAbleToPostDates)) {
     return {
       nextEligible: dailyLimitNextPostDate,
       rateLimitMessage: `Users cannot submit more than ${maxPostsPer24HoursSetting.get()} per day.`,
@@ -236,7 +240,7 @@ function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateL
     }
   }
 
-  if (doublePostLimitNextPostDate && nextAbleToPostDates.every(date => doublePostLimitNextPostDate >= (date ?? new Date()))) {
+  if (isStrictestRateLimit(doublePostLimitNextPostDate, nextAbleToPostDates)) {
     return {
       nextEligible: doublePostLimitNextPostDate,
       rateLimitMessage: `Users cannot submit more than 1 post per ${postIntervalSetting.get()} seconds.`,
@@ -251,84 +255,152 @@ interface StrictestCommentRateLimitInfoParams {
   user: DbUser,
   modRateLimitHours: number,
   modPostSpecificRateLimitHours: number,
-  submittedComment: DbComment
+  postId: string | null
 }
 
-async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, submittedComment}: StrictestCommentRateLimitInfoParams): Promise<RateLimitInfo|null> {
-  const commentsOnOthersPostsInTimeframe = await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
-  const postId = submittedComment.postId
+async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId}: StrictestCommentRateLimitInfoParams): Promise<RateLimitInfo|null> {
+  /**
+   * Because we ignore rate limits when a user is commenting on their own post (excepting the EA forum),
+   * we want to filter out the comments a user made on their own post when evaluating a rate limit
+   * for comments made on others' posts.
+   */
+  const relevantCommentsInTimeframe = !isEAForum
+    ? await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
+    // Prefer to not have different number of event loop steps in based on conditionals, so force a redundant await
+    : await commentsInTimeframe;
 
-  const modLimitNextCommentDate = (modRateLimitHours > 0) ? 
-    getNextAbleToSubmitDate(commentsInTimeframe, "hours", modRateLimitHours, 1)
-  : null
+  const modLimitNextCommentDate = (modRateLimitHours > 0)
+    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", modRateLimitHours, 1)
+    : null;
 
-  // we check that postId exists because we only want to do this when commenting on posts, not tags
-  const commentsOnSpecificPostInTimeframe = commentsInTimeframe.filter(comment => postId && comment.postId === postId)
-  const modLimitNextCommentOnPostDate = (modPostSpecificRateLimitHours > 0 && postId && submittedComment.postId === postId) ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modRateLimitHours, 1) : null
+  /**
+   * We check that postId exists because we only want to do this when commenting on posts, not tags
+   * This is for users who have a rate-limit which restricts them from posting more than [x] comments on any given post per interval, rather than across all posts
+   */
+  const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0) && !!postId;
+  const commentsOnSpecificPostInTimeframe = relevantCommentsInTimeframe.filter(comment => postId && comment.postId === postId);
+  const modLimitNextCommentOnPostDate = eligibleForCommentOnSpecificPostRateLimit
+    ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modRateLimitHours, 3)
+    : null;
 
-  const lowKarmaNextCommentDate = checkLowKarmaCommentRateLimit(user) ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1) : null
-  const highDownvoteRatioNextCommentDate =
-  const doubleCommentLimitNextCommentDate =
+  const hasLowKarmaRateLimit = checkLowKarmaCommentRateLimit(user);
+  const lowKarmaNextCommentDate = hasLowKarmaRateLimit
+    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", modRateLimitHours, 1)
+    : null;
+
+  const hasDownvoteRatioRateLimit = checkDownvoteRatioCommentRateLimit(user);
+  const highDownvoteRatioNextCommentDate = hasDownvoteRatioRateLimit
+    ? getNextAbleToSubmitDate(relevantCommentsInTimeframe, "hours", modRateLimitHours, 1)
+    : null;
+
+  const doubleCommentLimitNextCommentDate = getNextAbleToSubmitDate(commentsInTimeframe, "seconds", commentIntervalSetting.get(), 1);
   
+  const nextAbleToCommentDates: Array<Date | null> = [
+    modLimitNextCommentDate,
+    modLimitNextCommentOnPostDate,
+    lowKarmaNextCommentDate,
+    highDownvoteRatioNextCommentDate,
+    doubleCommentLimitNextCommentDate
+  ];
 
-  const nextAbleToCommentDates = [modLimitNextCommentDate, modLimitNextCommentOnPostDate]
+  if (isStrictestRateLimit(modLimitNextCommentDate, nextAbleToCommentDates)) {
+    return {
+      nextEligible: modLimitNextCommentDate,
+      rateLimitMessage: "A moderator has rate limited you.",
+      rateLimitType: "moderator"
+    };
+  }
 
-  return null
+  if (isStrictestRateLimit(modLimitNextCommentOnPostDate, nextAbleToCommentDates)) {
+    return {
+      nextEligible: modLimitNextCommentOnPostDate,
+      rateLimitMessage: "A moderator has rate limited you.",
+      rateLimitType: "moderator"
+    };
+  }
+
+  if (isStrictestRateLimit(lowKarmaNextCommentDate, nextAbleToCommentDates)) {
+    return {
+      nextEligible: lowKarmaNextCommentDate,
+      rateLimitMessage: "You'll be able to post more comments as your karma increases.",
+      rateLimitType: "lowKarma"
+    };
+  }
+
+  if (isStrictestRateLimit(highDownvoteRatioNextCommentDate, nextAbleToCommentDates)) {
+    return {
+      nextEligible: highDownvoteRatioNextCommentDate,
+      rateLimitMessage: "",
+      rateLimitType: "downvoteRatio"
+    };
+  }
+
+  if (isStrictestRateLimit(doubleCommentLimitNextCommentDate, nextAbleToCommentDates)) {
+    return {
+      nextEligible: doubleCommentLimitNextCommentDate,
+      rateLimitMessage: `Users cannot submit more than 1 comment every ${commentIntervalSetting.get()} seconds to prevent double-commenting.`,
+      rateLimitType: "universal"
+    };
+  }
+
+  return null;
 }
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
   // Admins and Sunshines aren't rate-limited
-  if (shouldIgnorePostRateLimit(user)) return null
+  if (shouldIgnorePostRateLimit(user)) return null;
   
   // does the user have a moderator-assigned rate limit?
-  const modRateLimitHours = await getModRateLimitHours(user._id)
+  const modRateLimitHours = await getModRateLimitHours(user._id);
 
   // what's the longest rate limit timeframe being evaluated?
-  const highestStandardPostRateLimitHours = 24
-  const maxHours = Math.max(modRateLimitHours, highestStandardPostRateLimitHours)
+  const highestStandardPostRateLimitHours = 24;
+  const maxHours = Math.max(modRateLimitHours, highestStandardPostRateLimitHours);
 
   // fetch the posts from within the maxTimeframe
-  const postsInTimeframe = await getPostsInTimeframe(user, maxHours)
+  const postsInTimeframe = await getPostsInTimeframe(user, maxHours);
 
-  return getStrictestPostRateLimitInfo(postsInTimeframe, modRateLimitHours)
+  return getStrictestPostRateLimitInfo(postsInTimeframe, modRateLimitHours);
 }
 
-export async function rateLimitDateWhenUserNextAbleToComment2(user: DbUser, submittedComment: DbComment): Promise<RateLimitInfo|null> {
-  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, submittedComment.postId)
-  if (ignoreRateLimits) return null
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<RateLimitInfo|null> {
+  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId);
+  if (ignoreRateLimits) return null;
 
   // does the user have a moderator-assigned rate limit?
-  const modRateLimitHours = await getModRateLimitHours(user._id)
-  const modPostSpecificRateLimitHours =  await getModPostSpecificRateLimitHours(user._id)
+  const [modRateLimitHours, modPostSpecificRateLimitHours] = await Promise.all([
+    getModRateLimitHours(user._id),
+    getModPostSpecificRateLimitHours(user._id)
+  ]);
 
   // what's the longest rate limit timeframe being evaluated?
-  const highestStandardRateCommentLimitHours = 24
-  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, highestStandardRateCommentLimitHours)
+  const highestStandardRateCommentLimitHours = 24;
+  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, highestStandardRateCommentLimitHours);
 
   // fetch the comments from within the maxTimeframe
-  const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours)
+  const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
   return await getStrictestCommentRateLimitInfo({
     commentsInTimeframe, 
     user, 
     modRateLimitHours, 
     modPostSpecificRateLimitHours, 
-    submittedComment
-  })
+    postId
+  });
 }
 
 /**
  * Check if the user has a commenting rate limit due to having low karma.
  */
-const checkLowKarmaCommentRateLimit = (user: DbUser): boolean => {
-  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get()
-  return karmaThreshold !== null && user.karma < karmaThreshold
+function checkLowKarmaCommentRateLimit(user: DbUser): boolean {
+  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get();
+  return karmaThreshold !== null && user.karma < karmaThreshold;
 }
 
 /**
  * Check if the user has a commenting rate limit due to having a high % of their received votes be downvotes.
  */
-const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
+function checkDownvoteRatioCommentRateLimit(user: DbUser): boolean {
   // First check if the sum of the individual vote count fields
   // add up to something close (with 5%) to the voteReceivedCount field.
   // (They should be equal, but we know there are bugs around counting votes,
@@ -351,108 +423,108 @@ const checkDownvoteRatioCommentRateLimit = (user: DbUser): boolean => {
  * If the user is rate-limited, return the date/time they will next be able to
  * comment. If they can comment now, returns null.
  */
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<RateLimitInfo|null> {
-  // if this user is a mod/admin or (on non-EAF forums) is the post author,
-  // then they are exempt from all rate limits except for the "universal" 8 sec one
-  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
+// export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<RateLimitInfo|null> {
+//   // if this user is a mod/admin or (on non-EAF forums) is the post author,
+//   // then they are exempt from all rate limits except for the "universal" 8 sec one
+//   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId)
   
-  if (!ignoreRateLimits) {
-    // If moderators have imposed a rate limit on this user, enforce that 
-    const moderatorRateLimit = await getModeratorRateLimit(user)
-    if (moderatorRateLimit) {
-      const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
+//   if (!ignoreRateLimits) {
+//     // If moderators have imposed a rate limit on this user, enforce that 
+//     const moderatorRateLimit = await getModeratorRateLimit(user)
+//     if (moderatorRateLimit) {
+//       const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-      // moderatorRateLimits should only apply to comments on posts by people other than the comment author
-      const commentsInPastTimeframe = await getCommentsOnOthersPostsInTimeframe(user, hours)
+//       // moderatorRateLimits should only apply to comments on posts by people other than the comment author
+//       const commentsInPastTimeframe = await getCommentsOnOthersPostsInTimeframe(user, hours)
     
-      if (commentsInPastTimeframe.length > 0) {
-        throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
-      }
+//       if (commentsInPastTimeframe.length > 0) {
+//         throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+//       }
 
-      const mostRecentInTimeframe = await getNthMostRecentItemDate({
-        user, collection: Comments,
-        n: 1,
-        cutoffHours: hours,
-      });
-      if (mostRecentInTimeframe) {
-        return {
-          nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
-          rateLimitType: "moderator",
-          rateLimitMessage: "A moderator has rate limited you."
-        }
-      }
-    }
+//       const mostRecentInTimeframe = await getNthMostRecentItemDate({
+//         user, collection: Comments,
+//         n: 1,
+//         cutoffHours: hours,
+//       });
+//       if (mostRecentInTimeframe) {
+//         return {
+//           nextEligible: moment(mostRecentInTimeframe).add(hours, 'hours').toDate(),
+//           rateLimitType: "moderator",
+//           rateLimitMessage: "A moderator has rate limited you."
+//         }
+//       }
+//     }
     
-    // If the user has low karma, or their ratio of received downvotes to total votes is too high,
-    // they are limited to no more than 4 comments per 0.5 hours.
-    const hasLowKarma = checkLowKarmaCommentRateLimit(user)
-    const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
-    if (hasLowKarma || hasHighDownvoteRatio) {
-      const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
-        user,
-        collection: Comments,
-        n: 4,
-        cutoffHours: 0.5,
-      })
-      if (fourthMostRecentCommentDate) {
-        // if the user has hit the limit, then they are eligible to comment again
-        // 30 min after their fourth most recent comment
-        const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
-        const rateLimitType: RateLimitType = hasLowKarma ? "lowKarma" : "downvoteRatio";
+//     // If the user has low karma, or their ratio of received downvotes to total votes is too high,
+//     // they are limited to no more than 4 comments per 0.5 hours.
+//     const hasLowKarma = checkLowKarmaCommentRateLimit(user)
+//     const hasHighDownvoteRatio = checkDownvoteRatioCommentRateLimit(user)
+//     if (hasLowKarma || hasHighDownvoteRatio) {
+//       const fourthMostRecentCommentDate = await getNthMostRecentItemDate({
+//         user,
+//         collection: Comments,
+//         n: 4,
+//         cutoffHours: 0.5,
+//       })
+//       if (fourthMostRecentCommentDate) {
+//         // if the user has hit the limit, then they are eligible to comment again
+//         // 30 min after their fourth most recent comment
+//         const nextEligible = moment(fourthMostRecentCommentDate).add(0.5, 'hours').toDate()
+//         const rateLimitType: RateLimitType = hasLowKarma ? "lowKarma" : "downvoteRatio";
 
-        const rateLimitMessage = hasLowKarma 
-          ? "You'll be able to post more comments as your karma increases." 
-          : ""
+//         const rateLimitMessage = hasLowKarma 
+//           ? "You'll be able to post more comments as your karma increases." 
+//           : ""
 
-        return {
-          nextEligible,
-          rateLimitType,
-          rateLimitMessage
-        }
-      }
-    }
-  }
-
-  const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-  // check that user waits more than 8 seconds between comments
-  const mostRecentCommentDate = await getNthMostRecentItemDate({
-    user, collection: Comments,
-    n: 1,
-    cutoffHours: commentInterval/(60.0*60.0)
-  });
-  if (mostRecentCommentDate) {
-    return {
-      nextEligible: moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate(),
-      rateLimitType: "universal",
-      rateLimitMessage: `All users need to wait ${commentInterval} seconds between comments to prevent double-commenting`
-    };
-  }
+//         return {
+//           nextEligible,
+//           rateLimitType,
+//           rateLimitMessage
+//         }
+//       }
+//     }
+//   }
+// 
+//   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
+//   // check that user waits more than 8 seconds between comments
+//   const mostRecentCommentDate = await getNthMostRecentItemDate({
+//     user, collection: Comments,
+//     n: 1,
+//     cutoffHours: commentInterval/(60.0*60.0)
+//   });
+//   if (mostRecentCommentDate) {
+//     return {
+//       nextEligible: moment(mostRecentCommentDate).add(commentInterval, 'seconds').toDate(),
+//       rateLimitType: "universal",
+//       rateLimitMessage: `All users need to wait ${commentInterval} seconds between comments to prevent double-commenting`
+//     };
+//   }
   
   
-  return null;
-}
+//   return null;
+// }
 
-export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<RateLimitInfo|null> {
-  if (await shouldIgnoreCommentRateLimit(user, postId)) {
-    return null
-  }
+// export async function rateLimitGetPostSpecificCommentLimit(user: DbUser, postId: string): Promise<RateLimitInfo|null> {
+//   if (await shouldIgnoreCommentRateLimit(user, postId)) {
+//     return null
+//   }
 
-  if (postId && await userHasActiveModeratorActionOfType(user._id, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
-    const hours = 24 * 7
-    const num_comments = 3
-    const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
-      user, collection: Comments,
-      n: num_comments,
-      cutoffHours: hours,
-      filter: { postId },
-    });
-    if (thirdMostRecentCommentDate) {
-      return {
-        nextEligible: moment(thirdMostRecentCommentDate).add(hours, 'hours').toDate(),
-        rateLimitType: "moderator",
-        rateLimitMessage: "A moderator has rate limited your ability to comment more than three times per post per week."
-      };
-    }
-  }
-  return null;
-}
+//   if (postId && await userHasActiveModeratorActionOfType(user._id, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)) {
+//     const hours = 24 * 7
+//     const num_comments = 3
+//     const thirdMostRecentCommentDate = await getNthMostRecentItemDate({
+//       user, collection: Comments,
+//       n: num_comments,
+//       cutoffHours: hours,
+//       filter: { postId },
+//     });
+//     if (thirdMostRecentCommentDate) {
+//       return {
+//         nextEligible: moment(thirdMostRecentCommentDate).add(hours, 'hours').toDate(),
+//         rateLimitType: "moderator",
+//         rateLimitMessage: "A moderator has rate limited your ability to comment more than three times per post per week."
+//       };
+//     }
+//   }
+//   return null;
+// }
