@@ -97,9 +97,11 @@ async function getCommentsInTimeframe (userId: string, maxTimeframe: number) {
 async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: string) {
   const postIds = comments.map(comment => comment.postId)
   const postsNotAuthoredByCommenter = await Posts.find(
-    { _id: {$in: postIds}, $and: [{userId: {$ne: userId}}, {"coauthorStatuses.userId": {$ne: userId}}]}, {projection: {_id:1}
+    { _id: {$in: postIds}, userId: {$ne: userId}}, {projection: {_id:1, coauthorStatuses:1}
   }).fetch()
-  const postsNotAuthoredByCommenterIds = postsNotAuthoredByCommenter.map(post => post._id)
+  // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
+  const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
+  const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
   const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts
 }
@@ -239,6 +241,7 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
    * for comments made on others' posts.
    */
   const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
+  console.log({commentsOnOthersPostsInTimeframe})
 
   const modLimitNextCommentDate = (modRateLimitHours > 0 && await applyModRateLimitForPost(user._id, postId))
     ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1)
