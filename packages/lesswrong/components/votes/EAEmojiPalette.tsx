@@ -1,23 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
-
-type EmojiOption = {
-  emoji: string,
-  name: string,
-}
-
-const emojiPalette: EmojiOption[] = [
-  {emoji: "🤝", name: "Helpful"},
-  {emoji: "💡", name: "This changed my mind"},
-  {emoji: "🕵️", name: "Scout mindset"},
-  {emoji: "🧠", name: "Well-reasoned"},
-  {emoji: "📖", name: "Well-cited"},
-  {emoji: "❤️", name: "Send love"},
-  {emoji: "🙏", name: "Thank you"},
-  {emoji: "🎉", name: "Celebrate"},
-  {emoji: "🤔", name: "I'm confused"},
-  {emoji: "😂", name: "Funny"},
-];
+import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,7 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const EAEmojiPalette = ({classes}: {classes: ClassesType}) => {
+const EAEmojiPalette = ({onSelectEmoji, classes}: {
+  onSelectEmoji: (emojiOption: EmojiOption) => void,
+  classes: ClassesType,
+}) => {
   const [hovered, setHovered] = useState<EmojiOption | null>(null);
 
   const onEnter = useCallback((emojiOption: EmojiOption) => {
@@ -76,11 +62,12 @@ const EAEmojiPalette = ({classes}: {classes: ClassesType}) => {
   return (
     <div>
       <div className={classes.emojiContainer}>
-        {emojiPalette.map((emojiOption) =>
+        {eaEmojiPalette.map((emojiOption) =>
           <div
             key={emojiOption.name}
             onMouseEnter={() => onEnter(emojiOption)}
             onMouseLeave={() => onLeave(emojiOption)}
+            onClick={() => onSelectEmoji(emojiOption)}
             className={classes.emoji}
           >
             {emojiOption.emoji}
@@ -92,7 +79,7 @@ const EAEmojiPalette = ({classes}: {classes: ClassesType}) => {
           ? (
             <>
               <div className={classes.emojiPreview}>{hovered.emoji}</div>
-              <div>{hovered.name}</div>
+              <div>{hovered.label}</div>
             </>
           )
           : "What did you think of this?"

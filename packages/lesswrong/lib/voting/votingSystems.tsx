@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
+import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
@@ -249,38 +250,40 @@ registerVotingSystem({
   name: "threeAxisEmojis",
   description: "Two-axis approve and agree, plus emoji reactions",
   getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
-  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {
+  addVoteClient: ({oldExtendedScore, extendedVote}: {
     oldExtendedScore: any,
     extendedVote: any,
     currentUser: UsersCurrent,
   }): any => {
-    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
       const hasReaction = !!extendedVote?.[reaction];
-      return [reaction, (oldExtendedScore?.[reaction]||0) + (hasReaction?1:0)];
+      return [reaction, (oldExtendedScore?.[reaction] || 0) + (hasReaction ? 1 : 0)];
     }));
     return filterZeroes({...emojiReactCounts});
   },
-  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
     oldExtendedScore: any,
     cancelledExtendedVote: any,
     currentUser: UsersCurrent,
   }): any => {
-    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
       const oldVote = !!cancelledExtendedVote?.[reaction];
-      return [reaction, oldExtendedScore?.[reaction] - (oldVote?1:0)];
+      return [reaction, oldExtendedScore?.[reaction] - (oldVote ? 1 : 0)];
     }));
     return filterZeroes({...emojiReactCounts});
   },
-  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
-    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
-      return [reaction, sumBy(votes, v => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map(reaction => {
+      return [reaction, sumBy(votes, (v) => v?.extendedVoteType?.[reaction] ? 1 : 0)];
     }));
     return filterZeroes({...emojiReactCounts });
   },
   isNonblankExtendedVote: (vote: DbVote) => {
-    if (!vote.extendedVoteType) return false;
+    if (!vote.extendedVoteType) {
+      return false;
+    }
     for (let key of Object.keys(vote.extendedVoteType)) {
-      if (vote.extendedVoteType[key] && vote.extendedVoteType[key]!=="neutral")
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral")
         return true;
     }
     return false;
