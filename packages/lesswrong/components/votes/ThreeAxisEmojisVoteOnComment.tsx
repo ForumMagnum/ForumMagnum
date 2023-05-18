@@ -12,6 +12,7 @@ import { useDialog } from "../common/withDialog";
 import { AddEmoji } from "../icons/addEmoji";
 import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import Menu from "@material-ui/core/Menu";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     borderRadius: theme.borderRadius.small,
     background: theme.palette.grey[110],
+    border: `1px solid ${theme.palette.grey[110]}`,
     color: theme.palette.grey[600],
     padding: "0 6px",
     gap: "6px",
@@ -33,6 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: theme.palette.grey[200],
     },
+  },
+  buttonSelected: {
+    background: theme.palette.primaryAlpha(0.1),
+    border: `1px solid ${theme.palette.primaryAlpha(0.6)}`,
+    color: theme.palette.primary.main,
   },
   emojiPreview: {
     fontSize: "1.4em",
@@ -190,31 +197,36 @@ const ThreeAxisEmojisVoteOnComment = ({
         collection={collection}
         votingSystem={getVotingSystemByName("twoAxis")}
       />
-      {reactions.map(({emojiOption, score}) =>
-        <LWTooltip
-          key={emojiOption.name}
-          title={
-            <EmojiTooltipContent
-              currentUser={currentUser}
-              emojiOption={emojiOption}
-              isSelected={isEmojiSelected(voteProps, emojiOption)}
-              reactors={post?.commentEmojiReactors?.[document._id]}
-              classes={classes}
-            />
-          }
-          placement="top"
-          popperClassName={classes.tooltip}
-        >
-          <div
-            role="button"
-            onClick={() => onSelectEmoji(emojiOption)}
-            className={classes.button}
+      {reactions.map(({emojiOption, score}) => {
+        const isSelected = isEmojiSelected(voteProps, emojiOption);
+        return (
+          <LWTooltip
+            key={emojiOption.name}
+            title={
+              <EmojiTooltipContent
+                currentUser={currentUser}
+                emojiOption={emojiOption}
+                isSelected={isSelected}
+                reactors={post?.commentEmojiReactors?.[document._id]}
+                classes={classes}
+              />
+            }
+            placement="top"
+            popperClassName={classes.tooltip}
           >
-            <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
-            <div>{score}</div>
-          </div>
-        </LWTooltip>
-      )}
+            <div
+              role="button"
+              onClick={() => onSelectEmoji(emojiOption)}
+              className={classNames(classes.button, {
+                [classes.buttonSelected]: isSelected,
+              })}
+            >
+              <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
+              <div>{score}</div>
+            </div>
+          </LWTooltip>
+        );
+      })}
       <div
         role="button"
         onClick={onOpenMenu}
