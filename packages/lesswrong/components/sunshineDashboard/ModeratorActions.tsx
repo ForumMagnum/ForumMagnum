@@ -102,8 +102,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     fragmentName: 'ModeratorActionsDefaultFragment'
   });
 
-  const canReview = !!(user.maxCommentCount || user.maxPostCount)
-
   const signature = getSignature(currentUser.displayName);
 
   const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
@@ -140,19 +138,17 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   }
   const handleReview = () => {
-    if (canReview) {
-      void updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser._id,
-          reviewedAt: new Date(),
-          needsReview: false,
-          sunshineNotes: notes,
-          snoozedUntilContentCount: null
-        }
-      })
-    }
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineFlagged: false,
+        reviewedByUserId: currentUser._id,
+        reviewedAt: new Date(),
+        needsReview: false,
+        sunshineNotes: notes,
+        snoozedUntilContentCount: null
+      }
+    })
   }
   
   const handleSnooze = (contentCount: number) => {
@@ -354,7 +350,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
-      <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+      <DoneIcon onClick={handleReview} className={classes.modButton}/>
     </LWTooltip>
     <LWTooltip title="Ban for 3 months" placement="top">
       <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
