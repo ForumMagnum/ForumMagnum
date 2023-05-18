@@ -161,7 +161,6 @@ const PostsPageRecommendationItem = ({
         <PostsTitle
           post={post}
           Wrapper={TitleWrapper}
-          isLink={false}
           curatedIconLeft
           className={classes.title}
         />
