@@ -74,6 +74,7 @@ async function enforcePostRateLimit (user: DbUser) {
   if (rateLimit) {
     const {nextEligible} = rateLimit;
     if (nextEligible > new Date()) {
+      moment.relativeTimeThreshold('ss', 0);
       throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
     }
   }
@@ -127,6 +128,7 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
+      moment.relativeTimeThreshold('ss', 0);
       throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
     }
   }
@@ -377,6 +379,7 @@ function checkDownvoteRatioCommentRateLimit(user: DbUser): boolean {
   // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
   const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
   const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
+  console.log({downvoteRatio, downvoteRatioThreshold})
   const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
 
   return aboveDownvoteRatioThreshold

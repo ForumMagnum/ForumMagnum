@@ -8,6 +8,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   rateLimitMessage?: string
 }) => {
   // default message tells the user how long they have to wait
+  moment.relativeTimeThreshold('ss', 0);
   const fromNow = moment(lastRateLimitExpiry).fromNow()
   let message = `Please wait ${fromNow} before posting again. ${rateLimitMessage ?? ''}`
 
