@@ -13,6 +13,7 @@ import { AddEmoji } from "../icons/addEmoji";
 import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
+import { userHasEAEmojiReacts } from "../../lib/betas";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -128,17 +129,11 @@ const EmojiTooltipContent: FC<{
   );
 }
 
-interface ThreeAxisEmojisVoteOnCommentProps extends CommentVotingComponentProps {
+const EmojiReactsSection: FC<{
+  document: Pick<CommentVotingComponentProps, "document">["document"],
+  voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
-}
-
-const ThreeAxisEmojisVoteOnComment = ({
-  document,
-  hideKarma = false,
-  collection,
-  votingSystem,
-  classes,
-}: ThreeAxisEmojisVoteOnCommentProps) => {
+}> = ({document, voteProps, classes}) => {
   const currentUser = useCurrentUser();
   const post = usePostsPageContext();
   const {openDialog} = useDialog();
@@ -148,12 +143,6 @@ const ThreeAxisEmojisVoteOnComment = ({
     eventType: "emojiMenuClicked",
     eventProps: {documentId: document._id, itemType: "comment"},
   });
-
-  const voteProps = useVote(
-    document,
-    collection.options.collectionName,
-    votingSystem,
-  );
 
   const onOpenMenu = useCallback((event: MouseEvent) => {
     captureEvent("emojiMenuClicked", {open: true});
@@ -188,15 +177,9 @@ const ThreeAxisEmojisVoteOnComment = ({
 
   const reactions = getCurrentReactions(voteProps);
 
-  const {TwoAxisVoteOnComment, EAEmojiPalette, LWTooltip} = Components;
+  const {EAEmojiPalette, LWTooltip} = Components;
   return (
-    <div className={classes.root}>
-      <TwoAxisVoteOnComment
-        document={document}
-        hideKarma={hideKarma}
-        collection={collection}
-        votingSystem={getVotingSystemByName("twoAxis")}
-      />
+    <>
       {reactions.map(({emojiOption, score}) => {
         const isSelected = isEmojiSelected(voteProps, emojiOption);
         return (
@@ -257,6 +240,42 @@ const ThreeAxisEmojisVoteOnComment = ({
       >
         {everOpened && <EAEmojiPalette onSelectEmoji={onSelectEmoji} />}
       </Menu>
+    </>
+  );
+}
+
+interface ThreeAxisEmojisVoteOnCommentProps extends CommentVotingComponentProps {
+  classes: ClassesType,
+}
+
+const ThreeAxisEmojisVoteOnComment = ({
+  document,
+  hideKarma = false,
+  collection,
+  votingSystem,
+  classes,
+}: ThreeAxisEmojisVoteOnCommentProps) => {
+  const voteProps = useVote(
+    document,
+    collection.options.collectionName,
+    votingSystem,
+  );
+  const {TwoAxisVoteOnComment} = Components;
+  return (
+    <div className={classes.root}>
+      <TwoAxisVoteOnComment
+        document={document}
+        hideKarma={hideKarma}
+        collection={collection}
+        votingSystem={getVotingSystemByName("twoAxis")}
+      />
+      {userHasEAEmojiReacts(null) &&
+        <EmojiReactsSection
+          document={document}
+          voteProps={voteProps}
+          classes={classes}
+        />
+      }
     </div>
   );
 }
