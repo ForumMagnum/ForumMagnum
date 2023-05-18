@@ -74,6 +74,8 @@ async function enforcePostRateLimit (user: DbUser) {
   if (rateLimit) {
     const {nextEligible} = rateLimit;
     if (nextEligible > new Date()) {
+      // "fromNow" makes for a more human readable "how long till I can comment/post?".
+      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
       moment.relativeTimeThreshold('ss', 0);
       throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
     }
@@ -128,6 +130,8 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {
+      // "fromNow" makes for a more human readable "how long till I can comment/post?".
+      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
       moment.relativeTimeThreshold('ss', 0);
       throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
     }
@@ -215,7 +219,10 @@ async function applyModRateLimitForPost(userId: string, postId: string|null): Pr
   if (!postId) return false
   const post = await Posts.findOne({_id:postId}, {projection:{userId:1, coauthorStatuses:1}})
   if (!post) return false
-  return post.userId !== userId && post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
+  const userIsNotPrimaryAuthor = post.userId !== userId
+  const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
+  console.log(userIsNotPrimaryAuthor, userIsNotCoauthor)
+  return userIsNotPrimaryAuthor && userIsNotCoauthor
 }
 
 interface StrictestCommentRateLimitInfoParams {
@@ -238,10 +245,7 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
     ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1)
     : null;
 
-  /**
-   * We check that postId exists because we only want to do this when commenting on posts, not tags
-   * This is for users who have a rate-limit which restricts them from posting more than [x] comments on any given post per interval, rather than across all posts
-   */
+
   const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0 && await applyModRateLimitForPost(user._id, postId));
   const commentsOnSpecificPostInTimeframe = commentsOnOthersPostsInTimeframe.filter(comment => postId && comment.postId === postId);
   const modLimitNextCommentOnPostDate = eligibleForCommentOnSpecificPostRateLimit

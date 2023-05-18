@@ -7,9 +7,12 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string
 }) => {
-  // default message tells the user how long they have to wait
+
+  // "fromNow" makes for a more human readable "how long till I can comment/post?".
+  // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
   moment.relativeTimeThreshold('ss', 0);
   const fromNow = moment(lastRateLimitExpiry).fromNow()
+
   let message = `Please wait ${fromNow} before posting again. ${rateLimitMessage ?? ''}`
 
   return <Components.WarningBanner message={message} />
