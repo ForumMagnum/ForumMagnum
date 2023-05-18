@@ -250,7 +250,8 @@ const PostsNewForm = ({classes}: {
                 history.push(postGetEditUrl(post._id));
               } else {
                 history.push({pathname: postGetPageUrl(post)})
-                flash({ messageString: "Post created.", type: 'success'});
+                const postDescription = post.draft ? "Draft" : "Post";
+                flash({ messageString: `${postDescription} created.`, type: 'success'});
               }
             }}
             eventForm={eventForm}

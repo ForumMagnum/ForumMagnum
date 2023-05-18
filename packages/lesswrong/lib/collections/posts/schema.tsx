@@ -1295,6 +1295,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     canCreate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
+    nullable: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
     group: formGroups.coauthors,

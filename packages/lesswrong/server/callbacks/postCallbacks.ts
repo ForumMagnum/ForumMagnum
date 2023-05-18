@@ -408,7 +408,7 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
 })
 
 const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
-  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+  !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
 
 const scheduleCoauthoredPost = (post: DbPost): DbPost => {
   const now = new Date();
