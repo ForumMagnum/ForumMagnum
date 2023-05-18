@@ -25,6 +25,7 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import GraphQLJSON from 'graphql-type-json';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -2453,6 +2454,22 @@ const schema: SchemaType<DbPost> = {
 
       return count;
     }
+  }),
+
+  commentEmojiReactors: resolverOnlyField({
+    type: Object,
+    graphQLtype: GraphQLJSON,
+    blackbox: true,
+    nullable: true,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (post.votingSystem !== "threeAxisEmojis") {
+        return null;
+      }
+      return context.repos.posts.getEmojiReactors(post._id);
+    },
   }),
 
   rejected: {

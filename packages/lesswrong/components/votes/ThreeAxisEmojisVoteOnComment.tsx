@@ -1,10 +1,11 @@
-import React, { MouseEvent, useState, useCallback } from "react";
+import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import {
   CommentVotingComponentProps,
   getVotingSystemByName,
 } from "../../lib/voting/votingSystems";
 import { useVote, VotingProps } from "./withVote";
+import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
@@ -40,6 +41,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[800],
     color: theme.palette.grey[0],
     transform: "translateY(-8px)",
+    textAlign: "center",
+    maxWidth: 190,
+  },
+  tooltipSecondaryText: {
+    color: theme.palette.grey[400],
+  },
+  tooltipEmoji: {
+    fontSize: "1.4em",
   },
   menu: {
     "& .MuiPaper-root": {
@@ -76,6 +85,42 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
   return result;
 }
 
+const joinStringList = (items: string[]) =>
+  items.length > 1
+    ? items.slice(0, -1).join(", ") + " and " + items.at(-1)
+    : items[0];
+
+const EmojiTooltipContent: FC<{
+  currentUser: UsersCurrent | null,
+  emojiOption: EmojiOption,
+  isSelected: boolean,
+  reactors?: Record<string, string[]>,
+  classes: ClassesType,
+}> = ({currentUser, emojiOption, isSelected, reactors, classes}) => {
+  let displayNames = reactors?.[emojiOption.name] ?? [];
+  if (currentUser) {
+    const {displayName} = currentUser;
+    displayNames = displayNames.filter((name) => name !== displayName);
+    if (isSelected) {
+      displayNames = ["You", ...displayNames];
+    }
+  }
+  return (
+    <div>
+      {displayNames.length &&
+        <div>
+          {joinStringList(displayNames)}{" "}
+          <span className={classes.tooltipSecondaryText}>reacted with</span>
+        </div>
+      }
+      <div className={classes.tooltipSecondaryText}>
+        <span className={classes.tooltipEmoji}>{emojiOption.emoji}</span>{" "}
+        {emojiOption.label}
+      </div>
+    </div>
+  );
+}
+
 interface ThreeAxisEmojisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType,
 }
@@ -88,6 +133,7 @@ const ThreeAxisEmojisVoteOnComment = ({
   classes,
 }: ThreeAxisEmojisVoteOnCommentProps) => {
   const currentUser = useCurrentUser();
+  const post = usePostsPageContext();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [everOpened, setEverOpened] = useState(false);
@@ -147,7 +193,15 @@ const ThreeAxisEmojisVoteOnComment = ({
       {reactions.map(({emojiOption, score}) =>
         <LWTooltip
           key={emojiOption.name}
-          title={`${emojiOption.emoji} ${emojiOption.label}`}
+          title={
+            <EmojiTooltipContent
+              currentUser={currentUser}
+              emojiOption={emojiOption}
+              isSelected={isEmojiSelected(voteProps, emojiOption)}
+              reactors={post?.commentEmojiReactors?.[document._id]}
+              classes={classes}
+            />
+          }
           placement="top"
           popperClassName={classes.tooltip}
         >

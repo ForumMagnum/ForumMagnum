@@ -283,8 +283,9 @@ registerVotingSystem({
       return false;
     }
     for (let key of Object.keys(vote.extendedVoteType)) {
-      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral")
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral") {
         return true;
+      }
     }
     return false;
   },
