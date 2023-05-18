@@ -1295,9 +1295,10 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     canCreate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
+    nullable: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
-    group: formGroups.coauthors,
+    group: formGroups.coauthors
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -2195,15 +2196,6 @@ const schema: SchemaType<DbPost> = {
     foreignKey: "Users",
     optional: true
   },
-  
-  postSpecificRateLimit: {
-    type: Date,
-    nullable: true,
-    canRead: ['members'],
-    optional: true, hidden: true,
-    // Implementation in postResolvers.ts
-  },
-  
   
   commentSortOrder: {
     type: String,

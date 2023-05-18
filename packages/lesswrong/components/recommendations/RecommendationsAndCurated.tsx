@@ -242,7 +242,7 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {isEAForum && (
+            {!isEAForum && (
               <div className={classes.curated}>
                 <CuratedPostsList />
               </div>

@@ -18,9 +18,8 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
 import GraphQLJSON from 'graphql-type-json';
-import { RateLimitReason } from '../../lib/collections/users/schema';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -51,24 +50,30 @@ augmentFieldsDict(Users, {
       }
     }
   },
-  // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
       type: GraphQLJSON,
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<{
-        nextEligible: Date,
-        rateLimitType: RateLimitReason
-      }|null> => {
-        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
-        if (rateLimit) {
-          return rateLimit
-        }
-        return null;
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
       }
     },
   },
+  rateLimitNextAbleToPost: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        if (rateLimit) {
+          return rateLimit
+        } else {
+          return null
+        }
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`

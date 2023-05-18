@@ -351,8 +351,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly subforumPreferredLayout: "card" | "list",
-  readonly experiencedIn: Array<string>,
-  readonly interestedIn: Array<string>,
+  readonly experiencedIn: Array<string> | null,
+  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
@@ -362,6 +362,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afApplicationText: string,
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: any,
+  readonly rateLimitNextAbleToPost: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -603,7 +604,7 @@ interface PostsDefaultFragment { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
@@ -661,7 +662,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
-  readonly postSpecificRateLimit: Date,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
   readonly tableOfContents: any,
@@ -758,7 +758,7 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
+  readonly userIds: Array<string> | null,
 }
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
@@ -846,7 +846,7 @@ interface PostsMinimumInfo { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
 }
@@ -1215,7 +1215,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly readTimeMinutesOverride: number,
   readonly fmCrosspost: {
     isCrosspost: boolean,
@@ -1324,11 +1324,6 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
-}
-
-interface PostWithRateLimit { // fragment on Posts
-  readonly _id: string,
-  readonly postSpecificRateLimit: Date,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2549,14 +2544,19 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     dayOfWeekGMT: string,
   },
   readonly subforumPreferredLayout: "card" | "list",
-  readonly experiencedIn: Array<string>,
-  readonly interestedIn: Array<string>,
+  readonly experiencedIn: Array<string> | null,
+  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
 }
 
-interface UsersCurrentRateLimit { // fragment on Users
+interface UsersCurrentCommentRateLimit { // fragment on Users
   readonly _id: string,
   readonly rateLimitNextAbleToComment: any,
+}
+
+interface UsersCurrentPostRateLimit { // fragment on Users
+  readonly _id: string,
+  readonly rateLimitNextAbleToPost: any,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2619,7 +2619,7 @@ interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
   readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
+  readonly userIds: Array<string> | null,
 }
 
 interface UserAltAccountsFragment extends SunshineUsersList { // fragment on Users
@@ -3090,7 +3090,6 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
-  PostWithRateLimit: PostWithRateLimit
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3188,7 +3187,8 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
-  UsersCurrentRateLimit: UsersCurrentRateLimit
+  UsersCurrentCommentRateLimit: UsersCurrentCommentRateLimit
+  UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
   UserBookmarkedPosts: UserBookmarkedPosts
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
@@ -3280,7 +3280,6 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
-  PostWithRateLimit: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3378,7 +3377,8 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
-  UsersCurrentRateLimit: "Users"
+  UsersCurrentCommentRateLimit: "Users"
+  UsersCurrentPostRateLimit: "Users"
   UserBookmarkedPosts: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
