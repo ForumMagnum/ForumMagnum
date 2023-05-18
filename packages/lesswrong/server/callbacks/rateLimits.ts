@@ -241,7 +241,6 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
    * for comments made on others' posts.
    */
   const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
-  console.log({commentsOnOthersPostsInTimeframe})
 
   const modLimitNextCommentDate = (modRateLimitHours > 0 && await applyModRateLimitForPost(user._id, postId))
     ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1)
@@ -385,7 +384,6 @@ function checkDownvoteRatioCommentRateLimit(user: DbUser): boolean {
   // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
   const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
   const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
-  console.log({downvoteRatio, downvoteRatioThreshold})
   const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
 
   return aboveDownvoteRatioThreshold
