@@ -246,6 +246,17 @@ registerVotingSystem({
   },
 });
 
+const getEmojiReactionPower = (value?: boolean) => {
+  switch (value) {
+  case true:
+    return 1;
+  case false:
+    return -1;
+  default:
+    return 0;
+  }
+}
+
 registerVotingSystem({
   name: "threeAxisEmojis",
   description: "Two-axis approve and agree, plus emoji reactions",
@@ -256,8 +267,8 @@ registerVotingSystem({
     currentUser: UsersCurrent,
   }): any => {
     const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
-      const hasReaction = !!extendedVote?.[reaction];
-      return [reaction, (oldExtendedScore?.[reaction] || 0) + (hasReaction ? 1 : 0)];
+      const power = getEmojiReactionPower(extendedVote?.[reaction]);
+      return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
     }));
     return filterZeroes({...emojiReactCounts});
   },

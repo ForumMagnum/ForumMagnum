@@ -11,9 +11,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { AddEmoji } from "../icons/addEmoji";
 import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
+import { userHasEAEmojiReacts } from "../../lib/betas";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
-import { userHasEAEmojiReacts } from "../../lib/betas";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
