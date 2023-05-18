@@ -1,46 +1,41 @@
 import moment from "moment";
 import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, PostAndCommentRateLimitTypes, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./schema";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
  */
-export function getTimeframeForRateLimit(type: RateLimitType) {
-  let hours 
+export function getTimeframeForRateLimit(type: AllRateLimitTypes): number {
   switch(type) {
     case RATE_LIMIT_ONE_PER_DAY:
-      hours = 24; 
-      break;
+      return 24; 
     case RATE_LIMIT_ONE_PER_THREE_DAYS:
-      hours = 24 * 3; 
-      break;
+      return 24 * 3; 
     case RATE_LIMIT_ONE_PER_WEEK:
-      hours = 24 * 7; 
-      break;
+      return 24 * 7; 
     case RATE_LIMIT_ONE_PER_FORTNIGHT:
-      hours = 24 * 14; 
-      break;
+      return 24 * 14; 
     case RATE_LIMIT_ONE_PER_MONTH:
-      hours = 24 * 30;
-      break;
+      return 24 * 30;
+    case RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK:
+      return 24 * 7;
   }
-  return hours
 }
 
 /**
  * Fetches the most recent, active rate limit affecting a user.
  */
-export function getModeratorRateLimit(user: DbUser) {
+export function getModeratorRateLimit(userId: string) {
   return ModeratorActions.findOne({
-    userId: user._id,
+    userId: userId,
     type: {$in: postAndCommentRateLimits},
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
   }, {
     sort: {
       createdAt: -1
     }
-  }) as Promise<DbModeratorAction & {type:RateLimitType} | null>
+  }) as Promise<DbModeratorAction & {type:PostAndCommentRateLimitTypes} | null>
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {
@@ -48,9 +43,9 @@ export function getAverageContentKarma(content: VoteableType[]) {
   return runningContentKarma / content.length;
 }
 
-export async function userHasActiveModeratorActionOfType(user: DbUser, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
+export async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
   const action = await ModeratorActions.findOne({
-    userId: user._id,
+    userId: userId,
     type: moderatorActionType,
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
   });

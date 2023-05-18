@@ -32,7 +32,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, RateLimitWarning } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -44,6 +44,14 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    skip: !currentUser,
+  });
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
     
   if (!document && loading) {
     return <Components.Loading/>
@@ -95,6 +103,7 @@ const PostsEditForm = ({ documentId, classes }: {
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
       {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+      {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
       <NoSSR>
         <WrappedSmartForm
           collectionName="Posts"
