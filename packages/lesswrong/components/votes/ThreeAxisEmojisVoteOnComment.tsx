@@ -115,7 +115,7 @@ const EmojiTooltipContent: FC<{
   }
   return (
     <div>
-      {displayNames.length &&
+      {displayNames.length > 0 &&
         <div>
           {joinStringList(displayNames)}{" "}
           <span className={classes.tooltipSecondaryText}>reacted with</span>
