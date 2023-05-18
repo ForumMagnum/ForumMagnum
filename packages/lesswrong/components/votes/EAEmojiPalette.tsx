@@ -11,7 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   emojiContainer: {
     display: "flex",
     flexWrap: "wrap",
-    rowGap: "2px",
     margin: "1em",
   },
   emoji: {
@@ -51,7 +50,7 @@ const EAEmojiPalette = ({onSelectEmoji, classes}: {
 
   const onEnter = useCallback((emojiOption: EmojiOption) => {
     setHovered(emojiOption);
-  }, [hovered]);
+  }, []);
 
   const onLeave = useCallback((emojiOption: EmojiOption) => {
     if (emojiOption.name === hovered?.name) {

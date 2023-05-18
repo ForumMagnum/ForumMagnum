@@ -25,11 +25,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     padding: "0 6px",
     gap: "6px",
+    height: 26,
+    transform: "translateY(-1px)",
     cursor: "pointer",
     userSelect: "none",
     "&:hover": {
       background: theme.palette.grey[200],
     },
+  },
+  emojiPreview: {
+    fontSize: "1.4em",
   },
   menu: {
     "& .MuiPaper-root": {
@@ -96,12 +101,12 @@ const ThreeAxisEmojisVoteOnComment = ({
     captureEvent("emojiMenuClicked", {open: true});
     setAnchorEl(event.currentTarget as HTMLElement);
     setEverOpened(true);
-  }, []);
+  }, [captureEvent]);
 
   const onCloseMenu = useCallback(() => {
     captureEvent("emojiMenuClicked", {open: false});
     setAnchorEl(null);
-  }, []);
+  }, [captureEvent]);
 
   const onSelectEmoji = useCallback((emojiOption: EmojiOption) => {
     if (!currentUser) {
@@ -121,7 +126,7 @@ const ThreeAxisEmojisVoteOnComment = ({
       },
       currentUser,
     });
-  }, []);
+  }, [currentUser, openDialog, voteProps]);
 
   const reactions = getCurrentReactions(voteProps);
 
@@ -141,7 +146,7 @@ const ThreeAxisEmojisVoteOnComment = ({
           onClick={() => onSelectEmoji(emojiOption)}
           className={classes.button}
         >
-          <div>{emojiOption.emoji}</div>
+          <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
           <div>{score}</div>
         </div>
       )}
