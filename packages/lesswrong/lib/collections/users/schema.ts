@@ -2504,7 +2504,7 @@ const schema: SchemaType<DbUser> = {
       ).fetch();
       const userIds = new Set<string>();
       for (let clientId of clientIds) {
-        for (let userId of clientId.userIds)
+        for (let userId of clientId.userIds ?? [])
           userIds.add(userId);
       }
       return userIds.size > 1;
