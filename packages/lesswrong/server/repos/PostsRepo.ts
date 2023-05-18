@@ -77,7 +77,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     maxReactorsPerEmoji = 4,
   ): Promise<Record<string, Record<string, string[]>>> {
     const result = await this.getRawDb().one(`
-      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") as "emojiReactors"
+      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
         SELECT
           "commentId",

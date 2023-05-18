@@ -262,10 +262,10 @@ registerVotingSystem({
   description: "Two-axis approve and agree, plus emoji reactions",
   getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote}: {
-    oldExtendedScore: any,
-    extendedVote: any,
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: Record<string, boolean>,
     currentUser: UsersCurrent,
-  }): any => {
+  }): Record<string, number> => {
     const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
       const power = getEmojiReactionPower(extendedVote?.[reaction]);
       return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
@@ -273,13 +273,14 @@ registerVotingSystem({
     return filterZeroes({...emojiReactCounts});
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
-    oldExtendedScore: any,
-    cancelledExtendedVote: any,
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: Record<string, boolean>,
     currentUser: UsersCurrent,
-  }): any => {
+  }): Record<string, number> => {
     const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
       const oldVote = !!cancelledExtendedVote?.[reaction];
-      return [reaction, oldExtendedScore?.[reaction] - (oldVote ? 1 : 0)];
+      const oldScore = oldExtendedScore?.[reaction] ?? 0;
+      return [reaction, oldScore - (oldVote ? 1 : 0)];
     }));
     return filterZeroes({...emojiReactCounts});
   },
