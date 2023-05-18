@@ -7,6 +7,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { isLW } from "../../lib/instanceSettings";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
@@ -68,9 +69,9 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          <Button>
+          {isLW && <Button>
             This was your father's rock
-          </Button>
+          </Button>}
           <Button onClick={handleClick}>
             I have read and understood
           </Button>
