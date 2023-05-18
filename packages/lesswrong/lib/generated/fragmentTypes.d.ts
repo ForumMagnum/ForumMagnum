@@ -351,8 +351,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly subforumPreferredLayout: "card" | "list",
-  readonly experiencedIn: Array<string>,
-  readonly interestedIn: Array<string>,
+  readonly experiencedIn: Array<string> | null,
+  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
@@ -603,7 +603,7 @@ interface PostsDefaultFragment { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
@@ -758,7 +758,7 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
+  readonly userIds: Array<string> | null,
 }
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
@@ -846,7 +846,7 @@ interface PostsMinimumInfo { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
 }
@@ -1215,7 +1215,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>,
+  }> | null,
   readonly readTimeMinutesOverride: number,
   readonly fmCrosspost: {
     isCrosspost: boolean,
@@ -2549,8 +2549,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     dayOfWeekGMT: string,
   },
   readonly subforumPreferredLayout: "card" | "list",
-  readonly experiencedIn: Array<string>,
-  readonly interestedIn: Array<string>,
+  readonly experiencedIn: Array<string> | null,
+  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
 }
 
@@ -2619,7 +2619,7 @@ interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
   readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string>,
+  readonly userIds: Array<string> | null,
 }
 
 interface UserAltAccountsFragment extends SunshineUsersList { // fragment on Users
