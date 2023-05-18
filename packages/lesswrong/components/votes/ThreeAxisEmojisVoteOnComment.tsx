@@ -36,6 +36,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   emojiPreview: {
     fontSize: "1.4em",
   },
+  tooltip: {
+    background: theme.palette.grey[800],
+    color: theme.palette.grey[0],
+    transform: "translateY(-8px)",
+  },
   menu: {
     "& .MuiPaper-root": {
       transform: "translateY(-8px) !important",
@@ -130,7 +135,7 @@ const ThreeAxisEmojisVoteOnComment = ({
 
   const reactions = getCurrentReactions(voteProps);
 
-  const {TwoAxisVoteOnComment, EAEmojiPalette} = Components;
+  const {TwoAxisVoteOnComment, EAEmojiPalette, LWTooltip} = Components;
   return (
     <div className={classes.root}>
       <TwoAxisVoteOnComment
@@ -140,22 +145,34 @@ const ThreeAxisEmojisVoteOnComment = ({
         votingSystem={getVotingSystemByName("twoAxis")}
       />
       {reactions.map(({emojiOption, score}) =>
-        <div
+        <LWTooltip
           key={emojiOption.name}
-          role="button"
-          onClick={() => onSelectEmoji(emojiOption)}
-          className={classes.button}
+          title={`${emojiOption.emoji} ${emojiOption.label}`}
+          placement="top"
+          popperClassName={classes.tooltip}
         >
-          <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
-          <div>{score}</div>
-        </div>
+          <div
+            role="button"
+            onClick={() => onSelectEmoji(emojiOption)}
+            className={classes.button}
+          >
+            <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
+            <div>{score}</div>
+          </div>
+        </LWTooltip>
       )}
       <div
         role="button"
         onClick={onOpenMenu}
         className={classes.button}
       >
-        <AddEmoji />
+        <LWTooltip
+          title="Add reaction"
+          placement="top"
+          popperClassName={classes.tooltip}
+        >
+          <AddEmoji />
+        </LWTooltip>
       </div>
       <Menu
         onClick={onCloseMenu}

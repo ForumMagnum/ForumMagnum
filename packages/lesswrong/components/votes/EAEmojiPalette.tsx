@@ -22,8 +22,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     aspectRatio: 1,
     borderRadius: theme.borderRadius.small,
     cursor: "pointer",
+    userSelect: "none",
     "&:hover": {
       background: theme.palette.grey[110],
+    },
+    "&:nth-child(n-5)": {
+      marginTop: -1,
     },
   },
   nameContainer: {
