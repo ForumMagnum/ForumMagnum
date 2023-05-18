@@ -221,7 +221,6 @@ async function applyModRateLimitForPost(userId: string, postId: string|null): Pr
   if (!post) return false
   const userIsNotPrimaryAuthor = post.userId !== userId
   const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
-  console.log(userIsNotPrimaryAuthor, userIsNotCoauthor)
   return userIsNotPrimaryAuthor && userIsNotCoauthor
 }
 
