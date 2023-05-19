@@ -25,8 +25,13 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount } from './commentCallbacks';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
+const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -511,4 +516,64 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   }
 
   return post;
+});
+
+/**
+ * Call the Type3 webhook to notify it of a new post. This will trigger audio to be pre-generated for the post.
+ */
+async function callType3Webhook(action: 'post_published' | 'post_edited', url: string) {
+  const clientId = type3ClientIdSetting.get();
+  const webhookSecret = type3WebhookSecretSetting.get();
+
+  if (!clientId || !webhookSecret) return;
+
+  const webhookUrl = 'https://api.type3.audio/webhooks/create/';
+  const data = {
+    client_id: clientId,
+    action: action,
+    url: url,
+    key: webhookSecret,
+  };
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (res.status !== 200) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to call Type3 webhook with action ${action} for post ${url}. Response code: `, res.status)
+  }
+}
+
+/**
+ * Call the Type 3 webhook on post creation
+ */
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
+  if (!document.authorIsUnreviewed && !document.draft) {
+    const url = postGetPageUrl(document);
+    await callType3Webhook('post_published', url);
+  }
+});
+
+/**
+ * Call the Type 3 webhook on post update. If the post is being undrafted this will count as being "published".
+ * It will count as being "edited" if the post content has changed.
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (document.draft || document.rejected) return
+  const url = postGetPageUrl(document);
+
+  // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    await callType3Webhook('post_published', url);
+    return
+  }
+
+  if (oldDocument.contents?.html !== document.contents?.html) {
+    await callType3Webhook('post_edited', url);
+  }
 });
