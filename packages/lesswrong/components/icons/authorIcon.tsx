@@ -1,11 +1,6 @@
 import React from "react";
 
-export const AuthorIcon = ({className}: {
-  className?: string
-}) => {
-  const props = {
-    ...(className && {className})
-  }
+export const AuthorIcon = (props: React.HTMLAttributes<SVGElement>) => {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path d="M7.93765 3.68928C7.93765 5.23289 6.68626 6.48428 5.14265 6.48428C3.59905 6.48428 2.34766 5.23289 2.34766 3.68928C2.34766 2.14568 3.59905 0.894287 5.14265 0.894287C6.68626 0.894287 7.93765 2.14568 7.93765 3.68928Z" fill="currentColor"/>

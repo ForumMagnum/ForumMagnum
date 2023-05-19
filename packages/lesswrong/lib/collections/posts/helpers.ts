@@ -207,7 +207,7 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -316,7 +316,7 @@ export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: stri
 }
 
 export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  let { coauthorStatuses, hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
   if (!hasCoauthorPermission) {

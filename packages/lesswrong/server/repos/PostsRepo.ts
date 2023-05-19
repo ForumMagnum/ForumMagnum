@@ -59,7 +59,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `);
     return result?.meanKarma ?? 0;
   }
-  
+
   async getReadHistoryForUser(userId: string): Promise<Array<DbPost & {lastUpdated: Date}>> {
     const results = await this.getRawDb().many(`
       SELECT p.*, rs."lastUpdated"
@@ -70,5 +70,45 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT 10
     `)
     return results
+  }
+
+  async getEmojiReactors(
+    postId: string,
+    maxReactorsPerEmoji = 4,
+  ): Promise<Record<string, Record<string, string[]>>> {
+    const result = await this.getRawDb().one(`
+      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
+      FROM (
+        SELECT
+          "commentId",
+          JSON_OBJECT_AGG("key", "displayNames") AS "reactorDisplayNames"
+        FROM (
+          SELECT
+            "commentId",
+            "key",
+            (ARRAY_AGG("displayName" ORDER BY "karma" DESC))[1:$2] AS "displayNames"
+          FROM (
+            SELECT
+              c."_id" AS "commentId",
+              u."displayName",
+              u."karma",
+              (JSONB_EACH(v."extendedVoteType")).*
+            FROM "Comments" c
+            JOIN "Votes" v ON
+              v."collectionName" = 'Comments' AND
+              v."documentId" = c."_id" AND
+              v."cancelled" IS NOT TRUE AND
+              v."isUnvote" IS NOT TRUE AND
+              v."extendedVoteType" IS NOT NULL
+            JOIN "Users" u ON u."_id" = v."userId"
+            WHERE c."postId" = $1
+          ) q
+          WHERE "value" = TO_JSONB(TRUE)
+          GROUP BY "commentId", "key"
+        ) q
+        GROUP BY "commentId"
+      ) q
+    `, [postId, maxReactorsPerEmoji]);
+    return result.emojiReactors;
   }
 }
