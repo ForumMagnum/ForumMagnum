@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
+import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
@@ -245,6 +246,62 @@ registerVotingSystem({
   },
 });
 
+const getEmojiReactionPower = (value?: boolean) => {
+  switch (value) {
+  case true:
+    return 1;
+  case false:
+    return -1;
+  default:
+    return 0;
+  }
+}
+
+registerVotingSystem({
+  name: "threeAxisEmojis",
+  description: "Two-axis approve and agree, plus emoji reactions",
+  getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
+  addVoteClient: ({oldExtendedScore, extendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+  }): Record<string, number> => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
+      const power = getEmojiReactionPower(extendedVote?.[reaction]);
+      return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+  }): Record<string, number> => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      const oldScore = oldExtendedScore?.[reaction] ?? 0;
+      return [reaction, oldScore - (oldVote ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map(reaction => {
+      return [reaction, sumBy(votes, (v) => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) {
+      return false;
+    }
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral") {
+        return true;
+      }
+    }
+    return false;
+  },
+});
 
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);

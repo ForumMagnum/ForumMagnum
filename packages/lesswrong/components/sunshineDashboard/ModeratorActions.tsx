@@ -138,6 +138,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   }
   const handleReview = () => {
+    const newNotes = getModSignatureWithNote(`Approved`)+notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -145,10 +146,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         reviewedByUserId: currentUser._id,
         reviewedAt: new Date(),
         needsReview: false,
-        sunshineNotes: notes,
+        sunshineNotes: newNotes,
         snoozedUntilContentCount: null
       }
     })
+    setNotes( newNotes )
   }
   
   const handleSnooze = (contentCount: number) => {
@@ -220,6 +222,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handlePurge = () => {
+    const newNotes = getModSignatureWithNote("Purge") + notes;
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       void updateUser({
         selector: {_id: user._id},
@@ -232,24 +235,24 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(1000, 'years').toDate(),
-          sunshineNotes: notes
+          sunshineNotes: newNotes
         }
       })
-      setNotes( getModSignatureWithNote("Purge")+notes )
+      setNotes( newNotes )
     }
   }
   
   const handleFlag = () => {
+    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
+    const newNotes =  getModSignatureWithNote(flagStatus)+notes
     void updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
-        sunshineNotes: notes
+        sunshineNotes: newNotes
       }
     })
-    
-    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( getModSignatureWithNote(flagStatus)+notes )
+    setNotes(newNotes)
   }
   
   const handleDisablePosting = () => {
