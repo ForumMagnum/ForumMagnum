@@ -16,7 +16,7 @@ import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspos
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
@@ -33,7 +33,7 @@ const MINIMUM_APPROVAL_KARMA = 5
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
 const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 
-if (forumTypeSetting.get() === "EAForum") {
+if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
     if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
@@ -46,6 +46,14 @@ if (forumTypeSetting.get() === "EAForum") {
   getCollectionHooks("Posts").updateBefore.add(
     (post, {currentUser}) => checkTosAccepted(currentUser, post),
   );
+
+  const assertPostTitleHasNoEmojis = (post: DbPost) => {
+    if (/\p{Extended_Pictographic}/u.test(post.title)) {
+      throw new Error("Post titles cannot contain emojis");
+    }
+  }
+  getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
+  getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
 }
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
@@ -281,7 +289,7 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
     }
 
     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-    const noEmail = forumTypeSetting.get() === "EAForum" 
+    const noEmail = isEAForum
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   
