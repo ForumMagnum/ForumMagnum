@@ -241,7 +241,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           sunshineNotes: newNotes
         }
       })
-      setNotes( getModSignatureWithNote("Purge")+notes )
+      setNotes( newNotes )
     }
   }
   
