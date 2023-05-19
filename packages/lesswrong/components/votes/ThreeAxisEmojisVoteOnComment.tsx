@@ -34,7 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     userSelect: "none",
     "&:hover": {
-      background: theme.palette.grey[200],
+      background: theme.palette.grey[250],
+      border: `1px solid ${theme.palette.grey[250]}`,
+      color: theme.palette.grey[700],
     },
   },
   buttonSelected: {
@@ -43,6 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     "&:hover": {
       background: theme.palette.primaryAlpha(0.2),
+      border: `1px solid ${theme.palette.primaryAlpha(0.7)}`,
     },
   },
   emojiPreview: {
