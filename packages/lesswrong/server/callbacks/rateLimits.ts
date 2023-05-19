@@ -29,24 +29,41 @@ const commentLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null
 const commentLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaNumComments', 1)
 const commentLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaIntervalHours', 24)
 
-const postLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitLowKarmaThreshold', null) // LW uses "10"
-const postLimitLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitLowKarmaNumComments', 1)
-const postLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitLowKarmaIntervalHours', 3 * 24)
+interface AutoRateLimitBase {
+  intervalUnit: 'weeks'|'days'|'hours'|'minutes',
+  intervalLength: number,
+  actionsPerInterval: number,
+  analyticsCategory?: RateLimitType 
+}
 
-const postLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitVeryLowKarmaThreshold', null) // LW uses "-1"
-const postLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitVeryLowKarmaNumComments', 1)
-const postLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitVeryLowKarmaIntervalHours', 7 * 24)
+interface KarmaThresholdRateLimit extends AutoRateLimitBase {
+  karmaThreshold: number, // users with karma less than this are affected by the rateLimit
+}
 
-const postLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitSuperLowKarmaThreshold', null) // LW uses "-30"
-const postLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitSuperLowKarmaNumComments', 1)
-const postLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitSuperLowKarmaIntervalHours', 30 * 24)
+interface DownvoteRatioRateLimit extends AutoRateLimitBase {
+  downvoteRatio: number, // users will be rate limited if their ratio of received downvotes  / total votes is higher than this
+}
 
+const defaultKarmaThresholdRateLimit = {
+  karmaThreshold: 30,
+  intervalUnit: 'minutes',
+  intervalLength: 30,
+  actionsPerInterval: 4,
+  analyticsCategory: "lowKarma"
+} as const;
 
+const defaultDownvoteRatioRateLimit = {
+  downvoteRatio: .3,
+  intervalUnit: 'minutes',
+  intervalLength: 30,
+  actionsPerInterval: 4,
+  analyticsCategory: "lowKarma"
+} as const
 
-// Rate limit the number of comments a user can post per 30 min if their ratio of downvotes received : total votes received is higher than this
-const commentLimitDownvoteRatio = new DatabasePublicSetting<number|null>('commentLimitDownvoteRatio', null)
-const commentLimitDownvoteRatioNumComments = new DatabasePublicSetting<number>('commentLimitDownvoteRatioNumComments', 4)
-const commentLimitDownvoteRatioIntervalHours = new DatabasePublicSetting<number>('commentLimitDownvoteRatioIntervalHours', .5)
+const postKarmaThresholdRateLimits = new DatabasePublicSetting<Array<KarmaThresholdRateLimit>>('postKarmaThresholdRateLimits', [])
+const commentKarmaThresholdRateLimits = new DatabasePublicSetting<Array<KarmaThresholdRateLimit>>('commentKarmaThresholdRateLimits', [defaultKarmaThresholdRateLimit])
+
+const commentDownvoteRatioRateLimits = new DatabasePublicSetting<Array<DownvoteRatioRateLimit>>('commentDownvoteRatioRateLimits', [defaultDownvoteRatioRateLimit])
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -209,11 +226,42 @@ function isStrictestRateLimit(rateLimitDate: Date | null, allPossibleDates: Arra
   return !!rateLimitDate && allPossibleDates.every(date => rateLimitDate >= (date ?? new Date()));
 }
 
+function getPostLowKarmaNextPostDate(user: DbUser, posts: Array<DbPost>) {
+  const karmaThreshold = postLimitLowKarmaThreshold.get()
+  const intervalLength = postLimitLowKarmaIntervalHours.get()
+  const postsInInterval = postLimitLowKarmaNumComments.get()
+  if (!karmaThreshold) return null 
+  if (user.karma > karmaThreshold) return null 
+  return getNextAbleToSubmitDate(posts, "hours", intervalLength, postsInInterval)
+}
+
+function getPostVeryLowKarmaNextPostDate(user: DbUser, posts: Array<DbPost>) {
+  const karmaThreshold = postLimitVeryLowKarmaThreshold.get()
+  const intervalLength = postLimitVeryLowKarmaIntervalHours.get()
+  const postsInInterval = postLimitVeryLowKarmaNumComments.get()
+  if (!karmaThreshold) return null 
+  if (user.karma > karmaThreshold) return null 
+  return getNextAbleToSubmitDate(posts, "hours", intervalLength, postsInInterval)
+}
+
+const postLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitLowKarmaThreshold', null) // LW uses "10"
+const postLimitLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitLowKarmaNumComments', 1)
+const postLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitLowKarmaIntervalHours', 3 * 24)
+
+const postLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitVeryLowKarmaThreshold', null) // LW uses "-1"
+const postLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitVeryLowKarmaNumComments', 1)
+const postLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitVeryLowKarmaIntervalHours', 7 * 24)
+
+const postLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitSuperLowKarmaThreshold', null) // LW uses "-30"
+const postLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitSuperLowKarmaNumComments', 1)
+const postLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitSuperLowKarmaIntervalHours', 30 * 24)
+
 function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
   // for each rate limit, get the next date that user could post
   const modLimitNextPostDate = (modRateLimitHours > 0) ? getNextAbleToSubmitDate(postsInTimeframe, "hours", modRateLimitHours, 1) : null
   const dailyLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "hours", 24, maxPostsPer24Hours.get())
   const doublePostLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "seconds", postIntervalSetting.get(), 1)
+  const lowKarmaPostDate = getPostLowKarmaNextPostDate(user, postsInTimeframe)
 
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
 
