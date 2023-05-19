@@ -7,9 +7,20 @@ const isRateLimitActive = (userRateLimit: DbUserRateLimit) => {
   return !userRateLimit.endedAt || userRateLimit.endedAt > new Date();
 }
 
-const USER_RATE_LIMIT_TYPES = {
+const dictionaryToSelectOptions = <T extends Record<string, string>>(dictionary: T) => {
+  return Object.entries(dictionary).map(([value, label]) => ({ value, label }));
+};
+
+export const USER_RATE_LIMIT_TYPES = {
   allComments: 'Comments',
   allPosts: 'Posts'
+};
+
+const INTERVAL_UNITS = {
+  minutes: 'minutes',
+  hours: 'hours',
+  days: 'days',
+  weeks: 'weeks'
 };
 
 const schema: SchemaType<DbUserRateLimit> = {
@@ -25,22 +36,33 @@ const schema: SchemaType<DbUserRateLimit> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
-    control: 'SearchSingleUser'
+    hidden: true
+    // control: 'SearchSingleUser'
   },
   type: {
     type: String,
     control: 'select',
-    allowedValues: ['allComments', 'allPosts'],
-    options: () => Object.entries(USER_RATE_LIMIT_TYPES).map(([value, label]) => ({ value, label })),
+    allowedValues: Object.keys(USER_RATE_LIMIT_TYPES),
+    options: () => dictionaryToSelectOptions(USER_RATE_LIMIT_TYPES),
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
   },
-  intervalMs: {
+  intervalUnit: {
+    type: String,
+    control: 'select',
+    allowedValues: Object.keys(INTERVAL_UNITS),
+    options: () => dictionaryToSelectOptions(INTERVAL_UNITS),
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  intervalLength: {
     type: Number,
-    control: 'TimeIntervalItem',
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],

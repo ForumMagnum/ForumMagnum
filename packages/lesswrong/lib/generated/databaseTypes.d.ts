@@ -987,7 +987,8 @@ interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
   userId: string
   type: "allComments" | "allPosts"
-  intervalMs: number
+  intervalUnit: "minutes" | "hours" | "days" | "weeks"
+  intervalLength: number
   actionsPerInterval: number
   endedAt: Date | null
   createdAt: Date

@@ -3015,7 +3015,8 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
 interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
   readonly userId: string,
   readonly type: "allComments" | "allPosts",
-  readonly intervalMs: number,
+  readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
+  readonly intervalLength: number,
   readonly actionsPerInterval: number,
   readonly endedAt: Date | null,
 }
@@ -3025,6 +3026,9 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
   readonly type: "allComments" | "allPosts",
+  readonly actionsPerInterval: number,
+  readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
+  readonly intervalLength: number,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
 }

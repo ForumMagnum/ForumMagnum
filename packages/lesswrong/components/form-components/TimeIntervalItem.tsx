@@ -11,9 +11,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type IntervalUnit = 'minutes' | 'hours' | 'days';
 
-const MS_IN_MINUTE = 1000 * 60;
-const MS_IN_HOUR = MS_IN_MINUTE * 60;
-const MS_IN_DAY = MS_IN_HOUR * 24;
+export const MS_IN_MINUTE = 1000 * 60;
+export const MS_IN_HOUR = MS_IN_MINUTE * 60;
+export const MS_IN_DAY = MS_IN_HOUR * 24;
 
 const INTERVAL_MS_MAP = {
   minutes: MS_IN_MINUTE,

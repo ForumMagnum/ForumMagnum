@@ -89,7 +89,7 @@ const MS_IN_HOUR = 1000 * 60 * 60;
 
 function getUserRateLimitIntervalHours(userRateLimit: DbUserRateLimit | null): number {
   if (!userRateLimit) return 0;
-  return userRateLimit.intervalMs / MS_IN_HOUR;
+  return moment.duration(userRateLimit.intervalLength, userRateLimit.intervalUnit).asHours();
 }
 
 // Check whether the given user can post a post right now. If they can, does

@@ -8,6 +8,9 @@ registerFragment(`
     }
     userId
     type
+    actionsPerInterval
+    intervalUnit
+    intervalLength
     createdAt
     endedAt
   }

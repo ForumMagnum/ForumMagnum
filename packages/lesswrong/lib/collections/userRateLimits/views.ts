@@ -4,25 +4,28 @@ import UserRateLimits from './collection';
 declare global {
   type UserRateLimitsViewTerms = Omit<ViewTermsBase, 'view'> & ({
     view: 'userRateLimits',
-    userIds: string[]
+    userIds: string[],
+    active?: boolean
   } | {
     view?: undefined | 'activeUserRateLimits',
-    userIds?: undefined
+    userIds?: undefined,
+    active?: undefined
   })
 }
 
 ensureIndex(UserRateLimits, { userId: 1, createdAt: -1, endedAt: -1 });
 
 UserRateLimits.addView('userRateLimits', function (terms: UserRateLimitsViewTerms) {
+  const activeFilter = terms.active ? { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }]} : {};
   return {
-    selector: { userId: { $in: terms.userIds } },
+    selector: { userId: { $in: terms.userIds }, ...activeFilter },
     options: { sort: { createdAt: -1 } }
   };
 });
 
 UserRateLimits.addView('activeUserRateLimits', function (terms: UserRateLimitsViewTerms) {
   return {
-    selector: { endedAt: {$gt: new Date()} },
+    selector: { endedAt: { $gt: new Date() } },
     options: { sort: { createdAt: -1 } }
   };
 });

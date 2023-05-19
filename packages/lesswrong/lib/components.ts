@@ -757,7 +757,6 @@ importComponent("SelectLocalgroup", () => require('../components/form-components
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
-importComponent("TimeIntervalItem", () => require('../components/form-components/TimeIntervalItem'));
 
 importComponent(["PostSummaryAction","PostSummaryDialog"], () => require('../components/languageModels/PostSummaryAction'));
 
