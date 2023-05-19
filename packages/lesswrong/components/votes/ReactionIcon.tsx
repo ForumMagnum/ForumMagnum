@@ -27,20 +27,23 @@ const ReactionIcon = ({react, inverted=false, classes}: {
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
   const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;
 
-  return <img
-    src={reactionType.svg}
-    style={{
-      filter: `opacity(${opacity}) saturate(${saturation})`,
-      padding,
-    }}
+  return <span
     className={classNames(
-      classes.reactionSvg,
       {
-        [classes.invertIfDarkMode]: inverted,
-        [classes.invertUnlessDarkMode]: !inverted,
+        [classes.invertIfDarkMode]: !inverted,
+        [classes.invertUnlessDarkMode]: inverted,
       },
     )}
-  />;
+  >
+    <img
+      src={reactionType.svg}
+      style={{
+        filter: `opacity(${opacity}) saturate(${saturation})`,
+        padding,
+      }}
+      className={classes.reactionSvg}
+    />
+  </span>
 }
 
 
