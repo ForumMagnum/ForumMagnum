@@ -4,7 +4,49 @@ const process = require('process');
 
 /**
  * Distill all the various connection-string-related options into a
- * straightforward database connection string.
+ * straightforward database connection string. Takes parsed command-line options
+ * formatted as Estrella's CLI-parser would parse them, ie, a dictionary where
+ * arguments of the form "--opt <string>" turn into {opt: "<string>"}. If
+ * connection-string arguments aren't provided, uses the environment variables
+ * MONGO_URL and PG_URL as a fallback.
+ *
+ * Because this is used by build.js which is itself responsible for invoking the
+ * Typescript compiler, it isn't in typescript. The type of this function is:
+ *
+ *   getDatabaseConfig: (opts: {
+ *     db?: string
+ *     mongoUrl?: string
+ *     mongoUrlFile?: string
+ *     postgresUrl?: string
+ *     postgresUrlFile?: string
+ *   }) => {
+ *     mongoUrl: string
+ *     postgresUrl: string
+ *     sshTunnelCommand: string[]|null
+ *   }
+ *
+ * (Currently, LW connects to both a mongodb database and a postgres database.
+ * However the mongodb database (and associated options) is deprecated.)
+ *
+ * If mongoUrlFile or postgresUrlFile is provided, it's the path to a text file
+ * containing the value of mongoUrl or postgresUrl. If "db" is provided, it's
+ * the path to a JSON file containing a JSON object of type:
+ *   {
+ *     postgresUrl: string
+ *     mongoUrl: string
+ *     sshTunnel?: {
+ *       host: string
+ *       key: string
+ *       localPort?: number
+ *     }
+ *   }
+ * If an sshTunnel option is provided, we will open an ssh connection to the
+ * specified host using the ssh key provided, making port localPort into a
+ * tunnel leading to the host from postgresUrl, and rewrite postgresUrl in the
+ * return value to use the tunnel. We do this so that the connection from
+ * developer machines to the ssh bastion host is compressed (the uncompressed
+ * part of the connection, from the bastion host to the DB, is then within the
+ * same datacenter).
  */
 function getDatabaseConfig(opts) {
   let dbConfig = null;
@@ -99,6 +141,12 @@ function die(message, status) {
     process.exit(status);
   } else {
     process.exit(1);
+  }
+}
+
+async function startSshTunnel(sshTunnelCommand) {
+  if (sshTunnelCommand) {
+    subprocess.Popen(databaseConfig.sshTunnelCommand);
   }
 }
 

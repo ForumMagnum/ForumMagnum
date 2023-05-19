@@ -4,7 +4,7 @@ const fs = require('fs');
 const process = require('process');
 const crypto = require('crypto');
 const { zlib } = require("mz");
-const { getDatabaseConfig } = require("./scripts/startup/buildUtil");
+const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
 const { generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
@@ -56,7 +56,7 @@ process.env.MONGO_URL = databaseConfig.mongoUrl;
 process.env.PG_URL = databaseConfig.postgresUrl;
 
 if (databaseConfig.sshTunnelCommand) {
-  subprocess.Popen(databaseConfig.sshTunnelCommand);
+  startSshTunnel(databaseConfig.sshTunnelCommand);
 }
 
 if (isProduction) {
