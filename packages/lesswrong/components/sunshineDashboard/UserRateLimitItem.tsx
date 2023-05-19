@@ -153,8 +153,6 @@ export const UserRateLimitItem = ({userId, classes}: {
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
       Set Rate Limit: <Select
-        // value={COMMENTS_THREE_PER_DAY}
-        // placeholder={COMMENTS_THREE_PER_DAY}
         onChange={(e) => createRateLimit(e.target.value)}
         className={classes.newRateLimit}
       >
