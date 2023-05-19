@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require('fs');
 const process = require('process');
+const child_process = require('child_process');
 
 /**
  * Distill all the various connection-string-related options into a
@@ -78,18 +79,18 @@ function getDatabaseConfig(opts) {
     if (!dbConfig.sshTunnel.key) die(`SSH tunnel needs a key`);
     if (!dbConfig.sshTunnel.host) die(`SSH tunnel needs a host`);
 
-    const { user, password, host, port, db } = parsePgConnectionString();
+    const { user, password, host, port, db } = parsePgConnectionString(dbConfig.postgresUrl);
     tunneledPgConnectionString = composePgConnectionString({
       user, password, db,
       host: "localhost",
-      port: (opts.sshTunnel.localPort || 5433),
+      port: (dbConfig.sshTunnel.localPort || 5433),
     });
+    console.log(`opts.db = ${opts.db}, sshTunnel.key=${dbConfig.sshTunnel.key}`);
     sshTunnelCommand = [
-      "ssh",
       "-C",
-      "-i", path.join(opts.db, opts.sshTunnel.key),
-      "-L", `${opts.sshTunnel.localPort}:${host}:${port}`,
-      opts.sshTunnel.host
+      "-i", path.join(path.dirname(opts.db), dbConfig.sshTunnel.key),
+      "-L", `${dbConfig.sshTunnel.localPort}:${host}:${port||5432}`,
+      dbConfig.sshTunnel.host
     ]
   }
 
@@ -146,8 +147,11 @@ function die(message, status) {
 
 async function startSshTunnel(sshTunnelCommand) {
   if (sshTunnelCommand) {
-    subprocess.Popen(databaseConfig.sshTunnelCommand);
+    child_process.spawn("ssh", sshTunnelCommand, {
+      stdio: "ignore",
+      detached: true,
+    });
   }
 }
 
-module.exports = { getDatabaseConfig };
+module.exports = { getDatabaseConfig, startSshTunnel };
