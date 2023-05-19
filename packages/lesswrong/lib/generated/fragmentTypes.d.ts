@@ -3020,6 +3020,15 @@ interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
+interface UserRateLimitDisplay { // fragment on UserRateLimits
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly userId: string,
+  readonly type: "allComments" | "allPosts",
+  readonly createdAt: Date,
+  readonly endedAt: Date | null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3218,6 +3227,7 @@ interface FragmentTypes {
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
+  UserRateLimitDisplay: UserRateLimitDisplay
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3408,6 +3418,7 @@ interface CollectionNamesByFragmentName {
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
+  UserRateLimitDisplay: "UserRateLimits"
   SuggestAlignmentComment: "Comments"
 }
 

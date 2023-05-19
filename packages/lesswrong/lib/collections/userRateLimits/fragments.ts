@@ -1,15 +1,14 @@
 import { registerFragment } from '../../vulcan-lib';
 
-// registerFragment(`
-//   fragment ModeratorActionDisplay on ModeratorAction {
-//     _id
-//     user {
-//       ...UsersMinimumInfo
-//     }
-//     userId
-//     type
-//     active
-//     createdAt
-//     endedAt
-//   }
-// `);
+registerFragment(`
+  fragment UserRateLimitDisplay on UserRateLimit {
+    _id
+    user {
+      ...UsersMinimumInfo
+    }
+    userId
+    type
+    createdAt
+    endedAt
+  }
+`);

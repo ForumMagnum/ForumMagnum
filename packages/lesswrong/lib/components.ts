@@ -581,6 +581,7 @@ importComponent("ModeratorActions", () => require('../components/sunshineDashboa
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
 importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
+importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
@@ -756,6 +757,7 @@ importComponent("SelectLocalgroup", () => require('../components/form-components
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
+importComponent("TimeIntervalItem", () => require('../components/form-components/TimeIntervalItem'));
 
 importComponent(["PostSummaryAction","PostSummaryDialog"], () => require('../components/languageModels/PostSummaryAction'));
 

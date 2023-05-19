@@ -84,7 +84,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem } = Components
+  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const { mutate: updateUser } = useUpdate({
@@ -422,6 +422,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         </MenuItem>)}
       </Menu>
     </div>
+    <UserRateLimitItem userId={user._id} />
     <div className={classes.notes}>
       <Input
         value={notes}

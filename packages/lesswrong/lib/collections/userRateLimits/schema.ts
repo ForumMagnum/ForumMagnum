@@ -7,6 +7,11 @@ const isRateLimitActive = (userRateLimit: DbUserRateLimit) => {
   return !userRateLimit.endedAt || userRateLimit.endedAt > new Date();
 }
 
+const USER_RATE_LIMIT_TYPES = {
+  allComments: 'Comments',
+  allPosts: 'Posts'
+};
+
 const schema: SchemaType<DbUserRateLimit> = {
   userId: {
     ...foreignKeyField({
@@ -26,7 +31,7 @@ const schema: SchemaType<DbUserRateLimit> = {
     type: String,
     control: 'select',
     allowedValues: ['allComments', 'allPosts'],
-    // options: () => Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),
+    options: () => Object.entries(USER_RATE_LIMIT_TYPES).map(([value, label]) => ({ value, label })),
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -35,7 +40,7 @@ const schema: SchemaType<DbUserRateLimit> = {
   },
   intervalMs: {
     type: Number,
-    // control: TODO - maybe all the configuration just goes in a custom control?,
+    control: 'TimeIntervalItem',
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
