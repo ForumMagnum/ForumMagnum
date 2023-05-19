@@ -8,7 +8,6 @@ import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModerator
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { isEAForum } from '../../lib/instanceSettings';
 
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
@@ -17,17 +16,6 @@ const maxPostsPer24Hours = new DatabasePublicSetting<number>('forum.maxPostsPerD
 // karma threshold info
 // Rate limit the number of comments a user can post per interval if they have under this much karma
 
-const commentLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitLowKarmaThreshold', 30) // eaforum look here – changed db setting name (but gave it a default for now)
-const commentLimitLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitLowKarmaNumComments', 4)
-const commentLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitLowKarmaIntervalHours', .5)
-
-const commentLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitVeryLowKarmaThreshold', null) // LW users "-1"
-const commentLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaNumComments', 1)
-const commentLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaIntervalHours', 24)
-
-const commentLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitSuperLowKarmaThreshold', null) // LW uses "-30"
-const commentLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaNumComments', 1)
-const commentLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaIntervalHours', 24)
 
 interface AutoRateLimitBase {
   intervalUnit: 'weeks'|'days'|'hours'|'minutes',
@@ -44,6 +32,9 @@ interface DownvoteRatioRateLimit extends AutoRateLimitBase {
   downvoteRatio: number, // users will be rate limited if their ratio of received downvotes  / total votes is higher than this
 }
 
+// eaforum look here – I refactored how karma threshold rate limits worked so LW could have multiple thresholds. 
+// I set the default to use (from what I recall) your current settings so you shouldn't _need_ to do anything but 
+// you probably will want to clean up your database settings
 const defaultKarmaThresholdRateLimit = {
   karmaThreshold: 30,
   intervalUnit: 'minutes',
