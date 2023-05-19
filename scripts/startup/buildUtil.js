@@ -104,8 +104,8 @@ function getDatabaseConfig(opts) {
  * Parse a psql connection string into components
  */
 function parsePgConnectionString(connectionString) {
-  const [_connectionString,user,_colonPassword,password,host,colonPort,port,db] = connectionString.match(
-    /postgres:\/\/(\w+)(:([^@]+))?@([a-zA-Z0-9\.-]+)(:([0-9]+))?\/(\w*)
+  const [_connectionString,_userAndPassword,user,_colonPassword,password,host,colonPort,port,db] = connectionString.match(
+    /postgres:\/\/((\w+)(:([^@]+))?@)?([a-zA-Z0-9\.-]+)(:([0-9]+))?\/(\w*)/
   );
   return { user, password, host, port, db };
 }
@@ -116,7 +116,7 @@ function parsePgConnectionString(connectionString) {
 function composePgConnectionString({user, password, host, port, db}) {
   const colonPassword = password ? `:${password}` : "";
   const colonPort = port ? `:${port}` : "";
-  return `postgres://${user}${colonPassword}@${host}${colonPort}/${db}`;
+  return `postgres://${user}${colonPassword}${(user||password) ? "@" : ""}${host}${colonPort}/${db}`;
 }
 
 /**

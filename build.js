@@ -2,10 +2,9 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const process = require('process');
-const crypto = require('crypto');
 const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
-const { generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
+const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
  * only route /api/quit
@@ -36,8 +35,6 @@ const getServerPort = () => {
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
-let clientRebuildInProgress = false;
-let serverRebuildInProgress = false;
 const serverPort = getServerPort();
 const websocketPort = serverPort + 1;
 
@@ -111,12 +108,12 @@ build({
   treeShaking: "ignore-annotations",
   run: false,
   onStart: (config, changedFiles, ctx) => {
-    clientRebuildInProgress = true;
+    setClientRebuildInProgress(true);
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
   },
   onEnd: (config, buildResult, ctx) => {
-    clientRebuildInProgress = false;
+    setClientRebuildInProgress(false);
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
@@ -131,7 +128,9 @@ build({
       }
 
       latestCompletedBuildId = inProgressBuildId;
-      initiateRefresh();
+      if (cliopts.watch) {
+        initiateRefresh();
+      }
     }
     inProgressBuildId = null;
   },
@@ -161,11 +160,13 @@ build({
   minify: false,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
-    serverRebuildInProgress = true;
+    setServerRebuildInProgress(true);
   },
   onEnd: () => {
-    serverRebuildInProgress = false;
-    initiateRefresh();
+    setServerRebuildInProgress(false);
+    if (cliopts.watch) {
+      initiateRefresh();
+    }
   },
   define: {
     ...bundleDefinitions,

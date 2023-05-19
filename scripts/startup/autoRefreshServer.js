@@ -1,6 +1,16 @@
 const WebSocket = require('ws');
+const crypto = require('crypto');
 
 const openWebsocketConnections = [];
+let clientRebuildInProgress = false;
+let serverRebuildInProgress = false;
+
+function setClientRebuildInProgress(inProgress) {
+  clientRebuildInProgress = inProgress;
+}
+function setServerRebuildInProgress(inProgress) {
+  serverRebuildInProgress = inProgress;
+}
 
 async function isServerReady() {
   try {
@@ -34,9 +44,6 @@ function generateBuildId() {
 
 let refreshIsPending = false;
 async function initiateRefresh() {
-  if (!cliopts.watch) {
-    return;
-  }
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
@@ -83,4 +90,4 @@ function startAutoRefreshServer(websocketPort) {
   });
 }
 
-module.exports = { generateBuildId, startAutoRefreshServer, initiateRefresh };
+module.exports = { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh };
