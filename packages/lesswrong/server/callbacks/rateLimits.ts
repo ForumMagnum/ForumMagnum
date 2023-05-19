@@ -12,12 +12,44 @@ import { isEAForum } from '../../lib/instanceSettings';
 
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
-const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
+const maxPostsPer24Hours = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
 
-// Rate limit the number of comments a user can post per 30 min if they have under this much karma
-const commentRateLimitKarmaThresholdSetting = new DatabasePublicSetting<number|null>('commentRateLimitKarmaThreshold', null)
+// Rate limit the number of comments a user can post per interval if they have under this much karma
+const commentLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitLowKarmaThreshold', null) // eaforum look here – changed db setting name
+const commentLimitLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitLowKarmaNumComments', 4)
+const commentLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitLowKarmaIntervalHours', .5)
+
+// Rate limit the number of comments a user can post per-interval if they have under this much karma
+const commentLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitVeryLowKarmaThreshold', null) // LW users "-1"
+const commentLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaNumComments', 1)
+const commentLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaIntervalHours', 24)
+
+// Rate limit the number of comments a user can post per-interval if they have under this much karma
+const commentLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitSuperLowKarmaThreshold', null) // LW uses "-10"
+const commentLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaNumComments', 1)
+const commentLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaIntervalHours', 24)
+
+
 // Rate limit the number of comments a user can post per 30 min if their ratio of downvotes received : total votes received is higher than this
-const commentRateLimitDownvoteRatioSetting = new DatabasePublicSetting<number|null>('commentRateLimitDownvoteRatio', null)
+const commentLimitDownvoteRatio = new DatabasePublicSetting<number|null>('commentLimitDownvoteRatio', null)
+const commentLimitDownvoteRatioNumComments = new DatabasePublicSetting<number>('commentLimitDownvoteRatioNumComments', 4)
+const commentLimitDownvoteRatioIntervalHours = new DatabasePublicSetting<number>('commentLimitDownvoteRatioIntervalHours', .5)
+
+
+// Rate limit the number of posts a user can post per 30 min if they have under this much karma
+const postLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitLowKarmaThreshold', null) // LW uses "10"
+const postLimitLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitLowKarmaNumComments', 1)
+const postLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitLowKarmaIntervalHours', 3)
+
+// Rate limit the number of posts a user can post per 30 min if they have under this much karma
+const postLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitVeryLowKarmaThreshold', null) // LW uses "-1"
+const postLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitVeryLowKarmaNumComments', 1)
+const postLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitVeryLowKarmaIntervalHours', 7)
+
+// Rate limit the number of posts a user can post per 30 min if they have under this much karma
+const postLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitSuperLowKarmaThreshold', null) // LW uses "-15"
+const postLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitSuperLowKarmaNumComments', 1)
+const postLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitSuperLowKarmaIntervalHours', 14)
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -63,9 +95,6 @@ getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbC
     }
   }
 })
-
-
-
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
@@ -140,13 +169,13 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   }
 }
 
-function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, intervalType:  "seconds"|"hours", intervalAmount: number, itemsPerInterval:number): Date|null {
+function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, intervalType:  "seconds"|"hours", intervalLength: number, itemsPerInterval:number): Date|null {
   // make sure documents are sorted by descending date
   const sortedDocs = documents.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
-  const docsInInterval = sortedDocs.filter(doc => doc.postedAt > moment().subtract(intervalAmount, intervalType).toDate())
+  const docsInInterval = sortedDocs.filter(doc => doc.postedAt > moment().subtract(intervalLength, intervalType).toDate())
   const doc = docsInInterval[itemsPerInterval - 1]
   if (!doc) return null 
-  return moment(doc.postedAt).add(intervalAmount, intervalType).toDate()
+  return moment(doc.postedAt).add(intervalLength, intervalType).toDate()
 }
 
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"
@@ -186,7 +215,7 @@ function isStrictestRateLimit(rateLimitDate: Date | null, allPossibleDates: Arra
 function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
   // for each rate limit, get the next date that user could post
   const modLimitNextPostDate = (modRateLimitHours > 0) ? getNextAbleToSubmitDate(postsInTimeframe, "hours", modRateLimitHours, 1) : null
-  const dailyLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "hours", 24, maxPostsPer24HoursSetting.get())
+  const dailyLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "hours", 24, maxPostsPer24Hours.get())
   const doublePostLimitNextPostDate = getNextAbleToSubmitDate(postsInTimeframe, "seconds", postIntervalSetting.get(), 1)
 
   const nextAbleToPostDates = [modLimitNextPostDate, dailyLimitNextPostDate, doublePostLimitNextPostDate]
@@ -202,7 +231,7 @@ function getStrictestPostRateLimitInfo(postsInTimeframe: Array<DbPost>, modRateL
   if (isStrictestRateLimit(dailyLimitNextPostDate, nextAbleToPostDates)) {
     return {
       nextEligible: dailyLimitNextPostDate,
-      rateLimitMessage: `Users cannot submit more than ${maxPostsPer24HoursSetting.get()} per day.`,
+      rateLimitMessage: `Users cannot submit more than ${maxPostsPer24Hours.get()} per day.`,
       rateLimitType: "universal"
     }
   }
@@ -226,6 +255,27 @@ async function applyModRateLimitForPost(userId: string, postId: string|null): Pr
   return userIsNotPrimaryAuthor && userIsNotCoauthor
 }
 
+async function getModLimitNextCommentOnPostDate(userId: string, comments: Array<DbComment>, modPostSpecificRateLimitHours: number, postId: string|null) {
+  const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0 && await applyModRateLimitForPost(userId, postId));
+  const commentsOnSpecificPostInTimeframe = comments.filter(comment => postId && comment.postId === postId);
+  if (!eligibleForCommentOnSpecificPostRateLimit) return null
+  return getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modPostSpecificRateLimitHours, 3)
+}
+
+function getLowKarmaNextCommentDate(user: DbUser, comments: Array<DbComment>) {
+  const hasLowKarmaRateLimit = checkLowKarmaCommentRateLimit(user);
+  const intervalLength = commentLimitLowKarmaIntervalHours.get()
+  const numberOfComments = commentLimitLowKarmaNumComments.get()
+  if (!hasLowKarmaRateLimit) return null
+  return getNextAbleToSubmitDate(comments, "hours", intervalLength, numberOfComments)
+}
+
+function getHighDownvoteRatioNextCommentDate(user: DbUser, comments: Array<DbComment>) {
+  const hasDownvoteRatioRateLimit = checkDownvoteRatioCommentRateLimit(user);
+  return hasDownvoteRatioRateLimit
+    ? getNextAbleToSubmitDate(comments, "hours", .5, 4)
+    : null
+}
 interface StrictestCommentRateLimitInfoParams {
   commentsInTimeframe: Array<DbComment>,
   user: DbUser,
@@ -244,24 +294,13 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
 
   const modLimitNextCommentDate = (modRateLimitHours > 0 && await applyModRateLimitForPost(user._id, postId))
     ? getNextAbleToSubmitDate(commentsOnOthersPostsInTimeframe, "hours", modRateLimitHours, 1)
-    : null;
+    : null
 
+  const modLimitNextCommentOnPostDate = await getModLimitNextCommentOnPostDate(
+    user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId) 
 
-  const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0 && await applyModRateLimitForPost(user._id, postId));
-  const commentsOnSpecificPostInTimeframe = commentsOnOthersPostsInTimeframe.filter(comment => postId && comment.postId === postId);
-  const modLimitNextCommentOnPostDate = eligibleForCommentOnSpecificPostRateLimit
-    ? getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modPostSpecificRateLimitHours, 3)
-    : null;
-
-  const hasLowKarmaRateLimit = checkLowKarmaCommentRateLimit(user);
-  const lowKarmaNextCommentDate = hasLowKarmaRateLimit
-    ? getNextAbleToSubmitDate(commentsInTimeframe, "hours", .5, 4)
-    : null;
-
-  const hasDownvoteRatioRateLimit = checkDownvoteRatioCommentRateLimit(user);
-  const highDownvoteRatioNextCommentDate = hasDownvoteRatioRateLimit
-    ? getNextAbleToSubmitDate(commentsInTimeframe, "hours", .5, 4)
-    : null;
+  const lowKarmaNextCommentDate = getLowKarmaNextCommentDate(user, commentsInTimeframe)
+  const highDownvoteRatioNextCommentDate = getHighDownvoteRatioNextCommentDate(user, commentsInTimeframe)
 
   const doubleCommentLimitNextCommentDate = getNextAbleToSubmitDate(commentsInTimeframe, "seconds", commentIntervalSetting.get(), 1);
   
@@ -363,7 +402,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
  * Check if the user has a commenting rate limit due to having low karma.
  */
 function checkLowKarmaCommentRateLimit(user: DbUser): boolean {
-  const karmaThreshold = commentRateLimitKarmaThresholdSetting.get();
+  const karmaThreshold = commentLimitLowKarmaThreshold.get();
   return karmaThreshold !== null && user.karma < karmaThreshold;
 }
 
@@ -383,7 +422,7 @@ function checkDownvoteRatioCommentRateLimit(user: DbUser): boolean {
   const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
   // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
   const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
-  const downvoteRatioThreshold = commentRateLimitDownvoteRatioSetting.get()
+  const downvoteRatioThreshold = commentLimitDownvoteRatio.get()
   const aboveDownvoteRatioThreshold = downvoteRatioThreshold !== null && downvoteRatio > downvoteRatioThreshold
 
   return aboveDownvoteRatioThreshold
