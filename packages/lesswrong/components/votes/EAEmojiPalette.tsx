@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   emojiContainer: {
     display: "flex",
     flexWrap: "wrap",
-    margin: "1em",
+    margin: "12px",
   },
   emoji: {
     display: "flex",
@@ -40,6 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[60],
     gap: "8px",
     height: 44,
+    fontSize: "14px",
   },
   emojiPreview: {
     fontSize: "1.6em",
