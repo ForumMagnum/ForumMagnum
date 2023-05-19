@@ -58,6 +58,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     maxWidth: 190,
   },
+  tooltipChooseEmoji: {
+    transform: "translateY(-10px)",
+  },
   tooltipSecondaryText: {
     color: theme.palette.grey[400],
   },
@@ -224,7 +227,7 @@ const EmojiReactsSection: FC<{
         <LWTooltip
           title="Add reaction"
           placement="top"
-          popperClassName={classes.tooltip}
+          popperClassName={classNames(classes.tooltip, classes.tooltipChooseEmoji)}
         >
           <AddEmoji />
         </LWTooltip>
