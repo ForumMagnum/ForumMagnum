@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES, ManuallyAppliedModeratorActionType, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, AllRateLimitTypes, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
@@ -309,7 +309,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
 
 
-  const applyModeratorAction = async (type: ManuallyAppliedModeratorActionType) => {
+  const applyModeratorAction = async (type: AllRateLimitTypes) => {
 
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 60);

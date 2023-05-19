@@ -427,7 +427,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
   // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
   if (post && comment.debateResponse) {
     // Get all the debate participants, but exclude the comment author if they're a debate participant
-    const debateParticipantIds = _.difference([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)], [comment.userId]);
+    const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
 
     const debateSubscribers = await getSubscribedUsers({
       documentId: comment.postId,
@@ -579,7 +579,7 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
+  const { _id, shareWithUsers = [], coauthorStatuses } = post;
   const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
   const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
