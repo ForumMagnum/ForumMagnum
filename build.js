@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
+const process = require('process');
 const WebSocket = require('ws');
 const crypto = require('crypto');
 const { zlib } = require("mz");
+const { getDatabaseConfig } = require("./scripts/startup/buildUtil");
 
 /**
  * This is used for clean exiting in Github workflows by the dev
@@ -14,6 +16,7 @@ process.on("SIGQUIT", () => process.exit(0));
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
   ["settings", "A JSON config file for the server", "<file>"],
+  ["db", "A path to a database connection config file", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -49,33 +52,18 @@ const outputDir = `build${serverPort === defaultServerPort ? "" : serverPort}`;
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
 
+const databaseConfig = getDatabaseConfig(opts);
+process.env.MONGO_URL = databaseConfig.mongoUrl;
+process.env.PG_URL = databaseConfig.postgresUrl;
+
+if (databaseConfig.sshTunnelCommand) {
+  subprocess.Popen(databaseConfig.sshTunnelCommand);
+}
+
 if (isProduction) {
   process.env.NODE_ENV="production";
 } else {
   process.env.NODE_ENV="development";
-}
-if (opts.mongoUrl) {
-  process.env.MONGO_URL = opts.mongoUrl;
-} else if (opts.mongoUrlFile) {
-  try {
-    process.env.MONGO_URL = fs.readFileSync(opts.mongoUrlFile, 'utf8').trim();
-  } catch(e) {
-    console.log(e);
-    process.exit(1);
-  }
-}
-
-if (opts.postgresUrl) {
-  process.env.PG_URL = opts.postgresUrl;
-} else if (opts.postgresUrlFile) {
-  try {
-    process.env.PG_URL = fs.readFileSync(opts.postgresUrlFile, 'utf8').trim();
-  } catch(e) {
-    // TODO: Make this an error once both sites have migrated
-    // console.log(e);
-    // process.exit(1);
-    console.warn("Warning: Can't read Postgres URL file");
-  }
 }
 
 const clientBundleBanner = `/*
