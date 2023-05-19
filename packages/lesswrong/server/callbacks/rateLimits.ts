@@ -14,42 +14,39 @@ import { isEAForum } from '../../lib/instanceSettings';
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
 const maxPostsPer24Hours = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
 
+// karma threshold info
 // Rate limit the number of comments a user can post per interval if they have under this much karma
-const commentLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitLowKarmaThreshold', null) // eaforum look here – changed db setting name
+
+const commentLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitLowKarmaThreshold', 30) // eaforum look here – changed db setting name (but gave it a default for now)
 const commentLimitLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitLowKarmaNumComments', 4)
 const commentLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitLowKarmaIntervalHours', .5)
 
-// Rate limit the number of comments a user can post per-interval if they have under this much karma
 const commentLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitVeryLowKarmaThreshold', null) // LW users "-1"
 const commentLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaNumComments', 1)
 const commentLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitVeryLowKarmaIntervalHours', 24)
 
-// Rate limit the number of comments a user can post per-interval if they have under this much karma
-const commentLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitSuperLowKarmaThreshold', null) // LW uses "-10"
+const commentLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('commentLimitSuperLowKarmaThreshold', null) // LW uses "-30"
 const commentLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaNumComments', 1)
 const commentLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('commentLimitSuperLowKarmaIntervalHours', 24)
+
+const postLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitLowKarmaThreshold', null) // LW uses "10"
+const postLimitLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitLowKarmaNumComments', 1)
+const postLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitLowKarmaIntervalHours', 3 * 24)
+
+const postLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitVeryLowKarmaThreshold', null) // LW uses "-1"
+const postLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitVeryLowKarmaNumComments', 1)
+const postLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitVeryLowKarmaIntervalHours', 7 * 24)
+
+const postLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitSuperLowKarmaThreshold', null) // LW uses "-30"
+const postLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitSuperLowKarmaNumComments', 1)
+const postLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitSuperLowKarmaIntervalHours', 30 * 24)
+
 
 
 // Rate limit the number of comments a user can post per 30 min if their ratio of downvotes received : total votes received is higher than this
 const commentLimitDownvoteRatio = new DatabasePublicSetting<number|null>('commentLimitDownvoteRatio', null)
 const commentLimitDownvoteRatioNumComments = new DatabasePublicSetting<number>('commentLimitDownvoteRatioNumComments', 4)
 const commentLimitDownvoteRatioIntervalHours = new DatabasePublicSetting<number>('commentLimitDownvoteRatioIntervalHours', .5)
-
-
-// Rate limit the number of posts a user can post per 30 min if they have under this much karma
-const postLimitLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitLowKarmaThreshold', null) // LW uses "10"
-const postLimitLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitLowKarmaNumComments', 1)
-const postLimitLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitLowKarmaIntervalHours', 3)
-
-// Rate limit the number of posts a user can post per 30 min if they have under this much karma
-const postLimitVeryLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitVeryLowKarmaThreshold', null) // LW uses "-1"
-const postLimitVeryLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitVeryLowKarmaNumComments', 1)
-const postLimitVeryLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitVeryLowKarmaIntervalHours', 7)
-
-// Rate limit the number of posts a user can post per 30 min if they have under this much karma
-const postLimitSuperLowKarmaThreshold = new DatabasePublicSetting<number|null>('postLimitSuperLowKarmaThreshold', null) // LW uses "-15"
-const postLimitSuperLowKarmaNumComments = new DatabasePublicSetting<number>('postLimitSuperLowKarmaNumComments', 1)
-const postLimitSuperLowKarmaIntervalHours = new DatabasePublicSetting<number>('postLimitSuperLowKarmaIntervalHours', 14)
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
