@@ -1,7 +1,7 @@
 import React from "react";
 
-export const AddEmoji = () =>
-  <svg height="17" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const AddEmojiIcon = (props: React.HTMLAttributes<SVGElement>) =>
+  <svg height="17" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
   <path d="M11.125 0.25H9.87499V2.12499H8V3.37501H9.87499V5.25H11.125V3.37501H13V2.12499H11.125V0.25Z" fill="currentColor"/>
   <path d="M4.50051 7.00105C4.50051 7.41526 4.16478 7.75099 3.75056 7.75099C3.33635 7.75099 3.00049 7.41526 3.00049 7.00105C3.00049 6.58684 3.33635 6.25098 3.75056 6.25098C4.16478 6.25098 4.50051 6.58684 4.50051 7.00105Z" fill="currentColor"/>
   <path d="M9.00051 7.00105C9.00051 7.41526 8.66464 7.75099 8.25043 7.75099C7.83622 7.75099 7.50049 7.41526 7.50049 7.00105C7.50049 6.58684 7.83622 6.25098 8.25043 6.25098C8.66464 6.25098 9.00051 6.58684 9.00051 7.00105Z" fill="currentColor"/>

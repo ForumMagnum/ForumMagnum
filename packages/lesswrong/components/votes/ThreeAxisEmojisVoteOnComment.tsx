@@ -9,7 +9,6 @@ import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
-import { AddEmoji } from "../icons/addEmoji";
 import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import { userHasEAEmojiReacts } from "../../lib/betas";
 import Menu from "@material-ui/core/Menu";
@@ -58,8 +57,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     maxWidth: 190,
   },
-  tooltipChooseEmoji: {
+  addEmojiTooltip: {
     transform: "translateY(-10px)",
+  },
+  addEmojiIcon: {
+    transform: "translateY(2px)",
   },
   tooltipSecondaryText: {
     color: theme.palette.grey[400],
@@ -186,7 +188,7 @@ const EmojiReactsSection: FC<{
 
   const reactions = getCurrentReactions(voteProps);
 
-  const {EAEmojiPalette, LWTooltip} = Components;
+  const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, score}) => {
@@ -227,9 +229,13 @@ const EmojiReactsSection: FC<{
         <LWTooltip
           title="Add reaction"
           placement="top"
-          popperClassName={classNames(classes.tooltip, classes.tooltipChooseEmoji)}
+          popperClassName={classNames(classes.tooltip, classes.addEmojiTooltip)}
         >
-          <AddEmoji />
+          <ForumIcon
+            icon="AddEmoji"
+            noDefaultStyles
+            className={classes.addEmojiIcon}
+          />
         </LWTooltip>
       </div>
       <Menu
