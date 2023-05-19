@@ -15,6 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     padding: 2,
     marginBottom: 12,
+    background: theme.palette.panelBackground.default,
 
     "&:focus": {
       border: theme.palette.border.normal,
