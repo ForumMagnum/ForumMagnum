@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [posts-page-recommendations]
+    branches: [ea-emoji-reacts]
 jobs:
   deploy:
     runs-on: ubuntu-latest
