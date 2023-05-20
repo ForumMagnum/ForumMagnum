@@ -85,9 +85,9 @@ function getDatabaseConfig(opts) {
       host: "localhost",
       port: (dbConfig.sshTunnel.localPort || 5433),
     });
-    console.log(`opts.db = ${opts.db}, sshTunnel.key=${dbConfig.sshTunnel.key}`);
     sshTunnelCommand = [
       "-C",
+      "-N",
       "-i", path.join(path.dirname(opts.db), dbConfig.sshTunnel.key),
       "-L", `${dbConfig.sshTunnel.localPort}:${host}:${port||5432}`,
       dbConfig.sshTunnel.host
@@ -147,9 +147,12 @@ function die(message, status) {
 
 async function startSshTunnel(sshTunnelCommand) {
   if (sshTunnelCommand) {
-    child_process.spawn("ssh", sshTunnelCommand, {
-      stdio: "ignore",
-      detached: true,
+    const sshTunnelProcess = child_process.spawn("/usr/bin/ssh", sshTunnelCommand, {
+      stdio: "inherit",
+      detached: false,
+    });
+    sshTunnelProcess.on('close', (status) => {
+      console.log(`SSH tunnel exited with status ${status}`);
     });
   }
 }
