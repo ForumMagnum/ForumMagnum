@@ -274,9 +274,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
 
   // what's the longest rate limit timeframe being evaluated?
   const maxPostAutolimitHours = getMaxAutoLimitHours(forumSelect(autoRateLimits).posts)
-  console.log({maxPostAutolimitHours})
   const maxHours = Math.max(modRateLimitHours, maxPostAutolimitHours);
-  console.log({maxHours})
 
   // fetch the posts from within the maxTimeframe
   const postsInTimeframe = await getPostsInTimeframe(user, maxHours);
@@ -322,7 +320,7 @@ function getStrictestRateLimitInfo (rateLimits: Array<RateLimitInfo|null>): Rate
 
 function getStrictestPostRateLimitInfo(user: DbUser, postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
   // for each rate limit, get the next date that user could post  
-  const modRateLimitInfo = getModRateLimitInfo(postsInTimeframe, modRateLimitHours)
+  const modRateLimitInfo = getModRateLimitInfo(postsInTimeframe, modRateLimitHours, 1)
   const autoRatelimits = forumSelect(autoRateLimits).posts
 
   const autoRateLimitInfos = autoRatelimits ? autoRatelimits?.map(
@@ -346,12 +344,12 @@ async function getModPostSpecificRateLimitInfo (userId: string, comments: Array<
   const eligibleForCommentOnSpecificPostRateLimit = modPostSpecificRateLimitHours > 0 && (await shouldApplyModRateLimitForPost(userId, postId));
   const commentsOnPost = comments.filter(comment => comment.postId === postId)
 
-  return eligibleForCommentOnSpecificPostRateLimit ? getModRateLimitInfo(commentsOnPost, modPostSpecificRateLimitHours) : null
+  return eligibleForCommentOnSpecificPostRateLimit ? getModRateLimitInfo(commentsOnPost, modPostSpecificRateLimitHours, 3) : null
 }
 
 async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId}: StrictestCommentRateLimitInfoParams): Promise<RateLimitInfo|null> {
   const commentsOnOthersPostsInInterval =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
-  const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInInterval, modRateLimitHours)
+  const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInInterval, modRateLimitHours, 1)
 
   const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInInterval, modPostSpecificRateLimitHours, postId)
 
@@ -463,9 +461,9 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   return downvoteRatio > ratioThreshold
 }
 
-function getModRateLimitInfo (documents: Array<DbPost|DbComment>, modRateLimitHours: number): RateLimitInfo|null {
+function getModRateLimitInfo (documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
-  const nextEligible = getNextAbleToSubmitDate(documents, "hours", modRateLimitHours, 1)
+  const nextEligible = getNextAbleToSubmitDate(documents, "hours", modRateLimitHours, itemsPerTimeframe)
   if (!nextEligible) return null
   return {
     nextEligible,
