@@ -369,7 +369,21 @@ export const eaForumTheme: SiteThemeSpecification = {
           root: {
             backgroundColor: palette.lwTertiary.main
           }
-        }
+        },
+        MuiMenuItem: {
+          root: {
+            fontFamily: sansSerifStack,
+            fontWeight: 500,
+            fontSize: "1.1rem",
+            color: palette.grey[900],
+          }
+        },
+        MuiListItemIcon: {
+          root: {
+            color: palette.grey[700],
+            marginRight: 12,
+          }
+        },
       }
     }
   }

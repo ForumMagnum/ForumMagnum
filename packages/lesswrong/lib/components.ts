@@ -350,6 +350,9 @@ importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAx
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
+importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/NamesAttachedReactionsVoteOnComment'));
+importComponent("ReactionsPalette", () => require('../components/votes/ReactionsPalette'));
+importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
@@ -637,6 +640,7 @@ importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'))
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
+importComponent("EAPostsItemTagRelevance", () => require('../components/tagging/EAPostsItemTagRelevance'));
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));

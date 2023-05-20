@@ -17,31 +17,33 @@ export type CommentVotingComponentProps = {
 }
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 
-export interface VotingSystem {
+export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
+  getCommentBottomComponent?: ()=>CommentVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    extendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any,
+  })=>ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    cancelledExtendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
+  })=>ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
 
-const registerVotingSystem = (votingSystem: VotingSystem) => {
+export const registerVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
   votingSystems[votingSystem.name] = votingSystem;
 }
 
@@ -108,7 +110,7 @@ registerVotingSystem({
   },
 });
 
-function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
+export function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
   const voteType: string | undefined = vote.extendedVoteType?.[axis];
   if (!voteType) return 0;
   const user = usersById[vote.userId];
@@ -242,6 +244,7 @@ registerVotingSystem({
     return false;
   },
 });
+
 
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);

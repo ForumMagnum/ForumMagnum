@@ -68,7 +68,7 @@ typings
 
 *.secret
 
-build*
+build
 !build.js
 yarn-error.log
 
