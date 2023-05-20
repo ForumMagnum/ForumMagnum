@@ -153,6 +153,7 @@ export const UserRateLimitItem = ({userId, classes}: {
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
       Set Rate Limit: <Select
+        value=''
         onChange={(e) => createRateLimit(e.target.value)}
         className={classes.newRateLimit}
       >
@@ -168,6 +169,10 @@ export const UserRateLimitItem = ({userId, classes}: {
       prefilledProps={editingExistingRateLimitId ? {} : prefilledCustomFormProps}
       successCallback={async () => {
         await refetch();
+        setCreateNewRateLimit(false);
+        setEditingExistingRateLimitId(undefined);
+      }}
+      cancelCallback={() => {
         setCreateNewRateLimit(false);
         setEditingExistingRateLimitId(undefined);
       }}
