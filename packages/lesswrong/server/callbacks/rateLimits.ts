@@ -210,7 +210,6 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   return validationErrors;
 });
 
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 8) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser }) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
