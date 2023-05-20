@@ -115,11 +115,11 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
       }, 
       {
         karmaThreshold: -30,
-        timeframeUnit: 'months',
-        timeframeLength: 1,
+        timeframeUnit: 'weeks',
+        timeframeLength: 2,
         itemsPerTimeframe: 1,
         rateLimitType: 'lowKarma',
-        rateLimitMessage: "Users with less than -30 karma users can only post once per month"
+        rateLimitMessage: "Users with less than -30 karma users can only post once every two weeks."
       },
     ],
     comments: [
@@ -131,45 +131,45 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds (to prevent double-posting.)",
       },
       {
-        karmaThreshold: 10,
+        karmaThreshold: 5,
         timeframeUnit: 'days',
         timeframeLength: 1,
         itemsPerTimeframe: 3,
         rateLimitType: 'lowKarma',
-        rateLimitMessage: "Low karma users can write up to 3 comments a day."
+        rateLimitMessage: "New users can write up to 3 comments a day. Gain more karma to comment more frequently."
       }, 
       {
-        karmaThreshold: 0,
-        timeframeUnit: 'weeks',
+        karmaThreshold: -1,
+        timeframeUnit: 'days',
         timeframeLength: 1,
         itemsPerTimeframe: 1,
         rateLimitType: 'lowKarma',
         rateLimitMessage: "Negative karma users are limited to 1 comment per day."
       }, 
       {
-        karmaThreshold: -30,
-        timeframeUnit: 'months',
-        timeframeLength: 1,
+        karmaThreshold: -15,
+        timeframeUnit: 'days',
+        timeframeLength: 3,
         itemsPerTimeframe: 1,
         rateLimitType: 'lowKarma',
-        rateLimitMessage: "Users with less than -30 karma users can only comment once per 3 days."
+        rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days."
       },
-      {
-        downvoteRatio: .05,
-        timeframeUnit: 'hours',
-        timeframeLength: 1,
-        itemsPerTimeframe: 1,
-        rateLimitType: 'downvoteRatio',
-        rateLimitMessage: "Users who've been downvoted significantly can only post 1 comment per hour"
-      },
-      {
-        downvoteRatio: .1,
-        timeframeUnit: 'hours',
-        timeframeLength: 1,
-        itemsPerTimeframe: 1,
-        rateLimitType: 'downvoteRatio',
-        rateLimitMessage: "Users who've been heavily downvoted can only post 1 comment per day"
-      }
+      // {
+      //   downvoteRatio: .05,
+      //   timeframeUnit: 'hours',
+      //   timeframeLength: 1,
+      //   itemsPerTimeframe: 1,
+      //   rateLimitType: 'downvoteRatio',
+      //   rateLimitMessage: "Users who've been downvoted significantly can only post 1 comment per hour"
+      // },
+      // {
+      //   downvoteRatio: .1,
+      //   timeframeUnit: 'hours',
+      //   timeframeLength: 1,
+      //   itemsPerTimeframe: 1,
+      //   rateLimitType: 'downvoteRatio',
+      //   rateLimitMessage: "Users who've been heavily downvoted can only post 1 comment per day"
+      // }
     ]
   },
   default: {
@@ -295,14 +295,14 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   ]);
 
   // what's the longest rate limit timeframe being evaluated?
-  const highestStandardRateCommentLimitHours = 24;
-  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, highestStandardRateCommentLimitHours);
-
+  const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoRateLimits).comments)
+  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours);
+  console.log({modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours})
   // fetch the comments from within the maxTimeframe
-  const commentsInTimeframe = await getCommentsInInterval(user._id, maxHours);
+  const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
   return await getStrictestCommentRateLimitInfo({
-    commentsInTimeframe: commentsInTimeframe, 
+    commentsInTimeframe, 
     user, 
     modRateLimitHours, 
     modPostSpecificRateLimitHours, 
@@ -311,11 +311,13 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
 }
 
 function getStrictestRateLimitInfo (rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
-  return rateLimits.reduce((prev, current) => {
-    if (!current) return prev
-    if (!prev) return current
-    return prev.nextEligible < current.nextEligible ? prev : current
-  }, null)
+  const nonNullRateLimits = rateLimits.filter(rateLimit => rateLimit !== null) as Array<RateLimitInfo>;
+  const sortedRateLimits = nonNullRateLimits.sort((a, b) => {
+    if (a.nextEligible < b.nextEligible) return 1;
+    if (a.nextEligible > b.nextEligible) return -1;
+    return 0;
+  });
+  return sortedRateLimits[0] || null;
 }
 
 function getStrictestPostRateLimitInfo(user: DbUser, postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
@@ -359,10 +361,14 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
   ) : []
 
   const rateLimitInfos = [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, ...autoRateLimitInfos]
-  return getStrictestRateLimitInfo(rateLimitInfos)
+
+  console.log(rateLimitInfos)
+  const result = getStrictestRateLimitInfo(rateLimitInfos)
+  console.log({getStrictestRateLimitInfo: result})
+  return result
 }
 
-async function getCommentsInInterval (userId: string, maxTimeframe: number) {
+async function getCommentsInTimeframe (userId: string, maxTimeframe: number) {
   const commentsInTimeframe = await Comments.find(
     { userId: userId, 
       postedAt: {$gte: moment().subtract(maxTimeframe, 'hours').toDate()}
@@ -485,20 +491,6 @@ async function shouldApplyModRateLimitForPost(userId: string, postId: string|nul
   const userIsNotPrimaryAuthor = post.userId !== userId
   const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
   return userIsNotPrimaryAuthor && userIsNotCoauthor
-}
-
-async function getModLimitNextCommentOnPostDate(userId: string, comments: Array<DbComment>, modPostSpecificRateLimitHours: number, postId: string|null) {
-  const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0 && await shouldApplyModRateLimitForPost(userId, postId));
-  const commentsOnSpecificPostInTimeframe = comments.filter(comment => postId && comment.postId === postId);
-  if (!eligibleForCommentOnSpecificPostRateLimit) return null
-  return getNextAbleToSubmitDate(commentsOnSpecificPostInTimeframe, "hours", modPostSpecificRateLimitHours, 3)
-}
-
-async function modLimitNextCommentRateLimitInfo(comments: Array<DbComment>, user: DbUser, modRateLimitHours: number, postId: string|null): Promise<RateLimitInfo|null> {
-  if (modRateLimitHours <= 0 || !(await shouldApplyModRateLimitForPost(user._id, postId))) return null
-  getNextAbleToSubmitDate(comments, "hours", modRateLimitHours, 1)
-
-  return null
 }
 
 function getMaxAutoLimitHours (rateLimits?: Array<AutoRateLimit>) {
