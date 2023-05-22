@@ -42,7 +42,6 @@ class FeatureStrategy extends RecommendationStrategy {
 
     const posts = await db.any(`
       SELECT p.*
-      ${recommendedFilter.join}
       FROM (
         SELECT p.*
         FROM "Posts" p
@@ -58,7 +57,8 @@ class FeatureStrategy extends RecommendationStrategy {
         ORDER BY 0 ${score} DESC
         LIMIT $(count) * 10
       ) p
-      ${recommendedFilter.filter ? "WHERE " + recommendedFilter.filter  : ""}
+      ${recommendedFilter.join}
+      WHERE ${recommendedFilter.filter} 1=1
       LIMIT $(count)
     `, {
       ...readFilter.args,
