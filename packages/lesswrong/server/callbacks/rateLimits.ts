@@ -9,7 +9,7 @@ import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
-type IntervalUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
+type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"
  
 export type RateLimitInfo = {
@@ -24,8 +24,8 @@ Each forum can set a list of automatically applied rate limits.
 Whenever a user submits a post or comment, the server checks if any of the listed AutoRateLimits 
 apply to that user/post/comment.
 
-AutoRateLimits check how documents the user has posted in a recent time interval, and prevents them
-from posting more if they've posted more than the alloted number of itemsPerInterval.
+AutoRateLimits check how documents the user has posted in a recent timeframe interval, and prevents them
+from posting more if they've posted more than the alloted number of itemsPerTimeframe.
 
 AutoRateLimits can take in an optional karmaThreshold or downvoteRatio parameter. If set, the AutoRateLimit
 applies to users who meet that karmaThreshold and/or downvoteRatio criteria. If both params are set, the 
@@ -34,8 +34,8 @@ rate limit only applies if both conditions are met. If neither param is set, the
 interface AutoRateLimit {
   karmaThreshold?: number, // if set, the rate limit will only apply to users with karma less than the threshold
   downvoteRatio?: number, // if set, the rate limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
-  timeframeLength: number, // how long the time timeframe is (measured in the intervalUnit, below)
-  timeframeUnit: IntervalUnitType, // measuring units for the timeframe (i.e. minutes, hours, days)
+  timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
+  timeframeUnit: TimeframeUnitType, // measuring units for the timeframe (i.e. minutes, hours, days)
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
   rateLimitType: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited
@@ -317,10 +317,10 @@ async function getModPostSpecificRateLimitInfo (userId: string, comments: Array<
 }
 
 async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId}: StrictestCommentRateLimitInfoParams): Promise<RateLimitInfo|null> {
-  const commentsOnOthersPostsInInterval =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
-  const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInInterval, modRateLimitHours, 1)
+  const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
+  const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInTimeframe, modRateLimitHours, 1)
 
-  const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInInterval, modPostSpecificRateLimitHours, postId)
+  const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
 
   const autoRatelimits = forumSelect(autoRateLimits).comments
   const autoRateLimitInfos = autoRatelimits ? autoRatelimits?.map(
@@ -391,13 +391,13 @@ async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: D
   }
 }
 
-function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, intervalUnit:  IntervalUnitType, intervalLength: number, itemsPerInterval:number): Date|null {
+function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, timeframeUnit:  TimeframeUnitType, timeframeLength: number, itemsPerTimeframe:number): Date|null {
   // make sure documents are sorted by descending date
   const sortedDocs = documents.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
-  const docsInInterval = sortedDocs.filter(doc => doc.postedAt > moment().subtract(intervalLength, intervalUnit).toDate())
-  const doc = docsInInterval[itemsPerInterval - 1]
+  const docsInTimeframe = sortedDocs.filter(doc => doc.postedAt > moment().subtract(timeframeLength, timeframeUnit).toDate())
+  const doc = docsInTimeframe[itemsPerTimeframe - 1]
   if (!doc) return null 
-  return moment(doc.postedAt).add(intervalLength, intervalUnit).toDate()
+  return moment(doc.postedAt).add(timeframeLength, timeframeUnit).toDate()
 }
 
 function shouldIgnorePostRateLimit(user: DbUser) {
@@ -451,11 +451,11 @@ function getModRateLimitInfo (documents: Array<DbPost|DbComment>, modRateLimitHo
 }
 
 function getAutoRateLimitInfo (user: DbUser, rateLimit: AutoRateLimit, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
-  const { karmaThreshold, downvoteRatio, timeframeUnit: intervalUnit, timeframeLength: intervalLength, itemsPerTimeframe: itemsPerInterval, rateLimitMessage, rateLimitType } = rateLimit
+  const { karmaThreshold, downvoteRatio, timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit
 
   if (karmaThreshold && karmaThreshold < user.karma) return null 
   if (downvoteRatio && getDownvoteRatio(user) < downvoteRatio) return null
-  const nextEligible = getNextAbleToSubmitDate(documents, intervalUnit, intervalLength, itemsPerInterval)
+  const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
   return { nextEligible, rateLimitType, rateLimitMessage}
 }
@@ -471,7 +471,7 @@ async function shouldApplyModRateLimitForPost(userId: string, postId: string|nul
 
 function getMaxAutoLimitHours (rateLimits?: Array<AutoRateLimit>) {
   if (!rateLimits) return 0
-  return Math.max(...rateLimits.map(({timeframeLength: intervalLength,timeframeUnit: intervalUnit}) => {
-    return moment.duration(intervalLength, intervalUnit).asHours()
+  return Math.max(...rateLimits.map(({timeframeLength, timeframeUnit}) => {
+    return moment.duration(timeframeLength, timeframeUnit).asHours()
   }))
 }
