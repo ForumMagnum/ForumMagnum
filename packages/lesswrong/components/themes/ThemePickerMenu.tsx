@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
-import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
@@ -22,6 +22,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
   },
   infoIcon: {
     fontSize: 14,
+    marginLeft: isEAForum ? 6 : 0,
   },
 })
 
