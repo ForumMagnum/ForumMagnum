@@ -21,7 +21,8 @@ class FeatureStrategy extends RecommendationStrategy {
 
     const db = getSqlClientOrThrow();
 
-    const userFilter = this.getUserFilter(currentUser);
+    const readFilter = this.getAlreadyReadFilter(currentUser);
+    const recommendedFilter = this.getAlreadyRecommendedFilter(currentUser);
     const postFilter = this.getDefaultPostFilter();
     const tagFilter = this.getTagFilter();
 
@@ -41,20 +42,27 @@ class FeatureStrategy extends RecommendationStrategy {
 
     const posts = await db.any(`
       SELECT p.*
-      FROM "Posts" p
-      ${userFilter.join}
-      ${postFilter.join}
-      ${joins}
-      WHERE
-        p."_id" <> $(postId) AND
-        ${filters}
-        ${userFilter.filter}
-        ${postFilter.filter}
-        ${tagFilter.filter}
-      ORDER BY 0 ${score} DESC
+      ${recommendedFilter.join}
+      FROM (
+        SELECT p.*
+        FROM "Posts" p
+        ${readFilter.join}
+        ${postFilter.join}
+        ${joins}
+        WHERE
+          p."_id" <> $(postId) AND
+          ${filters}
+          ${readFilter.filter}
+          ${postFilter.filter}
+          ${tagFilter.filter}
+        ORDER BY 0 ${score} DESC
+        LIMIT $(count) * 10
+      ) p
+      ${recommendedFilter.filter ? "WHERE " + recommendedFilter.filter  : ""}
       LIMIT $(count)
     `, {
-      ...userFilter.args,
+      ...readFilter.args,
+      ...recommendedFilter.args,
       ...postFilter.args,
       ...tagFilter.args,
       ...args,
