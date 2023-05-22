@@ -14,9 +14,7 @@ let openAIApi: OpenAIApi|null = null;
 export async function getOpenAI(): Promise<OpenAIApi|null> {
   if (!openAIApi){
     const apiKey = openAIApiKey.get();
-    console.log('🚀 ~ file: languageModelIntegration.ts:17 ~ getOpenAI ~ apiKey:', apiKey)
     const organizationId = openAIOrganizationId.get();
-    console.log('🚀 ~ file: languageModelIntegration.ts:18 ~ getOpenAI ~ organizationId:', organizationId)
     
     if (apiKey) {
       openAIApi = new OpenAIApi(new OpenAIApiConfiguration({

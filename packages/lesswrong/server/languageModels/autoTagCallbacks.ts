@@ -83,6 +83,8 @@ import { omit } from 'lodash';
             -t ml/tagClassification.${TAG}.train.jsonl \
             -v ml/tagClassification.${TAG}.test.jsonl
       Substituting in ${TAG}, and repeat for each tag.
+      You can check each job with:
+          openai api fine_tunes.follow -i ${id}
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -163,20 +165,17 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
 
 export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
-  console.log('🚀 ~ file: autoTagCallbacks.ts:165 ~ checkTags ~ template:', template)
   
   let tagsApplied: Record<string,boolean> = {};
   
   for (let tag of tags) {
     if (!tag.autoTagPrompt || !tag.autoTagModel)
       continue;
-    console.log('tag', omit(tag, ['description', 'description_latest']))
     const languageModelResult = await openAIApi.createCompletion({
       model: tag.autoTagModel,
       prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
       max_tokens: 1,
     });
-    console.log('got past call to openai')
     const completion = languageModelResult.data.choices[0].text!;
     const hasTag = (completion.trim().toLowerCase() === "yes");
     tagsApplied[tag.slug] = hasTag;
