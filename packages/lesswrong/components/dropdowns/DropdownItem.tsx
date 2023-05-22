@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isEAForum && {
       borderRadius: theme.borderRadius.default,
       "&:hover": {
-        background: theme.palette.grey[100],
+        background: theme.palette.dropdown.hoverBackground,
         "& svg": {
           color: theme.palette.grey[1000],
         },
