@@ -31,7 +31,8 @@ AutoRateLimits can take in an optional karmaThreshold or downvoteRatio parameter
 applies to users who meet that karmaThreshold and/or downvoteRatio criteria. If both params are set, the 
 rate limit only applies if both conditions are met. If neither param is set, the rate limit applies to all users.
 */
-interface AutoRateLimit {
+interface AutoRateLimit <T extends "Posts"|"Comments"> {
+  actionType: T, // which collection the rate limit applies to
   karmaThreshold?: number, // if set, the rate limit will only apply to users with karma less than the threshold
   downvoteRatio?: number, // if set, the rate limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
   timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
@@ -41,9 +42,11 @@ interface AutoRateLimit {
   rateLimitMessage: string // A message displayed to users when they are rate limited
 }
 
+
+
 type ForumAutoRateLimits = {
-  posts?: Array<AutoRateLimit>,
-  comments?: Array<AutoRateLimit>,
+  posts?: Array<AutoRateLimit<"Posts">>,
+  comments?: Array<AutoRateLimit<"Comments">>
 }
 
 // eaforum look here
@@ -52,6 +55,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
   EAForum: {
     posts: [
       {
+        actionType: "Posts",
         timeframeUnit: 'days',
         timeframeLength: 1,
         itemsPerTimeframe: 5,
@@ -62,6 +66,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
     comments: [
       {
         // short rate limit on commenting to prevent accidental double-commenting
+        actionType: "Comments",
         timeframeUnit: 'seconds',
         timeframeLength: 8,
         itemsPerTimeframe: 1,
@@ -69,6 +74,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds to prevent double-posting.",
       },
       {
+        actionType: "Comments",
         karmaThreshold: 30,
         timeframeUnit: 'minutes',
         timeframeLength: 30,
@@ -77,6 +83,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "You'll be able to post more comments as your karma increases"
       },
       {
+        actionType: "Comments",
         downvoteRatio: .3,
         timeframeUnit: 'minutes',
         timeframeLength: 30,
@@ -89,6 +96,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
   LessWrong: {
     posts: [
       {
+        actionType: "Posts",
         karmaThreshold: 500,
         timeframeUnit: 'days',
         timeframeLength: 1,
@@ -97,6 +105,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Users with less than 500 karma cannot post more than 5 posts a day"
       },
       {
+        actionType: "Posts",
         karmaThreshold: 10,
         timeframeUnit: 'weeks',
         timeframeLength: 1,
@@ -105,6 +114,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "As you gain more karma you'll be able to post more frequently."
       }, 
       {
+        actionType: "Posts",
         karmaThreshold: 0,
         timeframeUnit: 'weeks',
         timeframeLength: 1,
@@ -113,6 +123,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Negative karma users are limited to 1 post per week."
       }, 
       {
+        actionType: "Posts",
         karmaThreshold: -30,
         timeframeUnit: 'weeks',
         timeframeLength: 2,
@@ -123,6 +134,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
     ],
     comments: [
       {
+        actionType: "Comments",
         timeframeUnit: 'seconds',
         timeframeLength: 8,
         itemsPerTimeframe: 1,
@@ -130,6 +142,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds (to prevent double-posting.)",
       },
       {
+        actionType: "Comments",
         karmaThreshold: 5,
         timeframeUnit: 'days',
         timeframeLength: 1,
@@ -138,6 +151,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "New users can write up to 3 comments a day. Gain more karma to comment more frequently."
       }, 
       {
+        actionType: "Comments",
         karmaThreshold: -1,
         timeframeUnit: 'days',
         timeframeLength: 1,
@@ -146,6 +160,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         rateLimitMessage: "Negative karma users are limited to 1 comment per day."
       }, 
       {
+        actionType: "Comments",
         karmaThreshold: -15,
         timeframeUnit: 'days',
         timeframeLength: 3,
@@ -158,6 +173,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
   default: {
     posts: [
       {
+        actionType: "Posts",
         timeframeUnit: 'days',
         timeframeLength: 1,
         itemsPerTimeframe: 5,
@@ -167,6 +183,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
     ],
     comments: [
       {
+        actionType: "Comments",
         timeframeUnit: 'seconds',
         timeframeLength: 8,
         itemsPerTimeframe: 1,
@@ -278,7 +295,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
 }
 
 function getStrictestRateLimitInfo (rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
-  const nonNullRateLimits = rateLimits.filter(rateLimit => rateLimit !== null) as Array<RateLimitInfo>;
+  const nonNullRateLimits = rateLimits.filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
   const sortedRateLimits = nonNullRateLimits.sort((a, b) => {
     if (a.nextEligible < b.nextEligible) return 1;
     if (a.nextEligible > b.nextEligible) return -1;
@@ -292,9 +309,9 @@ function getStrictestPostRateLimitInfo(user: DbUser, postsInTimeframe: Array<DbP
   const modRateLimitInfo = getModRateLimitInfo(postsInTimeframe, modRateLimitHours, 1)
   const autoRatelimits = forumSelect(autoRateLimits).posts
 
-  const autoRateLimitInfos = autoRatelimits ? autoRatelimits?.map(
+  const autoRateLimitInfos = autoRatelimits?.map(
     rateLimit => getAutoRateLimitInfo(user, rateLimit, postsInTimeframe)
-  ) : []
+  ) ?? []
 
   const rateLimitInfos = [modRateLimitInfo, ...autoRateLimitInfos]
 
@@ -323,9 +340,9 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
   const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
 
   const autoRatelimits = forumSelect(autoRateLimits).comments
-  const autoRateLimitInfos = autoRatelimits ? autoRatelimits?.map(
+  const autoRateLimitInfos = autoRatelimits?.map(
     rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsInTimeframe)
-  ) : []
+  ) ?? []
 
   const rateLimitInfos = [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, ...autoRateLimitInfos]
 
