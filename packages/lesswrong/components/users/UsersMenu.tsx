@@ -245,6 +245,7 @@ const UsersMenu = ({classes}: {
             <DropdownItem
               title={preferredHeadingCase("Log Out")}
               to="/logout"
+              rawLink
             />
           </DropdownMenu>
         </Paper>

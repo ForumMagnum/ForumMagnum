@@ -66,10 +66,20 @@ export type DropdownItemProps = DropdownItemAction & {
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
+  rawLink?: boolean,
 }
 
 const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
   <div className={className}>{children}</div>;
+
+const RawLink: FC<{
+  to: string,
+  className?: string,
+}> = ({to, className, children}) => (
+  <a href={to} className={className}>
+    {children}
+  </a>
+);
 
 const DropdownItem = ({
   title,
@@ -82,10 +92,11 @@ const DropdownItem = ({
   tooltip,
   disabled,
   loading,
+  rawLink,
   classes,
 }: DropdownItemProps & {classes: ClassesType}) => {
   const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
-  const LinkWrapper = to ? Link : DummyWrapper;
+  const LinkWrapper = to ? rawLink ? RawLink : Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
   return (
     <LinkWrapper to={to!} className={classes.root}>
