@@ -2615,6 +2615,11 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
   readonly altAccountsDetected: boolean,
+  readonly voteReceivedCount: number,
+  readonly smallUpvoteReceivedCount: number,
+  readonly bigUpvoteReceivedCount: number,
+  readonly smallDownvoteReceivedCount: number,
+  readonly bigDownvoteReceivedCount: number,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
