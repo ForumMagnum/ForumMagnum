@@ -301,7 +301,7 @@ function getStrictestRateLimitInfo (rateLimits: Array<RateLimitInfo|null>): Rate
     if (a.nextEligible > b.nextEligible) return -1;
     return 0;
   });
-  return sortedRateLimits[0] || null;
+  return sortedRateLimits[0] ?? null;
 }
 
 function getStrictestPostRateLimitInfo(user: DbUser, postsInTimeframe: Array<DbPost>, modRateLimitHours: number): RateLimitInfo|null {
