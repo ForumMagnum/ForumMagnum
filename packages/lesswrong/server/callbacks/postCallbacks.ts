@@ -563,7 +563,7 @@ async function callType3Webhook(action: 'post_published' | 'post_edited', url: s
 getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.authorIsUnreviewed && !document.draft) {
     const url = postGetPageUrl(document, true);
-    await callType3Webhook('post_published', url);
+    void callType3Webhook('post_published', url);
   }
 });
 
@@ -577,11 +577,11 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
 
   // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await callType3Webhook('post_published', url);
+    void callType3Webhook('post_published', url);
     return
   }
 
   if (oldDocument.contents?.html !== document.contents?.html) {
-    await callType3Webhook('post_edited', url);
+    void callType3Webhook('post_edited', url);
   }
 });
