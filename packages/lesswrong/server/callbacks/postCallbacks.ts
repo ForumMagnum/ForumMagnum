@@ -535,11 +535,11 @@ async function callType3Webhook(action: 'post_published' | 'post_edited', url: s
 
   if (!clientId || !webhookSecret) return;
 
-  const webhookUrl = 'https://api.type3.audio/webhooks/create/';
+  const webhookUrl = 'https://api.type3.audio/webhooks';
   const data = {
     client_id: clientId,
-    action: action,
-    url: url,
+    action,
+    url,
     key: webhookSecret,
   };
 
@@ -562,7 +562,7 @@ async function callType3Webhook(action: 'post_published' | 'post_edited', url: s
  */
 getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.authorIsUnreviewed && !document.draft) {
-    const url = postGetPageUrl(document);
+    const url = postGetPageUrl(document, true);
     await callType3Webhook('post_published', url);
   }
 });
@@ -573,7 +573,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
  */
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
   if (document.draft || document.rejected) return
-  const url = postGetPageUrl(document);
+  const url = postGetPageUrl(document, true);
 
   // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
