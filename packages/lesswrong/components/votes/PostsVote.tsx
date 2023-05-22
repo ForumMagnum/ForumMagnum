@@ -41,7 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 0
+    marginLeft: 0,
+    paddingTop: isEAForum ? 12 : 0
   },
 })
 
