@@ -6,7 +6,6 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
-import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
 import EyeIcon from '@material-ui/icons/Visibility';
@@ -87,7 +86,9 @@ const UsersMenu = ({classes}: {
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
-  const {LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem} = Components;
+  const {
+    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider,
+  } = Components;
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={`/users/${currentUser.slug}`}>
@@ -146,7 +147,7 @@ const UsersMenu = ({classes}: {
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
               />
             }
-            {showNewButtons && <Divider/>}
+            {showNewButtons && <DropdownDivider />}
             {showNewButtons && userCanPost(currentUser) &&
               <DropdownItem
                 title={preferredHeadingCase("New Event")}
@@ -160,7 +161,7 @@ const UsersMenu = ({classes}: {
               />
             }
 
-            <Divider/>
+            <DropdownDivider />
 
             {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember &&
               <DropdownItem
@@ -240,7 +241,7 @@ const UsersMenu = ({classes}: {
               />
             }
 
-            <Divider/>
+            <DropdownDivider />
 
             <DropdownItem
               title={preferredHeadingCase("Log Out")}

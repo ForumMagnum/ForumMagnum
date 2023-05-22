@@ -83,6 +83,7 @@ importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEdit
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
+importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
 
 // Post dropdown items

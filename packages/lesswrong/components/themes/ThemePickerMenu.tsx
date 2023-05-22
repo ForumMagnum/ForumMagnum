@@ -5,7 +5,6 @@ import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
-import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 
@@ -63,7 +62,9 @@ const ThemePickerMenu = ({children, classes}: {
     persistUserTheme(newThemeOptions);
   }
 
-  const {LWTooltip, Typography, DropdownMenu, DropdownItem, ForumIcon} = Components;
+  const {
+    LWTooltip, Typography, DropdownMenu, DropdownItem, DropdownDivider, ForumIcon,
+  } = Components;
   const submenu = (
     <Paper>
       <DropdownMenu>
@@ -80,7 +81,7 @@ const ThemePickerMenu = ({children, classes}: {
                 }
               />
             )}
-            <Divider/>
+            <DropdownDivider />
           </>
         }
 
