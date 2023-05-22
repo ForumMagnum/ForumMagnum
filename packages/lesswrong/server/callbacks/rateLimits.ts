@@ -152,23 +152,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         itemsPerTimeframe: 1,
         rateLimitType: 'lowKarma',
         rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days."
-      },
-      // {
-      //   downvoteRatio: .05,
-      //   timeframeUnit: 'hours',
-      //   timeframeLength: 1,
-      //   itemsPerTimeframe: 1,
-      //   rateLimitType: 'downvoteRatio',
-      //   rateLimitMessage: "Users who've been downvoted significantly can only post 1 comment per hour"
-      // },
-      // {
-      //   downvoteRatio: .1,
-      //   timeframeUnit: 'hours',
-      //   timeframeLength: 1,
-      //   itemsPerTimeframe: 1,
-      //   rateLimitType: 'downvoteRatio',
-      //   rateLimitMessage: "Users who've been heavily downvoted can only post 1 comment per day"
-      // }
+      }
     ]
   },
   default: {
