@@ -251,19 +251,6 @@ async function enforcePostRateLimit (user: DbUser) {
   }
 }
 
-async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
-  if (rateLimit) {
-    const {nextEligible, rateLimitType:_} = rateLimit;
-    if (nextEligible > new Date()) {
-      // "fromNow" makes for a more human readable "how long till I can comment/post?".
-      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
-      moment.relativeTimeThreshold('ss', 0);
-      throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
-    }
-  }
-}
-
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
   // Admins and Sunshines aren't rate-limited
@@ -295,7 +282,6 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // what's the longest rate limit timeframe being evaluated?
   const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoRateLimits).comments)
   const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours);
-  console.log({modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours})
   // fetch the comments from within the maxTimeframe
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
@@ -360,9 +346,7 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
 
   const rateLimitInfos = [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, ...autoRateLimitInfos]
 
-  console.log(rateLimitInfos)
   const result = getStrictestRateLimitInfo(rateLimitInfos)
-  console.log({getStrictestRateLimitInfo: result})
   return result
 }
 
@@ -410,6 +394,20 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null)
   return false;
 }
 
+
+async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
+  if (rateLimit) {
+    const {nextEligible, rateLimitType:_} = rateLimit;
+    if (nextEligible > new Date()) {
+      // "fromNow" makes for a more human readable "how long till I can comment/post?".
+      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
+      moment.relativeTimeThreshold('ss', 0);
+      throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
+    }
+  }
+}
+
 function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, intervalUnit:  IntervalUnitType, intervalLength: number, itemsPerInterval:number): Date|null {
   // make sure documents are sorted by descending date
   const sortedDocs = documents.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
@@ -441,10 +439,7 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
 
-/**
- * Check if the user has a commenting rate limit due to having a high % of their received votes be downvotes.
- */
- function shouldDownvoteRatioCommentRateLimit(user: DbUser, ratioThreshold: number): boolean {
+export function getDownvoteRatio(user: DbUser|SunshineUsersList): number {
   // First check if the sum of the individual vote count fields
   // add up to something close (with 5%) to the voteReceivedCount field.
   // (They should be equal, but we know there are bugs around counting votes,
@@ -458,7 +453,7 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
   const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
 
-  return downvoteRatio > ratioThreshold
+  return downvoteRatio
 }
 
 function getModRateLimitInfo (documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
@@ -476,7 +471,7 @@ function getAutoRateLimitInfo (user: DbUser, rateLimit: AutoRateLimit, documents
   const { karmaThreshold, downvoteRatio, timeframeUnit: intervalUnit, timeframeLength: intervalLength, itemsPerTimeframe: itemsPerInterval, rateLimitMessage, rateLimitType } = rateLimit
 
   if (karmaThreshold && karmaThreshold < user.karma) return null 
-  if (downvoteRatio && !shouldDownvoteRatioCommentRateLimit(user, downvoteRatio)) return null
+  if (downvoteRatio && getDownvoteRatio(user) < downvoteRatio) return null
   const nextEligible = getNextAbleToSubmitDate(documents, intervalUnit, intervalLength, itemsPerInterval)
   if (!nextEligible) return null 
   return { nextEligible, rateLimitType, rateLimitMessage}

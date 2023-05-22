@@ -7,6 +7,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { getDownvoteRatio } from '../../server/callbacks/rateLimits';
 
 export const CONTENT_LIMIT = 20
 
@@ -189,7 +190,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
     <UserReviewStatus user={user}/>
-    <Row>
+    <Row justifyContent="flex-start">
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -199,6 +200,16 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
+      <LWTooltip title={<ul>
+        <li>{user.smallUpvoteCount} small Downvotes</li>
+        <li>{user.bigUpvoteCount} Big Downvotes</li>
+        <li>{user.smallDownvoteCount} small Downvotes</li>
+        <li>{user.bigDownvoteCount} Big Downvotes</li>
+      </ul>}>
+        <MetaInfo className={classes.info}>
+          {getDownvoteRatio(user)}
+        </MetaInfo>
+      </LWTooltip>
     </Row>
   </div>
 
