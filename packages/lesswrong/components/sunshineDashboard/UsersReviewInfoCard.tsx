@@ -145,6 +145,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export function getDownvoteRatio(user: DbUser|SunshineUsersList): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+  const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
+  const voteCountsAreValid = user.voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
+  
+  const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
+
+  return downvoteRatio
+}
+
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
@@ -189,7 +206,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
     <UserReviewStatus user={user}/>
-    <Row>
+    <Row justifyContent="flex-start">
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -199,6 +216,16 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
+      <LWTooltip title={<ul>
+        <li>{user.smallUpvoteCount || 0} Small Upvotes</li>
+        <li>{user.bigUpvoteCount || 0} Big Upvotes</li>
+        <li>{user.smallDownvoteCount || 0} Small Downvotes</li>
+        <li>{user.bigDownvoteCount || 0} Big Downvotes</li>
+      </ul>}>
+        <MetaInfo className={classes.info}>
+          {getDownvoteRatio(user)}
+        </MetaInfo>
+      </LWTooltip>
     </Row>
   </div>
 

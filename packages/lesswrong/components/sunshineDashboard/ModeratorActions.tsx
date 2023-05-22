@@ -102,8 +102,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     fragmentName: 'ModeratorActionsDefaultFragment'
   });
 
-  const canReview = !!(user.maxCommentCount || user.maxPostCount)
-
   const signature = getSignature(currentUser.displayName);
 
   const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
@@ -140,19 +138,19 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   }
   const handleReview = () => {
-    if (canReview) {
-      void updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser._id,
-          reviewedAt: new Date(),
-          needsReview: false,
-          sunshineNotes: notes,
-          snoozedUntilContentCount: null
-        }
-      })
-    }
+    const newNotes = getModSignatureWithNote(`Approved`)+notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineFlagged: false,
+        reviewedByUserId: currentUser._id,
+        reviewedAt: new Date(),
+        needsReview: false,
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: null
+      }
+    })
+    setNotes( newNotes )
   }
   
   const handleSnooze = (contentCount: number) => {
@@ -224,6 +222,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handlePurge = () => {
+    const newNotes = getModSignatureWithNote("Purge") + notes;
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       void updateUser({
         selector: {_id: user._id},
@@ -236,24 +235,24 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(1000, 'years').toDate(),
-          sunshineNotes: notes
+          sunshineNotes: newNotes
         }
       })
-      setNotes( getModSignatureWithNote("Purge")+notes )
+      setNotes( newNotes )
     }
   }
   
   const handleFlag = () => {
+    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
+    const newNotes =  getModSignatureWithNote(flagStatus)+notes
     void updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
-        sunshineNotes: notes
+        sunshineNotes: newNotes
       }
     })
-    
-    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( getModSignatureWithNote(flagStatus)+notes )
+    setNotes(newNotes)
   }
   
   const handleDisablePosting = () => {
@@ -312,7 +311,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const applyModeratorAction = async (type: AllRateLimitTypes) => {
 
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 60);
+    endDate.setDate(endDate.getDate() + 21);
 
     await createModeratorAction({
       data: {
@@ -354,7 +353,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
-      <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+      <DoneIcon onClick={handleReview} className={classes.modButton}/>
     </LWTooltip>
     <LWTooltip title="Ban for 3 months" placement="top">
       <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />

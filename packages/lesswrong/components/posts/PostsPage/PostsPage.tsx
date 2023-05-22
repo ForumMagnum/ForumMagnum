@@ -281,6 +281,7 @@ const PostsPage = ({post, refetch, classes}: {
     !post.deletedDraft &&
     !post.question &&
     !post.debate &&
+    !post.isEvent &&
     !sequenceId &&
     recommendationsTestGroup === "recommended";
 

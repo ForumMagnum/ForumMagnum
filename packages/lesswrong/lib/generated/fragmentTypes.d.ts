@@ -1160,6 +1160,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContentsRevision: any,
+  readonly commentEmojiReactors: any,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
@@ -1205,6 +1206,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
+  readonly commentEmojiReactors: any,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -2613,6 +2615,11 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
   readonly altAccountsDetected: boolean,
+  readonly voteReceivedCount: number,
+  readonly smallUpvoteReceivedCount: number,
+  readonly bigUpvoteReceivedCount: number,
+  readonly smallDownvoteReceivedCount: number,
+  readonly bigDownvoteReceivedCount: number,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
