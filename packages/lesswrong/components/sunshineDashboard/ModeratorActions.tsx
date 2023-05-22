@@ -311,7 +311,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const applyModeratorAction = async (type: AllRateLimitTypes) => {
 
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 60);
+    endDate.setDate(endDate.getDate() + 21);
 
     await createModeratorAction({
       data: {
