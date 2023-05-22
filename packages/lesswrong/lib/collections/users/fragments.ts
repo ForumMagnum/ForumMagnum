@@ -214,9 +214,16 @@ registerFragment(`
  * page can start loading.
  */
 registerFragment(`
-  fragment UsersCurrentRateLimit on User {
+  fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
+  }
+`);
+
+registerFragment(`
+  fragment UsersCurrentPostRateLimit on User {
+    _id
+    rateLimitNextAbleToPost
   }
 `);
 

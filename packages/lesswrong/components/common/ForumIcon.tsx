@@ -1,5 +1,6 @@
 import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
+import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
@@ -53,6 +54,12 @@ import MuiSettingsIcon from "@material-ui/icons/Settings";
 import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
+
+/**
+ * ForumIcon can be used with custom SVG elements but you MUST pass through
+ * the props using React.HTMLAttributes otherwise you will have bugs. See the
+ * files below for examples
+ */
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -60,9 +67,9 @@ import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
-import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
+import { AddEmojiIcon } from "../icons/addEmoji";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -75,13 +82,13 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "Bookmarks" |
-  "BellBorder" |
   "Karma" |
   "KarmaOutline" |
   "Star" |
   "User" |
   "Bell" |
   "BellBorder" |
+  "AddEmoji" |
   "Link" |
   "Pin" |
   "Author" |
@@ -120,12 +127,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     Bookmarks: MuiBookmarksIcon,
-    BellBorder: MuiBellBorderIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
     Bell: MuiNotificationsIcon,
+    BellBorder: MuiBellBorderIcon,
+    AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
     Author: AuthorIcon,
@@ -163,12 +171,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     Bookmarks: BookmarkIcon,
-    BellBorder: BellOutlineIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
     Bell: BellIcon,
+    BellBorder: BellOutlineIcon,
+    AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
     Pin: PinIcon,
     Author: AuthorIcon,
@@ -235,11 +244,18 @@ const styles = (_: ThemeType): JssStyles => ({
 
 type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
+  noDefaultStyles?: boolean,
   classes: ClassesType,
   style?: CSSProperties,
 };
 
-const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
+const ForumIcon = ({
+  icon,
+  noDefaultStyles,
+  className,
+  classes,
+  ...props
+}: ForumIconProps) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
@@ -250,8 +266,12 @@ const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
 
   const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
+  const fullClassName = classNames(className, {
+    [classes.root]: !noDefaultStyles,
+    [customClass]: !noDefaultStyles && customClass,
+  });
 
-  return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
+  return <Icon className={fullClassName} {...props} />;
 }
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {

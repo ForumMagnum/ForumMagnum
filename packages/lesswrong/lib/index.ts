@@ -9,6 +9,8 @@ import './permissions';
 
 // ## Voting
 import './voting/voteTypes';
+import './voting/votingSystems';
+import './voting/namesAttachedReactions';
 
 //MomentJS configuration
 import '../components/momentjs';

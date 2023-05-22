@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
+import { Comments } from '../../../lib/collections/comments/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -17,11 +18,13 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
+    position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
     }
@@ -279,6 +282,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
     LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
   } = Components
+  
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   if (!comment) {
     return null;
@@ -373,6 +380,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {post && <ReviewVotingWidget post={post} showTitle={false}/>}
         </div>}
         { showReplyState && !collapsed && renderReply() }
+        {VoteBottomComponent && <VoteBottomComponent
+          document={comment}
+          hideKarma={post?.hideCommentKarma}
+          collection={Comments}
+          votingSystem={votingSystem}
+        />}
       </div>
     </AnalyticsContext>
   )

@@ -259,6 +259,8 @@ const PostsPage = ({post, refetch, classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
+  const isOldVersion = query?.revision && post.contents;
+  
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")
     : "hidden";
@@ -279,6 +281,7 @@ const PostsPage = ({post, refetch, classes}: {
     !post.deletedDraft &&
     !post.question &&
     !post.debate &&
+    !post.isEvent &&
     !sequenceId &&
     recommendationsTestGroup === "recommended";
 
@@ -398,7 +401,7 @@ const PostsPage = ({post, refetch, classes}: {
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
               {htmlWithAnchors && <PostBody
                 post={post} html={htmlWithAnchors}
-                sideCommentMode={sideCommentMode}
+                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
               />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>

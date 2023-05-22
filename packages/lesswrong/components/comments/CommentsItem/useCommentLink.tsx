@@ -53,8 +53,8 @@ export const useCommentLink = ({
     event.preventDefault();
     history.replace({
       ...location,
-      search:
-      qs.stringify({...query, commentId: comment._id}),
+      search: qs.stringify({...query, commentId: comment._id}),
+      hash: null,
     });
 
     if (scrollIntoView) {
