@@ -8,7 +8,6 @@ import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModerator
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { isEAForum } from '../../lib/instanceSettings';
 
 
 const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
