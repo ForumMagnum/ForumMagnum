@@ -80,7 +80,7 @@ interface DbClientId extends DbObject {
   clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string
-  userIds: Array<string>
+  userIds: Array<string> | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -592,7 +592,7 @@ interface DbPost extends DbObject {
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>
+  }> | null
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
@@ -1231,6 +1231,11 @@ interface DbUser extends DbObject {
   smallDownvoteCount: number
   bigUpvoteCount: number
   bigDownvoteCount: number
+  voteReceivedCount: number
+  smallUpvoteReceivedCount: number
+  smallDownvoteReceivedCount: number
+  bigUpvoteReceivedCount: number
+  bigDownvoteReceivedCount: number
   usersContactedBeforeReview: Array<string>
   fullName: string
   shortformFeedId: string
@@ -1288,8 +1293,8 @@ interface DbUser extends DbObject {
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list"
-  experiencedIn: Array<string>
-  interestedIn: Array<string>
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number

@@ -44,6 +44,7 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
+import { botRedirectMiddleware } from './botRedirect';
 import ElasticSearchController from './search/elastic/ElasticSearchController';
 
 const loadClientBundle = () => {
@@ -135,6 +136,7 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
+  app.use(botRedirectMiddleware);
   
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));

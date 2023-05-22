@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
-import { JsonType } from "./Type";
+import { JsonType, Type } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
@@ -163,7 +163,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const updateValue = this.compileUpdateExpression(value);
+      const fieldType = this.getField(field);
+      const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
+      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
+      const updateValue = this.compileUpdateExpression(value, typeForArg);
 
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
@@ -183,11 +186,11 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private compileUpdateExpression(value: unknown): Atom<T>[] {
+  private compileUpdateExpression(value: unknown, jsonType?: JsonType): Atom<T>[] {
     if (typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")) {
       return this.compileExpression(value);
     } else {
-      const arg = this.createArg(value);
+      const arg = this.createArg(value, jsonType);
       if (!arg.typehint) {
         arg.typehint = this.getTypeHint(value);
       }

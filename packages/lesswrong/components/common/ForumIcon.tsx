@@ -1,5 +1,6 @@
 import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
+import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/solid/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
@@ -10,6 +11,8 @@ import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
+import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
+import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
@@ -33,6 +36,12 @@ import MuiLinkIcon from "@material-ui/icons/Link";
 import MuiNotesIcon from "@material-ui/icons/Notes";
 import MuiWarningIcon from "@material-ui/icons/Warning";
 import MuiLocationIcon from "@material-ui/icons/LocationOn";
+
+/**
+ * ForumIcon can be used with custom SVG elements but you MUST pass through
+ * the props using React.HTMLAttributes otherwise you will have bugs. See the
+ * files below for examples
+ */
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
@@ -40,9 +49,9 @@ import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
-import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
+import { AddEmojiIcon } from "../icons/addEmoji";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -61,6 +70,7 @@ export type ForumIconName =
   "User" |
   "Bell" |
   "BellBorder" |
+  "AddEmoji" |
   "Link" |
   "Pin" |
   "Author" |
@@ -80,19 +90,22 @@ export type ForumIconName =
   "Plus" |
   "Check" |
   "Card" |
-  "List";
+  "List" |
+  "PlusSmall" |
+  "MinusSmall";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
-    BellBorder: MuiBellBorderIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
     Bell: MuiNotificationsIcon,
+    BellBorder: MuiBellBorderIcon,
+    AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
     Pin: StickyIcon,
     Author: AuthorIcon,
@@ -110,6 +123,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    PlusSmall: PlusSmallIcon,
+    MinusSmall: MinusSmallIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
@@ -118,12 +133,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
-    BellBorder: BellOutlineIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
     Bell: BellIcon,
+    BellBorder: BellOutlineIcon,
+    AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
     Pin: PinIcon,
     Author: AuthorIcon,
@@ -141,6 +157,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
+    PlusSmall: PlusSmallIcon,
+    MinusSmall: MinusSmallIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
@@ -179,11 +197,18 @@ const styles = (_: ThemeType): JssStyles => ({
 
 type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
+  noDefaultStyles?: boolean,
   classes: ClassesType,
   style?: CSSProperties,
 };
 
-const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
+const ForumIcon = ({
+  icon,
+  noDefaultStyles,
+  className,
+  classes,
+  ...props
+}: ForumIconProps) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
@@ -194,8 +219,12 @@ const ForumIcon = ({icon, className, classes, ...props}: ForumIconProps) => {
 
   const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
+  const fullClassName = classNames(className, {
+    [classes.root]: !noDefaultStyles,
+    [customClass]: !noDefaultStyles && customClass,
+  });
 
-  return <Icon className={classNames(classes.root, customClass, className)} {...props} />;
+  return <Icon className={fullClassName} {...props} />;
 }
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
