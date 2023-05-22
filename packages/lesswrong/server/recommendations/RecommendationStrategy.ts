@@ -39,23 +39,37 @@ abstract class RecommendationStrategy {
     strategy: StrategySpecification,
   ): Promise<RecommendationResult>;
 
-  /**
-   * Create SQL query fragments that filter out posts that the user has already
-   * viewed, or that have already been recommended.
-   */
-  protected getUserFilter(currentUser: DbUser|null) {
+  protected getAlreadyReadFilter(currentUser: DbUser|null) {
     return currentUser
       ? {
         join: `
           LEFT JOIN "ReadStatuses" rs
             ON rs."userId" = $(userId)
             AND rs."postId" = p."_id"
+        `,
+        filter: `
+          rs."isRead" IS NOT TRUE AND
+        `,
+        args: {
+          userId: currentUser._id,
+        },
+      }
+      : {
+        join: "",
+        filter: "",
+        args: {},
+      };
+  }
+
+  protected getAlreadyRecommendedFilter(currentUser: DbUser|null) {
+    return currentUser
+      ? {
+        join: `
           LEFT JOIN "PostRecommendations" pr
             ON pr."userId" = $(userId)
             AND pr."postId" = p."_id"
         `,
         filter: `
-          rs."isRead" IS NOT TRUE AND
           COALESCE(pr."recommendationCount", 0) < $(maxRecommendationCount) AND
           pr."clickedAt" IS NULL AND
         `,
@@ -69,6 +83,23 @@ abstract class RecommendationStrategy {
         filter: "",
         args: {},
       };
+  }
+
+  /**
+   * Create SQL query fragments that filter out posts that the user has already
+   * viewed, or that have already been recommended.
+   */
+  protected getUserFilter(currentUser: DbUser|null) {
+    const read = this.getAlreadyReadFilter(currentUser);
+    const recommended = this.getAlreadyRecommendedFilter(currentUser);
+    return {
+      join: `${read.join} ${recommended.join}`,
+      filter: `${read.filter} ${recommended.filter}`,
+      args: {
+        ...read.args,
+        ...recommended.args,
+      },
+    };
   }
 
   /**
