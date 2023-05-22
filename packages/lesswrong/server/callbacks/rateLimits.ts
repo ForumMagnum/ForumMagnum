@@ -1,6 +1,5 @@
 import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
 import Comments from '../../lib/collections/comments/collection';
 import { RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
