@@ -16,7 +16,7 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
     return null;
   }
 
-  // TODO refactor this so it shares code with ModeratorActions and doens't
+  // TODO refactor this so it shares code with ModeratorActions and doesn't
   // get out of sync
   const handleApproveUser = async () => {
     await updateUser({
