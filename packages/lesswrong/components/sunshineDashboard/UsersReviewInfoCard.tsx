@@ -201,10 +201,10 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
       <LWTooltip title={<ul>
-        <li>{user.smallUpvoteCount} small Downvotes</li>
-        <li>{user.bigUpvoteCount} Big Downvotes</li>
-        <li>{user.smallDownvoteCount} small Downvotes</li>
-        <li>{user.bigDownvoteCount} Big Downvotes</li>
+        <li>{user.smallUpvoteCount || 0} Small Upvotes</li>
+        <li>{user.bigUpvoteCount || 0} Big Upvotes</li>
+        <li>{user.smallDownvoteCount || 0} Small Downvotes</li>
+        <li>{user.bigDownvoteCount || 0} Big Downvotes</li>
       </ul>}>
         <MetaInfo className={classes.info}>
           {getDownvoteRatio(user)}
