@@ -39,6 +39,10 @@ abstract class RecommendationStrategy {
     strategy: StrategySpecification,
   ): Promise<RecommendationResult>;
 
+  /**
+   * Create SQL query fragments that filter out posts that the user has already
+   * viewed.
+   */
   protected getAlreadyReadFilter(currentUser: DbUser|null) {
     return currentUser
       ? {
@@ -61,6 +65,10 @@ abstract class RecommendationStrategy {
       };
   }
 
+  /**
+   * Create SQL query fragments that filter out posts that the user has already
+   * been recommended.
+   */
   protected getAlreadyRecommendedFilter(currentUser: DbUser|null) {
     return currentUser
       ? {
