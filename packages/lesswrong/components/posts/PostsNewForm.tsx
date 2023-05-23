@@ -203,6 +203,7 @@ const PostsNewForm = ({classes}: {
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UsersCurrentPostRateLimit",
+    fetchPolicy: "cache-and-network",
     skip: !currentUser,
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
