@@ -6,7 +6,7 @@ import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 type ComparisonFn = (prev: any, next: any)=>boolean
-type ComparePropsDict = { [propName: string]: "shallow"|"ignore"|"deep"|ComparisonFn }
+type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
