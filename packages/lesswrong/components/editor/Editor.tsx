@@ -329,6 +329,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
   debouncedValidateEditor: typeof this.validateCkEditor
+  debouncedCheckIsCriticism: typeof this.checkIsCriticism
 
   constructor(props: EditorProps) {
     super(props)
@@ -344,6 +345,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, validationInterval);
     this.debouncedValidateEditor = _.debounce(this.validateCkEditor, validationInterval);
+    this.debouncedCheckIsCriticism = _.debounce(this.checkIsCriticism, 10000, true); // TODO change interval
   }
 
   async componentDidMount() {
@@ -521,6 +523,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.setContents("ckEditorMarkup", editor.getData());
           } else {
             this.throttledSetCkEditor(() => editor.getData())
+            this.debouncedCheckIsCriticism()
           }
         },
         onInit: (editor: any) => this.setState({ckEditorReference: editor})
@@ -560,6 +563,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         markdownImgErrs: httpImageRE.test(markdownValue)
       })
     }
+  }
+  
+  checkIsCriticism = () => {
+    console.log('checkIsCriticism', this.props.value)
   }
 
   renderPlaintextEditor = (contents: EditorContents) => {

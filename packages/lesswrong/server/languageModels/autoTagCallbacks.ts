@@ -9,6 +9,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 /**
  * To set up automatic tagging:
@@ -73,7 +74,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
    7. Install the OpenAI command-line API (if it isn't already installed.) with:
            pip install --upgrade openai
       (Depending on your system this might be `pip3` instead. If this succeeds
-      you should be able to run `openai` from the command ine in any directory.)
+      you should be able to run `openai` from the command line in any directory.)
  *
  * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job using the OpenAI CLI.
           export OPENAI_API_KEY=YOURAPIKEYHERE
@@ -82,6 +83,8 @@ import { isAnyTest } from '../../lib/executionEnvironment';
             -t ml/tagClassification.${TAG}.train.jsonl \
             -v ml/tagClassification.${TAG}.test.jsonl
       Substituting in ${TAG}, and repeat for each tag.
+      You can check each job with:
+          openai api fine_tunes.follow -i ${id}
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -237,6 +240,29 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
       });
     }
   }
+}
+
+async function postIsCriticism(post: DbPost, context: ResolverContext): Promise<boolean> {
+  if (!isEAForum) return false
+  
+  const api = await getOpenAI()
+  if (!api) {
+    if (!isAnyTest) {
+      //eslint-disable-next-line no-console
+      console.log("Skipping checking if the post is criticism (API not configured)")
+    }
+    return false
+  }
+  
+  const template = await wikiSlugToTemplate("lm-config-autotag")
+  const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
+  const languageModelResult = await api.createCompletion({
+    model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
+    prompt: await postToPrompt({template, post, promptSuffix}),
+    max_tokens: 1,
+  })
+  const completion = languageModelResult.data.choices[0].text!
+  return (completion.trim().toLowerCase() === "yes")
 }
 
 getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
