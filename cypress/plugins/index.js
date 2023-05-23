@@ -152,6 +152,7 @@ module.exports = (on, config) => {
     },
     log(data) {
       console.log(data);
+      return null;
     }
   });
 };
