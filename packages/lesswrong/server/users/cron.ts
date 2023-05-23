@@ -28,6 +28,7 @@ addCronJob({
       })
       
       // log the action
+      // eslint-disable-next-line no-console
       console.log('// Users with expired rate limits:', userIdsWithExpiringRateLimits); // eslint-disable-line
     }
   }
