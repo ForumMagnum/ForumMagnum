@@ -185,7 +185,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
 
   const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
 
-  const userRateLimitInfo = getUserRateLimitInfo(userCommentRateLimit, commentsInTimeframe)
+  const userRateLimitInfo = getUserRateLimitInfo(userCommentRateLimit, commentsOnOthersPostsInTimeframe)
 
   const autoRatelimits = forumSelect(autoCommentRateLimits)
   const autoRateLimitsOnAllPosts = autoRatelimits?.filter(rateLimit => !rateLimit.onlyAppliesToOthersPosts)
