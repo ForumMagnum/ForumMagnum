@@ -25,9 +25,9 @@ const POSTS = {
     karmaThreshold: 500
   },
   
-  TWO_PER_WEEK_LOW_KARMA: {
+  TWO_PER_WEEK_UNDER_5_KARMA: {
     actionType: "Posts",
-    karmaThreshold: 10,
+    karmaThreshold: 5,
     timeframeUnit: 'weeks',
     timeframeLength: 1,
     itemsPerTimeframe: 2,
@@ -37,7 +37,7 @@ const POSTS = {
   
   ONE_PER_WEEK_NEGATIVE_KARMA: {
     actionType: "Posts",
-    karmaThreshold: 0,
+    karmaThreshold: -1,
     timeframeUnit: 'weeks',
     timeframeLength: 1,
     itemsPerTimeframe: 1,
@@ -45,7 +45,7 @@ const POSTS = {
     rateLimitMessage: "Negative karma users are limited to 1 post per week."
   },
   
-  ONE_PER_TWO_WEEKS_VERY_NEGATIVE_KARMA: {
+  ONE_PER_TWO_WEEKS_NEGATIVE_30_KARMA: {
     actionType: "Posts",
     karmaThreshold: -30,
     timeframeUnit: 'weeks',
@@ -71,7 +71,7 @@ const COMMENTS = {
     rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds to prevent double-posting.",
   },
 
-  FOUR_PER_THIRTY_MINUTES_LOW_KARMA: {
+  FOUR_PER_THIRTY_MINUTES_UNDER_30_KARMA: {
     actionType: "Comments",
     karmaThreshold: 30,
     timeframeUnit: 'minutes',
@@ -81,7 +81,7 @@ const COMMENTS = {
     rateLimitMessage: "You'll be able to post more comments as your karma increases"
   },
 
-  FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO: {
+  FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO_30_PERCENT: {
     actionType: "Comments",
     downvoteRatio: .3,
     timeframeUnit: 'minutes',
@@ -91,7 +91,7 @@ const COMMENTS = {
     rateLimitMessage: "You'll be able to post more comments as your karma increases"
   },
 
-  THREE_PER_DAY_LOW_KARMA: {
+  THREE_PER_DAY_UNDER_5_KARMA: {
     actionType: "Comments",
     karmaThreshold: 5,
     timeframeUnit: 'days',
@@ -111,7 +111,7 @@ const COMMENTS = {
     rateLimitMessage: "Negative karma users are limited to 1 comment per day."
   },
 
-  ONE_PER_THREE_DAYS_VERY_NEGATIVE_KARMA: {
+  ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA: {
     actionType: "Comments",
     karmaThreshold: -15,
     timeframeUnit: 'days',
@@ -129,9 +129,9 @@ export const autoPostRateLimits: ForumOptions<AutoRateLimit<'Posts'>[]> = {
   ],
   LessWrong: [
     POSTS.FIVE_PER_DAY_UNDER_500_KARMA, 
-    POSTS.TWO_PER_WEEK_LOW_KARMA, 
+    POSTS.TWO_PER_WEEK_UNDER_5_KARMA, 
     POSTS.ONE_PER_WEEK_NEGATIVE_KARMA,
-    POSTS.ONE_PER_TWO_WEEKS_VERY_NEGATIVE_KARMA
+    POSTS.ONE_PER_TWO_WEEKS_NEGATIVE_30_KARMA
   ],
   default: [
     POSTS.FIVE_PER_DAY
@@ -141,13 +141,13 @@ export const autoPostRateLimits: ForumOptions<AutoRateLimit<'Posts'>[]> = {
 export const autoCommentRateLimits: ForumOptions<AutoRateLimit<'Comments'>[]> = {
   EAForum: [
     COMMENTS.ONE_PER_EIGHT_SECONDS, 
-    COMMENTS.FOUR_PER_THIRTY_MINUTES_LOW_KARMA, 
-    COMMENTS.FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO],
+    COMMENTS.FOUR_PER_THIRTY_MINUTES_UNDER_30_KARMA, 
+    COMMENTS.FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO_30_PERCENT],
   LessWrong: [
     COMMENTS.ONE_PER_EIGHT_SECONDS, 
-    COMMENTS.THREE_PER_DAY_LOW_KARMA, 
+    COMMENTS.THREE_PER_DAY_UNDER_5_KARMA, 
     COMMENTS.ONE_PER_DAY_NEGATIVE_KARMA, 
-    COMMENTS.ONE_PER_THREE_DAYS_VERY_NEGATIVE_KARMA
+    COMMENTS.ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA
   ],
   default: [
     COMMENTS.ONE_PER_EIGHT_SECONDS
