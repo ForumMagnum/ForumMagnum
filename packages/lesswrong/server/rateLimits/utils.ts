@@ -174,14 +174,20 @@ async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modR
   const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
 
   const autoRatelimits = forumSelect(autoCommentRateLimits)
-  const autoRateLimitInfos = autoRatelimits?.map(
+  const autoRateLimitsOnAllPosts = autoRatelimits?.filter(rateLimit => !rateLimit.onlyAppliesToOthersPosts)
+  const autoRateLimitsOnOwnPosts = autoRatelimits?.filter(rateLimit => rateLimit.onlyAppliesToOthersPosts)
+
+  const autoRateLimitOnAllPostInfos = autoRateLimitsOnAllPosts?.map(
     rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsInTimeframe)
   ) ?? []
 
-  const rateLimitInfos = [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, ...autoRateLimitInfos]
+  const autoRateLimitOnOthersPostsInfos = autoRateLimitsOnOwnPosts?.map(
+    rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsOnOthersPostsInTimeframe)
+  ) ?? []
 
-  const result = getStrictestRateLimitInfo(rateLimitInfos)
-  return result
+  const rateLimitInfos = [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, ...autoRateLimitOnAllPostInfos, ...autoRateLimitOnOthersPostsInfos]
+
+  return getStrictestRateLimitInfo(rateLimitInfos)
 }
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
