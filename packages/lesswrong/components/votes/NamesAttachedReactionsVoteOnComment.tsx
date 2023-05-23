@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     whiteSpace: "nowrap",
+    zIndex: theme.zIndexes.reactionsFooter,
     
     position: "absolute",
     right: 20,
