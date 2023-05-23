@@ -14,7 +14,7 @@ addCronJob({
   
   
     const startOfDay = moment(new Date()).subtract(1, 'days').toDate()
-    const endOfDay = moment(new Date()).add(1, 'days').toDate()
+    const endOfDay = new Date() 
     
     const rateLimitsExpiringToday = await ModeratorActions.find({type: {$in: allRateLimits}, endedAt: {$gte: startOfDay, $lt: endOfDay}}).fetch();
     const userIdsWithExpiringRateLimits = rateLimitsExpiringToday.map((action) => action.userId);
