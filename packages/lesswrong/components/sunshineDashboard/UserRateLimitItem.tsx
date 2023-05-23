@@ -9,8 +9,34 @@ import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-
+  rateLimitForm: {
+    [theme.breakpoints.up('md')]: {
+      border: theme.palette.border.normal,
+      paddingLeft: 10,
+      marginTop: 6,
+      
+      '& .form-section-default > div': {
+        display: "flex",
+        flexWrap: "wrap",
+      },
+      '& .input-type, & .input-intervalUnit, & .input-intervalLength, & .input-actionsPerInterval': {
+        width: "calc(33% - 12px)",
+        overflow: "hidden",
+        marginRight: 12
+      },
+      '& .input-endedAt': {
+        // width: "calc(33% - 12px)",
+        marginRight: 12
+      },
+      '& .input-endedAt .DatePicker-wrapper': {
+        marginTop: 5
+        // lineHeight: '1.1875em'
+      },
+      '& .form-submit': {
+        display: "flex",
+        justifyContent: "flex-end"
+      }
+    }
   },
   newRateLimit: {
     minWidth: 180
@@ -162,21 +188,23 @@ export const UserRateLimitItem = ({userId, classes}: {
         <MenuItem value='custom'>Custom</MenuItem>
       </Select>
     </div>}
-    {(createNewRateLimit || editingExistingRateLimitId) && <WrappedSmartForm
-      {...(editingExistingRateLimitId ? {documentId: editingExistingRateLimitId} : {})}
-      collectionName='UserRateLimits'
-      mutationFragmentName='UserRateLimitDisplay'
-      prefilledProps={editingExistingRateLimitId ? {} : prefilledCustomFormProps}
-      successCallback={async () => {
-        await refetch();
-        setCreateNewRateLimit(false);
-        setEditingExistingRateLimitId(undefined);
-      }}
-      cancelCallback={() => {
-        setCreateNewRateLimit(false);
-        setEditingExistingRateLimitId(undefined);
-      }}
-    />}
+    {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
+      <WrappedSmartForm
+        {...(editingExistingRateLimitId ? {documentId: editingExistingRateLimitId} : {})}
+        collectionName='UserRateLimits'
+        mutationFragmentName='UserRateLimitDisplay'
+        prefilledProps={editingExistingRateLimitId ? {} : prefilledCustomFormProps}
+        successCallback={async () => {
+          await refetch();
+          setCreateNewRateLimit(false);
+          setEditingExistingRateLimitId(undefined);
+        }}
+        cancelCallback={() => {
+          setCreateNewRateLimit(false);
+          setEditingExistingRateLimitId(undefined);
+        }}
+      />
+    </div>}
     {existingRateLimits.length > 0 && existingRateLimits.map(existingRateLimit =>
       <div key={`user-rate-limit-${existingRateLimit._id}`} className={classes.existingRateLimitInfo}>
         Rate Limit ({getRateLimitDescription(existingRateLimit)})
