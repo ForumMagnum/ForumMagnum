@@ -30,7 +30,6 @@ const schema: SchemaType<DbUserRateLimit> = {
     optional: false,
     nullable: false,
     hidden: true
-    // control: 'SearchSingleUser'
   },
   type: {
     type: String,
