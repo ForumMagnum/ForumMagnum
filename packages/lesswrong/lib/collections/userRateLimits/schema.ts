@@ -1,11 +1,4 @@
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
-
-/**
- * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
- */
-const isRateLimitActive = (userRateLimit: DbUserRateLimit) => {
-  return !userRateLimit.endedAt || userRateLimit.endedAt > new Date();
-}
+import { foreignKeyField } from '../../utils/schemaUtils'
 
 const dictionaryToSelectOptions = <T extends Record<string, string>>(dictionary: T) => {
   return Object.entries(dictionary).map(([value, label]) => ({ value, label }));
@@ -85,12 +78,7 @@ const schema: SchemaType<DbUserRateLimit> = {
     optional: true,
     nullable: true,
     control: 'datetime',
-  },
-  active: resolverOnlyField({
-    type: Boolean,
-    canRead: ['guests'],
-    resolver: (doc) => isRateLimitActive(doc)
-  })
+  }
 };
 
 export default schema;
