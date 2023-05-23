@@ -25,9 +25,9 @@ const POSTS = {
     karmaThreshold: 500
   },
   
-  TWO_PER_WEEK_UNDER_10_KARMA: {
+  TWO_PER_WEEK_UNDER_5_KARMA: {
     actionType: "Posts",
-    karmaThreshold: 10,
+    karmaThreshold: 5,
     timeframeUnit: 'weeks',
     timeframeLength: 1,
     itemsPerTimeframe: 2,
@@ -91,7 +91,7 @@ const COMMENTS = {
     rateLimitMessage: "You'll be able to post more comments as your karma increases"
   },
 
-  THREE_PER_DAY_LOW_KARMA: {
+  THREE_PER_DAY_UNDER_5_KARMA: {
     actionType: "Comments",
     karmaThreshold: 5,
     timeframeUnit: 'days',
@@ -129,7 +129,7 @@ export const autoPostRateLimits: ForumOptions<AutoRateLimit<'Posts'>[]> = {
   ],
   LessWrong: [
     POSTS.FIVE_PER_DAY_UNDER_500_KARMA, 
-    POSTS.TWO_PER_WEEK_UNDER_10_KARMA, 
+    POSTS.TWO_PER_WEEK_UNDER_5_KARMA, 
     POSTS.ONE_PER_WEEK_NEGATIVE_KARMA,
     POSTS.ONE_PER_TWO_WEEKS_NEGATIVE_30_KARMA
   ],
@@ -145,7 +145,7 @@ export const autoCommentRateLimits: ForumOptions<AutoRateLimit<'Comments'>[]> = 
     COMMENTS.FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO_30_PERCENT],
   LessWrong: [
     COMMENTS.ONE_PER_EIGHT_SECONDS, 
-    COMMENTS.THREE_PER_DAY_LOW_KARMA, 
+    COMMENTS.THREE_PER_DAY_UNDER_5_KARMA, 
     COMMENTS.ONE_PER_DAY_NEGATIVE_KARMA, 
     COMMENTS.ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA
   ],
