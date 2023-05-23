@@ -39,7 +39,7 @@ export const EmailPreview = ({email, sentDate, classes}: {
       <span className={classes.headerName}>To: </span>
       <span className={classes.headerContent}>{email.to}</span>
     </div>
-    <iframe className={classes.emailBodyFrame} srcDoc={email.html}/>
+    {email.html && <iframe className={classes.emailBodyFrame} srcDoc={email.html}/>}
     <div className={classes.emailTextVersion}>
       {email.text}
     </div>

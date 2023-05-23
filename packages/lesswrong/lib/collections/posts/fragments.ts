@@ -162,6 +162,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
     ...PostsListBase
     currentUserVote
@@ -196,6 +205,7 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -401,6 +411,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -454,6 +465,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -605,12 +617,5 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
-  }
-`);
-
-registerFragment(`
-  fragment PostWithRateLimit on Post {
-    _id
-    postSpecificRateLimit
   }
 `);

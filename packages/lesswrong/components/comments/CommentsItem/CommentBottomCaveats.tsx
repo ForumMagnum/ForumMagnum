@@ -31,7 +31,7 @@ const CommentBottomCaveats = ({comment, classes}: {
       </div>
     }
     { comment.retracted && <Components.MetaInfo>[This comment is no longer endorsed by its author]</Components.MetaInfo>}
-    { commentIsHidden(comment) && <Components.MetaInfo>
+    { commentIsHidden(comment) && !comment.rejected && <Components.MetaInfo>
       [This comment will not be visible to other users until the moderation
       team checks it for spam or norm violations.]
     </Components.MetaInfo>

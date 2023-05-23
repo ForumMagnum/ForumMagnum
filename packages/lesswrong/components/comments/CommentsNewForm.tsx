@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { ComponentProps, useState, useEffect } from 'react';
-import { Comments } from '../../lib/collections/comments/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -149,18 +148,23 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const userWithRateLimit = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
-    fragmentName: "UsersCurrentRateLimit",
+    fragmentName: "UsersCurrentCommentRateLimit",
     extraVariables: { postId: 'String' },
     extraVariablesValues: { postId: post?._id },
     skip: !currentUser,
   });
-  const postWithRateLimit = useSingle({
-    documentId: post?._id,
-    collectionName: "Posts",
-    fragmentName: "PostWithRateLimit",
-    skip: !post,
-  });
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
+  const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
+  // Disable the form if there's a rate limit and it's more than 1 minute until it
+  // expires. (If the user is rate limited but it will expire sooner than that,
+  // don't disable the form; it'll probably expire before they finish typing their
+  // comment anyways, and this avoids an awkward interaction with the 15-second
+  // rate limit that's only supposed to be there to prevent accidental double posts.
+  // TODO
+  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
+
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
@@ -195,7 +199,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
         noClickawayCancel: true
       });
     }
-    setShowGuidelines(true);
+    if (!isEAForum) {
+      setShowGuidelines(true);
+    }
   }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
@@ -208,7 +214,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     }
     setLoading(false)
     userWithRateLimit.refetch();
-    postWithRateLimit.refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {
@@ -279,43 +284,21 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
-    currentUser && !currentUser.isReviewed
+    currentUser && !currentUser.isReviewed 
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
-  
-  // TODO: probably include postSpecificRateLimit in rateLimitNextAbleToComment so we don't need both
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
-  const postNextAbleToComment = postWithRateLimit?.document?.postSpecificRateLimit;
-  const lastRateLimitExpiry: Date|null =
-    (userNextAbleToComment && new Date(userNextAbleToComment))
-    ?? (postNextAbleToComment && new Date(postNextAbleToComment))
-    ?? null;
-  
-  // Disable the form if there's a rate limit and it's more than 1 minute until it
-  // expires. (If the user is rate limited but it will expire sooner than that,
-  // don't disable the form; it'll probably expire before they finish typing their
-  // comment anyways, and this avoids an awkward interaction with the 15-second
-  // rate limit that's only supposed to be there to prevent accidental double posts.
-  // TODO
-  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
 
   useEffect(() => {
     // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
-    if (formDisabledDueToRateLimit && (userNextAbleToComment || postNextAbleToComment)) {
-      const timeLeftOnUserRateLimitMS = userNextAbleToComment
-        ? new Date(userNextAbleToComment).getTime() - new Date().getTime()
-        : 0;
-      const timeLeftOnPostRateLimitMS = postNextAbleToComment
-        ? new Date(postNextAbleToComment).getTime() - new Date().getTime()
-        : 0;
-      const timeLeftMS = Math.max(timeLeftOnUserRateLimitMS, timeLeftOnPostRateLimitMS);
+    if (formDisabledDueToRateLimit && userNextAbleToComment) {
+      const timeLeftOnUserRateLimitMS = new Date(userNextAbleToComment).getTime() - new Date().getTime()
       const timer = setTimeout(() => {
         setForceRefreshState((n) => (n+1));
-      }, timeLeftMS);
+      }, timeLeftOnUserRateLimitMS);
       
       return () => clearTimeout(timer);
     }
-  }, [userNextAbleToComment, postNextAbleToComment, formDisabledDueToRateLimit]);
+  }, [userNextAbleToComment, formDisabledDueToRateLimit]);
   
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {
@@ -326,7 +309,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()

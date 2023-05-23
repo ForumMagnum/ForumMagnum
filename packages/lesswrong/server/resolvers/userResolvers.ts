@@ -5,7 +5,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
@@ -18,7 +18,8 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
+import GraphQLJSON from 'graphql-type-json';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -49,21 +50,30 @@ augmentFieldsDict(Users, {
       }
     }
   },
-  // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
-      type: "Date",
+      type: GraphQLJSON,
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
-        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
-        if (rateLimit) {
-          return rateLimit.nextEligible;
-        }
-        return null;
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
       }
     },
   },
+  rateLimitNextAbleToPost: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        if (rateLimit) {
+          return rateLimit
+        } else {
+          return null
+        }
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`
@@ -176,6 +186,21 @@ addGraphQLResolvers({
         validate: false,
       })).data;
       return updatedUser.acceptedTos;
+    },
+    async UserExpandFrontpageSection(
+      _root: void,
+      {section, expanded}: {section: string, expanded: boolean},
+      {currentUser, repos}: ResolverContext,
+    ) {
+      if (!Users.isPostgres()) {
+        throw new Error("Expanding frontpage sections requires Postgres");
+      }
+      if (!currentUser) {
+        throw new Error("You must login to do this");
+      }
+      expanded = Boolean(expanded);
+      await repos.users.setExpandFrontpageSection(currentUser._id, section, expanded);
+      return expanded;
     },
     async UserUpdateSubforumMembership(root: void, { tagId, member }: {tagId: string, member: boolean}, context: ResolverContext) {
       const { currentUser } = context
@@ -405,6 +430,9 @@ addGraphQLMutation(
 // TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'

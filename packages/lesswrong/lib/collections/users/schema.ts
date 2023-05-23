@@ -14,6 +14,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
+import type { ForumIconName } from '../../../components/common/ForumIcon';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -96,6 +97,19 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+const rateLimitInfoSchema = new SimpleSchema({
+  nextEligible: {
+    type: Date
+  },
+  rateLimitType: {
+    type: String,
+    allowedValues: ["moderator", "lowKarma", "universal", "downvoteRatio"]
+  },
+  rateLimitMessage: {
+    type: String
+  },
+})
+
 export interface KarmaChangeSettingsType {
   updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
   timeOfDayGMT: number
@@ -143,6 +157,11 @@ const notificationTypeSettings = new SimpleSchema({
     optional: true,
   },
 })
+
+const expandedFrontpageSectionsSettings = new SimpleSchema({
+  community: {type: Boolean, optional: true, nullable: true},
+  recommendations: {type: Boolean, optional: true, nullable: true},
+});
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
@@ -201,19 +220,25 @@ const userTheme = new SimpleSchema({
   },
 });
 
-export const CAREER_STAGES = [
-  {value: 'highSchool', label: "In high school"},
-  {value: 'associateDegree', label: "Pursuing an associate's degree"},
-  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
-  {value: 'professionalDegree', label: "Pursuing a professional degree"},
-  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
-  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
-  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
-  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
-  {value: 'midCareer', label: "Working (6-15 years of experience)"},
-  {value: 'lateCareer', label: "Working (15+ years of experience)"},
-  {value: 'seekingWork', label: "Seeking work"},
-  {value: 'retired', label: "Retired"},
+type CareerStage = {
+  value: string,
+  label: string,
+  icon: ForumIconName,
+}
+
+export const CAREER_STAGES: CareerStage[] = [
+  {value: 'highSchool', label: "In high school", icon: "School"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
+  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
+  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
+  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work"},
+  {value: 'seekingWork', label: "Seeking work", icon: "Work"},
+  {value: 'retired', label: "Retired", icon: "Work"},
 ]
 
 export const PROGRAM_PARTICIPATION = [
@@ -236,6 +261,9 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
 /**
  * @summary Users schema
@@ -760,6 +788,16 @@ const schema: SchemaType<DbUser> = {
     canCreate: ["members"],
     control: "checkbox",
     label: "Hide community section from the frontpage",
+  },
+
+  expandedFrontpageSections: {
+    type: expandedFrontpageSectionsSettings,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
   },
 
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
@@ -1775,6 +1813,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
   },
 
+  // see votingCallbacks.ts for more info
   voteCount: {
     type: Number,
     denormalized: true,
@@ -1782,33 +1821,61 @@ const schema: SchemaType<DbUser> = {
     label: "Small Upvote Count",
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  // see votingCallbacks.ts and recomputeReceivedVoteCounts.ts for more info
+  voteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
   },
 
   usersContactedBeforeReview: {
@@ -2450,7 +2517,7 @@ const schema: SchemaType<DbUser> = {
       ).fetch();
       const userIds = new Set<string>();
       for (let clientId of clientIds) {
-        for (let userId of clientId.userIds)
+        for (let userId of clientId.userIds ?? [])
           userIds.add(userId);
       }
       return userIds.size > 1;
@@ -2611,7 +2678,14 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: Date,
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
+  },
+
+  rateLimitNextAbleToPost: {
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,

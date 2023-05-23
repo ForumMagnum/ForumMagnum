@@ -7,7 +7,7 @@ import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
-
+import { max } from "underscore";
 
 //////////////////
 // Link Helpers //
@@ -207,7 +207,7 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -316,7 +316,7 @@ export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: stri
 }
 
 export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  let { coauthorStatuses, hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
   if (!hasCoauthorPermission) {
@@ -335,4 +335,17 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
 
 export const isNotHostedHere = (post: PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
+}
+
+const mostRelevantTag = (
+  tags: TagPreviewFragment[],
+  tagRelevance: Record<string, number>,
+): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+
+export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
+  const {tags, tagRelevance} = post;
+  const core = tags.filter(({core}) => core);
+  const potentialTags = core.length < 1 && includeNonCore ? tags : core;
+  const result = mostRelevantTag(potentialTags, tagRelevance);
+  return typeof result === "object" ? result : undefined;
 }

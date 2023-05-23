@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card'
+import EditIcon from '@material-ui/icons/Edit'
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogContent: {
@@ -32,6 +34,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   card: {
     padding: 12,
     width: 500,
+  },
+  reason: {
+    '&:hover $editIcon': {
+      opacity: 1
+    }
+  },
+  editIcon: {
+    height: 12,
+    color: theme.palette.grey[500],
+    opacity: .2
+  },
+  loadMore: {
+    paddingTop: 6,
+    paddingLeft: 12,
+    paddingBottom: 6
   }
 });
 
@@ -39,21 +56,24 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   classes: ClassesType,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles } = Components;
+  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
 
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
+  const [showMore, setShowMore] = useState(false)
 
-  const { results } = useMulti({
+  const { results: rejectionTemplates, loadMoreProps } = useMulti({
     collectionName: 'ModerationTemplates',
-    terms: { view: 'rejectionModerationTemplates' },
-    fragmentName: 'ModerationTemplateFragment'
+    terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
+    fragmentName: 'ModerationTemplateFragment',
+    enableTotal: true,
+    limit: 25
   });
 
-  if (!results) return null;
+  if (!rejectionTemplates) return null;
   
-  const rejectionReasons = Object.fromEntries(results.map(({name, contents}) => [name, contents?.html]))
+  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]))
 
   const handleClick = () => {
     rejectContent(rejectedReason);
@@ -73,25 +93,31 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     setRejectedReason(composedReason);
   };
 
+  const truncatedRejectionTemplates = showMore ? rejectionTemplates : rejectionTemplates.slice(0,6)
+
   const dialogContent = <div className={classes.rejectionCheckboxes}>
-    {Object.entries(rejectionReasons).map(([label, description]) => {
-      return <span key={`rejection-reason-${label}`}>
+    {truncatedRejectionTemplates.map((template) => {
+      return <div key={`rejection-reason-${template.name}`} className={classes.reason}>
         <LWTooltip placement="right-end" tooltip={false} title={<Card className={classes.card}>
           <ContentStyles contentType='comment'>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: description || ""}} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html || ""}} />
           </ContentStyles>
         </Card>}>
           <div>
             <Checkbox
-              checked={selections[label]}
-              onChange={(_, checked) => composeRejectedReason(label, checked)}
+              checked={selections[template.name]}
+              onChange={(_, checked) => composeRejectedReason(template.name, checked)}
               className={classes.checkbox}
             />
-            {label}
+            {template.name} <Link to={`/admin/moderationTemplates#${template._id}`} target="_blank"><EditIcon className={classes.editIcon}/></Link>
           </div>
         </LWTooltip>
-      </span>
+      </div>
     })}
+    <div className={classes.loadMore}>
+      {!showMore && <div className={classes.showMore} onClick={() => setShowMore(true)}>Show More</div>}
+      {showMore && <LoadMore {...loadMoreProps} />}
+    </div>
     <TextField
       id="comment-moderation-rejection-reason"
       label="Full message"

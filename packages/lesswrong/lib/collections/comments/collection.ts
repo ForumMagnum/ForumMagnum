@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
@@ -52,27 +52,6 @@ export const Comments: ExtendedCommentsCollection = createCollection({
   mutations: getDefaultMutations('Comments', commentMutationOptions),
   logChanges: true,
 });
-
-Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
-  if (userIsAdmin(currentUser) || userOwns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
-    return true;
-  } else {
-    return true;
-  }
-  
-  // NOTE: There used to be a special case here that would deny access (to non-
-  // admins) if comment.isDeleted was true. This was wrong in two cancelling
-  // ways: first, because we show UI on post pages indicating that a deleted
-  // comment used to be there, and denying access would hide that UI. And
-  // second, because the field is named `deleted`, not named `isDeleted`.
-  //
-  // What we ought to be doing is blocking access to specific fields (ie the
-  // contents field) if the comment is deleted and the user has access, but
-  // that's more complicated and we're not currently doing that. This means that
-  // sophisticated users can recover the contents of deleted comments. OTOH most
-  // deleted comments are getting saved by archive.org and in RSS readers
-  // anyways, so I'm not sure that matters much.
-}
 
 addUniversalFields({
   collection: Comments,

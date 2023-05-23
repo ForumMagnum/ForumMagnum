@@ -1,4 +1,4 @@
-import { userOwns } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
@@ -70,7 +70,7 @@ const schema: SchemaType<DbComment> = {
   author: {
     type: String,
     optional: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
@@ -141,7 +141,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     hidden: true,
   },
@@ -413,7 +413,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
@@ -700,7 +700,7 @@ const schema: SchemaType<DbComment> = {
 
       const { post } = formProps;
       
-      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
     },
   },

@@ -9,6 +9,8 @@ import './permissions';
 
 // ## Voting
 import './voting/voteTypes';
+import './voting/votingSystems';
+import './voting/namesAttachedReactions';
 
 //MomentJS configuration
 import '../components/momentjs';
@@ -210,6 +212,9 @@ import './components';
 
 // PostRelation
 import './collections/postRelations';
+
+// PostRecommendations
+import './collections/postRecommendations/collection';
 
 // Collections supporting vendored libraries
 import './collections/cronHistories';
