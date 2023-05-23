@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       border: theme.palette.border.normal,
       paddingLeft: 10,
       marginTop: 6,
-      
+
       '& .form-section-default > div': {
         display: "flex",
         flexWrap: "wrap",
@@ -64,6 +64,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const COMMENTS_THREE_PER_DAY = 'comments_3_per_day';
+const COMMENTS_ONE_PER_DAY = 'comments_1_per_day';
+const COMMENTS_ONE_PER_THREE_DAYS = 'comments_1_per_3_days';
+
 const POSTS_ONE_PER_WEEK = 'posts_1_per_week';
 const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => NullablePartial<DbUserRateLimit>> = {
   [COMMENTS_THREE_PER_DAY]: (userId: string) => ({
@@ -72,6 +75,22 @@ const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => NullablePartial<Db
     intervalLength: 1,
     intervalUnit: 'days',
     actionsPerInterval: 3,
+    endedAt: moment().add(3, 'weeks').toDate()
+  }),
+  [COMMENTS_ONE_PER_DAY]: (userId: string) => ({
+    userId,
+    type: 'allComments',
+    intervalLength: 1,
+    intervalUnit: 'days',
+    actionsPerInterval: 1,
+    endedAt: moment().add(3, 'weeks').toDate()
+  }),
+  [COMMENTS_ONE_PER_THREE_DAYS]: (userId: string) => ({
+    userId,
+    type: 'allComments',
+    intervalLength: 3,
+    intervalUnit: 'days',
+    actionsPerInterval: 1,
     endedAt: moment().add(3, 'weeks').toDate()
   }),
   [POSTS_ONE_PER_WEEK]: (userId: string) => ({
