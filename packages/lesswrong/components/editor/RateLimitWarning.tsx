@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
 const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
@@ -14,6 +15,10 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   const fromNow = moment(lastRateLimitExpiry).fromNow()
 
   let message = `Please wait ${fromNow} before posting again. ${rateLimitMessage ?? ''}`
+  if (isEAForum) {
+    const diffInMin = moment(lastRateLimitExpiry).diff(moment(), 'minutes')
+    message = `You've written more than 3 comments in the last 30 min. Please wait ${diffInMin} min before commenting again. ${rateLimitMessage ?? ''}`
+  }
 
   return <Components.WarningBanner message={message} />
 }

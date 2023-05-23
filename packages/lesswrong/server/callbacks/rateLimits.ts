@@ -8,6 +8,7 @@ import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
 type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"
@@ -59,7 +60,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         timeframeLength: 1,
         itemsPerTimeframe: 5,
         rateLimitType: "universal",
-        rateLimitMessage: "Users cannot post more than 5 posts a day"
+        rateLimitMessage: "Users cannot post more than 5 posts a day."
       }
     ],
     comments: [
@@ -70,7 +71,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         timeframeLength: 8,
         itemsPerTimeframe: 1,
         rateLimitType: "universal",
-        rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds to prevent double-posting.",
+        rateLimitMessage: "Users cannot submit more than 1 comment per 8 seconds (to prevent double-posting).",
       },
       {
         actionType: "Comments",
@@ -79,7 +80,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         timeframeLength: 30,
         itemsPerTimeframe: 4,
         rateLimitType: "lowKarma",
-        rateLimitMessage: "You'll be able to post more comments as your karma increases"
+        rateLimitMessage: "You'll be able to post more comments as your karma increases."
       },
       {
         actionType: "Comments",
@@ -88,7 +89,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         timeframeLength: 30,
         itemsPerTimeframe: 4,
         rateLimitType: "downvoteRatio",
-        rateLimitMessage: "You'll be able to post more comments as your karma increases"
+        rateLimitMessage: ""
       }
     ] 
   },
@@ -101,7 +102,7 @@ const autoRateLimits: ForumOptions<ForumAutoRateLimits> = {
         timeframeLength: 1,
         itemsPerTimeframe: 5,
         rateLimitType: "universal",
-        rateLimitMessage: "Users with less than 500 karma cannot post more than 5 posts a day"
+        rateLimitMessage: "Users with less than 500 karma cannot post more than 5 posts a day."
       },
       {
         actionType: "Posts",
@@ -333,7 +334,8 @@ async function getModPostSpecificRateLimitInfo (userId: string, comments: Array<
 }
 
 async function getStrictestCommentRateLimitInfo({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId}: StrictestCommentRateLimitInfoParams): Promise<RateLimitInfo|null> {
-  const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
+  // on the EA Forum, we don't make any exceptions for authors commenting on their own posts
+  const commentsOnOthersPostsInTimeframe = isEAForum ? commentsInTimeframe : await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
   const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInTimeframe, modRateLimitHours, 1)
 
   const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
@@ -378,7 +380,6 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
  *
  * Admins and mods are always exempt.
  * If the post has "ignoreRateLimits" set, then all users are exempt.
- * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
 async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
