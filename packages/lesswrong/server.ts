@@ -127,7 +127,7 @@ import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
-import './server/callbacks/rateLimits';
+import './server/callbacks/rateLimitCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
