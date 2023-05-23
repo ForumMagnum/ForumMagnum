@@ -411,6 +411,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -464,6 +465,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -615,12 +617,5 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
-  }
-`);
-
-registerFragment(`
-  fragment PostWithRateLimit on Post {
-    _id
-    postSpecificRateLimit
   }
 `);

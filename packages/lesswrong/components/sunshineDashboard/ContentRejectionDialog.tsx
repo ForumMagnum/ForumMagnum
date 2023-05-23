@@ -44,6 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 12,
     color: theme.palette.grey[500],
     opacity: .2
+  },
+  loadMore: {
+    paddingTop: 6,
+    paddingLeft: 12,
+    paddingBottom: 6
   }
 });
 
@@ -51,21 +56,24 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   classes: ClassesType,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles } = Components;
+  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
 
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
+  const [showMore, setShowMore] = useState(false)
 
-  const { results } = useMulti({
+  const { results: rejectionTemplates, loadMoreProps } = useMulti({
     collectionName: 'ModerationTemplates',
     terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
-    fragmentName: 'ModerationTemplateFragment'
+    fragmentName: 'ModerationTemplateFragment',
+    enableTotal: true,
+    limit: 25
   });
 
-  if (!results) return null;
+  if (!rejectionTemplates) return null;
   
-  const rejectionReasons = Object.fromEntries(results.map(({name, contents}) => [name, contents?.html]))
+  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]))
 
   const handleClick = () => {
     rejectContent(rejectedReason);
@@ -85,8 +93,10 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     setRejectedReason(composedReason);
   };
 
+  const truncatedRejectionTemplates = showMore ? rejectionTemplates : rejectionTemplates.slice(0,6)
+
   const dialogContent = <div className={classes.rejectionCheckboxes}>
-    {results.map((template) => {
+    {truncatedRejectionTemplates.map((template) => {
       return <div key={`rejection-reason-${template.name}`} className={classes.reason}>
         <LWTooltip placement="right-end" tooltip={false} title={<Card className={classes.card}>
           <ContentStyles contentType='comment'>
@@ -104,6 +114,10 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
         </LWTooltip>
       </div>
     })}
+    <div className={classes.loadMore}>
+      {!showMore && <div className={classes.showMore} onClick={() => setShowMore(true)}>Show More</div>}
+      {showMore && <LoadMore {...loadMoreProps} />}
+    </div>
     <TextField
       id="comment-moderation-rejection-reason"
       label="Full message"

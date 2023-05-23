@@ -17,7 +17,7 @@ const PostsCoauthor = ({ post, coauthor, classes }: {
   const isPending = postCoauthorIsPending(post, coauthor._id);
   if (
     currentUser?._id !== post.userId &&
-    !post.coauthorStatuses.find(({ userId }) => currentUser?._id === userId) &&
+    !post.coauthorStatuses?.find(({ userId }) => currentUser?._id === userId) &&
     isPending
   ) {
     return null;

@@ -14,7 +14,8 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strictBindCallApply": true
+    "strictBindCallApply": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "packages/lesswrong",

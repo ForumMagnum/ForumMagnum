@@ -347,9 +347,14 @@ importComponent("SmallSideVote", () => require('../components/votes/SmallSideVot
 importComponent("OverallVoteAxis", () => require('../components/votes/OverallVoteAxis'));
 importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
 importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
+importComponent("ThreeAxisEmojisVoteOnComment", () => require('../components/votes/ThreeAxisEmojisVoteOnComment'));
+importComponent("EAEmojiPalette", () => require('../components/votes/EAEmojiPalette'));
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
+importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/NamesAttachedReactionsVoteOnComment'));
+importComponent("ReactionsPalette", () => require('../components/votes/ReactionsPalette'));
+importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 

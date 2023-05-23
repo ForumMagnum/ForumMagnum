@@ -208,5 +208,10 @@
     "acceptsSchemaHash": "922ce375a3ed4de843e0f4f9cc50dd08",
     "acceptedByMigration": "20230514T104640.add_voteReceivedCounts.ts",
     "timestamp": "2023-05-14T10:46:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "63f9eaa9871d535c5e55aaf42d037925",
+    "acceptedByMigration": "20230522T220340.updateDefaultValue_ModerationTemplates_order.ts",
+    "timestamp": "2023-05-22T22:03:40.000Z"
   }
 ]
