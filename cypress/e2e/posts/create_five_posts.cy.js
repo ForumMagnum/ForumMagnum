@@ -9,7 +9,8 @@ describe('Posts', function() {
   });
   
   it('can create five but not six posts per day', function() {
-    for (let i = 0; i < 5; i++) {
+    // We do 4 rather 5 because we already have 1 post from the test seeded post
+    for (let i = 0; i < 4; i++) {
       cy.task('log', `creating post ${i}`)
       cy.visit('/newPost');
       cy.get('.EditTitle-root').type('Test post 123');
@@ -21,7 +22,6 @@ describe('Posts', function() {
       cy.task('log', `created post ${i}`)
     }
 
-    // cy.reload();
     cy.visit('/newPost');
     cy.contains("Users cannot post more than 5 posts a day");
   });
