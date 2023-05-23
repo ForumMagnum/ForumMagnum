@@ -10,7 +10,7 @@ describe('Posts', function() {
   
   it('can create five but not six posts per day', function() {
     for (let i = 0; i < 5; i++) {
-      cy.task('log', `creating post ${i}`);
+      console.log(`creating post ${i}`)
       cy.visit('/newPost');
       cy.get('.EditTitle-root').type('Test post 123');
       cy.get('.ck-editor__editable').type('Test body 123');
@@ -18,7 +18,7 @@ describe('Posts', function() {
       cy.url().should('include', 'test-post-123');
       cy.contains("Test post 123");
       cy.contains("Test body 123");  
-      cy.task('log', `created post ${i}`);
+      console.log(`created post ${i}`)
     }
 
     // cy.reload();
