@@ -10,6 +10,10 @@ addGraphQLResolvers({
       const { currentUser } = context;
       let post = await context.loaders.Posts.load(postId);
 
+      if (!post.coauthorStatuses) {
+        throw new Error('User has not been requested as a co-author for this post');
+      }
+
       const index = post.coauthorStatuses.findIndex((author) => author.userId === userId && !author.confirmed);
       if (index < 0) {
         throw new Error('User has not been requested as a co-author for this post');

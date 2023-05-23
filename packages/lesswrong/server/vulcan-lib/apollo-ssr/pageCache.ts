@@ -167,7 +167,7 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
 
 const objIsSubset = <A extends Record<string, any>, B extends Record<string, any>>(subset: A, superset: B): boolean => {
   for (let key in subset) {
-    if (!(key in superset) || subset[key] !== superset[key])
+    if (!(key in superset) || subset[key] !== superset[key as AnyBecauseHard])
       return false;
   }
   return true;

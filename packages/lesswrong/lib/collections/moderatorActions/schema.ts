@@ -35,8 +35,8 @@ export const allRateLimits = [
 export const rateLimitSet = new TupleSet(postAndCommentRateLimits);
 export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 
-export type RateLimitType = typeof postAndCommentRateLimits[number]
-export type ManuallyAppliedModeratorActionType = typeof allRateLimits[number];
+export type PostAndCommentRateLimitTypes = typeof postAndCommentRateLimits[number]
+export type AllRateLimitTypes = typeof allRateLimits[number];
 
 // moderation actions that restrict the user's permissions in some way
 export const restrictionModeratorActions = [
