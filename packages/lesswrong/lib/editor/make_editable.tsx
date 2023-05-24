@@ -43,7 +43,7 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
-`Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
+`Write here. Select text to format it, type '@' ('#') to find and autocomplete username (post title). Switch between rich text and markdown in your account settings.` :
 `Write here. Select text for formatting options.
 We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
 You can switch between rich text and markdown in your user settings.`
