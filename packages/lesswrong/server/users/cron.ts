@@ -13,8 +13,8 @@ addCronJob({
   async job() {
   
   
-    const startOfDay = moment(new Date()).subtract(1, 'days').toDate()
-    const endOfDay = new Date() 
+    const endOfDay = new Date()
+    const startOfDay = moment(endOfDay).subtract(1, 'days').toDate()
     
     const rateLimitsExpiringToday = await ModeratorActions.find({type: {$in: allRateLimits}, endedAt: {$gte: startOfDay, $lt: endOfDay}}).fetch();
     const userIdsWithExpiringRateLimits = rateLimitsExpiringToday.map((action) => action.userId);
