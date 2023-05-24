@@ -5,6 +5,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import { isEAForum } from "../../lib/instanceSettings";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   main: {
     ...(isEAForum && {
       borderRadius: theme.borderRadius.default,
+      padding: 8,
       "&:hover": {
         background: theme.palette.dropdown.hoverBackground,
         "& svg": {
@@ -27,6 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         fontSize: isEAForum ? 20 : undefined,
       },
     }),
+  },
+  noIcon: {
+    paddingLeft: isEAForum ? 12 : undefined,
   },
   title: {
     flexGrow: 1,
@@ -104,7 +109,7 @@ const DropdownItem = ({
         <MenuItem
           onClick={onClick}
           disabled={disabled}
-          className={classes.main}
+          className={classNames(classes.main, {[classes.noIcon]: !icon})}
         >
           {loading &&
             <ListItemIcon>
