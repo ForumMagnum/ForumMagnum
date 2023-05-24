@@ -66,7 +66,7 @@ const AdminSynonymsPage = ({classes}: {
       },
     });
     setSynonyms(result?.data?.UpdateSearchSynonyms);
-  }, [synonyms]);
+  }, [synonyms, updateSearchSynonyms]);
 
   const isLoading = loading || updateLoading?.loading;
 
