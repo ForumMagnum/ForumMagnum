@@ -116,6 +116,13 @@ class ElasticSearchQuery {
       bool: {
         should: [
           {
+            term: {
+              objectID: {
+                value: search,
+              },
+            },
+          },
+          {
             multi_match: {
               query: search,
               fields: config.fields,

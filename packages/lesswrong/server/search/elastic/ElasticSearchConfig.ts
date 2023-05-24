@@ -36,7 +36,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     fields: [
       "body",
       "authorDisplayName",
-      "objectID",
     ],
     snippet: "body",
     highlight: "authorDisplayName",
@@ -72,7 +71,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       "title^2",
       "authorDisplayName",
       "body",
-      "objectID",
     ],
     snippet: "body",
     highlight: "title",
@@ -105,7 +103,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   Users: {
     fields: [
       "displayName^5",
-      "objectID",
       "bio",
       "mapLocationAddress",
       "jobTitle",
@@ -159,7 +156,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       "title^3",
       "plaintextDescription",
       "authorDisplayName",
-      "objectID",
     ],
     snippet: "plaintextDescription",
     tiebreaker: "publicDateMs",
@@ -178,7 +174,6 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     fields: [
       "name^3",
       "description",
-      "objectID",
     ],
     snippet: "description",
     ranking: [
