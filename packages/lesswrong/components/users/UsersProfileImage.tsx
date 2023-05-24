@@ -117,7 +117,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   className?: string,
   classes: ClassesType,
 }) => {
-  if (!user) {
+  if (!user?.displayName) {
     return (
       <picture className={classes.wrapper}>
         <div
