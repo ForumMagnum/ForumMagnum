@@ -331,11 +331,13 @@ const PostsPage = ({post, refetch, classes}: {
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
+  const noIndex = post.noIndex || post.rejected;
+
   const header = <>
     {!commentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title} description={description} noIndex={post.noIndex}
+        title={post.title} description={description} noIndex={noIndex}
       />
       <CitationTags
         title={post.title}
