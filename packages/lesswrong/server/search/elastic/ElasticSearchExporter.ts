@@ -190,6 +190,17 @@ class ElasticSearchExporter {
                   synonyms: [],
                 },
               },
+              char_filter: {
+                fm_punctuation_filter: {
+                  type: "mapping",
+                  mappings: [
+                    "_ => ",
+                    "- => ",
+                    "( => ",
+                    ") => ",
+                  ],
+                },
+              },
               analyzer: {
                 default: {
                   type: "custom",
@@ -197,6 +208,9 @@ class ElasticSearchExporter {
                   filter: [
                     "lowercase",
                     "porter_stem",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
                   ],
                 },
                 fm_synonym_analyzer: {
@@ -206,6 +220,9 @@ class ElasticSearchExporter {
                     "lowercase",
                     "fm_synonym_filter",
                     "porter_stem",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
                   ],
                 },
               },
