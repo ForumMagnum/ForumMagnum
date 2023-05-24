@@ -1037,6 +1037,7 @@ interface DbUser extends DbObject {
     recommendations: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
+  hidePostsRecommendations: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean

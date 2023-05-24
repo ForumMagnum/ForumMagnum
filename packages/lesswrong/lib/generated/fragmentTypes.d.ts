@@ -94,6 +94,7 @@ interface UsersDefaultFragment { // fragment on Users
     recommendations: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
+  readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
