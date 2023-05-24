@@ -41,9 +41,9 @@ class ElasticSearchExporter {
   }
 
   async exportAll() {
-    await Promise.all(algoliaIndexedCollectionNames.map(async (collectionName) => {
-      await this.exportCollection(collectionName);
-    }));
+    await Promise.all(algoliaIndexedCollectionNames.map(
+      (collectionName) => this.exportCollection(collectionName),
+    ));
   }
 
   /**
@@ -133,6 +133,8 @@ class ElasticSearchExporter {
     // @ts-ignore
     delete document._id;
     document.publicDateMs = Number(document.publicDateMs);
+    // We could strip the HTML inside elastic with the "html_strip" filter, but this
+    // is a lot more flexible
     for (const field of HTML_FIELDS) {
       if (field in document) {
         document[field] = htmlToText(document[field] ?? "", {
@@ -185,9 +187,7 @@ class ElasticSearchExporter {
               filter: {
                 fm_synonym_filter: {
                   type: "synonym",
-                  synonyms: [
-                    "will,william,william_macaskill",
-                  ],
+                  synonyms: [],
                 },
               },
               analyzer: {
@@ -306,6 +306,55 @@ class ElasticSearchExporter {
       onDrop: (doc) => erroredDocuments.push(doc),
     });
     return erroredDocuments;
+  }
+
+  async getExistingSynonyms(): Promise<string[]> {
+    const client = this.client.getClientOrThrow();
+    const settings = await client.indices.getSettings({
+      index: "posts", // All the indexes use the same synonym list
+    });
+    const indexName = Object.keys(settings)[0]; // Get the alias target
+    const filters = settings[indexName]?.settings?.index?.analysis?.filter;
+    const synonymFilter = filters?.fm_synonym_filter;
+    if (typeof synonymFilter === "string" || synonymFilter?.type !== "synonym") {
+      throw new Error("Invalid synonym filter");
+    }
+    return synonymFilter.synonyms ?? [];
+  }
+
+  async updateSynonyms(synonyms: string[]): Promise<void> {
+    await Promise.all(algoliaIndexedCollectionNames.map(
+      (collectionName) => this.updateSynonymsForCollection(collectionName, synonyms),
+    ));
+  }
+
+  private async updateSynonymsForCollection(
+    collectionName: AlgoliaIndexCollectionName,
+    synonyms: string[],
+  ) {
+    const collection = getCollection(collectionName) as
+      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const index = this.getIndexName(collection);
+    const client = this.client.getClientOrThrow();
+    await client.indices.close({index});
+    await client.indices.putSettings({
+      index,
+      body: {
+        settings: {
+          index: {
+            analysis: {
+              filter: {
+                fm_synonym_filter: {
+                  type: "synonym",
+                  synonyms,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    await client.indices.open({index});
   }
 }
 

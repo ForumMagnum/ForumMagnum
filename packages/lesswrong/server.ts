@@ -183,3 +183,4 @@ import './server/search/algoliaCron';
 
 import './server/search/elastic/ElasticSearchExporter';
 import './server/search/elastic/elasticCallbacks';
+import './server/search/elastic/elasticGraphQL';
