@@ -99,7 +99,7 @@ const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => NullablePartial<Db
     intervalLength: 1,
     intervalUnit: 'weeks',
     actionsPerInterval: 1,
-    endedAt: moment().add(12, 'weeks').toDate()
+    endedAt: moment().add(6, 'weeks').toDate()
   })
 };
 
@@ -109,30 +109,6 @@ const getIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
     return intervalUnit.slice(0, -1);
   }
   return `${intervalLength} ${intervalUnit}`;
-  // const weekMs = MS_IN_DAY * 7;
-  // // At least a week
-  // if (intervalMs >= weekMs) {
-  //   const weeks = Math.floor(intervalMs / weekMs);
-  //   const days = Math.floor((intervalMs % weekMs) / MS_IN_DAY);
-  //   const weekSuffix = weeks > 1 ? 's' : '';
-  //   const daySuffix = days > 1 ? 's' : '';
-
-  //   const daySection = days > 0 ? `, ${days} day${daySuffix}` : '';
-
-  //   return `${weeks} week${weekSuffix}${daySection}`;
-  // }
-
-  // // At least a day
-  // if (intervalMs >= MS_IN_DAY) {
-  //   const days = Math.floor(intervalMs / MS_IN_DAY);
-  //   const daySuffix = days > 1 ? 's' : '';
-  //   return `${days} day${daySuffix}`;
-  // }
-
-  // // At least an hour
-  // const hours = Math.floor(intervalMs / MS_IN_HOUR);
-  // const hourSuffix = hours > 1 ? 's' : '';
-  // return `${hours} hour${hourSuffix}`;
 };
 
 const getRemainingIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
@@ -202,8 +178,18 @@ export const UserRateLimitItem = ({userId, classes}: {
         onChange={(e) => createRateLimit(e.target.value)}
         className={classes.newRateLimit}
       >
-        <MenuItem value={COMMENTS_THREE_PER_DAY}>Comments (3 per day for 3 weeks)</MenuItem>
-        <MenuItem value={POSTS_ONE_PER_WEEK}>Posts (1 per week for 12 weeks)</MenuItem>
+        <MenuItem value={COMMENTS_THREE_PER_DAY}>
+          Comments (3 per day for 3 weeks)
+        </MenuItem>
+        <MenuItem value={COMMENTS_ONE_PER_DAY}>
+          Comments (1 per day for 3 weeks)
+        </MenuItem>
+        <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
+          Comments (1 per 3 days for 3 weeks)
+        </MenuItem>
+        <MenuItem value={POSTS_ONE_PER_WEEK}>
+          Posts (1 per week for 6 weeks)
+        </MenuItem>
         <MenuItem value='custom'>Custom</MenuItem>
       </Select>
     </div>}

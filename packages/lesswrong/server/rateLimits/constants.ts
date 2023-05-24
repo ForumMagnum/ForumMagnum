@@ -17,7 +17,7 @@ const EA = {
       itemsPerTimeframe: 4,
       rateLimitType: "lowKarma",
       rateLimitMessage: "You'll be able to post more comments as your karma increases",
-      onlyAppliesToOthersPosts: false
+      appliesToOwnPosts: true
     },
     FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO_30_PERCENT: {
       actionType: "Comments",
@@ -27,7 +27,7 @@ const EA = {
       itemsPerTimeframe: 4,
       rateLimitType: "downvoteRatio",
       rateLimitMessage: "You'll be able to post more comments as your karma increases",
-      onlyAppliesToOthersPosts: false
+      appliesToOwnPosts: true
     },
   }
 } as const
@@ -59,7 +59,7 @@ const LW = {
       timeframeLength: 2,
       itemsPerTimeframe: 1,
       rateLimitType: 'lowKarma',
-      rateLimitMessage: "Users with less than -30 karma users can only post once every two weeks.",
+      rateLimitMessage: "Users with -30 karma can only post once every two weeks.",
     }
   },
   COMMENTS: {
@@ -71,7 +71,7 @@ const LW = {
       itemsPerTimeframe: 3,
       rateLimitType: 'lowKarma',
       rateLimitMessage: "New users can write up to 3 comments a day. Gain more karma to comment more frequently.",
-      onlyAppliesToOthersPosts: false
+      appliesToOwnPosts: true
     },
     ONE_PER_DAY_NEGATIVE_KARMA: {
       actionType: "Comments",
@@ -81,7 +81,7 @@ const LW = {
       itemsPerTimeframe: 1,
       rateLimitType: 'lowKarma',
       rateLimitMessage: "Negative karma users are limited to 1 comment per day.",
-      onlyAppliesToOthersPosts: true
+      appliesToOwnPosts: false
     },
     ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA: {
       actionType: "Comments",
@@ -91,7 +91,7 @@ const LW = {
       itemsPerTimeframe: 1,
       rateLimitType: 'lowKarma',
       rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days.",
-      onlyAppliesToOthersPosts: true
+      appliesToOwnPosts: false
     }
   }
 } as const
@@ -115,7 +115,7 @@ const ALL = {
       itemsPerTimeframe: 1,
       rateLimitType: "universal",
       rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds to prevent double-posting.",
-      onlyAppliesToOthersPosts: false
+      appliesToOwnPosts: true
     }
   }
 } as const

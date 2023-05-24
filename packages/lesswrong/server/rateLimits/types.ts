@@ -37,7 +37,7 @@ export interface PostAutoRateLimit extends AutoRateLimit {
 
 export interface CommentAutoRateLimit extends AutoRateLimit {
   actionType: "Comments",
-  onlyAppliesToOthersPosts: boolean // if set, the rate limit will apply when replying to posts/comments/etc that the user has created
+  appliesToOwnPosts: boolean // if set, the rate limit will apply when replying to posts/comments/etc that the user has created
 }
 
 

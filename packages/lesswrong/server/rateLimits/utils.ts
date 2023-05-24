@@ -71,7 +71,7 @@ function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHou
   if (!nextEligible) return null
   return {
     nextEligible,
-    rateLimitMessage: "A moderator has rate limited you",
+    rateLimitMessage: "A moderator has rate limited you.",
     rateLimitType: "moderator"
   }
 }
@@ -100,7 +100,7 @@ function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Ar
   return {
     nextEligible,
     rateLimitType: "moderator",
-    rateLimitMessage: "A moderator has rate limited you"
+    rateLimitMessage: "A moderator has rate limited you."
   }
 }
 
@@ -151,17 +151,17 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null)
   return false;
 }
 
-async function shouldApplyModRateLimitForPost(userId: string, postId: string|null): Promise<boolean> {
+async function getUserIsAuthor(userId: string, postId: string|null): Promise<boolean> {
   if (!postId) return false
   const post = await Posts.findOne({_id:postId}, {projection:{userId:1, coauthorStatuses:1}})
   if (!post) return false
   const userIsNotPrimaryAuthor = post.userId !== userId
   const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
-  return userIsNotPrimaryAuthor && userIsNotCoauthor
+  return !(userIsNotPrimaryAuthor && userIsNotCoauthor)
 }
 
-async function getModPostSpecificRateLimitInfo (userId: string, comments: Array<DbComment>, modPostSpecificRateLimitHours: number, postId: string | null): Promise<RateLimitInfo|null> {
-  const eligibleForCommentOnSpecificPostRateLimit = modPostSpecificRateLimitHours > 0 && (await shouldApplyModRateLimitForPost(userId, postId));
+function getModPostSpecificRateLimitInfo (comments: Array<DbComment>, modPostSpecificRateLimitHours: number, postId: string | null, userIsAuthor: boolean): RateLimitInfo|null {
+  const eligibleForCommentOnSpecificPostRateLimit = (modPostSpecificRateLimitHours > 0) && !userIsAuthor;
   const commentsOnPost = comments.filter(comment => comment.postId === postId)
 
   return eligibleForCommentOnSpecificPostRateLimit ? getModRateLimitInfo(commentsOnPost, modPostSpecificRateLimitHours, 3) : null
@@ -180,26 +180,24 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
 }
 
 async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, userCommentRateLimit}: StrictestCommentRateLimitInfoParams): Promise<Array<RateLimitInfo>> {
+  const userIsAuthor = await getUserIsAuthor(user._id, postId)
   const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
   const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInTimeframe, modRateLimitHours, 1)
 
-  const modSpecificPostRateLimitInfo = await getModPostSpecificRateLimitInfo(user._id, commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId)
+  const modSpecificPostRateLimitInfo = getModPostSpecificRateLimitInfo(commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId, userIsAuthor)
 
-  const userRateLimitInfo = getUserRateLimitInfo(userCommentRateLimit, commentsOnOthersPostsInTimeframe)
+  const userRateLimitInfo = userIsAuthor ? null : getUserRateLimitInfo(userCommentRateLimit, commentsOnOthersPostsInTimeframe)
 
-  const autoRatelimits = forumSelect(autoCommentRateLimits)
-  const autoRateLimitsOnAllPosts = autoRatelimits?.filter(rateLimit => !rateLimit.onlyAppliesToOthersPosts)
-  const autoRateLimitsOnOwnPosts = autoRatelimits?.filter(rateLimit => rateLimit.onlyAppliesToOthersPosts)
+  const autoRateLimits = forumSelect(autoCommentRateLimits)
+  const filteredAutoRateLimits = autoRateLimits?.filter(rateLimit => {
+    if (userIsAuthor) return rateLimit.appliesToOwnPosts
+    if (!userIsAuthor) return true 
+  })
 
-  const autoRateLimitOnAllPostInfos = autoRateLimitsOnAllPosts?.map(
+  const autoRateLimitInfos = filteredAutoRateLimits?.map(
     rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsInTimeframe)
   ) ?? []
-
-  const autoRateLimitOnOthersPostsInfos = autoRateLimitsOnOwnPosts?.map(
-    rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsOnOthersPostsInTimeframe)
-  ) ?? []
-
-  return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, userRateLimitInfo, ...autoRateLimitOnAllPostInfos, ...autoRateLimitOnOthersPostsInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
+  return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, userRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
