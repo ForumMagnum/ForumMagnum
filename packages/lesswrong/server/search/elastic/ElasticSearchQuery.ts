@@ -68,7 +68,7 @@ class ElasticSearchQuery {
     if (weight) {
       expr = `((${expr}) * ${weight})`;
     }
-    expr = `(doc['${field}'].size() == 0 ? 0 : ${expr})`;
+    expr = `(doc['${field}'].size() == 0 ? 0 : (${expr}))`;
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 
@@ -123,7 +123,7 @@ class ElasticSearchQuery {
               max_expansions: 10,
               prefix_length: 2,
               minimum_should_match: "75%",
-              operator: "and",
+              operator: "or",
               analyzer: "fm_synonym_analyzer",
             },
           },
@@ -134,6 +134,7 @@ class ElasticSearchQuery {
               type: "phrase",
               slop: 2,
               boost: 2,
+              analyzer: "fm_synonym_analyzer",
             },
           },
           {
@@ -142,6 +143,7 @@ class ElasticSearchQuery {
                 query: search,
                 slop: 2,
                 boost: 2,
+                analyzer: "fm_synonym_analyzer",
               },
             },
           },

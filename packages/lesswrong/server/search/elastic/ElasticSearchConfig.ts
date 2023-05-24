@@ -118,8 +118,20 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "karma",
         order: "desc",
+        weight: 25,
+        scoring: {type: "numeric", pivot: 4000},
+      },
+      {
+        field: "karma",
+        order: "desc",
         weight: 12,
-        scoring: {type: "numeric", pivot: 20},
+        scoring: {type: "numeric", pivot: 1000},
+      },
+      {
+        field: "karma",
+        order: "desc",
+        weight: 4,
+        scoring: {type: "numeric", pivot: 100},
       },
       {
         field: "createdAt",

@@ -183,9 +183,6 @@ class ElasticSearchExporter {
           index: {
             analysis: {
               filter: {
-                default: {
-                  type: "porter_stem",
-                },
                 fm_synonym_filter: {
                   type: "synonym",
                   synonyms: [
@@ -195,7 +192,12 @@ class ElasticSearchExporter {
               },
               analyzer: {
                 default: {
-                  type: "standard",
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "porter_stem",
+                  ],
                 },
                 fm_synonym_analyzer: {
                   type: "custom",
