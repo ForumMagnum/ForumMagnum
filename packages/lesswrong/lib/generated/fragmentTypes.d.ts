@@ -949,6 +949,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
+  readonly votingSystem: string,
 }
 
 interface PostsBase_group { // fragment on Localgroups
