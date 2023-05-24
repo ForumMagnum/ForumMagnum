@@ -561,10 +561,10 @@ async function callType3Webhook(action: 'post_published' | 'post_edited', url: s
  * Call the Type 3 webhook on post creation
  */
 getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
-  if (!document.authorIsUnreviewed && !document.draft) {
-    const url = postGetPageUrl(document, true);
-    void callType3Webhook('post_published', url);
-  }
+  if (document.authorIsUnreviewed || document.draft || document.isEvent) return
+
+  const url = postGetPageUrl(document, true);
+  void callType3Webhook('post_published', url);
 });
 
 /**
@@ -572,7 +572,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
  * It will count as being "edited" if the post content has changed.
  */
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft || document.rejected) return
+  if (document.draft || document.rejected || document.isEvent) return
   const url = postGetPageUrl(document, true);
 
   // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook

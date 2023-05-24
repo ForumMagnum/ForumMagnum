@@ -178,7 +178,11 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
+  const allowTypeIIIPlayer =
+    allowTypeIIIPlayerSetting.get() &&
+    new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF &&
+    !post.podcastEpisode &&
+    !post.isEvent;
 
   const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
