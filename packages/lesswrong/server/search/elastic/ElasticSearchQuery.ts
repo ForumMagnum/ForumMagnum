@@ -124,6 +124,7 @@ class ElasticSearchQuery {
               prefix_length: 2,
               minimum_should_match: "75%",
               operator: "and",
+              analyzer: "fm_synonym_analyzer",
             },
           },
           {

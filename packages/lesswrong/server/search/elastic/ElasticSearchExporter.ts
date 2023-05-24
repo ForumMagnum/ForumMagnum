@@ -180,15 +180,32 @@ class ElasticSearchExporter {
       index: indexName,
       body: {
         settings: {
-          analysis: {
-            analyzer: {
-              default: {
-                type: "standard",
+          index: {
+            analysis: {
+              filter: {
+                default: {
+                  type: "porter_stem",
+                },
+                fm_synonym_filter: {
+                  type: "synonym",
+                  synonyms: [
+                    "will,william,william_macaskill",
+                  ],
+                },
               },
-            },
-            filter: {
-              default: {
-                type: "porter_stem",
+              analyzer: {
+                default: {
+                  type: "standard",
+                },
+                fm_synonym_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "fm_synonym_filter",
+                    "porter_stem",
+                  ],
+                },
               },
             },
           },

@@ -104,7 +104,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
   Users: {
     fields: [
-      "displayName",
+      "displayName^5",
       "objectID",
       "bio",
       "mapLocationAddress",
@@ -118,7 +118,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "karma",
         order: "desc",
-        weight: 8,
+        weight: 12,
         scoring: {type: "numeric", pivot: 20},
       },
       {
