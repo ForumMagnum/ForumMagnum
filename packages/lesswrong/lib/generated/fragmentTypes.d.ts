@@ -2615,6 +2615,11 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
   readonly altAccountsDetected: boolean,
+  readonly voteReceivedCount: number,
+  readonly smallUpvoteReceivedCount: number,
+  readonly bigUpvoteReceivedCount: number,
+  readonly smallDownvoteReceivedCount: number,
+  readonly bigDownvoteReceivedCount: number,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
@@ -3014,6 +3019,27 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly contents: RevisionEdit|null,
 }
 
+interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
+  readonly userId: string,
+  readonly type: "allComments" | "allPosts",
+  readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
+  readonly intervalLength: number,
+  readonly actionsPerInterval: number,
+  readonly endedAt: Date | null,
+}
+
+interface UserRateLimitDisplay { // fragment on UserRateLimits
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly userId: string,
+  readonly type: "allComments" | "allPosts",
+  readonly actionsPerInterval: number,
+  readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
+  readonly intervalLength: number,
+  readonly createdAt: Date,
+  readonly endedAt: Date | null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3211,6 +3237,8 @@ interface FragmentTypes {
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
+  UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
+  UserRateLimitDisplay: UserRateLimitDisplay
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3400,8 +3428,10 @@ interface CollectionNamesByFragmentName {
   CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
+  UserRateLimitsDefaultFragment: "UserRateLimits"
+  UserRateLimitDisplay: "UserRateLimits"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

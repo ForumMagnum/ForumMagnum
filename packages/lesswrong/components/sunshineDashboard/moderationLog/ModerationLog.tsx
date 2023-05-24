@@ -11,6 +11,7 @@ import { isMod } from '../../../lib/collections/users/helpers';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import type { Column } from '../../vulcan-core/Datatable';
 import { ModeratorActions } from '../../../lib/collections/moderatorActions'
+import { UserRateLimits } from '../../../lib/collections/userRateLimits';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -131,6 +132,21 @@ const deletedCommentColumns: Column[] = [
 ]
 
 const moderatorActionColumns: Column[] = [
+  {
+    name: 'user',
+    component: UserDisplay
+  },
+  {
+    name: 'endedAt',
+    component: DateDisplay,
+  },
+  {
+    name: 'type',
+    component: ModeratorTypeDisplay
+  }
+]
+
+const userRateLimitColumns: Column[] = [
   {
     name: 'user',
     component: UserDisplay
@@ -286,6 +302,21 @@ const ModerationLog = ({classes}: {
               options={{
                 terms: {view: "restrictionModerationActions"},
                 fragmentName: 'ModeratorActionDisplay',
+                limit: 10,
+                enableTotal: true
+              }}
+              showEdit={false}
+              showNew={false}
+            />
+          </div>
+          <div className={classes.section}>
+            <h3 id="rate-limited-users">Rate Limited Users</h3>
+            <Components.Datatable
+              collection={UserRateLimits}
+              columns={userRateLimitColumns}
+              options={{
+                terms: {view: "activeUserRateLimits"},
+                fragmentName: 'UserRateLimitDisplay',
                 limit: 10,
                 enableTotal: true
               }}

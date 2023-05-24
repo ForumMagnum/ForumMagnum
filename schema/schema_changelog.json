@@ -210,8 +210,13 @@
     "timestamp": "2023-05-14T10:46:40.000Z"
   },
   {
-    "acceptsSchemaHash": "63f9eaa9871d535c5e55aaf42d037925",
-    "acceptedByMigration": "20230522T220340.updateDefaultValue_ModerationTemplates_order.ts",
-    "timestamp": "2023-05-22T22:03:40.000Z"
+    "acceptsSchemaHash": "cc8bba3f53cc75cb4b3864c0426830a8",
+    "acceptedByMigration": "20230519T210716.create_UserRateLimits_table.ts",
+    "timestamp": "2023-05-19T21:07:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "546cd13c6ee60ca019f7eb5df4502471",
+    "acceptedByMigration": "20230522T233107.updateDefaultValue_ModerationTemplates_order.ts",
+    "timestamp": "2023-05-22T23:31:07.000Z"
   }
 ]

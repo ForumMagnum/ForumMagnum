@@ -84,23 +84,13 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem } = Components
+  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
   })
-
-  const { mutate: updateModeratorAction } = useUpdate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
-
-  const { create: createModeratorAction } = useCreate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
 
   const signature = getSignature(currentUser.displayName);
 
@@ -307,41 +297,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
-
-  const applyModeratorAction = async (type: AllRateLimitTypes) => {
-
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 21);
-
-    await createModeratorAction({
-      data: {
-        type,
-        userId: user._id,
-        endedAt: endDate
-      }
-    });
-
-    setNotes( getNewModActionNotes(currentUser.displayName, type, notes) )
-    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
-    for (const rateLimit of existingRateLimits) {
-      void endRateLimit(rateLimit._id)
-    }
-    // We have a refetch to ensure the button displays (toggled on/off) properly 
-    refetch();
-  };
-
-  const endRateLimit = async (rateLimitId: string) => {
-
-    await updateModeratorAction({
-      selector: { _id: rateLimitId },
-      data: { endedAt: new Date() }
-    });
-
-    // We have a refetch to ensure the button displays (toggled on/off) properly 
-    refetch();
-  };
-
-
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
       <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
@@ -396,31 +351,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       </div>
     </LWTooltip>
   </div>
-
-  const [anchorEl, setAnchorEl] = useState<any>(null);
   
   return <div>
     {actionRow}
     {permissionsRow}
-    <div>
-      <span onClick={(ev) => setAnchorEl(ev.currentTarget)}>
-        <MenuItem>
-          Rate Limit
-          <ListItemIcon>
-            <ArrowDropDownIcon />
-          </ListItemIcon>
-        </MenuItem>
-      </span>
-      <Menu 
-        onClick={() => setAnchorEl(null)}
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-      >
-        {allRateLimits.map(moderatorAction => <MenuItem key={moderatorAction} onClick={() => applyModeratorAction(moderatorAction)}>
-          {MODERATOR_ACTION_TYPES[moderatorAction]}
-        </MenuItem>)}
-      </Menu>
-    </div>
+    <UserRateLimitItem userId={user._id} />
     <div className={classes.notes}>
       <Input
         value={notes}
