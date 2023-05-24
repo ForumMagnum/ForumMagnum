@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { namesAttachedReactionsByName, defaultFilter } from '../../lib/voting/reactions';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reactionSvg: {
@@ -8,8 +9,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18,
     verticalAlign: "middle",
   },
-  inverted: {
-    color: theme.palette.icon.inverted
+  invertIfDarkMode: {
+    filter: (theme.palette.type==="dark") ? "invert(1)" : undefined,
+  },
+  invertUnlessDarkMode: {
+    filter: (theme.palette.type==="dark") ? undefined : "invert(1)"
   },
 })
 
@@ -23,16 +27,23 @@ const ReactionIcon = ({react, inverted=false, classes}: {
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
   const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;
 
-  return <img
-    src={reactionType.svg}
-    style={{
-      filter: inverted
-        ? `opacity(${opacity}) saturate(${saturation}) invert(1)`
-        : `opacity(${opacity}) saturate(${saturation})`,
-      padding,
-    }}
-    className={classes.reactionSvg}
-  />;
+  return <span
+    className={classNames(
+      {
+        [classes.invertIfDarkMode]: !inverted,
+        [classes.invertUnlessDarkMode]: inverted,
+      },
+    )}
+  >
+    <img
+      src={reactionType.svg}
+      style={{
+        filter: `opacity(${opacity}) saturate(${saturation})`,
+        padding,
+      }}
+      className={classes.reactionSvg}
+    />
+  </span>
 }
 
 

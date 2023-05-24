@@ -318,7 +318,7 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
     case "Default":
       return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
     default:
-      if (mode<0)
+      if (typeof mode==="number" && mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
       else
         return <div><em>+{mode}.</em> These posts will be shown more often (as though their score were {mode} points higher).</div>

@@ -75,7 +75,7 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
   });
 }
 
-const invalidateQuery = ({client, query, variables}: {
+export const invalidateQuery = ({client, query, variables}: {
   client: ApolloClient<any>
   query: any
   variables: any
