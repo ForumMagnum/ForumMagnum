@@ -75,7 +75,7 @@ const runRSSImport = async () => {
       })
     } catch(error) {
       //eslint-disable-next-line no-console
-      console.error(`RSS error when refreshing feed ${feed.url}: ${error}`);
+      console.error(`RSS error when refreshing feed ${feed.url}: ${(""+error).substring(0,100)}`);
     }
   })
 }
