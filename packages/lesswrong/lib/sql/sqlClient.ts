@@ -1,6 +1,6 @@
 import { isAnyTest } from "../executionEnvironment";
 
-const logAllQueries = false;
+export const logAllQueries = true;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let sql: SqlClient | null = null;
@@ -31,18 +31,32 @@ export const runSqlQuery = async (query: string, args?: any) => {
   );
 }
 
-export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: ()=>string, quiet?: boolean) {
+let queriesExecuted = 0;
+
+export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()=>string), quiet?: boolean) {
+  function getDescription(): string {
+    if (typeof describe==='string')
+      return describe;
+    else
+      return describe();
+  }
+  
+  let queryID: number = ++queriesExecuted;
+  if (logAllQueries) {
+    // eslint-disable-next-line no-console
+    console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
+  }
+  
   const startTime = new Date().getTime();
   const result = await execute()
   const endTime = new Date().getTime();
 
   const milliseconds = endTime - startTime;
-  if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+  if (logAllQueries) {
+    console.log(`Finished query #${queryID} (${milliseconds} ms)`);
+  } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
-    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${describe()}`);
-  } else if (logAllQueries) {
-    // eslint-disable-next-line no-console
-    console.log(`Ran Postgres query (${milliseconds} ms): ${describe()}`);
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
   }
 
   return result;
