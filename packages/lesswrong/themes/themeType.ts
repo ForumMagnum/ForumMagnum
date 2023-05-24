@@ -417,6 +417,11 @@ declare global {
     embeddedPlayer: {
       opacity: number,
     },
+    dropdown: {
+      background: ColorString,
+      border: ColorString,
+      hoverBackground: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
