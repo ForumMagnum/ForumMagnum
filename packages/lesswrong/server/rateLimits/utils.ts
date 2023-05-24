@@ -80,8 +80,8 @@ function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit, documents:
   const { karmaThreshold, downvoteRatio, timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit
 
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
-  if (karmaThreshold && (user.karma ?? 0) > karmaThreshold) return null 
-  if (downvoteRatio && getDownvoteRatio(user) < downvoteRatio) return null
+  if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return null 
+  if ((downvoteRatio !== undefined) && getDownvoteRatio(user) < downvoteRatio) return null
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
   return { nextEligible, rateLimitType, rateLimitMessage }
