@@ -16,7 +16,7 @@ const EA = {
       timeframeLength: 30,
       itemsPerTimeframe: 4,
       rateLimitType: "lowKarma",
-      rateLimitMessage: "You'll be able to post more comments as your karma increases",
+      rateLimitMessage: "You'll be able to post more comments as your karma increases.",
       appliesToOwnPosts: true
     },
     FOUR_PER_THIRTY_MINUTES_DOWNVOTE_RATIO_30_PERCENT: {
@@ -26,7 +26,7 @@ const EA = {
       timeframeLength: 30,
       itemsPerTimeframe: 4,
       rateLimitType: "downvoteRatio",
-      rateLimitMessage: "You'll be able to post more comments as your karma increases",
+      rateLimitMessage: "",
       appliesToOwnPosts: true
     },
   }
@@ -104,7 +104,7 @@ const ALL = {
       timeframeLength: 1,
       itemsPerTimeframe: 5,
       rateLimitType: "universal",
-      rateLimitMessage: "Users cannot post more than 5 posts a day",
+      rateLimitMessage: "Users cannot post more than 5 posts a day.",
     }
   },
   COMMENTS: {
@@ -114,7 +114,7 @@ const ALL = {
       timeframeLength: 8,
       itemsPerTimeframe: 1,
       rateLimitType: "universal",
-      rateLimitMessage: "Users cannot submit more than 1 comment every 8 seconds to prevent double-posting.",
+      rateLimitMessage: "Users cannot submit more than 1 comment per 8 seconds to prevent double-posting.",
       appliesToOwnPosts: true
     }
   }
