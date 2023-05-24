@@ -1,0 +1,40 @@
+import React from "react";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { useDialog } from "../../common/withDialog";
+import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
+
+const EditTagsDropdownItem = ({post, closeMenu}: {
+  post: PostsBase,
+  closeMenu?: () => void,
+}) => {
+  const {openDialog} = useDialog();
+
+  const handleOpenTagDialog = async () => {
+    closeMenu?.();
+    openDialog({
+      componentName: "EditTagsDialog",
+      componentProps: {post},
+    });
+  }
+
+  const {DropdownItem} = Components;
+  return (
+    <DropdownItem
+      title={preferredHeadingCase(`Edit ${taggingNamePluralCapitalSetting.get()}`)}
+      onClick={handleOpenTagDialog}
+      icon="Tag"
+    />
+  );
+}
+
+const EditTagsDropdownItemComponent = registerComponent(
+  "EditTagsDropdownItem",
+  EditTagsDropdownItem,
+);
+
+declare global {
+  interface ComponentTypes {
+    EditTagsDropdownItem: typeof EditTagsDropdownItemComponent
+  }
+}

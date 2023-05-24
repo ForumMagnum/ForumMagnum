@@ -20,22 +20,40 @@ import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
-import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
+import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
+import TagIcon from "@heroicons/react/24/outline/TagIcon";
+import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
+import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
+import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
+import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import MuiBookmarksIcon from "@material-ui/icons/Bookmarks";
 import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
 import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
+import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
+import MuiReportIcon from "@material-ui/icons/ReportOutlined";
+import MuiVisibilityOff from "@material-ui/icons/VisibilityOff";
+import MuiVisibility from "@material-ui/icons/Visibility";
+import MuiEditIcon from "@material-ui/icons/Edit";
+import MuiShowChartIcon from "@material-ui/icons/ShowChart";
 import MuiNotesIcon from "@material-ui/icons/Notes";
 import MuiWarningIcon from "@material-ui/icons/Warning";
 import MuiLocationIcon from "@material-ui/icons/LocationOn";
+import MuiSettingsIcon from "@material-ui/icons/Settings";
+import MuiEmailIcon from "@material-ui/icons/Email";
+import MuiPuzzleIcon from "@material-ui/icons/Extension";
+import MuiCheckIcon from "@material-ui/icons/Check";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -63,7 +81,7 @@ export type ForumIconName =
   "VolumeUp" |
   "Bookmark" |
   "BookmarkBorder" |
-  "BellBorder" |
+  "Bookmarks" |
   "Karma" |
   "KarmaOutline" |
   "Star" |
@@ -84,6 +102,12 @@ export type ForumIconName =
   "Comment" |
   "Shortform" |
   "Warning" |
+  "Report" |
+  "Eye" |
+  "EyeOutline" |
+  "Tag" |
+  "Edit" |
+  "Analytics" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -92,13 +116,17 @@ export type ForumIconName =
   "Card" |
   "List" |
   "PlusSmall" |
-  "MinusSmall";
+  "MinusSmall" |
+  "Settings" |
+  "Email" |
+  "Puzzle";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
+    Bookmarks: MuiBookmarksIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
@@ -119,13 +147,22 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    Report: MuiReportIcon,
+    Tag: MuiTagIcon,
+    Eye: MuiVisibility,
+    EyeOutline: MuiVisibilityOff,
+    Edit: MuiEditIcon,
+    Analytics: MuiShowChartIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
-    Check: CheckIcon,
+    Settings: MuiSettingsIcon,
+    Email: MuiEmailIcon,
+    Puzzle: MuiPuzzleIcon,
+    Check: MuiCheckIcon,
     Card: CardIcon,
     List: ListIcon,
   },
@@ -133,6 +170,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     VolumeUp: SpeakerWaveIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
+    Bookmarks: BookmarkIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
@@ -153,12 +191,21 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    Report: ReportIcon,
+    Tag: TagIcon,
+    Eye: EyeIcon,
+    EyeOutline: EyeOutlineIcon,
+    Edit: PencilIcon,
+    Analytics: MuiShowChartIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Settings: SettingsIcon,
+    Email: EmailIcon,
+    Puzzle: PuzzleIcon,
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,

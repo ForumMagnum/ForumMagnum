@@ -18,7 +18,7 @@ import { useABTest } from '../../../lib/abTestImpl';
 import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
@@ -331,11 +331,13 @@ const PostsPage = ({post, refetch, classes}: {
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
+  const noIndex = post.noIndex || post.rejected;
+
   const header = <>
     {!commentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title} description={description} noIndex={post.noIndex}
+        title={post.title} description={description} noIndex={noIndex}
       />
       <CitationTags
         title={post.title}
