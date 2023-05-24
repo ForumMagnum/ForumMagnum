@@ -112,6 +112,7 @@ registerFragment(`
     hideNavigationSidebar
     hideCommunitySection
     expandedFrontpageSections
+    hidePostsRecommendations
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -386,6 +387,7 @@ registerFragment(`
     noSingleLineComments
     hideCommunitySection
     showCommunityInRecentDiscussion
+    hidePostsRecommendations
     beta
     theme
 

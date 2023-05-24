@@ -276,6 +276,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
   const showRecommendations = isEAForum &&
+    !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
     !post.deletedDraft &&
