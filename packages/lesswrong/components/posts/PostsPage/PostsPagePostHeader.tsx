@@ -101,8 +101,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "translateY(5px)",
   },
   bookmarkButton: {
-    marginBottom: -6,
-    marginRight: 12,
+    marginBottom: -5,
+    marginRight: 16,
+    height: 22,
     color: theme.palette.grey[600],
   }
 });
