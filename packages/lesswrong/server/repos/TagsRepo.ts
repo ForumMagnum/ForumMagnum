@@ -32,7 +32,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
   getSearchDocumentById(id: string): Promise<AlgoliaTag> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
-      WHERE p."_id" = $1
+      WHERE t."_id" = $1
     `, [id]);
   }
 

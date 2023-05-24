@@ -32,7 +32,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
   getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
-      WHERE p."_id" = $1
+      WHERE s."_id" = $1
     `, [id]);
   }
 
