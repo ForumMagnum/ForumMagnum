@@ -16,8 +16,8 @@ export type NamesAttachedReactionType = {
   searchTerms?: string[],
   
   /**
-   * Human-readable label string describing the reaction. Should start with a
-   * capital letter, and be short (ideally one word).
+   * Human-readable label string describing the reaction. Should be in title
+   * case, and be short (ideally one word).
    */
   label: string,
   
@@ -106,7 +106,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "key",
-    label: "Key insight",
+    label: "Key Insight",
     searchTerms: ["insight"],
     svg: "/reactionImages/nounproject/key.svg",
     description: "This is a key insight",
@@ -170,7 +170,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "seen",
-    label: "I saw this",
+    label: "I Saw This",
     searchTerms: ["eyes"],
     svg: "/reactionImages/nounproject/eyes.svg",
     filter: { opacity: 0.8 },
@@ -178,7 +178,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "handshake",
-    label: "I agree to this",
+    label: "I Agree to This",
     searchTerms: ["agreement"],
     filter: { opacity: 0.9 },
     svg: "/reactionImages/nounproject/handshake.svg",
@@ -193,7 +193,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "miss",
-    label: "Missed the point",
+    label: "Missed the Point",
     svg: "/reactionImages/nounproject/inaccurate.svg",
     description: "This seemed to focus in the wrong places, not on the core of the issue under discussion.",
   },
@@ -242,7 +242,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "additionalQuestions",
-    label: "Additional questions",
+    label: "Additional Questions",
     searchTerms: ["elephant","questions"],
     svg: "/reactionImages/nounproject/elephant.svg",
     filter: { opacity: 0.6 },
