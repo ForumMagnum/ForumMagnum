@@ -350,6 +350,9 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
+/**
+ * Whether the post is allowed AI generated audio
+ */
 export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
   return (
     !post.draft &&
@@ -358,6 +361,8 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     !post.podcastEpisodeId &&
     !post.isEvent &&
     !post.question &&
-    !post.debate
+    !post.debate &&
+    !post.shortform &&
+    post.status === postStatuses.STATUS_APPROVED
   );
 }
