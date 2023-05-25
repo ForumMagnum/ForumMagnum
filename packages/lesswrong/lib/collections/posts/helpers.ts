@@ -349,3 +349,15 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : undefined;
 }
+
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost) => {
+  return (
+    !post.draft &&
+    !post.authorIsUnreviewed &&
+    !post.rejected &&
+    !post.podcastEpisodeId &&
+    !post.isEvent &&
+    !post.question &&
+    !post.debate
+  );
+}

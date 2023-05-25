@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -181,8 +181,7 @@ const PostsPage = ({post, refetch, classes}: {
   const allowTypeIIIPlayer =
     allowTypeIIIPlayerSetting.get() &&
     new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF &&
-    !post.podcastEpisode &&
-    !post.isEvent;
+    isPostAllowedType3Audio(post);
 
   const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
