@@ -350,7 +350,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
-export const isPostAllowedType3Audio = (post: PostsBase|DbPost) => {
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
   return (
     !post.draft &&
     !post.authorIsUnreviewed &&
