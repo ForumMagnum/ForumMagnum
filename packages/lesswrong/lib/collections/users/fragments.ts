@@ -327,6 +327,12 @@ registerFragment(`
       userIds
     }
     altAccountsDetected
+
+    voteReceivedCount
+    smallUpvoteReceivedCount
+    bigUpvoteReceivedCount
+    smallDownvoteReceivedCount
+    bigDownvoteReceivedCount
   }
 `);
 
