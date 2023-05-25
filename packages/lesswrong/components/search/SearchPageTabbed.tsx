@@ -18,6 +18,7 @@ import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
+import { useSearchAnalytics } from './useSearchAnalytics';
 
 const hitsPerPage = 10
 
@@ -254,7 +255,8 @@ const SearchPageTabbed = ({classes}:{
   const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
-  
+  const captureSearch = useSearchAnalytics();
+
   // store these values for the search filter
   const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
   const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
@@ -310,6 +312,12 @@ const SearchPageTabbed = ({classes}:{
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
   }
+
+  useEffect(() => {
+    if (searchState.query) {
+      captureSearch("searchPageTabbed", searchState);
+    }
+  }, [searchState])
 
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root}>
