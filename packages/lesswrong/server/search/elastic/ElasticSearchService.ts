@@ -10,6 +10,11 @@ import {
 } from "./ElasticSearchQuery";
 import moment from "moment";
 
+type SanitizedIndexName = {
+  index: string,
+  sorting?: string,
+}
+
 class ElasticSearchService {
   constructor(
     private client = new ElasticSearchClient(),
@@ -18,11 +23,12 @@ class ElasticSearchService {
   async runQuery({indexName, params}: SearchQuery): Promise<SearchResult> {
     const start = Date.now();
 
-    const index = this.sanitizeIndexName(indexName);
+    const {index, sorting} = this.sanitizeIndexName(indexName);
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
     const result = await this.client.search({
       index,
+      sorting,
       search: params.query,
       offset: page * hitsPerPage,
       limit: hitsPerPage,
@@ -167,11 +173,18 @@ class ElasticSearchService {
     return encodeURIComponent(data.join("&"));
   }
 
-  private sanitizeIndexName(indexName: string): string {
+  private sanitizeIndexName(indexName: string): SanitizedIndexName {
     const prefix = algoliaPrefixSetting.get();
-    return prefix && indexName.indexOf(prefix) === 0
-      ? indexName.slice(prefix.length)
-      : indexName;
+    if (prefix && indexName.indexOf(prefix) === 0) {
+      indexName = indexName.slice(prefix.length)
+    }
+    const tokens = indexName.split("_");
+    indexName = tokens[0];
+    const sorting = tokens.length > 1 ? tokens.slice(1).join("_") : undefined;
+    return {
+      index: indexName,
+      sorting,
+    };
   }
 
   private getHits(indexName: string, hits: ElasticSearchHit[]): AlgoliaDocument[] {

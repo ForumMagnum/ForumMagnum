@@ -1,6 +1,7 @@
 import type {
   QueryDslQueryContainer,
   SearchRequest as SearchRequestInfo,
+  Sort,
 } from "@elastic/elasticsearch/lib/api/types";
 import type {
   SearchRequest as SearchRequestBody,
@@ -36,6 +37,7 @@ export type QueryFilter = {
 
 export type QueryData = {
   index: string,
+  sorting?: string,
   search: string
   offset?: number,
   limit?: number,
@@ -45,9 +47,21 @@ export type QueryData = {
 }
 
 class ElasticSearchQuery {
+  private config: IndexConfig;
+
   constructor(
     private queryData: QueryData,
-  ) {}
+  ) {
+    this.config = indexNameToConfig(queryData.index);
+  }
+
+  private getHighlightTags() {
+    const {preTag, postTag} = this.queryData;
+    return {
+      pre_tags: [preTag ?? "<em>"],
+      post_tags: [postTag ?? "</em>"],
+    };
+  }
 
   private compileRanking({field, order, weight, scoring}: Ranking): string {
     let expr: string;
@@ -72,20 +86,24 @@ class ElasticSearchQuery {
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 
-  private compileScoreExpression(rankings?: Ranking[]): string {
+  private compileScoreExpression(): string {
     let expr = "_score";
-    for (const ranking of rankings ?? []) {
+    for (const ranking of this.config.ranking ?? []) {
       expr += " * " + this.compileRanking(ranking);
     }
     return expr;
   }
 
-  private compileFilters(config: IndexConfig, filters: QueryFilter[]) {
-    const terms = [...(config.filters ?? [])];
-    for (const filter of filters) {
+  private compileFilters() {
+    const terms = [...(this.config.filters ?? [])];
+    for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        if (config === collectionNameToConfig("Users") && filter.field === "tags") {
+        // TODO FIXME
+        if (
+          this.config === collectionNameToConfig("Users") &&
+          filter.field === "tags"
+        ) {
           filter.field = "profileTagIds";
         }
         terms.push({
@@ -108,10 +126,9 @@ class ElasticSearchQuery {
     return terms.length ? terms : undefined;
   }
 
-  private compileSimpleQuery(
-    config: IndexConfig,
-    search: string,
-  ): QueryDslQueryContainer {
+  private compileSimpleQuery(): QueryDslQueryContainer {
+    const {fields} = this.config;
+    const {search} = this.queryData;
     return {
       bool: {
         should: [
@@ -125,7 +142,7 @@ class ElasticSearchQuery {
           {
             multi_match: {
               query: search,
-              fields: config.fields,
+              fields,
               fuzziness: "AUTO",
               max_expansions: 10,
               prefix_length: 2,
@@ -137,7 +154,7 @@ class ElasticSearchQuery {
           {
             multi_match: {
               query: search,
-              fields: config.fields,
+              fields,
               type: "phrase",
               slop: 2,
               boost: 70,
@@ -146,7 +163,7 @@ class ElasticSearchQuery {
           },
           {
             match_phrase_prefix: {
-              [config.fields[0].split("^")[0]]: {
+              [fields[0].split("^")[0]]: {
                 query: search,
                 slop: 2,
                 boost: 70,
@@ -159,10 +176,9 @@ class ElasticSearchQuery {
     };
   }
 
-  private compileAdvancedQuery(
-    config: IndexConfig,
-    tokens: QueryToken[],
-  ): QueryDslQueryContainer {
+  private compileAdvancedQuery(tokens: QueryToken[]): QueryDslQueryContainer {
+    const {fields} = this.config;
+
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
     const should: QueryDslQueryContainer[] = [];
@@ -173,7 +189,7 @@ class ElasticSearchQuery {
         must.push({
           multi_match: {
             query: token,
-            fields: config.fields,
+            fields,
             type: "phrase",
           },
         });
@@ -182,7 +198,7 @@ class ElasticSearchQuery {
         must_not.push({
           multi_match: {
             query: token,
-            fields: config.fields,
+            fields,
           },
         });
         break;
@@ -190,7 +206,7 @@ class ElasticSearchQuery {
         should.push({
           multi_match: {
             query: token,
-            fields: config.fields,
+            fields,
             fuzziness: "AUTO",
             max_expansions: 10,
             prefix_length: 2,
@@ -211,26 +227,35 @@ class ElasticSearchQuery {
     };
   }
 
+  private compileSort(sorting?: string): Sort {
+    const sort: Sort = [
+      {_score: {order: "desc"}},
+      {[this.config.tiebreaker]: {order: "desc"}},
+    ];
+    if (sorting === "newest_first") {
+      sort.unshift({publicDateMs: {order: "desc"}});
+    } else if (sorting === "oldest_first") {
+      sort.unshift({publicDateMs: {order: "asc"}});
+    } else if (sorting && sorting !== "relevance") {
+      throw new Error("Invalid sorting: " + sorting);
+    }
+    return sort;
+  }
+
   compile(): SearchRequestInfo | SearchRequestBody {
     const {
       index,
+      sorting,
       search,
       offset = 0,
       limit = 10,
-      preTag,
-      postTag,
-      filters,
     } = this.queryData;
-    const config = indexNameToConfig(index);
-    const tags = {
-      pre_tags: [preTag ?? "<em>"],
-      post_tags: [postTag ?? "</em>"],
-    };
-    const compiledFilters = this.compileFilters(config, filters);
+    const {snippet, highlight, privateFields} = this.config;
+    const tags = this.getHighlightTags();
     const {tokens, isAdvanced} = new QueryParser(search).parse();
     const compiledQuery = isAdvanced
-      ? this.compileAdvancedQuery(config, tokens)
-      : this.compileSimpleQuery(config, search);
+      ? this.compileAdvancedQuery(tokens)
+      : this.compileSimpleQuery();
     return {
       index,
       from: offset,
@@ -240,11 +265,11 @@ class ElasticSearchQuery {
         track_total_hits: true,
         highlight: {
           fields: {
-            [config.snippet]: tags,
-            ...(config.highlight && {[config.highlight]: tags}),
+            [snippet]: tags,
+            ...(highlight && {[highlight]: tags}),
           },
-          fragment_size: 120,
-          no_match_size: 120,
+          fragment_size: 140,
+          no_match_size: 140,
         },
         query: {
           script_score: {
@@ -252,20 +277,17 @@ class ElasticSearchQuery {
               bool: {
                 must: compiledQuery,
                 should: [],
-                filter: compiledFilters,
+                filter: this.compileFilters(),
               },
             },
             script: {
-              source: this.compileScoreExpression(config.ranking),
+              source: this.compileScoreExpression(),
             },
           },
         },
-        sort: [
-          {_score: {order: "desc"}},
-          {[config.tiebreaker]: {order: "desc"}},
-        ],
+        sort: this.compileSort(sorting),
         _source: {
-          exclude: config.privateFields,
+          exclude: privateFields,
         },
       },
     };
