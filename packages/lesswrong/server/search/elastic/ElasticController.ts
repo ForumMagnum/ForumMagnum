@@ -1,6 +1,6 @@
 import { Application, Request, Response, json } from "express";
-import { isValidSearchQuery } from "./searchQuery";
-import ElasticSearchService from "./ElasticSearchService";
+import { isValidSearchQuery } from "./SearchQuery";
+import ElasticSearchService from "./ElasticService";
 
 class ElasticSearchController {
   constructor(

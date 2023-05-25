@@ -1,7 +1,7 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { htmlToText } from "html-to-text";
-import ElasticSearchClient from "./ElasticSearchClient";
-import { collectionNameToConfig, Mappings } from "./ElasticSearchConfig";
+import ElasticSearchClient from "./ElasticClient";
+import { collectionNameToConfig, Mappings } from "./ElasticConfig";
 import {
   AlgoliaIndexCollectionName,
   algoliaIndexedCollectionNames,

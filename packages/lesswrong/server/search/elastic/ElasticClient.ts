@@ -1,7 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import type { SearchHit, SearchResponse } from "@elastic/elasticsearch/lib/api/types";
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
-import ElasticSearchQuery, { QueryData } from "./ElasticSearchQuery";
+import ElasticSearchQuery, { QueryData } from "./ElasticQuery";
 
 const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",

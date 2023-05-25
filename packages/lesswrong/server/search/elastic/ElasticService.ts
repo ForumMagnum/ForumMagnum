@@ -1,13 +1,13 @@
-import ElasticSearchClient, { ElasticSearchHit } from "./ElasticSearchClient";
-import type { SearchQuery } from "./searchQuery";
-import type { SearchResult } from "./searchResult";
+import ElasticSearchClient, { ElasticSearchHit } from "./ElasticClient";
+import type { SearchQuery } from "./SearchQuery";
+import type { SearchResult } from "./SearchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
-import { indexNameToConfig } from "./ElasticSearchConfig";
+import { indexNameToConfig } from "./ElasticConfig";
 import {
   QueryFilter,
   QueryFilterOperator,
   SEARCH_ORIGIN_DATE,
-} from "./ElasticSearchQuery";
+} from "./ElasticQuery";
 import moment from "moment";
 
 type SanitizedIndexName = {

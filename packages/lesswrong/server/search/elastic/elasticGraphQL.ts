@@ -4,7 +4,7 @@ import {
   addGraphQLMutation,
 } from "../../../lib/vulcan-lib/graphql";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
-import ElasticSearchExporter from "./ElasticSearchExporter";
+import ElasticSearchExporter from "./ElasticExporter";
 
 addGraphQLResolvers({
   Query: {

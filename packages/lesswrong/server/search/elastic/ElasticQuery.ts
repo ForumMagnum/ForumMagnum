@@ -11,7 +11,7 @@ import {
   indexNameToConfig,
   IndexConfig,
   Ranking,
-} from "./ElasticSearchConfig";
+} from "./ElasticConfig";
 import QueryParser, { QueryToken } from "./QueryParser";
 
 /**

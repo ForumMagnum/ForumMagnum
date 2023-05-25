@@ -3,8 +3,8 @@ import {
   algoliaIndexedCollectionNames,
 } from "../../../lib/search/algoliaUtil";
 import { getCollectionHooks } from "../../mutationCallbacks";
-import ElasticSearchClient from "./ElasticSearchClient";
-import ElasticSearchExporter from "./ElasticSearchExporter";
+import ElasticSearchClient from "./ElasticClient";
+import ElasticSearchExporter from "./ElasticExporter";
 
 export const elasticSyncDocument = (
   collectionName: AlgoliaIndexCollectionName,
