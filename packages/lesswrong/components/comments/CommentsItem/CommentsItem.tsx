@@ -70,6 +70,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 12,
     ...(isEAForum ? {} : {fontSize: 12}),
   },
+  bottomWithReacts: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
@@ -133,6 +138,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  replyIcon: {
+    opacity: .3,
+    height: 18,
+    width: 18,
+    position: "relative",
+    top: 3
+  }
 });
 
 /**
@@ -245,7 +257,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const showInlineCancel = showReplyState && isMinimalist
     return (
-      <div className={classes.bottom}>
+      <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
         <CommentBottomCaveats comment={comment} />
         {showReplyButton && (
           treeOptions?.replaceReplyButtonsWith?.(comment)
@@ -253,6 +265,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {showInlineCancel ? "Cancel" : "Reply"}
           </a>
         )}
+        {VoteBottomComponent && <VoteBottomComponent
+          document={comment}
+          hideKarma={post?.hideCommentKarma}
+          collection={Comments}
+          votingSystem={votingSystem}
+        />}
       </div>
     );
   }
@@ -380,12 +398,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {post && <ReviewVotingWidget post={post} showTitle={false}/>}
         </div>}
         { showReplyState && !collapsed && renderReply() }
-        {VoteBottomComponent && <VoteBottomComponent
-          document={comment}
-          hideKarma={post?.hideCommentKarma}
-          collection={Comments}
-          votingSystem={votingSystem}
-        />}
       </div>
     </AnalyticsContext>
   )
