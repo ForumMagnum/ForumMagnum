@@ -352,7 +352,7 @@ const SearchPageTabbed = ({classes}:{
     if (searchState.query) {
       captureSearch("searchPageTabbed", searchState);
     }
-  }, [searchState])
+  }, [searchState, captureSearch])
 
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root}>

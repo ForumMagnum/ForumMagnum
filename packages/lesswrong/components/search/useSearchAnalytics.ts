@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 
 /**
@@ -12,11 +12,14 @@ import { useTracking } from "../../lib/analyticsEvents";
 export const useSearchAnalytics = (timeoutMS = 1000) => {
   const {captureEvent} = useTracking();
   const searchTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
-  const captureSearch = (context: string, searchState: Record<string, unknown>) => {
-    clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => {
-      captureEvent("search", {context, ...searchState});
-    }, timeoutMS);
-  }
+  const captureSearch = useCallback(
+    (context: string, searchState: Record<string, unknown>) => {
+      clearTimeout(searchTimeout.current);
+      searchTimeout.current = setTimeout(() => {
+        captureEvent("search", {context, ...searchState});
+      }, timeoutMS);
+    },
+    [captureEvent, timeoutMS],
+  );
   return captureSearch;
 }

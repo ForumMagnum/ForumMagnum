@@ -157,7 +157,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     if (currentQuery) {
       captureSearch("searchBar", {query: currentQuery});
     }
-  }, [currentQuery])
+  }, [currentQuery, captureSearch])
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
   const { SearchBarResults } = Components
