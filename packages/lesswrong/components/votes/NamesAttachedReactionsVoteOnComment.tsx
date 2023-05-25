@@ -23,19 +23,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerReactions: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 10,
     lineHeight: 0.6,
-    height: 24,
+    height: 26,
     outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-    
-    position: "absolute",
-    right: 20,
-    bottom: -8,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
+    // padding: 3
+  },
+  footerReactionsRow: {
+    display: "flex",
+    alignItems: "center",
   },
   footerReaction: {
     height: 24,
@@ -43,6 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     paddingLeft: 3,
     paddingRight: 3,
+    marginRight: 4,
     "&:first-child": {
       paddingLeft: 7,
     },
@@ -65,11 +66,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    marginLeft: 8,
-    filter: "opacity(0.4)",
+    marginLeft: 11,
+    filter: "opacity(0.2)",
+    cursor: "pointer",
     "& svg": {
-      width: 18,
-      height: 18,
+      width: 16,
+      height: 16,
+      position: "relative",
+      top: 2
     },
     "&:hover": {
       filter: "opacity(0.8)",
@@ -227,7 +231,7 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
   function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null) {
     if (reaction) {
       addCurrentUserReaction(reactionName, reaction);
-    } else {
+    } else {  
       clearCurrentUserReaction(reactionName);
     }
   }
@@ -253,7 +257,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
-    <AddReactionButton voteProps={voteProps} classes={classes}/>
+    {/* <NamesAttachedReactionsCommentBottom document={document} hideKarma={false} collection={collection} votingSystem={votingSystem}/> */}
   </span>
 }
 
@@ -266,22 +270,25 @@ const NamesAttachedReactionsCommentBottom = ({
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
   
-  if (!reactionsShown.length) {
-    return null;
-  }
+  // if (!reactionsShown.length) {
+  //   return null;
+  // }
   
-  return <span className={classes.footerReactions} ref={anchorEl}>
-    {!hideKarma && reactionsShown.map(({react, numberShown}) =>
-      <HoverableReactionIcon
-        key={react}
-        anchorEl={anchorEl}
-        react={react}
-        numberShown={numberShown}
-        voteProps={voteProps}
-        classes={classes}
-      />
-    )}
-    {hideKarma && <InsertEmoticonOutlined/>}
+  return <span className={classes.footerReactionsRow} ref={anchorEl}>
+    {reactionsShown.length > 0 && <span className={classes.footerReactions} >
+      {!hideKarma && reactionsShown.map(({react, numberShown}) =>
+        <HoverableReactionIcon
+          key={react}
+          anchorEl={anchorEl}
+          react={react}
+          numberShown={numberShown}
+          voteProps={voteProps}
+          classes={classes}
+        />
+      )}
+      {hideKarma && <InsertEmoticonOutlined/>}
+    </span>}
+    <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
 
@@ -300,7 +307,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     toggleReaction(reaction);
   }
   
-  return <span
+  return <span 
     {...eventHandlers} className={classes.footerReaction}
     onMouseDown={()=>{reactionClicked(react)}}
   >
@@ -601,7 +608,7 @@ const AddReactionButton = ({voteProps, classes}: {
       {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}
-          placement="bottom-start"
+          placement="bottom-end"
           allowOverflow={true}
           
         >
