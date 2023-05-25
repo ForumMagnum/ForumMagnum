@@ -28,6 +28,7 @@ export type IndexConfig = {
    * be checked for an exact match, otherwise order doesn't matter.
    * Field names may be appended with a relevance boost. For instance, "title^3", which
    * will make matches on that field 3 times more relevant than matches on other fields.
+   * You never need to include objectID here as that is always checked separately.
    */
   fields: string[],
   /**

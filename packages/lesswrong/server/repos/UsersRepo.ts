@@ -162,7 +162,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
-        u."profileTagIds",
+        u."profileTagIds" AS "tags",
         u."mapLocation"->'geometry'->'location' AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress"
       FROM "Users" u

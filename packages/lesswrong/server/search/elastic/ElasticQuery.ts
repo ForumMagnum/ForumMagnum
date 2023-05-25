@@ -6,12 +6,7 @@ import type {
 import type {
   SearchRequest as SearchRequestBody,
 } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import {
-  collectionNameToConfig,
-  indexNameToConfig,
-  IndexConfig,
-  Ranking,
-} from "./ElasticConfig";
+import { indexNameToConfig, IndexConfig, Ranking } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
 
 /**
@@ -99,13 +94,6 @@ class ElasticSearchQuery {
     for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        // TODO FIXME
-        if (
-          this.config === collectionNameToConfig("Users") &&
-          filter.field === "tags"
-        ) {
-          filter.field = "profileTagIds";
-        }
         terms.push({
           term: {
             [filter.field]: filter.value,
