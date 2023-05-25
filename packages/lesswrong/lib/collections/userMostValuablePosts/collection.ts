@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const UserMostValuablePosts: UserMostValuablePostsCollection = createCollection({
   collectionName: 'UserMostValuablePosts',
   typeName: 'UserMostValuablePost',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   resolvers: getDefaultResolvers('UserMostValuablePosts'),
   mutations: getDefaultMutations('UserMostValuablePosts'),

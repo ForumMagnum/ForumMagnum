@@ -90,6 +90,8 @@ const settingsFileName = (mode, forum) => {
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forum), forum);
     if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(isLW ? 5 : 4));
+    } else if (isLW) {
+      process.argv.pop();
     }
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
