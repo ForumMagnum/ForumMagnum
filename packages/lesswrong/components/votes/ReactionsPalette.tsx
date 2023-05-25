@@ -75,13 +75,16 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       {reactionsToShow.map(reaction => {
         const currentUserVote = getCurrentUserReactionVote(reaction.name);
         return (
-          <LWTooltip key={reaction.name} title={<>
-            <div>
-              <ReactionIcon inverted={true} react={reaction.name}/>
-              <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-            </div>
-            <ReactionDescription reaction={reaction} classes={classes}/>
-          </>}>
+          <LWTooltip
+            key={reaction.name} placement="right-start"
+            title={<>
+              <div>
+                <ReactionIcon inverted={true} react={reaction.name}/>
+                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+              </div>
+              <ReactionDescription reaction={reaction} classes={classes}/>
+            </>}
+          >
             <div
               key={reaction.name}
               className={classNames(classes.paletteEntry, {
