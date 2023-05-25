@@ -30,6 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 150,
     padding: 4,
     display: "flex",
+    alignItems: "center",
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
