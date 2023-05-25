@@ -22,13 +22,58 @@ export type Ranking = {
 export type Mappings = Record<string, MappingProperty>;
 
 export type IndexConfig = {
+  /**
+   * An array of field names that compared against the search query.
+   * By default, this uses a fuzzy full text search. The first field listed will also
+   * be checked for an exact match, otherwise order doesn't matter.
+   * Field names may be appended with a relevance boost. For instance, "title^3", which
+   * will make matches on that field 3 times more relevant than matches on other fields.
+   */
   fields: string[],
+  /**
+   * The name of the field to create a match snippet from.
+   */
   snippet: string,
+  /**
+   * The name of the field to create a match highlight from.
+   */
   highlight?: string,
+  /**
+   * An array of ranking specifications to manually tune the relevancy of results.
+   * Ordering does not matter.
+   */
   ranking?: Ranking[],
+  /**
+   * The name of the field to use as a tie-breaker in the event that multiple results
+   * have exactly the same ranking (normally a date and ideally guaranteed to be
+   * unique). Note that relevancy is calculated as a floating point number so the
+   * probability of two results actually having the same relevancy is extremely low.
+   */
   tiebreaker: string,
+  /**
+   * Filters to completely remove entries from the result set, irregardless of their
+   * relevancy to the query. This is often used to remove deleted data.
+   */
   filters?: QueryDslQueryContainer[],
+  /**
+   * Mappings define the schema of the table. In general, elasticsearch infers the
+   * type of data when it is inserted so we do not need to keep a complete schema
+   * here with all the fields listed (see the serach export queries in the repos for
+   * the ultimate source of truth on what data is exported).
+   * We only need to add a field here if we know that elastic will infer the wrong
+   * type. Most notably, all strings are infered to be of type "text", which means
+   * they get stemmed and analyzed - this is normally what we want but leads to bad
+   * results when used on more structured strings like ids or slugs, which should
+   * instead be given the "keyword" mapping.
+   * Note that making a change here requires reindexing the data with
+   * `Globals.elasticConfigureIndex`.
+   */
   mappings?: Mappings,
+  /**
+   * An array of field names that should not be sent to the client. This may be
+   * because the data is private, or just because it isn't needed and we want to
+   * save on network traffic.
+   */
   privateFields: string[],
 }
 
