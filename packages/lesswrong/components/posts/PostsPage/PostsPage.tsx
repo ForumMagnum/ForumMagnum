@@ -15,7 +15,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -274,16 +274,15 @@ const PostsPage = ({post, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
   const showRecommendations = isEAForum &&
+    !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
     !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
-    !sequenceId &&
-    recommendationsTestGroup === "recommended";
+    !sequenceId;
 
   const commentId = query.commentId || params.commentId
 
