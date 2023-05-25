@@ -33,9 +33,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 6,
     // padding: 3
   },
+  footerReactions2: {
+    display: "inline-block",
+    fontSize: 25,
+    lineHeight: 0.6,
+    height: 26,
+    outline: theme.palette.border.commentBorder,
+    textAlign: 'center',
+    whiteSpace: "nowrap",
+    zIndex: theme.zIndexes.reactionsFooter,
+    background: theme.palette.panelBackground.translucent2,
+    borderRadius: 6,
+    marginLeft: 8
+  },
   footerReactionsRow: {
     display: "flex",
     alignItems: "center",
+  },
+  footerReactionsRow2: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: -10,
+    marginTop: 6,
+    marginBottom: 6
   },
   footerReaction: {
     height: 24,
@@ -81,11 +101,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactOrAntireact: {
     marginLeft: 12,
+    width: 55
   },
   hoverBallot: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     paddingTop: 12,
-    paddingBottom: 12,
     maxWidth: 350,
   },
   hoverBallotEntry: {
@@ -110,12 +130,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6,
     fontSize: 11,
   },
-  usersWhoReacted: {
-    marginLeft: 25,
-    fontSize: 11,
-  },
   alreadyUsedReactions: {
-    marginBottom: 12,
+    // marginBottom: 8,
+    padding: 8,
+    borderTop: theme.palette.border.faint
   },
 
   reactionVoteCount: {
@@ -139,6 +157,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteArrowRight: {
     transform: 'rotate(-270deg)',
     marginLeft: -4,
+  },
+  paletteSummaryRow: {
+    paddingLeft: 10,
+    paddingBottom: 2
+  },
+  usersWhoReactedRoot: {
+    maxWidth: 225,
+    display: "inline-block",
+    color: theme.palette.grey[600]
+  },
+  antiReacted: {
+    color: theme.palette.error,
+    opacity: .6
+  },
+  usersWhoReacted: {
+    fontSize: 11,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 })
 
@@ -245,6 +282,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
+  return null
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -262,6 +300,49 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 }
 
 const NamesAttachedReactionsCommentBottom = ({
+  document, hideKarma=false, collection, votingSystem, classes
+}: CommentVotingComponentProps & WithStylesProps) => {
+  const { OverallVoteAxis, AgreementVoteAxis } = Components
+  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+  const anchorEl = useRef<HTMLElement|null>(null);
+
+  const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
+  
+  // if (!reactionsShown.length) {
+  //   return null;
+  // }
+  
+  return <span className={classes.footerReactionsRow2} ref={anchorEl}>
+    <OverallVoteAxis
+      document={document}
+      hideKarma={hideKarma}
+      voteProps={voteProps}
+      showBox={true}
+    />
+    <AgreementVoteAxis
+      document={document}
+      hideKarma={hideKarma}
+      voteProps={voteProps}
+    />
+    {reactionsShown.length > 0 && <span className={classes.footerReactions2} >
+      {!hideKarma && reactionsShown.map(({react, numberShown}) =>
+        <HoverableReactionIcon
+          key={react}
+          anchorEl={anchorEl}
+          react={react}
+          numberShown={numberShown}
+          voteProps={voteProps}
+          classes={classes}
+        />
+      )}
+      {hideKarma && <InsertEmoticonOutlined/>}
+    </span>}
+    <AddReactionButton voteProps={voteProps} classes={classes}/>
+  </span>
+}
+
+const NamesAttachedReactionsCommentBottomOld = ({
   document, hideKarma=false, collection, votingSystem, classes
 }: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
@@ -332,7 +413,7 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
   const { currentUserExtendedVote, getCurrentUserReactionVote } = useNamesAttachedReactionsVoting(voteProps);
-  const { ReactionsPalette } = Components;
+  const { ReactionsPalette, Row, LWTooltip, ReactionIcon } = Components;
 
 
   function openLoginDialog() {
@@ -426,16 +507,25 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
 
     {alreadyUsedReactionTypesByKarma.length>0 &&
       <div className={classes.alreadyUsedReactions}>
-        {alreadyUsedReactionTypesByKarma.map(r =>
-          <HoverBallotReactionRow
-            key={r}
-            reactionName={r}
-            usersWhoReacted={alreadyUsedReactions[r]!}
-            getCurrentUserReactionVote={getCurrentUserReactionVote}
-            setCurrentUserReaction={setCurrentUserReaction}
-            classes={classes}
-          />
-        )}
+        {alreadyUsedReactionTypesByKarma.map(r => {
+          const usersWhoReacted = alreadyUsedReactions[r]!;
+          const { description, label } = namesAttachedReactionsByName[r]
+          return <div key={`${r}`} className={classes.paletteSummaryRow}>
+            <Row justifyContent="flex-start">
+              <LWTooltip title={`${label} – ${description}`}>
+                <ReactionIcon react={r}/>
+              </LWTooltip>                
+              <ReactOrAntireactVote
+                reactionName={r}
+                netReactionCount={sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1)}
+                currentUserReaction={getCurrentUserReactionVote(r)}
+                setCurrentUserReaction={setCurrentUserReaction}
+                classes={classes}
+              />
+              <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes}/>
+            </Row>
+          </div>
+        })}
       </div>
     }
   </div>
@@ -459,6 +549,34 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
       setCurrentUserReaction={setCurrentUserReaction}
       classes={classes}
     />
+  </div>
+}
+
+const UsersWhoReacted = ({usersWhoReacted, classes}:{usersWhoReacted:UserReactInfo[], classes:ClassesType}) => {
+  return <div className={classes.usersWhoReactedRoot}>
+    <div className={classes.usersWhoReacted}>
+      {usersWhoReacted
+        .filter(r=>r.reactType!=="disagreed")
+        .map((userReactInfo,i) =>
+          <span key={userReactInfo.userId} className={classes.userWhoReacted}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )
+      }
+    </div>
+    {usersWhoReacted.filter(r=>r.reactType==="disagreed").length > 0 &&
+      <div className={classes.usersWhoReacted}>        {usersWhoReacted
+          .filter(r=>r.reactType==="disagreed")
+          .map((userReactInfo,i) =>
+            <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.antiReacted)}>
+              {(i>0) && <span>{", "}</span>}
+              {userReactInfo.displayName}
+            </span>
+          )
+        }
+      </div>
+    }
   </div>
 }
 
