@@ -30,6 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
+    overflow: "hidden",
     
     position: "absolute",
     right: 20,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 3,
     paddingRight: 3,
     "&:first-child": {
-      paddingLeft: 7,
+      paddingLeft: 6,
     },
     "&:last-child": {
       paddingRight: 7,
@@ -135,6 +136,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteArrowRight: {
     transform: 'rotate(-270deg)',
     marginLeft: -4,
+  },
+  footerSelected: {
+    background: theme.palette.panelBackground.darken10,
+  },
+  footerSelectedAnti: {
+    background: "rgb(255, 189, 189, .23)", //TODO themeify
   },
 })
 
@@ -294,14 +301,22 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
 }) => {
   const { hover, eventHandlers } = useHover();
   const { ReactionIcon, PopperCard } = Components;
-  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const currentUserReactionVote = getCurrentUserReactionVote(react);
 
   function reactionClicked(reaction: EmojiReactName) {
     toggleReaction(reaction);
   }
   
   return <span
-    {...eventHandlers} className={classes.footerReaction}
+    className={classNames(
+      classes.footerReaction,
+      {
+        [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+        [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+      }
+    )}
+    {...eventHandlers}
     onMouseDown={()=>{reactionClicked(react)}}
   >
     <ReactionIcon react={react} />
