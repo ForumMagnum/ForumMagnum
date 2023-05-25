@@ -94,6 +94,7 @@ interface UsersDefaultFragment { // fragment on Users
     recommendations: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
+  readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean | null,
   readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
@@ -2427,6 +2428,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     community: boolean | null,
     recommendations: boolean | null,
   } | null,
+  readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
@@ -2669,6 +2671,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
+  readonly hidePostsRecommendations: boolean,
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
