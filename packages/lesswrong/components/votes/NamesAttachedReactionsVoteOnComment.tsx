@@ -29,16 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-<<<<<<< HEAD
     overflow: "hidden",
     
     position: "absolute",
     right: 20,
     bottom: -8,
-    background: theme.palette.panelBackground.default,
-=======
     background: theme.palette.panelBackground.translucent2,
->>>>>>> 7e92bc2fcfa9f45bf32de5c614fcaf1a2d475fd0
     borderRadius: 6,
     // padding: 3
   },
