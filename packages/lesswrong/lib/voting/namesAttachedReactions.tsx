@@ -11,6 +11,7 @@ import keyBy from 'lodash/keyBy';
 import some from 'lodash/some';
 import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
+import sortBy from 'lodash/sortBy';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
@@ -215,5 +216,5 @@ export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReaction
     }
   }
   
-  return result;
+  return sortBy(result, r => -r.numberShown);
 }
