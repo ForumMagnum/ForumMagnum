@@ -112,6 +112,7 @@ registerFragment(`
     hideNavigationSidebar
     hideCommunitySection
     expandedFrontpageSections
+    hidePostsRecommendations
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -326,6 +327,12 @@ registerFragment(`
       userIds
     }
     altAccountsDetected
+
+    voteReceivedCount
+    smallUpvoteReceivedCount
+    bigUpvoteReceivedCount
+    smallDownvoteReceivedCount
+    bigDownvoteReceivedCount
   }
 `);
 
@@ -386,6 +393,7 @@ registerFragment(`
     noSingleLineComments
     hideCommunitySection
     showCommunityInRecentDiscussion
+    hidePostsRecommendations
     beta
     theme
 

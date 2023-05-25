@@ -29,6 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
+    overflow: "hidden",
+    
     background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
     // padding: 3
@@ -58,17 +60,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6
   },
   footerReaction: {
-    height: 24,
+    height: 26,
     display: "inline-block",
     paddingTop: 2,
-    paddingLeft: 3,
-    paddingRight: 3,
-    marginRight: 4,
+    paddingLeft: 4,
+    paddingRight: 6,
     "&:first-child": {
-      paddingLeft: 7,
+      paddingLeft: 6,
     },
     "&:last-child": {
       paddingRight: 7,
+      marginRight: 0,
     },
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
@@ -177,6 +179,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  footerSelected: {
+    background: theme.palette.panelBackground.darken10,
+  },
+  footerSelectedAnti: {
+    background: "rgb(255, 189, 189, .23)",
+  }
 })
 
 
@@ -347,9 +355,10 @@ const NamesAttachedReactionsCommentBottomOld = ({
 }: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const anchorEl = useRef<HTMLElement|null>(null);
+  const currentUser = useCurrentUser();
 
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
+  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   
   // if (!reactionsShown.length) {
   //   return null;
@@ -382,14 +391,22 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
 }) => {
   const { hover, eventHandlers } = useHover();
   const { ReactionIcon, PopperCard } = Components;
-  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const currentUserReactionVote = getCurrentUserReactionVote(react);
 
   function reactionClicked(reaction: EmojiReactName) {
     toggleReaction(reaction);
   }
   
-  return <span 
-    {...eventHandlers} className={classes.footerReaction}
+  return <span
+    className={classNames(
+      classes.footerReaction,
+      {
+        [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+        [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+      }
+    )}
+    {...eventHandlers}
     onMouseDown={()=>{reactionClicked(react)}}
   >
     <ReactionIcon react={react} />

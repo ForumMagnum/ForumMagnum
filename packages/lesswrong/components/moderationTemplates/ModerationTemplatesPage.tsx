@@ -108,7 +108,7 @@ export const ModerationTemplatesPage = ({classes}: {
         </div>
       )}
       
-      <a aria-role="button" onClick={() => setShowDeleted(!showDeleted)}>Show Deleted</a>
+      <a role="button" onClick={() => setShowDeleted(!showDeleted)}>Show Deleted</a>
       
       {showDeleted && deletedTemplates.map(template => {
         if (template.collectionName === filter || !filter) {
