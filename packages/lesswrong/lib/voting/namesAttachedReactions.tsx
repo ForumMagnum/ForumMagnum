@@ -11,6 +11,7 @@ import keyBy from 'lodash/keyBy';
 import some from 'lodash/some';
 import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
+import sortBy from 'lodash/sortBy';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
@@ -198,7 +199,7 @@ function removeReactsVote(old: NamesAttachedReactionsList|undefined, currentUser
   return updatedReactions;
 }
 
-export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReactionsList|null): {react: EmojiReactName, numberShown: number}[] {
+export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReactionsList|null, currentUserId: string|undefined): {react: EmojiReactName, numberShown: number}[] {
   if (!reactions)
     return [];
 
@@ -207,7 +208,7 @@ export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReaction
     const netReaction = sumBy(reactions[react],
       r => r.reactType==="disagreed" ? -1 : 1
     );
-    if (netReaction > 0) {
+    if (netReaction > 0 || some(reactions[react], r=>r.userId===currentUserId)) {
       result.push({
         react,
         numberShown: netReaction
@@ -215,5 +216,5 @@ export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReaction
     }
   }
   
-  return result;
+  return sortBy(result, r => -r.numberShown);
 }

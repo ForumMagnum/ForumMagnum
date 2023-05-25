@@ -29,6 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     width: 150,
     padding: 4,
+    display: "flex",
+    alignItems: "center",
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
@@ -37,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.darken10,
   },
   selectedAnti: {
-    background: "rgb(255, 189, 189, .23)", //TODO themeify
+    background: "rgb(255, 189, 189, .23)",
   },
   reactionDescription: {
   },
@@ -73,13 +75,16 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       {reactionsToShow.map(reaction => {
         const currentUserVote = getCurrentUserReactionVote(reaction.name);
         return (
-          <LWTooltip key={reaction.name} title={<>
-            <div>
-              <ReactionIcon inverted={true} react={reaction.name}/>
-              <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-            </div>
-            <ReactionDescription reaction={reaction} classes={classes}/>
-          </>}>
+          <LWTooltip
+            key={reaction.name} placement="right-start"
+            title={<>
+              <div>
+                <ReactionIcon inverted={true} react={reaction.name}/>
+                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+              </div>
+              <ReactionDescription reaction={reaction} classes={classes}/>
+            </>}
+          >
             <div
               key={reaction.name}
               className={classNames(classes.paletteEntry, {
