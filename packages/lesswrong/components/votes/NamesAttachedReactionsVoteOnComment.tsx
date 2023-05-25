@@ -31,9 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.reactionsFooter,
     overflow: "hidden",
     
-    position: "absolute",
-    right: 20,
-    bottom: -8,
     background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
     // padding: 3
@@ -43,17 +40,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   footerReaction: {
-    height: 24,
+    height: 26,
     display: "inline-block",
     paddingTop: 2,
-    paddingLeft: 3,
-    paddingRight: 3,
-    marginRight: 4,
+    paddingLeft: 4,
+    paddingRight: 6,
     "&:first-child": {
       paddingLeft: 6,
     },
     "&:last-child": {
       paddingRight: 7,
+      marginRight: 0,
     },
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
@@ -149,7 +146,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.darken10,
   },
   footerSelectedAnti: {
-    background: "rgb(255, 189, 189, .23)", //TODO themeify
+    background: "rgb(255, 189, 189, .23)",
   },
 })
 

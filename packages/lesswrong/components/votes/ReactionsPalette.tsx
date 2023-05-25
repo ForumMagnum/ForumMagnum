@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.darken10,
   },
   selectedAnti: {
-    background: "rgb(255, 189, 189, .23)", //TODO themeify
+    background: "rgb(255, 189, 189, .23)",
   },
   reactionDescription: {
   },
