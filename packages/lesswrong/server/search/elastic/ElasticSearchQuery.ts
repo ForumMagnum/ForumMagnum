@@ -264,6 +264,9 @@ class ElasticSearchQuery {
           {_score: {order: "desc"}},
           {[config.tiebreaker]: {order: "desc"}},
         ],
+        _source: {
+          exclude: config.privateFields,
+        },
       },
     };
   }

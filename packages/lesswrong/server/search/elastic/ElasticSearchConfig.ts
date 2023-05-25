@@ -29,6 +29,7 @@ export type IndexConfig = {
   tiebreaker: string,
   filters?: QueryDslQueryContainer[],
   mappings?: Mappings,
+  privateFields: string[],
 }
 
 const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
@@ -65,6 +66,14 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       tagSlug: {type: "keyword"},
       tagCommentType: {type: "keyword"},
     },
+    privateFields: [
+      "authorIsUnreviewed",
+      "deleted",
+      "legacy",
+      "rejected",
+      "retracted",
+      "spam",
+    ],
   },
   Posts: {
     fields: [
@@ -99,6 +108,15 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       url: {type: "keyword"},
       userId: {type: "keyword"},
     },
+    privateFields: [
+      "authorIsUnreviewed",
+      "draft",
+      "isFuture",
+      "legacy",
+      "rejected",
+      "status",
+      "viewCount",
+    ],
   },
   Users: {
     fields: [
@@ -150,6 +168,11 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       profileImageId: {type: "keyword"},
       profileTagIds: {type: "keyword"},
     },
+    privateFields: [
+      "deleteContent",
+      "deleted",
+      "isAdmin",
+    ],
   },
   Sequences: {
     fields: [
@@ -169,6 +192,11 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       authorSlug: {type: "keyword"},
       bannerImageId: {type: "keyword"},
     },
+    privateFields: [
+      "draft",
+      "hidden",
+      "isDeleted",
+    ],
   },
   Tags: {
     fields: [
@@ -200,6 +228,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       parentTagId: {type: "keyword"},
       slug: {type: "keyword"},
     },
+    privateFields: [
+      "deleted",
+    ],
   },
 };
 
