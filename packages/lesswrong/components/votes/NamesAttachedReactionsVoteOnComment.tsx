@@ -269,9 +269,10 @@ const NamesAttachedReactionsCommentBottom = ({
 }: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const anchorEl = useRef<HTMLElement|null>(null);
+  const currentUser = useCurrentUser();
 
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
+  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   
   if (!reactionsShown.length) {
     return null;
