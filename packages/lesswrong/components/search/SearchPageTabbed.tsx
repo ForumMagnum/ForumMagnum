@@ -4,7 +4,6 @@ import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
 import {
-  getAlgoliaIndexName,
   isAlgoliaEnabled,
   getSearchClient,
   AlgoliaIndexCollectionName,
@@ -17,8 +16,19 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
+import Select from '@material-ui/core/Select';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
+import {
+  ElasticSorting,
+  defaultElasticSorting,
+  elasticCollectionIsCustomSortable,
+  elasticSortingToUrlParam,
+  elasticSortings,
+  formatElasticSorting,
+  getElasticIndexNameWithSorting,
+  isValidElasticSorting,
+} from '../../lib/search/elasticUtil';
 
 const hitsPerPage = 10
 
@@ -72,6 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 18,
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    "&:not(:first-child)": {
+      marginTop: 35,
+    },
   },
   filterLabel: {
     fontSize: 14,
@@ -165,7 +178,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-  
+  sort: {
+    borderRadius: theme.borderRadius.small,
+    width: "100%",
+  },
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -188,7 +204,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[500]
     }
   }
-})
+});
 
 type ExpandedSearchState = SearchState & {
   contentType?: AlgoliaIndexCollectionName,
@@ -271,13 +287,32 @@ const SearchPageTabbed = ({classes}:{
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
   )
-  const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
+
+  const {sort: initialSorting, ...initialSearchState} = qs.parse(location.search.slice(1));
+  const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState);
+  const [sorting, setSorting] = useState<ElasticSorting>(
+    isValidElasticSorting(initialSorting) ? initialSorting : defaultElasticSorting,
+  );
+
+  const onSortingChange = (newSorting: string) => {
+    if (!isValidElasticSorting(newSorting)) {
+      throw new Error("Invalid algolia sorting: " + newSorting);
+    }
+    setSorting(newSorting);
+    history.replace({
+      ...location,
+      search: qs.stringify({
+        ...searchState,
+        sort: elasticSortingToUrlParam(newSorting),
+      }),
+    });
+  }
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
-  } = Components
-    
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem,
+  } = Components;
+
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     history.replace({
@@ -337,7 +372,7 @@ const SearchPageTabbed = ({classes}:{
 
   return <div className={classes.root}>
     <InstantSearch
-      indexName={getAlgoliaIndexName(tab)}
+      indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient()}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
@@ -383,10 +418,29 @@ const SearchPageTabbed = ({classes}:{
           value={true}
         />}
         <ClearRefinements />
-        
+
         {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
           <Link to="/community#individuals">View community map</Link>
         </div>}
+
+        {elasticCollectionIsCustomSortable(tab) &&
+          <>
+            <Typography variant="headline" className={classes.filtersHeadline}>
+              Sort
+            </Typography>
+            <Select
+              value={sorting}
+              onChange={(e) => onSortingChange(e.target.value)}
+              className={classes.sort}
+            >
+              {Array.from(elasticSortings).map((name, i) =>
+                <MenuItem key={i} value={name}>
+                  {formatElasticSorting(name)}
+                </MenuItem>
+              )}
+            </Select>
+          </>
+        }
       </div>
 
       <div className={classes.resultsColumn}>
