@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     width: 150,
     padding: 4,
+    display: "flex",
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
