@@ -12,7 +12,7 @@ import {
   IndexConfig,
   Ranking,
 } from "./ElasticConfig";
-import QueryParser, { QueryToken } from "./QueryParser";
+import { parseQuery, QueryToken } from "./parseQuery";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -252,7 +252,7 @@ class ElasticSearchQuery {
     } = this.queryData;
     const {snippet, highlight, privateFields} = this.config;
     const tags = this.getHighlightTags();
-    const {tokens, isAdvanced} = new QueryParser(search).parse();
+    const {tokens, isAdvanced} = parseQuery(search);
     const compiledQuery = isAdvanced
       ? this.compileAdvancedQuery(tokens)
       : this.compileSimpleQuery();

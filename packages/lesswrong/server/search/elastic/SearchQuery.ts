@@ -16,12 +16,14 @@ const querySchema = z.object({
 export type SearchQuery = z.infer<typeof querySchema>;
 
 export const isValidSearchQuery = (value: unknown): value is SearchQuery => {
-  try {
-    querySchema.parse(value);
-    return true;
-  } catch (e) {
+  const result = querySchema.safeParse(value);
+  if (!result.success) {
     // eslint-disable-next-line no-console
-    console.error("Invalid search query:", e.message, JSON.stringify(value, null, 2));
-    return false;
+    console.error(
+      "Invalid search query:",
+      result.error.message,
+      JSON.stringify(value, null, 2),
+    );
   }
+  return result.success;
 }
