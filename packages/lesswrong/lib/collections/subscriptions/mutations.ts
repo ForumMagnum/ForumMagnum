@@ -11,6 +11,12 @@ export const defaultSubscriptionTypeTable = {
   // TODO: Tags?
 }
 
+export type DefaultSubscriptionType = keyof typeof defaultSubscriptionTypeTable;
+
+export const isDefaultSubscriptionType =
+  (value: string): value is DefaultSubscriptionType =>
+    value in defaultSubscriptionTypeTable;
+
 /**
  * @summary Perform the un/subscription after verification: update the collection item & the user
  * @param {String} action

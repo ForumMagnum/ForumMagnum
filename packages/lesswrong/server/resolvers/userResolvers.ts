@@ -18,8 +18,9 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, RateLimitInfo } from '../callbacks/rateLimits';
 import GraphQLJSON from 'graphql-type-json';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
+import { RateLimitInfo } from '../rateLimits/types';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -15,10 +15,10 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
@@ -178,7 +178,10 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
+  const allowTypeIIIPlayer =
+    allowTypeIIIPlayerSetting.get() &&
+    new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF &&
+    isPostAllowedType3Audio(post);
 
   const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -274,16 +277,15 @@ const PostsPage = ({post, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
   const showRecommendations = isEAForum &&
+    !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
     !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
-    !sequenceId &&
-    recommendationsTestGroup === "recommended";
+    !sequenceId;
 
   const commentId = query.commentId || params.commentId
 

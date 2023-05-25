@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
+import { invalidateQuery } from './cacheUpdates';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -284,6 +285,7 @@ export function useMulti<
   results?: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
+  invalidateCache: () => void,
   error: ApolloError|undefined,
   count?: number,
   showLoadMore: boolean,
@@ -335,7 +337,14 @@ export function useMulti<
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
-  
+
+  const client = useApolloClient();
+  const invalidateCache = () => invalidateQuery({
+    client,
+    query,
+    variables: graphQLVariables,
+  });
+
   if (error) {
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who  made the query. To aid in debugging, log a
@@ -398,6 +407,7 @@ export function useMulti<
     results,
     totalCount: totalCount,
     refetch,
+    invalidateCache,
     error,
     count,
     showLoadMore,

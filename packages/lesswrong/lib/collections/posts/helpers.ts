@@ -349,3 +349,20 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : undefined;
 }
+
+/**
+ * Whether the post is allowed AI generated audio
+ */
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+  return (
+    !post.draft &&
+    !post.authorIsUnreviewed &&
+    !post.rejected &&
+    !post.podcastEpisodeId &&
+    !post.isEvent &&
+    !post.question &&
+    !post.debate &&
+    !post.shortform &&
+    post.status === postStatuses.STATUS_APPROVED
+  );
+}
