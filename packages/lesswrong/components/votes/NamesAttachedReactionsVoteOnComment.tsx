@@ -109,7 +109,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8
   },
   alreadyUsedReactions: {
-    // marginBottom: 8,
     padding: 8,
     borderTop: theme.palette.border.faint
   },
@@ -146,7 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   },
   userWhoAntiReacted: {
-    color: theme.palette.error,
+    color: theme.palette.error.main,
     opacity: .6
   },
   usersWhoReacted: {
