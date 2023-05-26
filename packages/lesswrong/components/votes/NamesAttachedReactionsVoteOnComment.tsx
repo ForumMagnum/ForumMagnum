@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   footerReactionHover: {
-    width: 300,
+    maxWidth: 300,
   },
   reactionCount: {
     fontSize: 14,
@@ -80,7 +80,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   reactOrAntireact: {
-    marginLeft: 12,
     width: 55
   },
   hoverBallot: {
@@ -91,24 +90,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 8,
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
   },
   hoverBallotLabel: {
     verticalAlign: "middle",
-    marginLeft: 6,
     display: "inline-block",
     minWidth: 80,
+    marginBottom: 4
   },
   hoverBallotReactDescription: {
-    marginLeft: 25,
-    marginBottom: 6,
     fontSize: 11,
+    marginBottom: 8
   },
   alreadyUsedReactions: {
     // marginBottom: 8,
@@ -157,11 +155,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  usersWhoReactedWrap: {
+    whiteSpace: "unset",
+  },
   footerSelected: {
     background: theme.palette.panelBackground.darken10,
   },
   footerSelectedAnti: {
     background: "rgb(255, 189, 189, .23)",
+  },
+  hoverInfo: {
+    marginTop: -6,
+    paddingLeft: 10,
+    maxWidth: 195,
   }
 })
 
@@ -499,7 +505,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
   </div>
 }
 
-const UsersWhoReacted = ({usersWhoReacted, classes}:{usersWhoReacted:UserReactInfo[], classes:ClassesType}) => {
+const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes}:{usersWhoReacted:UserReactInfo[], wrap?: boolean, showTooltip?: boolean, classes:ClassesType}) => {
   const { LWTooltip } = Components;
   const usersWhoProReacted = usersWhoReacted.filter(r=>r.reactType!=="disagreed")
   const usersWhoAntiReacted = usersWhoReacted.filter(r=>r.reactType==="disagreed")
@@ -512,29 +518,35 @@ const UsersWhoReacted = ({usersWhoReacted, classes}:{usersWhoReacted:UserReactIn
     </>}
   </div>
 
-  return <LWTooltip title={tooltip}>
-    <div className={classes.usersWhoReactedRoot}>
-      <div className={classes.usersWhoReacted}>
-        {usersWhoProReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classes.userWhoReacted}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )
-        }
-      </div>
-      {usersWhoAntiReacted.length > 0 &&
-        <div className={classes.usersWhoReacted}> 
-          {usersWhoAntiReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.userWhoAntiReacted)}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )}
-        </div>
+  const component = <div className={classes.usersWhoReactedRoot}>
+    <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+      {usersWhoProReacted.map((userReactInfo,i) =>
+          <span key={userReactInfo.userId} className={classes.userWhoReacted}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )
       }
     </div>
-  </LWTooltip>
+    {usersWhoAntiReacted.length > 0 &&
+      <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+        {usersWhoAntiReacted.map((userReactInfo,i) =>
+          <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.userWhoAntiReacted)}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )}
+      </div>
+    }
+  </div>
+
+  if (showTooltip) {
+    return <LWTooltip title={tooltip}>
+      {component}
+    </LWTooltip>
+  } else {
+    return component
+  }
 }
 
 const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserReactionVote, setCurrentUserReaction, classes}: {
@@ -544,56 +556,34 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null)=>void
   classes: ClassesType,
 }) => {
-  const { ReactionIcon } = Components;
+  const { ReactionIcon, Row } = Components;
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
 
   return <div
     key={reactionName}
-    className={classNames(classes.hoverBallotEntry)}
+    className={classes.hoverBallotEntry}
   >
-    <ReactionIcon react={reactionName}/>
-    <span className={classes.hoverBallotLabel}>
-      {namesAttachedReactionsByName[reactionName].label}
-    </span>
-    
-    <ReactOrAntireactVote
-      reactionName={reactionName}
-      netReactionCount={netReactionCount}
-      currentUserReaction={getCurrentUserReactionVote(reactionName)}
-      setCurrentUserReaction={setCurrentUserReaction}
-      classes={classes}
-    />
+    <Row justifyContent='space-between' alignItems='flex-start'>
+      <ReactionIcon react={reactionName} large/>
+      <div className={classes.hoverInfo}>
+        <span className={classes.hoverBallotLabel}>
+          {namesAttachedReactionsByName[reactionName].label}
+        </span>
+        <div className={classes.hoverBallotReactDescription}>
+          {namesAttachedReactionsByName[reactionName].description}
+        </div>
+        <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
+      </div>    
+      <ReactOrAntireactVote
+        reactionName={reactionName}
+        netReactionCount={netReactionCount}
+        currentUserReaction={getCurrentUserReactionVote(reactionName)}
+        setCurrentUserReaction={setCurrentUserReaction}
+        classes={classes}
+      />
+    </Row>
 
-    <div className={classes.hoverBallotReactDescription}>
-      {namesAttachedReactionsByName[reactionName].description}
-    </div>
     
-    <div className={classes.usersWhoReacted}>
-      <span className={classes.reactionsListLabel}>{"Reacted: "}</span>
-      {usersWhoReacted
-        .filter(r=>r.reactType!=="disagreed")
-        .map((userReactInfo,i) =>
-          <span key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {(i>0) && <span>{", "}</span>}
-            {userReactInfo.displayName}
-          </span>
-        )
-      }
-    </div>
-    {usersWhoReacted.filter(r=>r.reactType==="disagreed").length > 0 &&
-      <div className={classes.usersWhoReacted}>
-        <span className={classes.reactionsListLabel}>{"Antireacted: "}</span>
-        {usersWhoReacted
-          .filter(r=>r.reactType==="disagreed")
-          .map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classes.userWhoReacted}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )
-        }
-      </div>
-    }
   </div>
 }
 
@@ -620,7 +610,7 @@ const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReacti
     }
   }
 
-  return <span className={classes.reactOrAntireact}>
+  return <div className={classes.reactOrAntireact}>
     <ReactionVoteArrow
       orientation="left"
       onClick={() => onClick("disagreed")}
@@ -636,7 +626,7 @@ const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReacti
       classes={classes}
       color={(currentUserReaction==="created"||currentUserReaction==="seconded") ? "primary" : "inherit"}
     />
-  </span>
+  </div>
 }
 
 const ReactionVoteArrow = ({orientation, onClick, color, classes}: {

@@ -15,11 +15,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   invertUnlessDarkMode: {
     filter: (theme.palette.type==="dark") ? undefined : "invert(1)"
   },
+  large: {
+    width: 24,
+    height: 24,
+  }
 })
 
-const ReactionIcon = ({react, inverted=false, classes}: {
+const ReactionIcon = ({react, inverted=false, large=false, classes}: {
   react: string,
   inverted?: boolean,
+  large?: boolean,
   classes: ClassesType
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
@@ -41,7 +46,7 @@ const ReactionIcon = ({react, inverted=false, classes}: {
         filter: `opacity(${opacity}) saturate(${saturation})`,
         padding,
       }}
-      className={classes.reactionSvg}
+      className={classNames(classes.reactionSvg, {[classes.large]:large})}
     />
   </span>
 }
