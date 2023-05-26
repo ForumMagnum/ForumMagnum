@@ -29,35 +29,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-    overflow: "hidden",
-    
+    overflow: "hidden",    
     background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
-    // padding: 3
-  },
-  footerReactions2: {
-    display: "inline-block",
-    fontSize: 25,
-    lineHeight: 0.6,
-    height: 26,
-    outline: theme.palette.border.commentBorder,
-    textAlign: 'center',
-    whiteSpace: "nowrap",
-    zIndex: theme.zIndexes.reactionsFooter,
-    background: theme.palette.panelBackground.translucent2,
-    borderRadius: 6,
-    marginLeft: 8
+    padding: 3
   },
   footerReactionsRow: {
     display: "flex",
     alignItems: "center",
-  },
-  footerReactionsRow2: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: -10,
-    marginTop: 6,
-    marginBottom: 6
   },
   footerReaction: {
     height: 26,
@@ -309,48 +288,12 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 const NamesAttachedReactionsCommentBottom = ({
   document, hideKarma=false, collection, votingSystem, classes
 }: CommentVotingComponentProps & WithStylesProps) => {
-  const { OverallVoteAxis, AgreementVoteAxis } = Components
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
-  const anchorEl = useRef<HTMLElement|null>(null);
-
-  const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
-  
-  // if (!reactionsShown.length) {
-  //   return null;
-  // }
-  
-  return <span className={classes.footerReactionsRow2} ref={anchorEl}>
-    {reactionsShown.length > 0 && <span className={classes.footerReactions2} >
-      {!hideKarma && reactionsShown.map(({react, numberShown}) =>
-        <HoverableReactionIcon
-          key={react}
-          anchorEl={anchorEl}
-          react={react}
-          numberShown={numberShown}
-          voteProps={voteProps}
-          classes={classes}
-        />
-      )}
-      {hideKarma && <InsertEmoticonOutlined/>}
-    </span>}
-    <AddReactionButton voteProps={voteProps} classes={classes}/>
-  </span>
-}
-
-const NamesAttachedReactionsCommentBottomOld = ({
-  document, hideKarma=false, collection, votingSystem, classes
-}: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
-  
-  // if (!reactionsShown.length) {
-  //   return null;
-  // }
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
     {reactionsShown.length > 0 && <span className={classes.footerReactions} >
