@@ -102,7 +102,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [format, setFormat] = useState<"list"|"grid1"|"grid2"|"mixed">("list");
+  const [format, setFormat] = useState<"list"|"grid1"|"grid2"|"mixed">("mixed");
   
   const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
 
@@ -117,6 +117,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       </div>
     </Row>
   } 
+
+  const N = 9; // number of reaction icons that fit on a line
+  const mixedIconReactions = reactionsToShow.slice(0, Math.floor(reactionsToShow.length / N) * N);
 
   return <div className={classes.moreReactions}>
     <Row>
@@ -200,7 +203,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       </a>
     </div>}
     {format === "mixed" && <div>
-      {reactionsToShow.slice(0,18).map(reaction => <LWTooltip title={tooltip(reaction)} 
+      {mixedIconReactions.map(reaction => <LWTooltip title={tooltip(reaction)} 
         key={`icon-${reaction.name}`}
       >
         <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name)}>
