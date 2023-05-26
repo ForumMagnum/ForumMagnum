@@ -2,6 +2,7 @@ import ConversationsRepo from "./ConversationsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
+import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
 import PostsRepo from "./PostsRepo";
@@ -17,6 +18,7 @@ const getAllRepos = () => ({
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
   localgroups: new LocalgroupsRepo(),
+  PostEmbeddingsRepo: new PostEmbeddingsRepo(),
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
@@ -29,6 +31,7 @@ export {
   DatabaseMetadataRepo,
   DebouncerEventsRepo,
   LocalgroupsRepo,
+  PostEmbeddingsRepo,
   PostRecommendationsRepo,
   PostRelationsRepo,
   PostsRepo,
