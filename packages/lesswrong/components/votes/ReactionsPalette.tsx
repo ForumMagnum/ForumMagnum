@@ -123,7 +123,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       <Row>
         <ListIcon 
           className={classes.toggleIcon} 
-          style={{ opacity: format ? 1 : .35}} 
+          style={{ opacity: format === "list" ? 1 : .35}} 
           onClick={() => setFormat("list")}
         />
       </Row>
