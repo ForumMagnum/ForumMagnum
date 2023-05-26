@@ -75,7 +75,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
       filterMode: 'Required'
     }]},
     after: dateCutoff,
-    limit: 3
+    limit: 5
   }
 
   return (
