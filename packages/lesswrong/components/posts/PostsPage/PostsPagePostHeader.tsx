@@ -105,6 +105,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     height: 22,
     color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 0.5,
+    },
   }
 });
 
@@ -288,7 +291,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
             {commentCountNode}
           </LWTooltip> : commentCountNode}
-          {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} />}
+          {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
