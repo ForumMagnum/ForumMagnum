@@ -207,7 +207,7 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -316,7 +316,7 @@ export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: stri
 }
 
 export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  let { coauthorStatuses, hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
   if (!hasCoauthorPermission) {
@@ -348,4 +348,21 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   const potentialTags = core.length < 1 && includeNonCore ? tags : core;
   const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : undefined;
+}
+
+/**
+ * Whether the post is allowed AI generated audio
+ */
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+  return (
+    !post.draft &&
+    !post.authorIsUnreviewed &&
+    !post.rejected &&
+    !post.podcastEpisodeId &&
+    !post.isEvent &&
+    !post.question &&
+    !post.debate &&
+    !post.shortform &&
+    post.status === postStatuses.STATUS_APPROVED
+  );
 }

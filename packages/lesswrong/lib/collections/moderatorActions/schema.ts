@@ -1,6 +1,5 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import { userOwns } from '../../vulcan-users/permissions';
 
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
 export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
@@ -35,8 +34,8 @@ export const allRateLimits = [
 export const rateLimitSet = new TupleSet(postAndCommentRateLimits);
 export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 
-export type RateLimitType = typeof postAndCommentRateLimits[number]
-export type ManuallyAppliedModeratorActionType = typeof allRateLimits[number];
+export type PostAndCommentRateLimitTypes = typeof postAndCommentRateLimits[number]
+export type AllRateLimitTypes = typeof allRateLimits[number];
 
 // moderation actions that restrict the user's permissions in some way
 export const restrictionModeratorActions = [

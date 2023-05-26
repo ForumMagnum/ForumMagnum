@@ -97,6 +97,19 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+const rateLimitInfoSchema = new SimpleSchema({
+  nextEligible: {
+    type: Date
+  },
+  rateLimitType: {
+    type: String,
+    allowedValues: ["moderator", "lowKarma", "universal", "downvoteRatio"]
+  },
+  rateLimitMessage: {
+    type: String
+  },
+})
+
 export interface KarmaChangeSettingsType {
   updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
   timeOfDayGMT: number
@@ -801,7 +814,21 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     label: "Show Community posts in Recent Discussion"
   },
-  
+
+  hidePostsRecommendations: {
+    order: 95,
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    control: "checkbox",
+    label: "Hide recommendations from the posts page",
+  },
+
   petrovOptOut: {
     order: 96,
     type: Boolean,
@@ -2504,7 +2531,7 @@ const schema: SchemaType<DbUser> = {
       ).fetch();
       const userIds = new Set<string>();
       for (let clientId of clientIds) {
-        for (let userId of clientId.userIds)
+        for (let userId of clientId.userIds ?? [])
           userIds.add(userId);
       }
       return userIds.size > 1;
@@ -2665,6 +2692,13 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
+  },
+
+  rateLimitNextAbleToPost: {
     type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],

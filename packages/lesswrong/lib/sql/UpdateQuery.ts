@@ -8,6 +8,11 @@ export type UpdateOptions = Partial<{
   returnUpdated: boolean,
 }>
 
+interface CompileUpdateExpressionOptions {
+  skipTypeHint?: boolean,
+  jsonType?: JsonType
+}
+
 /**
  * Builds a Postgres query to update some specific data in the given table.
  * Note that upserting is handled by `InsertQuery` instead.
@@ -163,21 +168,21 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const fieldType = this.getField(field);
-      const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
-      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
-      const updateValue = this.compileUpdateExpression(value, typeForArg);
-
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
       if (field.includes(".")) {
+        const updateValue = this.compileUpdateExpression(value, { skipTypeHint: true });
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
           ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
         );
       }
-
+  
+      const fieldType = this.getField(field);
+      const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
+      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
+      const updateValue = this.compileUpdateExpression(value, { jsonType: typeForArg });
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
@@ -186,13 +191,17 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private compileUpdateExpression(value: unknown, jsonType?: JsonType): Atom<T>[] {
+  private compileUpdateExpression(value: unknown, options: CompileUpdateExpressionOptions = {}): Atom<T>[] {
+    const { jsonType, skipTypeHint } = options;
     if (typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")) {
       return this.compileExpression(value);
     } else {
       const arg = this.createArg(value, jsonType);
       if (!arg.typehint) {
         arg.typehint = this.getTypeHint(value);
+      }
+      if (skipTypeHint) {
+        arg.typehint = "" 
       }
       return [arg];
     }

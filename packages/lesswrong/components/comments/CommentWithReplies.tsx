@@ -63,8 +63,7 @@ const CommentWithReplies = ({
   const { CommentsNode } = Components;
 
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
-  const extraChildrenCount =
-    comment.latestChildren.length > renderedChildren.length && comment.latestChildren.length - renderedChildren.length;
+  const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
   let nestedComments = unflattenComments(renderedChildren);
   if (extraChildrenCount > 0) {

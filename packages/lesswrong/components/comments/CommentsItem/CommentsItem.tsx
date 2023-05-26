@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
+import { Comments } from '../../../lib/collections/comments/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -17,11 +18,13 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
+    position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
     }
@@ -66,6 +69,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: isEAForum ? theme.spacing.unit : 5,
     minHeight: 12,
     ...(isEAForum ? {} : {fontSize: 12}),
+  },
+  bottomWithReacts: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   replyForm: {
     marginTop: 2,
@@ -130,6 +138,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  replyIcon: {
+    opacity: .3,
+    height: 18,
+    width: 18,
+    position: "relative",
+    top: 3
+  }
 });
 
 /**
@@ -242,7 +257,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const showInlineCancel = showReplyState && isMinimalist
     return (
-      <div className={classes.bottom}>
+      <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
         <CommentBottomCaveats comment={comment} />
         {showReplyButton && (
           treeOptions?.replaceReplyButtonsWith?.(comment)
@@ -250,6 +265,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {showInlineCancel ? "Cancel" : "Reply"}
           </a>
         )}
+        {VoteBottomComponent && <VoteBottomComponent
+          document={comment}
+          hideKarma={post?.hideCommentKarma}
+          collection={Comments}
+          votingSystem={votingSystem}
+        />}
       </div>
     );
   }
@@ -279,6 +300,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
     LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
   } = Components
+  
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   if (!comment) {
     return null;

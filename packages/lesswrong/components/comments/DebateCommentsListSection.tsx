@@ -77,7 +77,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
 
   return (
     <div className={classNames(classes.root, classes.maxWidthRoot)}>
