@@ -12,7 +12,7 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
@@ -381,17 +381,16 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
   });
 });
 
-
 const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
-  // Delay 60 minutes between when you create an account, and when we send the
-  // welcome email. (You can still see the welcome post immediately, which on
-  // LW is the same thing, if you want). The theory is that users creating new
+  // Delay is by default 60 minutes between when you create an account, and when we send the
+  // welcome email. The theory is that users creating new
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
-  defaultTiming: {type: "delayed", delayMinutes: 60 },
+  // LW wants people to see site intro before posting
+  defaultTiming: isLW ? {type: "none" } : {type: "delayed", delayMinutes: 60 },
   
   callback: (userId: string) => {
     void sendWelcomeMessageTo(userId);
