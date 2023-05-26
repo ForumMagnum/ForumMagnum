@@ -290,7 +290,6 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
-  return null
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -322,17 +321,6 @@ const NamesAttachedReactionsCommentBottom = ({
   // }
   
   return <span className={classes.footerReactionsRow2} ref={anchorEl}>
-    <OverallVoteAxis
-      document={document}
-      hideKarma={hideKarma}
-      voteProps={voteProps}
-      showBox={true}
-    />
-    <AgreementVoteAxis
-      document={document}
-      hideKarma={hideKarma}
-      voteProps={voteProps}
-    />
     {reactionsShown.length > 0 && <span className={classes.footerReactions2} >
       {!hideKarma && reactionsShown.map(({react, numberShown}) =>
         <HoverableReactionIcon
