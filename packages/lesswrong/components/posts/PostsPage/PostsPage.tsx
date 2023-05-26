@@ -37,8 +37,6 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
-const TYPE_III_DATE_CUTOFF = new Date('2023-05-01')
-
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
   if (post.contents?.plaintextDescription) {
@@ -178,10 +176,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer =
-    allowTypeIIIPlayerSetting.get() &&
-    new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF &&
-    isPostAllowedType3Audio(post);
+  const allowTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && isPostAllowedType3Audio(post);
 
   const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
