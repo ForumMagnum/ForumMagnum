@@ -1,4 +1,4 @@
-import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -350,6 +350,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
 
@@ -357,6 +358,8 @@ const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>
  * Whether the post is allowed AI generated audio
  */
 export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+  if (!allowTypeIIIPlayerSetting.get()) return false
+
   try {
     const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get())
     const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
