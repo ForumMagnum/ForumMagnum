@@ -23,31 +23,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerReactions: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 10,
     lineHeight: 0.6,
-    height: 24,
+    height: 26,
     outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
+    overflow: "hidden",
     
-    position: "absolute",
-    right: 20,
-    bottom: -8,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
+    // padding: 3
+  },
+  footerReactionsRow: {
+    display: "flex",
+    alignItems: "center",
   },
   footerReaction: {
-    height: 24,
+    height: 26,
     display: "inline-block",
     paddingTop: 2,
-    paddingLeft: 3,
-    paddingRight: 3,
+    paddingLeft: 4,
+    paddingRight: 6,
     "&:first-child": {
-      paddingLeft: 7,
+      paddingLeft: 6,
     },
     "&:last-child": {
       paddingRight: 7,
+      marginRight: 0,
     },
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
@@ -65,11 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    marginLeft: 8,
-    filter: "opacity(0.4)",
+    marginLeft: 11,
+    filter: "opacity(0.2)",
+    cursor: "pointer",
     "& svg": {
-      width: 18,
-      height: 18,
+      width: 16,
+      height: 16,
+      position: "relative",
+      top: 2
     },
     "&:hover": {
       filter: "opacity(0.8)",
@@ -135,6 +141,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteArrowRight: {
     transform: 'rotate(-270deg)',
     marginLeft: -4,
+  },
+  footerSelected: {
+    background: theme.palette.panelBackground.darken10,
+  },
+  footerSelectedAnti: {
+    background: "rgb(255, 189, 189, .23)",
   },
 })
 
@@ -227,7 +239,7 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
   function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null) {
     if (reaction) {
       addCurrentUserReaction(reactionName, reaction);
-    } else {
+    } else {  
       clearCurrentUserReaction(reactionName);
     }
   }
@@ -253,7 +265,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
-    <AddReactionButton voteProps={voteProps} classes={classes}/>
+    {/* <NamesAttachedReactionsCommentBottom document={document} hideKarma={false} collection={collection} votingSystem={votingSystem}/> */}
   </span>
 }
 
@@ -262,26 +274,30 @@ const NamesAttachedReactionsCommentBottom = ({
 }: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const anchorEl = useRef<HTMLElement|null>(null);
+  const currentUser = useCurrentUser();
 
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null);
+  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   
-  if (!reactionsShown.length) {
-    return null;
-  }
+  // if (!reactionsShown.length) {
+  //   return null;
+  // }
   
-  return <span className={classes.footerReactions} ref={anchorEl}>
-    {!hideKarma && reactionsShown.map(({react, numberShown}) =>
-      <HoverableReactionIcon
-        key={react}
-        anchorEl={anchorEl}
-        react={react}
-        numberShown={numberShown}
-        voteProps={voteProps}
-        classes={classes}
-      />
-    )}
-    {hideKarma && <InsertEmoticonOutlined/>}
+  return <span className={classes.footerReactionsRow} ref={anchorEl}>
+    {reactionsShown.length > 0 && <span className={classes.footerReactions} >
+      {!hideKarma && reactionsShown.map(({react, numberShown}) =>
+        <HoverableReactionIcon
+          key={react}
+          anchorEl={anchorEl}
+          react={react}
+          numberShown={numberShown}
+          voteProps={voteProps}
+          classes={classes}
+        />
+      )}
+      {hideKarma && <InsertEmoticonOutlined/>}
+    </span>}
+    <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
 
@@ -294,14 +310,22 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
 }) => {
   const { hover, eventHandlers } = useHover();
   const { ReactionIcon, PopperCard } = Components;
-  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const currentUserReactionVote = getCurrentUserReactionVote(react);
 
   function reactionClicked(reaction: EmojiReactName) {
     toggleReaction(reaction);
   }
   
   return <span
-    {...eventHandlers} className={classes.footerReaction}
+    className={classNames(
+      classes.footerReaction,
+      {
+        [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+        [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+      }
+    )}
+    {...eventHandlers}
     onMouseDown={()=>{reactionClicked(react)}}
   >
     <ReactionIcon react={react} />
@@ -601,7 +625,7 @@ const AddReactionButton = ({voteProps, classes}: {
       {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}
-          placement="bottom-start"
+          placement="bottom-end"
           allowOverflow={true}
           
         >

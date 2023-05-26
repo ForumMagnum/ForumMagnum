@@ -68,6 +68,9 @@ const InitialFallback: FC<{
   className?: string,
   classes: ClassesType,
 }> = memo(({displayName, size, className, classes}) => {
+  // this shouldn't happen but somehow exists in our dev env
+  if (!displayName) return null
+  
   const initials = displayName.split(/[\s-_.()]/).map((s) => s?.[0]?.toUpperCase());
   const text = initials.filter((s) => s?.length).join("").slice(0, 3);
   const background = userBackground(displayName);
@@ -106,7 +109,10 @@ const InitialFallback: FC<{
 });
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
-  user?: UsersMinimumInfo,
+  user?: {
+    profileImageId?: string,
+    displayName: string
+  },
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,

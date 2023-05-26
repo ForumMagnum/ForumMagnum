@@ -8,7 +8,8 @@ export const defaultSubscriptionTypeTable = {
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,
-  // TODO: Tags?
+  "Tags": subscriptionTypes.newTagPosts
+  // TODO: other subscription types?
 }
 
 export type DefaultSubscriptionType = keyof typeof defaultSubscriptionTypeTable;
