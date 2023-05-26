@@ -563,7 +563,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
     className={classes.hoverBallotEntry}
   >
     <Row justifyContent='space-between' alignItems='flex-start'>
-      <ReactionIcon react={reactionName} large/>
+      <ReactionIcon react={reactionName} size={24}/>
       <div className={classes.hoverInfo}>
         <span className={classes.hoverBallotLabel}>
           {namesAttachedReactionsByName[reactionName].label}
