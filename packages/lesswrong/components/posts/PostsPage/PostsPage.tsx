@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -24,8 +24,6 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 
-const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
-
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
@@ -36,8 +34,6 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
-
-const TYPE_III_DATE_CUTOFF = new Date('2023-05-01')
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
@@ -178,10 +174,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer =
-    allowTypeIIIPlayerSetting.get() &&
-    new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF &&
-    isPostAllowedType3Audio(post);
+  const allowTypeIIIPlayer = isPostAllowedType3Audio(post);
 
   const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
