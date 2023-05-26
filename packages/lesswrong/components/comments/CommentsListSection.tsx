@@ -177,7 +177,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
 

@@ -282,7 +282,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
             {commentCountNode}
           </LWTooltip> : commentCountNode}
-          {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
+          {isEAForum && <BookmarkButton post={post} withText />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>

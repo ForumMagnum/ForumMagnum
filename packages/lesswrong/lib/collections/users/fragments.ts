@@ -112,6 +112,7 @@ registerFragment(`
     hideNavigationSidebar
     hideCommunitySection
     expandedFrontpageSections
+    hidePostsRecommendations
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -214,9 +215,16 @@ registerFragment(`
  * page can start loading.
  */
 registerFragment(`
-  fragment UsersCurrentRateLimit on User {
+  fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
+  }
+`);
+
+registerFragment(`
+  fragment UsersCurrentPostRateLimit on User {
+    _id
+    rateLimitNextAbleToPost
   }
 `);
 
@@ -319,6 +327,12 @@ registerFragment(`
       userIds
     }
     altAccountsDetected
+
+    voteReceivedCount
+    smallUpvoteReceivedCount
+    bigUpvoteReceivedCount
+    smallDownvoteReceivedCount
+    bigDownvoteReceivedCount
   }
 `);
 
@@ -379,6 +393,7 @@ registerFragment(`
     noSingleLineComments
     hideCommunitySection
     showCommunityInRecentDiscussion
+    hidePostsRecommendations
     beta
     theme
 

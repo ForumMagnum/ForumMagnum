@@ -6,6 +6,7 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import classNames from "classnames";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const observeRecommendationMutation = gql`
   mutation observeRecommendation($postId: String!) {
@@ -53,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "baseline",
     [theme.breakpoints.down("xs")]: {
       whiteSpace: "unset",
       flexDirection: "column",
@@ -139,7 +140,7 @@ const PostsPageRecommendationItem = ({
 
   const TitleWrapper: FC = ({children}) => (
     <PostsItemTooltipWrapper post={post} As="span">
-      {children}
+      <Link to={postLink}>{children}</Link>
     </PostsItemTooltipWrapper>
   );
 

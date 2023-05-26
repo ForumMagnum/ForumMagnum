@@ -66,7 +66,7 @@ describe("UpdateQuery", () => {
     {
       name: "can set a value inside a JSON blob",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d.e": "hello world"}}),
-      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' ::TEXT[], $1::TEXT , TRUE) WHERE "a" = $2 RETURNING "_id"`,
+      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' ::TEXT[], $1 , TRUE) WHERE "a" = $2 RETURNING "_id"`,
       expectedArgs: ["hello world", 3],
     },
     {

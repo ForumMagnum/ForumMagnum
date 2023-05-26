@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
-import type { SideCommentMode } from '../PostActions/SetSideCommentVisibility';
+import type { SideCommentMode } from '../../dropdowns/posts/SetSideCommentVisibility';
 
 const PostBody = ({post, html, sideCommentMode}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
