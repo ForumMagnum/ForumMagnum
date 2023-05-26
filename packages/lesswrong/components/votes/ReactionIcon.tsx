@@ -5,8 +5,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reactionSvg: {
-    width: 18,
-    height: 18,
     verticalAlign: "middle",
   },
   invertIfDarkMode: {
@@ -14,12 +12,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   invertUnlessDarkMode: {
     filter: (theme.palette.type==="dark") ? undefined : "invert(1)"
-  },
+  }
 })
 
-const ReactionIcon = ({react, inverted=false, classes}: {
+const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   react: string,
   inverted?: boolean,
+  size?: number,
   classes: ClassesType
 }) => {
   const reactionType = namesAttachedReactionsByName[react];
@@ -40,6 +39,7 @@ const ReactionIcon = ({react, inverted=false, classes}: {
       style={{
         filter: `opacity(${opacity}) saturate(${saturation})`,
         padding,
+        width:size, height:size,
       }}
       className={classes.reactionSvg}
     />
