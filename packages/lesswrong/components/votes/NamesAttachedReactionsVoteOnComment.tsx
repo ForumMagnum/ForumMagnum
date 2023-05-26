@@ -32,7 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",    
     background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
-    padding: 3
   },
   footerReactionsRow: {
     display: "flex",
@@ -148,7 +147,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     color: theme.palette.grey[600]
   },
-  antiReacted: {
+  userWhoAntiReacted: {
     color: theme.palette.error,
     opacity: .6
   },
@@ -501,31 +500,41 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
 }
 
 const UsersWhoReacted = ({usersWhoReacted, classes}:{usersWhoReacted:UserReactInfo[], classes:ClassesType}) => {
-  return <div className={classes.usersWhoReactedRoot}>
-    <div className={classes.usersWhoReacted}>
-      {usersWhoReacted
-        .filter(r=>r.reactType!=="disagreed")
-        .map((userReactInfo,i) =>
-          <span key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {(i>0) && <span>{", "}</span>}
-            {userReactInfo.displayName}
-          </span>
-        )
-      }
-    </div>
-    {usersWhoReacted.filter(r=>r.reactType==="disagreed").length > 0 &&
-      <div className={classes.usersWhoReacted}>        {usersWhoReacted
-          .filter(r=>r.reactType==="disagreed")
-          .map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.antiReacted)}>
+  const { LWTooltip } = Components;
+  const usersWhoProReacted = usersWhoReacted.filter(r=>r.reactType!=="disagreed")
+  const usersWhoAntiReacted = usersWhoReacted.filter(r=>r.reactType==="disagreed")
+  const tooltip = <div>
+    <p>Users Who Reacted:</p>
+    <ul>{usersWhoProReacted.map(r => <li key={r.userId}>{r.displayName}</li>)}</ul>
+    {usersWhoAntiReacted.length > 0 && <>
+      <p>Users Who Anti-reacted:</p>
+      <ul>{usersWhoAntiReacted.map(r => <li key={r.userId}>{r.displayName}</li>)}</ul>
+    </>}
+  </div>
+
+  return <LWTooltip title={tooltip}>
+    <div className={classes.usersWhoReactedRoot}>
+      <div className={classes.usersWhoReacted}>
+        {usersWhoProReacted.map((userReactInfo,i) =>
+            <span key={userReactInfo.userId} className={classes.userWhoReacted}>
               {(i>0) && <span>{", "}</span>}
               {userReactInfo.displayName}
             </span>
           )
         }
       </div>
-    }
-  </div>
+      {usersWhoAntiReacted.length > 0 &&
+        <div className={classes.usersWhoReacted}> 
+          {usersWhoAntiReacted.map((userReactInfo,i) =>
+            <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.userWhoAntiReacted)}>
+              {(i>0) && <span>{", "}</span>}
+              {userReactInfo.displayName}
+            </span>
+          )}
+        </div>
+      }
+    </div>
+  </LWTooltip>
 }
 
 const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserReactionVote, setCurrentUserReaction, classes}: {
