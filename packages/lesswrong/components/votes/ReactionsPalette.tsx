@@ -50,7 +50,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     padding: 6,
     textAlign: "center",
-    width: 46,
+    width: 54,
+    height: 50,
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
@@ -86,6 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18
   },
   tinyLabel: {
+    marginTop: 4,
     fontSize: 8,
     color: theme.palette.grey[500],
     wordBreak: "break-word",
@@ -121,23 +123,23 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       <Row>
         <ListIcon 
           className={classes.toggleIcon} 
-          style={{ opacity: format ? 1 : .5}} 
+          style={{ opacity: format ? 1 : .35}} 
           onClick={() => setFormat("list")}
         />
       </Row>
       <ViewCompactIcon 
         className={classes.toggleIcon} 
-        style={{ opacity: format === "mixed" ? 1 : .5}}
+        style={{ opacity: format === "mixed" ? 1 : .35}}
         onClick={() => setFormat("mixed")}
       />
       <AppsIcon 
         className={classes.toggleIcon} 
-        style={{ opacity: format === "grid1" ? 1 : .5}}
+        style={{ opacity: format === "grid1" ? 1 : .35}}
         onClick={() => setFormat("grid1")}
       />
       <ViewModuleIcon 
         className={classes.toggleIcon} 
-        style={{ opacity: format === "grid2" ? 1 : .5}}
+        style={{ opacity: format === "grid2" ? 1 : .35}}
         onClick={() => setFormat("grid2")}
       />
     </Row>
@@ -159,12 +161,12 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
         </div>
       </LWTooltip>)}
     </div>}    
-    {format === "grid2" && <div className={classes.quickReactBar}>
+    {format === "grid2" && <div className={classes.quickReactBar} style={{justifyContent:"space-between"}}>
       {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
         key={`icon-${reaction.name}`}
       >
         <div className={classes.paletteIcon2} onClick={_ev => toggleReaction(reaction.name)}>
-          <ReactionIcon react={reaction.name} size={24}/>
+          <ReactionIcon react={reaction.name} size={20}/>
           <div className={classes.tinyLabel}>{reaction.label}</div>
         </div>
       </LWTooltip>)}
