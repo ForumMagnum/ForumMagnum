@@ -20,6 +20,7 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
+import { lowKarmaUserVotingCutoffKarmaSetting } from "../lib/instanceSettings";
 
 
 // Test if a user has voted on the server
@@ -223,6 +224,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+  
+  if (user.karma < lowKarmaUserVotingCutoffKarmaSetting.get()) throw new Error(`Error casting vote: You must have ${lowKarmaUserVotingCutoffKarmaSetting.get()}+ karma to vote.`);
 
   // Check whether the user is allowed to vote at all, in full generality
   const { fail: cannotVote } = userCanVote(user);
