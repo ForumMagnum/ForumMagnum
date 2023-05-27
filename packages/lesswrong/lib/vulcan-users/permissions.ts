@@ -1,6 +1,7 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
 
 class Group {
@@ -115,6 +116,10 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
     return documentUser.slug ? user.slug === documentUser.slug : user._id === documentUser._id;
   }
 };
+
+export const userOwnsAndOnLW = function (user:UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
+  return isLW && userOwns(user, document)
+}
 
 export const documentIsNotDeleted = (
   user: PermissionableUser|DbUser|null,
