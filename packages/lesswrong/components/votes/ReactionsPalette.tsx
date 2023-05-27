@@ -93,6 +93,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     wordBreak: "break-word",
   }, 
   showMore: {
+    display: "flex",
     justifyContent: "center",
     paddingBottom: 6,
   }
