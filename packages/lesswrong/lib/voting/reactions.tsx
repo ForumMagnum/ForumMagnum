@@ -104,10 +104,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   
   {
     name: "thanks",
-    label: "I value this!",
+    label: "Thanks!",
     searchTerms: ["ty"],
     svg: "/reactionImages/nounproject/thankyou.svg",
-    description: "I appreciate this",
+    description: "",
   },
   {
     name: "important",
