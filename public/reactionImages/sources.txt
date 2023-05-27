@@ -58,5 +58,9 @@ concrete.svg: https://thenounproject.com/icon/concrete-3091292/
 timequestion.svg: https://thenounproject.com/icon/time-1286992/
 verified.svg: https://thenounproject.com/icon/check-3648234/
 error.svg: https://thenounproject.com/icon/x-2222130/
+shush.svg: https://thenounproject.com/icon/5700716/
+shapes.svg: https://thenounproject.com/icon/393038/
+crux.svg: https://thenounproject.com/icon/108621/
+clickingpointinghand.svg: https://thenounproject.com/icon/4577330/
 
 misrepresentation.png: By LW user simon (https://www.lesswrong.com/posts/SzdevMqBusoqbvWgt/open-thread-with-experimental-feature-reactions?commentId=XKRHE6pJYGgpbdQgp)
