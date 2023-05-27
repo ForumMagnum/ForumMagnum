@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 170,
+    maxHeight: 200,
     overflowY: "scroll",
     marginBottom: 12,
   },
@@ -89,8 +89,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   tinyLabel: {
     marginTop: 4,
     fontSize: 8,
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[900],
     wordBreak: "break-word",
+  }, 
+  showMore: {
+    justifyContent: "center",
+    paddingBottom: 6,
   }
 })
 
@@ -206,12 +210,12 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
           )
         })}
       </div>
-      <a onClick={() => setShowAll(!showAll)}>
+      <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
         <MetaInfo>{showAll ? "Show Less" : "Show More"}</MetaInfo>
       </a>
     </div>}
     {format === "mixed" && <div>
-      <p>
+      <div>
         {mixedIconReactions.map(reaction => <LWTooltip title={tooltip(reaction)} 
           key={`icon-${reaction.name}`}
         >
@@ -219,35 +223,33 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
             <ReactionIcon react={reaction.name} size={24}/>
           </div>
         </LWTooltip>)}
-      </p>
-      <div>
-        <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
-          {reactionsToShow.map(reaction => {
-            const currentUserVote = getCurrentUserReactionVote(reaction.name);
-            return (
-              <LWTooltip
-                key={reaction.name} placement="right-start"
-                title={tooltip(reaction)}
-              >
-                <div
-                  key={reaction.name}
-                  className={classNames(classes.paletteEntry, {
-                    [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-                    [classes.selectedAnti]: currentUserVote==="disagreed",
-                  })}
-                  onClick={_ev => toggleReaction(reaction.name)}
-                >
-                  <ReactionIcon react={reaction.name}/>
-                  <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-                </div>
-              </LWTooltip>
-            )
-          })}
-        </div>
-        <a onClick={() => setShowAll(!showAll)}>
-          <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
-        </a>
       </div>
+      <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
+        {reactionsToShow.map(reaction => {
+          const currentUserVote = getCurrentUserReactionVote(reaction.name);
+          return (
+            <LWTooltip
+              key={reaction.name} placement="right-start"
+              title={tooltip(reaction)}
+            >
+              <div
+                key={reaction.name}
+                className={classNames(classes.paletteEntry, {
+                  [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+                  [classes.selectedAnti]: currentUserVote==="disagreed",
+                })}
+                onClick={_ev => toggleReaction(reaction.name)}
+              >
+                <ReactionIcon react={reaction.name}/>
+                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+              </div>
+            </LWTooltip>
+          )
+        })}
+      </div>
+      <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
+        <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
+      </a>
     </div>}
   </div>
 }
