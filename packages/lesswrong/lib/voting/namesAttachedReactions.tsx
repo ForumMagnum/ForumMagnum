@@ -12,7 +12,6 @@ import some from 'lodash/some';
 import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
 import sortBy from 'lodash/sortBy';
-import { isLW } from '../instanceSettings';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
@@ -20,7 +19,6 @@ export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("re
 
 registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
-  userCanActivate: isLW,
   description: "Names-attached reactions",
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
   getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,

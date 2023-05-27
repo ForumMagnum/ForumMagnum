@@ -13,11 +13,11 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -28,8 +28,6 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
-
-
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -1049,15 +1047,14 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
-    canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
     control: "select",
     form: {
-      options: ({currentUser}:{currentUser: UsersCurrent}) => {
-        const votingSystems = getVotingSystems()
-        const filteredVotingSystems = currentUser.isAdmin ? votingSystems : votingSystems.filter(votingSystem => votingSystem.userCanActivate)
-        return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
+      options: () => {
+        return getVotingSystems()
+          .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
     ...schemaDefaultValue(forumDefaultVotingSystem),
