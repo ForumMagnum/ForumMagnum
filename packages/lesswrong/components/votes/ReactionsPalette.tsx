@@ -66,9 +66,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 200,
+    maxHeight: 188,
     overflowY: "scroll",
     marginBottom: 12,
+    marginTop: 12
   },
   quickReactBar: {
     display: "flex",
@@ -119,9 +120,10 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       <div>
         <span>{reaction.label}</span>
         <ReactionDescription reaction={reaction} classes={classes}/>
+        {reaction.deprecated && "This react has been deprecated and may be removed later"}
       </div>
     </Row>
-  } 
+  }
 
   const N = 9; // number of reaction icons that fit on a line
   const mixedIconReactions = reactionsToShow.slice(0, Math.floor(reactionsToShow.length / N) * N);
