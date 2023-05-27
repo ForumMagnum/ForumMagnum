@@ -35,7 +35,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",    
     background: theme.palette.panelBackground.translucent2,
     borderRadius: 6,
-    marginLeft: 12
   },
   footerReactionsRow: {
     display: "flex",
