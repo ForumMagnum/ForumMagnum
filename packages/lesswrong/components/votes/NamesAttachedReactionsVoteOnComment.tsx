@@ -15,6 +15,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
+import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
+import Card from '@material-ui/core/Card'
+import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -87,6 +90,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 12,
     maxWidth: 350,
   },
+  reactOverview: {
+    background: theme.palette.background.pageActiveAreaBackground,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    paddingTop: 12,
+    maxWidth: 350,
+    borderRadius: 2,
+    padding: 12
+  },
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
@@ -109,8 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8
   },
   alreadyUsedReactions: {
-    padding: 8,
-    borderTop: theme.palette.border.faint
+    padding: 8
   },
 
   reactionVoteCount: {
@@ -135,8 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: 'rotate(-270deg)',
     marginLeft: -4,
   },
-  paletteSummaryRow: {
-    paddingLeft: 10,
+  overviewSummaryRow: {
     paddingBottom: 2
   },
   usersWhoReactedRoot: {
@@ -167,6 +176,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: -6,
     paddingLeft: 10,
     maxWidth: 195,
+  },
+  overviewButton: {
+    opacity: .35,
+    marginTop: 2,
+    marginLeft: 8,
+    cursor: "pointer",
+    height: 18,
+    width: 18
   }
 })
 
@@ -176,6 +193,8 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (name: string) => void
   setCurrentUserReaction: (name: string, reaction: VoteOnReactionType|null) => void,
+  getAlreadyUsedReactTypesByKarma: () => string[],
+  getAlreadyUsedReacts: () => NamesAttachedReactionsList
 }=> {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
@@ -264,8 +283,24 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
     }
   }
 
+  function getAlreadyUsedReacts() {
+    const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+    const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
+    return alreadyUsedReactions
+  }
+
+  function getAlreadyUsedReactTypesByKarma() {
+    const alreadyUsedReactions = getAlreadyUsedReacts()
+    const alreadyUsedReactionTypes: string[] = Object.keys(alreadyUsedReactions);
+    const alreadyUsedReactionTypesByKarma = orderBy(alreadyUsedReactionTypes,
+      r=> (alreadyUsedReactions[r]!.length>0) ? alreadyUsedReactions[r]![0].karma : 0
+    );
+    return alreadyUsedReactionTypesByKarma
+  }
+  
+
   return {
-    currentUserExtendedVote, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction
+    currentUserExtendedVote, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts
   };
 }
 
@@ -285,7 +320,6 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
-    {/* <NamesAttachedReactionsCommentBottom document={document} hideKarma={false} collection={collection} votingSystem={votingSystem}/> */}
   </span>
 }
 
@@ -298,9 +332,12 @@ const NamesAttachedReactionsCommentBottom = ({
 
   const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
+  const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
+  const alreadyUsedReactTypesByKarma = getAlreadyUsedReactTypesByKarma();
+  const showOverviewButton = alreadyUsedReactTypesByKarma.length > 1 || reactionsShown.length < alreadyUsedReactTypesByKarma.length;
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
-    {reactionsShown.length > 0 && <span className={classes.footerReactions} >
+    {(reactionsShown.length > 0 || showOverviewButton) && <span className={classes.footerReactions} >
       {!hideKarma && reactionsShown.map(({react, numberShown}) =>
         <HoverableReactionIcon
           key={react}
@@ -313,6 +350,7 @@ const NamesAttachedReactionsCommentBottom = ({
       )}
       {hideKarma && <InsertEmoticonOutlined/>}
     </span>}
+    {showOverviewButton && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
@@ -362,107 +400,35 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser()
-  const { openDialog } = useDialog()
-  const { currentUserExtendedVote, getCurrentUserReactionVote } = useNamesAttachedReactionsVoting(voteProps);
-  const { ReactionsPalette, Row, LWTooltip, ReactionIcon } = Components;
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { ReactionsPalette } = Components;
 
-
-  function openLoginDialog() {
-    openDialog({
-      componentName: "LoginPopup",
-      componentProps: {}
-    })
-  }
-
-  function toggleReaction(name: string) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    if (getCurrentUserReactionVote(name)) {
-      clearCurrentUserReaction(name);
-    } else {
-      const initialVote = "created"; //TODO: "created" vs "seconded"
-      addCurrentUserReaction(name, initialVote);
-    }
-  }
-  
-  function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    const newReacts: UserVoteOnSingleReaction[] = [
-      ...filter(oldReacts, r=>r.react!==reactionName),
-      {
-        react: reactionName,
-        vote: vote,
-      }
-    ]
-    const newExtendedVote: NamesAttachedReactionsVote = {
-      ...currentUserExtendedVote,
-      reacts: newReacts,
-    };
-
-    voteProps.vote({
-      document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
-      extendedVote: newExtendedVote,
-      currentUser,
-    });
-  }
-  
-  function clearCurrentUserReaction(reactionName: string) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-    
-    const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    const newExtendedVote: NamesAttachedReactionsVote = {
-      ...currentUserExtendedVote,
-      reacts: filter(oldReacts, r=>r.react!==reactionName)
-    };
-
-    voteProps.vote({
-      document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
-      extendedVote: newExtendedVote,
-      currentUser,
-    });
-  }
-  
-  function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null) {
-    if (reaction) {
-      addCurrentUserReaction(reactionName, reaction);
-    } else {
-      clearCurrentUserReaction(reactionName);
-    }
-  }
-  
-  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
-  const alreadyUsedReactionTypes: string[] = Object.keys(alreadyUsedReactions);
-  const alreadyUsedReactionTypesByKarma = orderBy(alreadyUsedReactionTypes,
-    r=> (alreadyUsedReactions[r]!.length>0) ? alreadyUsedReactions[r]![0].karma : 0
-  );
-  
   return <div className={classes.hoverBallot}>
     <ReactionsPalette
       getCurrentUserReactionVote={getCurrentUserReactionVote}
       toggleReaction={toggleReaction}
     />
+  </div>
+}
 
-    {alreadyUsedReactionTypesByKarma.length>0 &&
+const ReactionOverview = ({voteProps, classes}: {
+  voteProps: VotingProps<VoteableTypeClient>,
+  classes: ClassesType
+}) => {
+  const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
+  const { Row, LWTooltip, ReactionIcon } = Components;
+
+  const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
+  const alreadyUsedReactions = getAlreadyUsedReacts();
+  
+  return <Card>
+    <div className={classes.reactOverview}>
+      <h3>Reacts Overview</h3>
       <div className={classes.alreadyUsedReactions}>
         {alreadyUsedReactionTypesByKarma.map(r => {
           const usersWhoReacted = alreadyUsedReactions[r]!;
           const { description, label } = namesAttachedReactionsByName[r]
-          return <div key={`${r}`} className={classes.paletteSummaryRow}>
+          return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
               <LWTooltip title={`${label} – ${description}`}>
                 <ReactionIcon react={r}/>
@@ -479,8 +445,8 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
           </div>
         })}
       </div>
-    }
   </div>
+  </Card>
 }
 
 const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: {
@@ -581,8 +547,6 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
         classes={classes}
       />
     </Row>
-
-    
   </div>
 }
 
@@ -680,6 +644,22 @@ const AddReactionButton = ({voteProps, classes}: {
         </PopperCard>
       </LWClickAwayListener>}
     </span>
+  </LWTooltip>
+}
+
+const ReactionOverviewButton = ({voteProps, classes}: {
+  voteProps: VotingProps<VoteableTypeClient>,
+  classes: ClassesType
+}) => {
+  const { LWTooltip } = Components;
+
+  return <LWTooltip
+    inlineBlock={false}
+    clickable={true}
+    tooltip={false}
+    title={<ReactionOverview voteProps={voteProps} classes={classes}/>}
+  >
+    <FormatListBulletedIcon className={classes.overviewButton}/>
   </LWTooltip>
 }
 

@@ -47,6 +47,7 @@ export type NamesAttachedReactionType = {
    * in the future.
    */
   description: string|((contentType:string)=>string),
+  deprecated?: boolean // if true, users are discouraged from continuing to use this react
 }
 
 /**
@@ -104,10 +105,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   
   {
     name: "thanks",
-    label: "I value this!",
+    label: "Thanks!",
     searchTerms: ["ty"],
     svg: "/reactionImages/nounproject/thankyou.svg",
-    description: "I appreciate this",
+    description: "",
   },
   {
     name: "important",
@@ -259,11 +260,9 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/verified.svg",
     description: "I checked this. Or have other empirical data that confirms this",
   },
-  
-//Ruby: one's I'm less keen on but leaving to see if people use them
-
-{
-  name: "insightful",
+  //Ruby: one's I'm less keen on but leaving to see if people use them
+  {
+    name: "insightful",
     label: "Insightful",
     searchTerms: ["lightbulb"],
     svg: "/reactionImages/nounproject/lightbulb.svg",
@@ -371,6 +370,21 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "It's probably not worth the time to resolve this",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
+  },
+  {
+    name: "excitement",
+    label: "Exciting",
+    searchTerms: ["partypopper","!"],
+    svg: "/reactionImages/nounproject/partypopper.svg",
+    description: "This is exciting!",
+  },
+  {
+    name: "clear",
+    label: "Clear",
+    searchTerms: ["clarity","gem","diamond"],
+    svg: "/reactionImages/nounproject/clarity.svg",
+    description: (contentType) => `This ${contentType} clarifies things.`,
+    deprecated: true
   },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
