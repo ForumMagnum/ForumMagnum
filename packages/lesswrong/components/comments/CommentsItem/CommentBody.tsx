@@ -5,12 +5,6 @@ import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
-import { RejectedReasonDisplay } from '../../sunshineDashboard/RejectedReasonDisplay';
-import { SelectionButtonWrapper } from '../../common/SelectionButtonWrapper';
-import { AddReactionButton } from '../../votes/NamesAttachedReactionsVoteOnComment';
-import { useVote } from '../../votes/withVote';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -49,7 +43,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage, comment
   commentBodyHighlights?: string[],
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, SelectionButtonWrapper } = Components
+  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -83,9 +77,9 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage, comment
   </ContentStyles>
 
   if (comment.votingSystem === "namesAttachedReactions") {
-    return <SelectionButtonWrapper comment={comment}>
+    return <InlineReactSelectionWrapper comment={comment}>
         {contentBody}
-      </SelectionButtonWrapper>
+      </InlineReactSelectionWrapper>
   } else {
     return contentBody
   }

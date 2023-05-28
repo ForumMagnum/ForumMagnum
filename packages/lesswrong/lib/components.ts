@@ -40,7 +40,7 @@ importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAFo
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
-importComponent("SelectionButtonWrapper", () => require('../components/common/SelectionButtonWrapper'));
+importComponent("InlineReactSelectionWrapper", () => require('../components/common/InlineReactSelectionWrapper'));
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
@@ -397,7 +397,7 @@ importComponent("EmojiReactionVoteOnComment", () => require('../components/votes
 importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/NamesAttachedReactionsVoteOnComment'));
 importComponent("ReactionsPalette", () => require('../components/votes/ReactionsPalette'));
 importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
-importComponent("AddReactionButton", () => require('../components/votes/lwReactions/AddReactionButton'));
+importComponent("AddInlineReactionButton", () => require('../components/votes/lwReactions/AddInlineReactionButton'));
 
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));

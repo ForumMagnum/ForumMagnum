@@ -7,16 +7,13 @@ import { useVote } from '../votes/withVote';
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     zIndex: 1000,
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: 4,
-    boxShadow: theme.shadows[2],
-    padding: 4,
-    width: 100,
-    height: 100
+    position: "relative",
+    left: 12,
+    backgroundColor: theme.palette.background.paper, 
   }
 });
 
-export const SelectionButtonWrapper = ({classes, comment, children}: {
+export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   classes: ClassesType,
   comment: CommentsList,
   children: React.ReactNode,
@@ -26,7 +23,7 @@ export const SelectionButtonWrapper = ({classes, comment, children}: {
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
 
-  const { PopperCard, AddReactionButton, ReactionsPalette } = Components;
+  const { AddInlineReactionButton, LWPopper } = Components;
 
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -70,29 +67,25 @@ export const SelectionButtonWrapper = ({classes, comment, children}: {
 
   return (
     <div ref={selectionRef}>
-      <PopperCard
+      <LWPopper
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
         allowOverflow={true}
       >
-        <span ref={popupRef}>
-          <ReactionsPalette
-            getCurrentUserReactionVote={getCurrentUserReactionVote}
-            toggleReaction={toggleReaction}
-            quote={quote} 
-          />
+        <span ref={popupRef} className={classes.button}>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps}/>
         </span>
-      </PopperCard>
+      </LWPopper>
       {children}
     </div>
   );
 }
 
-const SelectionButtonWrapperComponent = registerComponent('SelectionButtonWrapper', SelectionButtonWrapper, {styles});
+const InlineReactSelectionWrapperComponent = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
 
 declare global {
   interface ComponentTypes {
-    SelectionButtonWrapper: typeof SelectionButtonWrapperComponent
+    InlineReactSelectionWrapper: typeof InlineReactSelectionWrapperComponent
   }
 }
 

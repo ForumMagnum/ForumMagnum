@@ -6,29 +6,31 @@ import { useNamesAttachedReactionsVoting } from "../NamesAttachedReactionsVoteOn
 import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  addReactionButton: {
-    verticalAlign: "bottom",
-    marginLeft: 11,
-    filter: "opacity(0.2)",
-    cursor: "pointer",
-    "& svg": {
-      width: 16,
-      height: 16,
-      position: "relative",
-      top: 2
-    },
-    "&:hover": {
-      filter: "opacity(0.8)",
-    },
+  AddInlineReactionButton: {
+    // "& svg": {
+    //   width: 24,
+    //   height: 24,
+    //   position: "relative",
+    //   filter: "opacity(0.4)",
+    //   top: 2,
+    //   verticalAlign: "bottom",
+    //   marginLeft: 11,
+    //   cursor: "pointer",
+    // },
+    // "&:hover": {
+    //   filter: "opacity(0.8)",
+    // },
   },
   palette: {
     fontFamily: theme.typography.commentStyle.fontFamily,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    boxShadow: theme.shadows[2],
     paddingTop: 12,
     maxWidth: 350,
   }
 })
 
-const AddReactionButton = ({voteProps, classes, quote}: {
+const AddInlineReactionButton = ({voteProps, classes, quote}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string,
@@ -46,35 +48,24 @@ const AddReactionButton = ({voteProps, classes, quote}: {
   >
     <span
       ref={buttonRef}
-      onClick={ev => setOpen(true)}
-      className={classes.addReactionButton}
+      className={classes.AddInlineReactionButton}
     >
-      <InsertEmoticonOutlined/>
-  
-      {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
-        <PopperCard
-          open={open} anchorEl={buttonRef.current}
-          placement="bottom-end"
-          allowOverflow={true}
-          
-        >
-          <div className={classes.palette}>
-            <ReactionsPalette
-              getCurrentUserReactionVote={getCurrentUserReactionVote}
-              toggleReaction={toggleReaction}
-              quote={quote} 
-            />
-          </div>
-        </PopperCard>
-      </LWClickAwayListener>}
+      {!open && <InsertEmoticonOutlined onClick={ev => setOpen(true)}/>}
+      {open && <div className={classes.palette}>
+        <ReactionsPalette
+          getCurrentUserReactionVote={getCurrentUserReactionVote}
+          toggleReaction={toggleReaction}
+          quote={quote} 
+        />
+      </div>}
     </span>
   </LWTooltip>
 }
 
-const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+const AddInlineReactionButtonComponent = registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddReactionButton: typeof AddReactionButtonComponent
+    AddInlineReactionButton: typeof AddInlineReactionButtonComponent
   }
 }

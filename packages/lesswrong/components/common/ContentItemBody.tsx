@@ -14,7 +14,7 @@ import Mark from 'mark.js';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .highlighted-substring': {
-      backgroundColor: theme.palette.secondary.light,
+      backgroundColor: theme.palette.background.primaryTranslucent
     }
   },
   scrollIndicatorWrapper: {
@@ -81,11 +81,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 });
 
-type highlightString = {
-  substring: string,
-  startIndex: number
-}
-
 interface ExternalProps {
   dangerouslySetInnerHTML: { __html: string };
   className?: string;
@@ -142,7 +137,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   
   applyLocalModifications() {
     try {
-      this.highlightSubtrings();
+      this.highlightSubstrings();
       this.markScrollableLaTeX();
       this.collapseFootnotes();
       this.markHoverableLinks();
@@ -397,57 +392,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     container.prepend(insertionContainer);
   }
 
-  // highlightSubtrings = () => {
-  //   function highlightString(htmlString: string, searchString: string, startIndex: number) {
-  //     const tempElement = document.createElement('div');
-  //     tempElement.innerHTML = htmlString;
-    
-  //     const walker = document.createTreeWalker(tempElement, NodeFilter.SHOW_TEXT, null);
-  //     let currentPosition = 0;
-  //     let foundTextNode = null;
-    
-  //     while (walker.nextNode()) {
-  //       const textNode = walker.currentNode;
-  //       const nodeText = textNode.nodeValue;
-    
-  //       const searchIndex = nodeText.indexOf(searchString);
-    
-  //       if (searchIndex >= 0 && currentPosition + searchIndex <= startIndex && currentPosition + searchIndex + searchString.length > startIndex) {
-  //         foundTextNode = textNode;
-  //         break;
-  //       }
-    
-  //       currentPosition += nodeText.length;
-  //     }
-    
-  //     if (foundTextNode) {
-  //       const range = document.createRange();
-  //       const searchIndex = foundTextNode.nodeValue.indexOf(searchString);
-  //       range.setStart(foundTextNode, searchIndex);
-  //       range.setEnd(foundTextNode, searchIndex + searchString.length);
-    
-  //       const span = document.createElement('span');
-  //       span.classList.add('highlight');
-  //       range.surroundContents(span);
-    
-  //       return tempElement.innerHTML;
-  //     }
-    
-  //     // If no matching text node is found, return the original HTML string
-  //     return htmlString;
-  //   }
-
-  //   const html = this.bodyRef?.current?.innerHTML;
-  //   this.props.highlightedSubstrings?.forEach(({substring, startIndex}) => {
-  //     const newhtml = highlightString(html, substring, startIndex);
-      
-  //     //update html in container 
-  //     this.bodyRef.current.innerHTML = newhtml;
-  //   })
-
-  // }
-
-  highlightSubtrings = () => {
+  highlightSubstrings = () => {
     const substrings = this.props.highlightedSubstrings;
     const markInstance = new Mark(this.bodyRef.current);
     markInstance.unmark()
@@ -458,6 +403,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
         separateWordSearch: false,
         className: "highlighted-substring",
         acrossElements: true,
+        diacritics: true,
       });
     }
     substrings?.forEach((substring) => {

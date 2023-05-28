@@ -522,8 +522,8 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
     <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
       {usersWhoProReacted.map((userReactInfo,i) =>
           <div key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {userReactInfo.displayName}{userReactInfo.quotes?.length && <span>{" reacted to:"}</span>}
-            {userReactInfo.quotes?.map(quote => <div key={quote}><span className={classes.tinyQuote}>"{quote}</span>"</div>)}
+            {userReactInfo.displayName}{userReactInfo.quotes?.length && <span>{": "}</span>}
+            {userReactInfo.quotes?.map(quote => <span key={quote}><span className={classes.tinyQuote}>"{quote}</span>"</span>)}
           </div>
         )
       }
