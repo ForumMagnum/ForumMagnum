@@ -100,9 +100,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string)=>void,
+  toggleReaction: (reactionName: string, quote?: string)=>void,
+  quote?: string,
   classes: ClassesType
 }) => {
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
@@ -129,6 +130,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
   const mixedIconReactions = reactionsToShow.slice(0, Math.floor(reactionsToShow.length / N) * N);
 
   return <div className={classes.moreReactions}>
+    {quote && <p>Reacting to "{quote}"</p>}
     <Row justifyContent='flex-start'>
       <Row>
         <LWTooltip title="List view">
@@ -174,7 +176,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
         key={`icon-${reaction.name}`}
       >
-        <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name)}>
+        <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
           <ReactionIcon react={reaction.name} size={24}/>
         </div>
       </LWTooltip>)}
@@ -183,7 +185,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
         key={`icon-${reaction.name}`}
       >
-        <div className={classes.paletteIcon2} onClick={_ev => toggleReaction(reaction.name)}>
+        <div className={classes.paletteIcon2} onClick={_ev => toggleReaction(reaction.name, quote)}>
           <ReactionIcon react={reaction.name} size={20}/>
           <div className={classes.tinyLabel}>{reaction.label}</div>
         </div>
@@ -204,7 +206,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
                   [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
                   [classes.selectedAnti]: currentUserVote==="disagreed",
                 })}
-                onClick={_ev => toggleReaction(reaction.name)}
+                onClick={_ev => toggleReaction(reaction.name, quote)}
               >
                 <ReactionIcon react={reaction.name}/>
                 <span className={classes.hoverBallotLabel}>{reaction.label}</span>
@@ -222,7 +224,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
         {mixedIconReactions.map(reaction => <LWTooltip title={tooltip(reaction)} 
           key={`icon-${reaction.name}`}
         >
-          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name)}>
+          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
             <ReactionIcon react={reaction.name} size={24}/>
           </div>
         </LWTooltip>)}
@@ -241,7 +243,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
                   [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
                   [classes.selectedAnti]: currentUserVote==="disagreed",
                 })}
-                onClick={_ev => toggleReaction(reaction.name)}
+                onClick={_ev => toggleReaction(reaction.name, quote)}
               >
                 <ReactionIcon react={reaction.name}/>
                 <span className={classes.hoverBallotLabel}>{reaction.label}</span>

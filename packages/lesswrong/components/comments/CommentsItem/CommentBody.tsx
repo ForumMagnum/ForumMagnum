@@ -6,6 +6,11 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { RejectedReasonDisplay } from '../../sunshineDashboard/RejectedReasonDisplay';
+import { SelectionButtonWrapper } from '../../common/SelectionButtonWrapper';
+import { AddReactionButton } from '../../votes/NamesAttachedReactionsVoteOnComment';
+import { useVote } from '../../votes/withVote';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -35,15 +40,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
+const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights }: {
   comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
   classes: ClassesType,
+  commentBodyHighlights?: string[],
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles } = Components
+  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, SelectionButtonWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -66,16 +72,23 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
     contentType = 'comment';
   }
 
-  return (
-    <ContentStyles contentType={contentType} className={classes.root}>
-      <ContentItemBody
-        className={bodyClasses}
-        dangerouslySetInnerHTML={{__html: innerHtml }}
-        description={`comment ${comment._id}`}
-        nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-      />
-    </ContentStyles>
-  )
+  const contentBody = <ContentStyles contentType={contentType} className={classes.root}>
+    <ContentItemBody
+      highlightedSubstrings={commentBodyHighlights}
+      className={bodyClasses}
+      dangerouslySetInnerHTML={{__html: innerHtml }}
+      description={`comment ${comment._id}`}
+      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+    />
+  </ContentStyles>
+
+  if (comment.votingSystem === "namesAttachedReactions") {
+    return <SelectionButtonWrapper comment={comment}>
+        {contentBody}
+      </SelectionButtonWrapper>
+  } else {
+    return contentBody
+  }
 }
 
 const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});

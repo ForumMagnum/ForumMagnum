@@ -174,6 +174,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
@@ -229,7 +230,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       />
     } else {
       return (
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} commentBodyHighlights={commentBodyHighlights}/>
       );
     }
   }
@@ -270,6 +271,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           hideKarma={post?.hideCommentKarma}
           collection={Comments}
           votingSystem={votingSystem}
+          setCommentBodyHighlights={setCommentBodyHighlights}
         />}
       </div>
     );
