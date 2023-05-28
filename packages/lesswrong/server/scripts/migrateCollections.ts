@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { ITask } from "pg-promise";
-import { Vulcan, getCollection } from "../vulcan-lib";
+import { Vulcan, getCollection, Globals } from "../vulcan-lib";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import Table from "../../lib/sql/Table";
@@ -15,9 +15,14 @@ import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collect
 import { LWEvents } from "../../lib/collections/lwevents";
 import { inspect } from "util";
 import { CollectionFilters } from './collectionMigrationFilters';
-import { timedFunc } from "../../lib/helpers";
+import { sleep, timedFunc } from "../../lib/helpers";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
+import { ClientIds } from "../../lib/collections/clientIds/collection";
+import { createReadStream } from "fs";
+import { once } from "events";
+import { createInterface } from "readline";
+import { writeFile } from "fs/promises";
 
 type Transaction = ITask<{}>;
 
@@ -347,16 +352,16 @@ const copyData = async (
     const table = collection.getPgCollection().table;
     const collectionName = collection.getMongoCollection().collectionName;
 
-    const totalCount = await collection.getMongoCollection().find({
-      ...(createdSince ? { createdAt: {$gte: createdSince} } : {}),
-    }).count();
+    // const totalCount = await collection.getMongoCollection().find({
+    //   ...(createdSince ? { createdAt: {$gte: createdSince} } : {}),
+    // }).count();
 
-    if (totalCount < 1) {
-      continue;
-    }
+    // if (totalCount < 1) {
+    //   continue;
+    // }
 
     const formatter = getCollectionFormatter(collection);
-    const batchSize = pickBatchSize(collection);
+    const batchSize = 500;// pickBatchSize(collection);
     const nonIdSortField = isNonIdSortField(collectionName);
     const sortField = getCollectionSortField(collectionName);
     let count = 0;
@@ -371,7 +376,7 @@ const copyData = async (
       },
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
-        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
+        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${'???'}`);
         count += batchSize;
         const formattedDocuments = (await Promise.all(documents.map(formatter))).filter((doc): doc is DbObject => !!doc);
         const query = new InsertQuery(table, formattedDocuments, {}, {conflictStrategy: "ignore"});
@@ -412,7 +417,7 @@ const writeCollectionTargets = async (
   });
 }
 
-export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date) => {
+export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date, passTx?: (transaction: ITask<{}>) => Promise<void>) => {
   console.log(`=== Migrating collections '${collectionNames}' from Mongo to Postgres ===`);
 
   console.log("...Preparing collections");
@@ -435,12 +440,16 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     await sql.tx(async (transaction) => {
       // Create the tables
       await createTables(transaction, collections);
-      await createIndexes(transaction, collections);
+      if (!passTx) await createIndexes(transaction, collections);
       await setLogged(transaction, collections, false);
 
       // Copy the initial data - this can take a *long* time depending on the collection
       const copyStart = new Date();
       await copyData(transaction, collections, 1, maxCopyAge);
+      if (passTx) {
+        await passTx?.(transaction);
+        await createIndexes(transaction, collections);
+      }
       await setLogged(transaction, collections, true);
 
       // Copy anything that was inserted during the first copy - this should be ~instant
@@ -469,9 +478,9 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
 
 Vulcan.migrateCollections = migrateCollections;
 
-const migrateLWEvents = async (resumeTime?: Date) => {
-  if (!resumeTime) {
-    const startTime = new Date();
+const migrateLWEvents = async (resumeTime?: Date, overrideStartTime?: Date, fromFile?: boolean, resumeLine?: number) => {
+  if (!resumeTime && !resumeLine) {
+    const startTime = overrideStartTime ?? new Date();
     const success = await migrateCollections(["LWEvents"], startTime);
     if (!success) {
       return;
@@ -483,77 +492,296 @@ const migrateLWEvents = async (resumeTime?: Date) => {
     throw new Error("LWEvents is not a switching collection");
   }
 
-  const oldest = await collection.getMongoCollection().find({}, {
-    sort: {createdAt: 1},
-    limit: 1,
-    projection: {createdAt: 1},
-  }).fetch();
-
-  if (oldest.length !== 1) {
-    throw new Error("Can't find oldest event");
-  }
-
-  const oldestCreatedAt = oldest[0].createdAt;
-
-  // eslint-disable-next-line no-console
-  console.log("Oldest event created at", oldestCreatedAt);
-
-  const sql = getSqlClientOrThrow();
-
-  const windowSizeMonths = 3;
-  const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
-  let maxTime = resumeTime ?? new Date();
-  while (maxTime > oldestCreatedAt) {
-    const minTime = new Date(maxTime.getTime() - windowSizeMS);
-    const filter = {
-      createdAt: {
-        $gt: minTime,
-        $lte: maxTime,
-      },
-    };
-
-    console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
-
-    const table = collection.getPgCollection().table;
-    const collectionName = collection.getMongoCollection().collectionName;
-
-    const totalCount = await collection.getMongoCollection().find(filter).count();
-    if (totalCount < 1) {
-      // eslint-disable-next-line no-console
-      console.log("No documents in batch - skipping...");
-      maxTime = minTime;
-      continue;
+  if (fromFile) {
+    await migrateFromFile(collection, resumeLine);
+  } else {
+    const oldest = await collection.getMongoCollection().find({}, {
+      sort: {createdAt: 1},
+      limit: 1,
+      projection: {createdAt: 1},
+    }).fetch();
+  
+    if (oldest.length !== 1) {
+      throw new Error("Can't find oldest event");
     }
+  
+    const oldestCreatedAt = oldest[0].createdAt;
+  
+    // eslint-disable-next-line no-console
+    console.log("Oldest event created at", oldestCreatedAt);
 
-    const formatter = getCollectionFormatter(collection);
-    const batchSize = pickBatchSize(collection);
-    let count = 0;
-    await forEachDocumentBatchInCollection({
-      collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
-      batchSize,
-      useCreatedAt: true,
-      filter: {
-        ...makeCollectionFilter(collectionName),
-        ...filter,
-      },
-      callback: async (documents: DbObject[]) => {
-        const end = count + documents.length;
-        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
-        count += batchSize;
-        const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
-        const compiled = query.compile();
-        try {
-          await sql.none(compiled.sql, compiled.args);
-        } catch (e) {
-          console.log(documents);
-          console.error(e);
-          throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
-        }
-      },
-    });
+    const sql = getSqlClientOrThrow();
 
-    maxTime = minTime;
+    const windowSizeMonths = 3;
+    const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
+    let maxTime = resumeTime ?? new Date();
+    while (maxTime > oldestCreatedAt) {
+      const minTime = new Date(maxTime.getTime() - windowSizeMS);
+      const filter = {
+        createdAt: {
+          $gt: minTime,
+          $lte: maxTime,
+        },
+      };
+  
+      console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
+  
+      const table = collection.getPgCollection().table;
+      const collectionName = collection.getMongoCollection().collectionName;
+  
+      const totalCount = await collection.getMongoCollection().find(filter).count();
+      if (totalCount < 1) {
+        // eslint-disable-next-line no-console
+        console.log("No documents in batch - skipping...");
+        maxTime = minTime;
+        continue;
+      }
+  
+      const formatter = getCollectionFormatter(collection);
+      const batchSize = pickBatchSize(collection);
+      let count = 0;
+      await forEachDocumentBatchInCollection({
+        collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
+        batchSize,
+        useCreatedAt: true,
+        filter: {
+          ...makeCollectionFilter(collectionName),
+          ...filter,
+        },
+        callback: async (documents: DbObject[]) => {
+          const end = count + documents.length;
+          console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
+          count += batchSize;
+          const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
+          const compiled = query.compile();
+          try {
+            await sql.none(compiled.sql, compiled.args);
+          } catch (e) {
+            console.log(documents);
+            console.error(e);
+            throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+          }
+        },
+      });
+  
+      maxTime = minTime;
+    }
   }
 }
 
 Vulcan.migrateLWEvents = migrateLWEvents;
+
+const migrateClientIds = async (lastDate?: Date, fileOffset?: boolean) => {
+  const start = new Date();
+  if (!lastDate) {
+    throw new Error("Last LWEvent createdAt required");
+  }
+
+  if (!fileOffset) {
+    const success = await migrateCollections(["LWEvents"], lastDate, undefined);
+    if (!success) {
+      return;
+    }
+  }
+
+  const sql = getSqlClientOrThrow();
+
+  // , async (transaction) => {
+  const collection = LWEvents;
+  if (!(collection instanceof SwitchingCollection)) {
+    throw new Error("LWEvents is not a switching collection");
+  }
+
+  const table = collection.getPgCollection().table;
+  const formatter = getCollectionFormatter(collection);
+
+  const batch: DbClientId[] = [];
+  const inStream = createReadStream('./lwevents.json');
+  let count = 0;
+  let strLen = 0;
+  const maxStrLen = Math.pow(2, 27);
+
+  await once(inStream, 'open');
+  const rl = createInterface({
+    input: inStream
+  });
+
+  for await (const line of rl) {
+    try {
+      const parsedRecord = JSON.parse(line);
+      if (!('createdAt' in parsedRecord)) {
+        console.log({ parsedRecord }, 'Missing createdAt field');
+        continue;
+      }
+      parsedRecord.createdAt = new Date(parsedRecord.createdAt['$date']);
+      if (isNaN(parsedRecord.createdAt)) {
+        throw new Error(`Invalid date from line ${line}`);
+      }
+
+      if (fileOffset && parsedRecord.createdAt < lastDate) {
+        continue;
+      }
+
+      if (typeof parsedRecord._id === 'string') {
+
+      } else if (typeof parsedRecord._id === 'object') {
+        if ('$oid' in parsedRecord._id) {
+          parsedRecord._id = parsedRecord._id['$oid'];
+        } else {
+          console.log({ parsedRecord }, 'Got a record with an object _id without an $oid!');
+          continue;
+          // throw new Error();
+        }
+      } else {
+        console.log({ parsedRecord }, 'Got a record with an _id which is neither a string nor an object!');
+        continue;
+        // throw new Error();
+      }  
+      batch.push(parsedRecord);
+      count++;
+      strLen += line.length;
+
+      if (strLen >= maxStrLen || batch.length >= 6000) {
+        const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
+        const compiled = query.compile();
+        try {
+          await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
+          // await sleep(300);
+        } catch (e) {
+          console.log(batch);
+          console.error(e);
+          throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+        }
+        console.log(`Migrated ${count} lwEvents from file with batch size ${batch.length} and strLen ${strLen} (estimated)`);
+        batch.length = 0;
+        strLen = 0;
+      }
+    } catch (err) {
+      console.log({ err });
+      throw new Error(err);
+    }
+  }
+
+  const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
+  const compiled = query.compile();
+  try {
+    await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
+  } catch (e) {
+    console.log(batch);
+    console.error(e);
+    throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+  }
+  console.log(`Migrated ${count} records from file`);
+  batch.length = 0;
+
+  await sql.task(async (t) => {
+    await createIndexes(t, [collection]);
+    await setLogged(t, [collection], true);
+  });
+  // });
+}
+
+Globals.migrateClientIds = migrateClientIds;
+
+const migrateFromFile = async (collection: SwitchingCollection<any>, resumeLine?: number) => {
+  const sql = getSqlClientOrThrow();
+
+  const table = collection.getPgCollection().table;
+  const formatter = getCollectionFormatter(collection);
+
+  const batch: DbLWEvent[] = [];
+  const inStream = createReadStream('./lwevents-prod.json');
+  let count = 0;
+  let skipCount = 0;
+  let strLen = 0;
+  let deletedHtmlLen = 0;
+  const maxStrLen = Math.pow(2, 27);
+
+  await once(inStream, 'open');
+  const rl = createInterface({
+    input: inStream
+  });
+
+  for await (let line of rl) {
+    skipCount++;
+    if (skipCount % 5_000_000 === 0) {
+      console.log(`Scanned ${skipCount} lines`);
+    }
+
+    if (resumeLine && skipCount < resumeLine) {
+      continue;
+    }
+    try {
+      const parsedRecord = JSON.parse(line);
+      if (parsedRecord._id === 'd9dd56Q27CCNBPKZA') {
+        continue;
+      }
+      if (!('createdAt' in parsedRecord)) {
+        console.log({ parsedRecord }, 'Missing createdAt field');
+        continue;
+      }
+      parsedRecord.createdAt = new Date(parsedRecord.createdAt['$date']);
+      if (isNaN(parsedRecord.createdAt)) {
+        throw new Error(`Invalid date from line ${line}`);
+      }
+
+      if (typeof parsedRecord._id === 'string') {
+
+      } else if (typeof parsedRecord._id === 'object') {
+        if ('$oid' in parsedRecord._id) {
+          parsedRecord._id = parsedRecord._id['$oid'];
+        } else {
+          console.log({ parsedRecord }, 'Got a record with an object _id without an $oid!');
+          continue;
+          // throw new Error();
+        }
+      } else {
+        console.log({ parsedRecord }, 'Got a record with an _id which is neither a string nor an object!');
+        continue;
+        // throw new Error();
+      }
+
+      if (parsedRecord.name === 'emailSent') {
+        deletedHtmlLen += parsedRecord.properties?.html?.length ?? 0;
+        delete parsedRecord.properties?.html;
+      }
+      
+      batch.push(parsedRecord);
+      count++;
+      strLen += line.length;
+
+      if (strLen >= maxStrLen || batch.length >= 6000) {
+        const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
+        const compiled = query.compile();
+        try {
+          await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
+          // await sleep(300);
+        } catch (e) {
+          console.log(batch);
+          await writeFile('failed-lwevents.json', JSON.stringify(batch));
+          console.error(e);
+          throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+        }
+        console.log(`Migrated ${count} lwEvents from file with batch size ${batch.length} and strLen ${strLen} (estimated), minus ${deletedHtmlLen} for deleted html`);
+        batch.length = 0;
+        strLen = 0;
+        deletedHtmlLen = 0;
+      }
+    } catch (err) {
+      console.log({ err });
+      throw new Error(err);
+    }
+  }
+
+  const query = new InsertQuery(table, await Promise.all(batch.map(formatter)), {}, {conflictStrategy: "ignore"});
+  const compiled = query.compile();
+  try {
+    await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
+  } catch (e) {
+    console.log(batch);
+    console.error(e);
+    throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+  }
+  console.log(`Migrated ${count} records from file`);
+  batch.length = 0;
+};

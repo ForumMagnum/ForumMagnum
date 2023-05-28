@@ -386,7 +386,7 @@ getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVote
 })
 
 const sendNewCommentNotifications = async (comment: DbComment) => {
-  const post = comment.postId ? await Posts.findOne(comment.postId) : null;
+  const post = comment.postId ? await Posts.findOne(comment.postId, undefined, { isEvent: 1 }) : null;
   
   if (post?.isEvent) {
     await notifyRsvps(comment, post);

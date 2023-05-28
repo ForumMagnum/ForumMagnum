@@ -42,6 +42,7 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { timedFunc } from '../../lib/helpers';
 
 const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>): CreateCallbackProperties<T> => {
   const {
@@ -141,7 +142,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   */
   if (validate) {
-    document = await validateCreateMutation(createMutatorParams);
+    document = await timedFunc(`validateCreateMutation ${collectionName}`, () => validateCreateMutation(createMutatorParams));
   } else {
     logger('skipping validation')
   }
@@ -170,22 +171,41 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   */
   logger('field onCreate/onInsert callbacks')
-  for (let fieldName of Object.keys(schema)) {
-    let autoValue;
+  const onCreateValues = (await timedFunc('onCreateBatch', () => Promise.all(Object.keys(schema).map(async (fieldName) => {
     const schemaField = schema[fieldName];
     if (schemaField.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
+      const onCreateValue = await timedFunc(`onCreate ${fieldName}`, () => schemaField.onCreate?.({...properties, fieldName} as any)); // eslint-disable-line no-await-in-loop
+      return { [fieldName]: onCreateValue };
     } else if (schemaField.onInsert) {
       // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
+      const onInsertValue = await timedFunc(`onInsert ${fieldName}`, () => schemaField.onInsert?.(clone(document) as any, currentUser)); // eslint-disable-line no-await-in-loop
+      return { [fieldName]: onInsertValue };
     }
-    if (typeof autoValue !== 'undefined') {
-      logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
-      Object.assign(document, { [fieldName]: autoValue });
-    }
-  }
+    return undefined;
+  })))).filter((onCreateValue): onCreateValue is Record<string, any> => !!onCreateValue);
+
+  onCreateValues.forEach(onCreateValue => {
+    Object.assign(document, onCreateValue);
+  });
+
+  // for (let fieldName of Object.keys(schema)) {
+  //   let autoValue;
+  //   const schemaField = schema[fieldName];
+  //   if (schemaField.onCreate) {
+  //     // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
+  //     // eslint-disable-next-line no-await-in-loop
+  //     autoValue = await timedFunc(`onCreate ${fieldName}`, () => schemaField.onCreate?.({...properties, fieldName} as any)); // eslint-disable-line no-await-in-loop
+  //   } else if (schemaField.onInsert) {
+  //     // OpenCRUD backwards compatibility
+  //     autoValue = await timedFunc(`onInsert ${fieldName}`, () => schemaField.onInsert?.(clone(document) as any, currentUser)); // eslint-disable-line no-await-in-loop
+  //   }
+  //   if (typeof autoValue !== 'undefined') {
+  //     logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
+  //     Object.assign(document, { [fieldName]: autoValue });
+  //   }
+  // }
 
   // TODO: find that info in GraphQL mutations
   // if (isServer && this.connection) {
@@ -200,23 +220,23 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   */
   logger('before callbacks')
   logger('createBefore')
-  document = await hooks.createBefore.runCallbacks({
+  document = await timedFunc(`createBefore ${collectionName}`, () => hooks.createBefore.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
-  }) as unknown as Partial<DbInsertion<T>>;
+  }) as unknown as Partial<DbInsertion<T>>);
   logger('newBefore')
   // OpenCRUD backwards compatibility
-  document = await hooks.newBefore.runCallbacks({
+  document = await timedFunc(`newBefore ${collectionName}`, () => hooks.newBefore.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [
       currentUser
     ]
-  }) as unknown as Partial<DbInsertion<T>>;
+  }) as unknown as Partial<DbInsertion<T>>);
   logger('newSync')
-  document = await hooks.newSync.runCallbacks({
+  document = await timedFunc(`newSync ${collectionName}`, () => hooks.newSync.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
-  }) as unknown as Partial<DbInsertion<T>>;
+  }) as unknown as Partial<DbInsertion<T>>);
 
   /*
 
@@ -224,7 +244,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   */
   logger('inserting into database');
-  (document as any)._id = await Connectors.create(collection, document as unknown as T);
+  (document as any)._id = await timedFunc('Connectors.create', () => Connectors.create(collection, document as unknown as T));
 
   /*
 
@@ -234,20 +254,20 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   // run any post-operation sync callbacks
   logger('after callbacks')
   logger('createAfter')
-  document = await hooks.createAfter.runCallbacks({
+  document = await timedFunc(`createAfter ${collectionName}`, () => hooks.createAfter.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
-  }) as unknown as DbInsertion<T>;
+  }) as unknown as DbInsertion<T>);
   logger('newAfter')
   // OpenCRUD backwards compatibility
-  document = await hooks.newAfter.runCallbacks({
+  document = await timedFunc(`newAfter ${collectionName}`, () => hooks.newAfter.runCallbacks({
     iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
-  }) as unknown as DbInsertion<T>;
+  }) as unknown as DbInsertion<T>);
 
   // note: query for document to get fresh document with collection-hooks effects applied
   let completedDocument: T = document as unknown as T;
-  const queryResult = await Connectors.get(collection, document._id);
+  const queryResult = await timedFunc('Connecters.get', () => Connectors.get(collection, document._id));
   if (queryResult)
     completedDocument = queryResult;
 
@@ -259,16 +279,16 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   // note: make sure properties.document is up to date
   logger('async callbacks')
   logger('createAsync')
-  await hooks.createAsync.runCallbacksAsync(
+  await timedFunc(`createAsync ${collectionName}`, () => hooks.createAsync.runCallbacksAsync(
     [{ ...properties, document: completedDocument as T }],
-  );
+  ));
   logger('newAsync')
   // OpenCRUD backwards compatibility
-  await hooks.newAsync.runCallbacksAsync([
+  await timedFunc(`newAsync ${collectionName}`, () => hooks.newAsync.runCallbacksAsync([
     completedDocument,
     currentUser,
     collection
-  ]);
+  ]));
 
   return { data: completedDocument };
 };

@@ -1,6 +1,5 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
@@ -11,6 +10,7 @@ import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import { userHasShortformTags } from '../../betas';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
+import { userGetDisplayName } from '../users/helpers';
 
 export const moderationOptionsGroup: FormGroupType = {
   order: 50,
@@ -71,11 +71,8 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onInsert: async (document, currentUser) => {
-      // if userId is changing, change the author name too
-      if (document.userId) {
-        return await userGetDisplayNameById(document.userId)
-      }
+    onInsert: (document, currentUser) => {
+      return userGetDisplayName(currentUser);
     },
     onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
@@ -260,9 +257,9 @@ const schema: SchemaType<DbComment> = {
     canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment: DbComment): Promise<boolean> => {
+      getValue: async (comment: DbComment, context): Promise<boolean> => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.loaders.Posts.load(comment.postId);
         if (!post) return false;
         return !!post.shortform;
       }
@@ -313,9 +310,9 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onCreate: async ({newDocument}) => {
+    onCreate: async ({newDocument, context}) => {
       if (!newDocument.postId) return "1.0.0";
-      const post = await mongoFindOne("Posts", {_id: newDocument.postId})
+      const post = await context.loaders.Posts.load(newDocument.postId);
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
   },
@@ -391,9 +388,9 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async comment => {
+      getValue: async (comment, context) => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.loaders.Posts.load(comment.postId);
         if (!post) return false;
         return !!post.hideCommentKarma;
       }

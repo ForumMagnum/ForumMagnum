@@ -96,7 +96,7 @@ registerVotingSystem({
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-    const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+    const usersThatVoted = userIdsThatVoted.length ? await loadByIds(context, "Users", userIdsThatVoted) : [];
     const usersById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
     
     const result = {

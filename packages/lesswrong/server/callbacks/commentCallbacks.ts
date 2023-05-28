@@ -17,6 +17,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
+import { timedFunc } from '../../lib/helpers';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -361,26 +362,24 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
 }
 
 // Duplicate of PostsNewUserApprovedStatus
-getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprovedStatus (comment: DbComment) {
-  const commentAuthor = await Users.findOne(comment.userId);
-  if (!commentAuthor?.reviewedByUserId && (commentAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprovedStatus (comment: DbComment, currentUser: DbUser | null) {
+  if (!currentUser?.reviewedByUserId && (currentUser?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...comment, authorIsUnreviewed: true}
   }
   return comment;
 });
 
 // Make users upvote their own new comments
-getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
-  var commentAuthor = await Users.findOne(comment.userId);
-  if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
-  const {modifiedDocument: votedComment} = await performVoteServer({
+getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment, currentUser: DbUser | null) {
+  if (!currentUser) throw new Error(`Could not find user: ${comment.userId}`);
+  const {modifiedDocument: votedComment} = await timedFunc('performVoteServer', () => performVoteServer({
     document: comment,
     voteType: 'smallUpvote',
     collection: Comments,
-    user: commentAuthor,
+    user: currentUser,
     skipRateLimits: true,
     selfVote: true
-  })
+  }))
   return {...comment, ...votedComment} as DbComment;
 });
 
@@ -483,10 +482,12 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
-    $set: {lastSubthreadActivity: new Date()},
-    $inc: {descendentCount:1},
-  });
+  if (ancestorIds.length > 0) {
+    await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
+      $set: {lastSubthreadActivity: new Date()},
+      $inc: {descendentCount:1},
+    });  
+  }
   
   return comment;
 });
@@ -516,7 +517,7 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 // });
 
 getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
-  await triggerReviewIfNeeded(document.userId);
+  void triggerReviewIfNeeded(document.userId);
 })
 
 getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
