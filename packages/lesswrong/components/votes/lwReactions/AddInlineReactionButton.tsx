@@ -37,7 +37,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote}: {
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { PopperCard, LWClickAwayListener, LWTooltip, ReactionsPalette } = Components;
+  const { LWTooltip, ReactionsPalette } = Components;
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
