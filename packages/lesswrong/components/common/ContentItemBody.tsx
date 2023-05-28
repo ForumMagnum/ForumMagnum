@@ -14,7 +14,7 @@ import Mark from 'mark.js';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .highlighted-substring': {
-      backgroundColor: theme.palette.background.primaryTranslucent
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy
     }
   },
   scrollIndicatorWrapper: {
