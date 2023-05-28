@@ -34,7 +34,11 @@ import {userFindOneByEmail} from "../commonQueries";
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 
-voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
+voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple, _, currentUser: DbUser) {
+  // Skip this check for self-votes
+  if (currentUser._id === newDocument.userId) {
+    return;
+  }
   const user = await Users.findOne(newDocument.userId)
   if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
@@ -44,7 +48,11 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
   }
 });
 
-voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
+voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, _, currentUser: DbUser) {
+  // Skip this check for self-votes
+  if (currentUser._id === newDocument.userId) {
+    return;
+  }
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
