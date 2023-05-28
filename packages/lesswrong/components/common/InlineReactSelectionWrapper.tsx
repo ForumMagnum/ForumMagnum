@@ -18,10 +18,11 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   comment: CommentsList,
   children: React.ReactNode,
 }) => {
-  const selectionRef = useRef<HTMLDivElement|null>(null);
+  const documentRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+  const [yOffset, setYOffset] = useState<number>(0);
 
   const { AddInlineReactionButton, LWPopper } = Components;
 
@@ -29,7 +30,15 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
   
-  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+
+  function getYOffsetFromDocument (e: MouseEvent, documentRef: React.RefObject<HTMLDivElement>) {
+    const documentRect = documentRef.current?.getBoundingClientRect();
+    if (!documentRect) return 0;
+    const documentCenter = documentRect?.top + documentRect?.height / 2;
+    const mousePosition = e.clientY;
+    return mousePosition - documentCenter;
+  }
+
 
   // note: I originally just made this a function. ChatGPT claimed that it would
   // result in a memory leak because it would create a new function every time
@@ -37,17 +46,19 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   // useCallback to memoize it just in case.
   // ChatGPT also... generated this note, so watch out for that
   const detectSelection = useCallback((e: MouseEvent): void => {
-    const mouseTargetInSelectionRef = selectionRef && selectionRef.current?.contains(e.target as Node);
+    const mouseTargetInSelectionRef = documentRef && documentRef.current?.contains(e.target as Node);
     const mouseTargetInPopupRef = popupRef && popupRef.current?.contains(e.target as Node);
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
 
     if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
       const range = selection?.getRangeAt(0);
-      const anchorEl = range?.startContainer.parentNode;
+      const anchorEl = documentRef.current;
+      
       if (anchorEl instanceof HTMLElement && selectedText?.length > 10 ) {  
         setAnchorEl(anchorEl);
         setQuote(selectedText);
+        setYOffset(getYOffsetFromDocument(e, documentRef));
       } else {
         setAnchorEl(null);
         setQuote("")
@@ -58,7 +69,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
       setQuote("")
     }
   }, []);
-  useEffect(() => {
+  useEffect(() => { 
     document.addEventListener('mouseup', detectSelection);
     return () => {
       document.removeEventListener('mouseup', detectSelection);
@@ -66,15 +77,17 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   }, [detectSelection]);
 
   return (
-    <div ref={selectionRef}>
+    <div ref={documentRef}>
       <LWPopper
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
         allowOverflow={true}
       >
-        <span ref={popupRef} className={classes.button}>
+        <span ref={popupRef} className={classes.button} 
+          style={{position:"relative", top: yOffset, marginLeft: 12}}
+        >
           <AddInlineReactionButton quote={quote} voteProps={voteProps}/>
-        </span>
+        </span> 
       </LWPopper>
       {children}
     </div>
