@@ -66,7 +66,7 @@ export const SelectionButtonWrapper = ({classes, comment, children}: {
     return () => {
       document.removeEventListener('mouseup', detectSelection);
     };
-  }, []);
+  }, [detectSelection]);
 
   return (
     <div ref={selectionRef}>

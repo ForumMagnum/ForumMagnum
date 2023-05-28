@@ -184,6 +184,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     height: 18,
     width: 18
+  },
+  tinyQuote: {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    height: "1em"
   }
 })
 
@@ -516,9 +522,8 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
     <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
       {usersWhoProReacted.map((userReactInfo,i) =>
           <div key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {(i>0) && <span>{", "}</span>}
-            {userReactInfo.displayName}
-            {userReactInfo.quotes?.map(quote => <span key={quote} className={classes.tinyLabel}> {quote}</span>)}
+            {userReactInfo.displayName}{userReactInfo.quotes?.length && <span>{" reacted to:"}</span>}
+            {userReactInfo.quotes?.map(quote => <div key={quote}><span className={classes.tinyQuote}>"{quote}</span>"</div>)}
           </div>
         )
       }
