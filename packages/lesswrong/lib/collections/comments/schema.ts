@@ -700,7 +700,7 @@ const schema: SchemaType<DbComment> = {
 
       const { post } = formProps;
       
-      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
     },
   },

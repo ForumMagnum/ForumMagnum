@@ -45,6 +45,7 @@ import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
+import { botRedirectMiddleware } from './botRedirect';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -135,6 +136,7 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
+  app.use(botRedirectMiddleware);
   
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));

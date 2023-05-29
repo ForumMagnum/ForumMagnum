@@ -108,8 +108,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label="Bookmarks"
-          tooltip="Posts that you have bookmarked will appear in Recommendations."
+          label={isEAForum ? "Saved posts" : "Bookmarks"}
+          tooltip={`Posts that you have ${isEAForum ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}

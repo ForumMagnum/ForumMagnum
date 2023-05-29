@@ -15,7 +15,6 @@ importComponent("PostsAuthors", () => require('./PostsAuthors'));
 importComponent("PostsPageTitle", () => require('./PostsPageTitle'));
 importComponent("PostsTopSequencesNav", () => require('./PostsTopSequencesNav'));
 importComponent("PostsPageEventData", () => require('./PostsPageEventData'));
-importComponent("PostActions", () => require('./PostActions'));
 importComponent("PostAuthorCard", () => require('./PostAuthorCard'));
 importComponent("ContentType", () => require('./ContentType'));
 importComponent("PostsRevisionSelector", () => require('./PostsRevisionSelector'));

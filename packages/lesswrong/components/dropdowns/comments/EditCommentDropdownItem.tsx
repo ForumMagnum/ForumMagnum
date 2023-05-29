@@ -1,0 +1,39 @@
+import React from 'react';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { userOwns, userCanDo } from '../../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../../common/withUser';
+
+const EditCommentDropdownItem = ({comment, showEdit}: {
+  comment: CommentsList,
+  showEdit: ()=>void,
+}) => {
+  const currentUser = useCurrentUser();
+
+  if (
+    !userCanDo(currentUser, "comments.edit.all") &&
+    !userOwns(currentUser, comment)
+  ) {
+    return null;
+  }
+
+  const {DropdownItem} = Components;
+  return (
+    <DropdownItem
+      title="Edit"
+      onClick={showEdit}
+      icon="Edit"
+    />
+  );
+};
+
+const EditCommentDropdownItemComponent = registerComponent(
+  'EditCommentDropdownItem',
+  EditCommentDropdownItem,
+);
+
+
+declare global {
+  interface ComponentTypes {
+    EditCommentDropdownItem: typeof EditCommentDropdownItemComponent
+  }
+}

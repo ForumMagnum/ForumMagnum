@@ -80,7 +80,7 @@ interface DbClientId extends DbObject {
   clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string
-  userIds: Array<string>
+  userIds: Array<string> | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -592,7 +592,7 @@ interface DbPost extends DbObject {
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>
+  }> | null
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
@@ -980,6 +980,21 @@ interface DbUserMostValuablePost extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface UserRateLimitsCollection extends CollectionBase<DbUserRateLimit, "UserRateLimits"> {
+}
+
+interface DbUserRateLimit extends DbObject {
+  __collectionName?: "UserRateLimits"
+  userId: string
+  type: "allComments" | "allPosts"
+  intervalUnit: "minutes" | "hours" | "days" | "weeks"
+  intervalLength: number
+  actionsPerInterval: number
+  endedAt: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
 }
 
@@ -1037,6 +1052,7 @@ interface DbUser extends DbObject {
     recommendations: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
+  hidePostsRecommendations: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
@@ -1231,6 +1247,11 @@ interface DbUser extends DbObject {
   smallDownvoteCount: number
   bigUpvoteCount: number
   bigDownvoteCount: number
+  voteReceivedCount: number
+  smallUpvoteReceivedCount: number
+  smallDownvoteReceivedCount: number
+  bigUpvoteReceivedCount: number
+  bigDownvoteReceivedCount: number
   usersContactedBeforeReview: Array<string>
   fullName: string
   shortformFeedId: string
@@ -1288,8 +1309,8 @@ interface DbUser extends DbObject {
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list"
-  experiencedIn: Array<string>
-  interestedIn: Array<string>
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number
@@ -1408,6 +1429,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
+  UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1458,6 +1480,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
+  UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

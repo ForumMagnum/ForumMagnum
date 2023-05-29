@@ -1,13 +1,8 @@
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog';
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type {TooltipProps} from '@material-ui/core/Tooltip';
-import { useTracking } from '../../lib/analyticsEvents';
-import { useMutation, gql } from '@apollo/client';
-import * as _ from 'underscore';
+import type { TooltipProps } from '@material-ui/core/Tooltip';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
@@ -16,73 +11,56 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-  icon: isEAForum ? {fontSize: 22} : {},
+  iconWithText: {
+    color: theme.palette.text.dim3,
+    display: "inline-block",
+    marginRight: 20,
+    "@media print": { display: "none" },
+    '& svg': {
+      fontSize: "1.35em",
+      transform: "translateY(6px)",
+      marginLeft: -3,
+      marginRight: -3,
+    },
+  },
+  iconWithTextEAForum: {
+    '& svg': {
+      transform: "translateY(5px)",
+      marginRight: -1,
+    },
+  },
 })
 
-const BookmarkButton = ({classes, post, menuItem, placement="right", className}: {
-  classes: ClassesType,
+const BookmarkButton = ({
+  post,
+  withText,
+  placement="right",
+  className,
+  classes,
+}: {
   post: PostsBase,
-  menuItem?: boolean,
+  withText?: boolean,
   placement?: TooltipProps["placement"],
   className?: string,
+  classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
-  const [bookmarked, setBookmarkedState] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
-  const { captureEvent } = useTracking()
-
-  const [setIsBookmarkedMutation] = useMutation(gql`
-    mutation setIsBookmarked($postId: String!, $isBookmarked: Boolean!) {
-      setIsBookmarked(postId: $postId, isBookmarked: $isBookmarked) {
-        ...UsersCurrent
-      }
-    }
-    ${fragmentTextForQuery("UsersCurrent")}
-  `);
-  const setBookmarked = (isBookmarked: boolean) => {
-    setBookmarkedState(isBookmarked)
-    void setIsBookmarkedMutation({
-      variables: {postId: post._id, isBookmarked}
-    });
-  };
-
-  const { LWTooltip, MenuItem, ForumIcon } = Components;
-
-  const toggleBookmark = (event: React.MouseEvent) => {
-    if (!currentUser) {
-      openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      });
-      event.preventDefault();
-      return
-    }
-
-    setBookmarked(!bookmarked);
-    captureEvent("bookmarkToggle", {"postId": post._id, "bookmarked": !bookmarked})
-  }
-
-  const icon = bookmarked ? "Bookmark" : "BookmarkBorder";
-  const title = bookmarked ? "Un-bookmark" : "Bookmark";
-
-  if (menuItem) {
-    return (
-      <MenuItem onClick={toggleBookmark}>
-        <ListItemIcon>
-          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
-        </ListItemIcon>
-        {title}
-      </MenuItem>
-    )
-  } else {
-    return (
-      <LWTooltip title={title} placement={placement}>
-        <span onClick={toggleBookmark} className={classes.container}>
-          <ForumIcon icon={icon} className={classNames(classes.icon, className)} />
-        </span>
-      </LWTooltip>
-    )
-  }
+  const {icon, labelText, hoverText, toggleBookmark} = useBookmarkPost(post);
+  const Component = withText ? "a" : "span";
+  const {LWTooltip, ForumIcon} = Components;
+  return (
+    <LWTooltip title={hoverText} placement={withText ? "bottom" : placement}>
+      <Component onClick={toggleBookmark} className={classNames({
+        [classes.container]: !withText,
+        [classes.iconWithText]: withText,
+        [classes.iconWithTextEAForum]: withText && isEAForum,
+      })}>
+        <ForumIcon
+          icon={icon}
+          className={classNames(classes.icon, className)}
+        /> {withText && labelText}
+      </Component>
+    </LWTooltip>
+  );
 }
 
 const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {

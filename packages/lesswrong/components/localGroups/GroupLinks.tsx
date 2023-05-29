@@ -83,7 +83,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   groupLink: {
-    marginLeft: theme.spacing.unit
+    marginLeft: 6,
   },
   
   websiteLink: {
@@ -92,16 +92,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   facebookGroupIcon: {
-    width: "13px",
-    height: "13px",
+    width: 14,
+    height: 14,
     display: "inline-block",
     color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
   },
 
   socialIcon: {
-    width: "15px",
-    height: "15px",
+    width: 16,
+    height: 16,
     display: "inline-block",
     color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
@@ -109,8 +109,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 
   linkIcon: {
-    height: "17px",
-    width: "17px",
+    height: 18,
+    width: 18,
     paddingTop: "0px",
     color: theme.palette.icon.slightlyDim3,
   },

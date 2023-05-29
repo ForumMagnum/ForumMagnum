@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 const PostsPageRecommendationsList = ({
   title = "More posts like this",
   strategy = "moreFromTag",
-  bias = 1,
+  bias,
   features,
   forceLoggedOutView,
   classes,
