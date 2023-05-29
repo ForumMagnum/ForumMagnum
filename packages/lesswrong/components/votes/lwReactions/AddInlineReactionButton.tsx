@@ -29,7 +29,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
   const [disabled, setDisabled] = useState(false);
-  const [warning, setWarning] = useState(false);
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
@@ -53,10 +52,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
         diacritics: true,
         className: hideSelectorClassName
     });
-
-    console.log(count)
     setDisabled(count > 1)
-    setWarning(count === 0)
   }
 
   function handleHoverEnd() {
@@ -86,7 +82,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
           getCurrentUserReactionVote={getCurrentUserReactionVote}
           toggleReaction={toggleReaction}
           quote={quote} 
-          warning={warning}
         />
       </div>}
     </span>
