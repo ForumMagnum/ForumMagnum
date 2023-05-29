@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { namesAttachedReactionsByName, defaultFilter } from '../../lib/voting/reactions';
+import { defaultFilter, getNamesAttachedReactionsByName} from '../../lib/voting/reactions';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -21,7 +21,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   size?: number,
   classes: ClassesType
 }) => {
-  const reactionType = namesAttachedReactionsByName(react);
+  const reactionType = getNamesAttachedReactionsByName(react);
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
   const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;

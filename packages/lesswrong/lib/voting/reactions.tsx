@@ -463,7 +463,9 @@ const missingReact = {
   deprecated: true
 }
 
-export const namesAttachedReactionsByName = (reactName: string) : NamesAttachedReactionType => {
+export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
+
+export const getNamesAttachedReactionsByName = (reactName: string) : NamesAttachedReactionType => {
   const foundReact = namesAttachedReactions.find(r=>r.name===reactName)
   return (!!foundReact) ? foundReact : {...missingReact, label: `deleted react: "${reactName}"`}
 }
