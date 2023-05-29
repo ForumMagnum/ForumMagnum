@@ -196,6 +196,25 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
+function markHighlights (quotes: string[], ref?: React.RefObject<HTMLDivElement>|null) {
+  console.log("a")
+  const refCurrent = ref?.current
+  if (!refCurrent) return
+  let markInstance = new Mark(refCurrent);
+  console.log("b")
+  markInstance.unmark({className: highlightSelectorClassName});
+  console.log("c")
+  quotes.forEach(quote => {
+    markInstance.mark(quote ?? "", {
+      separateWordSearch: false,
+      acrossElements: true,
+
+      diacritics: true,
+      className: highlightSelectorClassName
+    });
+  })
+}
+
 export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClient>): {
   currentUserExtendedVote: NamesAttachedReactionsVote|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
@@ -394,21 +413,8 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     toggleReaction(reaction, quote);
   }
 
-  function markHighlights (quotes: string[]) {
-    const ref = commentItemRef?.current
-    if (!ref) return
-    let markInstance = new Mark(ref);
-    markInstance.unmark({className: highlightSelectorClassName});
-    quotes.forEach(quote => {
-      markInstance.mark(quote ?? "", {
-        separateWordSearch: false,
-        acrossElements: true,
-        diacritics: true,
-        className: highlightSelectorClassName
-      });
-    })
 
-  }
+
   function clearHighlights () {
     const ref = commentItemRef?.current
     if (!ref) return
@@ -418,7 +424,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
 
   function handleMouseOver (e: any) {
     onMouseOver(e);
-    markHighlights(quotesWithUndefinedRemoved)
+    markHighlights(quotesWithUndefinedRemoved, commentItemRef)
   }
   
   function handleMouseLeave () {
@@ -434,7 +440,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
         [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
       }
     )}
-    onMouseOver={handleMouseOver}
+    onMouseEnter={handleMouseOver}
     onMouseLeave={handleMouseLeave}
     onMouseDown={()=>{reactionClicked(react)}}
   >
@@ -447,7 +453,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
       allowOverflow={true}
       
     >
-      <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes}/>
+      <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes} commentItemRef={commentItemRef}/>
     </PopperCard>}
   </span>
 }
@@ -505,10 +511,11 @@ const ReactionOverview = ({voteProps, classes}: {
   </Card>
 }
 
-const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: {
+const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, commentItemRef}: {
   react: string,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType
+  classes: ClassesType,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
 
@@ -529,7 +536,13 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
   </div>
 }
 
-const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes}:{usersWhoReacted:UserReactInfo[], wrap?: boolean, showTooltip?: boolean, classes:ClassesType}) => {
+const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes, commentItemRef}:{
+  usersWhoReacted:UserReactInfo[], 
+  wrap?: boolean, 
+  showTooltip?: boolean, 
+  classes:ClassesType,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
+}) => {
   const { LWTooltip } = Components;
   const usersWhoProReacted = usersWhoReacted.filter(r=>r.reactType!=="disagreed")
   const usersWhoAntiReacted = usersWhoReacted.filter(r=>r.reactType==="disagreed")
@@ -542,11 +555,17 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
     </>}
   </div>
 
+  function handleHover (quotes?: string[]) {
+    const filteredQuotes = filter(quotes, q => q !== undefined) as string[]
+    console.log(filteredQuotes)
+    markHighlights(filteredQuotes, commentItemRef)
+  }
+
   const component = <div className={classes.usersWhoReactedRoot}>
     <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
       {usersWhoProReacted.map((userReactInfo,i) =>
-          <div key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {userReactInfo.displayName}{userReactInfo.quotes?.length && <span>{": "}</span>}
+          <div key={userReactInfo.userId} className={classes.userWhoReacted} onMouseEnter={() => handleHover(userReactInfo.quotes)}>
+            {userReactInfo.displayName}{(userReactInfo.quotes && userReactInfo.quotes?.length > 0) && <span>{": "}</span>}
             {userReactInfo.quotes?.map(quote => <span key={quote}><span className={classes.tinyQuote}>"{quote}</span>"</span>)}
           </div>
         )
