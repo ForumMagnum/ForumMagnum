@@ -42,7 +42,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   function getYOffsetFromDocument (e: MouseEvent, documentRef: React.RefObject<HTMLDivElement>) {
     const documentRect = documentRef.current?.getBoundingClientRect();
     if (!documentRect) return 0;
-    const documentCenter = documentRect?.top + documentRect?.height / 2;
+    const documentCenter = documentRect?.top + (documentRect?.height / 2);
     const mousePosition = e.clientY;
     return mousePosition - documentCenter;
   }

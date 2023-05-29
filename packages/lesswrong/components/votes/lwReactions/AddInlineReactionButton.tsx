@@ -89,7 +89,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
     disabled={open}
     inlineBlock={false}
     title={<div><p>Click to react to this comment snippet</p>
-      {disabled && <p><em>You need to select a unique snippet. Please select more text until the snippet is unique</em></p>}
+      {disabled && <p><em>You need to select a unique snippet.<br/>Please select more text until the snippet is unique</em></p>}
     </div>}
   >
     <span
