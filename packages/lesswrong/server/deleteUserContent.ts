@@ -4,10 +4,7 @@ import Users from "../lib/collections/users/collection";
 import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
 import { exportUserData } from "./exportUserData";
 import { createAdminContext, Globals, updateMutator } from './vulcan-lib';
-
-const sleep = (ms: number) => {
-  return new Promise((resolve) => { setTimeout(resolve, ms); });
-};
+import { sleep } from "../lib/utils/asyncUtils";
 
 /** Please ensure that we know that the user is who they say they are! */
 export const deleteUserContent = async (
