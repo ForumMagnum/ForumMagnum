@@ -7,7 +7,6 @@ import Mark from 'mark.js';
 import { hideSelectorClassName } from "../../common/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
-
   disabled: {
     opacity: .25
   },
