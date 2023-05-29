@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useNamesAttachedReactionsVoting } from '../votes/NamesAttachedReactionsVoteOnComment';
 import { useVote } from '../votes/withVote';
 
 export const hideSelectorClassName = "hidden-selector";
@@ -25,7 +24,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   classes: ClassesType,
   comment: CommentsList,
   children: React.ReactNode,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null
+  commentItemRef?: React.RefObject<HTMLDivElement>|null // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
 }) => {
   const popupRef = useRef<HTMLDivElement|null>(null);
   const [quote, setQuote] = useState<string>("");

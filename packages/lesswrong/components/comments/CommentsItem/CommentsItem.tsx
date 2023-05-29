@@ -171,7 +171,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
-  const commentItemRef = useRef<HTMLDivElement|null>(null);
+  const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
