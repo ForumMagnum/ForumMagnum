@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
@@ -30,9 +30,19 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
+  const [disabled, setDisabled] = useState(formIsDisabled(plaintext ?? "", quote ?? ""));
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
+  useEffect(() => {
+    setDisabled(formIsDisabled(plaintext ?? "", quote ?? ""))
+  }, [plaintext, quote])
+
+  // ideally, I'd just use mark.js to check if the quote is unique, 
+  // but it was creating annoying bugs with the original text-selection highlight.
+  // I'm not 100% sure regexes on the plaintext will be identical to what mark.js detects,
+  // but for now I'm just checking twice to be sure:
+  //  – once when the user changes their selection, and again when they go to click the button.
   function formIsDisabled(string: string, substring: string): boolean {
     if (!string || !substring) return true
     const regex = new RegExp(substring, 'g');
@@ -41,6 +51,8 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
     return matches && matches.length !== 1;
   }
 
+  // while moused over the button, if the text appears multiple times it highlights both of 
+  // them so it's easier to figure out the minimal text to highlight
   function handleHover() {
     const ref = documentRef.current
     if (!ref) return
@@ -56,6 +68,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
         count += 1
       }
     });
+    if (count !== 1) {
+      setDisabled(true)
+    } else {
+      setDisabled(false)
+    }
   }
 
   function handleHoverEnd() {
@@ -64,8 +81,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
     let markInstance = new Mark(ref);
     markInstance.unmark({className: hideSelectorClassName});
   }
-
-  const disabled = formIsDisabled(plaintext ?? "", quote ?? "")
 
   const handleOpen = () => {
     !disabled && setOpen(true)
