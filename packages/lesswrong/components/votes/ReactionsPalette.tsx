@@ -97,14 +97,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
     paddingBottom: 6,
+  },
+  warning: {
+    color: theme.palette.error.main
   }
 })
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes, warning}: {
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote?: string)=>void,
   quote?: string,
-  classes: ClassesType
+  classes: ClassesType,
+  warning?: boolean
 }) => {
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const [searchText,setSearchText] = useState("");
@@ -131,6 +135,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
+    {warning && <p className={classes.warning}>You've found a bug! Our highlighter is failing to parse this snippet. You can still react to it and people will see the text-listed-above when they mouse over your react, but it won't get highlighted automatically in the comment. Message us on Intercom with a screenshot and we'll work on fixing it.</p>}
     <Row justifyContent='flex-start'>
       <Row>
         <LWTooltip title="List view">

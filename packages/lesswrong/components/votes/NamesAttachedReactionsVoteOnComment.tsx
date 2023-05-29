@@ -18,6 +18,8 @@ import sumBy from 'lodash/sumBy';
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import Card from '@material-ui/core/Card'
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
+import Mark from 'mark.js';
+import { highlightSelectorClassName } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -336,7 +338,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 }
 
 const NamesAttachedReactionsCommentBottom = ({
-  document, hideKarma=false, collection, votingSystem, setCommentBodyHighlights, classes, quote
+  document, hideKarma=false, collection, votingSystem, commentItemRef, classes, quote
 }: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const anchorEl = useRef<HTMLElement|null>(null);
@@ -358,7 +360,7 @@ const NamesAttachedReactionsCommentBottom = ({
           numberShown={numberShown}
           voteProps={voteProps}
           classes={classes}
-          setCommentBodyHighlights={setCommentBodyHighlights}
+          commentItemRef={commentItemRef}
         />
       )}
       {hideKarma && <InsertEmoticonOutlined/>}
@@ -368,14 +370,14 @@ const NamesAttachedReactionsCommentBottom = ({
   </span>
 }
 
-const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes, quote, setCommentBodyHighlights}: {
+const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes, quote, commentItemRef}: {
   anchorEl: RefObject<AnyBecauseTodo>,
   react: string,
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string, // the quote that will be assigned to newly created reaction
-  setCommentBodyHighlights?: (highlights: string[])=>void
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
   const { ReactionIcon, PopperCard } = Components;
@@ -392,14 +394,36 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     toggleReaction(reaction, quote);
   }
 
+  function markHighlights (quotes: string[]) {
+    const ref = commentItemRef?.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: highlightSelectorClassName});
+    quotes.forEach(quote => {
+      markInstance.mark(quote ?? "", {
+        separateWordSearch: false,
+        acrossElements: true,
+        diacritics: true,
+        className: highlightSelectorClassName
+      });
+    })
+
+  }
+  function clearHighlights () {
+    const ref = commentItemRef?.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: highlightSelectorClassName});
+  }
+
   function handleMouseOver (e: any) {
     onMouseOver(e);
-    setCommentBodyHighlights && setCommentBodyHighlights(quotesWithUndefinedRemoved)
+    markHighlights(quotesWithUndefinedRemoved)
   }
   
   function handleMouseLeave () {
     onMouseLeave();
-    setCommentBodyHighlights && setCommentBodyHighlights([])
+    clearHighlights()
   } 
 
   return <span

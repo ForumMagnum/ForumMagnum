@@ -29,6 +29,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
   const [disabled, setDisabled] = useState(false);
+  const [warning, setWarning] = useState(false);
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
@@ -38,23 +39,24 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     const ref = commentItemRef?.current
     if (!ref) return
     let markInstance = new Mark(ref);
+
+    // Extract the raw text content of the entire HTML document
+    let rawText = ref.textContent ?? ""
+
+    // Count the number of occurrences of the quote in the raw text
+    let count = (rawText.match(new RegExp(quote ?? "", "g")) || []).length;
+
     markInstance.unmark({className: hideSelectorClassName});
-    let count = 0
     markInstance.mark(quote ?? "", {
-      separateWordSearch: false,
-      acrossElements: true,
-      diacritics: true,
-      caseSensitive: true,
-      className: hideSelectorClassName,
-      each: (node) => {
-        count += 1
-      }
+        separateWordSearch: false,
+        acrossElements: true,
+        diacritics: true,
+        className: hideSelectorClassName
     });
-    if (count !== 1) {
-      setDisabled(true)
-    } else {
-      setDisabled(false)
-    }
+
+    console.log(count)
+    setDisabled(count > 1)
+    setWarning(count === 0)
   }
 
   function handleHoverEnd() {
@@ -84,6 +86,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
           getCurrentUserReactionVote={getCurrentUserReactionVote}
           toggleReaction={toggleReaction}
           quote={quote} 
+          warning={warning}
         />
       </div>}
     </span>

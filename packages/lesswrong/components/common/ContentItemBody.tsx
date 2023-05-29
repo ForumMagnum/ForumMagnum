@@ -10,10 +10,12 @@ import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
 import Mark from 'mark.js';
 
+export const highlightSelectorClassName = "highlighted-substring";
+const highlightClassSelector = `& .${highlightSelectorClassName}`;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    '& .highlighted-substring': {
+    [highlightClassSelector]: {
       backgroundColor: theme.palette.background.primaryTranslucentHeavy
     }
   },
@@ -137,13 +139,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   
   applyLocalModifications() {
     try {
-      this.highlightSubstrings();
       this.markScrollableLaTeX();
       this.collapseFootnotes();
       this.markHoverableLinks();
       this.markElicitBlocks();
       this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
+      // this.highlightSubstrings();
       this.setState({updatedElements: true})
       
     } catch(e) {

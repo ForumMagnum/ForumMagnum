@@ -274,7 +274,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           hideKarma={post?.hideCommentKarma}
           collection={Comments}
           votingSystem={votingSystem}
-          setCommentBodyHighlights={setCommentBodyHighlights}
+          commentItemRef={commentItemRef}
         />}
       </div>
     );

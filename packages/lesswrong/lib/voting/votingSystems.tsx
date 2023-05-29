@@ -15,7 +15,8 @@ export type CommentVotingComponentProps = {
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
-  setCommentBodyHighlights?: (highlights: string[])=>void,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  // setCommentBodyHighlights?: (highlights: string[])=>void,
   quote?: string
 }
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
