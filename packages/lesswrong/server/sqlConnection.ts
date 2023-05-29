@@ -151,6 +151,9 @@ export const createSqlConnection = async (
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
+  
+  // eslint-disable-next-line no-console
+  console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
 
   const client: SqlClient = {
     ...db,
