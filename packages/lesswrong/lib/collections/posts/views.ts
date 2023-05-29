@@ -1261,7 +1261,7 @@ Posts.addView("sunshineCuratedSuggestions", function (terms) {
     },
     options: {
       sort: {
-        createdAt: -1,
+        postedAt: -1,
       },
       hint: "posts.sunshineCuratedSuggestions",
     }
