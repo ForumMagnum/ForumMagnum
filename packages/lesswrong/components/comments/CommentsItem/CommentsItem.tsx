@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { Comments } from '../../../lib/collections/comments/collection';
@@ -171,6 +171,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
+  const commentItemRef = useRef<HTMLDivElement|null>(null);
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
@@ -230,7 +231,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       />
     } else {
       return (
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} commentBodyHighlights={commentBodyHighlights}/>
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
+          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef}
+        />
       );
     }
   }
@@ -329,7 +332,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           [classes.sideComment]: treeOptions.isSideComment,
           [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
-      )}>
+      )} ref={commentItemRef}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>
             <Components.ParentCommentSingle
@@ -339,7 +342,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               truncated={showParentDefault}
               key={comment.parentCommentId}
             />
-          </div>
+          </div> 
         )}
         
         <div className={classes.postTitleRow}>

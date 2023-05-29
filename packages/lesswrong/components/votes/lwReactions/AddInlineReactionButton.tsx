@@ -19,11 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaintext}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef, plaintext}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string,
-  documentRef: React.RefObject<HTMLDivElement>,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null,
   plaintext?: string,
 }) => {
   const [open,setOpen] = useState(false);
@@ -34,7 +34,8 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   useEffect(() => {
-    setDisabled(formIsDisabled(plaintext ?? "", quote ?? ""))
+    const disabledOutput = formIsDisabled(plaintext ?? "", quote ?? "")
+    setDisabled(disabledOutput)
   }, [plaintext, quote])
 
   // ideally, I'd just use mark.js to check if the quote is unique, 
@@ -53,7 +54,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
   // while moused over the button, if the text appears multiple times it highlights both of 
   // them so it's easier to figure out the minimal text to highlight
   function handleHover() {
-    const ref = documentRef.current
+    const ref = commentItemRef?.current
     if (!ref) return
     let markInstance = new Mark(ref);
     markInstance.unmark({className: hideSelectorClassName});
@@ -75,7 +76,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaint
   }
 
   function handleHoverEnd() {
-    const ref = documentRef.current
+    const ref = commentItemRef?.current
     if (!ref) return
     let markInstance = new Mark(ref);
     markInstance.unmark({className: hideSelectorClassName});

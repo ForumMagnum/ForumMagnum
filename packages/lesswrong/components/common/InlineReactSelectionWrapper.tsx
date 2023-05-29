@@ -21,12 +21,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({classes, comment, children}: {
+export const InlineReactSelectionWrapper = ({classes, comment, children, commentItemRef}: {
   classes: ClassesType,
   comment: CommentsList,
   children: React.ReactNode,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
-  const documentRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
@@ -39,28 +39,28 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   const voteProps = useVote(comment, "Comments", votingSystem);
   
 
-  function getYOffsetFromDocument (e: MouseEvent, documentRef: React.RefObject<HTMLDivElement>) {
-    const documentRect = documentRef.current?.getBoundingClientRect();
-    if (!documentRect) return 0;
-    const documentCenter = documentRect?.top + (documentRect?.height / 2);
+  function getYOffsetFromDocument (e: MouseEvent, commentItemRef: React.RefObject<HTMLDivElement>) {
+    const commentItemRect = commentItemRef.current?.getBoundingClientRect();
+    if (!commentItemRect) return 0;
+    const documentCenter = commentItemRect?.top + (commentItemRect?.height / 2);
     const mousePosition = e.clientY;
     return mousePosition - documentCenter;
   }
 
   const detectSelection = useCallback((e: MouseEvent): void => {
-    const mouseTargetInSelectionRef = documentRef && documentRef.current?.contains(e.target as Node);
+    const mouseTargetInSelectionRef = commentItemRef && commentItemRef.current?.contains(e.target as Node);
     const mouseTargetInPopupRef = popupRef && popupRef.current?.contains(e.target as Node);
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
 
     if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
       const range = selection?.getRangeAt(0);
-      const anchorEl = documentRef.current;
+      const anchorEl = commentItemRef.current;
       
-      if (anchorEl instanceof HTMLElement && selectedText?.length > 10 ) {  
+      if (anchorEl instanceof HTMLElement && selectedText?.length > 1 ) {  
         setAnchorEl(anchorEl);
         setQuote(selectedText);
-        setYOffset(getYOffsetFromDocument(e, documentRef));
+        setYOffset(getYOffsetFromDocument(e, commentItemRef));
       } else {
         setAnchorEl(null);
         setQuote("")
@@ -79,7 +79,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   }, [detectSelection]);
 
   return (
-    <div ref={documentRef} className={classes.root}>
+    <div className={classes.root}>
       <LWPopper
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
@@ -88,7 +88,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps} documentRef={documentRef} plaintext={comment.contents?.plaintextMainText}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef} plaintext={comment.contents?.plaintextMainText}/>
         </span> 
       </LWPopper>
       {children}

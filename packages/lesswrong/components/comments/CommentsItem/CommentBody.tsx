@@ -34,13 +34,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights }: {
+const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights, commentItemRef }: {
   comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
   classes: ClassesType,
   commentBodyHighlights?: string[],
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
@@ -77,7 +78,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage, comment
   </ContentStyles>
 
   if (comment.votingSystem === "namesAttachedReactions") {
-    return <InlineReactSelectionWrapper comment={comment}>
+    return <InlineReactSelectionWrapper comment={comment} commentItemRef={commentItemRef}>
         {contentBody}
       </InlineReactSelectionWrapper>
   } else {
