@@ -76,7 +76,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     return () => {
       document.removeEventListener('mouseup', detectSelection);
     };
-  }, [detectSelection]);
+  }, [detectSelection, commentItemRef]);
 
   return (
     <div className={classes.root}>
