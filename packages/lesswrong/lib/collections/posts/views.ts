@@ -1268,7 +1268,7 @@ Posts.addView("sunshineCuratedSuggestions", function (terms) {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ createdAt:1, reviewForCuratedUserId:1, suggestForCuratedUserIds:1, }),
+  augmentForDefaultView({ postedAt:1, reviewForCuratedUserId:1, suggestForCuratedUserIds:1, }),
   {
     name: "posts.sunshineCuratedSuggestions",
     partialFilterExpression: {suggestForCuratedUserIds: {$exists:true}},
