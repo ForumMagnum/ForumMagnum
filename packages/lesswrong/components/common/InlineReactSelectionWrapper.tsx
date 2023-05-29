@@ -48,21 +48,20 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     return mousePosition - documentCenter;
   }
 
-  // clean up any stray highlights when you click.
-  // there are a few ways a user can end up with a stray highlight that 
-  // I'm not sure how else to fix - ray
-  function unMark() {
-    const ref = commentItemRef?.current
-    if (!ref) return
-    let markInstance = new Mark(ref);
-    markInstance.unmark({className: hideSelectorClassName});
-  }
 
   const detectSelection = useCallback((e: MouseEvent): void => {
     const mouseTargetInSelectionRef = commentItemRef && commentItemRef.current?.contains(e.target as Node);
     const mouseTargetInPopupRef = popupRef && popupRef.current?.contains(e.target as Node);
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
+
+    // cleans up any stray highlights when you click.
+    function unMark() {
+      const ref = commentItemRef?.current
+      if (!ref) return
+      let markInstance = new Mark(ref);
+      markInstance.unmark({className: hideSelectorClassName});
+    }
 
     if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
       const anchorEl = commentItemRef.current;
@@ -82,7 +81,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
       setQuote("")
       unMark()
     }
-  }, []);
+  }, [commentItemRef, commentTextRef]);
   useEffect(() => { 
     document.addEventListener('mouseup', detectSelection);
     return () => {
