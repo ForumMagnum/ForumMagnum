@@ -21,7 +21,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   size?: number,
   classes: ClassesType
 }) => {
-  const reactionType = namesAttachedReactionsByName[react];
+  const reactionType = namesAttachedReactionsByName(react);
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
   const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;

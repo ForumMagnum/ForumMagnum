@@ -427,7 +427,7 @@ const ReactionOverview = ({voteProps, classes}: {
       <div className={classes.alreadyUsedReactions}>
         {alreadyUsedReactionTypesByKarma.map(r => {
           const usersWhoReacted = alreadyUsedReactions[r]!;
-          const { description, label } = namesAttachedReactionsByName[r]
+          const { description, label } = namesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
               <LWTooltip title={`${label} – ${description}`}>
@@ -532,10 +532,10 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
       <ReactionIcon react={reactionName} size={24}/>
       <div className={classes.hoverInfo}>
         <span className={classes.hoverBallotLabel}>
-          {namesAttachedReactionsByName[reactionName].label}
+          {namesAttachedReactionsByName(reactionName).label}
         </span>
         <div className={classes.hoverBallotReactDescription}>
-          {namesAttachedReactionsByName[reactionName].description}
+          {namesAttachedReactionsByName(reactionName).description}
         </div>
         <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
       </div>    
