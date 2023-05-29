@@ -1,3 +1,4 @@
+import Mark from 'mark.js';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -26,6 +27,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   children: React.ReactNode,
   commentItemRef?: React.RefObject<HTMLDivElement>|null // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
 }) => {
+  const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
@@ -38,12 +40,22 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   const voteProps = useVote(comment, "Comments", votingSystem);
   
 
-  function getYOffsetFromDocument (e: MouseEvent, commentItemRef: React.RefObject<HTMLDivElement>) {
-    const commentItemRect = commentItemRef.current?.getBoundingClientRect();
-    if (!commentItemRect) return 0;
-    const documentCenter = commentItemRect?.top + (commentItemRect?.height / 2);
+  function getYOffsetFromDocument (e: MouseEvent, commentTextRef: React.RefObject<HTMLDivElement>) {
+    const commentTextRect = commentTextRef.current?.getBoundingClientRect();
+    if (!commentTextRect) return 0;
+    const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
     const mousePosition = e.clientY;
     return mousePosition - documentCenter;
+  }
+
+  // clean up any stray highlights when you click.
+  // there are a few ways a user can end up with a stray highlight that 
+  // I'm not sure how else to fix - ray
+  function unMark() {
+    const ref = commentItemRef?.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: hideSelectorClassName});
   }
 
   const detectSelection = useCallback((e: MouseEvent): void => {
@@ -53,21 +65,22 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     const selectedText = selection?.toString() ?? ""
 
     if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
-      const range = selection?.getRangeAt(0);
       const anchorEl = commentItemRef.current;
       
       if (anchorEl instanceof HTMLElement && selectedText?.length > 1 ) {  
         setAnchorEl(anchorEl);
         setQuote(selectedText);
-        setYOffset(getYOffsetFromDocument(e, commentItemRef));
+        setYOffset(getYOffsetFromDocument(e, commentTextRef));
       } else {
         setAnchorEl(null);
         setQuote("")
+        unMark()
       }
     }
     if (!mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
       setAnchorEl(null);
       setQuote("")
+      unMark()
     }
   }, []);
   useEffect(() => { 
@@ -78,7 +91,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   }, [detectSelection, commentItemRef]);
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} ref={commentTextRef}>
       <LWPopper
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
@@ -87,7 +100,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef} plaintext={comment.contents?.plaintextMainText}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef}/>
         </span> 
       </LWPopper>
       {children}

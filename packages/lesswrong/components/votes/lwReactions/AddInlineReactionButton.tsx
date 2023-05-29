@@ -19,38 +19,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef, plaintext}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
-  plaintext?: string,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
-  const [disabled, setDisabled] = useState(formIsDisabled(plaintext ?? "", quote ?? ""));
+  const [disabled, setDisabled] = useState(false);
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
-
-  useEffect(() => {
-    const disabledOutput = formIsDisabled(plaintext ?? "", quote ?? "")
-    setDisabled(disabledOutput)
-  }, [plaintext, quote])
-
-  // ideally, I'd just use mark.js to check if the quote is unique, 
-  // but it was creating annoying bugs with the original text-selection highlight.
-  // I'm not 100% sure regexes on the plaintext will be identical to what mark.js detects,
-  // but for now I'm just checking twice to be sure:
-  //  – once when the user changes their selection, and again when they go to click the button.
-  function formIsDisabled(string: string, substring: string): boolean {
-    if (!string || !substring) return true
-    const regex = new RegExp(substring, 'g');
-    const matches = string.match(regex);
-    if (!matches) return true
-    return matches && matches.length !== 1;
-  }
-
+  
   // while moused over the button, if the text appears multiple times it highlights both of 
   // them so it's easier to figure out the minimal text to highlight
   function handleHover() {
@@ -63,6 +44,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef, pla
       separateWordSearch: false,
       acrossElements: true,
       diacritics: true,
+      caseSensitive: true,
       className: hideSelectorClassName,
       each: (node) => {
         count += 1
@@ -96,7 +78,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef, pla
     <span
       ref={buttonRef}
     >
-      {!open && <InsertEmoticonOutlined onClick={handleOpen} onMouseOver={handleHover} onMouseLeave={handleHoverEnd} className={disabled ? classes.disabled : null}/>}
+      {!open && <InsertEmoticonOutlined onClick={handleOpen} onMouseOver={handleHover} onMouseLeave={handleHoverEnd}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}
