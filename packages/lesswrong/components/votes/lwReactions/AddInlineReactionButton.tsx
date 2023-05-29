@@ -3,23 +3,13 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import { useNamesAttachedReactionsVoting } from "../NamesAttachedReactionsVoteOnComment";
-import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
+import Mark from 'mark.js';
+import { hideSelectorClassName } from "../../common/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  AddInlineReactionButton: {
-    // "& svg": {
-    //   width: 24,
-    //   height: 24,
-    //   position: "relative",
-    //   filter: "opacity(0.4)",
-    //   top: 2,
-    //   verticalAlign: "bottom",
-    //   marginLeft: 11,
-    //   cursor: "pointer",
-    // },
-    // "&:hover": {
-    //   filter: "opacity(0.8)",
-    // },
+
+  disabled: {
+    opacity: .25
   },
   palette: {
     fontFamily: theme.typography.commentStyle.fontFamily,
@@ -30,10 +20,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, documentRef, plaintext}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string,
+  documentRef: React.RefObject<HTMLDivElement>,
+  plaintext?: string,
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
@@ -41,16 +33,55 @@ const AddInlineReactionButton = ({voteProps, classes, quote}: {
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
+  function formIsDisabled(string: string, substring: string): boolean {
+    if (!string || !substring) return true
+    const regex = new RegExp(substring, 'g');
+    const matches = string.match(regex);
+    if (!matches) return true
+    return matches && matches.length !== 1;
+  }
+
+  function handleHover() {
+    const ref = documentRef.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: hideSelectorClassName});
+    let count = 0
+    markInstance.mark(quote ?? "", {
+      separateWordSearch: false,
+      acrossElements: true,
+      diacritics: true,
+      className: hideSelectorClassName,
+      each: (node) => {
+        count += 1
+      }
+    });
+  }
+
+  function handleHoverEnd() {
+    const ref = documentRef.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: hideSelectorClassName});
+  }
+
+  const disabled = formIsDisabled(plaintext ?? "", quote ?? "")
+
+  const handleOpen = () => {
+    !disabled && setOpen(true)
+  }
+
   return <LWTooltip
     disabled={open}
     inlineBlock={false}
-    title={<>Click to react to this comment</>}
+    title={<div><p>Click to react to this comment snippet</p>
+      {disabled && <p><em>You need to select a unique snippet. Please select more text until the snippet is unique</em></p>}
+    </div>}
   >
     <span
       ref={buttonRef}
-      className={classes.AddInlineReactionButton}
     >
-      {!open && <InsertEmoticonOutlined onClick={ev => setOpen(true)}/>}
+      {!open && <InsertEmoticonOutlined onClick={handleOpen} onMouseOver={handleHover} onMouseLeave={handleHoverEnd} className={disabled ? classes.disabled : null}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}

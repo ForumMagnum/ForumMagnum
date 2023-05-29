@@ -4,13 +4,21 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useNamesAttachedReactionsVoting } from '../votes/NamesAttachedReactionsVoteOnComment';
 import { useVote } from '../votes/withVote';
 
+export const hideSelectorClassName = "hidden-selector";
+const hiddenSelector = `& .${hideSelectorClassName}`;
+
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    [hiddenSelector]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy
+    }
+  },
   button: {
     zIndex: 1000,
     position: "relative",
     left: 12,
     backgroundColor: theme.palette.background.paper, 
-  }
+  },
 });
 
 export const InlineReactSelectionWrapper = ({classes, comment, children}: {
@@ -39,12 +47,6 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
     return mousePosition - documentCenter;
   }
 
-
-  // note: I originally just made this a function. ChatGPT claimed that it would
-  // result in a memory leak because it would create a new function every time
-  // the component re-renders. I don't know if that's true, but I'm using
-  // useCallback to memoize it just in case.
-  // ChatGPT also... generated this note, so watch out for that
   const detectSelection = useCallback((e: MouseEvent): void => {
     const mouseTargetInSelectionRef = documentRef && documentRef.current?.contains(e.target as Node);
     const mouseTargetInPopupRef = popupRef && popupRef.current?.contains(e.target as Node);
@@ -77,7 +79,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
   }, [detectSelection]);
 
   return (
-    <div ref={documentRef}>
+    <div ref={documentRef} className={classes.root}>
       <LWPopper
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
@@ -86,7 +88,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children}: {
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} documentRef={documentRef} plaintext={comment.contents?.plaintextMainText}/>
         </span> 
       </LWPopper>
       {children}
