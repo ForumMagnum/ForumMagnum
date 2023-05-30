@@ -143,7 +143,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         author."fullName" AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        p."contents"->>'html' AS "body"
+        p."contents"->>'html' AS "body",
+        NOW() AS "exportedAt"
       FROM "Posts" p
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"

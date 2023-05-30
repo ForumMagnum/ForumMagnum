@@ -275,7 +275,7 @@ class ElasticSearchQuery {
         },
         sort: this.compileSort(sorting),
         _source: {
-          exclude: privateFields,
+          exclude: ["exportedAt", ...privateFields],
         },
       },
     };
