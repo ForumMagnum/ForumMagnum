@@ -403,7 +403,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     const highlightSubstring = (container: HTMLElement, substring: string) => {
       markInstance.mark(substring, {
         separateWordSearch: false,
-        className: "highlighted-substring",
+        className: highlightSelectorClassName,
         acrossElements: true,
         diacritics: true,
       });
