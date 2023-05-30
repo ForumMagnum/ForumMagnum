@@ -24,9 +24,9 @@ import {
   defaultElasticSorting,
   elasticCollectionIsCustomSortable,
   elasticSortingToUrlParam,
-  elasticSortings,
   formatElasticSorting,
   getElasticIndexNameWithSorting,
+  getElasticSortingsForCollection,
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 
@@ -322,14 +322,16 @@ const SearchPageTabbed = ({classes}:{
         query: search.query,
         tags,
         toggle: search.toggle,
-        page: search.page
+        page: search.page,
+        sort: elasticSortingToUrlParam(sorting),
       })
     })
   }
-    
+
   const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
-    setTab(value)
-    setSearchState({...searchState, contentType: value, page: 1})
+    setTab(value);
+    setSorting(defaultElasticSorting);
+    setSearchState({...searchState, contentType: value, page: 1});
   }
   // filters that we want to persist when changing content type tabs need to be handled separately
   // (currently that's just the tags filter)
@@ -433,7 +435,7 @@ const SearchPageTabbed = ({classes}:{
               onChange={(e) => onSortingChange(e.target.value)}
               className={classes.sort}
             >
-              {Array.from(elasticSortings).map((name, i) =>
+              {getElasticSortingsForCollection(tab).map((name, i) =>
                 <MenuItem key={i} value={name}>
                   {formatElasticSorting(name)}
                 </MenuItem>

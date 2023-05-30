@@ -76,6 +76,11 @@ export type IndexConfig = {
    * save on network traffic.
    */
   privateFields: string[],
+  /**
+   * The name of the field to sort on when sorting by karma. Defaults to
+   * `baseScore` if not defined.
+   */
+  karmaField?: string,
 }
 
 const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
@@ -123,8 +128,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
   Posts: {
     fields: [
-      "title^2",
-      "authorDisplayName",
+      "title^3",
+      "authorDisplayName^4",
       "body",
     ],
     snippet: "body",
@@ -219,6 +224,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       "deleted",
       "isAdmin",
     ],
+    karmaField: "karma",
   },
   Sequences: {
     fields: [

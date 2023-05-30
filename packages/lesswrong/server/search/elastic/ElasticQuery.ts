@@ -220,12 +220,23 @@ class ElasticSearchQuery {
       {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
     ];
-    if (sorting === "newest_first") {
+    switch (sorting) {
+    case "karma":
+      const field = this.config.karmaField ?? "baseScore";
+      sort.unshift({[field]: {order: "desc"}});
+      break;
+    case "newest_first":
       sort.unshift({publicDateMs: {order: "desc"}});
-    } else if (sorting === "oldest_first") {
+      break;
+    case "oldest_first":
       sort.unshift({publicDateMs: {order: "asc"}});
-    } else if (sorting && sorting !== "relevance") {
-      throw new Error("Invalid sorting: " + sorting);
+      break;
+    case "relevance":
+      break;
+    default:
+      if (sorting) {
+        throw new Error("Invalid sorting: " + sorting);
+      }
     }
     return sort;
   }

@@ -7,6 +7,7 @@ export const elasticCollectionIsCustomSortable = (
 
 export const elasticSortings = new TupleSet([
   "relevance",
+  "karma",
   "newest_first",
   "oldest_first",
 ] as const);
@@ -14,6 +15,16 @@ export const elasticSortings = new TupleSet([
 export type ElasticSorting = UnionOf<typeof elasticSortings>;
 
 export const defaultElasticSorting: ElasticSorting = "relevance";
+
+export const getElasticSortingsForCollection = (
+  collectionName: AlgoliaIndexCollectionName,
+): ElasticSorting[] => {
+  const allSortings = Array.from(elasticSortings);
+  if (collectionName === "Sequences") {
+    return allSortings.filter((sorting) => sorting !== "karma");
+  }
+  return allSortings;
+}
 
 export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
   elasticSortings.has(sorting);
