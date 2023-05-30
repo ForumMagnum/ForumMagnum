@@ -238,15 +238,13 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+      const reCaptchaData = JSON.parse(reCaptchaResponse)
       let recaptchaScore : number | undefined = undefined
-      if (reCaptchaResponse) {
-        const reCaptchaData = JSON.parse(reCaptchaResponse)
-        if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
-          recaptchaScore = reCaptchaData.score
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("reCaptcha check failed:", reCaptchaData)
-        }
+      if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+        recaptchaScore = reCaptchaData.score
+      } else {
+        // eslint-disable-next-line no-console
+        console.log("reCaptcha check failed:", reCaptchaData)
       }
 
       const { req, res } = context
@@ -370,23 +368,19 @@ async function recordAssociationBetweenUserAndClientID(clientId: string, user: D
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-const getCaptchaRating = async (token: string): Promise<string|null> => {
+export const getCaptchaRating = async (token: string): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
-    if (reCaptchaSecretSetting.get()) {
-      request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
-          form: {
-            secret: reCaptchaSecretSetting.get(),
-            response: token
-          }
-        },
-        function(err, httpResponse, body) {
-          if (err) reject(err);
-          return resolve(body);
+    request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
+        form: {
+          secret: reCaptchaSecretSetting.get(),
+          response: token
         }
-      );
-    } else {
-      resolve(null);
-    }
+      },
+      function(err, httpResponse, body) {
+        if (err) reject(err);
+        return resolve(body);
+      }
+    );
   });
 }

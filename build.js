@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
-const process = require('process');
+const WebSocket = require('ws');
+const crypto = require('crypto');
 const { zlib } = require("mz");
-const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
-const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
+
 /**
  * This is used for clean exiting in Github workflows by the dev
  * only route /api/quit
@@ -14,7 +14,6 @@ process.on("SIGQUIT", () => process.exit(0));
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
   ["settings", "A JSON config file for the server", "<file>"],
-  ["db", "A path to a database connection config file", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -35,6 +34,8 @@ const getServerPort = () => {
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
+let clientRebuildInProgress = false;
+let serverRebuildInProgress = false;
 const serverPort = getServerPort();
 const websocketPort = serverPort + 1;
 
@@ -48,18 +49,33 @@ const outputDir = `build${serverPort === defaultServerPort ? "" : serverPort}`;
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
 
-const databaseConfig = getDatabaseConfig(opts);
-process.env.MONGO_URL = databaseConfig.mongoUrl;
-process.env.PG_URL = databaseConfig.postgresUrl;
-
-if (databaseConfig.sshTunnelCommand) {
-  startSshTunnel(databaseConfig.sshTunnelCommand);
-}
-
 if (isProduction) {
   process.env.NODE_ENV="production";
 } else {
   process.env.NODE_ENV="development";
+}
+if (opts.mongoUrl) {
+  process.env.MONGO_URL = opts.mongoUrl;
+} else if (opts.mongoUrlFile) {
+  try {
+    process.env.MONGO_URL = fs.readFileSync(opts.mongoUrlFile, 'utf8').trim();
+  } catch(e) {
+    console.log(e);
+    process.exit(1);
+  }
+}
+
+if (opts.postgresUrl) {
+  process.env.PG_URL = opts.postgresUrl;
+} else if (opts.postgresUrlFile) {
+  try {
+    process.env.PG_URL = fs.readFileSync(opts.postgresUrlFile, 'utf8').trim();
+  } catch(e) {
+    // TODO: Make this an error once both sites have migrated
+    // console.log(e);
+    // process.exit(1);
+    console.warn("Warning: Can't read Postgres URL file");
+  }
 }
 
 const clientBundleBanner = `/*
@@ -108,12 +124,12 @@ build({
   treeShaking: "ignore-annotations",
   run: false,
   onStart: (config, changedFiles, ctx) => {
-    setClientRebuildInProgress(true);
+    clientRebuildInProgress = true;
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
   },
   onEnd: (config, buildResult, ctx) => {
-    setClientRebuildInProgress(false);
+    clientRebuildInProgress = false;
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
@@ -128,9 +144,7 @@ build({
       }
 
       latestCompletedBuildId = inProgressBuildId;
-      if (cliopts.watch) {
-        initiateRefresh();
-      }
+      initiateRefresh();
     }
     inProgressBuildId = null;
   },
@@ -160,13 +174,11 @@ build({
   minify: false,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
-    setServerRebuildInProgress(true);
+    serverRebuildInProgress = true;
   },
   onEnd: () => {
-    setServerRebuildInProgress(false);
-    if (cliopts.watch) {
-      initiateRefresh();
-    }
+    serverRebuildInProgress = false;
+    initiateRefresh();
   },
   define: {
     ...bundleDefinitions,
@@ -182,6 +194,89 @@ build({
   ],
 })
 
+const openWebsocketConnections = [];
+
+async function isServerReady() {
+  try {
+    const response = await fetch(`http://localhost:${serverPort}/api/ready`);
+    return response.ok;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function waitForServerReady() {
+  while (!(await isServerReady())) {
+    await asyncSleep(100);
+  }
+}
+
+async function asyncSleep(durationMs) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), durationMs);
+  });
+}
+
+function getClientBundleTimestamp() {
+  const stats = fs.statSync(`./${outputDir}/client/js/bundle.js`);
+  return stats.mtime.toISOString();
+}
+
+function generateBuildId() {
+  return crypto.randomBytes(12).toString('base64');
+}
+
+let refreshIsPending = false;
+async function initiateRefresh() {
+  if (!cliopts.watch) {
+    return;
+  }
+  if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
+    return;
+  }
+  
+  // Wait just long enough to make sure estrella has killed the old server
+  // process so that when we check for server-readiness, we don't accidentally
+  // check the process that's being replaced.
+  await asyncSleep(100);
+  
+  refreshIsPending = true;
+  console.log("Initiated refresh; waiting for server to be ready");
+  await waitForServerReady();
+  
+  if (openWebsocketConnections.length > 0) {
+    console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
+    for (let connection of openWebsocketConnections) {
+      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+    }
+  } else {
+    console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
+  }
+  
+  refreshIsPending = false;
+}
+
+function startWebsocketServer() {
+  const server = new WebSocket.Server({
+    port: websocketPort,
+  });
+  server.on('connection', async (ws) => {
+    openWebsocketConnections.push(ws);
+    
+    ws.on('message', (data) => {
+    });
+    ws.on('close', function close() {
+      const connectionIndex = openWebsocketConnections.indexOf(ws);
+      if (connectionIndex >= 0) {
+        openWebsocketConnections.splice(connectionIndex, 1);
+      }
+    });
+    
+    await waitForServerReady();
+    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+  });
+}
+
 if (cliopts.watch && cliopts.run && !isProduction) {
-  startAutoRefreshServer(websocketPort);
+  startWebsocketServer();
 }

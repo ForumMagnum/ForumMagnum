@@ -70,7 +70,6 @@ typings
 
 build*
 !build.js
-!buildUtil.js
 yarn-error.log
 
 # Created by @shelf/jest-mongodb
