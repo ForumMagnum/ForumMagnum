@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 188,
+    maxHeight: 240,
     overflowY: "scroll",
     marginBottom: 12,
     marginTop: 12
@@ -130,7 +130,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   }
 
   const N = 9; // number of reaction icons that fit on a line
-  const mixedIconReactions = reactionsToShow.slice(0, Math.floor(reactionsToShow.length / N) * N);
+  const numRowsToShow = 2;
+  const mixedIconReactions = reactionsToShow.slice(0, Math.min(N * numRowsToShow, reactionsToShow.length));
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}

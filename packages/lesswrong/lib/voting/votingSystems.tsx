@@ -24,6 +24,7 @@ export type CommentVotingComponent = React.ComponentType<CommentVotingComponentP
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
+  userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
   getCommentBottomComponent?: ()=>CommentVotingComponent,
   addVoteClient: (props: {
@@ -72,6 +73,7 @@ registerVotingSystem({
 registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
+  userCanActivate: true,
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
