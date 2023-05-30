@@ -1,6 +1,6 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { htmlToText } from "html-to-text";
-import ElasticSearchClient from "./ElasticClient";
+import ElasticClient from "./ElasticClient";
 import { collectionNameToConfig, Mappings } from "./ElasticConfig";
 import {
   AlgoliaIndexCollectionName,
@@ -29,9 +29,9 @@ const HTML_FIELDS = [
   "description",
 ];
 
-class ElasticSearchExporter {
+class ElasticExporter {
   constructor(
-    private client = new ElasticSearchClient(),
+    private client = new ElasticClient(),
   ) {}
 
   async configureIndexes() {
@@ -382,18 +382,18 @@ class ElasticSearchExporter {
 }
 
 Globals.elasticConfigureIndex = (collectionName: AlgoliaIndexCollectionName) =>
-  new ElasticSearchExporter().configureIndex(collectionName);
+  new ElasticExporter().configureIndex(collectionName);
 
 Globals.elasticConfigureIndexes = () =>
-  new ElasticSearchExporter().configureIndexes();
+  new ElasticExporter().configureIndexes();
 
 Globals.elasticExportCollection = (collectionName: AlgoliaIndexCollectionName) =>
-  new ElasticSearchExporter().exportCollection(collectionName);
+  new ElasticExporter().exportCollection(collectionName);
 
 Globals.elasticExportAll = () =>
-  new ElasticSearchExporter().exportAll();
+  new ElasticExporter().exportAll();
 
 Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
-  new ElasticSearchExporter().deleteIndex(collectionName);
+  new ElasticExporter().deleteIndex(collectionName);
 
-export default ElasticSearchExporter;
+export default ElasticExporter;

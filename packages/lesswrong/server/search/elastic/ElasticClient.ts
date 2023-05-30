@@ -1,7 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import type { SearchHit, SearchResponse } from "@elastic/elasticsearch/lib/api/types";
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
-import ElasticSearchQuery, { QueryData } from "./ElasticQuery";
+import ElasticQuery, { QueryData } from "./ElasticQuery";
 
 const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",
@@ -23,7 +23,7 @@ export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 
-class ElasticSearchClient {
+class ElasticClient {
   private client: Client;
 
   constructor() {
@@ -52,7 +52,7 @@ class ElasticSearchClient {
   }
 
   search(queryData: QueryData): Promise<ElasticSearchResponse> {
-    const query = new ElasticSearchQuery(queryData);
+    const query = new ElasticQuery(queryData);
     const request = query.compile();
     return this.getClientOrThrow().search(request);
   }
@@ -65,4 +65,4 @@ class ElasticSearchClient {
   }
 }
 
-export default ElasticSearchClient;
+export default ElasticClient;

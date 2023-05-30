@@ -1,5 +1,9 @@
 export type SearchResultHit = AlgoliaDocument;
 
+/**
+ * This is the schema of results that InstantSearch expects to receive from
+ * the server.
+ */
 export type SearchResult = {
   hits: SearchResultHit[],
   nbHits: number,

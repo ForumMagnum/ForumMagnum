@@ -4,7 +4,7 @@ import {
   addGraphQLMutation,
 } from "../../../lib/vulcan-lib/graphql";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
-import ElasticSearchExporter from "./ElasticExporter";
+import ElasticExporter from "./ElasticExporter";
 
 addGraphQLResolvers({
   Query: {
@@ -16,7 +16,7 @@ addGraphQLResolvers({
       if (!currentUser || !userIsAdmin(currentUser)) {
         throw new Error("This feature is only available to admins");
       }
-      const exporter = new ElasticSearchExporter();
+      const exporter = new ElasticExporter();
       return exporter.getExistingSynonyms();
     },
   },
@@ -29,7 +29,7 @@ addGraphQLResolvers({
       if (!currentUser || !userIsAdmin(currentUser)) {
         throw new Error("This feature is only available to admins");
       }
-      const exporter = new ElasticSearchExporter();
+      const exporter = new ElasticExporter();
       await exporter.updateSynonyms(synonyms);
       return synonyms;
     }

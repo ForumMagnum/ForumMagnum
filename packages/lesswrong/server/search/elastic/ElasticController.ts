@@ -1,11 +1,11 @@
 import { Application, Request, Response, json } from "express";
 import { isValidSearchQuery } from "./SearchQuery";
-import ElasticSearchService from "./ElasticService";
+import ElasticService from "./ElasticService";
 
-class ElasticSearchController {
+class ElasticController {
   constructor(
     app: Application,
-    private searchService = new ElasticSearchService(),
+    private searchService = new ElasticService(),
   ) {
     const route = "/api/search";
     app.use(route, json({limit: "1mb"}));
@@ -36,4 +36,4 @@ class ElasticSearchController {
   }
 }
 
-export default ElasticSearchController;
+export default ElasticController;

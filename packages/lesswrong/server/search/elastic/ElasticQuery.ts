@@ -41,7 +41,7 @@ export type QueryData = {
   filters: QueryFilter[],
 }
 
-class ElasticSearchQuery {
+class ElasticQuery {
   private config: IndexConfig;
 
   constructor(
@@ -293,4 +293,4 @@ class ElasticSearchQuery {
   }
 }
 
-export default ElasticSearchQuery;
+export default ElasticQuery;

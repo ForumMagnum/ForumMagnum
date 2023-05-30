@@ -3,19 +3,19 @@ import {
   algoliaIndexedCollectionNames,
 } from "../../../lib/search/algoliaUtil";
 import { getCollectionHooks } from "../../mutationCallbacks";
-import ElasticSearchClient from "./ElasticClient";
-import ElasticSearchExporter from "./ElasticExporter";
+import ElasticClient from "./ElasticClient";
+import ElasticExporter from "./ElasticExporter";
 
 export const elasticSyncDocument = (
   collectionName: AlgoliaIndexCollectionName,
   documentId: string,
 ) => {
   try {
-    const client = new ElasticSearchClient();
+    const client = new ElasticClient();
     if (!client.isConnected()) {
       return;
     }
-    const exporter = new ElasticSearchExporter(client);
+    const exporter = new ElasticExporter(client);
     void exporter.updateDocument(collectionName, documentId);
   } catch (e) {
     // eslint-disable-next-line no-console

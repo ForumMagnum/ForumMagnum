@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/**
+ * The is the schema of the request sent from the InstantSearch frontend to
+ * Algolia, and we implmenet this same interface in Elasticsearch.
+ */
 const querySchema = z.object({
   indexName: z.string(),
   params: z.object({

@@ -18,4 +18,6 @@ When making changes to mappings, `elasticConfigureIndexes` will update the
 mappings accordingly and reindex the existing data.
 
 When a new instance is created it will have an empty list of synonyms. These
-can be edited at the `/admin/synonyms` page.
+can be edited at the `/admin/synonyms` page. Note that synonyms are not
+duplicated anywhere else, so deleting and rebuilding indexes will not preserve
+the synonym list. `elasticConfigureIndexes` _does_ preserve synonyms.

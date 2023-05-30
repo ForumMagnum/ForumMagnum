@@ -1,4 +1,4 @@
-import ElasticSearchClient, { ElasticSearchHit } from "./ElasticClient";
+import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
 import type { SearchQuery } from "./SearchQuery";
 import type { SearchResult } from "./SearchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
@@ -15,9 +15,9 @@ type SanitizedIndexName = {
   sorting?: string,
 }
 
-class ElasticSearchService {
+class ElasticService {
   constructor(
-    private client = new ElasticSearchClient(),
+    private client = new ElasticClient(),
   ) {}
 
   async runQuery({indexName, params}: SearchQuery): Promise<SearchResult> {
@@ -73,7 +73,7 @@ class ElasticSearchService {
       serverTimeMS: timeMS,
       /**
        * `facets` and `facets_stats` are needed to tell the frontend it should enable
-       * controls for choose facets (most notably, publicDateMs). For now we're just
+       * controls for choosing facets (most notably, publicDateMs). For now we're just
        * passing in dummy values, but maybe we should calculate the actual amount?
        * It's probably not worth the performance hit though...
        */
@@ -210,4 +210,4 @@ class ElasticSearchService {
   }
 }
 
-export default ElasticSearchService;
+export default ElasticService;
