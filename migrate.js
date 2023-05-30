@@ -48,10 +48,10 @@ const settingsFilePath = (fileName, forum) => {
 }
 
 const databaseConfig = (mode, forum) => getDatabaseConfig((forum === 'lw') ? {
-  db: `${credentialsPath}/connectionConfigs/${mode}.json`,
+  db: `${credentialsPath(forum)}/connectionConfigs/${mode}.json`,
 } : {
-  mongoUrlFile: `${credentialsPath}/${mode}-db-conn.txt`,
-  postgresUrlFile: `${credentialsPath}/${mode}-pg-conn.txt`,
+  mongoUrlFile: `${credentialsPath(forum)}/${mode}-db-conn.txt`,
+  postgresUrlFile: `${credentialsPath(forum)}/${mode}-pg-conn.txt`,
 });
 
 const settingsFileName = (mode, forum) => {
