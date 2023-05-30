@@ -38,6 +38,7 @@ class ElasticSearchClient {
     // eslint-disable-next-line no-console
     console.log("Connecting to Elasticsearch...");
     this.client = new Client({
+      requestTimeout: 600000,
       cloud: {id: cloudId},
       auth: {
         username,

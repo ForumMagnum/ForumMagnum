@@ -74,6 +74,7 @@ class ElasticSearchExporter {
     if (oldIndexName) {
       // eslint-disable-next-line no-console
       console.log(`Reindexing index: ${collectionName}`);
+      const synonyms = await this.getExistingSynonyms();
       await client.indices.putSettings({
         index: oldIndexName,
         body: {
@@ -81,6 +82,7 @@ class ElasticSearchExporter {
         },
       });
       await this.createIndex(newIndexName, collectionName);
+      await this.updateSynonymsForIndex(newIndexName, synonyms);
       await client.reindex({
         refresh: true,
         body: {
@@ -352,6 +354,10 @@ class ElasticSearchExporter {
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
     const index = this.getIndexName(collection);
+    await this.updateSynonymsForIndex(index, synonyms);
+  }
+
+  private async updateSynonymsForIndex(index: string, synonyms: string[]) {
     const client = this.client.getClientOrThrow();
     await client.indices.close({index});
     await client.indices.putSettings({
