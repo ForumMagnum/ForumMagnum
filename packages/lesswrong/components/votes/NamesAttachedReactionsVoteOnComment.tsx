@@ -161,9 +161,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   usersWhoReacted: {
     fontSize: 11,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
   usersWhoReactedWrap: {
     whiteSpace: "unset",
@@ -187,11 +184,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18,
     width: 18
   },
-  tinyQuote: {
-    textOverflow: "ellipsis",
+  quoteWrapper: {
     overflow: "hidden",
     whiteSpace: "nowrap",
-    height: "1em"
+    textOverflow: "ellipsis",
+    maxWidth: 217,
+    display: "inline-block",
+  },
+  tinyQuote: {
+    textOverflow: "ellipsis", 
+    marginLeft: 8
   }
 })
 
@@ -232,8 +234,10 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       openLoginDialog();
       return;
     }
-    
-    if (getCurrentUserReactionVote(name)) {
+    const currentUserReaction = getCurrentUserReaction(name);
+    const shouldClearUserReaction = getCurrentUserReactionVote(name) && (!quote || currentUserReaction?.quotes?.includes(quote))
+
+    if (shouldClearUserReaction) {
       clearCurrentUserReaction(name);
     } else {
       const initialVote = "created"; //TODO: "created" vs "seconded"
@@ -247,12 +251,14 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       return;
     }
     const oldReacts = currentUserExtendedVote?.reacts ?? [];
+    const oldQuotes = getCurrentUserReaction(reactionName)?.quotes ?? [];
+    const newQuotes = quote ? [...oldQuotes, quote] : oldQuotes
     const newReacts: UserVoteOnSingleReaction[] = [
       ...filter(oldReacts, r=>r.react!==reactionName),
       {
         react: reactionName,
         vote,
-        quotes: quote ? [quote] : []
+        quotes: newQuotes
       }
     ]
     const newExtendedVote: NamesAttachedReactionsVote = {
@@ -530,7 +536,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes}: 
 }
 
 const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes}:{usersWhoReacted:UserReactInfo[], wrap?: boolean, showTooltip?: boolean, classes:ClassesType}) => {
-  const { LWTooltip } = Components;
+  const { LWTooltip, Row } = Components;
   const usersWhoProReacted = usersWhoReacted.filter(r=>r.reactType!=="disagreed")
   const usersWhoAntiReacted = usersWhoReacted.filter(r=>r.reactType==="disagreed")
   const tooltip = <div>
@@ -544,13 +550,15 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
 
   const component = <div className={classes.usersWhoReactedRoot}>
     <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
-      {usersWhoProReacted.map((userReactInfo,i) =>
-          <div key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {userReactInfo.displayName}{userReactInfo.quotes?.length && <span>{": "}</span>}
-            {userReactInfo.quotes?.map(quote => <span key={quote}><span className={classes.tinyQuote}>"{quote}</span>"</span>)}
+      {usersWhoProReacted.map((userReactInfo,i) => {
+        const quotes = userReactInfo.quotes ?? []
+        return <div key={userReactInfo.userId} className={classes.userWhoReacted}>
+            {userReactInfo.displayName}{(quotes.length > 0) && <span>{": "}</span>}
+            {quotes?.map(quote => <LWTooltip title={quote} key={quote}>
+                <Row justifyContent="flex-start"><span className={classes.quoteWrapper}><span className={classes.tinyQuote}>"{quote.trim()}</span></span>"</Row>
+              </LWTooltip>)}
           </div>
-        )
-      }
+      })}
     </div>
     {usersWhoAntiReacted.length > 0 &&
       <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
