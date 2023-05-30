@@ -147,7 +147,7 @@ export type CommentsNewFormProps = {
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
-  const commentSubmitIdRef = useRef(randomId());
+  const commentSubmitStartTimeRef = useRef<number>();
   
   const userWithRateLimit = useSingle({
     documentId: currentUser?._id,
@@ -218,10 +218,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       successCallback(comment, { form })
     }
     setLoading(false)
-    captureEvent("wrappedSuccessCallbackFinished", {commentSubmitId: commentSubmitIdRef.current})
+    const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
+    captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     userWithRateLimit.refetch();
   };
-
+  
   const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
@@ -328,8 +329,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               cancelCallback={wrappedCancelCallback}
               submitCallback={(data: unknown) => {
                 setLoading(true);
-                commentSubmitIdRef.current = randomId()
-                captureEvent("wrappedSubmitCallbackStarted", {commentSubmitId: commentSubmitIdRef.current})
+                commentSubmitStartTimeRef.current = Date.now()
+                captureEvent("wrappedSubmitCallbackStarted")
                 return data
               }}
               errorCallback={() => setLoading(false)}
