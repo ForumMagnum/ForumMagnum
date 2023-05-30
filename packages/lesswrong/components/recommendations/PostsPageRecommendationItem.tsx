@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "baseline",
     [theme.breakpoints.down("xs")]: {
       whiteSpace: "unset",
       flexDirection: "column",

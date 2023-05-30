@@ -151,6 +151,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     fragmentName: "UsersCurrentCommentRateLimit",
     extraVariables: { postId: 'String' },
     extraVariablesValues: { postId: post?._id },
+    fetchPolicy: "cache-and-network",
     skip: !currentUser,
   });
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;

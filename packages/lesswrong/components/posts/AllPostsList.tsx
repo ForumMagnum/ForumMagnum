@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
-import { AllowHidingFrontPagePostsContext } from "./PostsPage/PostActions";
+import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {
   DEFAULT_LOW_KARMA_THRESHOLD,

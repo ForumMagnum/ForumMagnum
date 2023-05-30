@@ -16,8 +16,8 @@ export type NamesAttachedReactionType = {
   searchTerms?: string[],
   
   /**
-   * Human-readable label string describing the reaction. Should start with a
-   * capital letter, and be short (ideally one word).
+   * Human-readable label string describing the reaction. Should be in title
+   * case, and be short (ideally one word).
    */
   label: string,
   
@@ -47,6 +47,7 @@ export type NamesAttachedReactionType = {
    * in the future.
    */
   description: string|((contentType:string)=>string),
+  deprecated?: boolean // if true, users are discouraged from continuing to use this react
 }
 
 /**
@@ -67,15 +68,256 @@ export type NamesAttachedReactionType = {
  * that hasn't been used before, you have to check its license and make sure
  * it's suitable.
  */
+
+//There are spaces between each person to help reason about how they'll be displayed in the two columns, two on each row.
 export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
-    name: "changemind",
-    label: "Changed Mind",
-    searchTerms: ["delta"],
-    svg: "/reactionImages/nounproject/delta.svg",
-    filter: { opacity: 0.6 },
-    description: "Changed my mind",
+  name: "important",
+  label: "Important",
+  searchTerms: ["!"],
+  svg: "/reactionImages/nounproject/exclamation.svg",
+  description: "",
   },
+  {
+  name: "thanks",
+  label: "Thanks!",
+  searchTerms: ["ty", "thanks"],
+  svg: "/reactionImages/nounproject/thankyou.svg",
+  description: "",
+  },
+
+  {
+  name: "changemind",
+  label: "Changed My Mind",
+  searchTerms: ["delta"],
+  svg: "/reactionImages/nounproject/delta.svg",
+  filter: { opacity: 0.6 },
+  description: (contentType) => `This ${contentType} changed my mind`,
+  },
+  {
+  name: "notacrux",
+  label: "Not a crux",
+  searchTerms: ["identity", "matrix"],
+  svg: "/reactionImages/nounproject/crux.svg",
+  filter: { opacity: 1 },
+  description: (contentType) => `This ${contentType} doesn't get at something that's a crux for my beliefs`,
+  },
+
+  {
+  name: "yeswhatimean",
+  label: "Yes, that's my position",
+  searchTerms: ["hand", "yes", "correct"],
+  svg: "/reactionImages/nounproject/clickingpointinghand.svg",
+  filter: { opacity: 0.6 },
+  description: (contentType) => `Based on this, I think you've understood my/other person's position`,
+  },
+  {
+  name: "miss",
+  label: "Not what I meant",
+  svg: "/reactionImages/nounproject/inaccurate.svg",
+  description: "I think this misses what I (or the other person) was trying to say or explain"
+  },
+
+
+  {
+  name: "agree",
+    label: "Agreed",
+  searchTerms: ["check","correct"],
+  svg: "/reactionImages/nounproject/check.svg",
+  description: "I agree with this.",
+  },
+  {
+  name: "disagree",
+    label: "Disagree",
+  svg: "/reactionImages/nounproject/x.svg",
+  searchTerms: ["x"],
+  description: "I disagree with this",
+  },
+
+  {
+  name: "locallyValid",
+  label: "Locally Valid",
+  searchTerms: ["locally","valid", "sound"],
+  svg: "/reactionImages/nounproject/doubleturnstile.svg",
+  description: "I think the reasoning is valid, independent of the premises or conclusion.",
+  },
+  {
+  name: "locallyInvalid",
+  label: "Locally Invalid",
+  svg: "/reactionImages/nounproject/negateddoubleturnstile.svg",
+  searchTerms: ["locally", "invalid", "unsound"],
+  description: "This reasoning is not sound and does not preserve truth values.",
+  },
+  
+  {
+    name: "dontUnderstand",
+    label: "I don't understand",
+    svg: "/reactionImages/nounproject/confused.svg",
+    searchTerms: ["confused", "understand"],
+    description: "I didn't understand this",
+  },
+  {
+  name: "eleborate",
+  label: "Please elaborate",
+  searchTerms: ["questions"],
+  svg: "/reactionImages/nounproject/ellipses.svg",
+  filter: { opacity: 0.4 },
+  description: "",
+  },
+
+  {
+  name: "prediction",
+  label: "What's your prediction?",
+  searchTerms: ["telescope", "prediction", "anticipation"],
+  svg: "/reactionImages/nounproject/telescope.svg",
+  filter: { opacity: 0.4 },
+  description: "What do you concretely expect to observe given your beliefs?",
+  },
+  {
+  name: "examples",
+  label: "Examples, please",
+  searchTerms: ["examples", "shapes"],
+  svg: "/reactionImages/nounproject/shapes.svg",
+  filter: { opacity: 0.6 },
+  description: "Can you give some examples of this?",
+  },
+  {
+    name: "additionalQuestions",
+    label: "Additional Questions",
+    searchTerms: ["elephant","questions"],
+    svg: "/reactionImages/nounproject/elephant.svg",
+    filter: { opacity: 0.6 },
+    description: "I now have additional questions.",
+  },
+  {
+  name: "taboo",
+  label: "Taboo your words",
+  searchTerms: ["taboo", "shush", "quiet"],
+  svg: "/reactionImages/nounproject/shush.svg",
+  filter: { opacity: 0.6 },
+  description: "Can you say this without using those keyterms?"
+  },
+
+
+  {
+  name: "strawman",
+    label: "Not responding to actual position",
+  searchTerms: ["examples", "scarecrow", "strawman"],
+  svg: "/reactionImages/nounproject/scarecrow.svg",
+  description: "I think this misrepresents the thing that it argues against",
+  },
+  {
+  name: "roll",
+    label: "Roll to disbelieve",
+  searchTerms: ["examples", "shapes", "skeptical", "eyebrow", "dice"],
+  svg: "/reactionImages/nounproject/skeptical.svg",
+  filter: { opacity: 0.6 },
+  description: "I find your claims quite surprising!"
+  },
+
+  {
+  name: "seen",
+    label: "I Saw This",
+  searchTerms: ["eyes"],
+  svg: "/reactionImages/nounproject/eyes.svg",
+  filter: { opacity: 0.8 },
+  description: (contentType) => `I'm registering that I saw this ${contentType}`,
+  },
+  {
+  name: "replyLater",
+    label: "I'll Reply Later",
+  svg: "/reactionImages/nounproject/clock.svg",
+  searchTerms: ["clock", "later"],
+  description: "I intend to reply to this in the future",
+  },
+
+  {
+  name: "laugh",
+  label: "Laugh",
+  svg: "/reactionImages/nounproject/laugh.svg",
+  description: "This is humorous",
+  },
+  {
+  name: "surprise",
+  label: "Surprise",
+  svg: "/reactionImages/nounproject/surprise.svg",
+  filter: { opacity: 0.6 },
+  description: "I am surprised",
+  },
+
+  {
+  name: "support",
+  label: "Support",
+  searchTerms: ["pillar"],
+  svg: "/reactionImages/nounproject/pillar.svg",
+  description: `I am expressing supportiveness towards this`,
+  },
+  {
+  name: "empathy",
+  label: "Empathy",
+  searchTerms: ["heart"],
+  svg: "/reactionImages/nounproject/heart.svg",
+  description: "I feel empathy towards this",
+  }, 
+
+  {
+  name: "discussedAlready",
+  label: "This has already been discussed",
+  searchTerms: ["clock", "history", "prior"],
+  svg: "/reactionImages/nounproject/history2.svg",
+  filter: { opacity: 0.6 },
+  description: "Use Search, Concepts page, or ask in Open Thread if no one elaborates here."
+  },
+  {
+  name: "coveredAlready",
+  label: "I already addressed this",
+  searchTerms: ["check", "already", "covered"],
+  svg: "/reactionImages/nounproject/checkedbox.svg",
+  filter: { opacity: 0.6 },
+  description: "I covered this in my post and/or comments."
+  },
+
+  {
+  name: "unnecessarily-harsh",
+    label: "Unnecessarily Harsh",
+  searchTerms: ["cactus","prickly"],
+  svg: "/reactionImages/nounproject/cactus.svg",
+  description: "This is harsh and didn't seem like it had to be.",
+  },
+  {
+  name: "unnecessarily-combative",
+    label: "Unnecessarily Combative",
+  searchTerms: ["swords"],
+  svg: "/reactionImages/nounproject/swords.svg",
+  description: "This seems more combative than it needs to be.",
+  filter: { padding: 2 },
+  },
+  
+  {
+    name: "offtopic",
+    label: "Off Topic or Tangential",
+    searchTerms: ["questions"],
+    svg: "/reactionImages/nounproject/mapandpin.svg",
+    filter: { opacity: 1 },
+    description: "This doesn't seem that relevant to what's being discussed.",
+  },
+
+  {
+    name: "handshake",
+    label: "I Agree to This",
+    searchTerms: ["agreement"],
+    filter: { opacity: 0.9 },
+    svg: "/reactionImages/nounproject/handshake.svg",
+    description: "React to signal agreement (in the negotiation-y sense of the word)",
+  },
+  {
+    name: "verified",
+    label: "Confirmed",
+    searchTerms: ["check","correct", "confirm"],
+    svg: "/reactionImages/nounproject/verified.svg",
+    description: "I checked this. Or have other empirical data that confirms this",
+  },
+  //Ruby: one's I'm less keen on but leaving to see if people use them
   {
     name: "insightful",
     label: "Insightful",
@@ -101,96 +343,15 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "concrete",
     label: "Concrete",
     searchTerms: ["bricks","examples"],
-    svg: "/reactionImages/nounproject/bricks.svg",
-    filter: { opacity: 1.0 },
+    svg: "/reactionImages/nounproject/concrete.svg",
     description: "This makes things more concrete by bringing in specifics or examples.",
   },
   {
     name: "key",
-    label: "Key insight",
+    label: "Key Insight",
     searchTerms: ["insight"],
     svg: "/reactionImages/nounproject/key.svg",
     description: "This is a key insight",
-  },
-  {
-    name: "verified",
-    label: "Verified",
-    searchTerms: ["check","correct"],
-    svg: "/reactionImages/nounproject/check.svg",
-    description: "I checked this.",
-  },
-  {
-    name: "error",
-    label: "Wrong",
-    searchTerms: ["x","wrong","mistaken"],
-    svg: "/reactionImages/nounproject/x.svg",
-    description: "This seems wrong",
-  },
-  {
-    name: "support",
-    label: "Support",
-    searchTerms: ["pillar"],
-    svg: "/reactionImages/nounproject/pillar.svg",
-    description: `I am expressing supportiveness towards this`,
-  },
-  {
-    name: "harsh",
-    label: "Too Harsh",
-    searchTerms: ["cactus","prickly"],
-    svg: "/reactionImages/nounproject/cactus.svg",
-    description: "This seems too harsh.",
-  },
-  {
-    name: "clear",
-    label: "Clear",
-    searchTerms: ["clarity","gem","diamond"],
-    svg: "/reactionImages/nounproject/clarity.svg",
-    description: (contentType) => `This ${contentType} clarifies things.`,
-  },
-  {
-    name: "complex",
-    label: "Overcomplicated",
-    searchTerms: ["overcomplicated"],
-    svg: "/reactionImages/nounproject/complex.svg",
-    filter: { opacity: 0.9 },
-    description: (contentType) => `This ${contentType} seems overcomplicated`,
-  },
-  {
-    name: "seen",
-    label: "I saw this",
-    searchTerms: ["eyes"],
-    svg: "/reactionImages/nounproject/eyes.svg",
-    filter: { opacity: 0.8 },
-    description: "I saw this",
-  },
-  {
-    name: "handshake",
-    label: "I agree to this",
-    searchTerms: ["agreement"],
-    filter: { opacity: 0.9 },
-    svg: "/reactionImages/nounproject/handshake.svg",
-    description: "React to signal agreement (in the negotiation-y sense of the word)",
-  },
-  {
-    name: "hitsTheMark",
-    label: "Hits the Mark",
-    searchTerms: ["bullseye","accurate"],
-    svg: "/reactionImages/nounproject/bullseye.svg",
-    description: "This hits the mark",
-  },
-  {
-    name: "miss",
-    label: "Missed the point",
-    svg: "/reactionImages/nounproject/inaccurate.svg",
-    description: "This seemed to focus in the wrong places, not on the core of the issue under discussion.",
-  },
-  {
-    name: "combative",
-    label: "Combative",
-    searchTerms: ["swords"],
-    svg: "/reactionImages/nounproject/swords.svg",
-    description: "This seems combative",
-    filter: { padding: 2 },
   },
   {
     name: "muddled",
@@ -200,73 +361,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "I had trouble with the pedagogical clarity of this",
   },
   {
-    name: "excitement",
-    label: "Exciting",
-    searchTerms: ["partypopper","!"],
-    svg: "/reactionImages/nounproject/partypopper.svg",
-    description: "This is exciting!",
-  },
-  {
-    name: "skeptical",
-    label: "Skeptical",
-    searchTerms: ["eyebrow"],
-    svg: "/reactionImages/nounproject/skeptical.svg",
-    description: "I'm skeptical of this",
-  },
-  {
-    name: "empathy",
-    label: "Empathy",
-    searchTerms: ["heart"],
-    svg: "/reactionImages/nounproject/heart.svg",
-    description: "I feel empathy towards this",
-  },
-  {
-    name: "surprise",
-    label: "Surprise",
-    svg: "/reactionImages/nounproject/surprise.svg",
-    filter: { opacity: 0.6 },
-    description: "I am surprised",
-  },
-  {
-    name: "additionalQuestions",
-    label: "Additional questions",
-    searchTerms: ["elephant","questions"],
-    svg: "/reactionImages/nounproject/elephant.svg",
-    filter: { opacity: 0.6 },
-    description: "I now have additional questions",
-  },
-  {
-    name: "strawman",
-    label: "Strawman",
-    searchTerms: ["scarecrow"],
-    svg: "/reactionImages/nounproject/scarecrow.svg",
-    description: "I think this misrepresents the thing that it argues against",
-  },
-  {
-    name: "thanks",
-    label: "Thank You",
-    searchTerms: ["ty"],
-    svg: "/reactionImages/nounproject/thankyou.svg",
-    description: "I appreciate this",
-  },
-  {
-    name: "important",
-    label: "Important",
-    searchTerms: ["!"],
-    svg: "/reactionImages/nounproject/exclamation.svg",
-    description: "This is important information",
-  },
-  {
     name: "shrug",
     label: "Shrug",
     svg: "/reactionImages/nounproject/shrug.svg",
     description: "I am indifferent to this",
-  },
-  {
-    name: "laugh",
-    label: "Laugh",
-    svg: "/reactionImages/nounproject/laugh.svg",
-    description: "This is humorous",
   },
   {
     name: "scales",
@@ -280,6 +378,77 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Thinking",
     svg: "/reactionImages/nounproject/thinking.svg",
     description: "Food for thought",
+  },
+  {
+    name: "obtuse",
+    label: "Obtuse",
+    svg: "/reactionImages/nounproject/obtuse.svg",
+    description: "This comment is failing to understand something that didn't seem hard to understand",
+  },
+  {
+    name: "notPlanningToRespond",
+    label: "Not Planning to Respond",
+    svg: "/reactionImages/nounproject/door.svg",
+    searchTerms: ["door", "respond", "planning"],
+    description: "I'm not planning to respond further",
+  },
+  {
+    name: "nonSequitur",
+    label: "Non Sequitur",
+    svg: "/reactionImages/nounproject/nonsequitur.svg",
+    searchTerms: ["sequitur", "jump"],
+    description: "This contains a non-sequitur",
+  },
+  {
+    name: "shakyPremise",
+    label: "Shaky Premise",
+    svg: "/reactionImages/nounproject/shakypremise.svg",
+    searchTerms: ["premise", "tower"],
+    description: "This rests on shaky or false premises",
+  },
+  {
+    name: "tooManyAssumptions",
+    label: "Too Many Assumptions",
+    svg: "/reactionImages/nounproject/houseofcards.svg",
+    searchTerms: ["cards", "house", "assumptions"],
+    filter: {opacity: 0.8},
+    description: "This makes too many assumptions",
+  },
+  {
+    name: "hitsTheMark",
+    label: "Hits the Mark",
+    searchTerms: ["bullseye","accurate"],
+    svg: "/reactionImages/nounproject/bullseye.svg",
+    description: "This hits the mark",
+  },
+  {
+    name: "timecost",
+    label: "Not worth getting into",
+    description: "It's probably not worth the time to resolve this",
+    searchTerms: ["time cost"],
+    svg: "/reactionImages/nounproject/timequestion.svg",
+  },
+  {
+    name: "excitement",
+    label: "Exciting",
+    searchTerms: ["partypopper","!"],
+    svg: "/reactionImages/nounproject/partypopper.svg",
+    description: "This is exciting!",
+  },
+  {
+    name: "paperclip",
+    label: "Paperclip",
+    searchTerms: ["paperclip"],
+    svg: "/reactionImages/nounproject/paperclip.svg",
+    description: ""
+  },
+  {
+    name: "clear",
+    label: "Clear",
+    searchTerms: ["clarity","gem","diamond"],
+    svg: "/reactionImages/nounproject/clarity.svg",
+    description: (contentType) => `This ${contentType} clarifies things.`,
+    deprecated: true
   },
 ];
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);

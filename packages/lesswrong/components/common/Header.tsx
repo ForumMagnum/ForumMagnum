@@ -151,7 +151,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages, checkedAt: notificationsCheckedAt, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
   
 
   const setNavigationOpen = (open: boolean) => {

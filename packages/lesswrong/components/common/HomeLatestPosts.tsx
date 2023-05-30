@@ -9,7 +9,7 @@ import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
+import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";

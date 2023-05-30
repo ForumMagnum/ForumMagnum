@@ -100,6 +100,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 1,
     transform: "translateY(5px)",
   },
+  bookmarkButton: {
+    marginBottom: -5,
+    marginRight: 16,
+    height: 22,
+    color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 0.5,
+    },
+  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -282,7 +291,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
             {commentCountNode}
           </LWTooltip> : commentCountNode}
-          {isEAForum && <BookmarkButton post={post} variant='iconWithText' />}
+          {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />}
           {toggleEmbeddedPlayer &&
             (cachedTooltipSeen ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
