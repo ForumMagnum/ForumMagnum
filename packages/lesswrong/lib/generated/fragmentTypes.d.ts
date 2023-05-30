@@ -674,6 +674,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
@@ -791,6 +792,21 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly expires: Date | null,
   readonly lastModified: Date | null,
+}
+
+interface NotificationsDefaultFragment { // fragment on Notifications
+  readonly userId: string,
+  readonly documentId: string,
+  readonly documentType: string,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly link: string,
+  readonly title: string,
+  readonly message: string,
+  readonly type: string,
+  readonly deleted: boolean,
+  readonly viewed: boolean,
+  readonly emailed: boolean,
+  readonly waitingForBatch: boolean,
 }
 
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
@@ -1208,6 +1224,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
+  readonly criticismTipsDismissed: boolean,
   readonly commentEmojiReactors: any,
 }
 
@@ -1328,6 +1345,11 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
+}
+
+interface PostsEditCriticismTips { // fragment on Posts
+  readonly _id: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1543,21 +1565,6 @@ interface WithVoteRevision { // fragment on Revisions
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly voteCount: number,
-}
-
-interface NotificationsDefaultFragment { // fragment on Notifications
-  readonly userId: string,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly link: string,
-  readonly title: string,
-  readonly message: string,
-  readonly type: string,
-  readonly deleted: boolean,
-  readonly viewed: boolean,
-  readonly emailed: boolean,
-  readonly waitingForBatch: boolean,
 }
 
 interface NotificationsList { // fragment on Notifications
@@ -3080,6 +3087,7 @@ interface FragmentTypes {
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
+  NotificationsDefaultFragment: NotificationsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
@@ -3114,6 +3122,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostsEditCriticismTips: PostsEditCriticismTips
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3132,7 +3141,6 @@ interface FragmentTypes {
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
   WithVoteRevision: WithVoteRevision
-  NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
@@ -3271,6 +3279,7 @@ interface CollectionNamesByFragmentName {
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
+  NotificationsDefaultFragment: "Notifications"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
@@ -3305,6 +3314,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostsEditCriticismTips: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3323,7 +3333,6 @@ interface CollectionNamesByFragmentName {
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
-  NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"

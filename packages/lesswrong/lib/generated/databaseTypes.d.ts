@@ -658,6 +658,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
   rejectedReason: string | null

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
@@ -41,7 +41,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return "Save Draft"
   })(document)
   
-  const { mutate: updatePost } = useUpdate({
+  const { mutate: updatePostSuggestAlignment } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
@@ -54,8 +54,29 @@ const PostsEditForm = ({ documentId, classes }: {
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
   
+  // EA Forum will show the user a "Tips to make criticism go better" card if our bot detects
+  // that the post is criticism. If the user dismisses this card, we don't show it again
+  // for this post.
+  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(false)
+  useEffect(() => {
+    if (document && document.criticismTipsDismissed)
+      setCriticismTipsDismissed(true)
+  }, [document])
+  
+  const { mutate: updatePostCriticismTips } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: "PostsEditCriticismTips",
+  })
   const handleDismissTips = () => {
     console.log('handleDismissTips')
+    setCriticismTipsDismissed(true)
+    updatePostCriticismTips({
+      selector: {_id: documentId},
+      data: {
+        criticismTipsDismissed: true
+      }
+    })
   }
     
   if (!document && loading) {
@@ -119,7 +140,7 @@ const PostsEditForm = ({ documentId, classes }: {
             mutationFragment={getFragment('PostsEditMutationFragment')}
             successCallback={(post: any, options: any) => {
               const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
-              if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+              if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePostSuggestAlignment})
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
               } else {
@@ -142,6 +163,10 @@ const PostsEditForm = ({ documentId, classes }: {
             showRemove={true}
             submitLabel={isDraft ? "Publish" : "Publish Changes"}
             formComponents={{FormSubmit:EditPostsSubmit}}
+            formProps={{
+              postSkipCheckIsCriticism: criticismTipsDismissed,
+              setPostFlaggedAsCriticism
+            }}
             extraVariables={{
               version: 'String'
             }}
@@ -160,7 +185,7 @@ const PostsEditForm = ({ documentId, classes }: {
         </NoSSR>
       </div>
       <div className={classes.botTipsCol}>
-        <PostsEditBotTips handleDismiss={handleDismissTips} />
+        {postFlaggedAsCriticism && !criticismTipsDismissed && <PostsEditBotTips handleDismiss={handleDismissTips} />}
       </div>
     </div>
   );

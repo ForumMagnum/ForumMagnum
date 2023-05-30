@@ -2404,6 +2404,15 @@ const schema: SchemaType<DbPost> = {
     foreignKey: 'Comments',
   },
   
+  criticismTipsDismissed: {
+    type: Boolean,
+    canRead: ['members'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
+  },
+  
   languageModelSummary: {
     type: String,
     optional: true,

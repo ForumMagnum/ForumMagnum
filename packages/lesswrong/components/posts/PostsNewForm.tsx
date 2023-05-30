@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
-import React from 'react';
+import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
@@ -183,8 +183,11 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
+  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(false)
   const handleDismissTips = () => {
     console.log('handleDismissTips')
+    setCriticismTipsDismissed(true)
   }
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
@@ -281,12 +284,16 @@ const PostsNewForm = ({classes}: {
               formComponents={{
                 FormSubmit: NewPostsSubmit
               }}
+              formProps={{
+                postSkipCheckIsCriticism: criticismTipsDismissed,
+                setPostFlaggedAsCriticism
+              }}
             />
           </NoSSR>
         </RecaptchaWarning>
       </div>
       <div className={classes.botTipsCol}>
-        <PostsEditBotTips handleDismiss={handleDismissTips} />
+        {postFlaggedAsCriticism && !criticismTipsDismissed && <PostsEditBotTips handleDismiss={handleDismissTips} />}
       </div>
     </div>
   );

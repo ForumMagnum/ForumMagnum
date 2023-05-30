@@ -48,10 +48,10 @@ const settingsFilePath = (fileName, forum) => {
 }
 
 const databaseConfig = (mode, forum) => getDatabaseConfig((forum === 'lw') ? {
-  db: `${credentialsPath}/connectionConfigs/${mode}.json`,
+  db: `${credentialsPath(forum)}/connectionConfigs/${mode}.json`,
 } : {
-  mongoUrlFile: `${credentialsPath}/${mode}-db-conn.txt`,
-  postgresUrlFile: `${credentialsPath}/${mode}-pg-conn.txt`,
+  mongoUrlFile: `${credentialsPath(forum)}/${mode}-db-conn.txt`,
+  postgresUrlFile: `${credentialsPath(forum)}/${mode}-pg-conn.txt`,
 });
 
 const settingsFileName = (mode, forum) => {
@@ -84,14 +84,15 @@ const settingsFileName = (mode, forum) => {
   const forum = process.argv[4];
   const isLW = forum === 'lw';
 
+  const dbConfig = databaseConfig(mode, forum)
   const args = {
-    mongoUrl:  databaseConfig.mongoUrl,
-    postgresUrl: databaseConfig.postgresUrl,
+    mongoUrl: dbConfig.mongoUrl,
+    postgresUrl: dbConfig.postgresUrl,
     settingsFileName: process.env.SETTINGS_FILE,
     shellMode: false,
   };
   
-  await startSshTunnel(databaseConfig.sshTunnelCommand);
+  await startSshTunnel(dbConfig.sshTunnelCommand);
 
   if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);

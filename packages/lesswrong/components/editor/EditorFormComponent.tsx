@@ -37,7 +37,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   classes: ClassesType,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
-  const { editorHintText, maxHeight } = (formProps || {});
+  const { editorHintText, maxHeight, postSkipCheckIsCriticism, setPostFlaggedAsCriticism } = (formProps || {});
+  console.log('formProps', formProps)
   const { updateCurrentValues } = context;
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
@@ -66,9 +67,24 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     }
     `, {
       onCompleted: (data) => {
-        console.log('isCriticism', data)
+        console.log('isCriticism', data.PostIsCriticism)
+        setPostFlaggedAsCriticism?.(!data.PostIsCriticism)
       }
-    })
+    }
+  )
+
+  const throttledCheckIsCriticism = useCallback(
+    _.throttle(contents => {
+      console.log('throttledCheckIsCriticism', document.title, document.url, contents)
+      if (postSkipCheckIsCriticism) return
+      checkIsCriticism({variables: { args: {
+        title: document.title ?? '',
+        url: document.url,
+        contentType: contents.type,
+        body: contents.value
+      }}})
+    }, 1000*1*20), [postSkipCheckIsCriticism] // TODO run up to once per 20 min
+  )
   
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
@@ -102,18 +118,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     [saveBackup, autosaveInterval]
   );
   
-  const throttledCheckIsCriticism = useCallback(
-    _.throttle(contents => {
-      console.log('throttledCheckIsCriticism', document.title, document.url, contents)
-      checkIsCriticism({variables: { args: {
-        title: document.title ?? '',
-        url: document.url,
-        contentType: contents.type,
-        body: contents.value
-      }}})
-    }, 1000*60*20), [] // run up to once per 20 min
-  )
-  
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
     const {contents,autosave} = change;
     setContents(contents);
@@ -139,8 +143,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       throttledSaveBackup(contents);
     }
     
-    throttledCheckIsCriticism(contents)
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
+    !postSkipCheckIsCriticism && throttledCheckIsCriticism(contents)
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, postSkipCheckIsCriticism]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
