@@ -32,7 +32,9 @@ class ElasticClient {
     const password = elasticPasswordSetting.get();
 
     if (!cloudId || !username || !password) {
-      throw new Error("Elasticsearch credentials are not configured");
+      // eslint-disable-next-line no-console
+      console.warn("Elastic is enabled, but credentials are missing");
+      return;
     }
 
     if (!globalClient) {
