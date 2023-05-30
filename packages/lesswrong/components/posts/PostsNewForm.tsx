@@ -17,8 +17,17 @@ import type { PostSubmitProps } from './PostSubmit';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 715px 1fr',
+    gridTemplateAreas: '". form botTips"',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    },
+  },
   postForm: {
-    width:715,
+    gridArea: 'form',
+    width: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -107,6 +116,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20
+  },
+  botTipsCol: {
+    gridArea: 'botTips',
+    paddingRight: 10,
   }
 })
 
@@ -170,7 +183,12 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
+  const handleDismissTips = () => {
+    console.log('handleDismissTips')
+  }
+  
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning, PostsEditBotTips } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -235,36 +253,41 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <div className={classes.postForm}>
-      <RecaptchaWarning currentUser={currentUser}>
-        <Components.PostsAcceptTos currentUser={currentUser} />
-        {postWillBeHidden && <NewPostModerationWarning />}
-        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-        <NoSSR>
-          <WrappedSmartForm
-            collectionName="Posts"
-            mutationFragment={getFragment('PostsPage')}
-            prefilledProps={prefilledProps}
-            successCallback={(post: any, options: any) => {
-              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              if (options?.submitOptions?.redirectToEditor) {
-                history.push(postGetEditUrl(post._id));
-              } else {
-                history.push({pathname: postGetPageUrl(post)})
-                const postDescription = post.draft ? "Draft" : "Post";
-                flash({ messageString: `${postDescription} created.`, type: 'success'});
-              }
-            }}
-            eventForm={eventForm}
-            debateForm={debateForm}
-            repeatErrors
-            noSubmitOnCmdEnter
-            formComponents={{
-              FormSubmit: NewPostsSubmit
-            }}
-          />
-        </NoSSR>
-      </RecaptchaWarning>
+    <div className={classes.root}>
+      <div className={classes.postForm}>
+        <RecaptchaWarning currentUser={currentUser}>
+          <Components.PostsAcceptTos currentUser={currentUser} />
+          {postWillBeHidden && <NewPostModerationWarning />}
+          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          <NoSSR>
+            <WrappedSmartForm
+              collectionName="Posts"
+              mutationFragment={getFragment('PostsPage')}
+              prefilledProps={prefilledProps}
+              successCallback={(post: any, options: any) => {
+                if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+                if (options?.submitOptions?.redirectToEditor) {
+                  history.push(postGetEditUrl(post._id));
+                } else {
+                  history.push({pathname: postGetPageUrl(post)})
+                  const postDescription = post.draft ? "Draft" : "Post";
+                  flash({ messageString: `${postDescription} created.`, type: 'success'});
+                }
+              }}
+              eventForm={eventForm}
+              debateForm={debateForm}
+              repeatErrors
+              noSubmitOnCmdEnter
+              formComponents={{
+                FormSubmit: NewPostsSubmit
+              }}
+            />
+          </NoSSR>
+        </RecaptchaWarning>
+      </div>
+      <div className={classes.botTipsCol}>
+        <PostsEditBotTips handleDismiss={handleDismissTips} />
+      </div>
     </div>
   );
 }
