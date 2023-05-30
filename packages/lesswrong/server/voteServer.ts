@@ -20,9 +20,9 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
-import { userHasElasticsearch } from '../lib/betas';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 
 
 // Test if a user has voted on the server
@@ -74,13 +74,13 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (userHasElasticsearch(null) && collectionIsAlgoliaIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
   }
-  // TODO: Elasticsearch needs to go through a two part deploy to first start syncing
-  // live updates, then to actually enable the searching. These algolia exports can
-  // be disabled as part of part 2.
-  void algoliaExportById(collection as any, newDocument._id);
   return {newDocument, vote};
 }
 
@@ -199,13 +199,13 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (userHasElasticsearch(null) && collectionIsAlgoliaIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
   }
-  // TODO: Elasticsearch needs to go through a two part deploy to first start syncing
-  // live updates, then to actually enable the searching. These algolia exports can
-  // be disabled as part of part 2.
-  void algoliaExportById(collection as any, newDocument._id);
   return newDocument;
 }
 
