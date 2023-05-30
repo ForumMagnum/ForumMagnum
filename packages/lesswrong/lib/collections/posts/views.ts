@@ -1261,14 +1261,14 @@ Posts.addView("sunshineCuratedSuggestions", function (terms) {
     },
     options: {
       sort: {
-        createdAt: -1,
+        postedAt: -1,
       },
       hint: "posts.sunshineCuratedSuggestions",
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ createdAt:1, reviewForCuratedUserId:1, suggestForCuratedUserIds:1, }),
+  augmentForDefaultView({ postedAt:1, reviewForCuratedUserId:1, suggestForCuratedUserIds:1, }),
   {
     name: "posts.sunshineCuratedSuggestions",
     partialFilterExpression: {suggestForCuratedUserIds: {$exists:true}},
