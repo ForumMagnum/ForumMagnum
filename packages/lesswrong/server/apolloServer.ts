@@ -34,7 +34,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
@@ -46,6 +46,7 @@ import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 
 const loadClientBundle = () => {
@@ -251,8 +252,8 @@ export function startWebserver() {
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
-  if (isEAForum) {
-    new ElasticController(app);
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
   }
 
   if (testServerSetting.get()) {

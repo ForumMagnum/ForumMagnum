@@ -8,6 +8,7 @@ import type {
 } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
 import { indexNameToConfig, IndexConfig, Ranking } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
+import { searchOriginDate } from "./elasticSettings";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -15,7 +16,7 @@ import { parseQuery, QueryToken } from "./parseQuery";
  * be exact - just a date a little older than the oldest searchable
  * records.
  */
-export const SEARCH_ORIGIN_DATE = new Date("2014-06-01T01:00:00Z");
+export const SEARCH_ORIGIN_DATE = new Date(searchOriginDate.get());
 
 export type QueryFilterOperator = "gt" | "gte" | "lt" | "lte" | "eq";
 

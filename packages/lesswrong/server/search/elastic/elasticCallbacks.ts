@@ -12,9 +12,6 @@ export const elasticSyncDocument = (
 ) => {
   try {
     const client = new ElasticClient();
-    if (!client.isConnected()) {
-      return;
-    }
     const exporter = new ElasticExporter(client);
     void exporter.updateDocument(collectionName, documentId);
   } catch (e) {

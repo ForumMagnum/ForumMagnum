@@ -63,7 +63,7 @@ class ElasticExporter {
    *  5) Delete the old index
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
-    const client = this.client.getClientOrThrow();
+    const client = this.client.getClient();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
 
@@ -115,7 +115,7 @@ class ElasticExporter {
   }
 
   async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
-    const client = this.client.getClientOrThrow();
+    const client = this.client.getClient();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
 
@@ -157,7 +157,7 @@ class ElasticExporter {
     const index = collectionName.toLowerCase();
     const repo = this.getRepoByCollectionName(collectionName);
     const searchDocument = await repo.getSearchDocumentById(documentId);
-    await this.client.getClientOrThrow().index({
+    await this.client.getClient().index({
       index,
       ...this.formatDocument(searchDocument),
     });
@@ -165,7 +165,7 @@ class ElasticExporter {
 
   private async getExistingAliasTarget(aliasName: string): Promise<string | null> {
     try {
-      const client = this.client.getClientOrThrow();
+      const client = this.client.getClient();
       const existing = await client.indices.getAlias({name: aliasName});
       const oldIndexName = Object.keys(existing ?? {})[0];
       return oldIndexName ?? null;
@@ -178,7 +178,7 @@ class ElasticExporter {
     indexName: string,
     collectionName: AlgoliaIndexCollectionName,
   ): Promise<void> {
-    const client = this.client.getClientOrThrow();
+    const client = this.client.getClient();
     const mappings = this.getCollectionMappings(collectionName);
     await client.indices.create({
       index: indexName,
@@ -314,7 +314,7 @@ class ElasticExporter {
     }
     const _index = this.getIndexName(collection);
     const erroredDocuments: OnDropDocument<AlgoliaDocument>[] = [];
-    await this.client.getClientOrThrow().helpers.bulk({
+    await this.client.getClient().helpers.bulk({
       datasource: documents,
       onDocument: (document: AlgoliaDocument) => {
         const {id: _id} = this.formatDocument(document);
@@ -328,7 +328,7 @@ class ElasticExporter {
   }
 
   async getExistingSynonyms(): Promise<string[]> {
-    const client = this.client.getClientOrThrow();
+    const client = this.client.getClient();
     const settings = await client.indices.getSettings({
       index: "posts", // All the indexes use the same synonym list
     });
@@ -358,7 +358,7 @@ class ElasticExporter {
   }
 
   private async updateSynonymsForIndex(index: string, synonyms: string[]) {
-    const client = this.client.getClientOrThrow();
+    const client = this.client.getClient();
     await client.indices.close({index});
     await client.indices.putSettings({
       index,
