@@ -8,6 +8,7 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
+import { gql, useLazyQuery } from '@apollo/client';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -59,6 +60,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentEditorType = contents.type || defaultEditorType;
   const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
   
+  const [checkIsCriticism] = useLazyQuery(gql`
+    query getPostIsCriticism($args: JSON) {
+      PostIsCriticism(args: $args)
+    }
+    `, {
+      onCompleted: (data) => {
+        console.log('isCriticism', data)
+      }
+    })
+  
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
       getLocalStorageHandlers(currentEditorType).reset();
@@ -91,6 +102,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     [saveBackup, autosaveInterval]
   );
   
+  const throttledCheckIsCriticism = useCallback(
+    _.throttle(contents => {
+      console.log('throttledCheckIsCriticism', document.title, document.url, contents)
+      checkIsCriticism({variables: { args: {
+        title: document.title ?? '',
+        url: document.url,
+        contentType: contents.type,
+        body: contents.value
+      }}})
+    }, 1000*60*20), [] // run up to once per 20 min
+  )
+  
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
     const {contents,autosave} = change;
     setContents(contents);
@@ -115,6 +138,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (autosave) {
       throttledSaveBackup(contents);
     }
+    
+    throttledCheckIsCriticism(contents)
   }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
   
   useEffect(() => {

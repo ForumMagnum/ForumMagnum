@@ -8,8 +8,9 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest } from '../../lib/executionEnvironment';
+import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
+import { PostIsCriticismRequest } from '../resolvers/postResolvers';
 
 /**
  * To set up automatic tagging:
@@ -122,16 +123,20 @@ function preprocessHtml(html: string): string {
   return $.html();
 }
 
-export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
+export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,
-  post: DbPost,
+  post: DbPost|PostIsCriticismRequest,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
-  postBodyCache?: PostBodyCache
+  postBodyCache?: PostBodyCache,
+  // Optionally pass in the post body as markdown
+  markdownBody?: string
 }): Promise<string> {
   const {header, body} = template;
   
-  const markdownPostBody = postBodyCache?.preprocessedBody?.[post._id] ?? preprocessPostBody(post);
+  const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
+  const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
+  const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
   const linkpostMeta = post.url ? `\nThis is a linkpost for ${post.url}` : '';
   
@@ -148,8 +153,7 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache}
   });
 }
 
-function preprocessPostBody(post: DbPost): string {
-  const postHtml = post.contents?.html;
+function preprocessPostHtml(postHtml: string): string {
   const markdownPostBody = postHtml ? dataToMarkdown(preprocessHtml(postHtml), "html") : "";
   return markdownPostBody;
 }
@@ -158,7 +162,7 @@ export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
-    result.preprocessedBody[post._id] = preprocessPostBody(post);
+    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html);
   }
   return result;
 }
@@ -242,8 +246,10 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
   }
 }
 
-async function postIsCriticism(post: DbPost, context: ResolverContext): Promise<boolean> {
-  if (!isEAForum) return false
+export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
+  console.log('postIsCriticism', post)
+  // only run on the EA Forum on production, since it costs money
+  if (!isEAForum || !isProduction) return false
   
   const api = await getOpenAI()
   if (!api) {
@@ -258,7 +264,12 @@ async function postIsCriticism(post: DbPost, context: ResolverContext): Promise<
   const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
   const languageModelResult = await api.createCompletion({
     model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
-    prompt: await postToPrompt({template, post, promptSuffix}),
+    prompt: await postToPrompt({
+      template,
+      post,
+      promptSuffix,
+      ...(post.contentType === 'markdown' ? {markdownBody: post.body} : {})
+    }),
     max_tokens: 1,
   })
   const completion = languageModelResult.data.choices[0].text!
