@@ -5,6 +5,7 @@ import {
 import { getCollectionHooks } from "../../mutationCallbacks";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
+import { isElasticEnabled } from "./elasticSettings";
 
 export const elasticSyncDocument = (
   collectionName: AlgoliaIndexCollectionName,
@@ -20,8 +21,10 @@ export const elasticSyncDocument = (
   }
 }
 
-for (const collectionName of algoliaIndexedCollectionNames) {
-  const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
-  getCollectionHooks(collectionName).createAfter.add(callback);
-  getCollectionHooks(collectionName).updateAfter.add(callback);
+if (isElasticEnabled) {
+  for (const collectionName of algoliaIndexedCollectionNames) {
+    const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
+    getCollectionHooks(collectionName).createAfter.add(callback);
+    getCollectionHooks(collectionName).updateAfter.add(callback);
+  }
 }
