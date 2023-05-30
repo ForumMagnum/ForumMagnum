@@ -13,15 +13,15 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
   moment.relativeTimeThreshold('ss', 0);
   // format momentJS fromNow to say "3 seconds" or "3 minutes" rather than 3s or 3m
-  moment.updateLocale('en', {
-    relativeTime: {
-      s: 'a few seconds', ss: '%d seconds',
-      m: 'a minute',      mm: '%d minutes',
-      h: 'an hour',       hh: '%d hours',
-      d: 'a day',         dd: '%d days',
-      w: 'a week',        ww: '%d weeks'
-    }
-  });
+  // moment.updateLocale('en', {
+  //   relativeTime: {
+  //     s: 'a few seconds', ss: '%d seconds',
+  //     m: 'a minute',      mm: '%d minutes',
+  //     h: 'an hour',       hh: '%d hours',
+  //     d: 'a day',         dd: '%d days',
+  //     w: 'a week',        ww: '%d weeks'
+  //   }
+  // });
   const fromNow = moment(lastRateLimitExpiry).fromNow(true)
 
   let message = `Please wait ${fromNow} before posting again. ${rateLimitMessage ?? ''}`

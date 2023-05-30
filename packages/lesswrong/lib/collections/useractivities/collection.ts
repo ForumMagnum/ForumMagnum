@@ -44,7 +44,7 @@ import { ensureIndex } from '../../collectionIndexUtils';
 export const UserActivities: UserActivitiesCollection = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'switching',
   schema,
   logChanges: true,
 });

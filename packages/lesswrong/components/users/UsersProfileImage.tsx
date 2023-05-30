@@ -68,6 +68,7 @@ const InitialFallback: FC<{
   className?: string,
   classes: ClassesType,
 }> = memo(({displayName, size, className, classes}) => {
+  displayName ??= "";
   const initials = displayName.split(/[\s-_.()]/).map((s) => s?.[0]?.toUpperCase());
   const text = initials.filter((s) => s?.length).join("").slice(0, 3);
   const background = userBackground(displayName);

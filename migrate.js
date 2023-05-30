@@ -7,6 +7,7 @@
  * Runs for the EA Forum by default.  Add `lw` as the last argument to run for LW.  Requires that you provide an environment explicitly.
  */
 require("ts-node/register");
+const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
 const { readFile } = require("fs").promises;
 
 const initGlobals = (args, isProd) => {
@@ -30,10 +31,14 @@ const fetchImports = (args, isProd) => {
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
-const credentialsFile = (fileName, forum) => {
+const credentialsPath = (forum) => {
   const base = process.env.GITHUB_WORKSPACE ?? "..";
-  const repoName = forum === 'lw' ? 'LessWrong-Credentials/connectionStrings' : 'ForumCredentials';
-  return `${base}/${repoName}/${fileName}`;
+  const repoName = forum === 'lw' ? 'LessWrong-Credentials' : 'ForumCredentials';
+  return `${base}/${repoName}`;
+}
+
+const credentialsFile = (fileName, forum) => {
+  return `${credentialsPath(forum)}/${fileName}`;
 }
 
 const settingsFilePath = (fileName, forum) => {
@@ -42,10 +47,13 @@ const settingsFilePath = (fileName, forum) => {
   return `${base}/${repoName}/${fileName}`;
 }
 
-const readUrlFile = async (fileName, forum) => (await readFile(credentialsFile(fileName, forum))).toString().trim();
+const databaseConfig = (mode, forum) => getDatabaseConfig((forum === 'lw') ? {
+  db: `${credentialsPath}/connectionConfigs/${mode}.json`,
+} : {
+  mongoUrlFile: `${credentialsPath}/${mode}-db-conn.txt`,
+  postgresUrlFile: `${credentialsPath}/${mode}-pg-conn.txt`,
+});
 
-const mongoFileName = (mode, forum) => forum === 'lw' ? `${mode}-db.txt` : `${mode}-db-conn.txt`;
-const postgresFileName = (mode, forum) => forum === 'lw' ? `pg-${mode}-db.txt` : `${mode}-pg-conn.txt`;
 const settingsFileName = (mode, forum) => {
   if (forum === 'lw') {
     if (mode === 'prod') {
@@ -77,19 +85,21 @@ const settingsFileName = (mode, forum) => {
   const isLW = forum === 'lw';
 
   const args = {
-    mongoUrl: process.env.MONGO_URL,
-    postgresUrl: process.env.PG_URL,
+    mongoUrl:  databaseConfig.mongoUrl,
+    postgresUrl: databaseConfig.postgresUrl,
     settingsFileName: process.env.SETTINGS_FILE,
     shellMode: false,
   };
+  
+  await startSshTunnel(databaseConfig.sshTunnelCommand);
 
   if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);
-    args.mongoUrl = await readUrlFile(mongoFileName(mode, forum), forum);
-    args.postgresUrl = await readUrlFile(postgresFileName(mode, forum), forum);
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forum), forum);
     if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(isLW ? 5 : 4));
+    } else if (isLW) {
+      process.argv.pop();
     }
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
