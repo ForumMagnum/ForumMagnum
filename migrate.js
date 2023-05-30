@@ -85,13 +85,13 @@ const settingsFileName = (mode, forum) => {
   const isLW = forum === 'lw';
 
   const args = {
-    mongoUrl:  databaseConfig.mongoUrl,
-    postgresUrl: databaseConfig.postgresUrl,
+    mongoUrl:  databaseConfig(mode, forum).mongoUrl,
+    postgresUrl: databaseConfig(mode, forum).postgresUrl,
     settingsFileName: process.env.SETTINGS_FILE,
     shellMode: false,
   };
   
-  await startSshTunnel(databaseConfig.sshTunnelCommand);
+  await startSshTunnel(databaseConfig(mode, forum).sshTunnelCommand);
 
   if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);
