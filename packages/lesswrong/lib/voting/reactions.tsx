@@ -451,7 +451,24 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     deprecated: true
   },
 ];
+
+
+const missingReact = {
+  name: "missingReact",
+    label: "Missing React",
+  searchTerms: ["404","missing","react"],
+  svg: "/reactionImages/nounproject/notfound404.svg",
+  filter: {opacity: 0.6},
+  description: "This react was has been removed from the palette",
+  deprecated: true
+}
+
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r=>r.name);
+
+export const getNamesAttachedReactionsByName = (reactName: string) : NamesAttachedReactionType => {
+  const foundReact = namesAttachedReactions.find(r=>r.name===reactName)
+  return (!!foundReact) ? foundReact : {...missingReact, label: `deleted react: "${reactName}"`}
+}
 
 export const defaultFilter = {
   padding: 0,

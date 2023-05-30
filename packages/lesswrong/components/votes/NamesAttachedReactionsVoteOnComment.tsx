@@ -2,7 +2,7 @@ import React, { useState, useRef, RefObject } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../lib/voting/namesAttachedReactions';
-import { namesAttachedReactionsByName } from '../../lib/voting/reactions';
+import { getNamesAttachedReactionsByName } from '../../lib/voting/reactions';
 import type { VotingProps } from './withVote';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -427,7 +427,7 @@ const ReactionOverview = ({voteProps, classes}: {
       <div className={classes.alreadyUsedReactions}>
         {alreadyUsedReactionTypesByKarma.map(r => {
           const usersWhoReacted = alreadyUsedReactions[r]!;
-          const { description, label } = namesAttachedReactionsByName[r]
+          const { description, label } = getNamesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
               <LWTooltip title={`${label} – ${description}`}>
@@ -532,10 +532,10 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, getCurrentUserRe
       <ReactionIcon react={reactionName} size={24}/>
       <div className={classes.hoverInfo}>
         <span className={classes.hoverBallotLabel}>
-          {namesAttachedReactionsByName[reactionName].label}
+          {getNamesAttachedReactionsByName(reactionName).label}
         </span>
         <div className={classes.hoverBallotReactDescription}>
-          {namesAttachedReactionsByName[reactionName].description}
+          {getNamesAttachedReactionsByName(reactionName).description}
         </div>
         <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
       </div>    
