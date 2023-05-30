@@ -7,6 +7,7 @@ import {
   elasticUsernameSetting,
   isElasticEnabled,
 } from "./elasticSettings";
+import { isAnyTest } from "../../../lib/executionEnvironment";
 
 export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -18,6 +19,10 @@ class ElasticClient {
   private client: Client;
 
   constructor() {
+    if (isAnyTest) {
+      return;
+    }
+
     if (!isElasticEnabled) {
       throw new Error("Elasticsearch is not enabled");
     }
