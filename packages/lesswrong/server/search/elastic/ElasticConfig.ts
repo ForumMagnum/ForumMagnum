@@ -212,7 +212,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       slug: {type: "keyword"},
       website: {type: "keyword"},
       profileImageId: {type: "keyword"},
-      profileTagIds: {type: "keyword"},
+      tags: {type: "keyword"},
     },
     privateFields: [
       "deleteContent",
