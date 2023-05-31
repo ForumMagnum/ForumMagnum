@@ -1,4 +1,5 @@
 import tracer from "dd-trace";
+import { StatsD } from "hot-shots";
 
 tracer.init({
   hostname: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
@@ -10,5 +11,9 @@ tracer.init({
 tracer.use('express', {
   service: 'forummagnum'
 })
+
+export const dogstatsd = new StatsD({
+  prefix: 'forummagnum.'
+});
 
 export default tracer;
