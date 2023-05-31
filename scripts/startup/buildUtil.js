@@ -85,6 +85,14 @@ function getDatabaseConfig(opts) {
       host: "localhost",
       port: (dbConfig.sshTunnel.localPort || 5433),
     });
+    const sshKeyPath = path.join(path.dirname(opts.db), dbConfig.sshTunnel.key);
+    if(fs.statSync(sshKeyPath).mode & fs.constants.S_IROTH) {
+      // If the key is world-readable ssh will refuse to use it, so change the permissions
+      // File permissions aren't reproduced by git checkouts, so we have to do this here
+      // rather than in the credentials repo.
+      fs.chmodSync(sshKeyPath, 0600);
+    }
+
     sshTunnelCommand = [
       "-C",
       "-N",
@@ -128,7 +136,7 @@ function readFileOrDie(path) {
   try {
     return fs.readFileSync(path, 'utf8').trim();
   } catch(e) {
-    die(`Error reading ${opts.postgresUrlFile}: ${e}`);
+    die(`Error reading ${path}: ${e}`);
   }
 }
 

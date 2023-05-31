@@ -46,6 +46,7 @@ import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
+import { hstsMiddleware } from './hsts';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 
@@ -139,7 +140,8 @@ export function startWebserver() {
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
-  
+  app.use(hstsMiddleware);
+
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
