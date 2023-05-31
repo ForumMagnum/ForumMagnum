@@ -224,6 +224,7 @@
     "intl": "^1.2.4",
     "io-ts": "^2.2.19",
     "jsdom": "^16.5.0",
+    "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
     "later": "^1.2.0",
