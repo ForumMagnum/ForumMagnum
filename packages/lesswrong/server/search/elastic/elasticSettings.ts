@@ -1,3 +1,4 @@
+import { isAnyTest } from "../../../lib/executionEnvironment";
 import { PublicInstanceSetting, isEAForum } from "../../../lib/instanceSettings";
 
 export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
@@ -24,4 +25,4 @@ export const searchOriginDate = new PublicInstanceSetting<string>(
   "optional",
 );
 
-export const isElasticEnabled = isEAForum;
+export const isElasticEnabled = !isAnyTest && isEAForum;
