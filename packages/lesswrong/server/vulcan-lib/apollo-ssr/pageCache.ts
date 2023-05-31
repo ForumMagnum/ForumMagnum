@@ -1,11 +1,12 @@
 import LRU from 'lru-cache';
-import type { RenderResult } from './renderPage';
+import { RenderResult, healthCheckUserAgentSetting } from './renderPage';
 import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
+import { dogstatsd } from '../../apolloServer';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -80,14 +81,14 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, renderFn: (req:Request)=>Promise<RenderResult>) => {
+export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
   
   // If already cached, return the cached version
   if (cached) {
-    recordCacheHit();
+    recordCacheHit({path, userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
     console.log(`Serving ${path} from cache; hit rate=${getCacheHitRate()}`);
     return {
@@ -112,7 +113,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
     console.log(`In progress render merge of ${cacheKey} missed: mismatched A/B test groups (requested: ${JSON.stringify(abTestGroups)}, available: ${JSON.stringify(inProgressRenders[cacheKey].map(r=>r.abTestGroups))})`);
   }
   
-  recordCacheMiss();
+  recordCacheMiss({path, userAgent: userAgent ?? ''});
   //eslint-disable-next-line no-console
   console.log(`Rendering ${path} (not in cache; hit rate=${getCacheHitRate()})`);
   
@@ -208,14 +209,25 @@ const clearExpiredCacheEntries = (): void => {
 let cacheHits = 0;
 let cacheQueriesTotal = 0;
 
-export function recordCacheHit() {
+export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: string, type: "hit"|"miss"|"bypass"}) {
+  // Bots are _mostly_ already redirected by botRedirect.ts, so assume every request that is not a health check is a real user
+  const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
+
+  const expandedCacheEvent = {...cacheEvent, userType};
+  dogstatsd.increment("cache_event", expandedCacheEvent)
+}
+
+export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
+  recordDatadogCacheEvent({...cacheEvent, type: "hit"});
   cacheHits++;
   cacheQueriesTotal++;
 }
-export function recordCacheMiss() {
+export function recordCacheMiss(cacheEvent: {path: string, userAgent: string}) {
+  recordDatadogCacheEvent({...cacheEvent, type: "miss"});
   cacheQueriesTotal++;
 }
-export function recordCacheBypass() {
+export function recordCacheBypass(cacheEvent: {path: string, userAgent: string}) {
+  recordDatadogCacheEvent({...cacheEvent, type: "bypass"});
   cacheQueriesTotal++;
 }
 export function getCacheHitRate() {
