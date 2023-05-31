@@ -147,7 +147,7 @@ export type CommentsNewFormProps = {
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
-  const commentSubmitStartTimeRef = useRef<number>();
+  const commentSubmitStartTimeRef = useRef<number>(Date.now());
   
   const userWithRateLimit = useSingle({
     documentId: currentUser?._id,
