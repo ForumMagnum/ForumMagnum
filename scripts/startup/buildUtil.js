@@ -1,7 +1,10 @@
 const path = require("path");
 const fs = require('fs');
 const process = require('process');
-const child_process = require('child_process');
+const { spawn, exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
 
 /**
  * Distill all the various connection-string-related options into a
@@ -155,10 +158,18 @@ function die(message, status) {
 
 async function startSshTunnel(sshTunnelCommand) {
   if (sshTunnelCommand) {
-    const sshTunnelProcess = child_process.spawn("/usr/bin/ssh", sshTunnelCommand, {
+    const sshHost = sshTunnelCommand.at(-1).split('@')[1];
+    await execAsync(`
+      if [ -z "$(ssh-keygen -F ${sshHost})" ]; then
+        ssh-keyscan -H ${sshHost} >> ~/.ssh/known_hosts
+      fi`
+    );
+    
+    const sshTunnelProcess = spawn("/usr/bin/ssh", sshTunnelCommand, {
       stdio: "inherit",
       detached: false,
     });
+
     sshTunnelProcess.on('close', (status) => {
       console.log(`SSH tunnel exited with status ${status}`);
     });
