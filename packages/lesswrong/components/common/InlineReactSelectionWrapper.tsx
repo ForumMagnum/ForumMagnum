@@ -66,7 +66,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
       const anchorEl = commentItemRef.current;
       
-      if (anchorEl instanceof HTMLElement && selectedText?.length > 1 ) {  
+      if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {  
         setAnchorEl(anchorEl);
         setQuote(selectedText);
         setYOffset(getYOffsetFromDocument(e, commentTextRef));
@@ -83,9 +83,9 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     }
   }, [commentItemRef, commentTextRef]);
   useEffect(() => { 
-    document.addEventListener('mouseup', detectSelection);
+    document.addEventListener('mousedown', detectSelection);
     return () => {
-      document.removeEventListener('mouseup', detectSelection);
+      document.removeEventListener('mousedown', detectSelection);
     };
   }, [detectSelection, commentItemRef]);
 
