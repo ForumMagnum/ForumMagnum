@@ -58,5 +58,20 @@ concrete.svg: https://thenounproject.com/icon/concrete-3091292/
 timequestion.svg: https://thenounproject.com/icon/time-1286992/
 verified.svg: https://thenounproject.com/icon/check-3648234/
 error.svg: https://thenounproject.com/icon/x-2222130/
+shush.svg: https://thenounproject.com/icon/5700716/
+shapes.svg: https://thenounproject.com/icon/393038/
+crux.svg: https://thenounproject.com/icon/108621/
+clickingpointinghand.svg: https://thenounproject.com/icon/4577330/
+doubleturnstile.svg: https://thenounproject.com/icon/double-turnstile-711177/
+negateddoubleturnstile.svg: https://thenounproject.com/icon/negative-entail-711180/
+telescope.svg: https://thenounproject.com/icon/telescope-4525671/
+history.svg: https://thenounproject.com/icon/history-1551542/
+history2.svg: https://thenounproject.com/icon/history-5502400/
+questionmark.svg: https://thenounproject.com/icon/question-mark-796566/
+mapandpin.svg: https://thenounproject.com/icon/map-pin-400157/
+checkedbox.svg: https://thenounproject.com/icon/check-2742243/
+ellipses.svg: https://thenounproject.com/icon/more-82401/
+paperclip.svg: https://thenounproject.com/icon/paperclip-1223412/
+
 
 misrepresentation.png: By LW user simon (https://www.lesswrong.com/posts/SzdevMqBusoqbvWgt/open-thread-with-experimental-feature-reactions?commentId=XKRHE6pJYGgpbdQgp)
