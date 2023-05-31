@@ -1,5 +1,6 @@
 import type { Client, Index } from "algoliasearch/lite";
 import type { MultiResponse, QueryParameters, SearchForFacetValues } from "algoliasearch";
+import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 
 export type SearchQuery = {
@@ -25,7 +26,7 @@ class NativeSearchClient implements Client {
     queries: SearchQuery[],
     cb?: (err: Error|null, res: MultiResponse<T>|null) => void,
   ): Promise<MultiResponse<T>>|void {
-    const body = JSON.stringify(queries);
+    const body = stringify(queries);
     const cached = this.cache.get(body);
     if (cached) {
       return Promise.resolve(cached) as Promise<MultiResponse<T>>;
