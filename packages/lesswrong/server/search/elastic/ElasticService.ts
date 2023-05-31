@@ -94,7 +94,7 @@ class ElasticService {
     };
   }
 
-  private parseFilters(
+  parseFilters(
     facetFilters?: string[][],
     numericFilters?: string[],
   ): QueryFilter[] {
