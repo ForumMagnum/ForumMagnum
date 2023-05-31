@@ -216,6 +216,7 @@
     "graphql-voyager": "^1.0.0-rc.26",
     "he": "^1.1.1",
     "history": "^3.0.0",
+    "hot-shots": "^10.0.0",
     "html-lexer": "^0.4.1",
     "html-to-text": "^9.0.3",
     "htmlparser2": "^3.9.2",
