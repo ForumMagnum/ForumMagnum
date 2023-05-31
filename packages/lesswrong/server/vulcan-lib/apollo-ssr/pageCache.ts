@@ -1,5 +1,5 @@
 import LRU from 'lru-cache';
-import { RenderResult, healthCheckUserAgentSetting } from './renderPage';
+import type { RenderResult } from './renderPage';
 import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
@@ -7,6 +7,7 @@ import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
+import { healthCheckUserAgentSetting } from './renderUtil';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
