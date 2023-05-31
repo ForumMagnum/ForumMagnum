@@ -61,12 +61,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   togglePodcastContainer: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
-    color: theme.palette.primary.main,
+    color: isEAForum ? undefined : theme.palette.primary.main,
     height: PODCAST_ICON_SIZE,
   },
   togglePodcastIcon: {
     width: PODCAST_ICON_SIZE,
     height: PODCAST_ICON_SIZE,
+    transform: isEAForum ? "translateY(-2px)" : undefined
   },
   actions: {
     display: 'inline-block',
@@ -243,6 +244,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
   
+  const readingTimeNode = !post.isEvent && <LWTooltip title={`${wordCount} words`}>
+    <span className={classes.wordCount}>{readTime} min read</span>
+  </LWTooltip>
+
   const commentCountNode = <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
     {isEAForum ?
       <>
@@ -250,6 +255,22 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
       </> : postGetCommentCountStr(post, commentCount)
     }
   </CommentsLink>
+  
+  const audioNode = toggleEmbeddedPlayer &&
+    (cachedTooltipSeen ?
+      <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+        <a href="#" onClick={toggleEmbeddedPlayer}>
+          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+        </a>
+      </LWTooltip> :
+      <NewFeaturePulse dx={-10} dy={4}>
+        <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+        <a href="#" onClick={toggleEmbeddedPlayer}>
+          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+        </a>
+        </LWTooltip>
+      </NewFeaturePulse>
+    )
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -274,15 +295,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             </LWTooltip>
           }
           {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
-          {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
-            <span className={classes.wordCount}>{readTime} min read</span>
-          </LWTooltip>}
+          {!isEAForum && readingTimeNode}
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
+          {isEAForum && readingTimeNode}
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
+          {isEAForum && audioNode}
           {post.question &&
             <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
               {postGetAnswerCountStr(answerCount)}
@@ -292,22 +313,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             {commentCountNode}
           </LWTooltip> : commentCountNode}
           {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />}
-          {toggleEmbeddedPlayer &&
-            (cachedTooltipSeen ?
-              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-                <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-                </a>
-              </LWTooltip> :
-              <NewFeaturePulse dx={-10} dy={4}>
-                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-                <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-                </a>
-                </LWTooltip>
-              </NewFeaturePulse>
-            )
-          }
+          {!isEAForum && audioNode}
           {post.startTime && <div className={classes.secondaryInfoLink}>
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip={true} />
           </div>}
