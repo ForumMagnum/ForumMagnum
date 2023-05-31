@@ -25,4 +25,10 @@ export const searchOriginDate = new PublicInstanceSetting<string>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && isEAForum;
+const disableElastic = new PublicInstanceSetting<boolean>(
+  "disableElastic",
+  false,
+  "optional",
+);
+
+export const isElasticEnabled = !isAnyTest && !disableElastic.get() && isEAForum;
