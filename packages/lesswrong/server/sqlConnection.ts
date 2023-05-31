@@ -1,7 +1,7 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
-import { isAnyTest } from "../lib/executionEnvironment";
 import { queryWithLock } from "./queryWithLock";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -164,9 +164,11 @@ export const createSqlConnection = async (
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
-  
-  // eslint-disable-next-line no-console
-  console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+  }
 
   const client: SqlClient = {
     ...db,
