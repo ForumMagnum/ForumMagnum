@@ -6,7 +6,7 @@ import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
-import { dogstatsd } from '../../apolloServer';
+import { dogstatsd } from '../../datadog/tracer';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
