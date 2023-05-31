@@ -170,7 +170,6 @@ export const usePostsItem = ({
     commentsLink: postLink + "#comments",
     commentCount: postGetCommentCount(post),
     primaryTag: hideTag ? null : postGetPrimaryTag(post),
-    hasAudio: !!post.podcastEpisodeId,
     tagRel,
     resumeReading,
     sticky: forceSticky || isSticky(post, terms),
