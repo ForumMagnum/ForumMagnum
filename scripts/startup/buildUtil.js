@@ -161,6 +161,7 @@ async function startSshTunnel(sshTunnelCommand) {
     const sshHost = sshTunnelCommand.at(-1).split('@')[1];
     await execAsync(`
       if [ -z "$(ssh-keygen -F ${sshHost})" ]; then
+        mkdir -p ~/.ssh
         ssh-keyscan -H ${sshHost} >> ~/.ssh/known_hosts
       fi`
     );
