@@ -13,10 +13,16 @@ import Mark from 'mark.js';
 export const highlightSelectorClassName = "highlighted-substring";
 const highlightClassSelector = `& .${highlightSelectorClassName}`;
 
+export const dimHighlightClassName = "dim-highlighted-substring";
+const dimHighlightClassSelector = `& .${dimHighlightClassName}`;
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     [highlightClassSelector]: {
       backgroundColor: theme.palette.background.primaryTranslucentHeavy
+    },
+    [dimHighlightClassSelector]: {
+      backgroundColor: theme.palette.grey[200]
     }
   },
   scrollIndicatorWrapper: {
