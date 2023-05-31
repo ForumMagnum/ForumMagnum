@@ -59,7 +59,7 @@ class ElasticQuery {
     };
   }
 
-  private compileRanking({field, order, weight, scoring}: Ranking): string {
+  compileRanking({field, order, weight, scoring}: Ranking): string {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
