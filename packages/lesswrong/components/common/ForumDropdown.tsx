@@ -47,6 +47,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[1000],
     }),
   },
+  dropdownItem: {
+    "&:hover": {
+      "& .DropdownItem-afterIcon": {
+        color: theme.palette.primary.main,
+      },
+    },
+  },
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
@@ -59,6 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "middle",
     position: "relative",
     color: theme.palette.primary.main,
+    paddingLeft: 10,
     marginLeft: "auto",
     marginRight: 2,
     width: 19,
@@ -72,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       },
     }),
     '& .MuiList-padding': {
-      padding: '4px 0px',
+      padding: isEAForum ? 0 : '4px 0px',
     }
   },
   menuItem: {
@@ -106,7 +114,7 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const { captureEvent } = useTracking()
   const label = options[value].shortLabel || options[value].label
-  const { MenuItem, ForumIcon } = Components;
+  const { DropdownMenu, DropdownItem, ForumIcon } = Components;
 
   const dropdownIcon = isEAForum ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
@@ -122,27 +130,24 @@ const ForumDropdown = ({value=defaultPostsLayout, options, queryParam="layout", 
         {label} {dropdownIcon}
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classes.menu}>
-        {Object.keys(options).map((option) => (
-          <QueryLink key={option} query={{ [queryParam]: option }} merge>
-            <MenuItem
-              value={option}
-              onClick={() => {
-                captureEvent("forumDropdownItemSelected", {oldValue: value, newValue: option, ...eventProps})
-                setAnchorEl(null);
-                onSelect?.(option);
-              }}
-              className={classes.menuItem}
-            >
-              {options[option].label}
-              {option === value && isEAForum && (
-                <>
-                  <div className={classes.padding}></div>
-                  <ForumIcon icon="Check" className={classes.selectedIcon} />
-                </>
-              )}
-            </MenuItem>
-          </QueryLink>
-        ))}
+        <DropdownMenu>
+          {Object.keys(options).map((option) => (
+            <QueryLink key={option} query={{ [queryParam]: option }} merge>
+              <DropdownItem
+                title={options[option].label}
+                value={option}
+                onClick={() => {
+                  captureEvent("forumDropdownItemSelected", {oldValue: value, newValue: option, ...eventProps})
+                  setAnchorEl(null);
+                  onSelect?.(option);
+                }}
+                afterIcon={(option === value && isEAForum) ? "Check" : undefined}
+                afterIconClassName={classes.selectedIcon}
+                className={classes.dropdownItem}
+              />
+            </QueryLink>
+          ))}
+        </DropdownMenu>
       </Menu>
     </div>
   );

@@ -63,15 +63,18 @@ export type DropdownItemAction = {
 }
 
 export type DropdownItemProps = DropdownItemAction & {
-  title: string,
+  title: string | JSX.Element,
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
   afterIcon?: ForumIconName,
+  afterIconClassName?: string,
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
   rawLink?: boolean,
+  value?: string,
+  className?: string,
 }
 
 const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
@@ -94,10 +97,13 @@ const DropdownItem = ({
   icon,
   iconClassName,
   afterIcon,
+  afterIconClassName,
   tooltip,
   disabled,
   loading,
   rawLink,
+  value,
+  className,
   classes,
 }: DropdownItemProps & {classes: ClassesType}) => {
   const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
@@ -107,9 +113,10 @@ const DropdownItem = ({
     <LinkWrapper to={to!} className={classes.root}>
       <TooltipWrapper title={tooltip!} className={classes.tooltip}>
         <MenuItem
+          value={value}
           onClick={onClick}
           disabled={disabled}
-          className={classNames(classes.main, {[classes.noIcon]: !icon})}
+          className={classNames(classes.main, className, {[classes.noIcon]: !icon})}
         >
           {loading &&
             <ListItemIcon>
@@ -126,7 +133,7 @@ const DropdownItem = ({
           }
           <span className={classes.title}>{title}</span>
           {afterIcon &&
-            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+            <ForumIcon icon={afterIcon} className={classNames(classes.afterIcon, afterIconClassName)} />
           }
           {sideMessage &&
             <div className={classes.sideMessage}>

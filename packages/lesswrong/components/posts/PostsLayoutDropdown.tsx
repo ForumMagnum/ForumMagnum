@@ -13,9 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18,
   },
   optionIconInline: {
-    marginLeft: 2,
     marginRight: 6,
-    top: -1,
+    top: -2,
     width: 16,
     height: 16,
   },
