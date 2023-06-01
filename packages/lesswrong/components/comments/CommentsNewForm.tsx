@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, { ComponentProps, useState, useEffect } from 'react';
+import React, {ComponentProps, useState, useEffect, useRef} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -18,6 +18,8 @@ import { commentDefaultToAlignment } from '../../lib/collections/comments/helper
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
+import { useTracking } from "../../lib/analyticsEvents";
+import { randomId } from "../../lib/random";
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -144,6 +146,8 @@ export type CommentsNewFormProps = {
 
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
+  const commentSubmitStartTimeRef = useRef(Date.now());
   
   const userWithRateLimit = useSingle({
     documentId: currentUser?._id,
@@ -214,9 +218,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       successCallback(comment, { form })
     }
     setLoading(false)
+    const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
+    captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     userWithRateLimit.refetch();
   };
-
+  
   const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
@@ -323,6 +329,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               cancelCallback={wrappedCancelCallback}
               submitCallback={(data: unknown) => {
                 setLoading(true);
+                commentSubmitStartTimeRef.current = Date.now()
+                captureEvent("wrappedSubmitCallbackStarted")
                 return data
               }}
               errorCallback={() => setLoading(false)}

@@ -1,7 +1,10 @@
 const path = require("path");
 const fs = require('fs');
 const process = require('process');
-const child_process = require('child_process');
+const { spawn, exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
 
 /**
  * Distill all the various connection-string-related options into a
@@ -85,6 +88,14 @@ function getDatabaseConfig(opts) {
       host: "localhost",
       port: (dbConfig.sshTunnel.localPort || 5433),
     });
+    const sshKeyPath = path.join(path.dirname(opts.db), dbConfig.sshTunnel.key);
+    if(fs.statSync(sshKeyPath).mode & fs.constants.S_IROTH) {
+      // If the key is world-readable ssh will refuse to use it, so change the permissions
+      // File permissions aren't reproduced by git checkouts, so we have to do this here
+      // rather than in the credentials repo.
+      fs.chmodSync(sshKeyPath, 0600);
+    }
+
     sshTunnelCommand = [
       "-C",
       "-N",
@@ -128,7 +139,7 @@ function readFileOrDie(path) {
   try {
     return fs.readFileSync(path, 'utf8').trim();
   } catch(e) {
-    die(`Error reading ${opts.postgresUrlFile}: ${e}`);
+    die(`Error reading ${path}: ${e}`);
   }
 }
 
@@ -147,10 +158,19 @@ function die(message, status) {
 
 async function startSshTunnel(sshTunnelCommand) {
   if (sshTunnelCommand) {
-    const sshTunnelProcess = child_process.spawn("/usr/bin/ssh", sshTunnelCommand, {
+    const sshHost = sshTunnelCommand.at(-1).split('@')[1];
+    await execAsync(`
+      if [ -z "$(ssh-keygen -F ${sshHost})" ]; then
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${sshHost} >> ~/.ssh/known_hosts
+      fi`
+    );
+    
+    const sshTunnelProcess = spawn("/usr/bin/ssh", sshTunnelCommand, {
       stdio: "inherit",
       detached: false,
     });
+
     sshTunnelProcess.on('close', (status) => {
       console.log(`SSH tunnel exited with status ${status}`);
     });
