@@ -10,7 +10,7 @@ import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
-import { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 
 /**
  * To set up automatic tagging:
@@ -248,7 +248,8 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
 
 export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
   console.log('postIsCriticism', post)
-  // only run on the EA Forum on production, since it costs money
+  // Only run this on the EA Forum on production, since it costs money
+  // (in particular, this model will only work if run with EA Forum prod credentials).
   if (!isEAForum || !isProduction) return false
   
   const api = await getOpenAI()

@@ -1224,7 +1224,6 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly criticismTipsDismissed: boolean,
   readonly commentEmojiReactors: any,
 }
 
@@ -1250,6 +1249,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts

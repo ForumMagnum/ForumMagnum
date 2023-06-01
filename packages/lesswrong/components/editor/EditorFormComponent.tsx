@@ -9,6 +9,8 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery } from '@apollo/client';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { isEAForum } from '../../lib/instanceSettings';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -37,8 +39,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   classes: ClassesType,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
-  const { editorHintText, maxHeight, postSkipCheckIsCriticism, setPostFlaggedAsCriticism } = (formProps || {});
-  console.log('formProps', formProps)
+  const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues } = context;
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
@@ -61,6 +62,26 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentEditorType = contents.type || defaultEditorType;
   const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
   
+  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
+
+  const handleDismissTips = () => {
+    console.log('handleDismissTips')
+    setCriticismTipsDismissed(true)
+    if (formType !== 'new' && document._id) {
+      updatePostCriticismTips({
+        selector: {_id: document._id},
+        data: {
+          criticismTipsDismissed: true
+        }
+      })
+    }
+  }
+  const { mutate: updatePostCriticismTips } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: "PostsEditCriticismTips",
+  })
+  
   const [checkIsCriticism] = useLazyQuery(gql`
     query getPostIsCriticism($args: JSON) {
       PostIsCriticism(args: $args)
@@ -76,15 +97,32 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const throttledCheckIsCriticism = useCallback(
     _.throttle(contents => {
       console.log('throttledCheckIsCriticism', document.title, document.url, contents)
-      if (postSkipCheckIsCriticism) return
+      // On the EA Forum, our bot checks if posts are potential criticism,
+      // and if so we show a little card with tips on how to make it more likely to go well.
+      if (
+        !isEAForum ||
+        collectionName !== 'Posts' ||
+        document.isEvent ||
+        document.debate ||
+        document.shortform ||
+        criticismTipsDismissed
+      ) return
+
       checkIsCriticism({variables: { args: {
         title: document.title ?? '',
         url: document.url,
         contentType: contents.type,
         body: contents.value
       }}})
-    }, 1000*1*20), [postSkipCheckIsCriticism] // TODO run up to once per 20 min
+    }, 1000*20*1), [criticismTipsDismissed] // TODO run up to once per 20 min
   )
+  
+  useEffect(() => {
+    // check when loading the post edit form
+    if (contents.value.length > 50) {
+      throttledCheckIsCriticism(contents)
+    }
+  }, [])
   
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
@@ -143,8 +181,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       throttledSaveBackup(contents);
     }
     
-    !postSkipCheckIsCriticism && throttledCheckIsCriticism(contents)
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, postSkipCheckIsCriticism]);
+    if (contents.value.length > 50) {
+      throttledCheckIsCriticism(contents)
+    }
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, criticismTipsDismissed]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -204,7 +244,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   if (!document) return null;
   
-  return <div>
+  return <div className={classes.root}>
     {showEditorWarning &&
     <Components.LastEditedInWarning
       initialType={initialEditorType}
@@ -248,6 +288,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         postId={document._id}
       />
     }
+    {postFlaggedAsCriticism && !criticismTipsDismissed && <Components.PostsEditBotTips handleDismiss={handleDismissTips} />}
   </div>
 }
 

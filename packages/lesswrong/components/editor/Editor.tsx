@@ -22,6 +22,9 @@ const commentEditorHeightRows = 5;
 
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    position: 'relative'
+  },
   editor: {
     position: 'relative',
   },
@@ -200,8 +203,6 @@ export interface FormProps {
   commentMinimalistStyle?: boolean
   editorHintText?: string
   maxHeight?: boolean,
-  postSkipCheckIsCriticism?: boolean,
-  setPostFlaggedAsCriticism?: (isCriticism: boolean)=>void,
 }
 
 interface EditorProps {

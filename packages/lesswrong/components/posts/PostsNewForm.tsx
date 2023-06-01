@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
-import React, { useState } from 'react';
+import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
@@ -17,17 +17,8 @@ import type { PostSubmitProps } from './PostSubmit';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 715px 1fr',
-    gridTemplateAreas: '". form botTips"',
-    [theme.breakpoints.down('xs')]: {
-      display: 'block'
-    },
-  },
   postForm: {
-    gridArea: 'form',
-    width: 715,
+    maxWidth: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -117,10 +108,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 20,
     paddingBottom: 20
   },
-  botTipsCol: {
-    gridArea: 'botTips',
-    paddingRight: 10,
-  }
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -183,15 +170,8 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
-  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(false)
-  const handleDismissTips = () => {
-    console.log('handleDismissTips')
-    setCriticismTipsDismissed(true)
-  }
-  
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning, PostsEditBotTips } = Components
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -256,45 +236,36 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <div className={classes.root}>
-      <div className={classes.postForm}>
-        <RecaptchaWarning currentUser={currentUser}>
-          <Components.PostsAcceptTos currentUser={currentUser} />
-          {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <NoSSR>
-            <WrappedSmartForm
-              collectionName="Posts"
-              mutationFragment={getFragment('PostsPage')}
-              prefilledProps={prefilledProps}
-              successCallback={(post: any, options: any) => {
-                if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                if (options?.submitOptions?.redirectToEditor) {
-                  history.push(postGetEditUrl(post._id));
-                } else {
-                  history.push({pathname: postGetPageUrl(post)})
-                  const postDescription = post.draft ? "Draft" : "Post";
-                  flash({ messageString: `${postDescription} created.`, type: 'success'});
-                }
-              }}
-              eventForm={eventForm}
-              debateForm={debateForm}
-              repeatErrors
-              noSubmitOnCmdEnter
-              formComponents={{
-                FormSubmit: NewPostsSubmit
-              }}
-              formProps={{
-                postSkipCheckIsCriticism: criticismTipsDismissed,
-                setPostFlaggedAsCriticism
-              }}
-            />
-          </NoSSR>
-        </RecaptchaWarning>
-      </div>
-      <div className={classes.botTipsCol}>
-        {postFlaggedAsCriticism && !criticismTipsDismissed && <PostsEditBotTips handleDismiss={handleDismissTips} />}
-      </div>
+    <div className={classes.postForm}>
+      <RecaptchaWarning currentUser={currentUser}>
+        <Components.PostsAcceptTos currentUser={currentUser} />
+        {postWillBeHidden && <NewPostModerationWarning />}
+        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+        <NoSSR>
+          <WrappedSmartForm
+            collectionName="Posts"
+            mutationFragment={getFragment('PostsPage')}
+            prefilledProps={prefilledProps}
+            successCallback={(post: any, options: any) => {
+              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              if (options?.submitOptions?.redirectToEditor) {
+                history.push(postGetEditUrl(post._id));
+              } else {
+                history.push({pathname: postGetPageUrl(post)})
+                const postDescription = post.draft ? "Draft" : "Post";
+                flash({ messageString: `${postDescription} created.`, type: 'success'});
+              }
+            }}
+            eventForm={eventForm}
+            debateForm={debateForm}
+            repeatErrors
+            noSubmitOnCmdEnter
+            formComponents={{
+              FormSubmit: NewPostsSubmit
+            }}
+          />
+        </NoSSR>
+      </RecaptchaWarning>
     </div>
   );
 }

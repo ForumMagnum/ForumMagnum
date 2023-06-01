@@ -467,7 +467,6 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
-    criticismTipsDismissed
     commentEmojiReactors
   }
 `)
@@ -492,6 +491,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
