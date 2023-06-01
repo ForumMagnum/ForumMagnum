@@ -257,6 +257,7 @@
     "passport-oauth2": "^1.6.1",
     "path-to-regexp": "^1.2.0",
     "pg": "^8.5.1",
+    "pg-native": "^3.0.1",
     "pg-promise": "^10.11.0",
     "prop-types": "^15.7.2",
     "qs": "6.7.3",
