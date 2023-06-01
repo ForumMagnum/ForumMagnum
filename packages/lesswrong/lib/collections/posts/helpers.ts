@@ -1,10 +1,10 @@
-import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { cloudinaryCloudNameSetting } from '../../publicSettings';
+import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
@@ -207,7 +207,7 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -316,7 +316,7 @@ export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: stri
 }
 
 export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  let { coauthorStatuses, hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
   if (!hasCoauthorPermission) {
@@ -348,4 +348,37 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   const potentialTags = core.length < 1 && includeNonCore ? tags : core;
   const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : undefined;
+}
+
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
+const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
+
+/**
+ * Whether the post is allowed AI generated audio
+ */
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+  if (!allowTypeIIIPlayerSetting.get()) return false
+
+  try {
+    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get())
+    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
+
+    return (
+      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF || TYPE_III_ALLOWED_POST_IDS.includes(post._id)) &&
+      !post.draft &&
+      !post.authorIsUnreviewed &&
+      !post.rejected &&
+      !post.podcastEpisodeId &&
+      !post.isEvent &&
+      !post.question &&
+      !post.debate &&
+      !post.shortform &&
+      post.status === postStatuses.STATUS_APPROVED
+    );
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e)
+    return false
+  }
 }

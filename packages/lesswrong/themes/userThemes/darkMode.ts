@@ -152,6 +152,14 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
           color: palette.icon.dim,
         },
       },
+      MuiPaper: {
+        elevation1: {
+          boxShadow: "none",
+        },
+        elevation2: {
+          boxShadow: "none",
+        },
+      },
     },
     default: {},
   });
@@ -212,6 +220,11 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     embeddedPlayer: {
       opacity: 0.85,
+    },
+    dropdown: {
+      background: shadePalette.grey[100],
+      border: shadePalette.grey[250],
+      hoverBackground: shadePalette.grey[250],
     },
     editor: {
       commentPanelBackground: shadePalette.grey[200],

@@ -31,7 +31,7 @@ export const AltAccountInfo = ({classes, user}: {
   const { results, loading } = useMulti({
     terms: {
       view: "usersByUserIds",
-      userIds:  user.associatedClientIds?.[0].userIds
+      userIds:  user.associatedClientIds?.[0].userIds ?? undefined
     },
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',

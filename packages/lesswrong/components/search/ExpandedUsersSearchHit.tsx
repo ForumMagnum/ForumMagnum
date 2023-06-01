@@ -66,13 +66,16 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const { FormatDate, ProfilePhoto, ForumIcon } = Components
+  const { FormatDate, UsersProfileImage, ForumIcon } = Components
   const user = hit as AlgoliaUser
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
       <div className={classes.profilePhotoCol}>
-        <ProfilePhoto user={user} noLink />
+        <UsersProfileImage
+          user={user}
+          size={36}
+          fallback="initials" />
       </div>
       <div>
         <div className={classes.displayNameRow}>

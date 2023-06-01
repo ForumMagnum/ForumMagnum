@@ -9,6 +9,8 @@ import './permissions';
 
 // ## Voting
 import './voting/voteTypes';
+import './voting/votingSystems';
+import './voting/namesAttachedReactions';
 
 //MomentJS configuration
 import '../components/momentjs';
@@ -201,6 +203,9 @@ import './collections/commentModeratorActions/index';
 
 // ModerationTemplates
 import './collections/moderationTemplates/index';
+
+// UserRateLimits
+import './collections/userRateLimits/index';
 
 // Internationalization
 import './i18n-en-us/en_US';

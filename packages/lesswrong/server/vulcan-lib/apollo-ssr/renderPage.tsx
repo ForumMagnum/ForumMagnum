@@ -15,7 +15,7 @@ import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
-import { embedAsGlobalVar } from './renderUtil';
+import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
@@ -32,7 +32,6 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
-const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
 type RenderTimings = {
   totalTime: number
@@ -85,7 +84,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   const abTestGroups = getAllUserABTestGroups(user, clientId);
   if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
-    recordCacheBypass();
+    recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
@@ -106,7 +105,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => renderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
     

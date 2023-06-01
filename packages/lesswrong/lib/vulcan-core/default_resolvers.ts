@@ -3,6 +3,7 @@ import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
+import { captureEvent } from "../analyticsEvents";
 
 const maxAllowedSkip = 2000;
 
@@ -28,6 +29,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       description: `A list of ${typeName} documents matching a set of query terms`,
 
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
+        const startResolve = Date.now()
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
         const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
@@ -83,7 +85,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
             data.totalCount = viewableDocs.length;
           }
         }
-
+  
+        const timeElapsed = Date.now() - startResolve;
+        captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms});
         // return results
         return data;
       },
@@ -95,6 +99,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       description: `A single ${typeName} document fetched by ID or slug`,
 
       async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
+        const startResolve = Date.now();
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -160,7 +165,10 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logGroupEnd();
         logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
         logger('');
-
+        
+        const timeElapsed = Date.now() - startResolve;
+        captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed});
+        
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
       },

@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES, ManuallyAppliedModeratorActionType, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, AllRateLimitTypes, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
@@ -84,25 +84,13 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem } = Components
+  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
   })
-
-  const { mutate: updateModeratorAction } = useUpdate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
-
-  const { create: createModeratorAction } = useCreate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
-
-  const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
   const signature = getSignature(currentUser.displayName);
 
@@ -140,19 +128,19 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   }
   const handleReview = () => {
-    if (canReview) {
-      void updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser._id,
-          reviewedAt: new Date(),
-          needsReview: false,
-          sunshineNotes: notes,
-          snoozedUntilContentCount: null
-        }
-      })
-    }
+    const newNotes = getModSignatureWithNote(`Approved`)+notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineFlagged: false,
+        reviewedByUserId: currentUser._id,
+        reviewedAt: new Date(),
+        needsReview: false,
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: null
+      }
+    })
+    setNotes( newNotes )
   }
   
   const handleSnooze = (contentCount: number) => {
@@ -188,8 +176,14 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       selector: {_id: user._id},
       data: {
         needsReview: false,
-        reviewedByUserId: null, // this is necessary so that their next post/comment won't appear without being approved by a moderator
-        reviewedAt: new Date(), // this is necessary so it shows up that they appear in the "recently reviewed" list
+        // this is necessary so that their next post/comment won't appear without being approved by a moderator
+        reviewedByUserId: null,
+        /* 
+         * this is necessary so it shows up that they appear in the "recently reviewed" list
+         * for users who've been reviewed before, we update the date.  for users we haven't, we don't.
+         * see comment in `getReasonForReview` for more details
+         */
+        reviewedAt: user.reviewedAt ? new Date() : null,
         sunshineNotes: newNotes
       }
     })    
@@ -218,6 +212,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handlePurge = () => {
+    const newNotes = getModSignatureWithNote("Purge") + notes;
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       void updateUser({
         selector: {_id: user._id},
@@ -230,24 +225,24 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(1000, 'years').toDate(),
-          sunshineNotes: notes
+          sunshineNotes: newNotes
         }
       })
-      setNotes( getModSignatureWithNote("Purge")+notes )
+      setNotes( newNotes )
     }
   }
   
   const handleFlag = () => {
+    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
+    const newNotes =  getModSignatureWithNote(flagStatus)+notes
     void updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
-        sunshineNotes: notes
+        sunshineNotes: newNotes
       }
     })
-    
-    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( getModSignatureWithNote(flagStatus)+notes )
+    setNotes(newNotes)
   }
   
   const handleDisablePosting = () => {
@@ -302,41 +297,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
-
-  const applyModeratorAction = async (type: ManuallyAppliedModeratorActionType) => {
-
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 60);
-
-    await createModeratorAction({
-      data: {
-        type,
-        userId: user._id,
-        endedAt: endDate
-      }
-    });
-
-    setNotes( getNewModActionNotes(currentUser.displayName, type, notes) )
-    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
-    for (const rateLimit of existingRateLimits) {
-      void endRateLimit(rateLimit._id)
-    }
-    // We have a refetch to ensure the button displays (toggled on/off) properly 
-    refetch();
-  };
-
-  const endRateLimit = async (rateLimitId: string) => {
-
-    await updateModeratorAction({
-      selector: { _id: rateLimitId },
-      data: { endedAt: new Date() }
-    });
-
-    // We have a refetch to ensure the button displays (toggled on/off) properly 
-    refetch();
-  };
-
-
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
       <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
@@ -348,7 +308,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
-      <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+      <DoneIcon onClick={handleReview} className={classes.modButton}/>
     </LWTooltip>
     <LWTooltip title="Ban for 3 months" placement="top">
       <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
@@ -391,31 +351,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       </div>
     </LWTooltip>
   </div>
-
-  const [anchorEl, setAnchorEl] = useState<any>(null);
   
   return <div>
     {actionRow}
     {permissionsRow}
-    <div>
-      <span onClick={(ev) => setAnchorEl(ev.currentTarget)}>
-        <MenuItem>
-          Rate Limit
-          <ListItemIcon>
-            <ArrowDropDownIcon />
-          </ListItemIcon>
-        </MenuItem>
-      </span>
-      <Menu 
-        onClick={() => setAnchorEl(null)}
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-      >
-        {allRateLimits.map(moderatorAction => <MenuItem key={moderatorAction} onClick={() => applyModeratorAction(moderatorAction)}>
-          {MODERATOR_ACTION_TYPES[moderatorAction]}
-        </MenuItem>)}
-      </Menu>
-    </div>
+    <UserRateLimitItem userId={user._id} />
     <div className={classes.notes}>
       <Input
         value={notes}

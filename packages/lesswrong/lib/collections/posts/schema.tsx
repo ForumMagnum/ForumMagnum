@@ -13,11 +13,11 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -25,8 +25,11 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import GraphQLJSON from 'graphql-type-json';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
+
+
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -1046,14 +1049,15 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: ['admins', 'sunshineRegiment'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
+    canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
+    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
     control: "select",
     form: {
-      options: () => {
-        return getVotingSystems()
-          .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
+      options: ({currentUser}:{currentUser: UsersCurrent}) => {
+        const votingSystems = getVotingSystems()
+        const filteredVotingSystems = currentUser.isAdmin ? votingSystems : votingSystems.filter(votingSystem => votingSystem.userCanActivate)
+        return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
     ...schemaDefaultValue(forumDefaultVotingSystem),
@@ -1295,9 +1299,10 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     canCreate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
+    nullable: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
-    group: formGroups.coauthors,
+    group: formGroups.coauthors
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -2196,15 +2201,6 @@ const schema: SchemaType<DbPost> = {
     optional: true
   },
   
-  postSpecificRateLimit: {
-    type: Date,
-    nullable: true,
-    canRead: ['members'],
-    optional: true, hidden: true,
-    // Implementation in postResolvers.ts
-  },
-  
-  
   commentSortOrder: {
     type: String,
     canRead: ['guests'],
@@ -2453,6 +2449,22 @@ const schema: SchemaType<DbPost> = {
 
       return count;
     }
+  }),
+
+  commentEmojiReactors: resolverOnlyField({
+    type: Object,
+    graphQLtype: GraphQLJSON,
+    blackbox: true,
+    nullable: true,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (post.votingSystem !== "threeAxisEmojis") {
+        return null;
+      }
+      return context.repos.posts.getEmojiReactors(post._id);
+    },
   }),
 
   rejected: {

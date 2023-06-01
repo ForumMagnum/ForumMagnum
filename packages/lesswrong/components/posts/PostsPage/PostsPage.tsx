@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {PublicInstanceSetting, forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
@@ -15,16 +15,14 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postsPageRecommendationsABTest, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
-
-const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -36,8 +34,6 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
-
-const TYPE_III_DATE_CUTOFF = new Date('2023-04-01')
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
@@ -178,9 +174,9 @@ const PostsPage = ({post, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const showTypeIIIPlayer = allowTypeIIIPlayerSetting.get() && new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF && !post.podcastEpisode;
+  const allowTypeIIIPlayer = isPostAllowedType3Audio(post);
 
-  const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
+  const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -259,6 +255,8 @@ const PostsPage = ({post, refetch, classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
+  const isOldVersion = query?.revision && post.contents;
+  
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")
     : "hidden";
@@ -272,11 +270,15 @@ const PostsPage = ({post, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  const recommendationsTestGroup = useABTest(postsPageRecommendationsABTest);
   const showRecommendations = isEAForum &&
+    !currentUser?.hidePostsRecommendations &&
+    !post.shortform &&
+    !post.draft &&
+    !post.deletedDraft &&
     !post.question &&
-    !sequenceId &&
-    recommendationsTestGroup === "recommended";
+    !post.debate &&
+    !post.isEvent &&
+    !sequenceId;
 
   const commentId = query.commentId || params.commentId
 
@@ -324,11 +326,13 @@ const PostsPage = ({post, refetch, classes}: {
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
+  const noIndex = post.noIndex || post.rejected;
+
   const header = <>
     {!commentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title} description={description} noIndex={post.noIndex}
+        title={post.title} description={description} noIndex={noIndex}
       />
       <CitationTags
         title={post.title}
@@ -371,7 +375,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <Helmet>
-      {showTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
+      {allowTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
     </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
@@ -382,11 +386,14 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        {/* The embedded player for posts with a manually uploaded podcast episode */}
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
+        {/* The embedded player for posts with audio auto generated by Type 3. Note: Type 3 apply some
+            custom styling on prod so this may look different locally */}
         {/* @ts-ignore */}
-        {showTypeIIIPlayer && <type-3-player></type-3-player>}
+        {allowTypeIIIPlayer && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} ><type-3-player></type-3-player></div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
@@ -394,7 +401,7 @@ const PostsPage = ({post, refetch, classes}: {
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
               {htmlWithAnchors && <PostBody
                 post={post} html={htmlWithAnchors}
-                sideCommentMode={sideCommentMode}
+                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
               />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>

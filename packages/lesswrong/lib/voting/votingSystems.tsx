@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
+import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
@@ -17,31 +18,34 @@ export type CommentVotingComponentProps = {
 }
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 
-export interface VotingSystem {
+export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
+  userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
+  getCommentBottomComponent?: ()=>CommentVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    extendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any,
+  })=>ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
-    oldExtendedScore: any,
-    cancelledExtendedVote: any,
+    oldExtendedScore: ExtendedScoreType,
+    cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>any
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
+  })=>ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
 
-const registerVotingSystem = (votingSystem: VotingSystem) => {
+export const registerVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
   votingSystems[votingSystem.name] = votingSystem;
 }
 
@@ -66,6 +70,7 @@ registerVotingSystem({
 registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
+  userCanActivate: true,
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
@@ -108,7 +113,7 @@ registerVotingSystem({
   },
 });
 
-function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
+export function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
   const voteType: string | undefined = vote.extendedVoteType?.[axis];
   if (!voteType) return 0;
   const user = usersById[vote.userId];
@@ -238,6 +243,63 @@ registerVotingSystem({
     for (let key of Object.keys(vote.extendedVoteType)) {
       if (vote.extendedVoteType[key] && vote.extendedVoteType[key]!=="neutral")
         return true;
+    }
+    return false;
+  },
+});
+
+const getEmojiReactionPower = (value?: boolean) => {
+  switch (value) {
+  case true:
+    return 1;
+  case false:
+    return -1;
+  default:
+    return 0;
+  }
+}
+
+registerVotingSystem({
+  name: "threeAxisEmojis",
+  description: "Two-axis approve and agree, plus emoji reactions",
+  getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
+  addVoteClient: ({oldExtendedScore, extendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+  }): Record<string, number> => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
+      const power = getEmojiReactionPower(extendedVote?.[reaction]);
+      return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+  }): Record<string, number> => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      const oldScore = oldExtendedScore?.[reaction] ?? 0;
+      return [reaction, oldScore - (oldVote ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map(reaction => {
+      return [reaction, sumBy(votes, (v) => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) {
+      return false;
+    }
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral") {
+        return true;
+      }
     }
     return false;
   },
