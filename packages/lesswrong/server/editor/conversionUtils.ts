@@ -201,7 +201,7 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
 export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
   switch (type) {
     case "html":
-      return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
+      return await mjPagePromise(sanitizeData ? sanitize(data) : data, trimLatexAndAddCSS)
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data)
     case "draftJS":
