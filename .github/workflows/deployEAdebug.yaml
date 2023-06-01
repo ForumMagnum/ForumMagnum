@@ -1,0 +1,32 @@
+name: Deploy EA Staging
+concurrency: deploy-ea-dev
+on:
+  push:
+    branches: [ wh-fix-dogstatsd-host-2023-05 ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        environment: [EAForum-Staging-debug]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - run: pip3 install --upgrade pip awsebcli
+    - name: Run Migrations
+      if: github.ref == 'refs/heads/master'
+      uses: ./.github/actions/runMigrations
+      with:
+        mode: staging
+        credentials-repo: ${{ secrets.CEA_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.CEA_CREDENTIALS_PAT }}
+        transcrypt-secret: ${{ secrets.CEA_TRANSCRYPT_SECRET }}
+    - name: Run Deploy
+      run: scripts/deploy.sh EAForum ${{ matrix.environment }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.CEA_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CEA_AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: "us-east-1"
