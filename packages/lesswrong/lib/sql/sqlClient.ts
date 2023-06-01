@@ -53,6 +53,7 @@ export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()
 
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
+    // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
