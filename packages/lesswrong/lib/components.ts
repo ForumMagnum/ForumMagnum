@@ -130,6 +130,11 @@ importComponent("BanUserFromAllPostsDropdownItem", () => require('../components/
 importComponent("BanUserFromAllPersonalPostsDropdownItem", () => require('../components/dropdowns/comments/BanUserFromAllPersonalPostsDropdownItem'));
 importComponent("ToggleIsModeratorCommentDropdownItem", () => require('../components/dropdowns/comments/ToggleIsModeratorCommentDropdownItem'));
 
+// Quick takes
+importComponent("QuickTakesSection", () => require('../components/quickTakes/QuickTakesSection'));
+importComponent("QuickTakesEntry", () => require('../components/quickTakes/QuickTakesEntry'));
+importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
+
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
 //importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));

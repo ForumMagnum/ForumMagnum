@@ -18,7 +18,8 @@ const EAHome = () => {
   const {
     RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed
+    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed,
+    QuickTakesSection,
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -47,11 +48,12 @@ const EAHome = () => {
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
-      
+
       <EAHomeMainContent FrontpageNode={
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+          {isEAForum && <QuickTakesSection />}
           {isEAForum && (
             <AnalyticsContext pageSectionContext="frontpageShortform">
               <SingleColumnSection>
