@@ -8,6 +8,8 @@ import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../
 import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
+import PageCache from '../../../lib/collections/pagecache/collection';
+import { getClientBundle } from '../../utils/bundleUtils';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -23,9 +25,12 @@ import { healthCheckUserAgentSetting } from './renderUtil';
 //      cache, we don't want to start many rerenders of it in parallel
 
 // TODO:
-// - Add table RequestCache for shared cache
-// - Simplest and lowest risk thing to do is to patch in a db read/write in cacheLookup and cacheStore, that way it can just be used as a fallback so
+// - [X] Add table RequestCache for shared cache
+// - [X] Simplest and lowest risk thing to do is to patch in a db read/write in cacheLookup and cacheStore, that way it can just be used as a fallback so
 //   should be no worse than the current situation
+// - [ ] Do various TODOs
+// - [ ] Make it clear expired entries (ideally with a db level trigger)
+// - [ ] Do something about thundering herd (probably just a lock, see what lock infrastructure Ollie has added)
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 const maxCacheAgeMs = 90*1000;
@@ -92,7 +97,7 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
-  const cached = cacheLookup(cacheKey, abTestGroups);
+  const cached = await cacheLookup(cacheKey, abTestGroups);
   
   // If already cached, return the cached version
   if (cached) {
@@ -156,7 +161,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
 
 // const dbCacheLookup = new thing
 
-const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
+const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex)) {
     // eslint-disable-next-line no-console
     console.log("Cache miss: no cached page with this cacheKey for any A/B test group combination");
@@ -173,12 +178,30 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
         return lookupResult;
     }
   }
-  // TODO add lookup from db here, and maybe replace in memory cache lookup
-  // PageCache.fetch({path: cacheKey, relevantAbTestGroups: complicated_query(abTestGroups))})
 
   // eslint-disable-next-line no-console
   console.log(`Cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
   return null;
+}
+
+const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+  // TODO move this to a repo, and add logic for:
+  // - requiring abTestGroups of the db row is a SUBSET of abTestGroups here
+  // - checking the ttl, bundleHash etc
+  const cacheResult = await PageCache.findOne({path: cacheKey})
+  return cacheResult?.renderResult ?? null;
+}
+
+const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+  // const localResult = cacheLookupLocal(cacheKey, abTestGroups);
+  const localResult = null;
+  if (localResult) {
+    return localResult;
+  }
+
+  // TODO move logging into this function
+  const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
+  return dbResult;
 }
 
 const objIsSubset = <A extends Record<string, any>, B extends Record<string, any>>(subset: A, superset: B): boolean => {
@@ -189,19 +212,37 @@ const objIsSubset = <A extends Record<string, any>, B extends Record<string, any
   return true;
 }
 
-const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  // TODO add db write here, and maybe replace in memory cache write
+const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
   pageCache.set(JSON.stringify({
     cacheKey: cacheKey,
     abTestGroups: abTestGroups
   }), rendered);
-
-  // PageCache.rawInsert({path: cacheKey, relevantAbTestGroups: abTestGroups})
   
   if (cacheKey in cachedABtestsIndex)
     cachedABtestsIndex[cacheKey].push(abTestGroups);
   else
     cachedABtestsIndex[cacheKey] = [abTestGroups];
+}
+
+const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+  // TODO we could get a hash by a simpler process than this, this has some benefits for debugging though
+  const { bundleHash } = getClientBundle();
+
+  // TODO make this an upsert on cacheKey+abTestGroups
+  void PageCache.rawInsert({
+    path: cacheKey,
+    abTestGroups: abTestGroups,
+    bundleHash,
+    ttlMs: maxCacheAgeMs,
+    renderedAt: new Date(),
+    renderResult: rendered,
+  });
+}
+
+const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+  cacheStoreLocal(cacheKey, abTestGroups, rendered);
+  // TODO measure how fast the local cache is compared to the db and decide whether it's even worth the extra complexity
+  cacheStoreDB(cacheKey, abTestGroups, rendered);
 }
 
 const clearExpiredCacheEntries = (): void => {

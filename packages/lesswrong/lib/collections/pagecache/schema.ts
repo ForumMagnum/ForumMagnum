@@ -4,7 +4,11 @@ const schema: SchemaType<DbAdvisorRequest> = {
   },
   abTestGroups: {
     // TODO make this a SimpleSchema Record<string, string>
-    type: String,
+    type: Object,
+    blackbox: true
+  },
+  bundleHash: {
+    type: String
   },
   renderedAt: {
     type: Date
@@ -28,7 +32,8 @@ const schema: SchemaType<DbAdvisorRequest> = {
   // }
   renderResult: {
     // TODO make this type as above
-    type: String
+    type: Object,
+    blackbox: true
   }
 };
 

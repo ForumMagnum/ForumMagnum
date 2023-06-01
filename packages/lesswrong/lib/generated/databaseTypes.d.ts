@@ -449,10 +449,11 @@ interface PageCacheCollection extends CollectionBase<DbPageCacheEntry, "PageCach
 interface DbPageCacheEntry extends DbObject {
   __collectionName?: "PageCache"
   path: string
-  abTestGroups: string
+  abTestGroups: any /*{"definitions":[{"blackbox":true}]}*/
+  bundleHash: string
   renderedAt: Date
   ttlMs: number
-  renderResult: string
+  renderResult: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
