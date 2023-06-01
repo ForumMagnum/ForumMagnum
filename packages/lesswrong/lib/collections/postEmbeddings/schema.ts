@@ -28,6 +28,10 @@ const schema: SchemaType<DbPostEmbedding> = {
     ...commonFields(),
     type: Date,
   },
+  model: {
+    ...commonFields(),
+    type: String,
+  },
   embeddings: {
     ...commonFields(),
     type: Array,

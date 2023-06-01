@@ -16,6 +16,6 @@ export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
 
 addUniversalFields({collection: PostEmbeddings});
 
-ensureIndex(PostEmbeddings, {postId: 1}, {unique: true});
+ensureIndex(PostEmbeddings, {postId: 1, model: 1}, {unique: true});
 
 export default PostEmbeddings;

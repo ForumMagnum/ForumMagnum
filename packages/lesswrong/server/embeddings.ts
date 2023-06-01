@@ -5,7 +5,12 @@ import { htmlToText } from "html-to-text";
 import { Globals } from "./vulcan-lib";
 import md5 from "md5";
 
-const getEmbeddingsFromApi = async (text: string): Promise<number[]> => {
+type EmbeddingsResult = {
+  embeddings: number[],
+  model: string,
+}
+
+const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
   const url = "http://localhost:8000/embeddings";
   const response = await fetch(url, {
     method: "POST",
@@ -23,7 +28,7 @@ const getEmbeddingsFromApi = async (text: string): Promise<number[]> => {
   if (!Array.isArray(result.embeddings)) {
     throw new Error(`Invalid API response: ${JSON.stringify(result)}`);
   }
-  return result.embeddings;
+  return result;
 }
 
 const stripHtml = (html: string): string => htmlToText(html, {
@@ -33,10 +38,9 @@ const stripHtml = (html: string): string => htmlToText(html, {
   ],
 });
 
-const getEmbeddingsForPost = async (postId: string): Promise<{
-  hash: string,
-  embeddings: number[],
-}> => {
+const getEmbeddingsForPost = async (
+  postId: string,
+): Promise<EmbeddingsResult & {hash: string}> => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
@@ -44,13 +48,13 @@ const getEmbeddingsForPost = async (postId: string): Promise<{
   const text = stripHtml(post.contents?.html ?? "");
   const embeddings = await getEmbeddingsFromApi(text);
   const hash = md5(text);
-  return {hash, embeddings};
+  return {hash, ...embeddings};
 }
 
 const updatePostEmbeddings = async (postId: string) => {
-  const {hash, embeddings} = await getEmbeddingsForPost(postId);
+  const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
-  await repo.setPostEmbeddings(postId, hash, embeddings);
+  await repo.setPostEmbeddings(postId, hash, model, embeddings);
 }
 
 const updateAllPostEmbeddings = async () => {
