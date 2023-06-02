@@ -292,7 +292,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       if (newDoc[foreignFieldName] && filter(newDoc)) {
         denormalizedLogger(`new ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`)
         const collection = getCollection(collectionName);
-        await collection.rawUpdateOne(newDoc[foreignFieldName], {
+        void collection.rawUpdateOne(newDoc[foreignFieldName], {
           $inc: { [fieldName]: 1 }
         });
       }

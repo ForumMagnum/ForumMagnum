@@ -76,7 +76,8 @@ voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}
   if (forumTypeSetting.get() === 'LessWrong') {
     void triggerAutomodIfNeeded(newDocument.userId)
   }
-  if (vote.collectionName === 'Comments') {
+  // Don't need to do this for self-votes
+  if (vote.collectionName === 'Comments' && vote.userId !== newDocument.userId) {
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
 });

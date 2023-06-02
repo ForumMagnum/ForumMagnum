@@ -29,11 +29,9 @@ getCollectionHooks("Comments").createValidate.add(async function CommentsNewRate
   return validationErrors;
 });
 
-getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbComment}) => {
-  const user = await Users.findOne(document.userId)
-  
-  if (user) {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, null)
+getCollectionHooks("Comments").createAsync.add(async ({document, currentUser}) => {
+  if (currentUser) {
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(currentUser, null)
     // if the user has created a comment that makes them hit the rate limit, record an event
     // (ignore the universal 8 sec rate limit)
     if (rateLimit && rateLimit.rateLimitType !== 'universal') {

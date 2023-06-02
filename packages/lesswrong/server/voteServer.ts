@@ -20,6 +20,7 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
+import { timedFunc } from '../lib/helpers';
 
 
 // Test if a user has voted on the server
@@ -55,7 +56,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 
   let newDocument = {
     ...document,
-    ...(await recalculateDocumentScores(document, context)),
+    ...(await timedFunc('recalculateDocumentScores', () => recalculateDocumentScores(document, context))),
   }
   
   // update document score & set item as active
@@ -242,7 +243,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
-  const existingVote = await getExistingVote({document, user});
+  const existingVote = await timedFunc('getExistingVote', () => getExistingVote({document, user}));
   let showVotingPatternWarning = false;
 
   if (existingVote && existingVote.voteType === voteType && !extendedVote) {
@@ -268,7 +269,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
     
-    const votingSystem = await getVotingSystemForDocument(document, context);
+    const votingSystem = await timedFunc('getVotingSystemForDocument', () => getVotingSystemForDocument(document, context));
     if (extendedVote && votingSystem.isAllowedExtendedVote) {
       const oldExtendedScore = document.extendedScore;
       const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, oldExtendedScore, extendedVote)
@@ -277,18 +278,18 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
 
-    let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
-    voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
+    let voteDocTuple: VoteDocTuple = await timedFunc('addVoteServer', () => addVoteServer({document, user, collection, voteType, extendedVote, voteId, context}));
+    voteDocTuple = await timedFunc('performVoteServer castVoteSync', () => voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
       properties: [collection, user]
-    });
+    }));
     document = voteDocTuple.newDocument;
     
-    document = await clearVotesServer({
+    document = await timedFunc('clearVotesServer', () => clearVotesServer({
       document, user, collection,
       excludeLatest: true,
       context
-    })
+    }))
     
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
       [voteDocTuple, collection, user]
@@ -487,12 +488,14 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+  const [usersThatVoted, votingSystem] = await Promise.all([
+    loadByIds(context, "Users", userIdsThatVoted),
+    getVotingSystemForDocument(document, context)
+  ]);
   const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
-  const votingSystem = await getVotingSystemForDocument(document, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
@@ -500,13 +503,18 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;
+
+  const [extendedScore, afExtendedScore] = await Promise.all([
+    votingSystem.computeExtendedScore(votes, context),
+    votingSystem.computeExtendedScore(afVotes, context)
+  ])
   
   return {
     baseScore, afBaseScore,
     voteCount: voteCount,
     afVoteCount: afVoteCount,
-    extendedScore: await votingSystem.computeExtendedScore(votes, context),
-    afExtendedScore: await votingSystem.computeExtendedScore(afVotes, context),
+    extendedScore,
+    afExtendedScore,
     score: recalculateScore({...document, baseScore})
   };
 }

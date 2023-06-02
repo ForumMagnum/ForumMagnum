@@ -13,7 +13,7 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+const SLOW_QUERY_REPORT_CUTOFF_MS = 200;
 
 let executingQueries = 0;
 

@@ -59,7 +59,8 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.authorSlug = commentAuthor.slug;
   }
   if (comment.postId) {
-    const parentPost = await Posts.findOne({_id: comment.postId});
+    const parentPost = await Posts.findOne({_id: comment.postId}, undefined, { title: 1, slug: 1, isEvent: 1, groupId: 1, tagRelevance: 1 });
+    console.log({ parentPost });
     if (parentPost) {
       algoliaComment.postId = comment.postId;
       algoliaComment.postTitle = parentPost.title;
