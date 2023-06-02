@@ -54,6 +54,33 @@ else
   echo
 fi
 
+echo -n "Checking for make... "
+if which make >/dev/null; then
+  make --version |head -1
+else
+  echo "not found"
+  echo '`make` is not installed'
+  echo
+fi
+
+echo -n "Checking for g++... "
+if which g++ >/dev/null; then
+  g++ --version |head -1
+else
+  echo "not found"
+  echo '`g++` is not installed'
+  echo
+fi
+
+echo -n "Checking for psql... "
+if which psql >/dev/null; then
+  psql --version |head -1
+else
+  echo "not found"
+  echo '`psql` is not installed. You may need to install it to get libpq.'
+  echo
+fi
+
 echo -n "Checking for curl... "
 if which curl >/dev/null; then
   echo "yes"
