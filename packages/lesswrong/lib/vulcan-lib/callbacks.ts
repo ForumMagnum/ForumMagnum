@@ -38,7 +38,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     Globals.captureEvent('callbacksCompleted', {
       callbackHookName: this.name,
       timeElapsed
-    });
+    }, true);
 
     return result;
   }
