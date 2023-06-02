@@ -1,3 +1,4 @@
+import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
@@ -13,6 +14,7 @@ declare global {
 }
 
 const getAllRepos = () => ({
+  comments: new CommentsRepo(),
   conversations: new ConversationsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
@@ -25,6 +27,7 @@ const getAllRepos = () => ({
 } as const);
 
 export {
+  CommentsRepo,
   ConversationsRepo,
   DatabaseMetadataRepo,
   DebouncerEventsRepo,

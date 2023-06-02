@@ -218,11 +218,9 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     return await collection.aggregate(pipeline).toArray();
   } else {
     logger('performQueryFromViewParameters connector find', selector, terms, options);
-    return await Utils.Connectors.find(collection,
-      {
-        ...selector,
-        $comment: describeTerms(terms),
-      },
-      options);
+    return await collection.find({
+      ...selector,
+      $comment: describeTerms(terms),
+    }, options).fetch();
   }
 }
