@@ -175,11 +175,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
   name: "examples",
-  label: "Examples, please",
+  label: "Examples?",
   searchTerms: ["examples", "shapes"],
   svg: "/reactionImages/nounproject/shapes.svg",
   filter: { opacity: 0.6 },
-  description: "Can you give some examples of this?",
+  description: "I think this'd benefit from some concrete examples",
   },
   {
     name: "additionalQuestions",
@@ -448,8 +448,56 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["clarity","gem","diamond"],
     svg: "/reactionImages/nounproject/clarity.svg",
     description: (contentType) => `This ${contentType} clarifies things.`,
-    deprecated: true
   },
+  // {
+  //   name: "epsilon",
+  //   label: "Epsilon",
+  //   searchTerms: ["epsilon", "unlikely", "0%", "likelihood", "likely"],
+  //   svg: "/reactionImages/nounproject/epsilon.svg",
+  //   description: "I assign almost 0% credence to this",
+  // },
+  // {
+  //   name: "10percent",
+  //   label: "10% credence",
+  //   searchTerms: ["10%", "10", "percent", "likelihood", "likely"],
+  //   description: "I assign 10% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // },
+  // {
+  //   name: "20percent",
+  //   label: "20% credence",
+  //   searchTerms: ["10%", "likelihood", "percent", "credence"],
+  //   description: "I assign 20% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // },
+  // {
+  //   name: "10percent",
+  //   label: "10% credence",
+  //   searchTerms: ["10%", "10", "percent", "credence"],
+  //   description: "I assign 10% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // },
+  // {
+  //   name: "10percent",
+  //   label: "10% credence",
+  //   searchTerms: ["10%", "10", "percent", "credence"],
+  //   description: "I assign 10% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // },
+  // {
+  //   name: "10percent",
+  //   label: "10% credence",
+  //   searchTerms: ["10%", "10", "percent", "credence"],
+  //   description: "I assign 10% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // },
+  // {
+  //   name: "10percent",
+  //   label: "10% credence",
+  //   searchTerms: ["10%", "10", "percent", "credence"],
+  //   description: "I assign 10% credence to this",
+  //   svg: "/reactionImages/nounproject/10percent.svg",
+  // }
 ];
 
 
