@@ -93,7 +93,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     }
     `, {
       onCompleted: (data) => {
-        console.log('isCriticism', data.PostIsCriticism)
         const isCriticism = !!data.PostIsCriticism
         setPostFlaggedAsCriticism(isCriticism)
         if (isCriticism && !postFlaggedAsCriticism) {
@@ -105,7 +104,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 
   const throttledCheckIsCriticism = useCallback(
     _.throttle(contents => {
-      console.log('throttledCheckIsCriticism', document.title, document.url, contents)
       // On the EA Forum, our bot checks if posts are potential criticism,
       // and if so we show a little card with tips on how to make it more likely to go well.
       if (
@@ -114,16 +112,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         document.isEvent ||
         document.debate ||
         document.shortform ||
+        document.url ||
         criticismTipsDismissed
       ) return
 
       checkIsCriticism({variables: { args: {
         title: document.title ?? '',
-        url: document.url,
         contentType: contents.type,
         body: contents.value
       }}})
-    }, 1000*20*1), [criticismTipsDismissed] // TODO run up to once per 20 min
+    }, 1000*60*20), [criticismTipsDismissed] // run up to once per 20 min
   )
   
   useEffect(() => {

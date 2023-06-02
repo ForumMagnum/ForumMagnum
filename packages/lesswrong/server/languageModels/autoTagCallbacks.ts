@@ -138,7 +138,7 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
   const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
   const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
-  const linkpostMeta = post.url ? `\nThis is a linkpost for ${post.url}` : '';
+  const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
   
   return substituteIntoTemplate({
     template,
@@ -247,7 +247,6 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
 }
 
 export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
-  console.log('postIsCriticism', post)
   // Only run this on the EA Forum on production, since it costs money
   // (in particular, this model will only work if run with EA Forum prod credentials).
   if (!isEAForum || !isProduction) return false

@@ -174,7 +174,6 @@ augmentFieldsDict(Posts, {
 
 export type PostIsCriticismRequest = {
   title: string,
-  url?: string,
   contentType: string,
   body: string
 }
