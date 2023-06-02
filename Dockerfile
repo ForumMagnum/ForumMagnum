@@ -1,5 +1,5 @@
 # Node 18.x is LTS
-FROM node:18.15.0
+FROM node:18.16-bullseye
 ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils libpq-dev g++ make
