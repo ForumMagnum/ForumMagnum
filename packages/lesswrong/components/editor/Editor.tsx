@@ -156,6 +156,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
+  // class for the animation transitions of the bot tips card
+  enteredBotTips: {
+    opacity: 1
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds

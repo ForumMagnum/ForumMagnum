@@ -11,6 +11,8 @@ import * as _ from 'underscore';
 import { gql, useLazyQuery } from '@apollo/client';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
+import Transition from 'react-transition-group/Transition';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -45,6 +47,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = isCollaborative(document, fieldName);
+  const { captureEvent } = useTracking()
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
@@ -66,8 +69,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
 
   const handleDismissTips = () => {
-    console.log('handleDismissTips')
+    // hide the card
     setCriticismTipsDismissed(true)
+    captureEvent('criticismTipsDismissed', {postId: document._id})
+    // make sure not to show the card for this post ever again
     if (formType !== 'new' && document._id) {
       updatePostCriticismTips({
         selector: {_id: document._id},
@@ -89,7 +94,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     `, {
       onCompleted: (data) => {
         console.log('isCriticism', data.PostIsCriticism)
-        setPostFlaggedAsCriticism?.(!data.PostIsCriticism)
+        const isCriticism = !!data.PostIsCriticism
+        setPostFlaggedAsCriticism(isCriticism)
+        if (isCriticism && !postFlaggedAsCriticism) {
+          captureEvent('criticismTipsShown', {postId: document._id})
+        }
       }
     }
   )
@@ -288,7 +297,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         postId={document._id}
       />
     }
-    {postFlaggedAsCriticism && !criticismTipsDismissed && <Components.PostsEditBotTips handleDismiss={handleDismissTips} />}
+    {postFlaggedAsCriticism && !criticismTipsDismissed && (
+      <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+        {(state) => <Components.PostsEditBotTips
+          handleDismiss={handleDismissTips}
+          postId={document._id}
+          className={classes[`${state}BotTips`]}
+        />}
+      </Transition>
+    )}
   </div>
 }
 

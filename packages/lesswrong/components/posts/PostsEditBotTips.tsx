@@ -3,13 +3,14 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { isEAForum } from "../../lib/instanceSettings";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
     position: 'absolute',
     right: -335,
     top: -100,
-    height: '130%',
+    height: '120%',
     '@media (max-width: 1360px)': {
       right: -268,
     },
@@ -27,6 +28,8 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     padding: 16,
     borderRadius: theme.borderRadius.default,
+    transition: 'opacity 0.4s ease',
+    opacity: 0,
     '@media (max-width: 1360px)': {
       width: 242,
       padding: 12
@@ -86,19 +89,22 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsEditBotTips = ({handleDismiss, className, classes}: {
+const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
   handleDismiss: ()=>void,
+  postId?: string,
   className?: string,
   classes: ClassesType,
 }) => {
+  const {captureEvent} = useTracking()
+  
   if (!isEAForum) {
     return null
   }
   
   const { ForumIcon } = Components
 
-  return <aside className={classNames(className, classes.root)}>
-    <div className={classes.card}>
+  return <aside className={classes.root}>
+    <div className={classNames(className, classes.card)}>
       <div className={classes.headingRow}>
         <h2 className={classes.heading}>A tip for constructive criticism</h2>
         <button className={classes.close} onClick={handleDismiss}>
@@ -107,15 +113,21 @@ const PostsEditBotTips = ({handleDismiss, className, classes}: {
       </div>
       <div className={classes.textRow}>
         Our bot flagged this as potential criticism of someone's work. We suggest running criticism
-        past the relevant people first. <Link to={`https://forum.effectivealtruism.org/posts/f77iuXmgiiFgurnBu/run-posts-by-orgs`} className={classes.link}>
+        past the relevant people first. <a
+          href={`https://forum.effectivealtruism.org/posts/f77iuXmgiiFgurnBu/run-posts-by-orgs`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => captureEvent('criticismTipsLinkClicked', {postId})}
+          className={classes.link}
+        >
           Here's why and how
-        </Link>.
+        </a>.
       </div>
     </div>
   </aside>
 }
 
-const PostsEditBotTipsComponent = registerComponent("PostsEditBotTips", PostsEditBotTips, {styles});
+const PostsEditBotTipsComponent = registerComponent("PostsEditBotTips", PostsEditBotTips, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
