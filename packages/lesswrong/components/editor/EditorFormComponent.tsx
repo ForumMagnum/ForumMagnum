@@ -133,7 +133,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     checkPostIsCriticism
   ])
 
-  // run up to once per 20 min
+  // Run this check up to once per 20 min.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
   
   useEffect(() => {
