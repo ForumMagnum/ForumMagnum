@@ -1,3 +1,4 @@
+import { logAllQueries } from './sql/sqlClient';
 import { randomId } from './random';
 
 let client: any = null;
@@ -19,7 +20,6 @@ export const closeDatabaseConnection = async () => {
 export const isAnyQueryPending = () => (inProgressQueries > 0);
 
 const disableAllWrites = false;
-const logQueries = false;
 const debugQueryBatches = false;
 let inProgressQueries = 0;
 let onBatchFinished: Promise<void>|null = null;
@@ -33,7 +33,7 @@ function timeSince(startTime: Date): string {
 
 async function wrapQuery<T>(description: string, queryFn: ()=>Promise<T>): Promise<T> {
   const startTime = new Date();
-  if (logQueries) {
+  if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Starting ${description}`);
     
@@ -48,7 +48,7 @@ async function wrapQuery<T>(description: string, queryFn: ()=>Promise<T>): Promi
   const result = await queryFn();
   inProgressQueries--;
   
-  if (logQueries) {
+  if (logAllQueries) {
     const resultSize = JSON.stringify(result).length;
     // eslint-disable-next-line no-console
     console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);

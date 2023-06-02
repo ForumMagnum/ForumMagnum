@@ -10,7 +10,7 @@ import {
 } from '../lib/scoring';
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { runSqlQuery } from "../lib/sql/sqlClient";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -225,11 +225,10 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     return [];
   }
 
-  const db = getSqlClientOrThrow();
   const singleVotePower = getSingleVotePower();
 
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
-  return db.any(`
+  return runSqlQuery(`
     SELECT
       q.*,
       ns."newScore",

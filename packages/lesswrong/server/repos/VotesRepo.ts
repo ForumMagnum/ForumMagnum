@@ -1,6 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
+import { logIfSlow } from "../../lib/sql/sqlClient";
 
 export type KarmaChangesArgs = {
     userId: string,
@@ -42,7 +43,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     collectionName: CollectionNameString,
     dataFields: string[],
   ): Promise<T[]> {
-    return this.getRawDb().any(`
+    return logIfSlow(() => this.getRawDb().any(`
       SELECT
         v.*,
         '${collectionName}' AS "collectionName",
@@ -63,7 +64,9 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       ) v
       JOIN "${collectionName}" data ON data."_id" = v."_id"
       WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
-    `, [userId, startDate, endDate]);
+    `, [userId, startDate, endDate]),
+      "getKarmaChanges"
+    );
   }
 
   getKarmaChangesForComments(args: KarmaChangesArgs): Promise<CommentKarmaChange[]> {

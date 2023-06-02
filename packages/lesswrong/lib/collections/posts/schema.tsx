@@ -25,6 +25,7 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
+import sample from 'lodash/sample';
 import GraphQLJSON from 'graphql-type-json';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
@@ -44,8 +45,8 @@ const STICKY_PRIORITIES = {
 
 const forumDefaultVotingSystem = forumSelect({
   EAForum: "twoAxis",
-  LessWrong: "twoAxis",
-  AlignmentForum: "twoAxis",
+  LessWrong: sample(["twoAxis", "namesAttachedReactions"]),
+  AlignmentForum: sample(["twoAxis", "namesAttachedReactions"]),
   default: "default",
 })
 
@@ -1051,7 +1052,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
+    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
@@ -2297,7 +2298,7 @@ const schema: SchemaType<DbPost> = {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await context.Users.findOne({_id: post.userId});
+          const author = await context.loaders.Users.load(post.userId);
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
