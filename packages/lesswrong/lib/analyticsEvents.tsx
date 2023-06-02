@@ -1,5 +1,4 @@
 import { addGraphQLSchema, Globals } from './vulcan-lib';
-import { CallbackChainHook } from './vulcan-lib/callbacks';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -56,7 +55,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog: boolean = false) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog = false) {
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
