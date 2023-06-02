@@ -4,6 +4,7 @@ import { isAnyTest } from "../lib/executionEnvironment";
 import { queryWithLock } from "./queryWithLock";
 
 const pgPromiseLib = pgp({
+  pgNative: true,
   noWarnings: isAnyTest,
   error: (err, ctx) => {
     // If it's a syntax error, print the bad query for debugging
