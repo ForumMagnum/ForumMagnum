@@ -43,6 +43,8 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const [messageSentCount,setMessageSentCount] = useState(0);
+  const [numMessagesShown,setNumMessagesShown] = useState(0);
+
   const { results, refetch, loading: loadingMessages } = useMulti({
     terms: {
       view: 'messagesConversation',
@@ -64,23 +66,23 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   const { query } = useLocation()
   const { captureEvent } = useTracking()
   
-  useOnNotificationsChanged(() => refetch());
-
-  // Scroll to bottom when loading finishes. Note that this overlaps with the
-  // initialScroll:"bottom" setting in the route, which is handled by the
-  // ScrollToTop component, except that the ScrollToTop component does its thing
-  // on initial load, which may be while the messages (which make this page tall)
-  // are still loading.
-  // Also note, if you're refreshing (as opposed to navigating or opening a new
+  // Whenever the number of messages shown goes up, scroll to bottom
+  // This happens on pageload, and also happens when the messages list is refreshed
+  // because of the useOnNotificationsChanged() call below, if the refresh
+  // increased the message count.
+  //
+  // Note, if you're refreshing (as opposed to navigating or opening a new
   // tab), this can wind up fighting with the browser's scroll restoration (see
   // client/scrollRestoration.ts).
-  const [scrolledToBottom, setScrolledToBottom] = useState(false);
   useEffect(() => {
-    if (!loadingMessages && !scrolledToBottom) {
-      setScrolledToBottom(true);
+    const newNumMessages = (results?.length??0)
+    if (newNumMessages > numMessagesShown) {
+      setNumMessagesShown(newNumMessages);
       setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
     }
-  }, [loadingMessages,scrolledToBottom]);
+  });
+  
+  useOnNotificationsChanged(() => refetch());
   
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef('')
