@@ -65,16 +65,22 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentEditorType = contents.type || defaultEditorType;
   const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
   
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
   const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
 
-  const handleDismissTips = () => {
+  const { mutate: updatePostCriticismTips } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: "PostsEditCriticismTips",
+  })
+  const handleDismissCriticismTips = () => {
     // hide the card
     setCriticismTipsDismissed(true)
     captureEvent('criticismTipsDismissed', {postId: document._id})
     // make sure not to show the card for this post ever again
     if (formType !== 'new' && document._id) {
-      updatePostCriticismTips({
+      void updatePostCriticismTips({
         selector: {_id: document._id},
         data: {
           criticismTipsDismissed: true
@@ -82,12 +88,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       })
     }
   }
-  const { mutate: updatePostCriticismTips } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: "PostsEditCriticismTips",
-  })
   
-  const [checkIsCriticism] = useLazyQuery(gql`
+  const [checkPostIsCriticism] = useLazyQuery(gql`
     query getPostIsCriticism($args: JSON) {
       PostIsCriticism(args: $args)
     }
@@ -101,35 +103,45 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       }
     }
   )
+  
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
+  const checkIsCriticism = useCallback((contents: EditorContents) => {
+    if (
+      !isEAForum ||
+      collectionName !== 'Posts' ||
+      document.isEvent ||
+      document.debate ||
+      document.shortform ||
+      document.url ||
+      criticismTipsDismissed
+    ) return
 
-  const throttledCheckIsCriticism = useCallback(
-    _.throttle(contents => {
-      // On the EA Forum, our bot checks if posts are potential criticism,
-      // and if so we show a little card with tips on how to make it more likely to go well.
-      if (
-        !isEAForum ||
-        collectionName !== 'Posts' ||
-        document.isEvent ||
-        document.debate ||
-        document.shortform ||
-        document.url ||
-        criticismTipsDismissed
-      ) return
+    checkPostIsCriticism({variables: { args: {
+      title: document.title ?? '',
+      contentType: contents.type,
+      body: contents.value
+    }}})
+  }, [
+    collectionName,
+    document.isEvent,
+    document.debate,
+    document.shortform,
+    document.url,
+    document.title,
+    criticismTipsDismissed,
+    checkPostIsCriticism
+  ])
 
-      checkIsCriticism({variables: { args: {
-        title: document.title ?? '',
-        contentType: contents.type,
-        body: contents.value
-      }}})
-    }, 1000*60*20), [criticismTipsDismissed] // run up to once per 20 min
-  )
+  // run up to once per 20 min
+  const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
   
   useEffect(() => {
     // check when loading the post edit form
     if (contents.value.length > 50) {
       throttledCheckIsCriticism(contents)
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
@@ -191,7 +203,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (contents.value.length > 50) {
       throttledCheckIsCriticism(contents)
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, criticismTipsDismissed]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, throttledCheckIsCriticism]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -298,7 +310,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     {postFlaggedAsCriticism && !criticismTipsDismissed && (
       <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
         {(state) => <Components.PostsEditBotTips
-          handleDismiss={handleDismissTips}
+          handleDismiss={handleDismissCriticismTips}
           postId={document._id}
           className={classes[`${state}BotTips`]}
         />}
