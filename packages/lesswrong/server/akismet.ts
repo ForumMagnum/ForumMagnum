@@ -94,7 +94,7 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
 
       const timeElapsed = Date.now() - start;
-      captureEvent('checkForAkismetSpam', {
+      captureEvent('checkForAkismetSpamCompleted', {
         commentId: comment._id,
         timeElapsed
       }, true);

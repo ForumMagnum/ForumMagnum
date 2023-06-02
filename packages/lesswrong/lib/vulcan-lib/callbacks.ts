@@ -6,7 +6,7 @@ import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection'
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 import type { CallbackPropertiesBase } from '../../server/mutationCallbacks';
-import { captureEvent } from '../analyticsEvents';
+import Globals from './config';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -34,10 +34,11 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     });
 
     const timeElapsed = Date.now() - start;
-    captureEvent('callbacksCompleted', {
+    // Need to use this from Globals to avoid import cycles
+    Globals.captureEvent('callbacksCompleted', {
       callbackHookName: this.name,
       timeElapsed
-    }, true);
+    });
 
     return result;
   }
@@ -63,7 +64,8 @@ export class CallbackHook<ArgumentsType extends any[]> {
     });
 
     const timeElapsed = Date.now() - start;
-    captureEvent('callbacksCompleted', {
+    // Need to use this from Globals to avoid import cycles
+    Globals.captureEvent('callbacksCompleted', {
       callbackHookName: this.name,
       timeElapsed
     }, true);
