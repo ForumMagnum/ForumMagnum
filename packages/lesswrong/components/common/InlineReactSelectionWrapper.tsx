@@ -40,52 +40,62 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   const voteProps = useVote(comment, "Comments", votingSystem);
   
 
-  function getYOffsetFromDocument (e: MouseEvent, commentTextRef: React.RefObject<HTMLDivElement>) {
+  function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
     const commentTextRect = commentTextRef.current?.getBoundingClientRect();
     if (!commentTextRect) return 0;
     const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
-    const mousePosition = e.clientY;
-    return mousePosition - documentCenter;
+
+    const selectionRectTop = selection.getRangeAt(0).getBoundingClientRect().top;
+    const selectionRectBottom = selection.getRangeAt(0).getBoundingClientRect().bottom;
+    const selectionY = (selectionRectTop + selectionRectBottom) / 2;
+    return selectionY - documentCenter;
   }
 
+  
+  function unMark() {
+    const ref = commentItemRef?.current
+    if (!ref) return
+    let markInstance = new Mark(ref);
+    markInstance.unmark({className: hideSelectorClassName});
+  }
 
   const detectSelection = useCallback((e: MouseEvent): void => {
-    const mouseTargetInSelectionRef = commentItemRef && commentItemRef.current?.contains(e.target as Node);
-    const mouseTargetInPopupRef = popupRef && popupRef.current?.contains(e.target as Node);
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
-
-    // cleans up any stray highlights when you click.
-    function unMark() {
-      const ref = commentItemRef?.current
-      if (!ref) return
-      let markInstance = new Mark(ref);
-      markInstance.unmark({className: hideSelectorClassName});
+    const selectionAnchorNode = selection?.anchorNode
+    if (!selectionAnchorNode) {
+      setAnchorEl(null);
+      setQuote("")
+      unMark()
+      return
     }
 
-    if (mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
+    const selectionInCommentRef = commentItemRef && commentItemRef.current?.contains(selectionAnchorNode);
+    const selectionInPopupRef = popupRef && popupRef.current?.contains(selectionAnchorNode as Node);
+
+    if (selectionInCommentRef && !selectionInPopupRef) {
       const anchorEl = commentItemRef.current;
       
       if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {  
         setAnchorEl(anchorEl);
         setQuote(selectedText);
-        setYOffset(getYOffsetFromDocument(e, commentTextRef));
+        setYOffset(getYOffsetFromDocument(selection, commentTextRef));
       } else {
         setAnchorEl(null);
         setQuote("")
         unMark()
       }
     }
-    if (!mouseTargetInSelectionRef && !mouseTargetInPopupRef) {
+    if (!selectionInCommentRef && !selectionInPopupRef) {
       setAnchorEl(null);
       setQuote("")
       unMark()
     }
   }, [commentItemRef, commentTextRef]);
   useEffect(() => { 
-    document.addEventListener('mousedown', detectSelection);
+    document.addEventListener('selectionchange', detectSelection);
     return () => {
-      document.removeEventListener('mousedown', detectSelection);
+      document.removeEventListener('selectionchange', detectSelection);
     };
   }, [detectSelection, commentItemRef]);
 
