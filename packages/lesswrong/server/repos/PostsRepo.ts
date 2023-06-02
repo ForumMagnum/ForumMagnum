@@ -1,6 +1,7 @@
 import { postStatuses } from "../../lib/collections/posts/constants";
 import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
+import { logIfSlow } from "../../lib/sql/sqlClient";
 
 export type MeanPostKarma = {
   _id: number,
@@ -36,8 +37,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return result?.postedAt ?? new Date();
   }
 
-  getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
-    return this.getRawDb().any(`
+  async getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
+    return await logIfSlow(async () => this.getRawDb().any(`
       SELECT "_id", AVG("baseScore") AS "meanKarma"
       FROM (
         SELECT
@@ -48,28 +49,29 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
-    `, [startDate, averagingWindowMs]);
+    `, [startDate, averagingWindowMs]),
+      "getMeanKarmaByInterval"
+    );
   }
 
   async getMeanKarmaOverall(): Promise<number> {
-    const result = await this.getRawDb().oneOrNone(`
+    const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
       WHERE ${this.getKarmaInflationSelector()}
-    `);
+    `), "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
 
   async getReadHistoryForUser(userId: string): Promise<Array<DbPost & {lastUpdated: Date}>> {
-    const results = await this.getRawDb().many(`
+    return await logIfSlow(async () => await this.getRawDb().many(`
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
       WHERE rs."userId" = '${userId}'
       ORDER BY rs."lastUpdated" desc
       LIMIT 10
-    `)
-    return results
+    `), "getReadHistoryForUser");
   }
 
   async getEmojiReactors(
