@@ -42,6 +42,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
+  const [messageSentCount,setMessageSentCount] = useState(0);
   const { results, refetch, loading: loadingMessages } = useMulti({
     terms: {
       view: 'messagesConversation',
@@ -126,10 +127,12 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
         <div className={classes.editor}>
-          <NewMessageForm  
+          <NewMessageForm
+            key={`sendMessage-${messageSentCount}`}
             conversationId={conversation._id}
             templateQueries={{templateId: query.templateId, displayName: query.displayName}}
             successEvent={() => {
+              setMessageSentCount(messageSentCount+1);
               captureEvent('messageSent', {
                 conversationId: conversation._id,
                 sender: currentUser._id,
