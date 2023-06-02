@@ -37,7 +37,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     captureEvent('callbacksCompleted', {
       callbackHookName: this.name,
       timeElapsed
-    }, false);
+    }, true);
 
     return result;
   }
@@ -66,7 +66,7 @@ export class CallbackHook<ArgumentsType extends any[]> {
     captureEvent('callbacksCompleted', {
       callbackHookName: this.name,
       timeElapsed
-    }, false);
+    }, true);
   }
 }
 

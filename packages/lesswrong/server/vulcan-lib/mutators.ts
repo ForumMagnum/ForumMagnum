@@ -193,7 +193,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   captureEvent('callbacksCompleted', {
     callbackHookName: `${collectionName.toLowerCase()}.oncreate`,
     timeElapsed
-  }, false);
+  }, true);
 
   // TODO: find that info in GraphQL mutations
   // if (isServer && this.connection) {

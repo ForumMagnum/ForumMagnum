@@ -388,7 +388,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   captureEvent('selfUpvoteComment', {
     commentId: comment._id,
     timeElapsed
-  }, false);
+  }, true);
   return {...comment, ...votedComment} as DbComment;
 });
 

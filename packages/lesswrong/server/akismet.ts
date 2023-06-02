@@ -97,7 +97,7 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
       captureEvent('checkForAkismetSpam', {
         commentId: comment._id,
         timeElapsed
-      }, false);
+      }, true);
 
       if (spam) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
