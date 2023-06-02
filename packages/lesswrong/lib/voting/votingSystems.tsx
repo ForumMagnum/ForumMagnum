@@ -72,7 +72,7 @@ registerVotingSystem({
 
 registerVotingSystem({
   name: "twoAxis",
-  description: "Two-Axis Approve and Agree",
+  description: "Default (Two-Axis Approve and Agree)",
   userCanActivate: true,
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {

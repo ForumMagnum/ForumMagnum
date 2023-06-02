@@ -21,7 +21,7 @@ export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("re
 registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
   userCanActivate: isLW,
-  description: "Names-attached reactions",
+  description: "Reacts (Two-axis plus Names-attached reactions)",
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
   getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
