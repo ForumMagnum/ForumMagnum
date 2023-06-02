@@ -17,6 +17,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -371,6 +372,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
+  const start = Date.now();
   var commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
   const {modifiedDocument: votedComment} = await performVoteServer({
@@ -381,6 +383,12 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
     skipRateLimits: true,
     selfVote: true
   })
+
+  const timeElapsed = Date.now() - start;
+  captureEvent('selfUpvoteComment', {
+    commentId: comment._id,
+    timeElapsed
+  }, false);
   return {...comment, ...votedComment} as DbComment;
 });
 

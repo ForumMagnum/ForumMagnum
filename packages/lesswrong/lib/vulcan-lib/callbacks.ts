@@ -6,6 +6,7 @@ import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection'
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 import type { CallbackPropertiesBase } from '../../server/mutationCallbacks';
+import { captureEvent } from '../analyticsEvents';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -24,11 +25,21 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     removeCallback(this.name, fn);
   }
   
-  runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
-    return runCallbacks({
+  runCallbacks = async ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
+    const start = Date.now();
+
+    const result = await runCallbacks({
       name: this.name,
       iterator, properties, ignoreExceptions
     });
+
+    const timeElapsed = Date.now() - start;
+    captureEvent('callbacksCompleted', {
+      callbackHookName: this.name,
+      timeElapsed
+    }, false);
+
+    return result;
   }
 }
 
@@ -44,10 +55,18 @@ export class CallbackHook<ArgumentsType extends any[]> {
   }
   
   runCallbacksAsync = async (properties: ArgumentsType): Promise<void> => {
+    const start = Date.now();
+
     await runCallbacksAsync({
       name: this.name,
       properties
     });
+
+    const timeElapsed = Date.now() - start;
+    captureEvent('callbacksCompleted', {
+      callbackHookName: this.name,
+      timeElapsed
+    }, false);
   }
 }
 
@@ -429,3 +448,5 @@ export function printInProgressCallbacks() {
   // eslint-disable-next-line no-console
   console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!=1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
+
+export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");

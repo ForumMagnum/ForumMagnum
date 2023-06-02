@@ -56,7 +56,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>, logToConsole: boolean = true) {
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -68,7 +68,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (getShowAnalyticsDebug()) {
+      if (logToConsole && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -376,5 +376,3 @@ function throttledFlushClientEvents() {
     flushClientEvents();
   }
 }
-
-export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");
