@@ -80,7 +80,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
       setNumMessagesShown(newNumMessages);
       setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
     }
-  });
+  }, [numMessagesShown, results?.length]);
   
   useOnNotificationsChanged(() => refetch());
   

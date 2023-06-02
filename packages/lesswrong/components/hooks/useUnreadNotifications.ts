@@ -73,7 +73,7 @@ export function useUnreadNotifications(): {
     if (!checkedAt || timestamp > checkedAt) {
       void refetchBoth();
     }
-  }, [checkedAt]);
+  }, [checkedAt, refetchBoth]);
   
   useOnNotificationsChanged(refetchIfNewNotifications);
 
