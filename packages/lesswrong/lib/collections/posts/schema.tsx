@@ -2396,7 +2396,7 @@ const schema: SchemaType<DbPost> = {
         ...(af ? {af:true} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
-        return context.repos.comments.getRecentCommentCommentsOnPosts(postIds, commentsLimit, filter);
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit, filter);
       });
       return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
