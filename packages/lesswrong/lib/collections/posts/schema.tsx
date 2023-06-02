@@ -42,10 +42,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
+const randomizeString = (strings: string[]): string => {
+  return strings[Math.floor(Math.random() * strings.length)];
+}
+
 const forumDefaultVotingSystem = forumSelect({
   EAForum: "twoAxis",
-  LessWrong: "twoAxis",
-  AlignmentForum: "twoAxis",
+  LessWrong: randomizeString(["twoAxis", "namesAttachedReactions"]),
+  AlignmentForum: randomizeString(["twoAxis", "namesAttachedReactions"]),
   default: "default",
 })
 
@@ -1051,7 +1055,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
+    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
