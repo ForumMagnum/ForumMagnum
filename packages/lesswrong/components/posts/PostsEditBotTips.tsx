@@ -8,9 +8,12 @@ import { useTracking } from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType) => ({
   root: {
     position: 'absolute',
-    right: -335,
+    right: -390,
     top: -100,
     height: '120%',
+    '@media (max-width: 1500px)': {
+      right: -335,
+    },
     '@media (max-width: 1360px)': {
       right: -268,
     },
@@ -112,7 +115,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
         </button>
       </div>
       <div className={classes.textRow}>
-        Our bot flagged this as potential criticism of someone's work. We suggest running criticism
+        Our bot tagged this as potential criticism of someone's work. We suggest running criticism
         past the relevant people first. <a
           href={`https://forum.effectivealtruism.org/posts/f77iuXmgiiFgurnBu/run-posts-by-orgs`}
           target="_blank"
