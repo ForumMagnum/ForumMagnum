@@ -76,7 +76,6 @@ const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
               limit: newLimit
             },
             updateQuery: (prev, { fetchMoreResult }) => {
-              console.log("updateQuery", fetchMoreResult);
               if (!fetchMoreResult) return prev;
               return fetchMoreResult
             }
