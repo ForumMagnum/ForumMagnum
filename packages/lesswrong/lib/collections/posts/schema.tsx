@@ -874,8 +874,8 @@ const schema: SchemaType<DbPost> = {
   }),
 
   tags: resolverOnlyField({
-    type: "[Tag]",
-    graphQLtype: "[Tag]",
+    type: "[Tag]!",
+    graphQLtype: "[Tag]!",
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;

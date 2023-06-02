@@ -175,7 +175,9 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   }
 
   const {collection: subfieldCollection, nullable} = subfragmentTypeToCollection(fieldType);
-  
+  if (fieldName === 'coauthors') {
+    console.log({ fieldType, nullable, parsedFf: parsedFragmentField.selectionSet?.selections });
+  }
   // Now check if the field has a sub-selector
   if (parsedFragmentField.selectionSet?.selections?.length > 0) {
     // As a special case, if the sub-selector spreads a fragment and has no
@@ -245,6 +247,11 @@ function subfragmentTypeToCollection(fieldType: string): {
   } else if (fieldType.endsWith("|null")) {
     return {
       collection: subfragmentTypeToCollection(fieldType.substr(0, fieldType.length-5)).collection,
+      nullable: true,
+    };
+  } else if (fieldType.endsWith(" | null")) {
+    return {
+      collection: subfragmentTypeToCollection(fieldType.substr(0, fieldType.length-7)).collection,
       nullable: true,
     };
   } else if (fieldType.endsWith("!")) {

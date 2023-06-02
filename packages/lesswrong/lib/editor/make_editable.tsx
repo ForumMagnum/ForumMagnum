@@ -213,7 +213,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       canRead: ['guests'],
       optional: true,
       resolveAs: {
-        type: '[Revision]',
+        type: '[Revision]!',
         arguments: 'limit: Int = 5',
         resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
           const { limit } = args;
