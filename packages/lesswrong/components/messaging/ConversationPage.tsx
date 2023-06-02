@@ -9,6 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
+import { useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -41,7 +42,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results, loading: loadingMessages } = useMulti({
+  const { results, refetch, loading: loadingMessages } = useMulti({
     terms: {
       view: 'messagesConversation',
       conversationId,
@@ -61,6 +62,8 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
 
   const { query } = useLocation()
   const { captureEvent } = useTracking()
+  
+  useOnNotificationsChanged(() => refetch());
 
   // Scroll to bottom when loading finishes. Note that this overlaps with the
   // initialScroll:"bottom" setting in the route, which is handled by the
@@ -95,7 +98,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
-    if (loading) return <Loading />
+    if (loading && !results) return <Loading />
     if (!results?.length) return null
     
     return <div>
@@ -103,7 +106,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
     </div>
   }
 
-  if (loading) return <Loading />
+  if (loading && !results) return <Loading />
   if (!conversation) return <Error404 />
 
   const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator

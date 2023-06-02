@@ -69,20 +69,28 @@ export function useUnreadNotifications(): {
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
 
+  const refetchIfNewNotifications = useCallback((timestamp: Date) => {
+    if (!checkedAt || timestamp > checkedAt) {
+      void refetchBoth();
+    }
+  }, [checkedAt]);
+  
+  useOnNotificationsChanged(refetchIfNewNotifications);
+
+  return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
+}
+
+export const useOnNotificationsChanged = (cb: (timestamp: Date)=>void) => {
   useEffect(() => {
     const onServerSentNotification = (timestamp: Date) => {
-      if (!checkedAt || timestamp > checkedAt) {
-        void refetchBoth();
-      }
+      void cb(timestamp);
     }
     notificationEventListeners.push(onServerSentNotification);
     
     return () => {
       notificationEventListeners = notificationEventListeners.filter(l=>l!==onServerSentNotification);
     }
-  }, [checkedAt, refetchBoth]);
-
-  return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
+  }, [cb]);
 }
 
 let notificationEventListeners: Array<(newestNotificationTimestamp: Date)=>void> = [];
