@@ -10,21 +10,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[1000],
     marginTop: 15
   },
+  loadMore: {
+    marginTop: 10
+  },
+  loadMoreSpinner: {
+    textAlign: 'left',
+    paddingTop: 6,
+    paddingLeft: 10,
+    margin: 0
+  }
 })
-
-type ReadHistoryItem = {
-  post: PostsListWithVotes,
-  lastRead: Date
-}
 
 const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const defaultLimit = 10;
   const pageSize = 30;
-  const [limit,setLimit] = useState(defaultLimit);
+  const [limit, setLimit] = useState(defaultLimit);
   
   // pull the latest 10 posts that the current user has read
-  const { data, fetchMore } = useQuery(gql`
+  const { data, fetchMore, networkStatus } = useQuery(gql`
     query getReadHistory($limit: Int) {
       UserReadHistory(limit: $limit) {
         posts {
@@ -41,6 +45,7 @@ const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
       nextFetchPolicy: "cache-only",
       skip: !currentUser,
       variables: {limit: defaultLimit},
+      notifyOnNetworkStatusChange: true
     }
   )
   
@@ -57,33 +62,36 @@ const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
   let bodyNode = <Loading />
   if (readHistory) {
     // group the posts by last read "Today", "Yesterday", and "Older"
-    const todaysPosts = readHistory.filter(item => moment(item.lastVisitedAt).isSame(moment(), 'day'))
-    const yesterdaysPosts = readHistory.filter(item => moment(item.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
-    const olderPosts = readHistory.filter(item => moment(item.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+    const todaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment(), 'day'))
+    const yesterdaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
+    const olderPosts = readHistory.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
     
     bodyNode = <>
       {!!todaysPosts.length && <SectionTitle title="Today"/>}
-      {todaysPosts?.map(item => <PostsItem key={item._id} post={item}/>)}
+      {todaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
       {!!yesterdaysPosts.length && <SectionTitle title="Yesterday"/>}
-      {yesterdaysPosts?.map(item => <PostsItem key={item._id} post={item}/>)}
+      {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
       {!!olderPosts.length && <SectionTitle title="Older"/>}
-      {olderPosts?.map(item => <PostsItem key={item._id} post={item}/>)}
-      <LoadMore
-        loadMore={() => {
-          const newLimit = limit + pageSize;
-          void fetchMore({
-            variables: {
-              limit: newLimit
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              console.log("updateQuery", fetchMoreResult);
-              if (!fetchMoreResult) return prev;
-              return fetchMoreResult
-            }
-          })
-          setLimit(newLimit);
-        }}
-      />
+      {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+      <div className={classes.loadMore}>
+        <LoadMore
+          loading={networkStatus === NetworkStatus.fetchMore}
+          loadMore={() => {
+            const newLimit = limit + pageSize;
+            void fetchMore({
+              variables: {
+                limit: newLimit
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) return prev;
+                return fetchMoreResult
+              }
+            })
+            setLimit(newLimit);
+          }}
+          loadingClassName={classes.loadMoreSpinner}
+        />
+      </div>
     </>
   }
 
