@@ -12,7 +12,7 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
+const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
