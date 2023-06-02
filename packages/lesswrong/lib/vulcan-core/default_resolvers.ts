@@ -87,7 +87,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         }
   
         const timeElapsed = Date.now() - startResolve;
-        captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms});
+        captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms}, true);
         // return results
         return data;
       },
@@ -167,7 +167,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logger('');
         
         const timeElapsed = Date.now() - startResolve;
-        captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed});
+        captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed}, true);
         
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
