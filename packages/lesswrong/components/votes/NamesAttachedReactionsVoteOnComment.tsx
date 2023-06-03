@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
     // background: theme.palette.panelBackground.translucent2,
-    marginRight: 11,
+    marginRight: 6,
   },
   footerReactionsRow: {
     display: "flex",
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerReaction: {
     height: 26,
     display: "inline-block",
-    borderRadius: 6,
+    borderRadius: 8,
     paddingTop: 2,
     paddingLeft: 4,
     paddingRight: 4,
@@ -526,8 +526,8 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     <ReactionIcon react={react}/>
     <span className={classes.reactionCount}>{numberShown}</span>
 
-    {true && anchorEl?.current && <PopperCard
-      open={true} anchorEl={anchorEl.current}
+    {hover && anchorEl?.current && <PopperCard
+      open={!!hover} anchorEl={anchorEl.current}
       placement="bottom-end"
       allowOverflow={true}
       
