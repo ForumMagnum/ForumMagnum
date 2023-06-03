@@ -144,6 +144,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 18,
     position: "relative",
     top: 3
+  },
+  lwReactStyling: {
+    '&:hover .react-hover-style': {
+      filter: "opacity(0.8)",
+    }
   }
 });
 
@@ -328,6 +333,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
         classes.root,
+        classes.lwReactStyling,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,

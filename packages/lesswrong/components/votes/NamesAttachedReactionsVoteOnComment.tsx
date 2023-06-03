@@ -70,8 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    marginRight: 11,
-    filter: "opacity(0.2)",
+    filter: "opacity(0.15)",
     cursor: "pointer",
     "& svg": {
       width: 20,
@@ -197,10 +196,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: .5
     }
-  },
-  addReactionWrapper: {
-    marginLeft: 12,
-    marginTop: 2
   }
 })
 
@@ -370,9 +365,6 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       hideKarma={hideKarma}
       voteProps={voteProps}
     />
-    <span className={classes.addReactionWrapper}>
-      <AddReactionButton voteProps={voteProps} classes={classes}/>
-    </span>
   </span>
 }
 
@@ -732,7 +724,7 @@ export const AddReactionButton = ({voteProps, classes}: {
     <span
       ref={buttonRef}
       onClick={ev => setOpen(true)}
-      className={classes.addReactionButton}
+      className={classNames(classes.addReactionButton, "react-hover-style")}
     >
       <svg className={"MuiSvgIcon-root"} fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
         <g fill="#212121">
