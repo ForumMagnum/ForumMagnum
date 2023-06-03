@@ -229,6 +229,7 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
   }
   
   function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType) {
+    console.log
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -330,7 +331,7 @@ const NamesAttachedReactionsCommentBottom = ({
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
-  const extendedScore = document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
   const alreadyUsedReactTypesByKarma = getAlreadyUsedReactTypesByKarma();
