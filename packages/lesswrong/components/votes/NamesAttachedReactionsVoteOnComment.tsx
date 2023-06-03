@@ -377,15 +377,15 @@ const NamesAttachedReactionsCommentBottom = ({
   const currentUser = useCurrentUser();
 
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
+  const visibleReactions = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
-  const alreadyUsedReactTypesByKarma = getAlreadyUsedReactTypesByKarma();
+  const allReactions = getAlreadyUsedReactTypesByKarma();
 
-  const reactionsNotShown = alreadyUsedReactTypesByKarma.filter(r => !reactionsShown.find(rShown => rShown.react===r))
+  const hiddenReactions = allReactions.filter(react => !visibleReactions.find(rShown => rShown.react===react))
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
-    {reactionsShown.length > 0 && <span className={classes.footerReactions}>
-      {reactionsShown.map(({react, numberShown}) =>
+    {visibleReactions.length > 0 && <span className={classes.footerReactions}>
+      {visibleReactions.map(({react, numberShown}) =>
         <HoverableReactionIcon
           key={react}
           anchorEl={anchorEl}
@@ -398,7 +398,7 @@ const NamesAttachedReactionsCommentBottom = ({
       )}
       {hideKarma && <InsertEmoticonOutlined/>}
     </span>}
-    {reactionsNotShown.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
+    {hiddenReactions.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
@@ -727,7 +727,7 @@ export const AddReactionButton = ({voteProps, classes}: {
       onClick={ev => setOpen(true)}
       className={classNames(classes.addReactionButton, "react-hover-style")}
     >
-      <AddReactionIcon/>
+      <AddReactionIcon />
       {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}

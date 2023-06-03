@@ -317,10 +317,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const votingSystem = getVotingSystemByName(votingSystemName);
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
-  if (!comment) {
-    return null;
-  }
-
   const displayReviewVoting = 
     !hideReviewVoteButtons &&
     reviewIsActive() &&
@@ -333,7 +329,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
         classes.root,
-        classes.lwReactStyling,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
@@ -368,7 +363,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {startCase(comment.tag.name)}
           </Link>}
         </div>
-        <div className={classes.body}>
+        <div className={classNames(classes.body, classes.lwReactStyling)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
               <CoreTagIcon tag={tag} />
