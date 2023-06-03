@@ -51,15 +51,16 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     return selectionY - documentCenter;
   }
 
-  
-  function unMark() {
-    const ref = commentItemRef?.current
-    if (!ref) return
-    let markInstance = new Mark(ref);
-    markInstance.unmark({className: hideSelectorClassName});
-  }
-
   const detectSelection = useCallback((e: MouseEvent): void => {
+  
+    function unMark() {
+      const ref = commentItemRef?.current
+      if (!ref) return
+      let markInstance = new Mark(ref);
+      markInstance.unmark({className: hideSelectorClassName});
+    }
+  
+    
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
     const selectionAnchorNode = selection?.anchorNode
@@ -92,6 +93,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
       unMark()
     }
   }, [commentItemRef, commentTextRef]);
+  
   useEffect(() => { 
     document.addEventListener('selectionchange', detectSelection);
     return () => {

@@ -192,7 +192,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tinyQuote: {
     textOverflow: "ellipsis", 
-    marginLeft: 8
+    marginLeft: 8,
+    marginTop: 2,
+    '&:hover': {
+      opacity: .5
+    }
   },
   addReactionWrapper: {
     marginLeft: 12,
@@ -225,6 +229,7 @@ function clearHighlights (commentItemRef?: React.RefObject<HTMLDivElement>|null)
 
 export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClient>): {
   currentUserExtendedVote: NamesAttachedReactionsVote|null,
+  getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (name: string, quote?: string) => void
   setCurrentUserReaction: (name: string, reaction: VoteOnReactionType|null, quote?: string) => void,
@@ -345,7 +350,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   
 
   return {
-    currentUserExtendedVote, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts
+    currentUserExtendedVote, getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts
   };
 }
 
@@ -471,11 +476,12 @@ const NamesAttachedReactionsHoverBallot = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType
 }) => {
-  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction, getCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
   const { ReactionsPalette } = Components;
 
   return <div className={classes.hoverBallot}>
     <ReactionsPalette
+      getCurrentUserReaction={getCurrentUserReaction}
       getCurrentUserReactionVote={getCurrentUserReactionVote}
       toggleReaction={toggleReaction}
     />
@@ -511,7 +517,7 @@ const ReactionOverview = ({voteProps, classes}: {
                 setCurrentUserReaction={setCurrentUserReaction}
                 classes={classes}
               />
-              <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes}/>
+              <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} showQuotes={false}/>
             </Row>
           </div>
         })}
@@ -544,12 +550,13 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   </div>
 }
 
-const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes, commentItemRef}:{
+const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes, commentItemRef, showQuotes=true}:{
   usersWhoReacted:UserReactInfo[], 
   wrap?: boolean, 
   showTooltip?: boolean, 
   classes:ClassesType, 
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  showQuotes?: boolean
 }) => {
   const { LWTooltip, Row } = Components;
   const usersWhoProReacted = usersWhoReacted.filter(r=>r.reactType!=="disagreed")
@@ -579,11 +586,11 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
       {usersWhoProReacted.map((userReactInfo,i) => {
         const quotes = userReactInfo.quotes ?? []
         return <div key={userReactInfo.userId} className={classes.userWhoReacted}>
-            {userReactInfo.displayName}{(quotes.length > 0) && <span>{": "}</span>}
-            {quotes?.map(quote => <Row justifyContent="flex-start" key={quote}>
-              <span className={classes.quoteWrapper} onMouseEnter={() => handleHoverQuote(quotes, quote)} onMouseLeave={() => handleLeaveQuote(quotes)}>
-                <span className={classes.tinyQuote}>"{quote.trim()}</span>
-              </span>"
+            {userReactInfo.displayName}{(showQuotes && quotes.length > 0) && <span>{": "}</span>}
+            {showQuotes && quotes?.map(quote => <Row justifyContent="flex-start" key={quote}>
+              <div className={classes.quoteWrapper} onMouseEnter={() => handleHoverQuote(quotes, quote)} onMouseLeave={() => handleLeaveQuote(quotes)}>
+                <div className={classes.tinyQuote}>"{quote.trim()}</div>
+              </div>"
             </Row>)}
           </div>
       })}

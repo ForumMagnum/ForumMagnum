@@ -30,7 +30,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
   const { LWTooltip, ReactionsPalette } = Components;
   const [disabled, setDisabled] = useState(false);
 
-  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction, getCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
   
   // while moused over the button, if the text appears multiple times it highlights both of 
   // them so it's easier to figure out the minimal text to highlight
@@ -79,6 +79,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
       {!open && <InsertEmoticonOutlined onClick={handleOpen} onMouseOver={handleHover} onMouseLeave={handleHoverEnd}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
+          getCurrentUserReaction={getCurrentUserReaction}
           getCurrentUserReactionVote={getCurrentUserReactionVote}
           toggleReaction={toggleReaction}
           quote={quote} 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
 
@@ -24,6 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotLabel: {
     marginLeft: 10,
     verticalAlign: "middle",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexGrow: 1
+  },
+  numQuotes: {
+    fontSize: 10,
+    marginRight: 6
   },
   paletteEntry: {
     cursor: "pointer",
@@ -99,7 +107,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+  getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote?: string)=>void,
   quote?: string,
@@ -151,6 +160,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
       <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
         {reactionsToShow.map(reaction => {
           const currentUserVote = getCurrentUserReactionVote(reaction.name);
+          const currentUserReact = getCurrentUserReaction(reaction.name);
+          const voteQuotes = currentUserReact?.quotes ?? [];
           return (
             <LWTooltip
               key={reaction.name} placement="right-start"
@@ -165,7 +176,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
                 onClick={_ev => toggleReaction(reaction.name, quote)}
               >
                 <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+                <span className={classes.hoverBallotLabel}>{reaction.label}{voteQuotes.length > 0 && <span className={classes.numQuotes}>{voteQuotes.length}</span>}</span>
               </div>
             </LWTooltip>
           )
