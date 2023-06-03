@@ -191,22 +191,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center",
     position: "relative",
+    paddingRight: 10,
+    width: 230,
     '&:hover $tinyQuoteReactToggle': {
-      fontSize: 16,
-      opacity: 1
+      opacity: 1,
+      color: theme.palette.grey[900]
     }
   },
   tinyQuoteWrapper: {
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    maxWidth: 225,
+    maxWidth: 205,
   },
   tinyQuote: {
     textOverflow: "ellipsis", 
     marginLeft: 8,
     marginTop: 2,
-    maxWidth: 217,
     overflow: "hidden",
     '&:hover': {
       opacity: .5
@@ -214,7 +215,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tinyQuoteReactToggle: {
     position: "absolute",
-    top: 0,
+    top: 2,
     right: 0,
     cursor: "pointer",
     opacity: .2,
@@ -525,8 +526,8 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     <ReactionIcon react={react}/>
     <span className={classes.reactionCount}>{numberShown}</span>
 
-    {hover && anchorEl?.current && <PopperCard
-      open={!!hover} anchorEl={anchorEl.current}
+    {true && anchorEl?.current && <PopperCard
+      open={true} anchorEl={anchorEl.current}
       placement="bottom-end"
       allowOverflow={true}
       
@@ -663,7 +664,7 @@ const UsersWhoReacted = ({reactionName, usersWhoReacted, wrap=false, showTooltip
                 </div>
               </div>
               <div className={classes.tinyQuoteReactToggle} onClick={() => toggleReaction(reactionName, quote)}>
-                {isYourReact ? "x" : "+"}
+                {isYourReact ? "x" : "+1"}
               </div>
             </div>)}
           </div>
