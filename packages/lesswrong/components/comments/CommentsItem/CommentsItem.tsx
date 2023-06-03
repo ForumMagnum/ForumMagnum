@@ -262,13 +262,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
-        {VoteBottomComponent && <VoteBottomComponent
-          document={comment}
-          hideKarma={post?.hideCommentKarma}
-          collection={Comments}
-          votingSystem={votingSystem}
-          commentItemRef={commentItemRef}
-        />}
         <div>
           <CommentBottomCaveats comment={comment} />
           {showReplyButton && (
@@ -278,6 +271,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             </a>
           )}
         </div>
+        {VoteBottomComponent && <VoteBottomComponent
+          document={comment}
+          hideKarma={post?.hideCommentKarma}
+          collection={Comments}
+          votingSystem={votingSystem}
+          commentItemRef={commentItemRef}
+        />}
       </div>
     );
   }
