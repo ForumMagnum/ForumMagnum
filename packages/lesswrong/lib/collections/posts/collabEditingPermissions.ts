@@ -63,7 +63,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
   const canEdit = userOwns(user, post) ||
     canEditAsAdmin ||
-    await userIsPostGroupOrganizer(user, post) ||
+    await userIsPostGroupOrganizer(user, post, context) ||
     userIsPostCoauthor(user, post);
   let accessLevel: CollaborativeEditingAccessLevel = "none";
   

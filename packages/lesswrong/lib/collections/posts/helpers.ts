@@ -185,12 +185,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null =
  * @param post
  * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
  */
-export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost): Promise<boolean> => {
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext|null): Promise<boolean> => {
   const groupId = ('group' in post) ? post.group?._id : post.groupId;
   if (!user || !groupId)
     return false
     
-  const group = await Localgroups.findOne({_id: groupId});
+  const group = context
+    ? await context.loaders.Localgroups.load(groupId)
+    : await Localgroups.findOne({_id: groupId});
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
