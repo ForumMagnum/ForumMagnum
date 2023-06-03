@@ -9,7 +9,7 @@ import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers'
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
-import { getSqlClientOrThrow } from '../lib/sql/sqlClient';
+import { runSqlQuery } from '../lib/sql/sqlClient';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
@@ -133,8 +133,7 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
 
 const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
   if (Posts.isPostgres()) {
-    const sql = getSqlClientOrThrow();
-    const result = await sql.any(`
+    const result = await runSqlQuery(`
       SELECT "Posts"."_id" FROM "Posts"
       JOIN "ReadStatuses" ON
         "Posts"."_id" = "ReadStatuses"."postId" AND

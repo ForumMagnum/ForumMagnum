@@ -13,6 +13,7 @@ tracer.use('express', {
 })
 
 export const dogstatsd = new StatsD({
+  host: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
   prefix: 'forummagnum.'
 });
 

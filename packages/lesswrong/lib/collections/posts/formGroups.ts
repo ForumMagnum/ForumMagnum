@@ -71,6 +71,12 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     label: preferredHeadingCase("Canonical Sequence"),
     startCollapsed: true,
   },
+  reactExperiment: {
+    order: 35,
+    name: "reactExperiment",
+    label: "Reacts Experiment",
+    startCollapsed: false,
+  },
   advancedOptions: {
     order:40,
     name: "advancedOptions",

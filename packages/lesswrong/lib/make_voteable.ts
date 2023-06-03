@@ -125,7 +125,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled
+        filterFn: (vote: DbVote) => !vote.cancelled && vote.collectionName===collection.collectionName
       }),
       canRead: ['guests'],
     },
