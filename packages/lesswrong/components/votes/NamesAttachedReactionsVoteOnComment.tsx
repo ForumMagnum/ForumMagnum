@@ -229,7 +229,6 @@ const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClie
   }
   
   function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType) {
-    console.log
     if (!currentUser) {
       openLoginDialog();
       return;
