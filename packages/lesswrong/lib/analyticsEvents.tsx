@@ -1,5 +1,4 @@
-import { addGraphQLSchema, Globals } from './vulcan-lib';
-import { CallbackChainHook } from './vulcan-lib/callbacks';
+import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -9,6 +8,7 @@ import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
 import moment from 'moment';
+import { Globals } from './vulcan-lib/config';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -56,7 +56,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog = false) {
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -68,7 +68,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (getShowAnalyticsDebug()) {
+      if (!suppressConsoleLog && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -376,5 +376,3 @@ function throttledFlushClientEvents() {
     flushClientEvents();
   }
 }
-
-export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");
