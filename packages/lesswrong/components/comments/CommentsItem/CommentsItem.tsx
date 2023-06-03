@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   replyLink: {
-    marginRight: 5,
+    marginRight: 8,
     display: "inline",
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
@@ -262,13 +262,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
-        <CommentBottomCaveats comment={comment} />
-        {showReplyButton && (
-          treeOptions?.replaceReplyButtonsWith?.(comment)
-          || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
-            {showInlineCancel ? "Cancel" : "Reply"}
-          </a>
-        )}
         {VoteBottomComponent && <VoteBottomComponent
           document={comment}
           hideKarma={post?.hideCommentKarma}
@@ -276,6 +269,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           votingSystem={votingSystem}
           commentItemRef={commentItemRef}
         />}
+        <div>
+          <CommentBottomCaveats comment={comment} />
+          {showReplyButton && (
+            treeOptions?.replaceReplyButtonsWith?.(comment)
+            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+              {showInlineCancel ? "Cancel" : "Reply"}
+            </a>
+          )}
+        </div>
       </div>
     );
   }
