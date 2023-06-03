@@ -1,6 +1,6 @@
 import { isAnyTest } from "../executionEnvironment";
 
-export const logAllQueries = false;
+export const logAllQueries = true;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let sql: SqlClient | null = null;

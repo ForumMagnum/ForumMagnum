@@ -30,6 +30,9 @@ registerFragment(`
         slug
       }
     }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
     description {
       html
     }
