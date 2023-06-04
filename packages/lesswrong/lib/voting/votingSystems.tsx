@@ -15,6 +15,9 @@ export type CommentVotingComponentProps = {
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
+  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  // setCommentBodyHighlights?: (highlights: string[])=>void,
+  quote?: string
 }
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 
@@ -69,7 +72,7 @@ registerVotingSystem({
 
 registerVotingSystem({
   name: "twoAxis",
-  description: "Two-Axis Approve and Agree",
+  description: "Default (Two-Axis Approve and Agree)",
   userCanActivate: true,
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {

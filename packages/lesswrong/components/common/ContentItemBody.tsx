@@ -8,8 +8,23 @@ import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
+import Mark from 'mark.js';
+
+export const highlightSelectorClassName = "highlighted-substring";
+const highlightClassSelector = `& .${highlightSelectorClassName}`;
+
+export const dimHighlightClassName = "dim-highlighted-substring";
+const dimHighlightClassSelector = `& .${dimHighlightClassName}`;
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    [highlightClassSelector]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy
+    },
+    [dimHighlightClassSelector]: {
+      backgroundColor: theme.palette.grey[200]
+    }
+  },
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -70,7 +85,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     scrollbarWidth: "none",
-  }
+  },
+
 });
 
 interface ExternalProps {
@@ -81,6 +97,7 @@ interface ExternalProps {
   noHoverPreviewPrefetch?: boolean;
   nofollow?: boolean;
   idInsertions?: Record<string, React.ReactNode>;
+  highlightedSubstrings?: string[];
 }
 interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
 interface ContentItemBodyState {
@@ -118,7 +135,9 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
 
   componentDidUpdate(prevProps: ContentItemBodyProps) {
-    if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+    const htmlChanged = prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html;
+    const highlightedSubstringsChanged = prevProps.highlightedSubstrings !== this.props.highlightedSubstrings;
+    if (htmlChanged || highlightedSubstringsChanged) {
       this.replacedElements = [];
       this.applyLocalModifications();
     }
@@ -132,7 +151,9 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.markElicitBlocks();
       this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
+      // this.highlightSubstrings();
       this.setState({updatedElements: true})
+      
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -142,12 +163,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     }
   }
   
+  
   render() {
     const html = this.props.nofollow ? addNofollowToHTML(this.props.dangerouslySetInnerHTML.__html) : this.props.dangerouslySetInnerHTML.__html
     
     return (<React.Fragment>
       <div
-        className={this.props.className}
+        className={classNames(this.props.classes.root, this.props.className)}
         ref={this.bodyRef}
         dangerouslySetInnerHTML={{__html: html}}
       />
@@ -377,7 +399,27 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     });
     container.prepend(insertionContainer);
   }
+
+  highlightSubstrings = () => {
+    const substrings = this.props.highlightedSubstrings;
+    const markInstance = new Mark(this.bodyRef.current);
+    markInstance.unmark()
+
+    // markjs function that highlights a substring in the container
+    const highlightSubstring = (container: HTMLElement, substring: string) => {
+      markInstance.mark(substring, {
+        separateWordSearch: false,
+        className: highlightSelectorClassName,
+        acrossElements: true,
+        diacritics: true,
+      });
+    }
+    substrings?.forEach((substring) => {
+      highlightSubstring(this.bodyRef.current, substring)
+    })
+  }
 }
+
 
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
