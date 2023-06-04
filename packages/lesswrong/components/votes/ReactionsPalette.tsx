@@ -3,10 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
-import ListIcon from '@material-ui/icons/List';
-import ViewCompactIcon from '@material-ui/icons/ViewCompact';
-import ViewModuleIcon from '@material-ui/icons/ViewModule';
-import AppsIcon from '@material-ui/icons/Apps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -121,7 +117,6 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [format, setFormat] = useState<"list"|"grid1"|"grid2"|"mixed">("mixed");
   
   const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
 
@@ -139,44 +134,11 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   }
 
   const N = 9; // number of reaction icons that fit on a line
-  const numRowsToShow = 2;
+  const numRowsToShow = 4;
   const mixedIconReactions = reactionsToShow.slice(0, Math.min(N * numRowsToShow, reactionsToShow.length));
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
-    <Row justifyContent='flex-start'>
-      <Row>
-        <LWTooltip title="List view">
-          <ListIcon 
-            className={classes.toggleIcon} 
-            style={{ opacity: format === "list" ? 1 : .35}} 
-            onClick={() => setFormat("list")}
-          />          
-        </LWTooltip>
-      </Row>
-      <LWTooltip title="Mixed list/grid view">
-        <ViewCompactIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "mixed" ? 1 : .35}}
-          onClick={() => setFormat("mixed")}
-        />
-      </LWTooltip>
-      <LWTooltip title="Icon Grid">
-        <AppsIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "grid1" ? 1 : .35}}
-          onClick={() => setFormat("grid1")}
-        />
-      </LWTooltip>
-      <LWTooltip title="Icon/Names Grid">
-        <ViewModuleIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "grid2" ? 1 : .35}}
-          onClick={() => setFormat("grid2")}
-        />
-      </LWTooltip>
-    </Row>
-    <br/>
     <div className={classes.searchBoxWrapper}>
       <input
         type="text" className={classes.searchBox}
@@ -185,54 +147,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         onChange={(ev) => setSearchText(ev.currentTarget.value)}
       />
     </div>
-    {format === "grid1" && <div className={classes.quickReactBar}>
-      {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-        key={`icon-${reaction.name}`}
-      >
-        <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
-          <ReactionIcon react={reaction.name} size={24}/>
-        </div>
-      </LWTooltip>)}
-    </div>}    
-    {format === "grid2" && <div className={classes.quickReactBar} style={{justifyContent:"space-between"}}>
-      {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-        key={`icon-${reaction.name}`}
-      >
-        <div className={classes.paletteIcon2} onClick={_ev => toggleReaction(reaction.name, quote)}>
-          <ReactionIcon react={reaction.name} size={20}/>
-          <div className={classes.tinyLabel}>{reaction.label}</div>
-        </div>
-      </LWTooltip>)}
-    </div>}    
-    {format === "list" && <div>
-      <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
-        {reactionsToShow.map(reaction => {
-          const currentUserVote = getCurrentUserReactionVote(reaction.name);
-          return (
-            <LWTooltip
-              key={reaction.name} placement="right-start"
-              title={tooltip(reaction)}
-            >
-              <div
-                key={reaction.name}
-                className={classNames(classes.paletteEntry, {
-                  [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-                  [classes.selectedAnti]: currentUserVote==="disagreed",
-                })}
-                onClick={_ev => toggleReaction(reaction.name, quote)}
-              >
-                <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-              </div>
-            </LWTooltip>
-          )
-        })}
-      </div>
-      <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
-        <MetaInfo>{showAll ? "Show Less" : "Show More"}</MetaInfo>
-      </a>
-    </div>}
-    {format === "mixed" && <div>
+    <div>
       <div>
         {mixedIconReactions.map(reaction => <LWTooltip title={tooltip(reaction)} 
           key={`icon-${reaction.name}`}
@@ -270,7 +185,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
         <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
       </a>
-    </div>}
+    </div>
   </div>
 }
 
