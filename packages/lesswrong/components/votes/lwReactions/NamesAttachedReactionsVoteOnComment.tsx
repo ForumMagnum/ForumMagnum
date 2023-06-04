@@ -606,10 +606,13 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
   classes:ClassesType,
 }) => {
   const { LWTooltip } = Components;
-  const usersWhoReactedWithoutQuotes = usersWhoReacted.map(r => ({...r, quotes: undefined}))
+  const usersWhoReactedWithoutQuotes = usersWhoReacted.filter(r => !r.quotes || r.quotes.length === 0)
+
+  if (usersWhoReactedWithoutQuotes.length === 0) return null;
 
   const usersWhoProReacted = usersWhoReactedWithoutQuotes.filter(r=>r.reactType!=="disagreed")
   const usersWhoAntiReacted = usersWhoReactedWithoutQuotes.filter(r=>r.reactType==="disagreed")
+
   const tooltip = <div>
     <p>Users Who Reacted:</p>
     <ul>{usersWhoProReacted.map(r => <li key={r.userId}>{r.displayName}</li>)}</ul>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../../lib/voting/namesAttachedReactions';
 import { useCurrentUser } from '../../common/withUser';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { clearHighlights, markHighlights, useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import { VotingProps } from '../withVote';
 import filter from 'lodash/filter';
@@ -18,6 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
     paddingLeft: 12,
     paddingRight: 8,
+    '&:hover': {
+      background: theme.palette.panelBackground.darken04,
+    }
   },
   tinyQuoteRow: {
     display: "flex",
@@ -33,13 +36,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    height: "2em",
     maxWidth: 205,
   },
   tinyQuote: {
     textOverflow: "ellipsis", 
     marginBottom: 6,
-    overflow: "hidden"
+    overflow: "hidden",
+    maxHeight: "2em",
   },
   tinyQuoteReactToggle: {
     position: "relative",
@@ -52,8 +55,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: .5
     }
   },
-  footerReactionHighlight: {
-    border: `1px solid ${theme.palette.grey[500]}`,
+  usersWhoQuoted: {
+    fontSize: 12,
+    color: theme.palette.grey[500]
   }
 });
 
@@ -63,6 +67,7 @@ const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
   classes: ClassesType
 }) => {
+  const { LWTooltip } = Components;
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
 
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
@@ -101,13 +106,15 @@ const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
               <div className={classes.tinyQuote}>
                 {quote.trim()}
               </div>
+              <div className={classes.usersWhoQuoted}>
+                {users?.map(user => user.displayName)?.join(", ")}
+              </div>
             </div>
-            <div className={classes.tinyQuoteReactToggle} onClick={() => toggleReaction(react, quote)}>
-              {currentUserReactedToQuote ? "x" : "+1"}
-            </div>
-          </div>
-          <div className={classes.usersWhoQuoted}>
-            {users?.map((user, i) => <span key={user.userId} className={classes.userWhoReacted}>{user.displayName}{(i>0) && <span>{", "}</span>}</span>)}
+            <LWTooltip title={currentUserReactedToQuote ? "Remove your react to this snippet" : "Endorse this react for this snippet"} placement="right">
+              <div className={classes.tinyQuoteReactToggle} onClick={() => toggleReaction(react, quote)}>
+                {currentUserReactedToQuote ? "x" : "+1"}
+              </div>
+            </LWTooltip>
           </div>
         </div>
       })}
