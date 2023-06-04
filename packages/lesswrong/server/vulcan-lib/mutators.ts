@@ -42,6 +42,7 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>): CreateCallbackProperties<T> => {
   const {
@@ -170,6 +171,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   */
   logger('field onCreate/onInsert callbacks')
+  const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
@@ -186,6 +188,12 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
       Object.assign(document, { [fieldName]: autoValue });
     }
   }
+  const timeElapsed = Date.now() - start;
+  // Technically these aren't callbacks, but for the purpose of analytics we want to treat them the same way
+  captureEvent('callbacksCompleted', {
+    callbackHookName: `${collectionName.toLowerCase()}.oncreate`,
+    timeElapsed
+  }, true);
 
   // TODO: find that info in GraphQL mutations
   // if (isServer && this.connection) {

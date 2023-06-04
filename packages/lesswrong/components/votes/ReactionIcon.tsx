@@ -6,6 +6,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   reactionSvg: {
     verticalAlign: "middle",
+    marginTop: 1
   },
   invertIfDarkMode: {
     filter: (theme.palette.type==="dark") ? "invert(1)" : undefined,
