@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
-import { useNamesAttachedReactionsVoting } from "../NamesAttachedReactionsVoteOnComment";
+import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import Mark from 'mark.js';
-import { hideSelectorClassName } from "../../common/InlineReactSelectionWrapper";
+import { hideSelectorClassName } from "./InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
   disabled: {

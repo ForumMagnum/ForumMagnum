@@ -235,10 +235,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return (
+      return (<div ref={commentItemRef}>
         <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
           commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef}
         />
+      </div>
       );
     }
   }
@@ -335,7 +336,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           [classes.sideComment]: treeOptions.isSideComment,
           [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
-      )} ref={commentItemRef}>
+      )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>
             <Components.ParentCommentSingle

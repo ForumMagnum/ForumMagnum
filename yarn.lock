@@ -9255,6 +9255,11 @@ he@^1.1.0, he@^1.1.1:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+highlight.js@^11.8.0:
+  version "11.8.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-11.8.0.tgz#966518ea83257bae2e7c9a48596231856555bb65"
+  integrity sha512-MedQhoqVdr0U6SSnWPzfiadUcDHfN/Wzq25AkXiQv9oiOO/sG0S7XkvpFIqWBl9Yq1UYyYOOVORs5UW2XlPyzg==
+
 history@^3.0.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/history/-/history-3.3.0.tgz"
@@ -15449,6 +15454,11 @@ test-exclude@^6.0.0:
     "@istanbuljs/schema" "^0.1.2"
     glob "^7.1.4"
     minimatch "^3.0.4"
+
+text-highlighter@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/text-highlighter/-/text-highlighter-1.0.2.tgz#61fc19b9a59842cf0f90cb2552f55a2fc0741749"
+  integrity sha512-nrY14Np0hh50joyzEPhUx+hL+ZS5HF48NJk4fA+leNUI7mA/55EGtBsIQquVSgVQQxBjcfCwvQuqZf4N+ms/SA==
 
 text-table@^0.2.0:
   version "0.2.0"
