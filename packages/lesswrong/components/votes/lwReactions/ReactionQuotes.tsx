@@ -70,19 +70,18 @@ const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
   const { LWTooltip } = Components;
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
 
+  const currentUser = useCurrentUser();
+
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
   const usersWhoReacted = alreadyUsedReactions[react]
 
   const allQuotesOrUndefined = uniq(usersWhoReacted?.flatMap(r => r.quotes))
   const allQuotes = filter(allQuotesOrUndefined, q => q !== undefined) as string[]
-  if (!allQuotes.length) return null
-
+  
   const quotesWithUsers = allQuotes.map(quote => {
     const usersWhoReactedToQuote = usersWhoReacted?.filter(r => quote && r.quotes?.includes(quote))
     return { quote, users: usersWhoReactedToQuote  }
   })
-  
-  const currentUser = useCurrentUser();
 
   const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
@@ -96,6 +95,8 @@ const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
     clearHighlights(commentItemRef)
     markHighlights(allQuotes, highlightSelectorClassName, commentItemRef)
   }
+
+  if (!allQuotes.length) return null
 
   return <div className={classes.root}>
     {quotesWithUsers.map(({quote, users}) => {
