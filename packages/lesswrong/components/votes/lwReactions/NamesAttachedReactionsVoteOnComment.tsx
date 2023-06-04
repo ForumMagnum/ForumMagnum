@@ -22,6 +22,7 @@ import { dimHighlightClassName, highlightSelectorClassName } from '../../common/
 import without from 'lodash/without';
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -484,8 +485,6 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     toggleReaction(reaction, quote);
   }
 
-
-
   function handleMouseEnter (e: any) {
     onMouseOver(e);
     markHighlights(quotesWithUndefinedRemoved, highlightSelectorClassName, commentItemRef)
@@ -507,9 +506,10 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     )}
     onMouseEnter={handleMouseEnter}
     onMouseLeave={handleMouseLeave}
-    onMouseDown={()=>{reactionClicked(react)}}
   >
-    <ReactionIcon react={react}/>
+    <span onMouseDown={()=>{reactionClicked(react)}}>
+      <ReactionIcon react={react} />
+    </span>
     <span className={classes.reactionCount}>{numberShown}</span>
 
     {hover && anchorEl?.current && <PopperCard
