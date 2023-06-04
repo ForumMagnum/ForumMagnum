@@ -20,6 +20,7 @@ import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
 import Mark from 'mark.js';
 import { dimHighlightClassName, highlightSelectorClassName } from '../common/ContentItemBody';
 import { AddReactionIcon } from '../icons/AddReactionIcon';
+import difference from 'lodash/difference';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -376,16 +377,19 @@ const NamesAttachedReactionsCommentBottom = ({
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
-  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const visibleReactions = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
+
+  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const allReactions = getAlreadyUsedReactTypesByKarma();
 
-  const hiddenReactions = allReactions.filter(react => !visibleReactions.find(rShown => rShown.react===react))
+  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
+  
+  const visibleReacts = visibleReactionsDisplay.map(r => r.react)
+  const hiddenReacts = difference(allReactions, visibleReacts)
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
-    {visibleReactions.length > 0 && <span className={classes.footerReactions}>
-      {visibleReactions.map(({react, numberShown}) =>
+    {visibleReactionsDisplay.length > 0 && <span className={classes.footerReactions}>
+      {visibleReactionsDisplay.map(({react, numberShown}) =>
         <HoverableReactionIcon
           key={react}
           anchorEl={anchorEl}
@@ -398,7 +402,7 @@ const NamesAttachedReactionsCommentBottom = ({
       )}
       {hideKarma && <InsertEmoticonOutlined/>}
     </span>}
-    {hiddenReactions.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
+    {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
