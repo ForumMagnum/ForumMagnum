@@ -42,7 +42,12 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
+  // Count messages sent, and use it to set a distinct value for `key` on `NewMessageForm`
+  // that increments with each message. This is a way of clearing the form, which works
+  // around problems inside the editor related to debounce timers and autosave and whatnot,
+  // by guaranteeing that it's a fresh set of react components each time.
   const [messageSentCount,setMessageSentCount] = useState(0);
+
   const [numMessagesShown,setNumMessagesShown] = useState(0);
 
   const { results, refetch, loading: loadingMessages } = useMulti({
