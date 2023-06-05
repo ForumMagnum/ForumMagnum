@@ -64,7 +64,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
-    minHeight: 250,
     ...hideScrollBars,
     '& *': {
       ...hideScrollBars
@@ -366,7 +365,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         disableUnderline
         placeholder="Notes for other moderators"
         multiline
-        rows={5}
+        rows={10}
       />
     </div>
       <div>

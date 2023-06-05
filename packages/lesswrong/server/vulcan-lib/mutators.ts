@@ -190,10 +190,11 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   }
   const timeElapsed = Date.now() - start;
   // Technically these aren't callbacks, but for the purpose of analytics we want to treat them the same way
-  captureEvent('callbacksCompleted', {
-    callbackHookName: `${collectionName.toLowerCase()}.oncreate`,
-    timeElapsed
-  }, true);
+  // Temporarily disabled to investigate performance issues
+  // captureEvent('callbacksCompleted', {
+  //   callbackHookName: `${collectionName.toLowerCase()}.oncreate`,
+  //   timeElapsed
+  // }, true);
 
   // TODO: find that info in GraphQL mutations
   // if (isServer && this.connection) {
