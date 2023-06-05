@@ -19,7 +19,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       JOIN (
           SELECT "postId", MAX("promotedAt") AS max_promotedAt
           FROM "Comments"
-          WHERE "postId" IN $1
+          WHERE "postId" IN ($1:csv)
           GROUP BY "postId"
       ) sq
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
