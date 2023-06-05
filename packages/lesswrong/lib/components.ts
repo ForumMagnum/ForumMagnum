@@ -401,7 +401,7 @@ importComponent("ReactionsPalette", () => require('../components/votes/Reactions
 importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
 importComponent("AddInlineReactionButton", () => require('../components/votes/lwReactions/AddInlineReactionButton'));
 importComponent("InlineReactSelectionWrapper", () => require('../components/votes/lwReactions/InlineReactSelectionWrapper'));
-importComponent("ReactionQuotes", () => require('../components/votes/lwReactions/ReactionQuotes'));
+importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));

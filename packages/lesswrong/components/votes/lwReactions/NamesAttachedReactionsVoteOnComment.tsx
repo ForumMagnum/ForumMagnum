@@ -646,7 +646,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
   classes: ClassesType,
   commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
-  const { ReactionIcon, Row, ReactionQuotes } = Components;
+  const { ReactionIcon, Row, ReactionQuotesHoverInfo } = Components;
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
@@ -673,7 +673,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
         />
       </Row>
     </div>
-    <ReactionQuotes react={reactionName} voteProps={voteProps} commentItemRef={commentItemRef}/>
+    <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentItemRef={commentItemRef}/>
   </div>
 }
 

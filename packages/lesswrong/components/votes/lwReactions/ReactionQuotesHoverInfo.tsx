@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
+const ReactionQuotesHoverInfo = ({react, voteProps, commentItemRef, classes}:{
   react: string, 
   voteProps: VotingProps<VoteableTypeClient>,
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
@@ -123,11 +123,11 @@ const ReactionQuotes = ({react, voteProps, commentItemRef, classes}:{
 } 
 
 
-const ReactionQuotesComponent = registerComponent('ReactionQuotes', ReactionQuotes, {styles});
+const ReactionQuotesHoverInfoComponent = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactionQuotes: typeof ReactionQuotesComponent
+    ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfoComponent
   }
 }
 
