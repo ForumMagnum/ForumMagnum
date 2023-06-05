@@ -11,7 +11,7 @@ export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers("PostEmbeddings"),
   mutations: getDefaultMutations("PostEmbeddings"),
-  logChanges: true,
+  logChanges: false,
 });
 
 addUniversalFields({collection: PostEmbeddings});
