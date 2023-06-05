@@ -243,8 +243,6 @@ declare global {
       debateComment4: string,
       debateComment5: string,
       dashed500: string,
-      dashed400: string,
-      dashed300: string
     },
     panelBackground: {
       default: ColorString,
@@ -388,7 +386,6 @@ declare global {
       usersListItem: ColorString,
       primaryDim: ColorString,
       primaryTranslucent: ColorString,
-      neutralTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,
       transparent: ColorString,
