@@ -19,7 +19,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       JOIN (
           SELECT "postId", MAX("promotedAt") AS max_promotedAt
           FROM "Comments"
-          WHERE "postId" IN $1
+          WHERE "postId" IN ($1:csv)
           GROUP BY "postId"
       ) sq
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
@@ -34,7 +34,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
-    const comments = await this.many(`
+    const comments = await this.manyOrNone(`
       WITH cte AS (
         SELECT
           comment_with_rownumber.*,
