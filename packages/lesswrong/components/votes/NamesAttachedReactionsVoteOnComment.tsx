@@ -72,8 +72,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    filter: "opacity(0.15)",
     cursor: "pointer",
+    '& .react-hover-style': {
+      filter: "opacity(0.15)",
+    },
     "& svg": {
       width: 20,
       height: 20,
@@ -729,9 +731,9 @@ export const AddReactionButton = ({voteProps, classes}: {
     <span
       ref={buttonRef}
       onClick={ev => setOpen(true)}
-      className={classNames(classes.addReactionButton, "react-hover-style")}
+      className={classes.addReactionButton}
     >
-      <AddReactionIcon />
+      <span className="react-hover-style"><AddReactionIcon /></span>
       {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}
