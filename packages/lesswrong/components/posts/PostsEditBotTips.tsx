@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     top: 90,
     width: 311,
     background: theme.palette.background.primaryTranslucent,
-    color: theme.palette.primary.main,
+    color: theme.palette.text.primaryAlert,
     fontFamily: theme.typography.fontFamily,
     padding: 16,
     borderRadius: theme.borderRadius.default,
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
   close: {
     alignSelf: 'flex-start',
     background: 'none',
-    color: theme.palette.primary.main,
+    color: theme.palette.text.primaryAlert,
     padding: 0,
     '&:hover': {
       color: theme.palette.primary.dark,
