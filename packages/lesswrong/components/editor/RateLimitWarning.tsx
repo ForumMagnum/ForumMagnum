@@ -10,16 +10,18 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
 }) => {
 
   const getTimeUntilNextPost = () => {
-    const diffInSeconds = moment(lastRateLimitExpiry).diff(moment(), 'seconds')
-    const diffInMin = moment(lastRateLimitExpiry).diff(moment(), 'minutes')
-    const diffInHours = moment(lastRateLimitExpiry).diff(moment(), 'hours')
-    const diffInDays = moment(lastRateLimitExpiry).diff(moment(), 'days')
-    const diffInWeeks = moment(lastRateLimitExpiry).diff(moment(), 'weeks')
+    const lastExpiry = moment(lastRateLimitExpiry)
+    const now = moment()
+    const diffInSeconds = lastExpiry.diff(now, 'seconds')
+    const diffInMin = lastExpiry.diff(now, 'minutes')
+    const diffInHours = lastExpiry.diff(now, 'hours')
+    const diffInDays = lastExpiry.diff(now, 'days')
+    const diffInWeeks =lastExpiry.diff(now, 'weeks')
     if (diffInSeconds < 60) {
       return `${diffInSeconds} second${diffInSeconds > 1 ? 's' : ''}`
     }
     if (diffInMin < 60) {
-      return `${diffInMin} minute${diffInMin > 1 ? 's' : ''}}`
+      return `${diffInMin} minute${diffInMin > 1 ? 's' : ''}`
     }
     if (diffInHours < 24) {
       return `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`
@@ -32,7 +34,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
 
   let message = `Please wait ${getTimeUntilNextPost()} before posting again. ${rateLimitMessage ?? ''}`
   if (isEAForum) {
-    message = `You've written more than 3 comments in the last 30 min. Please wait ${getTimeUntilNextPost()} min before commenting again. ${rateLimitMessage ?? ''}`
+    message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
   }
 
   return <Components.WarningBanner message={message} />
