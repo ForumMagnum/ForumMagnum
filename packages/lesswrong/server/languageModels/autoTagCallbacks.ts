@@ -252,6 +252,14 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
  * the editor is open, because if this returns true, then we want to show the author
  * a little card with tips on how to make it more likely to go well
  * (see PostsEditBotTips).
+ *
+ * The fine-tuned model is not super accurate, but that's partly because our dataset
+ * does not cleanly represent the behavior we want from it. The "criticism of work in EA"
+ * tag has a wider variety of posts than would benefit from the tips in the card, such as
+ * posts announcing criticism contests and posts criticizing EA orgs broadly.
+ *
+ * So it will miss ~half of posts that a human would categorize as "criticism"
+ * (i.e. it has a high false negative rate), but it has a low false positive rate (~2%).
  */
 export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
   // Only run this on the EA Forum on production, since it costs money.
@@ -269,6 +277,9 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
   
   const template = await wikiSlugToTemplate("lm-config-autotag")
   const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
+  // This model was trained on ~2400 posts, generated using generateCandidateSetsForTagClassification
+  // (posts published from May 1 2022 - May 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
+  // Since it's not super accurate, we may want to fine-tune it more in the future.
   const languageModelResult = await api.createCompletion({
     model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
     prompt: await postToPrompt({
