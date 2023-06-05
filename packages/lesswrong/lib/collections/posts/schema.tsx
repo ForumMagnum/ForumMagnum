@@ -25,7 +25,6 @@ import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
-import sample from 'lodash/sample';
 import GraphQLJSON from 'graphql-type-json';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
@@ -45,8 +44,8 @@ const STICKY_PRIORITIES = {
 
 const forumDefaultVotingSystem = forumSelect({
   EAForum: "twoAxis",
-  LessWrong: sample(["twoAxis", "namesAttachedReactions"]),
-  AlignmentForum: sample(["twoAxis", "namesAttachedReactions"]),
+  LessWrong: "namesAttachedReactions",
+  AlignmentForum: "namesAttachedReactions",
   default: "default",
 })
 
