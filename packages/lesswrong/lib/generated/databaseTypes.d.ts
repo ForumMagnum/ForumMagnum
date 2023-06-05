@@ -452,6 +452,7 @@ interface DbPageCacheEntry extends DbObject {
   abTestGroups: any /*{"definitions":[{"blackbox":true}]}*/
   bundleHash: string
   renderedAt: Date
+  expiresAt: Date
   ttlMs: number
   renderResult: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
