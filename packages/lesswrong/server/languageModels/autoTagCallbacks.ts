@@ -246,9 +246,16 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
   }
 }
 
+/**
+ * On the EA Forum, we're using some of the auto-tagging system to check if posts
+ * could be categorized as "criticism of work in effective altruism". We check while
+ * the editor is open, because if this returns true, then we want to show the author
+ * a little card with tips on how to make it more likely to go well
+ * (see PostsEditBotTips).
+ */
 export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
-  // Only run this on the EA Forum on production, since it costs money
-  // (in particular, this model will only work if run with EA Forum prod credentials).
+  // Only run this on the EA Forum on production, since it costs money.
+  // (In particular, this model will only work if run with EA Forum prod credentials.)
   if (!isEAForum || !isProduction) return false
   
   const api = await getOpenAI()

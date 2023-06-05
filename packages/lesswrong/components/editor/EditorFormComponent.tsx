@@ -108,6 +108,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
   const checkIsCriticism = useCallback((contents: EditorContents) => {
+    // we're currently skipping linkposts, since the linked post's author is
+    // not always the same person posting it on the forum
     if (
       !isEAForum ||
       collectionName !== 'Posts' ||
