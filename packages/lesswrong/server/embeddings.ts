@@ -59,7 +59,7 @@ const getEmbeddingsForPost = async (
   return {hash, ...embeddings};
 }
 
-const updatePostEmbeddings = async (postId: string) => {
+export const updatePostEmbeddings = async (postId: string) => {
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
