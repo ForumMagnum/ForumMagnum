@@ -12,7 +12,6 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { userChangedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
@@ -25,6 +24,7 @@ import { getAllRepos, UsersRepo } from '../../repos';
 import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {

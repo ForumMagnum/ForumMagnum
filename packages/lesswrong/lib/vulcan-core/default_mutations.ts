@@ -79,7 +79,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           context,
         });
         const timeElapsed = Date.now() - startMutate
-        captureEvent("mutationCompleted", {mutationName, timeElapsed, documentId: returnValue.data._id})
+        captureEvent("mutationCompleted", {mutationName, timeElapsed, documentId: returnValue.data._id}, true)
         return returnValue;
       },
     };

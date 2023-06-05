@@ -90,6 +90,8 @@ const settingsFileName = (mode, forum) => {
     settingsFileName: process.env.SETTINGS_FILE,
     shellMode: false,
   };
+  process.env.MONGO_URL = args.mongoUrl;
+  process.env.PG_URL = args.postgresUrl;
   
   await startSshTunnel(databaseConfig(mode, forum).sshTunnelCommand);
 
