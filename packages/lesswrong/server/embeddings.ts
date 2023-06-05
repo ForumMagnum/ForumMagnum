@@ -1,8 +1,10 @@
 import Posts from "../lib/collections/posts/collection";
 import { PostEmbeddingsRepo } from "./repos";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
+import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToText } from "html-to-text";
 import { Globals } from "./vulcan-lib";
+import { inspect } from "util";
 import md5 from "md5";
 
 type EmbeddingsResult = {
@@ -11,24 +13,28 @@ type EmbeddingsResult = {
 }
 
 const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
-  const url = "http://localhost:8000/embeddings";
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      text,
-    }),
+  const api = await getOpenAI();
+  if (!api) {
+    throw new Error("OpenAI client is not configured");
+  }
+  const model = "text-embedding-ada-002";
+  const result = await api.createEmbedding({
+    input: text,
+    model,
   });
-  const result = await response.json();
-  if (result.error) {
-    throw new Error(result.error);
+  const embeddings = result?.data?.data?.[0].embedding;
+  if (
+    !embeddings ||
+    !Array.isArray(embeddings) ||
+    !embeddings.length ||
+    typeof embeddings[0] !== "number"
+  ) {
+    throw new Error(`Invalid API response: ${inspect(result, {depth: null})}`);
   }
-  if (!Array.isArray(result.embeddings)) {
-    throw new Error(`Invalid API response: ${JSON.stringify(result)}`);
-  }
-  return result;
+  return {
+    embeddings,
+    model,
+  };
 }
 
 const stripHtml = (html: string): string => htmlToText(html, {
