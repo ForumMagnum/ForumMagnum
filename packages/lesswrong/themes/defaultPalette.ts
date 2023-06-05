@@ -294,6 +294,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment3: '#2671ff66',
     debateComment4: '#eb26ff66',
     debateComment5: '#efdc0066',
+    dashed500: `dashed 1px ${shades.grey[500]}`,
+    dashed400: `dashed 1px ${shades.grey[400]}`,
+    dashed300: `dashed 1px ${shades.grey[300]}`
   },
   background: {
     default: shades.grey[60],

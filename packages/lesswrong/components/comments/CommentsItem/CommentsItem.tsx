@@ -161,7 +161,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[200]
     },
     [`& .${faintHighlightClassName}`]: {
-      backgroundColor: theme.palette.background.neutralTranslucent
+      borderBottom: theme.palette.border.dashed500,
+      backgroundColor: "unset",
     }
   }
 });

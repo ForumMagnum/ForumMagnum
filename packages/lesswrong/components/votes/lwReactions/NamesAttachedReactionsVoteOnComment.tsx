@@ -59,10 +59,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 300,
   },
   reactionCount: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.dim60,
     marginLeft: 3,
+    paddingBottom: 2,
     verticalAlign: "middle",
   },
   addReactionButton: {
@@ -189,12 +190,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.faint,
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
-  quoteCount: {
-    fontSize: 10,
-    color: theme.palette.text.dim40,
-    position: "relative",
-    top: -2,
-    marginLeft: 5,
+  hasQuotes: {
+    border: theme.palette.border.dashed400
   }
 })
 
@@ -503,6 +500,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
       {
         [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
         [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+        [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
       }
     )}
     onMouseEnter={handleMouseEnter}
@@ -511,7 +509,9 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     <span onMouseDown={()=>{reactionClicked(react)}}>
       <ReactionIcon react={react} />
     </span>
-    <span className={classes.reactionCount}>{numberShown}</span>
+    <span className={classes.reactionCount}>
+      {numberShown}
+    </span>
 
     {hover && anchorEl?.current && <PopperCard
       open={!!hover} anchorEl={anchorEl.current}
