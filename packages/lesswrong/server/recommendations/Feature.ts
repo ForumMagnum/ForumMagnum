@@ -1,4 +1,5 @@
 import { RecommendationFeatureName } from "../../lib/collections/users/recommendationSettings";
+import { DEFAULT_EMBEDDINGS_MODEL } from "../embeddings";
 
 abstract class Feature {
   getJoin(): string {
@@ -68,6 +69,36 @@ class CollabFilterFeature extends Feature {
   }
 }
 
+class TextSimilarityFeature extends Feature {
+  constructor(
+    private model = DEFAULT_EMBEDDINGS_MODEL,
+  ) {
+    super();
+  }
+
+  getJoin() {
+    return `
+      INNER JOIN "PostEmbeddings" pe ON
+        pe."postId" = p."_id" AND
+        pe."model" = $(embeddingsModel)
+    `;
+  }
+
+  getScore() {
+    return `fm_dot_product(pe."embeddings", (
+      SELECT "embeddings"
+      FROM "PostEmbeddings"
+      WHERE "postId" = $(postId) AND "model" = $(embeddingsModel)
+    ))`;
+  }
+
+  getArgs() {
+    return {
+      embeddingsModel: this.model,
+    };
+  }
+}
+
 export const featureRegistry: Record<
   RecommendationFeatureName,
   ConstructableFeature
@@ -76,4 +107,5 @@ export const featureRegistry: Record<
   curated: CuratedFeature,
   tagSimilarity: TagSimilarityFeature,
   collabFilter: CollabFilterFeature,
+  textSimilarity: TextSimilarityFeature,
 };

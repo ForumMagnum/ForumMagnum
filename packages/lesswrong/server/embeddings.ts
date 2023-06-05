@@ -7,6 +7,8 @@ import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
 
+export const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-ada-002";
+
 type EmbeddingsResult = {
   embeddings: number[],
   model: string,
@@ -17,7 +19,7 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   if (!api) {
     throw new Error("OpenAI client is not configured");
   }
-  const model = "text-embedding-ada-002";
+  const model = DEFAULT_EMBEDDINGS_MODEL;
   const result = await api.createEmbedding({
     input: text,
     model,
