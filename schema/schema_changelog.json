@@ -198,5 +198,10 @@
     "acceptsSchemaHash": "be2a53332cb5a42e9fafd13c2e7fde88",
     "acceptedByMigration": "20230503T130447.add_expandedFrontpageSections_column.ts",
     "timestamp": "2023-05-03T13:04:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5a1af1017444e973f8389a78b08a0922",
+    "acceptedByMigration": "20230605T172627.add_side_comment_caches_table.ts",
+    "timestamp": "2023-06-05T17:26:27.000Z"
   }
 ]
