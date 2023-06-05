@@ -110,7 +110,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
     <div className={classNames(className, classes.card)}>
       <div className={classes.headingRow}>
         <h2 className={classes.heading}>A tip for constructive criticism</h2>
-        <button className={classes.close} onClick={handleDismiss}>
+        <button type="button" className={classes.close} onClick={handleDismiss}>
           <ForumIcon icon="Close" className={classes.closeIcon}/>
         </button>
       </div>

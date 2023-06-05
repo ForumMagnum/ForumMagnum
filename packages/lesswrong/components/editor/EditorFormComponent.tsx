@@ -311,15 +311,13 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         postId={document._id}
       />
     }
-    {postFlaggedAsCriticism && !criticismTipsDismissed && (
-      <Transition in={true} timeout={0} mountOnEnter unmountOnExit appear>
-        {(state) => <Components.PostsEditBotTips
-          handleDismiss={handleDismissCriticismTips}
-          postId={document._id}
-          className={classes[`${state}BotTips`]}
-        />}
-      </Transition>
-    )}
+    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+      {(state) => <Components.PostsEditBotTips
+        handleDismiss={handleDismissCriticismTips}
+        postId={document._id}
+        className={classes[`${state}BotTips`]}
+      />}
+    </Transition>
   </div>
 }
 
