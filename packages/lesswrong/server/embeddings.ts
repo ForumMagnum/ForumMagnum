@@ -66,7 +66,7 @@ const updatePostEmbeddings = async (postId: string) => {
 const updateAllPostEmbeddings = async () => {
   await forEachDocumentBatchInCollection({
     collection: Posts,
-    batchSize: 20,
+    batchSize: 100,
     callback: async (posts: DbPost[]) => {
       try {
         await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
