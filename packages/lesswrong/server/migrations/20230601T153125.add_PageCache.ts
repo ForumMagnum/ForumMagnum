@@ -47,11 +47,11 @@ import { createTable, dropTable } from "./meta/utils"
 export const up = async ({db}: MigrationContext) => {
   if (!PageCache.isPostgres()) return
 
-  createTable(db, PageCache)
+  await createTable(db, PageCache)
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (!PageCache.isPostgres()) return
 
-  dropTable(db, PageCache)
+  await dropTable(db, PageCache)
 }
