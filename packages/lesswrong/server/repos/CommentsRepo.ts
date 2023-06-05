@@ -34,7 +34,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
-    const comments = await this.many(`
+    const comments = await this.manyOrNone(`
       WITH cte AS (
         SELECT
           comment_with_rownumber.*,
