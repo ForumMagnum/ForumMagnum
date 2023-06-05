@@ -79,6 +79,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     setCriticismTipsDismissed(true)
     captureEvent('criticismTipsDismissed', {postId: document._id})
     // make sure not to show the card for this post ever again
+    updateCurrentValues({criticismTipsDismissed: true})
     if (formType !== 'new' && document._id) {
       void updatePostCriticismTips({
         selector: {_id: document._id},
@@ -309,7 +310,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       />
     }
     {postFlaggedAsCriticism && !criticismTipsDismissed && (
-      <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+      <Transition in={true} timeout={0} mountOnEnter unmountOnExit appear>
         {(state) => <Components.PostsEditBotTips
           handleDismiss={handleDismissCriticismTips}
           postId={document._id}
