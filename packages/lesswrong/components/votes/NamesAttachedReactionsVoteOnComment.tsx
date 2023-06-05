@@ -19,6 +19,8 @@ import Card from '@material-ui/core/Card'
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
 import Mark from 'mark.js';
 import { dimHighlightClassName, highlightSelectorClassName } from '../common/ContentItemBody';
+import { AddReactionIcon } from '../icons/AddReactionIcon';
+import difference from 'lodash/difference';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,13 +31,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 25,
     lineHeight: 0.6,
     height: 26,
-    outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-    overflow: "hidden",    
-    background: theme.palette.panelBackground.translucent2,
-    borderRadius: 6,
+    // background: theme.palette.panelBackground.translucent2,
+    marginRight: 11,
   },
   footerReactionsRow: {
     display: "flex",
@@ -44,9 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerReaction: {
     height: 26,
     display: "inline-block",
+    borderRadius: 6,
     paddingTop: 2,
     paddingLeft: 4,
-    paddingRight: 6,
+    paddingRight: 4,
+    marginRight: 2,
     "&:first-child": {
       paddingLeft: 6,
     },
@@ -70,12 +72,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    marginLeft: 11,
-    filter: "opacity(0.2)",
+    filter: "opacity(0.15)",
     cursor: "pointer",
     "& svg": {
-      width: 16,
-      height: 16,
+      width: 20,
+      height: 20,
       position: "relative",
       top: 2
     },
@@ -178,7 +179,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overviewButton: {
     opacity: .35,
     marginTop: 2,
-    marginLeft: 8,
+    marginRight: 8,
     cursor: "pointer",
     height: 18,
     width: 18
@@ -376,15 +377,19 @@ const NamesAttachedReactionsCommentBottom = ({
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
-  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-  const reactionsShown = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
-  const alreadyUsedReactTypesByKarma = getAlreadyUsedReactTypesByKarma();
-  const showOverviewButton = alreadyUsedReactTypesByKarma.length > 1 || reactionsShown.length < alreadyUsedReactTypesByKarma.length;
+
+  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const allReactions = getAlreadyUsedReactTypesByKarma();
+
+  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(extendedScore?.reacts ?? null, currentUser?._id);
+  
+  const visibleReacts = visibleReactionsDisplay.map(r => r.react)
+  const hiddenReacts = difference(allReactions, visibleReacts)
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
-    {(reactionsShown.length > 0 || showOverviewButton) && <span className={classes.footerReactions} >
-      {!hideKarma && reactionsShown.map(({react, numberShown}) =>
+    {visibleReactionsDisplay.length > 0 && <span className={classes.footerReactions}>
+      {visibleReactionsDisplay.map(({react, numberShown}) =>
         <HoverableReactionIcon
           key={react}
           anchorEl={anchorEl}
@@ -397,7 +402,7 @@ const NamesAttachedReactionsCommentBottom = ({
       )}
       {hideKarma && <InsertEmoticonOutlined/>}
     </span>}
-    {showOverviewButton && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
+    {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
   </span>
 }
@@ -724,10 +729,9 @@ export const AddReactionButton = ({voteProps, classes}: {
     <span
       ref={buttonRef}
       onClick={ev => setOpen(true)}
-      className={classes.addReactionButton}
+      className={classNames(classes.addReactionButton, "react-hover-style")}
     >
-      <InsertEmoticonOutlined/>
-  
+      <AddReactionIcon />
       {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}

@@ -131,6 +131,7 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
       {emojiReactions.map(reaction =>
         <EmojiReaction key={reaction.name} reaction={reaction} voteProps={voteProps} classes={classes}/>
       )}
+      {/* eaforum-look-here: you can swap this for AddReactionIcon.tsx now */}
       {!hasReactions && <svg className={classNames("MuiSvgIcon-root", classes.addReactionIcon)} fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
         <g fill="#212121">
           <path d="m13 7c0-3.31371-2.6863-6-6-6-3.31371 0-6 2.68629-6 6 0 3.3137 2.68629 6 6 6 .08516 0 .1699-.0018.25419-.0053-.11154-.3168-.18862-.6499-.22673-.9948l-.02746.0001c-2.76142 0-5-2.23858-5-5s2.23858-5 5-5 5 2.23858 5 5l-.0001.02746c.3449.03811.678.11519.9948.22673.0035-.08429.0053-.16903.0053-.25419z"/>

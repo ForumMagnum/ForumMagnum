@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   replyLink: {
-    marginRight: 5,
+    marginRight: 8,
     display: "inline",
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
@@ -144,6 +144,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 18,
     position: "relative",
     top: 3
+  },
+  lwReactStyling: {
+    '&:hover .react-hover-style': {
+      filter: "opacity(0.8)",
+    }
   }
 });
 
@@ -262,13 +267,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
-        <CommentBottomCaveats comment={comment} />
-        {showReplyButton && (
-          treeOptions?.replaceReplyButtonsWith?.(comment)
-          || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
-            {showInlineCancel ? "Cancel" : "Reply"}
-          </a>
-        )}
+        <div>
+          <CommentBottomCaveats comment={comment} />
+          {showReplyButton && (
+            treeOptions?.replaceReplyButtonsWith?.(comment)
+            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+              {showInlineCancel ? "Cancel" : "Reply"}
+            </a>
+          )}
+        </div>
         {VoteBottomComponent && <VoteBottomComponent
           document={comment}
           hideKarma={post?.hideCommentKarma}
@@ -309,10 +316,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
-
-  if (!comment) {
-    return null;
-  }
 
   const displayReviewVoting = 
     !hideReviewVoteButtons &&
@@ -360,7 +363,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {startCase(comment.tag.name)}
           </Link>}
         </div>
-        <div className={classes.body}>
+        <div className={classNames(classes.body, classes.lwReactStyling)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
               <CoreTagIcon tag={tag} />
