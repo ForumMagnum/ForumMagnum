@@ -145,7 +145,6 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
 // Temporarily splitting out inline reactions for testing
 registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactionsWithInline",
-  userCanActivate: isLW,
   description: "Inline Reacts (Two-axis plus inline names-attached reactions)",
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
   getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,
