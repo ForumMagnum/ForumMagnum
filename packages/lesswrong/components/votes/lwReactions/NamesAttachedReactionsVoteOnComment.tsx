@@ -191,7 +191,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
   hasQuotes: {
-    border: theme.palette.border.dashed400
+    border: theme.palette.border.dashed500
   }
 })
 
