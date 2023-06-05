@@ -20,6 +20,11 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSetting
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
+export const highlightSelectorClassName = "highlighted-substring";
+export const dimHighlightClassName = "dim-highlighted-substring";
+export const faintHighlightClassName = "dashed-highlighted-substring";
+
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
@@ -148,6 +153,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   lwReactStyling: {
     '&:hover .react-hover-style': {
       filter: "opacity(0.8)",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200]
+    },
+    [`& .${faintHighlightClassName}`]: {
+      backgroundColor: theme.palette.background.neutralTranslucent
     }
   }
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
@@ -66,6 +66,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     !disabled && setOpen(true)
   }
 
+  function handleToggleReaction (reaction: string, quote: string) {
+    setOpen(false)
+    toggleReaction(reaction, quote)
+  }
+
   return <LWTooltip
     disabled={open}
     inlineBlock={false}
@@ -81,7 +86,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
         <ReactionsPalette
           getCurrentUserReaction={getCurrentUserReaction}
           getCurrentUserReactionVote={getCurrentUserReactionVote}
-          toggleReaction={toggleReaction}
+          toggleReaction={handleToggleReaction}
           quote={quote} 
         />
       </div>}

@@ -385,6 +385,7 @@ declare global {
       usersListItem: ColorString,
       primaryDim: ColorString,
       primaryTranslucent: ColorString,
+      neutralTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,
       transparent: ColorString,

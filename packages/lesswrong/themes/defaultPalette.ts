@@ -305,6 +305,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
     primaryTranslucent: "rgba(95,155,101,0.1)",
+    neutralTranslucent: "rgba(0,0,0,.05)",
     primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
     warningTranslucent: "rgba(255,152,0,0.1)",
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
