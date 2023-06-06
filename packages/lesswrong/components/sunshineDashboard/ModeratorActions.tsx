@@ -16,6 +16,7 @@ import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -294,18 +295,20 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
+  const userCommentsWarning = user.commentCount && hideUnreviewedAuthorCommentsSettings.get();
+
   const actionRow = <div className={classes.row}>
-    <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
+    <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproved)" placement="top">
       <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
     </LWTooltip>
     <LWTooltip title="Snooze and Approve 1 (Appear in sidebar on next post or comment. User's future posts are autoapproved)" placement="top">
       <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
     </LWTooltip>
     {user.needsReview && <LWTooltip
-      title={`${user.commentCount ? "Warning: user has made a comment! " : ""}Remove from queue (i.e. snooze without approving posts)`}
+      title={`${userCommentsWarning ? "Warning: user has made a comment! " : ""}Remove from queue (i.e. snooze without approving posts)`}
     >
       <AlarmOffIcon className={classNames(classes.modButton, {
-        [classes.warningButton]: user.commentCount,
+        [classes.warningButton]: userCommentsWarning,
       })} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
