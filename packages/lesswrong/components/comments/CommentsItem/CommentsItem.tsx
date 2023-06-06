@@ -20,6 +20,11 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSetting
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
+export const highlightSelectorClassName = "highlighted-substring";
+export const dimHighlightClassName = "dim-highlighted-substring";
+export const faintHighlightClassName = "dashed-highlighted-substring";
+
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
@@ -148,6 +153,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   lwReactStyling: {
     '&:hover .react-hover-style': {
       filter: "opacity(0.8)",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200]
+    },
+    [`& .${faintHighlightClassName}`]: {
+      borderBottom: theme.palette.border.dashed500,
+      backgroundColor: "unset",
     }
   }
 });
@@ -235,10 +250,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return (
+      return (<div ref={commentItemRef}>
         <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
           commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef}
         />
+      </div>
       );
     }
   }
@@ -335,7 +351,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           [classes.sideComment]: treeOptions.isSideComment,
           [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
-      )} ref={commentItemRef}>
+      )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>
             <Components.ParentCommentSingle

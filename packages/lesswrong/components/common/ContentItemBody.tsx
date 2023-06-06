@@ -10,21 +10,7 @@ import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
 import Mark from 'mark.js';
 
-export const highlightSelectorClassName = "highlighted-substring";
-const highlightClassSelector = `& .${highlightSelectorClassName}`;
-
-export const dimHighlightClassName = "dim-highlighted-substring";
-const dimHighlightClassSelector = `& .${dimHighlightClassName}`;
-
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    [highlightClassSelector]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy
-    },
-    [dimHighlightClassSelector]: {
-      backgroundColor: theme.palette.grey[200]
-    }
-  },
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -151,7 +137,6 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.markElicitBlocks();
       this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
-      // this.highlightSubstrings();
       this.setState({updatedElements: true})
       
     } catch(e) {
@@ -398,25 +383,6 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       container: insertionContainer,
     });
     container.prepend(insertionContainer);
-  }
-
-  highlightSubstrings = () => {
-    const substrings = this.props.highlightedSubstrings;
-    const markInstance = new Mark(this.bodyRef.current);
-    markInstance.unmark()
-
-    // markjs function that highlights a substring in the container
-    const highlightSubstring = (container: HTMLElement, substring: string) => {
-      markInstance.mark(substring, {
-        separateWordSearch: false,
-        className: highlightSelectorClassName,
-        acrossElements: true,
-        diacritics: true,
-      });
-    }
-    substrings?.forEach((substring) => {
-      highlightSubstring(this.bodyRef.current, substring)
-    })
   }
 }
 
