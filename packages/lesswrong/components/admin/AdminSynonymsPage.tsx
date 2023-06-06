@@ -77,7 +77,7 @@ const AdminSynonymsPage = ({classes}: {
       <p>
         Synonyms should be formatted as a comma-separated list of values which will be
         considered as equivalent terms when performing a search. For instance, if you
-        create the synonym "cat,lion,tiger" then a serach for "cat" will also match all
+        create the synonym "cat,lion,tiger" then a search for "cat" will also match all
         documents containing the words "lion" or "tiger". Synonyms work better when
         each option is only a single word, but multiple-word synonyms are also possible.
       </p>
