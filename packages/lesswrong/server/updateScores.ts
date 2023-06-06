@@ -232,10 +232,12 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     SELECT
       q.*,
       ns."newScore",
+      q."inactive" AS "inactive",
       ABS("score" - ns."newScore") > $1 AS "scoreDiffSignificant",
       (${ageHours}) > ($2 * 24) AS "oldEnough"
     FROM (
       SELECT ${getPgCollectionProjections(collectionName).join(", ")}
+        , "${collectionName}".inactive as inactive
       FROM "${collectionName}"
       WHERE
         "postedAt" < CURRENT_TIMESTAMP AND
@@ -254,6 +256,7 @@ const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
   const items = await getBatchItems(collection, inactive);
   let updatedDocumentsCounter = 0;
+
   const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
@@ -264,7 +267,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
           upsert: false,
         }
       }
-    } else if (i.oldEnough) {
+    } else if (i.oldEnough && !i.inactive) {
       // only set a post as inactive if it's older than n days
       return {
         updateOne: {
