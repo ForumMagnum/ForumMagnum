@@ -165,6 +165,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [`&:hover .${faintHighlightClassName}`]: {
       borderBottom: theme.palette.border.dashed500,
+      '&:hover ~ .reaction': {
+        color: "red !important"
+      }
     },
   }
 });
