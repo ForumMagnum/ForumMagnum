@@ -7,6 +7,8 @@ describe("ElasticQuery", () => {
     filters: [],
   };
   const originDate = SEARCH_ORIGIN_DATE.toISOString();
+  const delta = Date.now() - SEARCH_ORIGIN_DATE.getTime();
+  const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
 
   it("Can compile numeric ascending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -38,7 +40,7 @@ describe("ElasticQuery", () => {
         type: "date",
       },
     });
-    expect(result).toBe(`(1 - (doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '3287d', '0', 0.5, doc['postedAt'].value))))`);
+    expect(result).toBe(`(1 - (doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value))))`);
   });
   it("Can compile date descending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -48,7 +50,7 @@ describe("ElasticQuery", () => {
         type: "date",
       },
     });
-    expect(result).toBe(`(doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '3287d', '0', 0.5, doc['postedAt'].value)))`);
+    expect(result).toBe(`(doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value)))`);
   });
   it("Can compile bool descending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
