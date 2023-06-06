@@ -2,6 +2,9 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { queryWithLock } from "./queryWithLock";
+import { DatabaseServerSetting } from "./databaseSettings";
+
+const pgConnIdleTimeoutMsSetting = new DatabaseServerSetting<number>('pg.idleTimeoutMs', 30_000)
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -150,6 +153,7 @@ export const createSqlConnection = async (
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
+    idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
   });
   
   // eslint-disable-next-line no-console
