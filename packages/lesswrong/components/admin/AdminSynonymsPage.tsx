@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback, ChangeEvent } from "react";
+import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import { useCurrentUser } from "../common/withUser";
 
 const searchSynonymsQuery = gql`
   query SearchSynonyms {
@@ -32,9 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AdminSynonymsPage = ({classes}: {
-  classes: ClassesType,
-}) => {
+const AdminSynonymsEditor: FC<{classes: ClassesType}> = ({classes}) => {
   const [synonyms, setSynonyms] = useState<string[]>([]);
   const {data, loading, error} = useQuery(searchSynonymsQuery);
   const [updateSearchSynonyms, updateLoading] = useMutation(
@@ -43,7 +42,7 @@ const AdminSynonymsPage = ({classes}: {
   );
 
   useEffect(() => {
-    setSynonyms(data.SearchSynonyms ?? []);
+    setSynonyms(data?.SearchSynonyms ?? []);
   }, [data]);
 
   const onEditSynonym = useCallback((index: number) => {
@@ -82,7 +81,7 @@ const AdminSynonymsPage = ({classes}: {
         each option is only a single word, but multiple-word synonyms are also possible.
       </p>
       {isLoading && <Loading />}
-      {error && <p>{error}</p>}
+      {error && <p>Error: {error.message}</p>}
       {!isLoading && !error &&
         <>
           {synonyms.map((synonym: string, i: number) =>
@@ -102,6 +101,15 @@ const AdminSynonymsPage = ({classes}: {
       }
     </SingleColumnSection>
   );
+}
+
+const AdminSynonymsPage = ({classes}: {
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  return currentUser?.isAdmin
+    ? <AdminSynonymsEditor classes={classes} />
+    : <Components.Error404 />;
 }
 
 const AdminSynonymsPageComponent = registerComponent(
