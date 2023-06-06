@@ -727,6 +727,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'EA Forum Wrapped',
     },
     {
+      name: 'EditDigest',
+      path: '/admin/edit-digest',
+      componentName: 'EditDigest',
+      title: 'Edit Digest',
+    },
+    {
       name: 'recommendationsSample',
       path: '/admin/recommendationsSample',
       componentName: 'RecommendationsSamplePage',
