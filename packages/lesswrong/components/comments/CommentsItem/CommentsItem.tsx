@@ -161,9 +161,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[200]
     },
     [`& .${faintHighlightClassName}`]: {
-      borderBottom: theme.palette.border.dashed500,
       backgroundColor: "unset",
-    }
+    },
+    [`&:hover .${faintHighlightClassName}`]: {
+      borderBottom: theme.palette.border.dashed500,
+    },
   }
 });
 
