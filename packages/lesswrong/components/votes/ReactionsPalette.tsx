@@ -5,6 +5,8 @@ import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/vot
 import classNames from 'classnames';
 import AppsIcon from '@material-ui/icons/Apps';
 import ViewListIcon from '@material-ui/icons/ViewList';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -101,12 +103,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 18,
     height: 18,
     marginLeft: 6,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[300],
     '&:hover': {
       opacity: .5
     }
+  },
+  viewButtonSelected: {
+    color: theme.palette.grey[600],
   }
 })
+
+type paletteView = "listView"|"gridView";
 
 const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
@@ -116,11 +123,29 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   classes: ClassesType,
 }) => {
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
+  const currentUser = useCurrentUser();
+  const reactPaletteStyle = currentUser?.reactPaletteStyle === "gridView" ? "gridView" : "listView"
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [displayStyle, setDisplayStyle] = useState<"listView"|"gridView">("listView");
+  const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
   
   const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
+
+  const {mutate: updateUser} = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersCurrent',
+  });
+
+  const handleChangeView = (view: paletteView) => {
+    setDisplayStyle(view);
+    if (!currentUser) return;
+    void updateUser({
+      selector: {_id: currentUser._id},
+      data: {
+        reactPaletteStyle: view
+      }
+    })
+  }
 
   function tooltip (reaction: NamesAttachedReactionType) {
     return <Row>
@@ -145,11 +170,17 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         onChange={(ev) => setSearchText(ev.currentTarget.value)}
       />
       <Row>
-        <LWTooltip title="Switch to grid view">
-          <AppsIcon onClick={() => setDisplayStyle("gridView")} className={classes.viewButton}/>
+       <LWTooltip title="Switch to list view">
+          <ViewListIcon 
+            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "listView"})}
+            onClick={() => handleChangeView("listView")}
+          />  
         </LWTooltip>
-        <LWTooltip title="Switch to list view">
-          <ViewListIcon onClick={() => setDisplayStyle("listView")} className={classes.viewButton}/>  
+        <LWTooltip title="Switch to grid view">
+          <AppsIcon 
+            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "gridView"})}
+            onClick={() => handleChangeView("gridView")} 
+          />
         </LWTooltip>
       </Row>
     </Row>

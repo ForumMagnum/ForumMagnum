@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -642,6 +642,24 @@ const schema: SchemaType<DbUser> = {
         ];
       }
     },
+  },
+  reactPaletteStyle: {
+    type: String,
+    optional: true,
+    canRead: isLW ? [userOwns, 'admins'] : [],
+    canUpdate: isLW ? [userOwns, 'admins'] : [],
+    label: "React Palette Style",
+    group: formGroups.siteCustomizations,
+    defaultValue: "listView",
+    control: "select",
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value:'listView', label: 'List View'},
+          {value:'iconView', label: 'Icons'},
+        ];
+      }
+    }
   },
   
   noKibitz: {
