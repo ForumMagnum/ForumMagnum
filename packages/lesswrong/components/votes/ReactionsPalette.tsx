@@ -69,20 +69,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   selectedAnti: {
     background: "rgb(255, 189, 189, .23)",
   },
-  reactionDescription: {
-  },
   reactionPaletteScrollRegion: {
     width: 350,
     maxHeight: 240,
     overflowY: "scroll",
     marginBottom: 12,
     marginTop: 12
-  },
-  quickReactBar: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    paddingBottom: 8
   },
   tooltipIcon: {
     marginRight: 12,
@@ -94,9 +86,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
     paddingBottom: 6,
-  },
-  warning: {
-    color: theme.palette.error.main
   },
   viewButton: {
     cursor: "pointer",
@@ -233,9 +222,9 @@ const ReactionDescription = ({reaction, classes}: {
   if (!reaction.description) {
     return null;
   } else if (typeof reaction.description === "string") {
-    return <div className={classes.reactionDescription}>{reaction.description}</div>
+    return <div>{reaction.description}</div>
   } else {
-    return <div className={classes.reactionDescription}>{reaction.description("comment")}</div>
+    return <div>{reaction.description("comment")}</div>
   }
 }
 
