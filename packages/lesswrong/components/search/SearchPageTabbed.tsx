@@ -29,6 +29,7 @@ import {
   getElasticSortingsForCollection,
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
+import { userHasElasticsearch } from '../../lib/betas';
 
 const hitsPerPage = 10
 
@@ -425,7 +426,7 @@ const SearchPageTabbed = ({classes}:{
           <Link to="/community#individuals">View community map</Link>
         </div>}
 
-        {elasticCollectionIsCustomSortable(tab) &&
+        {elasticCollectionIsCustomSortable(tab) && userHasElasticsearch(null) &&
           <>
             <Typography variant="headline" className={classes.filtersHeadline}>
               Sort
