@@ -219,7 +219,7 @@ const getPgCollectionProjections = (collectionName: CollectionNameString) => {
   return Object.values(proj);
 }
 
-const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) => {
+const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) => {
   const {collectionName} = collection;
   if (!["Posts", "Comments"].includes(collectionName)) {
     return [];
@@ -245,16 +245,17 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     ) q, LATERAL (SELECT
       "baseScore" / POW(${ageHours} + $3, $4) AS "newScore"
     ) ns
+    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > $1 OR NOT q."inactive"'}
   `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
 }
 
-const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) =>
+const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
   Posts.isPostgres()
-    ? getBatchItemsPg(collection, inactive)
+    ? getBatchItemsPg(collection, inactive, forceUpdate)
     : getBatchItemsMongo(collection, inactive);
 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
-  const items = await getBatchItems(collection, inactive);
+  const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 
   const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
