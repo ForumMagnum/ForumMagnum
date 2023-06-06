@@ -87,8 +87,10 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
+
+    const unreviewedUser = !currentUser.reviewedByUserId;
     
-    if (akismetKeySetting.get()) {
+    if (unreviewedUser && akismetKeySetting.get()) {
       const start = Date.now();
 
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
