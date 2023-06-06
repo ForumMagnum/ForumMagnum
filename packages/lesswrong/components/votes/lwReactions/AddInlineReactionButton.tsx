@@ -55,7 +55,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     setDisabled(count > 1)
   }
 
-  function handleHoverEnd() {
+  const handleHoverEnd = () => {
     const ref = commentItemRef?.current
     if (!ref) return
     let markInstance = new Mark(ref);
@@ -66,7 +66,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     !disabled && setOpen(true)
   }
 
-  function handleToggleReaction (reaction: string, quote: string) {
+  const handleToggleReaction = (reaction: string, quote: string) => {
     setOpen(false)
     toggleReaction(reaction, quote)
   }
