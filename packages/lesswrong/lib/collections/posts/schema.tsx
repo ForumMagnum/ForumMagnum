@@ -2430,8 +2430,13 @@ const schema: SchemaType<DbPost> = {
     resolver: async (post, _, context) => {
       const { Comments, currentUser } = context;
 
+      if (!post.debate) return null;
       const lastReadStatus = await getLastReadStatus(post, context);
       if (!lastReadStatus) return null;
+      if (!lastReadStatus.isRead) return null;
+      
+      if (lastReadStatus.lastUpdated > post.lastCommentedAt)
+        return 0;
 
       const comments = await Comments.find({
         ...getDefaultViewSelector("Comments"),
