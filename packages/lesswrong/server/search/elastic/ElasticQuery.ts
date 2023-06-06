@@ -42,11 +42,14 @@ export type QueryData = {
   filters: QueryFilter[],
 }
 
+export type Fuzziness = "AUTO" | number;
+
 class ElasticQuery {
   private config: IndexConfig;
 
   constructor(
     private queryData: QueryData,
+    private fuzziness: Fuzziness = 1,
   ) {
     this.config = indexNameToConfig(queryData.index);
   }
@@ -132,7 +135,7 @@ class ElasticQuery {
             multi_match: {
               query: search,
               fields,
-              fuzziness: "AUTO",
+              fuzziness: this.fuzziness,
               max_expansions: 10,
               prefix_length: 2,
               minimum_should_match: "50%",
@@ -196,7 +199,7 @@ class ElasticQuery {
           multi_match: {
             query: token,
             fields,
-            fuzziness: "AUTO",
+            fuzziness: this.fuzziness,
             max_expansions: 10,
             prefix_length: 2,
             minimum_should_match: "75%",
