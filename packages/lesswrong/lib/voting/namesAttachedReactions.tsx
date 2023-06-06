@@ -276,7 +276,7 @@ export type UserVoteOnSingleReaction = {
 };
 export type NamesAttachedReactionsVote = {
   agreement?: string,
-  reacts?: UserVoteOnSingleReaction[],
+  reacts?: UserVoteOnSingleReaction[]
 }
 export type UserReactInfo = {
   userId: string
