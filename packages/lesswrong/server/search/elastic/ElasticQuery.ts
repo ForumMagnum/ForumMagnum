@@ -216,6 +216,19 @@ class ElasticQuery {
     };
   }
 
+  private compileQuery(): QueryDslQueryContainer {
+    const {search} = this.queryData;
+    if (!search) {
+      return {
+        match_all: {},
+      };
+    }
+    const {tokens, isAdvanced} = parseQuery(search);
+    return isAdvanced
+      ? this.compileAdvancedQuery(tokens)
+      : this.compileSimpleQuery();
+  }
+
   private compileSort(sorting?: string): Sort {
     const sort: Sort = [
       {_score: {order: "desc"}},
@@ -246,16 +259,11 @@ class ElasticQuery {
     const {
       index,
       sorting,
-      search,
       offset = 0,
       limit = 10,
     } = this.queryData;
     const {snippet, highlight, privateFields} = this.config;
     const tags = this.getHighlightTags();
-    const {tokens, isAdvanced} = parseQuery(search);
-    const compiledQuery = isAdvanced
-      ? this.compileAdvancedQuery(tokens)
-      : this.compileSimpleQuery();
     return {
       index,
       from: offset,
@@ -275,7 +283,7 @@ class ElasticQuery {
           script_score: {
             query: {
               bool: {
-                must: compiledQuery,
+                must: this.compileQuery(),
                 should: [],
                 filter: this.compileFilters(),
               },
