@@ -80,10 +80,12 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   // tab), this can wind up fighting with the browser's scroll restoration (see
   // client/scrollRestoration.ts).
   useEffect(() => {
-    const newNumMessages = (results?.length??0)
+    const newNumMessages = (results?.length ?? 0)
     if (newNumMessages > numMessagesShown) {
       setNumMessagesShown(newNumMessages);
-      setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
+      setTimeout(()=>{
+        window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
+      }, 0);
     }
   }, [numMessagesShown, results?.length]);
   
