@@ -61,6 +61,8 @@ class ElasticExporter {
    *  3) Mark the new index as writable
    *  4) Update the alias to point to the new index
    *  5) Delete the old index
+   *
+   * For a populated index, expect this to take ~a couple of minutes.
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClient();
