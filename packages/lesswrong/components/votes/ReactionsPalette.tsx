@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
-import ListIcon from '@material-ui/icons/List';
-import ViewCompactIcon from '@material-ui/icons/ViewCompact';
-import ViewModuleIcon from '@material-ui/icons/ViewModule';
-import AppsIcon from '@material-ui/icons/Apps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -28,6 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotLabel: {
     marginLeft: 10,
     verticalAlign: "middle",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexGrow: 1
+  },
+  numQuotes: {
+    fontSize: 10,
+    marginRight: 6
   },
   paletteEntry: {
     cursor: "pointer",
@@ -97,18 +101,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
     paddingBottom: 6,
+  },
+  warning: {
+    color: theme.palette.error.main
   }
 })
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}: {
+const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+  getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string)=>void,
-  classes: ClassesType
+  toggleReaction: (reactionName: string, quote?: string)=>void,
+  quote?: string,
+  classes: ClassesType,
 }) => {
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [format, setFormat] = useState<"list"|"grid1"|"grid2"|"mixed">("mixed");
   
   const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
 
@@ -126,43 +134,11 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
   }
 
   const N = 9; // number of reaction icons that fit on a line
-  const numRowsToShow = 2;
+  const numRowsToShow = 4;
   const mixedIconReactions = reactionsToShow.slice(0, Math.min(N * numRowsToShow, reactionsToShow.length));
 
   return <div className={classes.moreReactions}>
-    <Row justifyContent='flex-start'>
-      <Row>
-        <LWTooltip title="List view">
-          <ListIcon 
-            className={classes.toggleIcon} 
-            style={{ opacity: format === "list" ? 1 : .35}} 
-            onClick={() => setFormat("list")}
-          />          
-        </LWTooltip>
-      </Row>
-      <LWTooltip title="Mixed list/grid view">
-        <ViewCompactIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "mixed" ? 1 : .35}}
-          onClick={() => setFormat("mixed")}
-        />
-      </LWTooltip>
-      <LWTooltip title="Icon Grid">
-        <AppsIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "grid1" ? 1 : .35}}
-          onClick={() => setFormat("grid1")}
-        />
-      </LWTooltip>
-      <LWTooltip title="Icon/Names Grid">
-        <ViewModuleIcon 
-          className={classes.toggleIcon} 
-          style={{ opacity: format === "grid2" ? 1 : .35}}
-          onClick={() => setFormat("grid2")}
-        />
-      </LWTooltip>
-    </Row>
-    <br/>
+    {quote && <p>Reacting to "{quote}"</p>}
     <div className={classes.searchBoxWrapper}>
       <input
         type="text" className={classes.searchBox}
@@ -171,59 +147,12 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
         onChange={(ev) => setSearchText(ev.currentTarget.value)}
       />
     </div>
-    {format === "grid1" && <div className={classes.quickReactBar}>
-      {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-        key={`icon-${reaction.name}`}
-      >
-        <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name)}>
-          <ReactionIcon react={reaction.name} size={24}/>
-        </div>
-      </LWTooltip>)}
-    </div>}    
-    {format === "grid2" && <div className={classes.quickReactBar} style={{justifyContent:"space-between"}}>
-      {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-        key={`icon-${reaction.name}`}
-      >
-        <div className={classes.paletteIcon2} onClick={_ev => toggleReaction(reaction.name)}>
-          <ReactionIcon react={reaction.name} size={20}/>
-          <div className={classes.tinyLabel}>{reaction.label}</div>
-        </div>
-      </LWTooltip>)}
-    </div>}    
-    {format === "list" && <div>
-      <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
-        {reactionsToShow.map(reaction => {
-          const currentUserVote = getCurrentUserReactionVote(reaction.name);
-          return (
-            <LWTooltip
-              key={reaction.name} placement="right-start"
-              title={tooltip(reaction)}
-            >
-              <div
-                key={reaction.name}
-                className={classNames(classes.paletteEntry, {
-                  [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-                  [classes.selectedAnti]: currentUserVote==="disagreed",
-                })}
-                onClick={_ev => toggleReaction(reaction.name)}
-              >
-                <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-              </div>
-            </LWTooltip>
-          )
-        })}
-      </div>
-      <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
-        <MetaInfo>{showAll ? "Show Less" : "Show More"}</MetaInfo>
-      </a>
-    </div>}
-    {format === "mixed" && <div>
+    <div>
       <div>
         {mixedIconReactions.map(reaction => <LWTooltip title={tooltip(reaction)} 
           key={`icon-${reaction.name}`}
         >
-          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name)}>
+          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
             <ReactionIcon react={reaction.name} size={24}/>
           </div>
         </LWTooltip>)}
@@ -231,6 +160,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
         {reactionsToShow.map(reaction => {
           const currentUserVote = getCurrentUserReactionVote(reaction.name);
+          const currentUserReact = getCurrentUserReaction(reaction.name);
+          const voteQuotes = currentUserReact?.quotes ?? [];
           return (
             <LWTooltip
               key={reaction.name} placement="right-start"
@@ -242,10 +173,10 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
                   [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
                   [classes.selectedAnti]: currentUserVote==="disagreed",
                 })}
-                onClick={_ev => toggleReaction(reaction.name)}
+                onClick={_ev => toggleReaction(reaction.name, quote)}
               >
                 <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+                <span className={classes.hoverBallotLabel}>{reaction.label}{voteQuotes.length > 0 && <span className={classes.numQuotes}>{voteQuotes.length}</span>}</span>
               </div>
             </LWTooltip>
           )
@@ -254,7 +185,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, classes}:
       <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
         <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
       </a>
-    </div>}
+    </div>
   </div>
 }
 
