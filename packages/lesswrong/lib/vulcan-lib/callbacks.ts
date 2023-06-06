@@ -101,7 +101,7 @@ export const addCallback = function (hook: string, callback: AnyBecauseTodo) {
 
   Callbacks[formattedHook].push(callback);
   
-  if (Callbacks[formattedHook].length > 15) {
+  if (Callbacks[formattedHook].length > 20) {
     // eslint-disable-next-line no-console
     console.log(`Warning: Excessively many callbacks (${Callbacks[formattedHook].length}) on hook ${formattedHook}.`);
   }

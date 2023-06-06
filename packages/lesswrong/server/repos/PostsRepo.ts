@@ -1,7 +1,7 @@
-import { postStatuses } from "../../lib/collections/posts/constants";
 import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
+import { postStatuses } from "../../lib/collections/posts/constants";
 
 export type MeanPostKarma = {
   _id: number,
@@ -112,5 +112,65 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ) q
     `, [postId, maxReactorsPerEmoji]);
     return result.emojiReactors;
+  }
+
+  private getSearchDocumentQuery(): string {
+    return `
+      SELECT
+        p."_id",
+        p."_id" AS "objectID",
+        p."userId",
+        p."url",
+        p."title",
+        p."slug",
+        COALESCE(p."baseScore", 0) AS "baseScore",
+        p."status",
+        p."curatedDate" IS NOT NULL AND "curatedDate" < NOW() AS "curated",
+        p."legacy",
+        COALESCE(p."commentCount", 0) AS "commentCount",
+        p."postedAt",
+        p."createdAt",
+        EXTRACT(EPOCH FROM p."postedAt") * 1000 AS "publicDateMs",
+        COALESCE(p."isFuture", FALSE) AS "isFuture",
+        COALESCE(p."isEvent", FALSE) AS "isEvent",
+        COALESCE(p."rejected", FALSE) AS "rejected",
+        COALESCE(p."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
+        COALESCE(p."viewCount", 0) AS "viewCount",
+        p."lastCommentedAt",
+        COALESCE(p."draft", FALSE) AS "draft",
+        COALESCE(p."af", FALSE) AS "af",
+        fm_post_tag_ids(p."_id") AS "tags",
+        author."slug" AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."fullName" AS "authorFullName",
+        rss."nickname" AS "feedName",
+        p."feedLink",
+        p."contents"->>'html' AS "body",
+        NOW() AS "exportedAt"
+      FROM "Posts" p
+      LEFT JOIN "Users" author ON p."userId" = author."_id"
+      LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaPost> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE p."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
+      ORDER BY p."createdAt" DESC
+      LIMIT $1
+      OFFSET $2
+    `, [limit, offset]);
+  }
+
+  async countSearchDocuments(): Promise<number> {
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
+    return count;
   }
 }
