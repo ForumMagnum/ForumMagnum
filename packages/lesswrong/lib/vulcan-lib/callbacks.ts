@@ -35,10 +35,11 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
 
     const timeElapsed = Date.now() - start;
     // Need to use this from Globals to avoid import cycles
-    Globals.captureEvent('callbacksCompleted', {
-      callbackHookName: this.name,
-      timeElapsed
-    }, true);
+    // Temporarily disabled to investigate performance issues
+    // Globals.captureEvent('callbacksCompleted', {
+    //   callbackHookName: this.name,
+    //   timeElapsed
+    // }, true);
 
     return result;
   }
@@ -65,10 +66,11 @@ export class CallbackHook<ArgumentsType extends any[]> {
 
     const timeElapsed = Date.now() - start;
     // Need to use this from Globals to avoid import cycles
-    Globals.captureEvent('callbacksCompleted', {
-      callbackHookName: this.name,
-      timeElapsed
-    }, true);
+    // Temporarily disabled to investigate performance issues 
+    // Globals.captureEvent('callbacksCompleted', {
+    //   callbackHookName: this.name,
+    //   timeElapsed
+    // }, true);
   }
 }
 

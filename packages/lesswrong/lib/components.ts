@@ -40,7 +40,7 @@ importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAFo
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
-importComponent("InlineReactSelectionWrapper", () => require('../components/common/InlineReactSelectionWrapper'));
+
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
@@ -394,11 +394,14 @@ importComponent("EAEmojiPalette", () => require('../components/votes/EAEmojiPale
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
-importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/NamesAttachedReactionsVoteOnComment'));
+
+// Reaction components
+importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/lwReactions/NamesAttachedReactionsVoteOnComment'));
 importComponent("ReactionsPalette", () => require('../components/votes/ReactionsPalette'));
 importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
 importComponent("AddInlineReactionButton", () => require('../components/votes/lwReactions/AddInlineReactionButton'));
-
+importComponent("InlineReactSelectionWrapper", () => require('../components/votes/lwReactions/InlineReactSelectionWrapper'));
+importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
