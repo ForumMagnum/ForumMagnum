@@ -5,6 +5,7 @@ import { ChecklistTag } from '../tagging/TagsChecklist';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    display: "flex",
   },
   heading: {
     ...theme.typography.uiSecondary,
@@ -68,12 +69,12 @@ const FormComponentTagsChecklist = ({ document, path, label, value, updateCurren
       [path]: newValue,
     });
   };
-  
+
   const tags = isShortform ? [FRONTPAGE_DUMMY_TAG, ...results] : results;
   const selectedTagIds = isShortform ? [...(document.shortformFrontpage ? [FRONTPAGE_TAG_ID] : []), ...value] : value;
 
   return (
-    <div>
+    <div className={classes.root}>
       <h3 className={classes.heading}>{label}</h3>
       <TagsChecklist
         tags={tags}

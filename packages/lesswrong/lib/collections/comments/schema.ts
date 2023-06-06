@@ -674,7 +674,7 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members', 'admins', 'sunshineRegiment'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    label: `Shortform ${taggingNameSetting.get()}`,
+    label: `Set ${taggingNameSetting.get()}`,
     tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
     control: "FormComponentTagsChecklist",
     hidden: ({currentUser, document}: SmartFormProps): boolean => {

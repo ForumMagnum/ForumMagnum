@@ -1,13 +1,19 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
+import classNames from "classnames";
 
 const styles = (_theme: ThemeType) => ({
+  root: {
+  },
 });
 
-const QuickTakesList = () => {
+const QuickTakesList = ({className, classes}: {
+  className?: string,
+  classes: ClassesType,
+}) => {
   const {} = Components;
   return (
-    <div>
+    <div className={classNames(classes.root, className)}>
       List
     </div>
   );

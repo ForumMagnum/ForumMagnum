@@ -4,9 +4,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (_theme: ThemeType) => ({
+  list: {
+    marginTop: 16,
+  },
 });
 
-const QuickTakesSection = () => {
+const QuickTakesSection = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const {
     SingleColumnSection, SectionTitle, QuickTakesEntry, QuickTakesList,
@@ -16,7 +21,7 @@ const QuickTakesSection = () => {
       <SingleColumnSection>
         <SectionTitle title="Quick takes" />
         {currentUser && <QuickTakesEntry currentUser={currentUser} />}
-        <QuickTakesList />
+        <QuickTakesList className={classes.list} />
       </SingleColumnSection>
     </AnalyticsContext>
   );

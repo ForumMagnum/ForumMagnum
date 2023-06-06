@@ -1,52 +1,82 @@
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
-    padding: 12,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
     gap: "12px",
-    height: 64,
+    padding: 12,
   },
-  form: {
-    width: "100%",
-    height: "100%",
+  profileImage: {
+    marginTop: 3,
   },
-  entry: {
+  shareMessage: {
     width: "100%",
-    height: "100%",
-    color: theme.palette.grey[1000],
+    height: 40,
+    color: theme.palette.grey[600],
     background: theme.palette.grey[100],
     borderRadius: theme.borderRadius.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 14,
     padding: 10,
-    "&::placeholder": {
-      color: theme.palette.grey[600],
-    },
+    userSelect: "none",
+    cursor: "pointer",
+  },
+  setTopic: {
+    fontWeight: 600,
+    fontSize: 13,
+    color: theme.palette.grey[1000],
   },
 });
+
+const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
 const QuickTakesEntry = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const onSubmit = useCallback(() => {
-  }, [currentUser]);
-  const {UsersProfileImage} = Components;
+  const [expanded, setExpanded] = useState(false);
+
+  const onExpand = useCallback(() => setExpanded(true), []);
+  const onSuccess = useCallback(() => {}, []);
+  const onCancel = useCallback(() => {}, []);
+  // const onBlur = useCallback(() => setExpanded(false), []);
+  // const onPublish = useCallback((event) => {
+    // event.preventDefault();
+  // }, [currentUser]);
+
+  const {CommentsNewForm} = Components;
   return (
     <div className={classes.root}>
-      <UsersProfileImage user={currentUser} size={32} />
-      <form onSubmit={onSubmit} className={classes.form}>
-        <input
-          type="text"
-          className={classes.entry}
-          placeholder="Share exploratory, draft-stage, rough thoughts..."
-        />
-      </form>
+      {!expanded &&
+        <div className={classes.shareMessage} onClick={onExpand}>
+          {placeholder}
+        </div>
+      }
+      {expanded &&
+        <>
+          <CommentsNewForm
+            prefilledProps={{
+              shortform: true,
+            }}
+            successCallback={onSuccess}
+            cancelCallback={onCancel}
+            type="comment"
+            formProps={{
+              editorHintText: placeholder,
+            }}
+          />
+          <div className={classes.footer}>
+            <div className={classes.setTopic}>Set topic</div>
+          </div>
+        </>
+      }
     </div>
   );
 }
