@@ -2507,6 +2507,29 @@ const schema: SchemaType<DbPost> = {
     },
   },
 
+  dialogTooltipPreview: resolverOnlyField({
+    type: String,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (!post.debate) return null;
+
+      const { Comments } = context;
+
+      const firstComment = await Comments.findOne({
+        ...getDefaultViewSelector("Comments"),
+        postId: post._id,
+        // This actually forces `deleted: false` by combining with the default view selector
+        deletedPublic: false,
+        debateResponse: true,
+      }, { sort: { postedAt: 1 } });
+
+      if (!firstComment) return null;
+
+      return firstComment.contents.html;
+    }
+  }),
+
   /* subforum-related fields */
 
   // If this post is associated with a subforum, the _id of the tag

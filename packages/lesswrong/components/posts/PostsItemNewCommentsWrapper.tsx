@@ -35,7 +35,10 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions 
   
   else {
     const lastCommentId = results && results[0]?._id
-    const nestedComments = results && unflattenComments(results);
+    let nestedComments = results && unflattenComments(results);
+    if (post.debate) {
+      nestedComments?.sort((a, b) => new Date(a.item.postedAt).getTime() - new Date(b.item.postedAt).getTime());
+    }
     return (
       <div>
         {title && <div className={classes.title}>{title}</div>}

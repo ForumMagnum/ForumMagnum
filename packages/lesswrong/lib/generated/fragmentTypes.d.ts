@@ -793,6 +793,21 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly lastModified: Date | null,
 }
 
+interface NotificationsDefaultFragment { // fragment on Notifications
+  readonly userId: string,
+  readonly documentId: string,
+  readonly documentType: string,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly link: string,
+  readonly title: string,
+  readonly message: string,
+  readonly type: string,
+  readonly deleted: boolean,
+  readonly viewed: boolean,
+  readonly emailed: boolean,
+  readonly waitingForBatch: boolean,
+}
+
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -1001,6 +1016,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly unreadDebateResponseCount: number,
+  readonly dialogTooltipPreview: string,
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
@@ -1543,21 +1559,6 @@ interface WithVoteRevision { // fragment on Revisions
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly voteCount: number,
-}
-
-interface NotificationsDefaultFragment { // fragment on Notifications
-  readonly userId: string,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly link: string,
-  readonly title: string,
-  readonly message: string,
-  readonly type: string,
-  readonly deleted: boolean,
-  readonly viewed: boolean,
-  readonly emailed: boolean,
-  readonly waitingForBatch: boolean,
 }
 
 interface NotificationsList { // fragment on Notifications
@@ -3080,6 +3081,7 @@ interface FragmentTypes {
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
+  NotificationsDefaultFragment: NotificationsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
@@ -3132,7 +3134,6 @@ interface FragmentTypes {
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
   WithVoteRevision: WithVoteRevision
-  NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
@@ -3271,6 +3272,7 @@ interface CollectionNamesByFragmentName {
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
+  NotificationsDefaultFragment: "Notifications"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
@@ -3323,7 +3325,6 @@ interface CollectionNamesByFragmentName {
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
-  NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
