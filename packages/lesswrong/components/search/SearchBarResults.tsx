@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 

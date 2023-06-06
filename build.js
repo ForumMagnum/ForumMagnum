@@ -178,7 +178,7 @@ build({
     "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
-    "gpt-3-encoder",
+    "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
   ],
 })
 
