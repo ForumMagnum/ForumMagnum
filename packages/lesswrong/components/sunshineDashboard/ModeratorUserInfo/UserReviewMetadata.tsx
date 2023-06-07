@@ -36,6 +36,7 @@ export const UserReviewMetadata = ({classes, user}: {
       </MetaInfo>
     </LWTooltip>
     <LWTooltip title={<div>
+      <div>{user.recentKarmaInfo.recentKarma} recent overall karma</div>
       <div>{user.recentKarmaInfo.recentPostKarma} recent post karma</div>
       <div>{user.recentKarmaInfo.recentCommentKarma} recent comment karma</div>
     </div>}>
@@ -44,8 +45,9 @@ export const UserReviewMetadata = ({classes, user}: {
       </MetaInfo>
     </LWTooltip>
     <LWTooltip title={<div>
-      <div>{user.recentKarmaInfo.postDownvoterCount} post downvoters</div>
-      <div>{user.recentKarmaInfo.commentDownvoterCount} comment downvoters</div>
+      <div>{user.recentKarmaInfo.downvoterCount} recent overall downvoters</div>
+      <div>{user.recentKarmaInfo.postDownvoterCount} recent post downvoters</div>
+      <div>{user.recentKarmaInfo.commentDownvoterCount} recent comment downvoters</div>
     </div>}>
       <MetaInfo className={classes.info}>
         {user.recentKarmaInfo.downvoterCount} downvoters
