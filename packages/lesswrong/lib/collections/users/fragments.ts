@@ -205,6 +205,7 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
+    recentKarmaInfo
   }
 `);
 
@@ -333,6 +334,8 @@ registerFragment(`
     bigUpvoteReceivedCount
     smallDownvoteReceivedCount
     bigDownvoteReceivedCount
+
+    recentKarmaInfo
   }
 `);
 

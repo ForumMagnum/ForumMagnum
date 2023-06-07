@@ -92,6 +92,15 @@ const LW = {
       rateLimitType: 'lowKarma',
       rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days.",
       appliesToOwnPosts: false
+    },
+    THREE_PER_DAY_UNDER_1_RECENT_KARMA: {
+      actionType: "Comments",
+      recentKarmaThreshold: 5,
+      timeframeUnit: 'days',
+      timeframeLength: 1,
+      itemsPerTimeframe: 3,
+      rateLimitType: 'lowKarma',
+      rateLimitMessage: "Users are limited to 3 comments/day unless their last 20 posts/comments have at least 1 net-karma.",
     }
   }
 } as const

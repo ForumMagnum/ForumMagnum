@@ -77,15 +77,36 @@ function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHou
   }
 }
 
-function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
-  const { karmaThreshold, downvoteRatio, timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType, recentKarmaThreshold, downvoterCountThreshold } = rateLimit
+function doAllAutoRateLimitConditionsApply(user: DbUser, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
+  // rate limit conditions
+  const { karmaThreshold, downvoteRatio, 
+          recentKarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
+          downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold } = rateLimit
 
-  const { recentKarma, downvoterCount } = recentKarmaInfo
+  // user's recent karma info
+  const { recentKarma, recentPostKarma, recentCommentKarma, 
+          downvoterCount, postDownvoterCount, commentDownvoterCount } = recentKarmaInfo
+
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
-  if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return null 
-  if ((downvoteRatio !== undefined) && getDownvoteRatio(user) < downvoteRatio) return null
-  if ((recentKarmaThreshold !== undefined) && (recentKarma > recentKarmaThreshold)) return null
-  if ((downvoterCountThreshold !== undefined) && (downvoterCount > downvoterCountThreshold)) return null
+  if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
+  if ((downvoteRatio !== undefined) && getDownvoteRatio(user) < downvoteRatio) return false
+
+  if ((recentKarmaThreshold !== undefined) && (recentKarma > recentKarmaThreshold)) return false
+  if ((recentPostKarmaThreshold !== undefined) && (recentPostKarma > recentPostKarmaThreshold)) return false
+  if ((recentCommentKarmaThreshold !== undefined) && (recentCommentKarma > recentCommentKarmaThreshold)) return false
+
+  if ((downvoterCountThreshold !== undefined) && (downvoterCount > downvoterCountThreshold)) return false
+  if ((postDownvoterCountThreshold !== undefined) && (postDownvoterCount > postDownvoterCountThreshold)) return false
+  if ((commentDownvoterCountThreshold !== undefined) && (commentDownvoterCount > commentDownvoterCountThreshold)) return false
+  return true
+}
+
+function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
+  // rate limit effects
+  const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
+
+  if (!doAllAutoRateLimitConditionsApply(user, rateLimit, recentKarmaInfo)) return null
+
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
   return { nextEligible, rateLimitType, rateLimitMessage }

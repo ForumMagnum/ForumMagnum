@@ -22,15 +22,21 @@ rate limit only applies if both conditions are met. If neither param is set, the
 */
 export interface AutoRateLimit {
   actionType: "Posts"|"Comments", // which collection the rate limit applies to
-  karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
-  downvoteRatio?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
-  recentKarmaThreshold?: number // if set, limit only applies to users whose past 10 posts and comments karma total is less than N
-  downvoterCountThreshold?: number // if set, limit only applies to users whose past 10 posts and comments were downvoted by N or more people.
   timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
   timeframeUnit: TimeframeUnitType, // measuring units for the timeframe (i.e. minutes, hours, days)
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
   rateLimitType: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
+
+  // The following parameters are optional, and if set, the rate limit will only apply to users who meet the criteria.
+  karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
+  downvoteRatio?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
+  recentKarmaThreshold?: number // if set, limit only applies to users whose past 20 posts and comments karma total is less than N
+  recentPostKarmaThreshold?: number // if set, limit only applies to users whose past 20 post karma total is less than N
+  recentCommentKarmaThreshold?: number // if set, limit only applies to users whose past 20 comment karma total is less than N
+  downvoterCountThreshold?: number // if set, limit only applies to users whose past 20 posts and comments were downvoted by N or more people.
+  postDownvoterCountThreshold?: number // if set, limit only applies to users whose past 20 posts were downvoted by N or more people.
+  commentDownvoterCountThreshold?: number // if set, limit only applies to users whose past 20 comments were downvoted by N or more people.
 }
 
 export interface PostAutoRateLimit extends AutoRateLimit {

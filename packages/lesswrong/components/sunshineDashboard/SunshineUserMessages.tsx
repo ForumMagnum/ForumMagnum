@@ -51,7 +51,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
         <span className={classes.title}>
           Conversation with{" "} 
           {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
-            return <MetaInfo key={`${conversation._id}${user._id}`}>
+            return <MetaInfo key={`${conversation._id}${participant._id}`}>
               <UsersName simple user={participant}/>
             </MetaInfo>
           })}

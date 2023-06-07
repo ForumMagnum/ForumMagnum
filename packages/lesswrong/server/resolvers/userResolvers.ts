@@ -21,6 +21,82 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
 import { RateLimitInfo } from '../rateLimits/types';
+import VotesRepo, { RecentVoteInfo } from '../repos/VotesRepo';
+import uniq from 'lodash/uniq';
+import { groupBy } from 'underscore';
+
+export type RecentKarmaInfo = {
+  recentKarma: number, 
+  recentPostKarma: number,
+  recentCommentKarma: number,
+  downvoterCount: number, 
+  postDownvoterCount: number,
+  commentDownvoterCount: number,
+}
+
+async function getLatest20contentItems (votes: RecentVoteInfo[]): Promise<RecentVoteInfo[]> {
+  const sortedVotes = votes.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
+  const uniqueVoteDocumentIds = uniq(sortedVotes.map((vote) => vote.documentId))
+  const uniqueVoteDocumentsByIdSlice = uniqueVoteDocumentIds.slice(0, 20)
+  return sortedVotes.filter((vote) => uniqueVoteDocumentsByIdSlice.includes(vote.documentId))
+}
+
+
+export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaInfo> {
+  const votesRepo = new VotesRepo()
+  const allVotes = await votesRepo.getVotesOnRecentContent(userId)
+  const top20documentVotes = await getLatest20contentItems(allVotes)
+
+  const nonuserIDallVotes = allVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
+  const nonUserIdTop20DocVotes = top20documentVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
+  const postVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Posts")
+  const commentVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Comments")
+
+  const recentKarma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const recentPostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const recentCommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  
+  const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const downvoterCount = uniq(downvoters).length
+  const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const commentDownvoterCount = uniq(commentDownvoters).length
+  const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const postDownvoterCount = uniq(postDownvotes).length
+
+  const posts = groupBy(allVotes.filter(vote => vote.collectionName === "Posts"), (vote) => vote.documentId)
+
+  const comments = groupBy(allVotes.filter(vote => vote.collectionName === "Comments"), (vote) => vote.documentId)
+
+
+  const documents = groupBy(top20documentVotes, (vote) => vote.documentId)
+  
+
+  console.log("posts", Object.keys(posts).length)
+  Object.values(posts).forEach((postVotes, i) => {
+    const powerTotal = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+    console.log(i, postVotes[0].documentId, postVotes[0].collectionName, powerTotal)
+  })
+  console.log("comments", Object.keys(posts).length)
+  Object.values(comments).forEach((votes, i) => {
+    const powerTotal = votes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+    console.log(i, votes[0].documentId, votes[0].collectionName, powerTotal)
+  })
+  console.log("all")
+  Object.values(documents).forEach((documentVotes, i) => {
+    const powerTotal = documentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+    console.log(i, documentVotes[0].documentId, documentVotes[0].collectionName, powerTotal)
+  })
+
+
+  return { 
+    recentKarma: recentKarma ?? 0, 
+    recentPostKarma: recentPostKarma ?? 0,
+    recentCommentKarma: recentCommentKarma ?? 0,
+    downvoterCount: downvoterCount ?? 0, 
+    postDownvoterCount: postDownvoterCount ?? 0,
+    commentDownvoterCount: commentDownvoterCount ?? 0
+  }
+}
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -72,6 +148,15 @@ augmentFieldsDict(Users, {
         } else {
           return null
         }
+      }
+    }
+  },
+  recentKarmaInfo: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+        return getRecentKarmaInfo(user._id)
       }
     }
   }

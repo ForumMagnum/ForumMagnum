@@ -7,6 +7,9 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import VotesRepo from '../../server/repos/VotesRepo';
+import uniq from 'lodash/uniq';
+import { RecentKarmaInfo } from '../../server/resolvers/userResolvers';
 
 export const CONTENT_LIMIT = 20
 
@@ -169,7 +172,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
+    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
     UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
   } = Components
@@ -197,7 +200,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-  
+
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div className={classes.displayName}>
       <UsersName user={user}/>
@@ -206,27 +209,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
     <UserReviewStatus user={user}/>
-    <Row justifyContent="flex-start">
-      <MetaInfo className={classes.info}>
-        { user.karma || 0 } karma
-      </MetaInfo>
-      <MetaInfo>
-        {user.email}
-      </MetaInfo>
-      <MetaInfo className={classes.info}>
-        <FormatDate date={user.createdAt}/>
-      </MetaInfo>
-      <LWTooltip title={<ul>
-        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
-        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
-        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
-        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
-      </ul>}>
-        <MetaInfo className={classes.info}>
-          {getDownvoteRatio(user)}
-        </MetaInfo>
-      </LWTooltip>
-    </Row>
+    <UserReviewMetadata user={user}/>
   </div>
 
   const votesRow = <div className={classes.votesRow}>

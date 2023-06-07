@@ -2704,6 +2704,14 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  recentKarmaInfo: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  }
 };
 
 export default schema;
