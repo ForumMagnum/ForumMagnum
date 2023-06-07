@@ -1,4 +1,4 @@
-const schema: SchemaType<DbAdvisorRequest> = {
+const schema: SchemaType<DbUserActivity> = {
   visitorId: {
     type: String
   },

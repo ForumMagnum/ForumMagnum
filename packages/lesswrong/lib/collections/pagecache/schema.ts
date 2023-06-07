@@ -62,7 +62,7 @@ const RenderResultSchemaType = new SimpleSchema({
   },
 });
 
-const schema: SchemaType<DbAdvisorRequest> = {
+const schema: SchemaType<DbPageCacheEntry> = {
   path: {
     type: String,
   },

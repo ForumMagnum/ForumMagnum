@@ -24,7 +24,7 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
       WHERE "path" = $1
       AND "bundleHash" = $2
       AND "expiresAt" > NOW()
-      AND jsonb_subset($3::jsonb, "abTestGroups")`,
+      AND fm_jsonb_subset($3::jsonb, "abTestGroups")`,
       [path, bundleHash, JSON.stringify(completeAbTestGroups)]);
   
     return cacheResult?.[0] ?? null;

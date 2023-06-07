@@ -137,7 +137,7 @@ const onConnectQueries: string[] = [
     ) "tagRelevance";'
   `,
   // Check if candidate is a subset of target, where both are of the type Record<string, string>
-  `CREATE OR REPLACE FUNCTION jsonb_subset(target jsonb, candidate jsonb)
+  `CREATE OR REPLACE FUNCTION fm_jsonb_subset(target jsonb, candidate jsonb)
   RETURNS BOOLEAN AS $$
   DECLARE
     key text;
