@@ -28,7 +28,7 @@ const QuickTakesSection = ({classes}: {
       expanded={expanded}
       toggleExpanded={toggleExpanded}
       title="Quick takes"
-      afterTitleTo="/shortform"
+      afterTitleTo="/quicktakes"
       Content={() => (
         <>
           {currentUser && <QuickTakesEntry currentUser={currentUser} />}
