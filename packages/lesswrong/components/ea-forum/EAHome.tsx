@@ -53,18 +53,6 @@ const EAHome = () => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
-          {isEAForum && (
-            <AnalyticsContext pageSectionContext="frontpageShortform">
-              <SingleColumnSection>
-                <CommentsListCondensed
-                  label={"Shortform"}
-                  terms={shortformTerms}
-                  initialLimit={5}
-                  shortformButton
-                />
-              </SingleColumnSection>
-            </AnalyticsContext>
-          )}
           <RecentDiscussionFeed
             title="Recent discussion"
             af={false}
