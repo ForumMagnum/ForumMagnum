@@ -137,9 +137,8 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
-  const reactionsToShowNotSearching = namesAttachedReactions.filter(r=>!r.deprecated);
-  const reactionsToShowWhenSearching = reactionsSearch(namesAttachedReactions, searchText);
-  const reactionsToShow = !!searchText ? reactionsToShowWhenSearching : reactionsToShowNotSearching;
+  const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
+  const reactionsToShow = reactionsSearch(activeReacts, searchText);
 
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -148,6 +147,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
 
   const handleChangeView = (view: paletteView) => {
     setDisplayStyle(view);
+    captureEvent("reactionPaletteChangeViewClicked", {view})
     if (!currentUser) return;
     void updateUser({
       selector: {_id: currentUser._id},
@@ -245,7 +245,10 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           </span>
         </a>
       </LWTooltip>
-      {displayStyle == "listView" && <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
+      {displayStyle == "listView" && <a className={classes.showMore} onClick={() => {
+        setShowAll(!showAll)
+        captureEvent("reactPaletteShowMoreClicked", {showAll: !showAll})
+      }} >
         <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
       </a>}
     </div>
