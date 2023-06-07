@@ -23,7 +23,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import { RateLimitInfo } from '../rateLimits/types';
 import VotesRepo, { RecentVoteInfo } from '../repos/VotesRepo';
 import uniq from 'lodash/uniq';
-import { groupBy } from 'underscore';
+// import { groupBy } from 'underscore';
 
 export type RecentKarmaInfo = {
   recentKarma: number, 
