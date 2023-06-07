@@ -137,6 +137,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/surprise.svg",
     filter: {opacity: 0.6},
     description: "I am surprised",
+    deprecated:false
   },
   {
     name: "roll",
@@ -144,7 +145,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["examples", "shapes", "skeptical", "eyebrow", "dice", "roll", "disbelieve"],
     svg: "/reactionImages/nounproject/skeptical.svg",
     filter: {opacity: 0.6},
-    description: "I find your claims quite surprising!"
+    description: "I find your claims quite surprising!",
+    deprecated:false
   },
   
   {
@@ -197,10 +199,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "coveredAlready",
     label: "I already addressed this",
-    searchTerms: ["check", "already", "covered"],
+    searchTerms: ["check", "already", "covered", "addressed"],
     svg: "/reactionImages/nounproject/checkedbox.svg",
     filter: {opacity: 0.6},
-    description: "I covered this in my post and/or comments."
+    description: "I covered this in my post and/or comments.",
+    deprecated:false,
   },
   {
     name: "unnecessarily-combative",
@@ -218,7 +221,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["splat", "confused"],
     svg: "/reactionImages/nounproject/splat.svg",
     description: "I had trouble with the pedagogical clarity of this",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "strawman",
@@ -226,7 +229,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["examples", "scarecrow", "strawman"],
     svg: "/reactionImages/nounproject/scarecrow.svg",
     description: "I think this misrepresents the thing that it argues against",
-    deprecated: true,
+    deprecated:false,
   },
   {
     name: "dontUnderstand",
@@ -234,7 +237,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/confused.svg",
     searchTerms: ["confused", "understand"],
     description: "I didn't understand this",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "locallyValid",
@@ -242,7 +245,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["locally", "valid", "sound"],
     svg: "/reactionImages/nounproject/doubleturnstile.svg",
     description: "I think the reasoning is valid, independent of the premises or conclusion.",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "notPlanningToRespond",
@@ -250,7 +253,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/door.svg",
     searchTerms: ["door", "respond", "planning"],
     description: "I'm not planning to respond further",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "seen",
@@ -259,7 +262,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/eyes.svg",
     filter: {opacity: 0.8},
     description: (contentType) => `I'm registering that I saw this ${contentType}`,
-    deprecated: true
+    deprecated:false
   },
   {
     name: "empathy",
@@ -267,16 +270,16 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["heart"],
     svg: "/reactionImages/nounproject/heart.svg",
     description: "I feel empathy towards this",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "notacrux",
     label: "Not a crux",
-    searchTerms: ["identity", "matrix"],
+    searchTerms: ["identity", "matrix", "crux", "not"],
     svg: "/reactionImages/nounproject/crux.svg",
     filter: {opacity: 1},
     description: (contentType) => `This ${contentType} doesn't get at something that's a crux for my beliefs`,
-    deprecated: true,
+    deprecated:false,
   },
   {
     name: "prediction",
@@ -285,7 +288,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/telescope.svg",
     filter: {opacity: 0.4},
     description: "What do you concretely expect to observe given your beliefs?",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "examples",
@@ -294,7 +297,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/shapes.svg",
     filter: {opacity: 0.6},
     description: "Can you give some examples of this?",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "additionalQuestions",
@@ -303,7 +306,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/elephant.svg",
     filter: {opacity: 0.6},
     description: "I now have additional questions.",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "taboo",
@@ -312,7 +315,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/shush.svg",
     filter: {opacity: 0.6},
     description: "Can you say this without using those keyterms?",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "discussedAlready",
@@ -321,7 +324,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/history2.svg",
     filter: {opacity: 0.6},
     description: "Use Search, Concepts page, or ask in Open Thread if no one elaborates here.",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "unnecessarily-harsh",
@@ -329,7 +332,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["cactus", "prickly"],
     svg: "/reactionImages/nounproject/cactus.svg",
     description: "This is harsh and didn't seem like it had to be.",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "handshake",
@@ -338,7 +341,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     filter: {opacity: 0.9},
     svg: "/reactionImages/nounproject/handshake.svg",
     description: "React to signal agreement (in the negotiation-y sense of the word)",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "scout",
@@ -346,7 +349,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["binoculars"],
     svg: "/reactionImages/nounproject/binoculars.svg",
     description: (contentType) => `This ${contentType} exhibits Scout Mindset.`,
-    deprecated: true
+    deprecated:false
   },
   {
     name: "scholarship",
@@ -354,7 +357,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["cited"],
     svg: "/reactionImages/nounproject/scholarship.svg",
     description: "This exhibits the Virtue of Scholarship",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "concrete",
@@ -362,7 +365,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["bricks", "examples"],
     svg: "/reactionImages/nounproject/concrete.svg",
     description: "This makes things more concrete by bringing in specifics or examples.",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "key",
@@ -370,14 +373,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["insight"],
     svg: "/reactionImages/nounproject/key.svg",
     description: "This is a key insight",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "shrug",
     label: "Shrug",
     svg: "/reactionImages/nounproject/shrug.svg",
     description: "I am indifferent to this",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "scales",
@@ -385,21 +388,21 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["balanced"],
     svg: "/reactionImages/nounproject/scales.svg",
     description: "I think this could go either way",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "thinking",
     label: "Thinking",
     svg: "/reactionImages/nounproject/thinking.svg",
     description: "Food for thought",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "obtuse",
     label: "Obtuse",
     svg: "/reactionImages/nounproject/obtuse.svg",
     description: "This comment is failing to understand something that didn't seem hard to understand",
-    deprecated: true
+    deprecated:true
   },
   {
     name: "nonSequitur",
@@ -407,7 +410,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/nonsequitur.svg",
     searchTerms: ["sequitur", "jump"],
     description: "This contains a non-sequitur",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "tooManyAssumptions",
@@ -416,7 +419,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["cards", "house", "assumptions"],
     filter: {opacity: 0.8},
     description: "This makes too many assumptions",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "hitsTheMark",
@@ -424,7 +427,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["bullseye", "accurate"],
     svg: "/reactionImages/nounproject/bullseye.svg",
     description: "This hits the mark",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "timecost",
@@ -432,7 +435,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "It's probably not worth the time to resolve this",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "excitement",
@@ -440,7 +443,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["partypopper", "!"],
     svg: "/reactionImages/nounproject/partypopper.svg",
     description: "This is exciting!",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "paperclip",
@@ -448,7 +451,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["paperclip"],
     svg: "/reactionImages/nounproject/paperclip.svg",
     description: "",
-    deprecated: true
+    deprecated:false
   },
   {
     name: "clear",
@@ -456,7 +459,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["clarity", "gem", "diamond"],
     svg: "/reactionImages/nounproject/clarity.svg",
     description: (contentType) => `This ${contentType} clarifies things.`,
-    deprecated: true
+    deprecated:false
   },
 ];
 
@@ -468,7 +471,7 @@ const missingReact = {
   svg: "/reactionImages/nounproject/notfound404.svg",
   filter: {opacity: 0.6},
   description: "This react was has been removed from the palette",
-  deprecated: true
+  deprecated:false
 }
 
 export const namesAttachedReactionsByName = keyBy(namesAttachedReactions, r => r.name);
