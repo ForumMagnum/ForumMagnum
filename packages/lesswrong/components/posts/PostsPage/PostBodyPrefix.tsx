@@ -1,11 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 import {forumSelect} from "../../../lib/forumTypeUtils";
 
+const shortformDraftMessage = isEAForum
+  ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
+  : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -80,9 +83,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     <AlignmentPendingApprovalMessage post={post} />
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
-      This is a special post that holds your short-form writing. Because it's
-      marked as a draft, your short-form posts will not be displayed. To un-draft
-      it, pick Edit from the menu above, then click Publish.
+      {shortformDraftMessage}
     </div>}
 
     {post.rejected && <div className={classes.rejectionNotice}>
