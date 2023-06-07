@@ -1,7 +1,7 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
-import { isAnyTest } from "../lib/executionEnvironment";
 import { queryWithLock } from "./queryWithLock";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -136,6 +136,19 @@ const onConnectQueries: string[] = [
       JOIN "Posts" b ON b."_id" = post_id_b
     ) "tagRelevance";'
   `,
+  // Extract an array of strings containing all of the tag ids that are attached to a
+  // post. Only tags with a relevance score >= 1 are included.
+  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
+    RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
+   'SELECT ARRAY_AGG(tags."tagId")
+    FROM "Posts" p
+    JOIN (
+      SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+      FROM "Posts"
+      WHERE "_id" = post_id
+    ) tags ON p."_id" = post_id
+    WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
+  `,
 ];
 
 export const createSqlConnection = async (
@@ -151,9 +164,11 @@ export const createSqlConnection = async (
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
-  
-  // eslint-disable-next-line no-console
-  console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+  }
 
   const client: SqlClient = {
     ...db,

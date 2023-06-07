@@ -2,7 +2,7 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { getSearchClient } from '../../../lib/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
