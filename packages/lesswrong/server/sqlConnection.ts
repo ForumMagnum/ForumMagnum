@@ -4,7 +4,7 @@ import { queryWithLock } from "./queryWithLock";
 import { DatabaseServerSetting } from "./databaseSettings";
 import { isAnyTest } from "../lib/executionEnvironment";
 
-const pgConnIdleTimeoutMsSetting = new DatabaseServerSetting<number>('pg.idleTimeoutMs', 30000)
+const pgConnIdleTimeoutMsSetting = new DatabaseServerSetting<number>('pg.idleTimeoutMs', 10000)
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
