@@ -44,8 +44,8 @@ const STICKY_PRIORITIES = {
 
 const forumDefaultVotingSystem = forumSelect({
   EAForum: "twoAxis",
-  LessWrong: "twoAxis",
-  AlignmentForum: "twoAxis",
+  LessWrong: "namesAttachedReactions",
+  AlignmentForum: "namesAttachedReactions",
   default: "default",
 })
 
@@ -1051,7 +1051,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
+    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
@@ -2297,7 +2297,7 @@ const schema: SchemaType<DbPost> = {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await context.Users.findOne({_id: post.userId});
+          const author = await context.loaders.Users.load(post.userId);
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
