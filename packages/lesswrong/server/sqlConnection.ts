@@ -166,7 +166,7 @@ export const createSqlConnection = async (
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
-    idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
+    // idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
   });
 
   if (!isAnyTest) {
