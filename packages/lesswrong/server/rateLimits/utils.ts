@@ -7,6 +7,7 @@ import Posts from "../../lib/collections/posts/collection"
 import UserRateLimits from "../../lib/collections/userRateLimits/collection"
 import { forumSelect } from "../../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../../lib/vulcan-users/permissions"
+import { getRecentKarmaInfo, RecentKarmaInfo } from "../resolvers/userResolvers"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import type { AutoRateLimit, RateLimitInfo, StrictestCommentRateLimitInfoParams, TimeframeUnitType, UserRateLimit } from "./types"
 
@@ -76,12 +77,15 @@ function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHou
   }
 }
 
-function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
-  const { karmaThreshold, downvoteRatio, timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit
+function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
+  const { karmaThreshold, downvoteRatio, timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType, recentKarmaThreshold, downvoterCountThreshold } = rateLimit
 
+  const { recentKarma, downvoterCount } = recentKarmaInfo
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
   if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return null 
   if ((downvoteRatio !== undefined) && getDownvoteRatio(user) < downvoteRatio) return null
+  if ((recentKarmaThreshold !== undefined) && (recentKarma > recentKarmaThreshold)) return null
+  if ((downvoterCountThreshold !== undefined) && (downvoterCount > downvoterCountThreshold)) return null
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
   return { nextEligible, rateLimitType, rateLimitMessage }
@@ -104,13 +108,14 @@ function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Ar
   }
 }
 
-function getPostRateLimitInfos(user: DbUser, postsInTimeframe: Array<DbPost>, modRateLimitHours: number, userPostRateLimit: UserRateLimit<"allPosts">|null): Array<RateLimitInfo> {
+async function getPostRateLimitInfos(user: DbUser, postsInTimeframe: Array<DbPost>, modRateLimitHours: number, userPostRateLimit: UserRateLimit<"allPosts">|null): Promise<Array<RateLimitInfo>> {
   // for each rate limit, get the next date that user could post  
   const userPostRateLimitInfo = getUserRateLimitInfo(userPostRateLimit, postsInTimeframe)
 
+  const recentKarmaInfo = await getRecentKarmaInfo(user._id)
   const autoRatelimits = forumSelect(autoPostRateLimits)
   const autoRateLimitInfos = autoRatelimits?.map(
-    rateLimit => getAutoRateLimitInfo(user, rateLimit, postsInTimeframe)
+    rateLimit => getAutoRateLimitInfo(user, rateLimit, postsInTimeframe, recentKarmaInfo)
   ) ?? []
 
   // modRateLimitInfo is sort of deprecated, but we're still using it for at least a couple months
@@ -191,11 +196,12 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
   const autoRateLimits = forumSelect(autoCommentRateLimits)
   const filteredAutoRateLimits = autoRateLimits?.filter(rateLimit => {
     if (userIsAuthor) return rateLimit.appliesToOwnPosts
-    if (!userIsAuthor) return true 
+    return true 
   })
 
+  const recentKarmaInfo = await getRecentKarmaInfo(user._id)
   const autoRateLimitInfos = filteredAutoRateLimits?.map(
-    rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsInTimeframe)
+    rateLimit => getAutoRateLimitInfo(user, rateLimit, commentsInTimeframe, recentKarmaInfo)
   ) ?? []
   return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, userRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
@@ -218,7 +224,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   // fetch the posts from within the maxTimeframe
   const postsInTimeframe = await getPostsInTimeframe(user, maxHours);
 
-  const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, userPostRateLimit);
+  const rateLimitInfos = await getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, userPostRateLimit);
 
   return getStrictestRateLimitInfo(rateLimitInfos)
 }

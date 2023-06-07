@@ -22,8 +22,10 @@ rate limit only applies if both conditions are met. If neither param is set, the
 */
 export interface AutoRateLimit {
   actionType: "Posts"|"Comments", // which collection the rate limit applies to
-  karmaThreshold?: number, // if set, the rate limit will only apply to users with karma less than the threshold
-  downvoteRatio?: number, // if set, the rate limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
+  karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
+  downvoteRatio?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
+  recentKarmaThreshold?: number // if set, limit only applies to users whose past 10 posts and comments karma total is less than N
+  downvoterCountThreshold?: number // if set, limit only applies to users whose past 10 posts and comments were downvoted by N or more people.
   timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
   timeframeUnit: TimeframeUnitType, // measuring units for the timeframe (i.e. minutes, hours, days)
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
