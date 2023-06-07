@@ -76,20 +76,24 @@ const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType,
 }) => {
-  const karma = quickTake.baseScore ?? 0;
   const commentCount = quickTake.descendentCount ?? 0;
   const primaryTag = quickTake.relevantTags?.[0];
 
   const setShowEdit = () => {}; // TODO
 
   const {
-    LWTooltip, UsersName, FooterTag, CommentsMenu, ForumIcon, ContentItemBody,
+    LWTooltip, KarmaDisplay, UsersName, FooterTag, CommentsMenu, ForumIcon,
+    ContentItemBody,
   } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.info}>
         <div className={classes.karma}>
-          {karma}
+          <KarmaDisplay
+            baseScore={quickTake.baseScore}
+            voteCount={quickTake.voteCount}
+            afBaseScore={quickTake.afBaseScore}
+          />
           <ForumIcon icon="SoftUpArrow" />
         </div>
         <UsersName user={quickTake.user} className={classes.username} />

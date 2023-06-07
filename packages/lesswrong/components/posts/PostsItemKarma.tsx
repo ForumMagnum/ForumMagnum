@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@material-ui/core/Popper';
 
 const PostsItemKarma = ({post, placement="left"}: {
   post: PostsBase,
@@ -9,19 +9,15 @@ const PostsItemKarma = ({post, placement="left"}: {
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { LWTooltip } = Components
+  const {KarmaDisplay} = Components
 
   return (
-    <LWTooltip
+    <KarmaDisplay
+      baseScore={baseScore}
+      voteCount={post.voteCount}
+      afBaseScore={afBaseScore ?? undefined}
       placement={placement}
-      title={<div>
-        <div>{ baseScore || 0 } karma</div>
-        <div>({ post.voteCount} votes)</div>
-        {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
-      </div>}
-    >
-      { baseScore || 0 }
-    </LWTooltip>
+    />
   );
 };
 
