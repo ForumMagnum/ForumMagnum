@@ -134,6 +134,7 @@ importComponent("ToggleIsModeratorCommentDropdownItem", () => require('../compon
 importComponent("QuickTakesSection", () => require('../components/quickTakes/QuickTakesSection'));
 importComponent("QuickTakesEntry", () => require('../components/quickTakes/QuickTakesEntry'));
 importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
+importComponent("QuickTakesListItem", () => require('../components/quickTakes/QuickTakesListItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));

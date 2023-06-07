@@ -31,6 +31,7 @@ import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -54,6 +55,7 @@ import MuiSettingsIcon from "@material-ui/icons/Settings";
 import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
+import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -70,6 +72,7 @@ import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
+import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -119,7 +122,9 @@ export type ForumIconName =
   "MinusSmall" |
   "Settings" |
   "Email" |
-  "Puzzle";
+  "Puzzle" |
+  "SoftUpArrow" |
+  "EllipsisVertical";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -165,6 +170,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: MuiCheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    SoftUpArrow: SoftUpArrowIcon,
+    EllipsisVertical: MuiEllipsisVerticalIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -209,6 +216,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    SoftUpArrow: SoftUpArrowIcon,
+    EllipsisVertical: EllipsisVerticalIcon,
   },
 };
 
