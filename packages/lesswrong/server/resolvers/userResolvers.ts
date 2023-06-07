@@ -58,13 +58,36 @@ export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaIn
   
   const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const downvoterCount = uniq(downvoters).length
-  
   const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const commentDownvoterCount = uniq(commentDownvoters).length
-  
   const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const postDownvoterCount = uniq(postDownvotes).length
+
+  // NOTE: the following code is just console logs for sanity checking the above code.
+  // I'm leaving it in for now until I'm more confident that the above code is correct.
+
+  // const posts = groupBy(allVotes.filter(vote => vote.collectionName === "Posts"), (vote) => vote.documentId)
+
+  // const comments = groupBy(allVotes.filter(vote => vote.collectionName === "Comments"), (vote) => vote.documentId)
+
+  // const documents = groupBy(top20documentVotes, (vote) => vote.documentId)
   
+  // console.log("posts", Object.keys(posts).length)
+  // Object.values(posts).forEach((postVotes, i) => {
+  //   const powerTotal = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, postVotes[0].documentId, postVotes[0].collectionName, powerTotal)
+  // })
+  // console.log("comments", Object.keys(posts).length)
+  // Object.values(comments).forEach((votes, i) => {
+  //   const powerTotal = votes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, votes[0].documentId, votes[0].collectionName, powerTotal)
+  // })
+  // console.log("all")
+  // Object.values(documents).forEach((documentVotes, i) => {
+  //   const powerTotal = documentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, documentVotes[0].documentId, documentVotes[0].collectionName, powerTotal)
+  // })
+
   return { 
     recentKarma: recentKarma ?? 0, 
     recentPostKarma: recentPostKarma ?? 0,
