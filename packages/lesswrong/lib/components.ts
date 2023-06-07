@@ -174,6 +174,7 @@ importComponent("BatchTimePicker", () => require('../components/common/BatchTime
 importComponent("NavigationEventSender", () => require('../components/hooks/useOnNavigate'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
+importComponent("ExpandableSection", () => require('../components/common/ExpandableSection'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
 importComponent("IntercomWrapper", () => require('../components/common/IntercomWrapper'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));

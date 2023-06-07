@@ -12,7 +12,7 @@ const QuickTakesList = ({className, classes}: {
   className?: string,
   classes: ClassesType,
 }) => {
-  const {results, loading, count, totalCount, loadMoreProps, refetch} = useMulti({
+  const {results, loading} = useMulti({
     terms: {
       view: "shortformFrontpage",
     },
@@ -21,12 +21,6 @@ const QuickTakesList = ({className, classes}: {
     collectionName: "Comments",
     fragmentName: "ShortformComments",
   });
-
-  // TODO
-  void count;
-  void totalCount;
-  void loadMoreProps;
-  void refetch;
 
   const {Loading, QuickTakesListItem} = Components;
   return (

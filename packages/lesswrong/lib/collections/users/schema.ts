@@ -161,6 +161,7 @@ const notificationTypeSettings = new SimpleSchema({
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
+  quickTakes: {type: Boolean, optional: true, nullable: true},
 });
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({

@@ -1,7 +1,8 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
+import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
+import { SHOW_QUICK_TAKES_SECTION_COOKIE } from "../../lib/cookies/cookies";
 
 const styles = (_theme: ThemeType) => ({
   list: {
@@ -13,17 +14,28 @@ const QuickTakesSection = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {
-    SingleColumnSection, SectionTitle, QuickTakesEntry, QuickTakesList,
-  } = Components;
+  const {expanded, toggleExpanded} = useExpandedFrontpageSection({
+    section: "quickTakes",
+    defaultExpanded: "all",
+    onExpandEvent: "quickTakesSectionExpanded",
+    onCollapseEvent: "quickTakesSectionCollapsed",
+    cookieName: SHOW_QUICK_TAKES_SECTION_COOKIE,
+  });
+  const {ExpandableSection, QuickTakesEntry, QuickTakesList} = Components;
   return (
-    <AnalyticsContext pageSectionContext="quickTakesSection">
-      <SingleColumnSection>
-        <SectionTitle title="Quick takes" />
-        {currentUser && <QuickTakesEntry currentUser={currentUser} />}
-        <QuickTakesList className={classes.list} />
-      </SingleColumnSection>
-    </AnalyticsContext>
+    <ExpandableSection
+      pageSectionContext="quickTakesSection"
+      expanded={expanded}
+      toggleExpanded={toggleExpanded}
+      title="Quick takes"
+      afterTitleTo="/shortform"
+      Content={() => (
+        <>
+          {currentUser && <QuickTakesEntry currentUser={currentUser} />}
+          <QuickTakesList className={classes.list} />
+        </>
+      )}
+    />
   );
 }
 

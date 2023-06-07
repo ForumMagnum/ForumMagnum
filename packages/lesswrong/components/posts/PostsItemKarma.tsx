@@ -9,10 +9,9 @@ const PostsItemKarma = ({post, placement="left"}: {
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const {KarmaDisplay} = Components
 
   return (
-    <KarmaDisplay
+    <Components.KarmaDisplay
       baseScore={baseScore}
       voteCount={post.voteCount}
       afBaseScore={afBaseScore ?? undefined}
