@@ -12,23 +12,34 @@ const QuickTakesList = ({className, classes}: {
   className?: string,
   classes: ClassesType,
 }) => {
-  const {results, loading} = useMulti({
+  const {
+    results,
+    loading,
+    showLoadMore,
+    loadMoreProps,
+  } = useMulti({
     terms: {
       view: "shortformFrontpage",
     },
     limit: 5,
-    enableTotal: true,
     collectionName: "Comments",
     fragmentName: "ShortformComments",
   });
-
-  const {Loading, QuickTakesListItem} = Components;
+  const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
   return (
     <div className={classNames(classes.root, className)}>
-      {loading && <Loading />}
       {results?.map((result) =>
         <QuickTakesListItem key={result._id} quickTake={result} />
       )}
+      {loading && <Loading />}
+      {showLoadMore &&
+        <SectionFooter>
+          <LoadMore
+            {...loadMoreProps}
+            sectionFooterStyles
+          />
+        </SectionFooter>
+      }
     </div>
   );
 }
