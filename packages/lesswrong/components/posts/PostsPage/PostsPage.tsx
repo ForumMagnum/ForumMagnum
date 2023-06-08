@@ -23,7 +23,6 @@ import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
-import { useOnPageScroll } from '../../common/withOnPageScroll';
 import { isServer } from '../../../lib/executionEnvironment';
 
 export const MAX_COLUMN_WIDTH = 720
