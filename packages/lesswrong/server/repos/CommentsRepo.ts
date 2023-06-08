@@ -13,7 +13,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getPromotedCommentsOnPosts(postIds: string[]): Promise<(DbComment|null)[]> {
-    const comments = await this.many(`
+    const comments = await this.manyOrNone(`
       SELECT c.*
       FROM "Comments" c
       JOIN (
