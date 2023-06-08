@@ -75,12 +75,12 @@ if (isEAForum) {
       }
     }
   }
-  getCollectionHooks("Posts").newAfter.add(
-    (post: DbPost) => void updateEmbeddings(post),
+  getCollectionHooks("Posts").newAsync.add(
+    async (post: DbPost) => await updateEmbeddings(post),
   );
-  getCollectionHooks("Posts").updateAfter.add(
-    (data: Partial<DbPost>, {oldDocument}) => void updateEmbeddings(
-      {...oldDocument, ...data},
+  getCollectionHooks("Posts").updateAsync.add(
+    async ({document, oldDocument}) => await updateEmbeddings(
+      document,
       oldDocument,
     ),
   );
