@@ -218,15 +218,17 @@ const PostsPage = ({post, refetch, classes}: {
     return () => {
       window.removeEventListener('scroll', updateReadingProgressBar)
     };
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const updateReadingProgressBar = () => {
     if (!postBodyRef.current || !readingProgressBarRef.current) return
 
-    const commentsPos = postBodyRef.current.getBoundingClientRect().bottom - window.innerHeight
-    const totalHeight = window.scrollY + commentsPos
-    const scrollPercent = (1 - commentsPos / totalHeight) * 100 + '%'
-		
-    readingProgressBarRef.current.style.setProperty("--scrollAmount", scrollPercent)
+    // position of post body bottom relative to the top of the viewport
+    const postBodyBottomPos = postBodyRef.current.getBoundingClientRect().bottom - window.innerHeight
+    // total distance from top of page to post body bottom
+    const totalHeight = window.scrollY + postBodyBottomPos
+    const scrollPercent = (1 - (postBodyBottomPos / totalHeight)) * 100
+
+    readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
   
   const getSequenceId = () => {
