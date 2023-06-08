@@ -60,6 +60,9 @@ const ownsOrIsMod = (user: DbUser|null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes('sunshineRegiment') ?? false);
 };
 
+export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
+
+
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
@@ -646,10 +649,11 @@ const schema: SchemaType<DbUser> = {
   reactPaletteStyle: {
     type: String,
     optional: true,
-    canRead: isLW ? [userOwns, 'admins'] : [],
-    canUpdate: isLW ? [userOwns, 'admins'] : [],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
     label: "React Palette Style",
     group: formGroups.siteCustomizations,
+    allowedValues: ['listView', 'gridView'],
     defaultValue: "listView",
     control: "select",
     form: {
