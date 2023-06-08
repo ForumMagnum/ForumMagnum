@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 

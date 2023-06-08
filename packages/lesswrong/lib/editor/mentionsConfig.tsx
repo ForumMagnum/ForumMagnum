@@ -1,4 +1,4 @@
-import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../algoliaUtil'
+import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../search/algoliaUtil'
 import {promisify} from '../utils/asyncUtils'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
@@ -34,8 +34,7 @@ const linkPrefix = getSiteUrl()
 const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
   const searchClient = getSearchClient()
   const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  const search = (...args: AnyBecauseTodo[]) => index.search(...args)
-  return promisify(search)
+  return promisify(index.search.bind(index));
 }
 
 async function fetchPostSuggestions(searchString: string) {

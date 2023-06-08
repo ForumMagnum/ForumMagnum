@@ -171,27 +171,27 @@ augmentFieldsDict(Posts, {
   },
 })
 
-addGraphQLSchema(`
-  type PostWithLastRead {
-    post: Post,
-    lastRead: Date
-  }
-`)
 addGraphQLResolvers({
   Query: {
-    async UserReadHistory(root: void, args: {}, context: ResolverContext) {
+    async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
       
       const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id)
-      
-      return posts.map(post => {
-        return {post: post, lastRead: post.lastUpdated}
-      })
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit??10)
+      return {
+        posts: posts,
+      }
     }
   }
 })
-addGraphQLQuery('UserReadHistory: [PostWithLastRead]')
+
+addGraphQLSchema(`
+  type UserReadHistoryResult {
+    posts: [Post!]
+  }
+`);
+
+addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')

@@ -183,3 +183,7 @@ import './server/embeddings';
 import './server/search/utils';
 import './server/search/callbacks';
 import './server/search/algoliaCron';
+
+import './server/search/elastic/ElasticExporter';
+import './server/search/elastic/elasticCallbacks';
+import './server/search/elastic/elasticGraphQL';

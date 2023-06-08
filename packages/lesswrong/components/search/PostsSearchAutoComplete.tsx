@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 
 const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}:{
   clickAction: (id: string) => void,
