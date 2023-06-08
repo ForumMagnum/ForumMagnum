@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { generateTokenRequest } from "../../lib/ckEditorUtils";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -11,9 +12,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: "flex-start",
     gap: "12px",
     padding: 12,
-  },
-  profileImage: {
-    marginTop: 3,
   },
   shareMessage: {
     width: "100%",
@@ -27,6 +25,9 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     userSelect: "none",
     cursor: "pointer",
+  },
+  commentForm: {
+    width: "100%",
   },
   setTopic: {
     fontWeight: 600,
@@ -50,6 +51,9 @@ const QuickTakesEntry = ({currentUser, classes}: {
   // const onPublish = useCallback((event) => {
     // event.preventDefault();
   // }, [currentUser]);
+  useEffect(() => {
+    void generateTokenRequest("Comments", "contents")();
+  }, []);
 
   const {CommentsNewForm} = Components;
   return (
@@ -71,6 +75,7 @@ const QuickTakesEntry = ({currentUser, classes}: {
             formProps={{
               editorHintText: placeholder,
             }}
+            className={classes.commentForm}
           />
           <div className={classes.footer}>
             <div className={classes.setTopic}>Set topic</div>

@@ -135,16 +135,34 @@ export type CommentsNewFormProps = {
   successCallback?: (comment: CommentsList, otherArgs: any) => void,
   type: string,
   cancelCallback?: any,
-  classes: ClassesType,
   removeFields?: any,
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
   replyFormStyle?: CommentFormDisplayMode
+  classes: ClassesType
+  className?: string
 }
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
+const CommentsNewForm = ({
+  prefilledProps={},
+  post,
+  tag,
+  tagCommentType="DISCUSSION",
+  parentComment,
+  successCallback,
+  type,
+  cancelCallback,
+  removeFields,
+  fragment="CommentsList",
+  formProps,
+  enableGuidelines=true,
+  padding=true,
+  replyFormStyle="default",
+  classes,
+  className,
+}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const commentSubmitStartTimeRef = useRef(Date.now());
@@ -313,7 +331,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   }
 
   return (
-    <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
+    <div className={classNames(
+      className,
+      isMinimalist ? classes.rootMinimalist : classes.root,
+      {[classes.loadingRoot]: loading}
+    )} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}

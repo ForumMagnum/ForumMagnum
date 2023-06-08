@@ -1,3 +1,6 @@
+import LRU from 'lru-cache';
+
+const cache = new LRU<string, string>();
 
 export const getCKEditorDocumentId = (documentId: string|undefined, userId: string|undefined, formType: string|undefined) => {
   if (documentId) return `${documentId}-${formType}`
@@ -6,6 +9,12 @@ export const getCKEditorDocumentId = (documentId: string|undefined, userId: stri
 
 export function generateTokenRequest(collectionName: CollectionNameString, fieldName: string, documentId?: string, userId?: string, formType?: string, linkSharingKey?: string) {
   return () => {
+    const cacheKey = `${collectionName}-${fieldName}-${documentId}-${userId}-${formType}-${linkSharingKey}`;
+    const cachedToken = cache.get(cacheKey);
+    if (cachedToken) {
+      return Promise.resolve(cachedToken);
+    }
+    
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -18,6 +27,8 @@ export function generateTokenRequest(collectionName: CollectionNameString, field
         if (statusCode < 200 || statusCode > 299) {
           return reject(new Error('Cannot download a new token!'));
         }
+
+        cache.set(cacheKey, xhrResponse);
 
         return resolve( xhrResponse );
       });
