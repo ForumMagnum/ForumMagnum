@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, {useRef, useState} from 'react';
+import {Components, getSiteUrl, registerComponent} from '../../lib/vulcan-lib';
 import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -7,6 +7,8 @@ import AppsIcon from '@material-ui/icons/Apps';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { useTracking } from "../../lib/analyticsEvents";
+import debounce from "lodash/debounce";
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -85,7 +87,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   showMore: {
     display: "flex",
     justifyContent: "center",
-    paddingBottom: 6,
   },
   viewButton: {
     cursor: "pointer",
@@ -99,6 +100,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   viewButtonSelected: {
     color: theme.palette.grey[600],
+  },
+  reactPaletteFooter: {
+    display: "flex",
+    flexDirection: "row-reverse",
+    justifyContent: "space-between",
+    paddingBottom: 6,
+  },
+  reactPaletteFooterFeedbackButton: {
+    display: "inline",
+    color: theme.palette.primary.light,
+    marginRight: theme.spacing.unit,
+    fontSize: "1rem",
+    cursor: "pointer",
+    '&:hover, &:active, &:focus': {
+      color: theme.palette.grey[400],
+    },
   }
 })
 
@@ -113,12 +130,15 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
 }) => {
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle === "gridView" ? "gridView" : "listView"
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
+  const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
-  const reactionsToShow = reactionsSearch(namesAttachedReactions, searchText);
+  const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
+  const reactionsToShow = reactionsSearch(activeReacts, searchText);
 
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -127,6 +147,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
 
   const handleChangeView = (view: paletteView) => {
     setDisplayStyle(view);
+    captureEvent("reactionPaletteChangeViewClicked", {view})
     if (!currentUser) return;
     void updateUser({
       selector: {_id: currentUser._id},
@@ -144,10 +165,10 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       <div>
         <span>{reaction.label}</span>
         <ReactionDescription reaction={reaction} classes={classes}/>
-        {reaction.deprecated && "This react has been deprecated and may be removed later"}
       </div>
     </Row>
   }
+  
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
@@ -156,7 +177,10 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         type="text" className={classes.searchBox}
         value={searchText}
         placeholder="Search"
-        onChange={(ev) => setSearchText(ev.currentTarget.value)}
+        onChange={(ev) => {
+          setSearchText(ev.currentTarget.value)
+          debouncedCaptureEvent.current("reactPaletteSearchKeysLogged", {searchText: ev.currentTarget.value})
+        }}
       />
       <Row>
        <LWTooltip title="Switch to list view">
@@ -208,25 +232,43 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           )
         })}
       </div>
-      <a onClick={() => setShowAll(!showAll)} className={classes.showMore}>
-        <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
-      </a>
     </div>}
+    <div className={classes.reactPaletteFooter}>
+      <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
+        <a className={classes.reactPaletteFooterFeedbackButton} onClick={() => {
+            captureEvent("reactPaletteFeedbackButtonClicked")
+          // eslint-disable-next-line babel/new-cap
+            window.Intercom('trackEvent', 'suggest-react-palette-feedback')
+          }}>
+          <span className={classes.reactPaletteFeedbackButton}>
+            Request React / Give Feedback
+          </span>
+        </a>
+      </LWTooltip>
+      {displayStyle == "listView" && <a className={classes.showMore} onClick={() => {
+        setShowAll(!showAll)
+        captureEvent("reactPaletteShowMoreClicked", {showAll: !showAll})
+      }} >
+        <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
+      </a>}
+    </div>
   </div>
+  
 }
-
+    
+    
 const ReactionDescription = ({reaction, classes}: {
-  reaction: NamesAttachedReactionType,
-  classes: ClassesType,
-}) => {
-  if (!reaction.description) {
-    return null;
-  } else if (typeof reaction.description === "string") {
-    return <div>{reaction.description}</div>
-  } else {
-    return <div>{reaction.description("comment")}</div>
+reaction: NamesAttachedReactionType,
+classes: ClassesType,
+  }) => {
+    if (!reaction.description) {
+      return null;
+    } else if (typeof reaction.description === "string") {
+      return <div>{reaction.description}</div>
+    } else {
+      return <div>{reaction.description("comment")}</div>
+    }
   }
-}
 
 function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
   if (!searchText || !searchText.length)
