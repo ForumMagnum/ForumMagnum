@@ -1049,6 +1049,7 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDraftsBy: string
+  reactPaletteStyle: "listView" | "gridView"
   noKibitz: boolean
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean

@@ -1,7 +1,7 @@
 import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
 import { createTable, dropTable } from "./meta/utils";
 
-export const acceptsSchemaHash = "876226bbf0f63f632ea1e55aabeefb88";
+export const acceptsSchemaHash = "8a6bdab9352a0251d6db2fa801b6b593";
 
 export const up = async ({db}: MigrationContext) => {
   if (PostEmbeddings.isPostgres()) {
