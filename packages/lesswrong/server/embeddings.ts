@@ -6,6 +6,7 @@ import { htmlToText } from "html-to-text";
 import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 export const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-ada-002";
 
@@ -15,6 +16,12 @@ type EmbeddingsResult = {
 }
 
 const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
+  if (isAnyTest) {
+    return {
+      embeddings: [],
+      model: "test",
+    };
+  }
   const api = await getOpenAI();
   if (!api) {
     throw new Error("OpenAI client is not configured");
