@@ -69,4 +69,16 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Comments"`);
     return count;
   }
+
+  async getPostCommentCount(postId: string): Promise<number> {
+    const { count } = await this.getRawDb().one(`
+      SELECT COUNT(*)
+      FROM "Comments"
+      WHERE "postId" = $1
+      AND "deleted" IS NOT TRUE
+      AND "rejected" IS NOT TRUE
+      AND "debateResponse" IS NOT TRUE
+    `, [postId]);
+    return count;
+  }
 }
