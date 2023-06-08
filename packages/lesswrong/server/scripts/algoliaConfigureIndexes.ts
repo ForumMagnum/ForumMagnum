@@ -1,5 +1,5 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
