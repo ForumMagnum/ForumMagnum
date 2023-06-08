@@ -916,3 +916,8 @@ importComponent("CookieBanner", () => require('../components/common/CookieBanner
 importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
 importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
+
+// User List components
+importComponent("UserListsPage", () => require('../components/userLists/UserListsPage'));
+importComponent("CreateUserListPage", () => require('../components/userLists/CreateUserListPage'));
+importComponent("SingleUserListPage", () => require('../components/userLists/SingleUserListPage'));

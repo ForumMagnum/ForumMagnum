@@ -228,5 +228,10 @@
     "acceptsSchemaHash": "6e28f55ed0de0da2c75b4284178ba6e1",
     "acceptedByMigration": "20230608T204514.add_reactPaletteStyle.ts",
     "timestamp": "2023-06-08T20:45:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d13edf9438e52690d052f92c3c06e3df",
+    "acceptedByMigration": "20230608T233507.add_UserLists_table.ts",
+    "timestamp": "2023-06-08T23:35:07.000Z"
   }
 ]

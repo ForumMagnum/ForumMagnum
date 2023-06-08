@@ -143,6 +143,9 @@ import './collections/userMostValuablePosts/views';
 import './collections/useractivities/collection';
 import './collections/useractivities/schema';
 
+import './collections/userLists/collection';
+import './collections/userLists/fragments';
+import './collections/userLists/views';
 
 // Subscriptions
 import './collections/subscriptions';

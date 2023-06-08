@@ -1446,3 +1446,27 @@ addRoute(
     title: "Review Admin Dashboard",
   }
 );
+
+addRoute(
+  {
+    name: 'userLists',
+    path: '/userLists',
+    componentName: 'UserListsPage',
+    title: "User Lists",
+  },
+  {
+    name: 'userList',
+    path: '/userLists/:id/:slug',
+    componentName: 'SingleUserListPage',
+  },
+  {
+    name: 'userListNoSlug',
+    path: '/userLists/:id',
+    componentName: 'SingleUserListPage',
+  },
+  {
+    name: 'userListNew',
+    path: '/userLists/new',
+    componentName: 'CreateUserListPage',
+  },
+)

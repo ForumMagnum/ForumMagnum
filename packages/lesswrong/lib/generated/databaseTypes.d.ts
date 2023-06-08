@@ -968,6 +968,20 @@ interface DbUserActivity extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface UserListsCollection extends CollectionBase<DbUserList, "UserLists"> {
+}
+
+interface DbUserList extends DbObject {
+  __collectionName?: "UserLists"
+  name: string
+  memberIds: Array<string>
+  userId: string
+  description: EditableFieldContents
+  description_latest: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
 }
 
@@ -1429,6 +1443,7 @@ interface CollectionsByName {
   TagRels: TagRelsCollection
   Tags: TagsCollection
   UserActivities: UserActivitiesCollection
+  UserLists: UserListsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
@@ -1480,6 +1495,7 @@ interface ObjectsByCollectionName {
   TagRels: DbTagRel
   Tags: DbTag
   UserActivities: DbUserActivity
+  UserLists: DbUserList
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
