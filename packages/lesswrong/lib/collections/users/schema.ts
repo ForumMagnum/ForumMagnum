@@ -654,6 +654,7 @@ const schema: SchemaType<DbUser> = {
     label: "React Palette Style",
     group: formGroups.siteCustomizations,
     allowedValues: ['listView', 'gridView'],
+    ...schemaDefaultValue('listView'),
     defaultValue: "listView",
     control: "select",
     form: {
