@@ -165,7 +165,6 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       <div>
         <span>{reaction.label}</span>
         <ReactionDescription reaction={reaction} classes={classes}/>
-        {/*{reaction.deprecated && "This react has been deprecated and may be removed later"}*/}
       </div>
     </Row>
   }
