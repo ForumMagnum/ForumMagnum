@@ -10,17 +10,13 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES, AllRateLimitTypes, allRateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getNewModActionNotes, getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
-import Menu from '@material-ui/core/Menu'
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -36,6 +32,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: .5
     }
+  },
+  warningButton: {
+    color: theme.palette.error.light,
   },
   snooze10: {
     color: theme.palette.primary.main,
@@ -296,15 +295,21 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
+  const userCommentsWarning = user.commentCount && hideUnreviewedAuthorCommentsSettings.get();
+
   const actionRow = <div className={classes.row}>
-    <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
+    <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproved)" placement="top">
       <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
     </LWTooltip>
     <LWTooltip title="Snooze and Approve 1 (Appear in sidebar on next post or comment. User's future posts are autoapproved)" placement="top">
       <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
     </LWTooltip>
-    {user.needsReview && <LWTooltip title="Remove from queue (i.e. snooze without approving posts)">
-      <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
+    {user.needsReview && <LWTooltip
+      title={`${userCommentsWarning ? "Warning: user has made a comment! " : ""}Remove from queue (i.e. snooze without approving posts)`}
+    >
+      <AlarmOffIcon className={classNames(classes.modButton, {
+        [classes.warningButton]: userCommentsWarning,
+      })} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
       <DoneIcon onClick={handleReview} className={classes.modButton}/>

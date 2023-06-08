@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';

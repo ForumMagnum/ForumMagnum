@@ -47,6 +47,8 @@ import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -251,6 +253,10 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
+
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

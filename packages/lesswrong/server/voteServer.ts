@@ -1,5 +1,5 @@
 import { Connectors } from './vulcan-lib/connectors';
-import { createMutator, updateMutator } from './vulcan-lib/mutators';
+import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
@@ -20,6 +20,9 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
+import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
+import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 
 
 // Test if a user has voted on the server
@@ -71,7 +74,13 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
+  }
   return {newDocument, vote};
 }
 
@@ -190,8 +199,13 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  
-  void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
+  }
   return newDocument;
 }
 
