@@ -10,7 +10,6 @@ import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
@@ -450,7 +449,7 @@ const NamesAttachedReactionsCommentBottom = ({
           />
         </span>
       )}
-      {hideKarma && <InsertEmoticonOutlined/>}
+      {hideKarma && <AddReactionIcon />}
     </span>}
     {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
