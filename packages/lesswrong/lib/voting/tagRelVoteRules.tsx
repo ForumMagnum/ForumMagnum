@@ -9,15 +9,27 @@ const FETCH_INTERVAL_MS = 1000 * 60 * 60; // Fetch once per hour
 // Map from tag._id to permission groups
 let tagVotingGroups: Record<string, string[]> = {};
 let lastFetched = 0;
+let refetchTagVotingGroupsPromise: Promise<void>|null = null;
+
+async function refetchTagVotingGroups() {
+  const results = await Tags.find({canVoteOnRels: {$exists: true}}).fetch();
+  tagVotingGroups = results.reduce((groups: AnyBecauseTodo, {_id, canVoteOnRels}) => {
+    groups[_id] = canVoteOnRels;
+    return groups;
+  }, {});
+  lastFetched = Date.now();
+}
 
 const getTagVotingGroups = async (tagId: string) => {
   if (lastFetched + FETCH_INTERVAL_MS < Date.now()) {
-    const results = await Tags.find({canVoteOnRels: {$exists: true}}).fetch();
-    tagVotingGroups = results.reduce((groups: AnyBecauseTodo, {_id, canVoteOnRels}) => {
-      groups[_id] = canVoteOnRels;
-      return groups;
-    }, {});
-    lastFetched = Date.now();
+    // If it's been too long since we refreshed tagVotingGroups, do so. Share
+    // the promise so that when this expires (and during startup), we only fetch
+    // it once rather than setting off a thundering herd.
+    if (!refetchTagVotingGroupsPromise) {
+      refetchTagVotingGroupsPromise = refetchTagVotingGroups();
+    }
+    await refetchTagVotingGroupsPromise;
+    refetchTagVotingGroupsPromise = null;
   }
 
   return tagVotingGroups[tagId];

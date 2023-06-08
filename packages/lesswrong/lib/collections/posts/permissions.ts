@@ -47,7 +47,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
   }
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
+  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post, context)) {
     return true;
   } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
     return true;
