@@ -238,6 +238,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
         <a className={classes.reactPaletteFooterFeedbackButton} onClick={() => {
             captureEvent("reactPaletteFeedbackButtonClicked")
+          // eslint-disable-next-line babel/new-cap
             window.Intercom('trackEvent', 'suggest-react-palette-feedback')
           }}>
           <span className={classes.reactPaletteFeedbackButton}>
