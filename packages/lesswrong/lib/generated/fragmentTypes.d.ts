@@ -2626,6 +2626,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly smallDownvoteReceivedCount: number,
   readonly bigDownvoteReceivedCount: number,
   readonly recentKarmaInfo: any,
+  readonly lastNotificationsCheck: Date,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds

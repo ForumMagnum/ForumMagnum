@@ -101,7 +101,7 @@ const reduceCommentModeratorActions = (commentModeratorActions: CommentModerator
   return commentsWithActions;
 };
 
-const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
+const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive', 'moderatedComments'] as const);
 type DashboardTabs = UnionOf<typeof tabs>;
 
 const getCurrentView = (query: Record<string, string>): DashboardTabs => {
@@ -150,6 +150,13 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50,
   });
 
+  const { results: recentlyActiveUsers = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch: refetchRecentlyActiveUsers } = useMulti({
+    terms: {view: "recentlyActive", limit: 10},
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+    itemsPerPage: 50,
+  });
+
   const { results: commentModeratorActions = [], loading: loadingCommentActions, totalCount: totalCommentActionCount, loadMoreProps: loadMoreCommentActionsProps } = useMulti({
     collectionName: 'CommentModeratorActions',
     fragmentName: 'CommentModeratorActionDisplay',
@@ -193,6 +200,18 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
+        <div className={classNames({ [classes.hidden]: currentView !== 'recentlyActive' })}>
+          <div className={classes.toc}>
+            {recentlyActiveUsers.map(user => {
+              return <div key={user._id} className={classes.tocListing}>
+                {user.displayName}
+              </div>
+            })}
+            <div className={classes.loadMore}>
+              <LoadMore {...recentlyActiveLoadMoreProps}/>
+            </div>
+          </div>
+        </div>
         <div className={classNames({ [classes.hidden]: currentView !== 'moderatedComments' })}>
           <div className={classNames(classes.toc, classes.commentToc)}>
             {commentsWithActions.map(({ comment }) => {
@@ -222,6 +241,12 @@ const ModerationDashboard = ({ classes }: {
             >
               Reviewed Users
             </div>
+            <div 
+              onClick={() => changeView("recentlyActive")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'allUsers' })} 
+            >
+              Recently Active Users
+            </div>
             <div
               onClick={() => changeView("moderatedComments")}
               className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'moderatedComments' })} 
@@ -241,6 +266,14 @@ const ModerationDashboard = ({ classes }: {
               // TODO: we probably want to display something different for already-reviewed users, since a bunch of the actions we can take only make sense for unreviewed users
               <div key={user._id}>
                 <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
+              </div>
+            )}
+          </div>
+          <div className={classNames({ [classes.hidden]: currentView !== 'recentlyActive' })}>
+            {recentlyActiveUsers.map(user =>
+              // TODO: we probably want to display something different for already-reviewed users, since a bunch of the actions we can take only make sense for unreviewed users
+              <div key={user._id}>
+                <UsersReviewInfoCard user={user} refetch={refetchRecentlyActiveUsers} currentUser={currentUser}/>
               </div>
             )}
           </div>

@@ -59,3 +59,12 @@ export interface StrictestCommentRateLimitInfoParams {
   userCommentRateLimit: UserRateLimit<'allComments'> | null,
   postId: string | null
 }
+
+export type RecentKarmaInfo = {
+  recentKarma: number, 
+  recentPostKarma: number,
+  recentCommentKarma: number,
+  downvoterCount: number, 
+  postDownvoterCount: number,
+  commentDownvoterCount: number,
+}

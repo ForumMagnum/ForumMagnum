@@ -1,4 +1,5 @@
 import type { ForumOptions } from "../../lib/forumTypeUtils";
+import { RECENT_CONTENT_COUNT } from "../repos/VotesRepo";
 import type { CommentAutoRateLimit, PostAutoRateLimit } from "./types";
 
 /**
@@ -100,7 +101,7 @@ const LW = {
       timeframeLength: 1,
       itemsPerTimeframe: 3,
       rateLimitType: 'lowKarma',
-      rateLimitMessage: "Users are limited to 3 comments/day unless their last 20 posts/comments have at least 1 net-karma.",
+      rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`,
     }
   }
 } as const

@@ -1,3 +1,4 @@
+import uniq from "lodash/uniq"
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
 import Comments from "../../lib/collections/comments/collection"
@@ -7,9 +8,9 @@ import Posts from "../../lib/collections/posts/collection"
 import UserRateLimits from "../../lib/collections/userRateLimits/collection"
 import { forumSelect } from "../../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../../lib/vulcan-users/permissions"
-import { getRecentKarmaInfo, RecentKarmaInfo } from "../resolvers/userResolvers"
+import VotesRepo, { RecentVoteInfo } from "../repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import type { AutoRateLimit, RateLimitInfo, StrictestCommentRateLimitInfoParams, TimeframeUnitType, UserRateLimit } from "./types"
+import type { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, StrictestCommentRateLimitInfoParams, TimeframeUnitType, UserRateLimit } from "./types"
 
 function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   if (!rateLimits) return 0
@@ -77,7 +78,7 @@ function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHou
   }
 }
 
-function doAllAutoRateLimitConditionsApply(user: DbUser, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
+function shouldRateLimitApply(user: DbUser, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
   // rate limit conditions
   const { karmaThreshold, downvoteRatio, 
           recentKarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
@@ -105,7 +106,7 @@ function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents
   // rate limit effects
   const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
 
-  if (!doAllAutoRateLimitConditionsApply(user, rateLimit, recentKarmaInfo)) return null
+  if (!shouldRateLimitApply(user, rateLimit, recentKarmaInfo)) return null
 
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
@@ -278,4 +279,74 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   });
 
   return getStrictestRateLimitInfo(rateLimitInfos)
+}
+
+async function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): Promise<RecentVoteInfo[]> {
+  // sort the votes via the date of the *postedAt* (joined from )
+  const sortedVotes = votes.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
+  
+  const uniqueDocumentIds = uniq(sortedVotes.map((vote) => vote.documentId))
+  const latestDocumentIds = new Set(uniqueDocumentIds.slice(0, numItems))
+
+  // get all votes whose documentId is in the top 20 most recent documents
+  return sortedVotes.filter((vote) => latestDocumentIds.has(vote.documentId))
+}
+
+export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaInfo> {
+  const votesRepo = new VotesRepo()
+  const allVotes = await votesRepo.getVotesOnRecentContent(userId)
+  const top20documentVotes = await getVotesOnLatestDocuments(allVotes)
+
+  // We filter out the user's self-upvotes here, rather than in the query, because
+  // otherwise the getLatest20contentItems won't know about all the relevant posts and comments. 
+  // i.e. if a user comments 20 times, and nobody upvotes them, we wouldn't know to include them in the sorted list
+  const nonuserIDallVotes = allVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
+  const nonUserIdTop20DocVotes = top20documentVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
+  const postVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Posts")
+  const commentVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Comments")
+
+  const recentKarma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const recentPostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const recentCommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  
+  const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const downvoterCount = uniq(downvoters).length
+  const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const commentDownvoterCount = uniq(commentDownvoters).length
+  const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const postDownvoterCount = uniq(postDownvotes).length
+
+  // NOTE: the following code is just console logs for sanity checking the above code.
+  // I'm leaving it in for now until I'm more confident that the above code is correct.
+
+  // const posts = groupBy(allVotes.filter(vote => vote.collectionName === "Posts"), (vote) => vote.documentId)
+
+  // const comments = groupBy(allVotes.filter(vote => vote.collectionName === "Comments"), (vote) => vote.documentId)
+
+  // const documents = groupBy(top20documentVotes, (vote) => vote.documentId)
+  
+  // console.log("posts", Object.keys(posts).length)
+  // Object.values(posts).forEach((postVotes, i) => {
+  //   const powerTotal = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, postVotes[0].documentId, postVotes[0].collectionName, powerTotal)
+  // })
+  // console.log("comments", Object.keys(posts).length)
+  // Object.values(comments).forEach((votes, i) => {
+  //   const powerTotal = votes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, votes[0].documentId, votes[0].collectionName, powerTotal)
+  // })
+  // console.log("all")
+  // Object.values(documents).forEach((documentVotes, i) => {
+  //   const powerTotal = documentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  //   console.log(i, documentVotes[0].documentId, documentVotes[0].collectionName, powerTotal)
+  // })
+
+  return { 
+    recentKarma: recentKarma ?? 0, 
+    recentPostKarma: recentPostKarma ?? 0,
+    recentCommentKarma: recentCommentKarma ?? 0,
+    downvoterCount: downvoterCount ?? 0, 
+    postDownvoterCount: postDownvoterCount ?? 0,
+    commentDownvoterCount: commentDownvoterCount ?? 0
+  }
 }

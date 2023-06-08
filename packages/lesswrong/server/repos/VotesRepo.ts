@@ -35,7 +35,7 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
 
-export interface RecentVoteInfo extends DbVote {
+export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"> & {
   postedAt: Date,
 }
 
@@ -122,17 +122,17 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   // (note: needs to get the user's own self-upvotes so that
   // it doesn't skip posts with no other votes)
   async getVotesOnRecentContent(userId: string): Promise<RecentVoteInfo[]> {
-    const voteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName", `
-    const votes = await this.any(`
+    const voteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName"`
+    const votes = await this.getRawDb().any(`
       (
-        SELECT ${voteFields} "Posts"."postedAt"
+        SELECT ${voteFields}, "Posts"."postedAt"
         FROM "Votes"
         JOIN "Posts" on "Posts"._id = "Votes"."documentId"
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
             WHERE
-              "Posts"."userId" = '${userId}'
+              "Posts"."userId" = $1
             ORDER BY "Posts"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )
@@ -142,14 +142,14 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
       UNION
       (
-        SELECT ${voteFields} "Comments"."postedAt"
+        SELECT ${voteFields}, "Comments"."postedAt"
         FROM "Votes"
         JOIN "Comments" on "Comments"._id = "Votes"."documentId"
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Comments" 
             WHERE
-              "Comments"."userId" = '${userId}' 
+              "Comments"."userId" = $1
             ORDER by "Comments"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )
@@ -157,7 +157,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           "cancelled" IS NOT true
         ORDER BY "Comments"."postedAt" DESC
       )
-    `)
-    return votes as RecentVoteInfo[]
+    `, [userId])
+    return votes
   }
 }
