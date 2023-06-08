@@ -89,11 +89,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
     <div className={classes.root}>
       <div className={classes.info}>
         <div className={classes.karma}>
-          <KarmaDisplay
-            baseScore={quickTake.baseScore}
-            voteCount={quickTake.voteCount}
-            afBaseScore={quickTake.afBaseScore}
-          />
+          <KarmaDisplay document={quickTake} />
           <ForumIcon icon="SoftUpArrow" />
         </div>
         <UsersName user={quickTake.user} className={classes.username} />
