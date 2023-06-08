@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex, ensureCustomPgIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
@@ -1310,6 +1310,7 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingbacks.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
+void ensureCustomPgIndex(`CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin(pingbacks);`);
 
 // TODO: refactor nominations2018 to use nominationCount + postedAt
 Posts.addView("nominations2018", (terms: PostsViewTerms) => {

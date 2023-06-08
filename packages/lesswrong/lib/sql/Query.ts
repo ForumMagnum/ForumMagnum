@@ -123,9 +123,13 @@ abstract class Query<T extends DbObject> {
    * public API for flexability.
    */
   compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
+    return this.compileAtoms(this.atoms, argOffset, subqueryOffset);
+  }
+  
+  compileAtoms(atoms: Atom<T>[], argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
-    for (const atom of this.atoms) {
+    for (const atom of atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argOffset}${atom.typehint}`);
         args.push(atom.value);
@@ -507,7 +511,7 @@ abstract class Query<T extends DbObject> {
    * Compile an arbitrary Mongo selector into an array of atoms.
    * `this.atoms` is not modified.
    */
-  protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+  public compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
