@@ -127,7 +127,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "verified",
     label: "Confirmed",
     searchTerms: ["check", "correct", "confirm"],
-    svg: "/reactionImages/nounproject/verified.svg",
+    svg: "/reactionImages/nounproject/microscope2.svg",
     description: "I checked this. Or have other empirical data that confirms this",
   },
   
@@ -273,12 +273,21 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     deprecated:false
   },
   {
+    name: "crux",
+    label: "That's a crux",
+    searchTerms: ["identity", "matrix", "crux", "not"],
+    svg: "/reactionImages/nounproject/branchingpath.svg",
+    filter: {opacity: 0.6},
+    description: "My other beliefs would be different if I had different beliefs about this",
+    deprecated:false,
+  },
+  {
     name: "notacrux",
     label: "Not a crux",
     searchTerms: ["identity", "matrix", "crux", "not"],
-    svg: "/reactionImages/nounproject/crux.svg",
-    filter: {opacity: 1},
-    description: (contentType) => `This ${contentType} doesn't get at something that's a crux for my beliefs`,
+    svg: "/reactionImages/nounproject/nonbranchingpath.svg",
+    filter: {opacity: 0.6},
+    description: "My other beliefs would not change if I had different beliefs about this",
     deprecated:false,
   },
   {
@@ -380,7 +389,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Shrug",
     svg: "/reactionImages/nounproject/shrug.svg",
     description: "I am indifferent to this",
-    deprecated:false
+    deprecated:true
   },
   {
     name: "scales",
@@ -410,7 +419,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/nonsequitur.svg",
     searchTerms: ["sequitur", "jump"],
     description: "This contains a non-sequitur",
-    deprecated:false
+    deprecated:true
   },
   {
     name: "tooManyAssumptions",
@@ -459,7 +468,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["clarity", "gem", "diamond"],
     svg: "/reactionImages/nounproject/clarity.svg",
     description: (contentType) => `This ${contentType} clarifies things.`,
-    deprecated:false
+    deprecated:true
   },
 ];
 
