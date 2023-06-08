@@ -72,13 +72,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   async executeQuery(
     query: Query<T>,
     data?: Partial<ExecuteQueryData<T>>,
+    target: "read" | "write" = "write"
   ): Promise<any[]> {
     executingQueries++;
     let result: any[];
     const quiet = data?.options?.quiet ?? false;
     try {
       const {sql, args} = query.compile();
-      const client = getSqlClientOrThrow();
+      const client = getSqlClientOrThrow(target);
       
       result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
 
@@ -113,12 +114,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       fetch: async () => {
         const select = new SelectQuery<T>(this.getTable(), selector, options);
-        const result = await this.executeQuery(select, {selector, options});
+        const result = await this.executeQuery(select, {selector, options}, "read");
         return result as unknown as T[];
       },
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
-        const result = await this.executeQuery(select, {selector, options});
+        const result = await this.executeQuery(select, {selector, options}, "read");
         return parseInt(result?.[0].count ?? 0);
       },
     };
@@ -130,13 +131,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
     const select = new SelectQuery<T>(this.getTable(), selector, {limit: 1, ...options, projection});
-    const result = await this.executeQuery(select, {selector, options, projection});
+    const result = await this.executeQuery(select, {selector, options, projection}, "read");
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
     const select = new SelectQuery<T>(this.getTable(), undefined, {limit: 1});
-    const result = await this.executeQuery(select);
+    const result = await this.executeQuery(select, undefined, "read");
     return result ? result[0] as unknown as T : null;
   }
 
@@ -216,12 +217,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     await this.executeQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions, target: "read" | "write" = "read") => {
     return {
       toArray: async () => {
         try {
           const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
-          const result = await this.executeQuery(query, {pipeline, options});
+          const result = await this.executeQuery(query, {pipeline, options}, target);
           return result as unknown as T[];
         } catch (e) {
           const {collectionName} = this;

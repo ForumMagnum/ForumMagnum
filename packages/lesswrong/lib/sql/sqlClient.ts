@@ -4,18 +4,36 @@ export const logAllQueries = false;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
 let sql: SqlClient | null = null;
+let sqlRead: SqlClient | null = null;
 
-export const setSqlClient = (sql_: SqlClient) => sql = sql_;
-
-export const getSqlClient = () => sql;
-
-export const getSqlClientOrThrow = () => {
-  if (!sql) {
-    throw new Error("SQL Client is not initialized");
+export const setSqlClient = (sql_: SqlClient, target: "read" | "write" = "write") => {
+  if (target === "write") {
+    sql = sql_;
+  } else {
+    sqlRead = sql_;
   }
-  return sql;
 }
 
+export const getSqlClient = (target: "read" | "write" = "write") => {
+  return target === "write" || !sqlRead ? sql : sqlRead;
+}
+
+export const getSqlClientOrThrow = (target: "read" | "write" = "write") => {
+  if (target === "write" || !sqlRead) {
+    if (!sql) {
+      throw new Error("SQL Client is not initialized");
+    }
+    return sql;
+  } else {
+    if (!sqlRead) {
+      throw new Error("SQL Client is not initialized");
+    }
+    return sqlRead;
+  }
+}
+
+// TODO make this handle the read case, although I think this isn't required for actually running
+// the server
 export const closeSqlClient = async (client: SqlClient) => {
   if (client === sql) {
     sql = null;
@@ -23,8 +41,8 @@ export const closeSqlClient = async (client: SqlClient) => {
   await client.$pool.end();
 }
 
-export const runSqlQuery = async (query: string, args?: any) => {
-  const client = getSqlClientOrThrow();
+export const runSqlQuery = async (query: string, args?: any, target: "read" | "write" = "write") => {
+  const client = getSqlClientOrThrow(target);
   return await logIfSlow(
     () => client.any(query, args),
     () => `${query}: ${JSON.stringify(args)}`

@@ -154,6 +154,8 @@ const onConnectQueries: string[] = [
 export const createSqlConnection = async (
   url?: string,
   isTestingClient = false,
+  // TODO refactor to use the same format as the other places where I set the target
+  readOnly = false,
 ): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
@@ -183,11 +185,13 @@ export const createSqlConnection = async (
     isTestingClient,
   };
 
-  try {
-    await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to run Postgres onConnectQuery:", e);
+  if (!readOnly) {
+    try {
+      await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to run Postgres onConnectQuery:", e);
+    }
   }
 
   return client;

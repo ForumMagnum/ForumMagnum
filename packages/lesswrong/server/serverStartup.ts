@@ -93,10 +93,34 @@ const connectToPostgres = async (connectionString: string) => {
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl}: CommandLineArguments) =>
+const connectToPostgresRead = async (connectionString: string) => {
+  try {
+    if (connectionString) {
+      const branchDb = await getBranchDbName();
+      if (branchDb) {
+        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
+      }
+      const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
+      // eslint-disable-next-line no-console
+      console.log(`Connecting to postgres (${dbName})`);
+      const sql = await createSqlConnection(connectionString, false, true);
+      setSqlClient(sql, "read");
+    }
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to connect to postgres: ", err.message);
+    // TODO: Remove forum gating here when we expand Postgres usage
+    if (forumTypeSetting.get() === "EAForum") {
+      process.exit(1);
+    }
+  }
+}
+
+const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
     connectToMongo(mongoUrl),
     connectToPostgres(postgresUrl),
+    connectToPostgresRead(postgresReadUrl),
   ]);
 
 const initSettings = () => {
