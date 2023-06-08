@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
-import { accessFilterSingle } from "../../utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
@@ -207,6 +207,30 @@ const schema: SchemaType<DbSpotlight> = {
     nullable: true,
     order: 100,
   },
-};
   
+  sequenceChapters: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Chapter]',
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
+      if (!spotlight.documentId || spotlight.documentType !== "Sequence") {
+        return null;
+      }
+      const chapters = await context.Chapters.find({
+        sequenceId: spotlight.documentId,
+      }, {
+        limit: 100,
+        sort: {number:1},
+      }).fetch();
+      
+      return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+    }
+  }),
+  "sequenceChapters.$": {
+    type: "Chapter",
+    foreignKey: "Chapters",
+    optional: true,
+  },
+};
+
 export default schema;
