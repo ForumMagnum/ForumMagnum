@@ -22,6 +22,7 @@ type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
 type ModeratorActionsViewName = "userModeratorActions"|"restrictionModerationActions";
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
+type PageCacheViewName = never
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
@@ -73,6 +74,7 @@ interface ViewTermsByCollectionName {
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
   Notifications: NotificationsViewTerms
+  PageCache: ViewTermsBase
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase

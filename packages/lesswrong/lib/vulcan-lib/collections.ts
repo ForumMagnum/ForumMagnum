@@ -43,13 +43,12 @@ const pickCollectionType = (collectionType?: CollectionType) => {
 }
 
 export const createCollection = <
-  N extends CollectionNameString,
-  T extends DbObject=ObjectsByCollectionName[N]
+  N extends CollectionNameString
 >(options: {
   typeName: string,
   collectionName: N,
   collectionType?: CollectionType,
-  schema: SchemaType<T>,
+  schema: SchemaType<ObjectsByCollectionName[N]>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
   collection?: any,
@@ -69,7 +68,7 @@ export const createCollection = <
   const Collection = pickCollectionType(collectionType);
 
   // initialize new Mongo collection
-  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
+  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N]>;
 
   // decorate collection with options
   collection.options = options as any;

@@ -411,6 +411,14 @@ interface ConversationsDefaultFragment { // fragment on Conversations
   readonly archivedByIds: Array<string>,
 }
 
+interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
+  readonly postId: string,
+  readonly postHash: string,
+  readonly lastGeneratedAt: Date,
+  readonly model: string,
+  readonly embeddings: Array<number>,
+}
+
 interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
   readonly userId: string | null,
   readonly clientId: string | null,
@@ -3047,13 +3055,6 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
-interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
-  readonly postId: string,
-  readonly postHash: string,
-  readonly lastGeneratedAt: Date,
-  readonly embeddings: Array<number>,
-}
-
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3070,6 +3071,7 @@ interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
+  PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
@@ -3253,7 +3255,6 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
-  PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3262,6 +3263,7 @@ interface CollectionNamesByFragmentName {
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
   ConversationsDefaultFragment: "Conversations"
+  PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
   UserTagRelsDefaultFragment: "UserTagRels"
@@ -3445,9 +3447,8 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
-  PostEmbeddingsDefaultFragment: "PostEmbeddings"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
