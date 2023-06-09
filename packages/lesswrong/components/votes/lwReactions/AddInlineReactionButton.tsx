@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
-import { useNamesAttachedReactionsVoting } from "../NamesAttachedReactionsVoteOnComment";
+import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import Mark from 'mark.js';
-import { hideSelectorClassName } from "../../common/InlineReactSelectionWrapper";
+import { hideSelectorClassName } from "./InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
   disabled: {
@@ -55,7 +55,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     setDisabled(count > 1)
   }
 
-  function handleHoverEnd() {
+  const handleHoverEnd = () => {
     const ref = commentItemRef?.current
     if (!ref) return
     let markInstance = new Mark(ref);
@@ -64,6 +64,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
 
   const handleOpen = () => {
     !disabled && setOpen(true)
+  }
+
+  const handleToggleReaction = (reaction: string, quote: string) => {
+    setOpen(false)
+    toggleReaction(reaction, quote)
   }
 
   return <LWTooltip
@@ -81,7 +86,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
         <ReactionsPalette
           getCurrentUserReaction={getCurrentUserReaction}
           getCurrentUserReactionVote={getCurrentUserReactionVote}
-          toggleReaction={toggleReaction}
+          toggleReaction={handleToggleReaction}
           quote={quote} 
         />
       </div>}

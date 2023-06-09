@@ -1322,6 +1322,12 @@ addRoute(
     title: "ModGPT Dashboard"
   },
   {
+    name: 'synonyms',
+    path: '/admin/synonyms',
+    componentName: 'AdminSynonymsPage',
+    title: "Search Synonyms"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
