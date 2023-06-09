@@ -118,7 +118,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef} disabled={disabledButton}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
       </LWPopper>
       {children}
