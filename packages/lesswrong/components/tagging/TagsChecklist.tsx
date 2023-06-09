@@ -77,6 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export interface ChecklistTag {
   _id: string;
   name: string;
+  shortName: string | null;
   parentTag?: ChecklistTag;
 }
 
@@ -103,7 +104,7 @@ const TagsChecklist = ({
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
   classes: ClassesType;
   selectedTagIds?: Array<string | undefined>;
-  tags: {_id: string, name: string}[];
+  tags: Pick<TagFragment, "_id" | "name" | "shortName">[];
   displaySelected?: "highlight" | "hide";
   tooltips?: boolean;
   truncate?: boolean;
@@ -114,7 +115,9 @@ const TagsChecklist = ({
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
     if (displaySelected === "hide") {
-      return tags.filter((tag) => !selectedTagIds.includes(tag._id)).map((tag) => ({ tag, selected: false }));
+      return tags
+        .filter((tag) => !selectedTagIds.includes(tag._id))
+        .map((tag) => ({ tag, selected: false }));
     } else {
       return tags.map((tag) => ({ tag, selected: selectedTagIds.includes(tag._id) }));
     }
@@ -141,6 +144,10 @@ const TagsChecklist = ({
   const handleOnTagSelected = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
   const handleOnTagRemoved = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
 
+  const getTagName = ({tag}: TagsChecklistItem) => smallText
+    ? tag.shortName ?? tag.name
+    : tag.name;
+
   return (
     <>
       {tagsToDisplay?.map((tagChecklistItem) =>
@@ -151,7 +158,7 @@ const TagsChecklist = ({
               [classes.smallTag]: smallText,
             })}
           >
-            {tagChecklistItem.tag.name}
+            {getTagName(tagChecklistItem)}
             <button
               className={classes.removeTag} 
               onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}
@@ -177,7 +184,7 @@ const TagsChecklist = ({
               })}
               onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}
             >
-              {tagChecklistItem.tag.name}
+              {getTagName(tagChecklistItem)}
             </div>
           </LWTooltip>
         )

@@ -30,6 +30,7 @@ const FRONTPAGE_TAG_ID = "frontpage";
 const FRONTPAGE_DUMMY_TAG: ChecklistTag = {
   _id: FRONTPAGE_TAG_ID,
   name: "Frontpage",
+  shortName: null,
 }
 
 const FormComponentTagsChecklist = ({
