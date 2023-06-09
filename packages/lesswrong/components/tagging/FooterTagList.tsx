@@ -13,6 +13,7 @@ import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isServer } from '../../lib/executionEnvironment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -93,6 +94,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
     fetchPolicy: 'cache-and-network',
+    ssr: true,
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)

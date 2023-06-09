@@ -1,13 +1,14 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
+import { isServer } from '../executionEnvironment';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -234,6 +235,7 @@ export interface UseMultiOptions<
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
   createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
+  ssr?: boolean,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -278,6 +280,7 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   createIfMissing,
+  ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -332,7 +335,8 @@ export function useMulti<
     pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    ssr: true,
+    // TODO note that this is a workaround (see https://github.com/apollographql/apollo-client/issues/5918)
+    ssr: ssr || !isServer,
     skip,
     notifyOnNetworkStatusChange: true
   }
