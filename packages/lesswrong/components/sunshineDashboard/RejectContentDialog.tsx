@@ -9,7 +9,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card'
 import EditIcon from '@material-ui/icons/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRejectionMessage } from '../../server/callbacks/commentCallbacks';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogContent: {
@@ -50,12 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 6,
     paddingLeft: 12,
     paddingBottom: 6
-  },
-  topReason: {
-    fontWeight: 600
-  },
-  nonTopReason: {
-    opacity: .6
   }
 });
 
@@ -68,6 +61,7 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
+  const [showMore, setShowMore] = useState(false)
 
   const { results: rejectionTemplates, loadMoreProps } = useMulti({
     collectionName: 'ModerationTemplates',
@@ -122,23 +116,15 @@ const RejectContentDialog = ({classes, rejectContent}: {
     <div className={classes.loadMore}>
       <LoadMore {...loadMoreProps} />
     </div>
-    <div className={hideTextField ? classes.hideModalTextField : null}>
-      <ContentStyles contentType={"comment"} className={classes.root}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: getRejectionMessage("[name]",null)}}
-        />
-      </ContentStyles>
-
-      <TextField
-        id="comment-moderation-rejection-reason"
-        label="Full message"
-        className={classes.modalTextField}
-        value={rejectedReason}
-        onChange={(event) => setRejectedReason(event.target.value)}
-        fullWidth
-        multiline
-      />
-    </div>
+    <TextField
+      id="comment-moderation-rejection-reason"
+      label="Full message"
+      className={classNames(classes.modalTextField, { [classes.hideModalTextField]: hideTextField })}
+      value={rejectedReason}
+      onChange={(event) => setRejectedReason(event.target.value)}
+      fullWidth
+      multiline
+    />
   </div>
   
   return (
