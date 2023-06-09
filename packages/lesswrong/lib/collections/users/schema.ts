@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -59,6 +59,9 @@ const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
 const ownsOrIsMod = (user: DbUser|null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes('sunshineRegiment') ?? false);
 };
+
+export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
+
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -643,6 +646,26 @@ const schema: SchemaType<DbUser> = {
         ];
       }
     },
+  },
+  reactPaletteStyle: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "React Palette Style",
+    group: formGroups.siteCustomizations,
+    allowedValues: ['listView', 'gridView'],
+    ...schemaDefaultValue('listView'),
+    defaultValue: "listView",
+    control: "select",
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value:'listView', label: 'List View'},
+          {value:'iconView', label: 'Icons'},
+        ];
+      }
+    }
   },
   
   noKibitz: {

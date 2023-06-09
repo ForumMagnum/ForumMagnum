@@ -10,7 +10,6 @@ import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
@@ -23,6 +22,7 @@ import without from 'lodash/without';
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
+import { useTracking } from "../../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -450,7 +450,7 @@ const NamesAttachedReactionsCommentBottom = ({
           />
         </span>
       )}
-      {hideKarma && <InsertEmoticonOutlined/>}
+      {hideKarma && <AddReactionIcon />}
     </span>}
     {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     <AddReactionButton voteProps={voteProps} classes={classes}/>
@@ -747,6 +747,7 @@ export const AddReactionButton = ({voteProps, classes}: {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { PopperCard, LWClickAwayListener, LWTooltip, ReactionsPalette } = Components;
+  const { captureEvent } = useTracking();
 
   const { getCurrentUserReactionVote, toggleReaction, getCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
@@ -762,11 +763,17 @@ export const AddReactionButton = ({voteProps, classes}: {
   >
     <span
       ref={buttonRef}
-      onClick={ev => setOpen(true)}
+      onClick={ev => {
+        setOpen(true)
+        !open && captureEvent("reactPaletteStateChanged", {open: true})
+      }}
       className={classNames(classes.addReactionButton, "react-hover-style")}
     >
       <AddReactionIcon />
-      {open && <LWClickAwayListener onClickAway={() => setOpen(false)}>
+      {open && <LWClickAwayListener onClickAway={() => {
+        setOpen(false)
+        captureEvent("reactPaletteStateChanged", {open: false})
+      }}>
         <PopperCard
           open={open} anchorEl={buttonRef.current}
           placement="bottom-end"

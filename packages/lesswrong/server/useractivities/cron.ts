@@ -310,7 +310,7 @@ export async function updateUserActivities(props?: {updateStartDate?: Date, upda
     // FIXME remove once we have a better solution for not running this function twice
     const sleepTime = Math.random() * 10000;
     console.log(`Sleeping for ${sleepTime.toFixed(0)}ms before updating user activity to avoid multiple jobs running at the same time`)
-    await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000));
+    await new Promise((resolve) => setTimeout(resolve, sleepTime));
   }
 
   await assertTableIntegrity(dataDb);
