@@ -14,6 +14,7 @@ import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
+import './server/pageCache/cron';
 import './server/users/cron'
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
@@ -176,6 +177,8 @@ import './server/languageModels/postSummaryResolver';
 
 import './server/codegen/generateTypes';
 import './server/styleGeneration';
+
+import './server/embeddings';
 
 // Algolia Search Integration
 import './server/search/utils';

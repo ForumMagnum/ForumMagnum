@@ -61,6 +61,7 @@ const getDefaultFeatures = (): Record<RecommendationFeatureName, string> => ({
   curated: "0.1",
   tagSimilarity: "1.5",
   collabFilter: "1",
+  textSimilarity: "1",
 });
 
 const featureInputToFeatures = (

@@ -190,6 +190,7 @@ registerFragment(`
     abTestOverrides
 
     sortDraftsBy
+    reactPaletteStyle
 
     petrovPressedButtonDate
     petrovLaunchCodeDate

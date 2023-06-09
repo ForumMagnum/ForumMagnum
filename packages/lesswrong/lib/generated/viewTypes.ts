@@ -22,9 +22,11 @@ type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
 type ModeratorActionsViewName = "userModeratorActions"|"restrictionModerationActions";
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
+type PageCacheViewName = never
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
+type PostEmbeddingsViewName = never
 type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
 type PostsViewName = "userPosts"|"magic"|"top"|"new"|"recentComments"|"old"|"timeframe"|"daily"|"tagRelevance"|"frontpage"|"frontpage-rss"|"curated"|"curated-rss"|"community"|"community-rss"|"meta-rss"|"rss"|"topQuestions"|"recentQuestionActivity"|"scheduled"|"rejected"|"drafts"|"all_drafts"|"unlisted"|"userAFSubmissions"|"slugPost"|"legacyIdPost"|"recentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"globalEvents"|"nearbyEvents"|"events"|"eventsInTimeRange"|"upcomingEvents"|"pastEvents"|"tbdEvents"|"nonEventGroupPosts"|"postsWithBannedUsers"|"communityResourcePosts"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"sunshineCuratedSuggestions"|"pingbackPosts"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"voting2019"|"stickied"|"nominatablePostsByVote"|"reviewVoting"|"reviewQuickPage"|"reviewFinalVoting"|"myBookmarkedPosts"|"alignmentSuggestedPosts";
@@ -72,9 +74,11 @@ interface ViewTermsByCollectionName {
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
   Notifications: NotificationsViewTerms
+  PageCache: ViewTermsBase
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase
+  PostEmbeddings: ViewTermsBase
   PostRecommendations: ViewTermsBase
   PostRelations: PostRelationsViewTerms
   Posts: PostsViewTerms
