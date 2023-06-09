@@ -88,9 +88,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         setYOffset(getYOffsetFromDocument(selection, commentTextRef));
         const commentText = commentItemRef.current?.textContent ?? ""
         // Count the number of occurrences of the quote in the raw text
-        console.log({commentText, selectedText})
-        let count = (commentText.match(new RegExp(selectedText, "g")) || []).length;
-        console.log(count)
+        const count = (commentText.match(new RegExp(selectedText, "g")) || []).length;
         setDisabledButton(count > 1)
       } else {
         clearAll()
