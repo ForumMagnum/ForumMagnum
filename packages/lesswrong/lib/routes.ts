@@ -1322,6 +1322,12 @@ addRoute(
     title: "Search Synonyms"
   },
   {
+    name: 'randomUser',
+    path: '/admin/random-user',
+    componentName: 'RandomUserPage',
+    title: "Random User"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',

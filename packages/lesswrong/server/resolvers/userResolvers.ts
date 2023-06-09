@@ -21,6 +21,8 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
 import { RateLimitInfo } from '../rateLimits/types';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { UsersRepo } from '../repos';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -359,6 +361,14 @@ addGraphQLResolvers({
       results['alignment'] = getAlignment(results)
       return results
     },
+    async GetRandomUser(root: void, args: void, context: ResolverContext) {
+      const { currentUser } = context
+      if (!userIsAdminOrMod(currentUser)) {
+        throw new Error('Must be an admin/mod to get a random user')
+      }
+      
+      return new UsersRepo().getRandomActiveUser()
+    },
   },
 })
 
@@ -439,3 +449,4 @@ addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
+addGraphQLQuery('GetRandomUser: User')
