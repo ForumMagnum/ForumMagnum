@@ -19,48 +19,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   quote?: string,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null
+  disabled?: boolean
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
-  const [disabled, setDisabled] = useState(false);
 
   const { getCurrentUserReactionVote, toggleReaction, getCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
   
-  // while moused over the button, if the text appears multiple times it highlights both of 
-  // them so it's easier to figure out the minimal text to highlight
-  function handleHover() {
-    const ref = commentItemRef?.current
-    if (!ref) return
-    let markInstance = new Mark(ref);
-
-    // Extract the raw text content of the entire HTML document
-    let rawText = ref.textContent ?? ""
-
-    // Count the number of occurrences of the quote in the raw text
-    let count = (rawText.match(new RegExp(quote ?? "", "g")) || []).length;
-
-    markInstance.unmark({className: hideSelectorClassName});
-    markInstance.mark(quote ?? "", {
-        separateWordSearch: false,
-        acrossElements: true,
-        diacritics: true,
-        className: hideSelectorClassName
-    });
-    setDisabled(count > 1)
-  }
-
-  const handleHoverEnd = () => {
-    const ref = commentItemRef?.current
-    if (!ref) return
-    let markInstance = new Mark(ref);
-    markInstance.unmark({className: hideSelectorClassName});
-  }
 
   const handleOpen = () => {
     !disabled && setOpen(true)
@@ -81,7 +51,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, commentItemRef}: {
     <span
       ref={buttonRef}
     >
-      {!open && <InsertEmoticonOutlined onClick={handleOpen} onMouseOver={handleHover} onMouseLeave={handleHoverEnd}/>}
+      {!open && <InsertEmoticonOutlined onClick={handleOpen} className={disabled ? classes.disabled : null}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReaction={getCurrentUserReaction}
