@@ -76,7 +76,9 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
  */
 const removeCrosspost = async <T extends Crosspost>(post: T) => {
   if (!post.fmCrosspost || !post.fmCrosspost.foreignPostId) {
-    throw new Error("Cannot remove crosspost that doesn't exist");
+    // eslint-disable-next-line no-console
+    console.warn("Cannot remove crosspost that doesn't exist");
+    return;
   }
   await updateCrosspost(post.fmCrosspost.foreignPostId, {
     ...extractDenormalizedData(post),

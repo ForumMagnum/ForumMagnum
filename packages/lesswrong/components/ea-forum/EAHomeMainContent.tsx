@@ -137,10 +137,10 @@ const frontpageTab = {_id: '0', name: 'Frontpage'}
 const topicTabsOrder = [
   'sWcuTyTB5dP3nas2t', // Global health
   'QdH9f8TC6G8oGYdgt', // Animal welfare
-  'ee66CtAMYurQreWBH', // Existential risk
-  'ZCihBFp5P64JCvQY6', // Community
   'oNiQsBHA3i837sySD', // AI safety
+  'ZCihBFp5P64JCvQY6', // Community
   'H43gvLzBCacxxamPe', // Biosecurity & pandemics
+  'ee66CtAMYurQreWBH', // Existential risk
   '4eyeLKC64Yvznzt6Z', // Philosophy
   'EHLmbEmJ2Qd5WfwTb', // Building effective altruism
   'of9xBvR3wpbp6qsZC', // Policy
