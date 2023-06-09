@@ -7,7 +7,7 @@ import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, post
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
-import { loadByIds, getWithLoader } from '../../loaders';
+import { loadByIds, getWithLoader, getWithCustomLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
@@ -44,8 +44,8 @@ const STICKY_PRIORITIES = {
 
 const forumDefaultVotingSystem = forumSelect({
   EAForum: "twoAxis",
-  LessWrong: "twoAxis",
-  AlignmentForum: "twoAxis",
+  LessWrong: "namesAttachedReactions",
+  AlignmentForum: "namesAttachedReactions",
   default: "default",
 })
 
@@ -915,7 +915,9 @@ const schema: SchemaType<DbPost> = {
     resolver: async (post, args, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       if (post.lastCommentPromotedAt) {
-        const comment = await Comments.findOne({postId: post._id, promoted: true}, {sort:{promotedAt: -1}})
+        const comment: DbComment|null = await getWithCustomLoader<DbComment|null,string>(context, "lastPromotedComments", post._id, async (postIds: string[]): Promise<Array<DbComment|null>> => {
+          return await context.repos.comments.getPromotedCommentsOnPosts(postIds);
+        });
         return await accessFilterSingle(currentUser, Comments, comment, context)
       }
     }
@@ -1051,7 +1053,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.advancedOptions : formGroups.adminOptions,
+    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
@@ -2297,7 +2299,7 @@ const schema: SchemaType<DbPost> = {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await context.Users.findOne({_id: post.userId});
+          const author = await context.loaders.Users.load(post.userId);
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
@@ -2385,17 +2387,17 @@ const schema: SchemaType<DbPost> = {
       const { commentsLimit=5, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
-      const comments = await Comments.find({
+      const loaderName = af?"recentCommentsAf" : "recentComments";
+      const filter: MongoSelector<DbComment> = {
         ...getDefaultViewSelector("Comments"),
-        postId: post._id,
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
         ...(af ? {af:true} : {}),
-      }, {
-        limit: commentsLimit,
-        sort: {postedAt:-1}
-      }).fetch();
+      };
+      const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit, filter);
+      });
       return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
   }),

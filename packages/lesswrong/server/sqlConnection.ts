@@ -1,7 +1,7 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
-import { isAnyTest } from "../lib/executionEnvironment";
 import { queryWithLock } from "./queryWithLock";
+import { isAnyTest } from "../lib/executionEnvironment";
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -152,7 +152,43 @@ const onConnectQueries: string[] = [
     RETURN TRUE;
   END;
   $$ LANGUAGE plpgsql;
-  `
+  `,
+  // Calculate the dot product between two arrays of floats. The arrays should be
+  // of the same length. Note that the `pgvector` extension provides a much more
+  // efficient implementation of this that's written in C, but in order to use that
+  // on AWS RDS we need to upgrade to at least Postgres 15.2 - maybe something for
+  // the future?
+  `CREATE OR REPLACE FUNCTION fm_dot_product(
+    IN vector1 DOUBLE PRECISION[],
+    IN vector2 DOUBLE PRECISION[]
+  )
+    RETURNS DOUBLE PRECISION AS
+    $BODY$
+      BEGIN
+        RETURN(
+          SELECT SUM(mul)
+          FROM (
+            SELECT v1e * v2e AS mul
+            FROM UNNEST(vector1, vector2) AS t(v1e, v2e)
+          ) AS denominator
+        );
+      END;
+    $BODY$
+    LANGUAGE 'plpgsql'
+  `,
+  // Extract an array of strings containing all of the tag ids that are attached to a
+  // post. Only tags with a relevance score >= 1 are included.
+  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
+    RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
+   'SELECT ARRAY_AGG(tags."tagId")
+    FROM "Posts" p
+    JOIN (
+      SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+      FROM "Posts"
+      WHERE "_id" = post_id
+    ) tags ON p."_id" = post_id
+    WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
+  `,
 ];
 
 export const createSqlConnection = async (
@@ -168,9 +204,11 @@ export const createSqlConnection = async (
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
-  
-  // eslint-disable-next-line no-console
-  console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
+  }
 
   const client: SqlClient = {
     ...db,

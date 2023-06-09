@@ -117,7 +117,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       WHERE _id = $1
     `, [userId]);
   }
-  
+
   setExpandFrontpageSection(userId: string, section: string, expanded: boolean): Promise<null> {
     return this.none(`
       UPDATE "Users"
@@ -136,5 +136,59 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         "afKarma" = "afKarma" - $2
       WHERE _id = $1
     `, [userId, reduceAFKarma]);
+  }
+
+  private getSearchDocumentQuery(): string {
+    return `
+      SELECT
+        u."_id",
+        u."_id" AS "objectID",
+        u."username",
+        u."displayName",
+        u."createdAt",
+        EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
+        COALESCE(u."isAdmin", FALSE) AS "isAdmin",
+        COALESCE(u."deleted", FALSE) AS "deleted",
+        COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        u."profileImageId",
+        u."biography"->>'html' AS "bio",
+        u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
+        u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
+        COALESCE(u."karma", 0) AS "karma",
+        u."slug",
+        u."jobTitle",
+        u."organization",
+        u."careerStage",
+        u."website",
+        u."groups",
+        u."groups" @> ARRAY['alignmentForum'] AS "af",
+        u."profileTagIds" AS "tags",
+        u."mapLocation"->'geometry'->'location' AS "_geoloc",
+        u."mapLocation"->'formatted_address' AS "mapLocationAddress",
+        NOW() AS "exportedAt"
+      FROM "Users" u
+    `;
+  }
+
+  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+    return this.getRawDb().one(`
+      ${this.getSearchDocumentQuery()}
+      WHERE u."_id" = $1
+    `, [id]);
+  }
+
+  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+    return this.getRawDb().any(`
+      ${this.getSearchDocumentQuery()}
+      WHERE u."displayName" IS NOT NULL
+      ORDER BY u."createdAt" DESC
+      LIMIT $1
+      OFFSET $2
+    `, [limit, offset]);
+  }
+
+  async countSearchDocuments(): Promise<number> {
+    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Users"`);
+    return count;
   }
 }

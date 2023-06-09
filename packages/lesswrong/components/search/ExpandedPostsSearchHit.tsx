@@ -81,7 +81,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
         {post.authorDisplayName}
       </Link> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
-      <FormatDate date={post.createdAt} />
+      <FormatDate date={post.postedAt} />
     </div>
     <div className={classes.snippet}>
       <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />

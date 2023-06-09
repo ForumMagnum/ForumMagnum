@@ -454,7 +454,20 @@ interface DbPageCacheEntry extends DbObject {
   renderedAt: Date
   expiresAt: Date
   ttlMs: number
-  renderResult: any /*{"definitions":[{"blackbox":true}]}*/
+  renderResult: {
+    ssrBody: string,
+    headers: Array<string>,
+    serializedApolloState: string,
+    serializedForeignApolloState: string,
+    jssSheets: string,
+    status: number,
+    redirectUrl: string,
+    relevantAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    allAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    themeOptions: any /*{"definitions":[{"blackbox":true}]}*/,
+    renderedAt: Date,
+    timings: any /*{"definitions":[{"blackbox":true}]}*/,
+  }
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -492,6 +505,20 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostEmbeddingsCollection extends CollectionBase<DbPostEmbedding, "PostEmbeddings"> {
+}
+
+interface DbPostEmbedding extends DbObject {
+  __collectionName?: "PostEmbeddings"
+  postId: string
+  postHash: string
+  lastGeneratedAt: Date
+  model: string
+  embeddings: Array<number>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1052,6 +1079,7 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDraftsBy: string
+  reactPaletteStyle: "listView" | "gridView"
   noKibitz: boolean
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean
@@ -1429,6 +1457,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostEmbeddings: PostEmbeddingsCollection
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
@@ -1481,6 +1510,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostEmbeddings: DbPostEmbedding
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost

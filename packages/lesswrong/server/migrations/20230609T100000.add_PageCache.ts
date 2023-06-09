@@ -39,7 +39,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "43d20b2d5900a17f69005d9c5bd078cd";
+export const acceptsSchemaHash = "8f9b37b6b8213a24c21dba39e77f7bbb";
 
 import PageCache from "../../lib/collections/pagecache/collection"
 import { createTable, dropTable } from "./meta/utils"

@@ -46,6 +46,8 @@ import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
 
 class ApolloServerLogging {
   requestDidStart(context: any) {
@@ -209,6 +211,10 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
+
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

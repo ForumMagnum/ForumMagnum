@@ -207,6 +207,9 @@ import './collections/moderationTemplates/index';
 // UserRateLimits
 import './collections/userRateLimits/index';
 
+// PostEmbeddings
+import './collections/postEmbeddings/collection';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

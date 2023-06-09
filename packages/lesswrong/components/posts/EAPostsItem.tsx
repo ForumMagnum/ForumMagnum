@@ -188,7 +188,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     commentCount,
     hasUnreadComments,
     primaryTag,
-    hasAudio,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -298,9 +297,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                     {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) && <span className={classes.readTime}>
                       {' · '}{post.readTimeMinutes || 1}m read
                     </span>}
-                  </div>
-                  <div className={classes.audio}>
-                    {hasAudio && <ForumIcon icon="VolumeUp" />}
                   </div>
                 </div>
                 <div className={classNames(
