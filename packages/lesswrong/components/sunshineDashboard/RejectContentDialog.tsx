@@ -49,6 +49,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 6,
     paddingLeft: 12,
     paddingBottom: 6
+  },
+  topReason: {
+    fontWeight: 600
+  },
+  nonTopReason: {
+    opacity: .6
   }
 });
 
