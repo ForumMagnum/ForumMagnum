@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { tagStyle, coreTagStyle } from './FooterTag';
+import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,6 +42,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isEAForum ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
+  smallTag: {
+    ...smallTagTextStyle(theme),
+    "& .TagsChecklist-removeTag svg": {
+      transform: "translateY(-4px)",
+    },
+  },
   removeTag: {
     background: 'transparent',
     color: 'inherit',
@@ -59,6 +66,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     marginLeft: 8,
     color: theme.palette.grey[500],
+    whiteSpace: "nowrap",
+  },
+  smallLoadMore: {
+    fontSize: 13,
+    fontWeight: 600,
   },
 });
 
@@ -82,6 +94,7 @@ const TagsChecklist = ({
   displaySelected = "hide",
   tooltips = true,
   truncate = false,
+  smallText = false,
 }: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
@@ -94,6 +107,7 @@ const TagsChecklist = ({
   displaySelected?: "highlight" | "hide";
   tooltips?: boolean;
   truncate?: boolean;
+  smallText?: boolean,
 }) => {
   const { LWTooltip, LoadMore, ForumIcon } = Components;
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
@@ -131,9 +145,17 @@ const TagsChecklist = ({
     <>
       {tagsToDisplay?.map((tagChecklistItem) =>
         tagChecklistItem.selected ? (
-          <div className={classes.selectedTag} key={tagChecklistItem.tag._id}>
+          <div
+            key={tagChecklistItem.tag._id}
+            className={classNames(classes.selectedTag, {
+              [classes.smallTag]: smallText,
+            })}
+          >
             {tagChecklistItem.tag.name}
-            <button className={classes.removeTag} onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}>
+            <button
+              className={classes.removeTag} 
+              onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}
+            >
               <ForumIcon icon="Close" />
             </button>
           </div>
@@ -147,8 +169,14 @@ const TagsChecklist = ({
                 {!!tagChecklistItem.tag.parentTag && <span>. Its parent {taggingNameSetting.get()} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
               </div>
             }
+            hideOnTouchScreens
           >
-            <div className={classes.tag} onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}>
+            <div
+              className={classNames(classes.tag, {
+                [classes.smallTag]: smallText,
+              })}
+              onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}
+            >
               {tagChecklistItem.tag.name}
             </div>
           </LWTooltip>
@@ -157,7 +185,9 @@ const TagsChecklist = ({
       {shouldDisplayLoadMore && <LoadMore
         message={`${numHidden} more`}
         loadMore={() => setLoadMoreClicked(true)}
-        className={classes.loadMore}
+        className={classNames(classes.loadMore, {
+          [classes.smallLoadMore]: smallText,
+        })}
       />}
     </>
   );

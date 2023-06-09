@@ -29,11 +29,6 @@ const styles = (theme: ThemeType) => ({
   commentForm: {
     width: "100%",
   },
-  setTopic: {
-    fontWeight: 600,
-    fontSize: 13,
-    color: theme.palette.grey[1000],
-  },
 });
 
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
@@ -64,23 +59,18 @@ const QuickTakesEntry = ({currentUser, classes}: {
         </div>
       }
       {expanded &&
-        <>
-          <CommentsNewForm
-            prefilledProps={{
-              shortform: true,
-            }}
-            successCallback={onSuccess}
-            cancelCallback={onCancel}
-            type="comment"
-            formProps={{
-              editorHintText: placeholder,
-            }}
-            className={classes.commentForm}
-          />
-          <div className={classes.footer}>
-            <div className={classes.setTopic}>Set topic</div>
-          </div>
-        </>
+        <CommentsNewForm
+          prefilledProps={{
+            shortform: true,
+          }}
+          successCallback={onSuccess}
+          cancelCallback={onCancel}
+          type="comment"
+          formProps={{
+            editorHintText: placeholder,
+          }}
+          className={classes.commentForm}
+        />
       }
     </div>
   );

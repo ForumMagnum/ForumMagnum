@@ -6,9 +6,23 @@ import { ChecklistTag } from '../tagging/TagsChecklist';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
+    flexWrap: "nowrap",
+    alignItems: "baseline",
+    [theme.breakpoints.down("xs")]: {
+      flexWrap: "wrap",
+    },
+  },
+  tags: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
   },
   heading: {
-    ...theme.typography.uiSecondary,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+    marginRight: 4,
   },
 });
 
@@ -18,8 +32,15 @@ const FRONTPAGE_DUMMY_TAG: ChecklistTag = {
   name: "Frontpage",
 }
 
-const FormComponentTagsChecklist = ({ document, path, label, value, updateCurrentValues, classes }: FormComponentProps<any> & {
-  classes: ClassesType;
+const FormComponentTagsChecklist = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  classes,
+}: FormComponentProps<any> & {
+  classes: ClassesType,
 }) => {
   const { results, loading } = useMulti({
     terms: {
@@ -47,7 +68,11 @@ const FormComponentTagsChecklist = ({ document, path, label, value, updateCurren
       return;
     }
 
-    const newValue = Array.from(new Set([...existingTagIds, tag.tagId, tag.parentTagId])).filter((id) => !!id);
+    const newValue = Array.from(new Set([
+      ...existingTagIds,
+      tag.tagId,
+      tag.parentTagId,
+    ])).filter((id) => !!id);
     void updateCurrentValues({
       [path]: newValue,
     });
@@ -71,26 +96,35 @@ const FormComponentTagsChecklist = ({ document, path, label, value, updateCurren
   };
 
   const tags = isShortform ? [FRONTPAGE_DUMMY_TAG, ...results] : results;
-  const selectedTagIds = isShortform ? [...(document.shortformFrontpage ? [FRONTPAGE_TAG_ID] : []), ...value] : value;
+  const selectedTagIds = isShortform ?
+    [...(document.shortformFrontpage ? [FRONTPAGE_TAG_ID] : []), ...value]
+    : value;
 
   return (
     <div className={classes.root}>
       <h3 className={classes.heading}>{label}</h3>
-      <TagsChecklist
-        tags={tags}
-        displaySelected="highlight"
-        selectedTagIds={selectedTagIds ?? []}
-        onTagSelected={onTagSelected}
-        onTagRemoved={onTagRemoved}
-        tooltips={false}
-        // TODO: Ideally should be getting this from the a form prop
-        truncate={isShortform}
-      />
+      <div className={classes.tags}>
+        <TagsChecklist
+          tags={tags}
+          displaySelected="highlight"
+          selectedTagIds={selectedTagIds ?? []}
+          onTagSelected={onTagSelected}
+          onTagRemoved={onTagRemoved}
+          tooltips={false}
+          // TODO: Ideally should be getting this from the a form prop
+          truncate={isShortform}
+          smallText
+        />
+      </div>
     </div>
   );
 };
 
-const FormComponentTagsChecklistComponent = registerComponent("FormComponentTagsChecklist", FormComponentTagsChecklist, {styles});
+const FormComponentTagsChecklistComponent = registerComponent(
+  "FormComponentTagsChecklist",
+  FormComponentTagsChecklist,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {
