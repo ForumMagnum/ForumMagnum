@@ -2,6 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
+import { VoteCounts } from "../../components/ea-forum/EditDigest";
 
 export type KarmaChangesArgs = {
     userId: string,
@@ -108,5 +109,19 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
       WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
     `, [oldUserId, newUserId]);
+  }
+  
+  async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<VoteCounts>> {
+    return await logIfSlow(async () => await this.getRawDb().many(`
+      SELECT p._id as "postId",
+        count(v._id) FILTER(WHERE v."voteType" = ANY(ARRAY['smallUpvote','bigUpvote'])) as "upvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = ANY(ARRAY['smallDownvote','bigDownvote'])) as "downvoteCount"
+      FROM "Posts" p
+      JOIN "Votes" v tablesample system(50) ON v."documentId" = p."_id"
+      WHERE p._id = ANY($1)
+        AND v."collectionName" = 'Posts'
+        AND v.cancelled = false
+      GROUP BY p._id
+    `, [postIds]), "getDigestPlannerVotesForPosts");
   }
 }

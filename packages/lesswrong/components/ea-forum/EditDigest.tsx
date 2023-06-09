@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
 import { randInt } from '../../lib/random';
+import { gql, useQuery } from '@apollo/client';
+import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -11,12 +13,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: '10px auto'
   },
   topSection: {
-    paddingLeft: 12
+    paddingLeft: 12,
+    marginBottom: 10
   },
   filters: {
     display: 'flex',
+    alignItems: 'flex-end',
     columnGap: 10,
     marginBottom: 10
+  },
+  filter: {
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '4px',
+  },
+  filterLabel: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    lineHeight: '18px',
+    paddingLeft: 12
   },
   checkIcon: {
     width: 20,
@@ -41,6 +56,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   closeIcon: {
     fontSize: 12,
     marginLeft: 8,
+  },
+  resetFilters: {
+    flex: '1 1 0',
+    textAlign: 'right'
+  },
+  resetFiltersBtn: {
+    background: 'none',
+    color: theme.palette.grey[800],
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    lineHeight: '18px',
+    '&:hover': {
+      color: theme.palette.grey[1000],
+    }
   },
   table: {
     background: theme.palette.grey[0],
@@ -71,14 +100,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center'
   },
   emailIcon: {
-    color: theme.palette.icon.greenCheckmark,
+    color: theme.palette.grey[400],
     fontSize: 20,
   },
   forumIcon: {
-    color: theme.palette.icon.greenCheckmark,
+    color: theme.palette.grey[400],
     '& svg': {
       height: 26
     }
+  },
+  yesIcon: {
+    color: theme.palette.icon.greenCheckmark,
   },
   link: {
     color: theme.palette.primary.main,
@@ -154,9 +186,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-type Medium = "email"|"on-site"|"none"|"all"
+export type VoteCounts = {
+  postId: string,
+  upvoteCount: number,
+  downvoteCount: number
+}
+type InDigest = "yes"|"maybe"|"no"
 type TagUsage = {
   _id: string,
+  name: string,
   core: boolean,
   count: number
 }
@@ -174,27 +212,65 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     limit: 200
   })
   
+  const { data: voteCounts } = useQuery(gql`
+    query getDigestPlannerVotes($postIds: [String]) {
+      DigestPlannerVotes(postIds: $postIds) {
+        postId
+        upvoteCount
+        downvoteCount
+      }
+    }`, {
+      ssr: true,
+      fetchPolicy: "cache-and-network",
+      skip: !results,
+      variables: {postIds: results?.map(post => post._id)},
+    }
+  )
+  
   const [votes, setVotes] = useState<Record<string,Record<string,number>>>()
   useEffect(() => {
-    if (!results) return
+    if (!results || !voteCounts) return
     
     const newVotes: Record<string,Record<string,number>> = {}
     results.forEach(post => {
-      newVotes[post._id] = {upvotes: randInt(40), downvotes: randInt(40)}
+      // newVotes[post._id] = {upvotes: randInt(40), downvotes: randInt(40)}
+      const counts = voteCounts.DigestPlannerVotes.find((vc: VoteCounts) => vc.postId === post._id) ?? {upvoteCount: 0, downvoteCount: 0}
+      newVotes[post._id] = {upvotes: counts.upvoteCount, downvotes: counts.downvoteCount}
     })
     setVotes(newVotes)
-  }, [results])
+  }, [results, voteCounts])
   
-  const [digestFilter, setDigestFilter] = useState<Medium>('all')
-  const [tagFilter, setTagFilter] = useState<string|null>(null)
-
-  const { SectionTitle, ForumDropdown, ForumIcon } = Components
+  const [emailDigestFilter, setEmailDigestFilter] = useState<InDigest[]>(["yes","maybe","no"])
+  const [onsiteDigestFilter, setOnsiteDigestFilter] = useState<InDigest[]>(["yes","maybe","no"])
+  const [tagFilter, setTagFilter] = useState<string>('')
   
-  if (!results || !votes) {
-    return null
+  const handleUpdateEmailDigestFilter = (val: InDigest) => {
+    if (emailDigestFilter.includes(val)) {
+      setEmailDigestFilter(emailDigestFilter.filter(v => v !== val))
+    } else {
+      emailDigestFilter.push(val)
+      setEmailDigestFilter(emailDigestFilter)
+    }
   }
   
-  const tagCounts = results.reduce((tagsList: TagUsage[], post: PostsListBase) => {
+  const handleUpdateOnsiteDigestFilter = (val: InDigest) => {
+    if (onsiteDigestFilter.includes(val)) {
+      setOnsiteDigestFilter(onsiteDigestFilter.filter(v => v !== val))
+    } else {
+      onsiteDigestFilter.push(val)
+      setOnsiteDigestFilter(onsiteDigestFilter)
+    }
+  }
+  
+  const resetFilters = () => {
+    setEmailDigestFilter(["yes","maybe","no"])
+    setOnsiteDigestFilter(["yes","maybe","no"])
+    setTagFilter('')
+  }
+
+  const { SectionTitle, ForumDropdown, ForumDropdownMultiselect, ForumIcon } = Components
+  
+  const tagCounts = useMemo(() => results?.reduce((tagsList: TagUsage[], post: PostsListBase) => {
     post.tags.forEach(tag => {
       const prevTagData = tagsList.find(t => t._id === tag._id)
       if (prevTagData) {
@@ -202,15 +278,21 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
       } else {
         tagsList.push({
           _id: tag._id,
+          name: tag.name,
           core: tag.core,
           count: 1
         })
       }
     })
     return tagsList
-  }, [])
+  }, []).sort((a,b) => b.count - a.count), [results])
   
-  const coreAndPopularTagIds = tagCounts.filter(tag => tag.core || tag.count > 3).map(tag => tag._id)
+  if (!results || !votes || !tagCounts) {
+    return null
+  }
+  
+  const coreAndPopularTags = tagCounts.filter(tag => tag.core || tag.count > 3)
+  const coreAndPopularTagIds = coreAndPopularTags.map(tag => tag._id)
   
   // initially sort by curated, then upvotes, then downvotes
   let posts = [...results].sort((a,b) => {
@@ -222,43 +304,78 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     if (upvoteDiff === 0) return votes[a._id].downvotes - votes[b._id].downvotes
     return upvoteDiff
   })
-  let tagFilteredCount = results.length
   if (tagFilter) {
-    posts = posts.filter(post => post.tags.find(tag => tag.name === tagFilter))
-    tagFilteredCount = posts.length
+    posts = posts.filter(post => post.tags.find(tag => tag._id === tagFilter))
   }
-  if (digestFilter) {
-    posts = posts.filter(post => {
-      switch (digestFilter) {
-        case 'email': return post.baseScore > 50
-        case 'on-site': return post.baseScore > 20
-        case 'none': return post.baseScore <= 20
-        default: return true
+  posts = posts.filter(post => {
+    const passesEmailFilter = () => {
+      if (emailDigestFilter.includes('yes') && post.baseScore > 100) {
+        return true
       }
-    })
+      if (emailDigestFilter.includes('maybe') && post.baseScore <= 100 && post.baseScore > 30) {
+        return true
+      }
+      if (emailDigestFilter.includes('no') && post.baseScore <= 30) {
+        return true
+      }
+      return false
+    }
+    const passesOnsiteFilter = () => {
+      if (onsiteDigestFilter.includes('yes') && post.baseScore > 30) {
+        return true
+      }
+      if (onsiteDigestFilter.includes('maybe') && post.baseScore <= 30 && post.baseScore > 10) {
+        return true
+      }
+      if (onsiteDigestFilter.includes('no') && post.baseScore <= 10) {
+        return true
+      }
+      return false
+    }
+    return passesEmailFilter() && passesOnsiteFilter()
+  })
+  
+  const emailCount = posts.filter(p => p.baseScore > 100).length
+  const onSiteCount = posts.filter(p => p.baseScore > 30).length
+  const emailDigestOptions = {
+    'yes': {label: `Yes (${emailCount})`},
+    'maybe': {label: `Maybe (${posts.filter(p => p.baseScore <= 100 && p.baseScore > 30).length})`},
+    'no': {label: `No (${posts.filter(p => p.baseScore <= 30).length})`}
+  }
+  const onsiteDigestOptions = {
+    'yes': {label: `Yes (${onSiteCount})`},
+    'maybe': {label: `Maybe (${posts.filter(p => p.baseScore <= 30 && p.baseScore > 10).length})`},
+    'no': {label: `No (${posts.filter(p => p.baseScore <= 10).length})`}
   }
   
-  const emailCount = results.filter(p => p.baseScore > 50).length
-  const onSiteCount = results.filter(p => p.baseScore > 30).length
-  const noneCount = results.filter(p => p.baseScore <= 30).length
-  const digestOptions = {
-    'all': {label: `All posts (${results.length})`},
-    'email': {label: `Email digest (${emailCount})`},
-    'on-site': {label: `On-site digest (${onSiteCount})`},
-    'none': {label: `No digest (${noneCount})`}
-  }
+  const tagOptions = coreAndPopularTags.reduce((prev: Record<string, SettingsOption>, next) => {
+    prev[next._id] = {label: `${next.name} (${posts.filter(p => p.tags.some(t => t._id === next._id)).length})`}
+    return prev
+  }, {'': {label: `All posts (${posts.length})`}})
 
   return (
     <div className={classes.root}>
       <div className={classes.topSection}>
         <SectionTitle title="Forum Digest (May 31 - Jun 7)" noTopMargin />
-        
-        <div className={classes.filters}>
-          <ForumDropdown value={digestFilter} options={digestOptions} onSelect={setDigestFilter} />
-          {tagFilter && <div className={classes.tagFilter} onClick={() => setTagFilter(null)}>
-            Tag: {tagFilter} ({tagFilteredCount})
-            <ForumIcon icon="Close" className={classes.closeIcon} />
-          </div>}
+      </div>
+      
+      <div className={classes.filters}>
+        <div className={classes.filter}>
+          <label className={classes.filterLabel}>In email digest?</label>
+          <ForumDropdownMultiselect values={emailDigestFilter} options={emailDigestOptions} onSelect={handleUpdateEmailDigestFilter} />
+        </div>
+        <div className={classes.filter}>
+          <label className={classes.filterLabel}>In on-site digest?</label>
+          <ForumDropdownMultiselect values={onsiteDigestFilter} options={onsiteDigestOptions} onSelect={handleUpdateOnsiteDigestFilter} />
+        </div>
+        <div className={classes.filter}>
+          <label className={classes.filterLabel}>Filter by tag</label>
+          <ForumDropdown value={tagFilter} options={tagOptions} onSelect={setTagFilter} />
+        </div>
+        <div className={classes.resetFilters}>
+          <button type="button" className={classes.resetFiltersBtn} onClick={resetFilters}>
+            Reset filters
+          </button>
         </div>
       </div>
       
@@ -287,10 +404,13 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             
             return <tr key={post._id} className={classes.row}>
               <td className={classes.inCol}>
-                {post.baseScore > 50 && <ForumIcon icon="Email" className={classes.emailIcon} />}
+                {post.baseScore > 30 && <ForumIcon
+                  icon="Email"
+                  className={classNames(classes.emailIcon, {[classes.yesIcon]: post.baseScore > 100})}
+                />}
               </td>
               <td className={classes.inCol}>
-                {post.baseScore > 20 && <div className={classes.forumIcon}>{lightbulbIcon}</div>}
+                {post.baseScore > 10 && <div className={classNames(classes.forumIcon, {[classes.yesIcon]: post.baseScore > 30})}>{lightbulbIcon}</div>}
               </td>
               <td>
                 <div>
@@ -312,7 +432,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
                   if (!a.core && b.core) return 1
                   return 0
                 }).map(tag => {
-                  return <div key={tag._id} className={classes.tag} onClick={() => setTagFilter(tag.name)}>{tag.name}</div>
+                  return <div key={tag._id} className={classes.tag} onClick={() => setTagFilter(tag._id)}>{tag.name}</div>
                 })}
                 {showMoreTags}
               </td>

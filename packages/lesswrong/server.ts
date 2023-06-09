@@ -158,6 +158,7 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
+import './server/resolvers/voteResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
