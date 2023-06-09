@@ -67,10 +67,18 @@ function simplSchemaUnionTypeToTypescript(allowedValues: string[]) {
 
 function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: number) {
   const indentSpaces = Array(indent + 2).fill(' ').join('');
-  const fields = Object.keys(innerSchema).map(innerSchemaField => {
-    const fieldTypeDef = simplSchemaTypeToTypescript(innerSchema, innerSchemaField, innerSchema[innerSchemaField].type, indent + 2);
-    return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
-  }).join('');
+  const fields = Object.keys(innerSchema)
+    .filter((innerSchemaField) => !innerSchemaField.includes(".$")) // filter out array type definitions
+    .map((innerSchemaField) => {
+      const fieldTypeDef = simplSchemaTypeToTypescript(
+        innerSchema,
+        innerSchemaField,
+        innerSchema[innerSchemaField].type,
+        indent + 2
+      );
+      return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
+    })
+    .join("");
   return `{${fields}\n${indentSpaces.slice(0, indentSpaces.length - 2)}}`;
 }
 

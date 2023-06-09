@@ -2,6 +2,9 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
+import { PublicInstanceSetting } from "../lib/instanceSettings";
+
+const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
@@ -136,6 +139,23 @@ const onConnectQueries: string[] = [
       JOIN "Posts" b ON b."_id" = post_id_b
     ) "tagRelevance";'
   `,
+  // Check if candidate is a subset of target, where both are of the type Record<string, string>
+  `CREATE OR REPLACE FUNCTION fm_jsonb_subset(target jsonb, candidate jsonb)
+  RETURNS BOOLEAN AS $$
+  DECLARE
+    key text;
+  BEGIN
+    FOR key IN SELECT jsonb_object_keys(candidate)
+    LOOP
+      IF NOT (target ? key AND target->>key = candidate->>key) THEN
+        RETURN FALSE;
+      END IF;
+    END LOOP;
+
+    RETURN TRUE;
+  END;
+  $$ LANGUAGE plpgsql;
+  `,
   // Calculate the dot product between two arrays of floats. The arrays should be
   // of the same length. Note that the `pgvector` extension provides a much more
   // efficient implementation of this that's written in C, but in order to use that
@@ -186,6 +206,7 @@ export const createSqlConnection = async (
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
+    idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
   });
 
   if (!isAnyTest) {
