@@ -32,6 +32,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const [yOffset, setYOffset] = useState<number>(0);
+  const [disabledButton, setDisabledButton] = useState<boolean>(false);
 
   const { AddInlineReactionButton, LWPopper } = Components;
 
@@ -59,15 +60,19 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
       let markInstance = new Mark(ref);
       markInstance.unmark({className: hideSelectorClassName});
     }
+
+    function clearAll() {
+      setAnchorEl(null);
+      setQuote("")
+      unMark()
+      setDisabledButton(false)
+    }
   
-    
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
     const selectionAnchorNode = selection?.anchorNode
     if (!selectionAnchorNode) {
-      setAnchorEl(null);
-      setQuote("")
-      unMark()
+      clearAll()
       return
     }
 
@@ -81,16 +86,16 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         setAnchorEl(anchorEl);
         setQuote(selectedText);
         setYOffset(getYOffsetFromDocument(selection, commentTextRef));
+        const commentText = commentItemRef.current?.textContent ?? ""
+        // Count the number of occurrences of the quote in the raw text
+        const count = (commentText.match(new RegExp(selectedText, "g")) || []).length;
+        setDisabledButton(count > 1)
       } else {
-        setAnchorEl(null);
-        setQuote("")
-        unMark()
+        clearAll()
       }
     }
     if (!selectionInCommentRef && !selectionInPopupRef) {
-      setAnchorEl(null);
-      setQuote("")
-      unMark()
+      clearAll()
     }
   }, [commentItemRef, commentTextRef]);
   
@@ -111,7 +116,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
       </LWPopper>
       {children}

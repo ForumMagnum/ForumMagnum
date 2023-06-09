@@ -77,7 +77,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage, comment
     />
   </ContentStyles>
 
-  if (comment.votingSystem === "namesAttachedReactionsWithInline") {
+  if (comment.votingSystem === "namesAttachedReactions") {
     return <InlineReactSelectionWrapper comment={comment} commentItemRef={commentItemRef}>
         {contentBody}
       </InlineReactSelectionWrapper>
