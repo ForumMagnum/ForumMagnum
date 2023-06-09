@@ -613,7 +613,7 @@ importComponent("CommentsReviewInfoCard", () => require('../components/sunshineD
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
-importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
+importComponent("RejectContentDialog", () => require('../components/sunshineDashboard/RejectContentDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
 
