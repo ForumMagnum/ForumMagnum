@@ -96,7 +96,7 @@ const LW = {
     },
     THREE_PER_DAY_UNDER_1_RECENT_KARMA: {
       actionType: "Comments",
-      recentKarmaThreshold: 5,
+      recentKarmaThreshold: 1,
       timeframeUnit: 'days',
       timeframeLength: 1,
       itemsPerTimeframe: 3,
