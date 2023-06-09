@@ -2,6 +2,7 @@ import { Utils } from './vulcan-lib'; // import from vulcan:lib because vulcan:c
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
+
 //
 // Do a query, with a custom loader for query batching. This effectively does a
 // find query, where all of the fields of the query are kept constant within a
@@ -17,8 +18,7 @@ import * as _ from 'underscore';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: keyof T, id: string, projection:any=undefined): Promise<Array<T>>
-{
+export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: keyof T, id: string, projection:any=undefined): Promise<Array<T>> {
   if (!context.extraLoaders) {
     context.extraLoaders = {};
   }
@@ -39,8 +39,7 @@ export async function getWithLoader<T extends DbObject>(context: ResolverContext
   return await context.extraLoaders[loaderName].load(id);
 }
 
-export async function getWithCustomLoader<T extends DbObject, ID>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<Array<T>>): Promise<Array<T>>
-{
+export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<T[]>): Promise<T> {
   if (!context.extraLoaders[loaderName]) {
     context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
   }

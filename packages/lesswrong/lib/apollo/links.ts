@@ -3,6 +3,9 @@ import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
+import { DatabasePublicSetting } from "../publicSettings";
+
+const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
 export const crosspostUserAgent = "ForumMagnum/2.1";
 
@@ -39,7 +42,7 @@ export const createHttpLink = (baseUrl = '/') => {
   return new BatchHttpLink({
     uri: baseUrl + 'graphql',
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',
-    batchMax: 50,
+    batchMax: graphqlBatchMaxSetting.get(),
     fetch,
   });
 }

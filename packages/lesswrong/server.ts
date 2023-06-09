@@ -177,6 +177,8 @@ import './server/languageModels/postSummaryResolver';
 import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
+import './server/embeddings';
+
 // Algolia Search Integration
 import './server/search/utils';
 import './server/search/callbacks';
