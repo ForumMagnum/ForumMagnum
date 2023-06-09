@@ -1,10 +1,10 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
-import { DatabaseServerSetting } from "./databaseSettings";
 import { isAnyTest } from "../lib/executionEnvironment";
+import { PublicInstanceSetting } from "../lib/instanceSettings";
 
-const pgConnIdleTimeoutMsSetting = new DatabaseServerSetting<number>('pg.idleTimeoutMs', 10000)
+const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
