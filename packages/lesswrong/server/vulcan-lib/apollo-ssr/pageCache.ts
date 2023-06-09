@@ -11,6 +11,7 @@ import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCache from '../../../lib/collections/pagecache/collection';
 import { getClientBundle } from '../../utils/bundleUtils';
 import PageCacheRepo from '../../repos/PageCacheRepo';
+import { DatabaseServerSetting } from '../../databaseSettings';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -24,6 +25,8 @@ import PageCacheRepo from '../../repos/PageCacheRepo';
 //      we've rendered it; and
 //   3. When a page that is getting a lot of traffic expires from the page
 //      cache, we don't want to start many rerenders of it in parallel
+
+const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 const maxCacheAgeMs = 90*1000;
@@ -186,8 +189,12 @@ const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllo
     return localResult;
   }
 
-  const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
-  return dbResult;
+  if (dbPageCacheEnabledSetting.get()) {
+    const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
+    return dbResult;
+  }
+
+  return null;
 }
 
 const objIsSubset = <A extends Record<string, any>, B extends Record<string, any>>(subset: A, superset: B): boolean => {
