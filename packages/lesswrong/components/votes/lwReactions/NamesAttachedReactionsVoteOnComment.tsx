@@ -497,6 +497,8 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
   return <span
     className={classNames(
       classes.footerReaction,
+      'reaction',
+      [react],
       {
         [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
         [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
