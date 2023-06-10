@@ -412,10 +412,13 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
   </span>
 }
 
+interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
+  voteProps: VotingProps<VoteableTypeClient>,
+}
+
 const NamesAttachedReactionsCommentBottom = ({
-  document, hideKarma=false, collection, votingSystem, commentItemRef, classes, quote
-}: CommentVotingComponentProps & WithStylesProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+  document, hideKarma=false, commentItemRef, classes, voteProps
+}: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 

@@ -19,6 +19,7 @@ import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { useVote, VotingProps } from '../../votes/withVote';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -244,7 +245,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     setShowParentState(!showParentState);
   }
 
-  const renderBodyOrEditor = () => {
+  const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
       return <Components.CommentsEditForm
         comment={comment}
@@ -254,14 +255,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     } else {
       return (<div ref={commentItemRef}>
         <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
-          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef}
+          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef} voteProps={voteProps}
         />
       </div>
       );
     }
   }
 
-  const renderCommentBottom = () => {
+  const renderCommentBottom = (voteProps: VotingProps<VoteableTypeClient>) => {
     const { CommentBottomCaveats } = Components
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -300,6 +301,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           collection={Comments}
           votingSystem={votingSystem}
           commentItemRef={commentItemRef}
+          voteProps={voteProps}
         />}
       </div>
     );
@@ -342,6 +344,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     post &&
     currentUser?._id !== post.userId &&
     eligibleToNominate(currentUser)
+
+  const voteProps = useVote(comment, "Comments", votingSystem);
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -411,8 +415,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             Pinned by {comment.promotedByUser.displayName}
           </div>}
           {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
-          {renderBodyOrEditor()}
-          {!comment.deleted && !collapsed && renderCommentBottom()}
+          {renderBodyOrEditor(voteProps)}
+          {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>
