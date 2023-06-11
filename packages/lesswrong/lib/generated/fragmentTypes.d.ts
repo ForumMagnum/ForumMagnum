@@ -1945,6 +1945,13 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly af: boolean,
 }
 
+interface SequenceContinueReadingFragment { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly gridImageId: string,
+  readonly canonicalCollectionSlug: string,
+}
+
 interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // fragment on Sequences
   readonly chapters: Array<ChaptersFragment>,
 }
@@ -1973,6 +1980,13 @@ interface BookPageFragment { // fragment on Books
 
 interface BookEdit extends BookPageFragment { // fragment on Books
   readonly contents: RevisionEdit|null,
+}
+
+interface CollectionContinueReadingFragment { // fragment on Collections
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly gridImageId: string,
 }
 
 interface CollectionsPageFragment { // fragment on Collections
@@ -3175,10 +3189,12 @@ interface FragmentTypes {
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
+  SequenceContinueReadingFragment: SequenceContinueReadingFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
   BookEdit: BookEdit
+  CollectionContinueReadingFragment: CollectionContinueReadingFragment
   CollectionsPageFragment: CollectionsPageFragment
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -3367,10 +3383,12 @@ interface CollectionNamesByFragmentName {
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
   SequencesPageFragment: "Sequences"
+  SequenceContinueReadingFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
   BookEdit: "Books"
+  CollectionContinueReadingFragment: "Collections"
   CollectionsPageFragment: "Collections"
   CollectionsEditFragment: "Collections"
   SuggestAlignmentPost: "Posts"
