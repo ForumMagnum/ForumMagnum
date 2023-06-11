@@ -1,9 +1,9 @@
-import ReviewVotes from "./collections/reviewVotes/collection"
-import Users from "./collections/users/collection"
-import { getCostData, REVIEW_YEAR } from "./reviewUtils"
+import ReviewVotes from "../lib/collections/reviewVotes/collection"
+import Users from "../lib/collections/users/collection"
+import { getCostData, REVIEW_YEAR } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
-import { postGetPageUrl } from "./collections/posts/helpers";
+import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
 
 export interface Dictionary<T> {

@@ -1,4 +1,4 @@
-import { updateReviewVoteTotals } from '../../lib/reviewVoteUpdate';
+import { updateReviewVoteTotals } from '../reviewVoteUpdate';
 import { registerMigration } from './migrationUtils';
 
 registerMigration({
