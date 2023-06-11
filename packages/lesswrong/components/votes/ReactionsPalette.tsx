@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 240,
+    maxHeight: 300,
     overflowY: "scroll",
     marginBottom: 12,
     marginTop: 12
@@ -116,10 +116,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover, &:active, &:focus': {
       color: theme.palette.grey[400],
     },
+  },
+  tooltipLabel: {
+    fontSize: 15
+  },
+  iconSection: {
+    borderBottom: theme.palette.border.faint,
+    paddingBottom: 6,
+    marginBottom: 6,
+    marginRight: 7,
+    '&:last-child': {
+      borderBottom: "none",
+      paddingBottom: 0,
+      marginBottom: 0,
+    }
   }
 })
 
 type paletteView = "listView"|"gridView";
+
+const namesAttachedReactionsByName = namesAttachedReactions.map(r => r.name);
+type ReactionsPaletteName = typeof namesAttachedReactionsByName[number];
 
 const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
@@ -131,7 +148,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const reactPaletteStyle = currentUser?.reactPaletteStyle === "gridView" ? "gridView" : "listView"
+  const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
@@ -163,12 +180,87 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         <ReactionIcon inverted={true} react={reaction.name} size={40}/>
       </div>
       <div>
-        <span>{reaction.label}</span>
+        <span className={classes.tooltipLabel}>{reaction.label}</span>
         <ReactionDescription reaction={reaction} classes={classes}/>
       </div>
     </Row>
   }
   
+  type ReactionsIconRow = ReactionsPaletteName[]
+
+  const primaryEpistemic: ReactionsIconRow = [
+    'agree',      'disagree',   'important',    'dontUnderstand', 'changemind', 'thinking',   'surprise',   'roll',         'confused',       
+  ]
+  const primaryEpistemicAndEmotions: ReactionsIconRow = [
+    'agree',      'disagree',   'important',    'dontUnderstand', 'changemind',  'thanks', 'thumbs-up',  'verified', 
+    'thinking',   'surprise',   'roll',         'confused', 'empathy', 'laugh',    'disappointed',    'smile', 'excitement', 
+  ]
+  const sectionB: ReactionsIconRow = [
+    'crux',       'hitsTheMark', 'insightful', 'scout',     'charitable',                 'concrete', 'yeswhatimean',  'scholarship',  'locallyInvalid',
+    'notacrux',   'miss',        'muddled',    'soldier',   'unnecessarily-combative',    'examples',      'offtopic', 'obtuse',
+    'taboo',      'strawman',    'elaborate',  'timecost',   'coveredAlready', 'paperclip',   'additionalQuestions', 'typo',
+  ]
+
+  const sectionB2: ReactionsIconRow = [
+    'verified', 'coveredAlready',
+    'typo', 'nonsequitur',
+    'insightful', 'muddled',
+    'locallyValid', 'locallyInvalid',
+    'crux', 'notacrux',
+    'hitsTheMark', 'miss',
+    'scout', 'soldier',
+    'charitable', 'unnecessarily-combative',
+    'concrete', 'examples',
+    'yeswhatimean', 'offtopic',
+    'scholarship', 'obtuse',
+    'strawman', 'taboo',
+    'elaborate', 'timecost',
+    'paperclip', 'additionalQuestions'
+  ]
+  const emotional: ReactionsIconRow = [
+    'smile', 'laugh',    'disappointed',        'empathy',  'thanks', 'excitement', 'shrug', 'seen',
+  ]
+
+  const getReactionFromName = (name: string) => namesAttachedReactions.find(r => r.name === name);
+
+  const primaryEpistemicReactions = primaryEpistemic.map(r => getReactionFromName(r)).filter(r => r);
+  const primaryepistemicAndEmotionsReactions = primaryEpistemicAndEmotions.map(r => getReactionFromName(r)).filter(r => r);
+  // const sectionB: ReactionsIconRow = reactionsToShow.filter(r => !sectionA.includes(r.name)).map(r => r.name as ReactionsPaletteName)
+  const sectionBReactions = sectionB.map(r => getReactionFromName(r)).filter(r => r);
+  const sectionB2Reactions = sectionB2.map(r => getReactionFromName(r)).filter(r => r);
+  const emotionalReactions = emotional.map(r => getReactionFromName(r)).filter(r => r);
+
+  const unused = ['shakyPremise', 'unnecessarily-harsh',  'clear', 'handshake', 'tooManyAssumptions',  'nonSequitur', 'locallyValid', 'key', 'prediction', 'shrug', 'notPlanningToRespond','support']
+
+
+  const gridReactButton = (reaction: NamesAttachedReactionType, size:number=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
+    <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
+      <ReactionIcon react={reaction.name} size={size}/>
+    </div>
+  </LWTooltip>
+
+  const listReactButton = (reaction: NamesAttachedReactionType, size:number=22) => {
+    const currentUserVote = getCurrentUserReactionVote(reaction.name);
+    const currentUserReact = getCurrentUserReaction(reaction.name);
+    return (
+      <LWTooltip
+        key={reaction.name} placement="right-start"
+        title={tooltip(reaction)}
+      >
+        <div
+          key={reaction.name}
+          className={classNames(classes.paletteEntry, {
+            [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+            [classes.selectedAnti]: currentUserVote==="disagreed",
+          })}
+          onClick={_ev => toggleReaction(reaction.name, quote)}
+        >
+          <ReactionIcon react={reaction.name} size={size}/>
+          <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+        </div>
+      </LWTooltip>
+    )
+  }
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
@@ -197,42 +289,27 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         </LWTooltip>
       </Row>
     </Row>
+
+    {/* {displayStyle == "gridView" && <div className={classes.reactionPaletteScrollRegion}>
+        <div className={classes.iconSection}>{primaryepistemicAndEmotionsReactions.map(react => react && gridReactButton(react, 28))}</div>
+        <div className={classes.iconSection}>{sectionBReactions.map(react => react && gridReactButton(react, 28))}</div>
+    </div>} */}
+
     {displayStyle == "gridView" && <div className={classes.reactionPaletteScrollRegion}>
-        {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-          key={`icon-${reaction.name}`}
-        >
-          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
-            <ReactionIcon react={reaction.name} size={24}/>
-          </div>
-        </LWTooltip>)}
+        <div className={classes.iconSection}>{primaryEpistemicReactions.map(react => react && gridReactButton(react))}</div>
+        <div className={classes.iconSection}>{sectionBReactions.map(react => react && gridReactButton(react))}</div>
+        <div>{emotionalReactions.map(react => react && gridReactButton(react))}</div>
     </div>}
-    {displayStyle == "listView" && <div>
+    {displayStyle == "listView" && <div className={classes.reactionPaletteScrollRegion}>
+    <div className={classes.iconSection}>{primaryEpistemicReactions.map(react => react && gridReactButton(react))}</div>
+        {sectionB2Reactions.map(react => react && listReactButton(react))}
+        {emotionalReactions.map(react => react && listReactButton(react))}
+    </div>}
+    {/* {displayStyle == "listView" && <div>
       <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]:showAll})}>
-        {reactionsToShow.map(reaction => {
-          const currentUserVote = getCurrentUserReactionVote(reaction.name);
-          const currentUserReact = getCurrentUserReaction(reaction.name);
-          const voteQuotes = currentUserReact?.quotes ?? [];
-          return (
-            <LWTooltip
-              key={reaction.name} placement="right-start"
-              title={tooltip(reaction)}
-            >
-              <div
-                key={reaction.name}
-                className={classNames(classes.paletteEntry, {
-                  [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-                  [classes.selectedAnti]: currentUserVote==="disagreed",
-                })}
-                onClick={_ev => toggleReaction(reaction.name, quote)}
-              >
-                <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}{voteQuotes.length > 0 && <span className={classes.numQuotes}>{voteQuotes.length}</span>}</span>
-              </div>
-            </LWTooltip>
-          )
-        })}
+         {sectionBReactions.map(react => react && listReactButton(react))}
       </div>
-    </div>}
+    </div>} */}
     <div className={classes.reactPaletteFooter}>
       <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
         <a className={classes.reactPaletteFooterFeedbackButton} onClick={() => {

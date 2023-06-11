@@ -36,8 +36,10 @@ export type NamesAttachedReactionType = {
     padding?: number,
     opacity?: number,
     saturate?: number,
+    scale?: number,
+    translateX?: number,
+    translateY?: number,
   },
-  
   /**
    * A description of this reaction, ideally about a sentence long. Optionally,
    * expressed as a function that takes a content-type word, like "comment" or
@@ -104,8 +106,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "changemind",
     label: "Changed My Mind",
     searchTerms: ["delta"],
-    svg: "/reactionImages/nounproject/delta.svg",
-    filter: {opacity: 0.6},
+    svg: "/reactionImages/nounproject/noun-triangle-305128.svg",
+    filter: {opacity: 0.4, scale: 1.4, translateY: 1},
     description: (contentType) => `This ${contentType} changed my mind`,
   },
   {
@@ -113,6 +115,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Thanks!",
     searchTerms: ["ty", "thanks"],
     svg: "/reactionImages/nounproject/thankyou.svg",
+    filter: { scale: .9},
     description: "",
   },
   
@@ -127,7 +130,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "verified",
     label: "Confirmed",
     searchTerms: ["check", "correct", "confirm"],
-    svg: "/reactionImages/nounproject/microscope2.svg",
+    svg: "/reactionImages/nounproject/verified.svg",
     description: "I checked this. Or have other empirical data that confirms this",
   },
   
@@ -135,8 +138,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "surprise",
     label: "Surprise",
     svg: "/reactionImages/nounproject/surprise.svg",
-    filter: {opacity: 0.6},
-    description: "I am surprised",
+    filter: {opacity: 0.8},
+    description: "I did not expect that!",
     deprecated:false
   },
   {
@@ -145,7 +148,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["examples", "shapes", "skeptical", "eyebrow", "dice", "roll", "disbelieve"],
     svg: "/reactionImages/nounproject/skeptical.svg",
     filter: {opacity: 0.6},
-    description: "I find your claims quite surprising!",
+    description: "I'm not sure I believe this.",
     deprecated:false
   },
   
@@ -159,13 +162,13 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "miss",
-    label: "Not what was meant",
+    label: "Missed the point",
     svg: "/reactionImages/nounproject/inaccurate.svg",
     description: "I think this misses what I (or the other person) actually believes and was trying to say or explain"
   },
   
   {
-    name: "eleborate",
+    name: "elaborate",
     label: "Please elaborate",
     searchTerms: ["questions"],
     svg: "/reactionImages/nounproject/ellipses.svg",
@@ -177,7 +180,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Off Topic or Tangential",
     searchTerms: ["questions"],
     svg: "/reactionImages/nounproject/mapandpin.svg",
-    filter: {opacity: 1},
+    filter: {opacity: 1, scale: .9},
     description: "This doesn't seem that relevant to what's being discussed.",
   },
   
@@ -200,8 +203,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "coveredAlready",
     label: "I already addressed this",
     searchTerms: ["check", "already", "covered", "addressed"],
-    svg: "/reactionImages/nounproject/checkedbox.svg",
-    filter: {opacity: 0.6},
+    svg: "/reactionImages/nounproject/noun-mail-checkmark-5316519.svg",
+    filter: {opacity: 0.6, scale: 1.2, translateY: 2},
     description: "I covered this in my post and/or comments.",
     deprecated:false,
   },
@@ -234,10 +237,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "dontUnderstand",
     label: "I don't understand",
-    svg: "/reactionImages/nounproject/confused.svg",
+    svg: "/reactionImages/nounproject/noun-question-5771604.svg",
     searchTerms: ["confused", "understand"],
     description: "I didn't understand this",
-    deprecated:false
+    deprecated:false,
+    filter: {
+      translateY: 2,
+      scale: .9
+    }
   },
   {
     name: "locallyValid",
@@ -268,8 +275,9 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "empathy",
     label: "Empathy",
     searchTerms: ["heart"],
-    svg: "/reactionImages/nounproject/heart.svg",
+    svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
     description: "I feel empathy towards this",
+    filter: {opacity: 0.6, translateY: 1, scale: 1.05},
     deprecated:false
   },
   {
@@ -301,11 +309,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "examples",
-    label: "Examples, please",
+    label: "Examples?",
     searchTerms: ["examples", "shapes"],
     svg: "/reactionImages/nounproject/shapes.svg",
     filter: {opacity: 0.6},
-    description: "Can you give some examples of this?",
+    description: "I'd be interested in seeing concrete examples of this",
     deprecated:false
   },
   {
@@ -313,7 +321,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Additional Questions",
     searchTerms: ["elephant", "questions"],
     svg: "/reactionImages/nounproject/elephant.svg",
-    filter: {opacity: 0.6},
+    filter: {opacity: 0.8},
     description: "I now have additional questions.",
     deprecated:false
   },
@@ -357,7 +365,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Scout Mindset",
     searchTerms: ["binoculars"],
     svg: "/reactionImages/nounproject/binoculars.svg",
-    description: (contentType) => `This ${contentType} exhibits Scout Mindset.`,
+    description: "This seems to be trying to figure out what's true, rather than fighting for a side",
     deprecated:false
   },
   {
@@ -374,7 +382,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["bricks", "examples"],
     svg: "/reactionImages/nounproject/concrete.svg",
     description: "This makes things more concrete by bringing in specifics or examples.",
-    deprecated:true
+    deprecated:true,
+    filter: {scale: 1.1}
   },
   {
     name: "key",
@@ -402,15 +411,16 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "thinking",
     label: "Thinking",
-    svg: "/reactionImages/nounproject/thinking.svg",
+    svg: "/reactionImages/nounproject/noun-thinking-face-2154135.svg",
     description: "Food for thought",
-    deprecated:false
+    deprecated:false,
+    filter: {opacity:.9, scale:1.4, translateY: 2.5}
   },
   {
     name: "obtuse",
     label: "Obtuse",
     svg: "/reactionImages/nounproject/obtuse.svg",
-    description: "This comment is failing to understand something that didn't seem hard to understand",
+    description: "This conversation is suffering from an acute lack of understanding. Your interpretation of the other person's position is not right. Try coming at this conversation from a different angle.",
     deprecated:true
   },
   {
@@ -418,7 +428,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Non Sequitur",
     svg: "/reactionImages/nounproject/nonsequitur.svg",
     searchTerms: ["sequitur", "jump"],
-    description: "This contains a non-sequitur",
+    description: "This doesn't follow from the previous claim",
     deprecated:true
   },
   {
@@ -441,7 +451,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "timecost",
     label: "Not worth getting into",
-    description: "It's probably not worth the time to resolve this",
+    description: "It's probably not worth the time to resolve this?",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
     deprecated:false
@@ -452,6 +462,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["partypopper", "!"],
     svg: "/reactionImages/nounproject/partypopper.svg",
     description: "This is exciting!",
+    filter: {translateY:-1},
     deprecated:false
   },
   {
@@ -475,7 +486,72 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Typo",
     searchTerms: ["typo", "error", "mistake", "mispelling", "spelling"],
     svg: "/reactionImages/nounproject/type-text.svg",
-    description: "This contains a typo, or minor editing error"
+    description: "This contains a typo, or minor editing error",
+    filter: {scale: .9, translateY: 2},
+  }, 
+  {
+    name: "laugh",
+    label: "Haha!",
+    searchTerms: ["laugh", "haha", "funny", "lol"],
+    svg: "/reactionImages/nounproject/laugh2.svg",
+    description: "",
+    filter: {opacity: .9, translateY: 2}
+  },
+  { 
+    name: "disappointed",
+    label: "Disappointed",
+    searchTerms: ["disappointed", "sad", "frown"],
+    svg: "/reactionImages/nounproject/noun-sad-5760577.svg",
+    filter: {opacity: .9, translateY: 2},
+    description: ""
+  },
+  {
+    name: "sad",
+    label: "Sad",
+    searchTerms: ["sad", "frown"],
+    svg: "/reactionImages/nounproject/noun-sad-1152961.svg",
+    filter: {opacity: .9, translateY: 2},
+    description: ""
+  },
+  {
+    name: "confused",
+    label: "Confused",
+    searchTerms: ["confused", "question", "questionmark", "bewildered"],
+    svg: "/reactionImages/nounproject/noun-confused-face-1200693.svg",
+    description: "I don't have model of what's going on here",
+    filter: {opacity: .5, translateY: 0, scale: 1.5},
+  },
+  {
+    name: "smile",
+    label: "Smile",
+    searchTerms: ["smile", "happy", "grin"],
+    svg: "/reactionImages/nounproject/noun-smile-925549.svg",
+    filter: {opacity: .5, translateY: 2, scale: 1.4},
+    description: "This makes me happy. :)"
+  },
+  {
+    name: "charitable",
+    label: "Charitable",
+    searchTerms: ["understanding", "helpful"],
+    svg: "/reactionImages/nounproject/noun-olives-4051874.svg",
+    description: "This went out of its way to be charitable/understanding",
+    filter: { translateY: 2, scale: 1.2},
+  },
+  {
+    name: "soldier",
+    label: "Soldier Mindset",
+    searchTerms: [],
+    description: "This seems to be trying to fight for a side rather than figurin out what's true",
+    svg: "/reactionImages/nounproject/noun-soldier-5069240.svg",
+    filter: { opacity: .9, translateY: 1, scale: 1.2},
+  },
+  {
+    name: "thumbs-up",
+    label: "Thumbs Up",
+    searchTerms: [],
+    description: "I saw this, and feel vaguely good about it",
+    svg: "/reactionImages/nounproject/noun-thumbs-up-1686284.svg",
+    filter: { opacity: .6, translateY: 2},
   }
 ];
 
@@ -501,4 +577,7 @@ export const defaultFilter = {
   padding: 0,
   opacity: 0.4,
   saturate: 0.6,
+  translateX: 0,
+  translateY: 0,
+  scale: 1
 }
