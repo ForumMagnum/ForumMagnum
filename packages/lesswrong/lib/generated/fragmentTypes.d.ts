@@ -956,12 +956,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
-  readonly reviewVoteScoreAllKarma: number,
-  readonly reviewVotesAllKarma: Array<number>,
-  readonly reviewVoteScoreHighKarma: number,
-  readonly reviewVotesHighKarma: Array<number>,
-  readonly reviewVoteScoreAF: number,
-  readonly reviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
   readonly podcastEpisodeId: string | null,
   readonly nominationCount2019: number,
@@ -989,9 +983,13 @@ interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment
   readonly canonicalSequence: SequencesPageFragment|null,
 }
 
-interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: string,
-  readonly currentUserExtendedVote: any,
+interface PostsReviewVotingList extends PostsListWithVotes { // fragment on Posts
+  readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
+  readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
+  readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
 }
 
 interface PostsAuthors { // fragment on Posts

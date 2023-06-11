@@ -115,13 +115,6 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
 
-    reviewVoteScoreAllKarma
-    reviewVotesAllKarma
-    reviewVoteScoreHighKarma
-    reviewVotesHighKarma
-    reviewVoteScoreAF
-    reviewVotesAF
-
     group {
       _id
       name
@@ -165,9 +158,13 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsReviewVotingList on Post {
-    ...PostsListBase
-    currentUserVote
-    currentUserExtendedVote
+    ...PostsListWithVotes
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
   }
 `)
 
