@@ -470,6 +470,13 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: (contentType) => `This ${contentType} clarifies things.`,
     deprecated:true
   },
+  {
+    name: "typo",
+    label: "Typo",
+    searchTerms: ["typo", "error", "mistake", "mispelling", "spelling"],
+    svg: "/reactionImages/nounproject/type-text.svg",
+    description: "This contains a typo, or minor editing error"
+  }
 ];
 
 
