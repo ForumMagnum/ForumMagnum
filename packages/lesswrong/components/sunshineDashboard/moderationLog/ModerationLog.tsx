@@ -105,7 +105,7 @@ const ModeratorTypeDisplay = ({column, document}: {
 
 const deletedCommentColumns: Column[] = [
   {
-    name: 'user',
+    name: 'Comment Author',
     component: UserDisplay,
   },
   {
