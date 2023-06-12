@@ -285,7 +285,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           debouncedCaptureEvent.current("reactPaletteSearchKeysLogged", {searchText: ev.currentTarget.value})
         }}
       />
-      <div>
+      <Row>
        <LWTooltip title="Switch to list view">
           <ViewListIcon 
             className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "listView"})}
@@ -298,7 +298,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
             onClick={() => handleChangeView("gridView")} 
           />
         </LWTooltip>
-      </div>
+      </Row>
     </Row>
     <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
       {displayStyle == "listView" && <div>
