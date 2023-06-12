@@ -69,7 +69,9 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     documentId: localPost.fmCrosspost.foreignPostId
   };
 
-  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
+  // This query can be slow (and the timing is unpredictable), so use `batchKey: "crosspost"` to make sure it
+  // doesn't get batched together with other queries and block them
+  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args, batchKey: "crosspost" } });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 

@@ -26,6 +26,7 @@ const UsersName = ({
   tooltipPlacement?: PopperPlacementType,
   noTooltip?: boolean,
   color?: boolean,
+  pageSectionContext?: string,
   /** Add an extra class/styling to the link */
   className?: string,
 }) => {
