@@ -115,7 +115,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hoverBallotReactDescription: {
     fontSize: 11,
-    marginBottom: 8
+    marginBottom: 8,
+    '& em': {
+      display: "none"
+    }
   },
   alreadyUsedReactions: {
     padding: 8

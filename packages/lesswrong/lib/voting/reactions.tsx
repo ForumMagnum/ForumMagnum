@@ -1,3 +1,4 @@
+import React from 'react';
 import keyBy from 'lodash/keyBy';
 
 export type NamesAttachedReactionType = {
@@ -48,7 +49,7 @@ export type NamesAttachedReactionType = {
    * instead of a comment. (We don't yet support reactions on posts but we might
    * in the future.
    */
-  description: string | ((contentType: string) => string),
+  description: string | ((contentType: string) => string) | React.ReactNode,
   deprecated?: boolean // if true, users are discouraged from continuing to use this react
 }
 
@@ -76,16 +77,16 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "agree",
     label: "Agreed",
-    searchTerms: ["check", "correct"],
+    searchTerms: ["check", "correct", "confirm", "upvote", "+1"],
     svg: "/reactionImages/nounproject/check.svg",
-    description: "I agree with this.",
+    description: "This seems true to me.",
   },
   {
     name: "disagree",
     label: "Disagree",
     svg: "/reactionImages/nounproject/x.svg",
-    searchTerms: ["x"],
-    description: "I disagree with this",
+    searchTerms: ["x", "downvote", "-1"],
+    description: "This seems false to me.",
   },
   {
     name: "important",
@@ -101,21 +102,23 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/lightbulb.svg",
     description: (contentType) => `This ${contentType} adds insight to the conversation`,
   },
-  
   {
     name: "changemind",
     label: "Changed My Mind",
     searchTerms: ["delta"],
     svg: "/reactionImages/nounproject/noun-triangle-305128.svg",
     filter: {opacity: 0.4, scale: 1.4, translateY: 1},
-    description: (contentType) => `This ${contentType} changed my mind`,
+    description: <div>
+      <p>I updated my beliefs based on this.</p>
+      <p><em>(In math, the triangle 'delta' symbol means 'change')</em></p>
+    </div>
   },
   {
     name: "thanks",
     label: "Thanks!",
     searchTerms: ["ty", "thanks"],
     svg: "/reactionImages/nounproject/thankyou.svg",
-    filter: { scale: .9},
+    filter: { scale: .9, opacity:.5},
     description: "",
   },
   
@@ -128,10 +131,17 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "verified",
-    label: "Confirmed",
+    label: "Evaluated True",
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
-    description: "I checked this. Or have other empirical data that confirms this",
+    description: "I checked this, and it seems true. Or have other empirical data that confirms this",
+  },
+  {
+    name: "verifiedFalse",
+    label: "Evaluated False",
+    searchTerms: ["check", "correct", "confirm"],
+    svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
+    description: "I checked this, and it seems false/wrong.",
   },
   
   {
@@ -157,8 +167,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Yes, that's my position",
     searchTerms: ["hand", "yes", "correct"],
     svg: "/reactionImages/nounproject/clickingpointinghand.svg",
-    filter: {opacity: 0.6},
-    description: (contentType) => `Based on this, I think you've understood my/other person's position`,
+    filter: {opacity: 0.5},
+    description: "Based on this, I think you've understood my/other person's position",
   },
   {
     name: "miss",
@@ -183,7 +193,6 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     filter: {opacity: 1, scale: .9},
     description: "This doesn't seem that relevant to what's being discussed.",
   },
-  
   {
     name: "shakyPremise",
     label: "Shaky Premise",
@@ -210,7 +219,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "unnecessarily-combative",
-    label: "Unnecessarily Combative",
+    label: "Too Combative",
     searchTerms: ["swords"],
     svg: "/reactionImages/nounproject/swords.svg",
     description: "This seems more combative than it needs to be.",
@@ -268,7 +277,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["eyes"],
     svg: "/reactionImages/nounproject/eyes.svg",
     filter: {opacity: 0.8},
-    description: (contentType) => `I'm registering that I saw this ${contentType}`,
+    description: "...and thought it'd be useful to let people know.",
     deprecated:false
   },
   {
@@ -327,11 +336,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "taboo",
-    label: "Taboo your words",
+    label: "Try different words?",
     searchTerms: ["taboo", "shush", "quiet"],
     svg: "/reactionImages/nounproject/shush.svg",
     filter: {opacity: 0.6},
-    description: "Can you say this without using those keyterms?",
+    description: <div>
+      <p>Could you rephase this? (without using the same keyterms)</p>
+      <p><em>"Tabooing words" is a useful technique for checking how deeply you understand something.</em></p>
+    </div>,
     deprecated:false
   },
   {
@@ -365,15 +377,15 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Scout Mindset",
     searchTerms: ["binoculars"],
     svg: "/reactionImages/nounproject/binoculars.svg",
-    description: "This seems to be trying to figure out what's true, rather than fighting for a side",
+    description: "Good job focusing on figuring out what's true, rather than fighting for a side",
     deprecated:false
   },
   {
     name: "scholarship",
-    label: "Virtue of Scholarship",
+    label: "Nice Scholarship!",
     searchTerms: ["cited"],
     svg: "/reactionImages/nounproject/scholarship.svg",
-    description: "This exhibits the Virtue of Scholarship",
+    description: "Good job looking into existing literature and citing sources",
     deprecated:false
   },
   {
@@ -382,7 +394,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["bricks", "examples"],
     svg: "/reactionImages/nounproject/concrete.svg",
     description: "This makes things more concrete by bringing in specifics or examples.",
-    deprecated:true,
+    deprecated:false,
     filter: {scale: 1.1}
   },
   {
@@ -397,8 +409,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "shrug",
     label: "Shrug",
     svg: "/reactionImages/nounproject/shrug.svg",
-    description: "I am indifferent to this",
-    deprecated:true
+    description: "I have don't know what to think of this",
   },
   {
     name: "scales",
@@ -411,7 +422,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "thinking",
     label: "Thinking",
-    svg: "/reactionImages/nounproject/noun-thinking-face-2154135.svg",
+    svg: "/reactionImages/nounproject/thinking-nice-eyebrows.svg",
     description: "Food for thought",
     deprecated:false,
     filter: {opacity:.9, scale:1.4, translateY: 2.5}
@@ -486,7 +497,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Typo",
     searchTerms: ["typo", "error", "mistake", "mispelling", "spelling"],
     svg: "/reactionImages/nounproject/type-text.svg",
-    description: "This contains a typo, or minor editing error",
+    description: <div>
+      <p>This contains a typo, or minor editing error</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
     filter: {scale: .9, translateY: 2},
   }, 
   {
@@ -515,10 +529,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "confused",
-    label: "Confused",
+    label: "I notice I'm confused",
     searchTerms: ["confused", "question", "questionmark", "bewildered"],
     svg: "/reactionImages/nounproject/noun-confused-face-1200693.svg",
-    description: "I don't have model of what's going on here",
+    description: "I don't have clear explanation of what's going on here",
     filter: {opacity: .5, translateY: 0, scale: 1.5},
   },
   {
@@ -528,11 +542,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-smile-925549.svg",
     filter: {opacity: .5, translateY: 2, scale: 1.4},
     description: "This makes me happy. :)"
-  },
+  },  
   {
     name: "charitable",
     label: "Charitable",
-    searchTerms: ["understanding", "helpful"],
+    searchTerms: ["understanding", "helpful", "upvote"],
     svg: "/reactionImages/nounproject/noun-olives-4051874.svg",
     description: "This went out of its way to be charitable/understanding",
     filter: { translateY: 2, scale: 1.2},
@@ -540,18 +554,116 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "soldier",
     label: "Soldier Mindset",
-    searchTerms: [],
-    description: "This seems to be trying to fight for a side rather than figurin out what's true",
+    searchTerms: ['politics', 'soldier', 'war', 'battle', 'fight', 'fighting', 'argumentative', 'tribalism', 'downvote'],
+    description: "This seems to be trying to fight for a side rather than figure out what's true",
     svg: "/reactionImages/nounproject/noun-soldier-5069240.svg",
-    filter: { opacity: .9, translateY: 1, scale: 1.2},
+    filter: { opacity: .7, translateY: 1, scale: 1.2},
   },
   {
     name: "thumbs-up",
     label: "Thumbs Up",
-    searchTerms: [],
+    searchTerms: ['seen', 'like', '+1', 'upvote'],
     description: "I saw this, and feel vaguely good about it",
     svg: "/reactionImages/nounproject/noun-thumbs-up-1686284.svg",
-    filter: { opacity: .6, translateY: 2},
+    filter: { opacity: .5, translateY: 2},
+  },
+  {
+    name: "thumbs-down",
+    label: "Thumbs Down",
+    searchTerms: ['seen', 'dislike', 'downvote', '-1'],
+    description: "I saw this, and vaguely dislike it",
+    svg: "/reactionImages/nounproject/noun-thumbs-down-1686285.svg",
+    filter: { opacity: .5, translateY: 3},
+  },
+  {
+    name: "1percent",
+    label: "Less than 1% likely",
+    description: <div>
+      <p>I put 1% or less likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/1percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "10percent",
+    label: "10% likely",
+    description: <div>
+      <p>I put about 10% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/10percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "25percent",
+    label: "~25% likely",
+    description: <div>
+      <p>I put about 25% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/25percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: 1.25, translateX: .5}
+  },
+  {
+    name: "40percent",
+    label: "~40% likely",
+    description: <div>
+      <p>I put about 40% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/40percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "50percent",
+    label: "~50% likely",
+    description: <div>
+      <p>I put about 50% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/50percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "60percent",
+    label: "~60% likely",
+    description: <div>
+      <p>I put about 60% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/60percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "75percent",
+    label: "~75% likely",
+    description: <div>
+      <p>I put about 75% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/75percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "90percent",
+    label: "~90% likely",
+    description: <div>
+      <p>I put about 90% likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/90percent.svg",
+    filter: {scale:1.4, opacity: .5, translateY: .75, translateX: .5}
+  },
+  {
+    name: "99percent",
+    label: "99+% likely",
+    description: <div>
+      <p>I put 99% (or more) likelihood on this claim</p>
+      <p><em>Note: you can inline react by selecting text</em></p>
+    </div>,
+    svg: "/reactionImages/99percent.svg",
+    filter: {scale:1.25, opacity: .5, translateY: .75, translateX: 1}
   }
 ];
 
