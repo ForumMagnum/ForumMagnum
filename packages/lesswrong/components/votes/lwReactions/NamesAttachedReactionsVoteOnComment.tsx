@@ -56,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   footerReactionHover: {
-    maxWidth: 300,
+    width: 300,
   },
   reactionCount: {
     fontSize: 13,
@@ -106,6 +106,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
+    
+    display: "flex",
+    alignItems: "flex-start",
+  },
+  hoverInfo: {
+    paddingLeft: 10,
+    maxWidth: 195,
+    flexGrow: 1,
   },
   hoverBallotLabel: {
     verticalAlign: "middle",
@@ -166,10 +174,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   footerSelectedAnti: {
     background: "rgb(255, 189, 189, .23)",
-  },
-  hoverInfo: {
-    paddingLeft: 10,
-    maxWidth: 195,
   },
   overviewButton: {
     opacity: .35,
@@ -646,32 +650,30 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
   classes: ClassesType,
   commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
-  const { ReactionIcon, Row, ReactionQuotesHoverInfo } = Components;
+  const { ReactionIcon, ReactionQuotesHoverInfo } = Components;
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   return <div key={reactionName}>
     <div className={classes.hoverBallotEntry}>
-      <Row justifyContent='space-between' alignItems='flex-start'>
-        <ReactionIcon react={reactionName} size={30}/>
-        <div className={classes.hoverInfo}>
-          <span className={classes.hoverBallotLabel}>
-            {getNamesAttachedReactionsByName(reactionName).label}
-          </span>
-          {getNamesAttachedReactionsByName(reactionName).description && <div className={classes.hoverBallotReactDescription}>
-            {getNamesAttachedReactionsByName(reactionName).description}
-          </div>}
-          <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
+      <ReactionIcon react={reactionName} size={30}/>
+      <div className={classes.hoverInfo}>
+        <span className={classes.hoverBallotLabel}>
+          {getNamesAttachedReactionsByName(reactionName).label}
+        </span>
+        {getNamesAttachedReactionsByName(reactionName).description && <div className={classes.hoverBallotReactDescription}>
+          {getNamesAttachedReactionsByName(reactionName).description}
+        </div>}
+        <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
 
-        </div>    
-        <ReactOrAntireactVote
-          reactionName={reactionName}
-          netReactionCount={netReactionCount}
-          currentUserReaction={getCurrentUserReactionVote(reactionName)}
-          setCurrentUserReaction={setCurrentUserReaction}
-          classes={classes}
-        />
-      </Row>
+      </div>
+      <ReactOrAntireactVote
+        reactionName={reactionName}
+        netReactionCount={netReactionCount}
+        currentUserReaction={getCurrentUserReactionVote(reactionName)}
+        setCurrentUserReaction={setCurrentUserReaction}
+        classes={classes}
+      />
     </div>
     <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentItemRef={commentItemRef}/>
   </div>
