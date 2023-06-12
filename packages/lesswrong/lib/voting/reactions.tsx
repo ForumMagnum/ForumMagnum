@@ -181,7 +181,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "elaborate",
     label: "Elaborate?",
     searchTerms: ["questions"],
-    svg: "/reactionImages/nounproject/noun-cancel-chat-5735669.svg",
+    svg: "/reactionImages/nounproject/noun-chat-1459491.svg",
     filter: {opacity: 0.4},
     description: "",
   },
@@ -460,7 +460,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "timecost",
-    label: "Not worth getting into",
+    label: "Not worth getting into?",
     description: "It's probably not worth the time to resolve this?",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
