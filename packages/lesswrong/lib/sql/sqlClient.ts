@@ -44,7 +44,7 @@ export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()
   let queryID: number = ++queriesExecuted;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Running Postgres query #${queryID}: ${getDescription().slice(0, 1000)}`);
+    console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
   }
   
   const startTime = new Date().getTime();
@@ -57,7 +57,7 @@ export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()
     console.log(`Finished query #${queryID} (${milliseconds} ms)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
-    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription().slice(0, 1000)}`);
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
   }
 
   return result;

@@ -184,16 +184,15 @@ const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAl
 }
 
 const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
-  // TODO uncomment
-  // const localResult = cacheLookupLocal(cacheKey, abTestGroups);
-  // if (localResult) {
-  //   return localResult;
-  // }
+  const localResult = cacheLookupLocal(cacheKey, abTestGroups);
+  if (localResult) {
+    return localResult;
+  }
 
-  // if (dbPageCacheEnabledSetting.get()) {
-  //   const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
-  //   return dbResult;
-  // }
+  if (dbPageCacheEnabledSetting.get()) {
+    const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
+    return dbResult;
+  }
 
   return null;
 }
