@@ -136,9 +136,6 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 };
 
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
-  if (isEAForum && abTestGroups["slowerFrontpage"] !== "control" && path === "/" && frontpageAlgoCacheDisabled.get()) {
-    return true;
-  }
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
 }
