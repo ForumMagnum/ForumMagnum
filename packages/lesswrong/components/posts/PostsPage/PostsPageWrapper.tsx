@@ -8,7 +8,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { viewNames } from '../../comments/CommentsViews';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { isServer } from '../../../lib/executionEnvironment';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
