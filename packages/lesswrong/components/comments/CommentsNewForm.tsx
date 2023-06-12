@@ -19,7 +19,6 @@ import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
-import { randomId } from "../../lib/random";
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -27,7 +26,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: isEAForum ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
-    }
+    },
+    "& .vulcan-form": {
+      display: "flex",
+      flexDirection: "column",
+      "& > div:nth-child(3)": {
+        order: 3,
+      },
+    },
   } : {},
   rootMinimalist: {
     '& .form-input': {
