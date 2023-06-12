@@ -476,7 +476,11 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} />
+            <PostsCommentsThread
+              terms={{...commentTerms, postId: post._id}}
+              post={post}
+              newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+            />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
