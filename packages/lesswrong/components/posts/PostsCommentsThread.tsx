@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EagerPostComments } from './PostsPage/PostsPage';
+import isEqual from 'lodash/isEqual';
 
 const PostsCommentsThread = ({ post, eagerPostComments, terms, newForm=true }: {
   post?: PostsDetails,
@@ -10,10 +11,7 @@ const PostsCommentsThread = ({ post, eagerPostComments, terms, newForm=true }: {
   newForm?: boolean,
 }) => {
   // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && JSON.stringify(terms) === JSON.stringify(eagerPostComments?.terms);
-  console.log("useEagerResults", useEagerResults);
-  console.log("eagerPostComments", eagerPostComments);
-  console.log("terms", terms);
+  const useEagerResults = eagerPostComments && isEqual(terms, eagerPostComments?.terms);
 
   const lazyResults = useMulti({
     terms,

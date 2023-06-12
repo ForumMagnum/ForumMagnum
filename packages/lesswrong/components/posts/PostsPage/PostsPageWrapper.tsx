@@ -18,35 +18,30 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
 
+  const extraVariables = {sequenceId: 'String', ...(version && {version: 'String'}) }
+  // Note: including batchKey ensures that the post query is not batched together with the
+  // comments query when sent from the client (i.e. not during SSR). This makes the main post body load
+  // much faster
+  const extraVariablesValues = {sequenceId, batchKey: "singlePost", ...(version && {version}) }
+  const fragmentName = version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation'
+
   const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
     collectionName: "Posts",
-    ...(version ? {
-      fragmentName: 'PostsWithNavigationAndRevision',
-      extraVariables: {
-        version: 'String',
-        sequenceId: 'String',
-      },
-      extraVariablesValues: { version, sequenceId },
-    } : {
-      fragmentName: 'PostsWithNavigation',
-      extraVariables: {
-        sequenceId: 'String',
-      },
-      extraVariablesValues: { sequenceId },
-    }),
+    fragmentName,
+    extraVariables,
+    extraVariablesValues,
     documentId,
   };
 
   const { document: post, refetch, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
-  // the post to be fetched first. This is only beneficial in SSR (when the entire page is rendered before being returned), and not
-  // if a post is reached by navigation. In the latter case, the post is fetched first is actually better as this is enough to fill
-  // the page as far as the user can scroll. This is why we skip the query below if !isServer
+  // the post to be fetched first. This is mainly beneficial in SSR
 
   // Note: in principle defaultView can depend on the post (via post.commentSortOrder). In practice this is almost never set,
-  // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be sorted in the wrong order
-  // at first and then quickly update. This is not ideal but it's worth the cost for the performance benefit.
+  // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be fetched twice. This shouldn't
+  // cause any rerendering or significant performance cost (relative to only fetching them once) because the second fetch doesn't wait
+  // for the first to finish.
   const defaultView = commentGetDefaultView(null, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const terms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
@@ -60,6 +55,10 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
+  const eagerPostComments = {
+    terms,
+    queryResponse: commentQueryResult,
+  }
   // End of performance section
 
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
@@ -84,10 +83,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   return (
     <PostsPage
       post={post}
-      eagerPostComments={{
-        terms,
-        queryResponse: commentQueryResult,
-      }}
+      eagerPostComments={eagerPostComments}
       refetch={refetch}
     />
   );
