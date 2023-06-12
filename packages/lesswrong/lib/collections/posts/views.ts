@@ -352,10 +352,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = (context.currentUser || context.clientId) && isEAForum ?
+  const useSlowerFrontpage = context.currentUser && isEAForum ?
     getUserABTestGroup(context.currentUser, context.clientId || '', getABTestsMetadata()['slowerFrontpage']) === 'treatment'
     : false
-  
+
   const syntheticFields = {
     score: {$divide:[
       {$multiply: [
