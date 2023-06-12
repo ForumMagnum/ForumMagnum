@@ -240,12 +240,11 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'yeswhatimean', 'strawman',
     'hitsTheMark',  'miss',
     'clear',        'muddled',
-    'scout',        'soldier',
     'scholarship',  'obtuse',
     'taboo',        'insightful',
     'coveredAlready','timecost',
     'elaborate',    'offtopic',
-    'paperclip',    'additionalQuestions',
+    // 'paperclip',    'additionalQuestions',
   ].map(r => getReactionFromName(r)).filter(r => r );
 
   const gridReactButton = (reaction: NamesAttachedReactionType, size:number=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>

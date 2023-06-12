@@ -179,19 +179,19 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   
   {
     name: "elaborate",
-    label: "Please elaborate",
+    label: "Elaborate?",
     searchTerms: ["questions"],
-    svg: "/reactionImages/nounproject/ellipses.svg",
+    svg: "/reactionImages/nounproject/noun-cancel-chat-5735669.svg",
     filter: {opacity: 0.4},
     description: "",
   },
   {
     name: "offtopic",
-    label: "Off Topic or Tangential",
+    label: "Seems Offtopic?",
     searchTerms: ["questions"],
     svg: "/reactionImages/nounproject/mapandpin.svg",
     filter: {opacity: 1, scale: .9},
-    description: "This doesn't seem that relevant to what's being discussed.",
+    description: "I don't see how this is relevant to what's being discussed.",
   },
   {
     name: "shakyPremise",
@@ -237,10 +237,10 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "strawman",
-    label: "Seems to misunderstand actual position?",
+    label: "Misunderstands position?",
     searchTerms: ["examples", "scarecrow", "strawman"],
     svg: "/reactionImages/nounproject/scarecrow.svg",
-    description: "I think this misrepresents the thing that it argues against",
+    description: "This seems to misunderstand the thing that it argues against",
     deprecated:false,
   },
   {
@@ -336,13 +336,12 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "taboo",
-    label: "Try different words?",
+    label: "Taboo those words?",
     searchTerms: ["taboo", "shush", "quiet"],
-    svg: "/reactionImages/nounproject/shush.svg",
-    filter: {opacity: 0.6},
+    svg: "/reactionImages/nounproject/noun-cancel-chat-5735669.svg",
+    filter: {opacity: 0.6, translateY: 1},
     description: <div>
-      <p>Could you rephase this? (without using the same keyterms)</p>
-      <p><em>"Tabooing words" is a useful technique for checking how deeply you understand something.</em></p>
+      <p>Could you rephase this using different words, without using the same keyterms?</p>
     </div>,
     deprecated:false
   },
@@ -490,7 +489,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["clarity", "gem", "diamond"],
     svg: "/reactionImages/nounproject/clarity.svg",
     description: (contentType) => `This ${contentType} clarifies things.`,
-    deprecated:true
+    // deprecated:true
   },
   {
     name: "typo",
