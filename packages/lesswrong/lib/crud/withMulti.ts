@@ -335,7 +335,8 @@ export function useMulti<
     pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    // TODO note that this is a workaround (see https://github.com/apollographql/apollo-client/issues/5918)
+    // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+    // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
     ssr: ssr || !isServer,
     skip,
     notifyOnNetworkStatusChange: true
