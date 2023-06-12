@@ -72,8 +72,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -theme.spacing.unit*1.5
   },
   bottom: {
-    paddingBottom: isEAForum ? theme.spacing.unit*1.5 : 5,
-    paddingTop: isEAForum ? theme.spacing.unit/2 : undefined,
+    paddingBottom: isEAForum ? 12 : 5,
+    paddingTop: isEAForum ? 4 : undefined,
     minHeight: 12,
     ...(isEAForum ? {} : {fontSize: 12}),
   },
