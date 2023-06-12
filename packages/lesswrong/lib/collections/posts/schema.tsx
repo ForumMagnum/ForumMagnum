@@ -2374,12 +2374,6 @@ const schema: SchemaType<DbPost> = {
       filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
-    resolveAs: {
-      type: 'Int',
-      resolver: (post, _, context) => {
-        return context.repos.comments.getPostCommentCount(post._id);
-      }
-    }
   },
   
   recentComments: resolverOnlyField({

@@ -147,7 +147,7 @@ export const usePostsItem = ({
   const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post));
 
   const commentTerms: CommentsViewTerms = {
-    view: /*post.debate ? "recentDebateResponses" :*/ "postsItemComments",
+    view: "postsItemComments",
     limit:7,
     postId: post._id,
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
