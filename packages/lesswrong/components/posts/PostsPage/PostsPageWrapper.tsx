@@ -77,7 +77,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } else if (!post) {
     return <Error404/>
   } else if (isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
+    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
