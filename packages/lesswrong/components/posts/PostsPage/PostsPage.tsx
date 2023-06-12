@@ -17,7 +17,7 @@ import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
-import { useMulti } from '../../../lib/crud/withMulti';
+import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
@@ -170,8 +170,14 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-const PostsPage = ({post, refetch, classes}: {
+export type EagerPostComments = {
+  terms: CommentsViewTerms,
+  queryResponse: UseMultiResult<'CommentsList'>,
+}
+
+const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  eagerPostComments?: EagerPostComments,
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
@@ -476,7 +482,7 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} />
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} eagerPostComments={eagerPostComments} post={post} newForm={!post.question} />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
