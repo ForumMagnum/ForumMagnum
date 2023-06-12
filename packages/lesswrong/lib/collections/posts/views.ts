@@ -862,7 +862,8 @@ Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
   if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   return {
     selector: {
-      legacyId: ""+legacyId
+      legacyId: ""+legacyId,
+      af: viewFieldAllowAny,
     },
     options: {
       limit: 1
