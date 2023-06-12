@@ -9,6 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
+import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -79,9 +80,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 275,
+    maxHeight: 279,
     overflowY: "scroll",
-    marginBottom: 6,
     marginTop: 12
   },
   tooltipIcon: {
@@ -142,9 +142,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 8
   },
   likelihoodSection: {
+    borderTop: theme.palette.border.faint,
     paddingBottom: 6,
     marginBottom: 6,
-    marginTop: 6
   }
 })
 
@@ -234,13 +234,13 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'changemind',   'typo',   
     'locallyValid', 'locallyInvalid',
     'crux',         'notacrux',
-    'scout',        'soldier',
     'charitable',   'unnecessarily-combative',
     'verified',     'verifiedFalse',
     'concrete',     'examples',
     'yeswhatimean', 'strawman',
     'hitsTheMark',  'miss',
     'clear',        'muddled',
+    'scout',        'soldier',
     'scholarship',  'obtuse',
     'taboo',        'insightful',
     'coveredAlready','timecost',
@@ -254,23 +254,24 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     </div>
   </LWTooltip>
 
-  const listReactButton = (reaction: NamesAttachedReactionType, size:number=22) => {
+  const listReactButton = (reaction: NamesAttachedReactionType, placement: PopperPlacementType="left", size:number=22, ) => {
     const currentUserVote = getCurrentUserReactionVote(reaction.name);
-    return <div className={classNames(classes.paletteEntry, {
+    return <LWTooltip
+      key={reaction.name} placement={placement}
+      title={tooltip(reaction)}
+    >
+    <div className={classNames(classes.paletteEntry, {
         [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
         [classes.selectedAnti]: currentUserVote==="disagreed",
       })}
       onClick={_ev => toggleReaction(reaction.name, quote)}
       key={reaction.name}
     >
-    <LWTooltip
-      key={reaction.name} placement="left"
-      title={tooltip(reaction)}
-    >
     <ReactionIcon react={reaction.name} size={size}/>
-    </LWTooltip>
+
     <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-  </div>}
+  </div>    
+  </LWTooltip>}
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
@@ -284,7 +285,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           debouncedCaptureEvent.current("reactPaletteSearchKeysLogged", {searchText: ev.currentTarget.value})
         }}
       />
-      <Row>
+      <div>
        <LWTooltip title="Switch to list view">
           <ViewListIcon 
             className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "listView"})}
@@ -297,39 +298,38 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
             onClick={() => handleChangeView("gridView")} 
           />
         </LWTooltip>
-      </Row>
+      </div>
     </Row>
     <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
       {displayStyle == "listView" && <div>
-        <div className={classes.iconSection}>
+        <p>
           {primary.map(react => react && gridReactButton(react, 24))}
-        </div>
-        <div className={classes.iconSection}>
-          {listViewSectionB.map(react => react && listReactButton(react))}
-        </div>
-        <div>
+        </p>
+        <p>
+          {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </p>
+        <p>
           {emotions2.map(react => react && gridReactButton(react, 24))}
-        </div>
-        <div className={classes.likelihoodSection}>
-          {likelihoods.map(react => react && gridReactButton(react, 24))}
-        </div>
+        </p>
       </div>}
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>
           {primary.map(react => react && gridReactButton(react, 24))}
-          {}
+          {likelihoods.map(react => react && gridReactButton(react, 24))}
         </div>
         <div className={classes.iconSection}>
           {gridSectionB.map(react => react && gridReactButton(react, 24))}
         </div>
         {emotions2.map(react => react && gridReactButton(react, 24))}
         {gridSectionC.map(react => react && gridReactButton(react, 24))}
-        <div className={classes.likelihoodSection}>
+        {/* <div className={classes.likelihoodSection}>
           {likelihoods.map(react => react && gridReactButton(react, 24))}
-        </div>
+        </div> */}
       </div>}
     </div>
-
+    {displayStyle === "listView" && <div className={classes.likelihoodSection}>
+      {likelihoods.map(react => react && gridReactButton(react, 24))}
+    </div>}
     <div className={classes.reactPaletteFooter}>
       <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
         <a className={classes.reactPaletteFooterFeedbackButton} onClick={() => {

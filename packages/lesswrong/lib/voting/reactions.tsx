@@ -237,7 +237,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "strawman",
-    label: "Not responding to actual position",
+    label: "Seems to misunderstand actual position?",
     searchTerms: ["examples", "scarecrow", "strawman"],
     svg: "/reactionImages/nounproject/scarecrow.svg",
     description: "I think this misrepresents the thing that it argues against",
