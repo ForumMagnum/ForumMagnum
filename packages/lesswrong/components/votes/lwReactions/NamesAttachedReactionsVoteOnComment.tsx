@@ -58,6 +58,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     width: 2,
   },
+  mouseHoverTrap: {
+    position: "absolute",
+    right: 0,
+    height: 50,
+  },
   footerReactionHover: {
     width: 300,
   },
@@ -448,7 +453,7 @@ const NamesAttachedReactionsCommentBottom = ({
       {visibleReactionsDisplay.map(({react, numberShown}) =>
         <span key={react} onMouseLeave={() => markHighlights(quotes, faintHighlightClassName, commentItemRef)}>
           <HoverableReactionIcon
-            anchorEl={anchorEl}
+            reactionRowRef={anchorEl}
             react={react}
             numberShown={numberShown}
             voteProps={voteProps}
@@ -464,8 +469,11 @@ const NamesAttachedReactionsCommentBottom = ({
   </span>
 }
 
-const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes, quote, commentItemRef}: {
-  anchorEl: RefObject<AnyBecauseTodo>,
+const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, classes, quote, commentItemRef}: {
+  // reactionRowRef: Reference to the row of reactions, used as an anchor for the
+  // hover instead of the individual icon, so that the hover's position stays
+  // consistent as you move the mouse across the row.
+  reactionRowRef: RefObject<AnyBecauseTodo>,
   react: string,
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -474,7 +482,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
   commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
-  const { ReactionIcon, PopperCard } = Components;
+  const { ReactionIcon, LWPopper } = Components;
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react);
   const currentUserReaction = getCurrentUserReaction(react)
@@ -519,14 +527,24 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
         {numberShown}
       </span>
   
-      {hover && anchorEl?.current && <PopperCard
-        open={!!hover} anchorEl={anchorEl.current}
+      {hover && reactionRowRef?.current && <LWPopper
+        open={!!hover} anchorEl={reactionRowRef.current}
         placement="bottom-end"
         allowOverflow={true}
-        
       >
-        <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes} commentItemRef={commentItemRef}/>
-      </PopperCard>}
+        {/*
+          Add a 50px hoverable spacer left of the popup, below the reactions list,
+          so that the mouse has somewhere hoverable to cross when going from the
+          leftmost reactions to the hover form.
+        */}
+        <div className={classes.mouseHoverTrap} style={{width: reactionRowRef.current.clientWidth}}/>
+        <Card>
+          <NamesAttachedReactionsHoverSingleReaction
+            react={react} voteProps={voteProps} classes={classes}
+            commentItemRef={commentItemRef}
+          />
+        </Card>
+      </LWPopper>}
     </span>
     
     {/* Put a spacer element between footer reactions, rather than a margin, so
