@@ -1,7 +1,7 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
