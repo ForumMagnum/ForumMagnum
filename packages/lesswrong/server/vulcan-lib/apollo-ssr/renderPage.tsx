@@ -28,8 +28,6 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { isEAForum } from '../../../lib/instanceSettings';
-import { frontpageAlgoCacheDisabled } from '../../../lib/scoring';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
