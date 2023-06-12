@@ -50,10 +50,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     paddingLeft: 7,
     paddingRight: 7,
-    marginRight: 2,
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
+  },
+  footerReactionSpacer: {
+    display: "inline-block",
+    width: 2,
   },
   footerReactionHover: {
     width: 300,
@@ -498,33 +501,40 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     clearHighlights(commentItemRef)
   } 
 
-  return <span
-    className={classNames(
-      classes.footerReaction,
-      {
-        [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
-        [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
-        [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-      }
-    )}
-    onMouseEnter={handleMouseEnter}
-    onMouseLeave={handleMouseLeave}
-  >
-    <span onMouseDown={()=>{reactionClicked(react)}}>
-      <ReactionIcon react={react} />
-    </span>
-    <span className={classes.reactionCount}>
-      {numberShown}
-    </span>
-
-    {hover && anchorEl?.current && <PopperCard
-      open={!!hover} anchorEl={anchorEl.current}
-      placement="bottom-end"
-      allowOverflow={true}
-      
+  return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <span
+      className={classNames(
+        classes.footerReaction,
+        {
+          [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+          [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+          [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
+        }
+      )}
     >
-      <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes} commentItemRef={commentItemRef}/>
-    </PopperCard>}
+      <span onMouseDown={()=>{reactionClicked(react)}}>
+        <ReactionIcon react={react} />
+      </span>
+      <span className={classes.reactionCount}>
+        {numberShown}
+      </span>
+  
+      {hover && anchorEl?.current && <PopperCard
+        open={!!hover} anchorEl={anchorEl.current}
+        placement="bottom-end"
+        allowOverflow={true}
+        
+      >
+        <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes} commentItemRef={commentItemRef}/>
+      </PopperCard>}
+    </span>
+    
+    {/* Put a spacer element between footer reactions, rather than a margin, so
+      * that we can make the spacer element hoverable, getting rid of the
+      * close-and-open flash as you move the mouse horizontally across the
+      * reactions row.
+      */}
+    <span className={classes.footerReactionSpacer}/>
   </span>
 }
 
