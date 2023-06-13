@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 279,
+    maxHeight: 292,
     overflowY: "scroll",
     marginTop: 12
   },
@@ -145,6 +145,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.faint,
     paddingBottom: 6,
     marginBottom: 6,
+  },
+  paddedRow: {
+    marginTop: "1em",
+    marginBottom: "1em",
   }
 })
 
@@ -221,12 +225,12 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   ].map(r => getReactionFromName(r)).filter(r => r);
   
   const gridSectionB = [
-    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'charitable',             'concrete',  'yeswhatimean','insightful', 'verified',
-    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',    'verifiedFalse',
+    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'charitable',             'concrete',  'yeswhatimean', 'clear', 'verified',
+    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'verifiedFalse',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const gridSectionC = [
-    'obtuse',     'taboo',       'offtopic',       'elaborate',  'timecost',  'coveredAlready',         'paperclip', 'typo',        'scholarship', 'notPlanningToRespond'
+    'taboo',  'offtopic',  'insightful',  'elaborate',  'timecost',  'coveredAlready',         'typo',        'scholarship', 'notPlanningToRespond'
 
   ].map(r => getReactionFromName(r)).filter(r => r);
 
@@ -236,15 +240,16 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'locallyValid', 'locallyInvalid',
     'crux',         'notacrux',
     'charitable',   'unnecessarily-combative',
-    'verified',     'verifiedFalse',
     'concrete',     'examples',
     'yeswhatimean', 'strawman',
     'hitsTheMark',  'miss',
     'scout',        'soldier',
-    'scholarship',  'obtuse',
+    'clear',        'muddled',
+    'verified',     'verifiedFalse',
+    'scholarship',  'offtopic',
     'taboo',        'elaborate',       
     'coveredAlready','timecost',
-    'offtopic',
+
   ].map(r => getReactionFromName(r)).filter(r => r );
 
   const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
@@ -307,9 +312,9 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         <p>
           {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </p>
-        <p>
+        <div className={classes.paddedRow}>
           {emotions2.map(react => react && gridReactButton(react, 24))}
-        </p>
+        </div>
       </div>}
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>

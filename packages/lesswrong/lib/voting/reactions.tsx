@@ -115,8 +115,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "thanks",
-    label: "Gratitude",
-    searchTerms: ["ty", "thanks"],
+    label: "Thanks",
+    searchTerms: ["ty", "thanks", "gratitude"],
     svg: "/reactionImages/nounproject/thankyou.svg",
     filter: { scale: .9, opacity:.5},
     description: "",
@@ -131,14 +131,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "verified",
-    label: "Evaluated True",
+    label: "I checked, it's true",
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
     description: "I checked this, and it seems true. Or have other empirical data that confirms this",
   },
   {
     name: "verifiedFalse",
-    label: "Evaluated False",
+    label: "I checked, it's False",
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
     description: "I checked this, and it seems false/wrong.",
@@ -229,10 +229,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
  //Here begins the list of deprecated reacts 
   {
     name: "muddled",
-    label: "Muddled",
-    searchTerms: ["splat", "confused"],
-    svg: "/reactionImages/nounproject/splat.svg",
-    description: "I had trouble with the pedagogical clarity of this",
+    label: "Difficult to Parse",
+    searchTerms: ["splat", "confused", "muddled"],
+    svg: "/reactionImages/nounproject/noun-fog-1028590.svg",
+    description: "I had trouble reading this.",
+    filter: {opacity:.7, scale:1.2},
     deprecated:false
   },
   {
@@ -461,7 +462,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "timecost",
     label: "Not worth getting into?",
-    description: "It's probably not worth the time to resolve this?",
+    description: "I'm guessing it's probably not worth the time to resolve this?",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
     deprecated:false
@@ -485,10 +486,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "clear",
-    label: "Clear",
+    label: "Clearly Written",
     searchTerms: ["clarity", "gem", "diamond"],
-    svg: "/reactionImages/nounproject/clarity.svg",
-    description: (contentType) => `This ${contentType} clarifies things.`,
+    svg: "/reactionImages/nounproject/noun-clear-sky-1958882.svg",
+    filter: {opacity:.7, scale:1.2},
+    description: "I had an easy time understanding this"
     // deprecated:true
   },
   {
