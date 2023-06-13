@@ -6,6 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import LockIcon from '@material-ui/icons/Lock'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
+import flatMap from 'lodash/flatMap';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,13 +29,17 @@ export const AltAccountInfo = ({classes, user}: {
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
   const { Loading, LWTooltip } = Components
 
+  const associatedUserIds: string[] = user.associatedClientIds
+    ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
+    : [];
   const { results, loading } = useMulti({
     terms: {
       view: "usersByUserIds",
-      userIds:  user.associatedClientIds?.[0].userIds ?? undefined
+      userIds:  associatedUserIds,
     },
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
+    skip: !(associatedUserIds.length > 0)
   });
 
   const flaggedAccounts = results?.filter(result => result._id !== user._id && (!!result.banned || result.postingDisabled || result.allCommentingDisabled || result.commentingOnOtherUsersDisabled || result.conversationsDisabled || result.karma < 0))
@@ -46,13 +51,19 @@ export const AltAccountInfo = ({classes, user}: {
   const altAccounts = results?.filter(altUser => altUser._id !== user._id)
 
   return <div className={classes.root}>
-    <em><Link to={`/moderation/altAccounts?slug=${user.slug}`}>Alternate accounts detected</Link> {flaggedText}</em>
+    <em>
+      <Link to={`/moderation/altAccounts?slug=${user.slug}`}>
+        Alternate accounts detected
+      </Link>
+      {" "}
+      {flaggedText}
+    </em>
     <LWTooltip title={<div><p>Click to show alts. Please don't look unless you have reason to suspect this account of suspicious activity</p><p><em>(it's fine for established users to have alts and the mods should not go out of our way to look at them).</em></p></div>}>
       <span onClick={() => setShowAlternateAccounts(!showAlternateAccounts)}>
         {showAlternateAccounts ? <LockOpenIcon className={classes.icon}/> : <LockIcon className={classes.icon}/>}
       </span>
     </LWTooltip>
-    {loading && <Loading/>}
+    {loading && associatedUserIds.length>0 && <Loading/>}
     {showAlternateAccounts && altAccounts?.map(user => <li key={`${user._id}`}>
       <Link to={userGetProfileUrl(user)}>{user.displayName}</Link> {user.deleted && <>[Deleted]</>}
     </li>)}

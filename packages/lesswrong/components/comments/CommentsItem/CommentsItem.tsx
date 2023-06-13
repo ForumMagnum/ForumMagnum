@@ -60,8 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: theme.typography.body1.fontWeight,
+    fontWeight: isEAForum ? 600 : theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
+    fontSize: isEAForum ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
@@ -71,7 +72,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -theme.spacing.unit*1.5
   },
   bottom: {
-    paddingBottom: isEAForum ? theme.spacing.unit : 5,
+    paddingBottom: isEAForum ? 12 : 5,
+    paddingTop: isEAForum ? 4 : undefined,
     minHeight: 12,
     ...(isEAForum ? {} : {fontSize: 12}),
   },

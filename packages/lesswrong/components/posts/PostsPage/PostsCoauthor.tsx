@@ -8,9 +8,10 @@ const styles = (_: ThemeType): JssStyles => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 
-const PostsCoauthor = ({ post, coauthor, classes }: {
+const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsDetails,
   coauthor: UsersMinimumInfo,
+  pageSectionContext?: string,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -29,7 +30,7 @@ const PostsCoauthor = ({ post, coauthor, classes }: {
     : UsersName;
   return (
     <>
-      , <Component user={coauthor} />
+      , <Component user={coauthor} pageSectionContext={pageSectionContext} />
       {!isPending && <UserCommentMarkers user={coauthor} className={classes.markers} />}
     </>
   );
