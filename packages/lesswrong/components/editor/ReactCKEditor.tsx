@@ -13,7 +13,7 @@ interface CKEditorProps {
   disabled?: any,
   onInit?: any,
   onChange?: any,
-  onFocus?: any,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   onBlur?: any,
   config?: any,
 }
@@ -97,7 +97,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
             }
           } );
           
-          viewDocument.on( 'focus', (event: any) => {
+          viewDocument.on( 'focus', (event: AnyBecauseTodo) => {
             /* istanbul ignore else */
             if ( this.props.onFocus ) {
               this.props.onFocus( event, editor );
