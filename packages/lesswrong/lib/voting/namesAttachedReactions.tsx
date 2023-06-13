@@ -91,9 +91,17 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     };
   },
 
-  isAllowedExtendedVote: (user: UsersCurrent|DbUser, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
+  isAllowedExtendedVote: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
     // Are there any reacts in this vote?
     if (extendedVote?.reacts && extendedVote.reacts.length>0) {
+      // Users cannot antireact to reactions on their own comments
+      if (some(extendedVote.reacts, r=>r.vote==="disagreed")) {
+        if (user._id===document.userId) {
+          return {allowed: false, reason: `You cannot antireact to reactions on your own comments`};
+        }
+      }
+      
+
       // If the user is disagreeing with a react, they need at least
       // downvoteExistingReactKarmaThreshold karma
       if (user.karma < downvoteExistingReactKarmaThreshold.get()
