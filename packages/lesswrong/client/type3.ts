@@ -7,4 +7,5 @@ const receiveAnalytics = (type: string, event: Record<string, any>) => {
   captureEvent(qualifiedType, event);
 }
 
+console.log("Setting up type3 analytics");
 (window as any).t3aAnalytics = receiveAnalytics;
