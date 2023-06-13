@@ -203,25 +203,13 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   }
 
   const getReactionFromName = (name: string) => namesAttachedReactions.find(r => r.name === name && reactionsToShow.includes(r));
- 
-  // const primary = [
-  //   'agree',      'disagree',   'important',    'dontUnderstand', 'shrug', 'thanks', 'thumbs-up',  'thumbs-down', 'seen',
-  // ].map(r => getReactionFromName(r)).filter(r => r);
-
-  // const emotions = [
-  //   'thinking',   'surprise',   'roll',         'confused',  'laugh',    'disappointed',    'smile',  'empathy', 'excitement',
-  // ].map(r => getReactionFromName(r)).filter(r => r);
 
   const primary = [
     'agree',      'disagree',   'important',    'dontUnderstand', 'shrug', 'thinking',   'surprise',   'roll', 'confused',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
-  const emotions2 = [
+  const emotions = [
     'smile', 'laugh',    'disappointed',    'empathy', 'excitement','thumbs-up', 'thumbs-down',  'seen', 'thanks',
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const likelihoods = [
-    '1percent', '10percent', '25percent', '40percent', '50percent', '60percent', '75percent', '90percent', '99percent',
   ].map(r => getReactionFromName(r)).filter(r => r);
   
   const gridSectionB = [
@@ -231,7 +219,10 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
 
   const gridSectionC = [
     'taboo',  'offtopic',  'insightful',  'elaborate',  'timecost',  'coveredAlready',         'typo',        'scholarship', 'notPlanningToRespond'
+  ].map(r => getReactionFromName(r)).filter(r => r);
 
+  const likelihoods = [
+    '1percent', '10percent', '25percent', '40percent', '50percent', '60percent', '75percent', '90percent', '99percent',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const listViewSectionB = [
@@ -249,7 +240,6 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'scholarship',  'offtopic',
     'taboo',        'elaborate',       
     'coveredAlready','timecost',
-
   ].map(r => getReactionFromName(r)).filter(r => r );
 
   const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
@@ -264,18 +254,18 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       key={reaction.name} placement={placement}
       title={tooltip(reaction)}
     >
-    <div className={classNames(classes.paletteEntry, {
-        [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-        [classes.selectedAnti]: currentUserVote==="disagreed",
-      })}
-      onClick={_ev => toggleReaction(reaction.name, quote)}
-      key={reaction.name}
-    >
-    <ReactionIcon react={reaction.name} size={size}/>
-
-    <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-  </div>    
-  </LWTooltip>}
+      <div className={classNames(classes.paletteEntry, {
+          [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+          [classes.selectedAnti]: currentUserVote==="disagreed",
+        })}
+        onClick={_ev => toggleReaction(reaction.name, quote)}
+        key={reaction.name}
+      >
+        <ReactionIcon react={reaction.name} size={size}/>
+        <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+      </div>    
+    </LWTooltip>
+  }
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
@@ -313,13 +303,13 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </p>
         <div className={classes.paddedRow}>
-          {emotions2.map(react => react && gridReactButton(react, 24))}
+          {emotions.map(react => react && gridReactButton(react, 24))}
         </div>
       </div>}
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>
           {primary.map(react => react && gridReactButton(react, 24))}
-          {emotions2.map(react => react && gridReactButton(react, 24))}
+          {emotions.map(react => react && gridReactButton(react, 24))}
         </div>
         <div className={classes.iconSection}>
           {gridSectionB.map(react => react && gridReactButton(react, 24))}
@@ -328,9 +318,6 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           {gridSectionC.map(react => react && gridReactButton(react, 24))}
         </div>
         {likelihoods.map(react => react && gridReactButton(react, 24))}
-        {/* <div className={classes.likelihoodSection}>
-          {likelihoods.map(react => react && gridReactButton(react, 24))}
-        </div> */}
       </div>}
     </div>
     {displayStyle === "listView" && <div className={classes.likelihoodSection}>
@@ -357,9 +344,8 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     </div>
   </div>
   
-}
-    
-    
+}   
+   
 const ReactionDescription = ({reaction, classes}: {
 reaction: NamesAttachedReactionType,
 classes: ClassesType,
@@ -387,7 +373,6 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
       || reaction.searchTerms?.some(searchTerm => searchTerm.toLowerCase().startsWith(searchText))
   );
 }
-
 
 const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette, {styles});
 
