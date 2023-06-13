@@ -8,6 +8,8 @@ export type MeanPostKarma = {
   meanKarma: number,
 }
 
+type PostAndDigestPost = DbPost & {digestPostId: string, emailDigestStatus: string, onsiteDigestStatus: string}
+
 export default class PostsRepo extends AbstractRepo<DbPost> {
   constructor() {
     super(Posts);
@@ -64,7 +66,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
-    return await logIfSlow(async () => await this.getRawDb().many(`
+    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
@@ -72,6 +74,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ORDER BY rs."lastUpdated" desc
       LIMIT $1
     `, [limit]), "getReadHistoryForUser");
+  }
+  
+  async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
+    const end = endDate ?? new Date()
+    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+      SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
+      FROM "Posts" p
+      LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
+      WHERE p."postedAt" > $2 AND p."postedAt" <= $3 AND p."baseScore" > 2
+      ORDER BY p."baseScore" desc
+      LIMIT 200
+    `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
   async getEmojiReactors(

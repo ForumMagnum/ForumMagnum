@@ -2,7 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
-import { VoteCounts } from "../../components/ea-forum/EditDigest";
 
 export type KarmaChangesArgs = {
     userId: string,
@@ -32,6 +31,14 @@ export type PostKarmaChange = KarmaChangeBase & {
 
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
+}
+
+type PostVoteCounts = {
+  postId: string,
+  smallUpvoteCount: number,
+  bigUpvoteCount: number,
+  smallDownvoteCount: number
+  bigDownvoteCount: number
 }
 
 export default class VotesRepo extends AbstractRepo<DbVote> {
@@ -111,11 +118,13 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [oldUserId, newUserId]);
   }
   
-  async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<VoteCounts>> {
-    return await logIfSlow(async () => await this.getRawDb().many(`
+  async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
+    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
       SELECT p._id as "postId",
-        count(v._id) FILTER(WHERE v."voteType" = ANY(ARRAY['smallUpvote','bigUpvote'])) as "upvoteCount",
-        count(v._id) FILTER(WHERE v."voteType" = ANY(ARRAY['smallDownvote','bigDownvote'])) as "downvoteCount"
+        count(v._id) FILTER(WHERE v."voteType" = 'smallUpvote') as "smallUpvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'bigUpvote') as "bigUpvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'smallDownvote') as "smallDownvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'bigDownvote') as "bigDownvoteCount"
       FROM "Posts" p
       JOIN "Votes" v tablesample system(50) ON v."documentId" = p."_id"
       WHERE p._id = ANY($1)

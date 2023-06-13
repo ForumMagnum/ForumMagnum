@@ -14,6 +14,7 @@ import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import PostsRepo from '../repos/PostsRepo';
+import VotesRepo from '../repos/VotesRepo';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -184,14 +185,54 @@ addGraphQLResolvers({
       return {
         posts: posts,
       }
+    },
+    async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser || !currentUser.isAdmin) {
+        throw new Error('Permission denied')
+      }
+      const postsRepo = new PostsRepo()
+      const eligiblePosts = await postsRepo.getEligiblePostsForDigest(digestId, startDate, endDate)
+      if (!eligiblePosts.length) return []
+
+      const votesRepo = new VotesRepo()
+      const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
+      console.log('DigestPlannerData votes', votes)
+      
+      return eligiblePosts.map(post => {
+        const postVotes = votes.find(v => v.postId === post._id)
+        const rating = postVotes ?
+          Math.round(
+            ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
+          ) : 0
+        
+        return {
+          post,
+          digestPost: {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          },
+          rating
+        }
+      })
     }
-  }
+  },
 })
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
     posts: [Post!]
   }
-`);
-
+`)
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+
+addGraphQLSchema(`
+  type DigestPlannerPost {
+    post: Post
+    digestPost: DigestPost
+    rating: Int
+  }
+`)
+addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
