@@ -8,6 +8,7 @@ import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
+import { isServer } from '../executionEnvironment';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -234,6 +235,7 @@ export interface UseMultiOptions<
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
   createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
+  ssr?: boolean,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -262,6 +264,7 @@ export type UseMultiResult<
   loadMoreProps: LoadMoreProps,
   loadMore: any,
   limit: number,
+  ssr?: boolean,
 }
 
 /**
@@ -296,6 +299,7 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   createIfMissing,
+  ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
@@ -336,7 +340,9 @@ export function useMulti<
     pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    ssr: true,
+    // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+    // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+    ssr: ssr || !isServer,
     skip,
     notifyOnNetworkStatusChange: true
   }

@@ -21,9 +21,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 })
 
-const PostsAuthors = ({classes, post}: {
+const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType,
   post: PostsDetails,
+  pageSectionContext?: string,
 }) => {
   const { UsersName, UserCommentMarkers, PostsCoauthor, Typography } = Components
   return <Typography variant="body1" component="span" className={classes.root}>
@@ -31,12 +32,12 @@ const PostsAuthors = ({classes, post}: {
       {!post.user || post.hideAuthor
         ? <Components.UserNameDeleted/>
         : <>
-          <UsersName user={post.user} />
+          <UsersName user={post.user} pageSectionContext={pageSectionContext} />
           <UserCommentMarkers user={post.user} className={classes.authorMarkers} />
         </>
       }
       {post.coauthors?.map(coauthor =>
-        <PostsCoauthor key={coauthor._id} post={post} coauthor={coauthor} />
+        <PostsCoauthor key={coauthor._id} post={post} coauthor={coauthor} pageSectionContext={pageSectionContext} />
       )}
     </span>
   </Typography>
