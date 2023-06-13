@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { generateTokenRequest } from "../../lib/ckEditorUtils";
 import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
+import { styles as buttonStyles } from "../form-components/FormSubmit";
+import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
+  ...buttonStyles(theme),
   root: {
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
@@ -15,7 +17,8 @@ const styles = (theme: ThemeType) => ({
   commentEditor: {
     padding: "5px 10px",
     background: theme.palette.grey[100],
-    borderRadius: theme.borderRadius.default,
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
     "& .ck-placeholder::before": {
       color: theme.palette.grey[600],
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -26,6 +29,13 @@ const styles = (theme: ThemeType) => ({
   collapsed: {
     height: 40,
   },
+  buttonContainer: {
+    background: theme.palette.grey[100],
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
+    textAlign: "right",
+    padding: "0 8px 8px 0",
+  },
 });
 
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
@@ -35,28 +45,22 @@ const QuickTakesEntry = ({currentUser, classes}: {
   classes: ClassesType,
 }) => {
   const [expanded, setExpanded] = useState(false);
-
-  // const onExpand = useCallback(() => setExpanded(true), []);
-  // const onSuccess = useCallback(() => {}, []);
-  // const onCancel = useCallback(() => {}, []);
-  // const onBlur = useCallback(() => setExpanded(false), []);
-  // const onPublish = useCallback((event) => {
-    // event.preventDefault();
-  // }, [currentUser]);
-  useEffect(() => {
-    void generateTokenRequest("Comments", "contents")();
-  }, []);
-
   const [contents, setContents] = useState(() => getInitialEditorContents(
-    undefined, null, "contents", currentUser
+    undefined,
+    null,
+    "contents",
+    currentUser,
   ));
 
-  const onChange = (arg: any) => {
+  const onChange = useCallback((arg: any) => {
     console.log("qwertyuiop", arg);
     void setContents;
-  }
+  }, []);
 
-  const onFocus = () => setExpanded(true);
+  const onSubmit = useCallback(() => {
+  }, []);
+
+  const onFocus = useCallback(() => setExpanded(true), []);
 
   const {Editor} = Components;
   return (
@@ -79,6 +83,19 @@ const QuickTakesEntry = ({currentUser, classes}: {
           _classes={classes}
         />
       </div>
+      {expanded &&
+        <>
+          <div className={classes.buttonContainer}>
+            <Button
+              type="submit"
+              className={classNames(classes.formButton, classes.submitButton)}
+              onClick={onSubmit}
+            >
+              Publish
+            </Button>
+          </div>
+        </>
+      }
     </div>
   );
 }
