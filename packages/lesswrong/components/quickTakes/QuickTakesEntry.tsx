@@ -4,6 +4,7 @@ import { styles as editorStyles, getInitialEditorContents } from "../editor/Edit
 import { styles as buttonStyles } from "../form-components/FormSubmit";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
+import { useQuickTakesTags } from "./useQuickTakesTags";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
@@ -36,6 +37,18 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     padding: "0 8px 8px 0",
   },
+  tagContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    rowGap: "4px",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  tagLabel: {
+    fontWeight: 600,
+    fontSize: 13,
+    marginRight: 8,
+  },
 });
 
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
@@ -51,9 +64,17 @@ const QuickTakesEntry = ({currentUser, classes}: {
     "contents",
     currentUser,
   ));
+  const {
+    loading,
+    frontpage,
+    selectedTagIds,
+    tags,
+    frontpageTagId,
+    onTagSelected,
+    onTagRemoved,
+  } = useQuickTakesTags();
 
-  const onChange = useCallback((arg: any) => {
-    console.log("qwertyuiop", arg);
+  const onChange = useCallback((_arg: any) => {
     void setContents;
   }, []);
 
@@ -62,7 +83,7 @@ const QuickTakesEntry = ({currentUser, classes}: {
 
   const onFocus = useCallback(() => setExpanded(true), []);
 
-  const {Editor} = Components;
+  const {Editor, Loading, TagsChecklist} = Components;
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentEditor, {
@@ -94,6 +115,27 @@ const QuickTakesEntry = ({currentUser, classes}: {
               Publish
             </Button>
           </div>
+          {loading
+            ? <Loading />
+            : (
+              <div className={classes.tagContainer}>
+                <span className={classes.tagLabel}>Set topic</span>
+                <TagsChecklist
+                  tags={tags}
+                  displaySelected="highlight"
+                  selectedTagIds={[
+                    ...(frontpage ? [frontpageTagId] : []),
+                    ...selectedTagIds,
+                  ]}
+                  onTagSelected={onTagSelected}
+                  onTagRemoved={onTagRemoved}
+                  tooltips={false}
+                  truncate
+                  smallText
+                />
+              </div>
+            )
+          }
         </>
       }
     </div>
