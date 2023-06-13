@@ -42,7 +42,7 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     currentUser: UsersCurrent
   })=>ExtendedScoreType
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
-  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
+  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
 

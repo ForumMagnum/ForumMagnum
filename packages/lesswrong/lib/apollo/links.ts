@@ -4,6 +4,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { DatabasePublicSetting } from "../publicSettings";
+import { Operation, selectURI } from "@apollo/client/core";
 
 const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
@@ -29,6 +30,28 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl = '/') => {
+  const uri = baseUrl + 'graphql';
+
+  const batchKey = (operation: Operation) => {
+    // The default part is copied from https://github.com/apollographql/apollo-client/blob/main/src/link/batch-http/batchHttpLink.ts#L192-L206
+    const context = operation.getContext();
+
+    const contextConfig = {
+      http: context.http,
+      options: context.fetchOptions,
+      credentials: context.credentials,
+      headers: context.headers,
+    };
+
+    const defaultBatchKey = selectURI(operation, uri) + JSON.stringify(contextConfig);
+
+    // If the operation has a batchKey variable, add that to the batch key.
+    // This is to manually separate out very slow queries
+    const explicitBatchKey = operation.variables?.batchKey;
+
+    return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
+  };
+
   const fetch: typeof globalThis.fetch = isServer
     ? (url, options) => globalThis.fetch(url, {
       ...options,
@@ -40,10 +63,11 @@ export const createHttpLink = (baseUrl = '/') => {
     })
     : globalThis.fetch;
   return new BatchHttpLink({
-    uri: baseUrl + 'graphql',
+    uri,
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',
     batchMax: graphqlBatchMaxSetting.get(),
     fetch,
+    batchKey,
   });
 }
 

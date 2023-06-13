@@ -352,10 +352,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = (context.currentUser || context.clientId) && isEAForum ?
+  const useSlowerFrontpage = context.currentUser && isEAForum ?
     getUserABTestGroup(context.currentUser, context.clientId || '', getABTestsMetadata()['slowerFrontpage']) === 'treatment'
     : false
-  
+
   const syntheticFields = {
     score: {$divide:[
       {$multiply: [
@@ -862,7 +862,8 @@ Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
   if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   return {
     selector: {
-      legacyId: ""+legacyId
+      legacyId: ""+legacyId,
+      af: viewFieldAllowAny,
     },
     options: {
       limit: 1
