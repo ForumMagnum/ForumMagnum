@@ -18,6 +18,7 @@ voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDo
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
+    console.log({baseScore: newDocument.baseScore}, {vote})
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 });
