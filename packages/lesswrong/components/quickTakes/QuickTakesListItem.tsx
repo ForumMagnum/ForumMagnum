@@ -3,6 +3,8 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import moment from "moment";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useHover } from "../common/withHover";
+import { isMobile } from "../../lib/utils/isMobile";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,6 +71,12 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
+    [theme.breakpoints.down("xs")]: {
+      "-webkit-line-clamp": 3,
+    },
+  },
+  hoverOver: {
+    width: 400,
   },
 });
 
@@ -76,14 +84,20 @@ const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType,
 }) => {
+  const {eventHandlers, hover, anchorEl} = useHover({
+    pageElementContext: "shortformItemTooltip",
+    commentId: quickTake._id,
+  });
+
   const commentCount = quickTake.descendentCount ?? 0;
   const primaryTag = quickTake.relevantTags?.[0];
+  const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
 
   const setShowEdit = () => {}; // TODO
 
   const {
-    LWTooltip, KarmaDisplay, UsersName, FooterTag, CommentsMenu, ForumIcon,
-    ContentItemBody,
+    LWTooltip, LWPopper, KarmaDisplay, UsersName, FooterTag, CommentsMenu,
+    ForumIcon, ContentItemBody, CommentsNode,
   } = Components;
   return (
     <div className={classes.root}>
@@ -122,10 +136,35 @@ const QuickTakesListItem = ({quickTake, classes}: {
           </AnalyticsContext>
         </div>
       </div>
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ""}}
-        className={classes.body}
-      />
+      <div {...eventHandlers}>
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ""}}
+          className={classes.body}
+        />
+      </div>
+      <LWPopper
+        open={displayHoverOver}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        clickable={false}
+      >
+        <div className={classes.hoverOver}>
+          <CommentsNode
+            truncated
+            nestingLevel={1}
+            comment={quickTake}
+            treeOptions={{
+              post: quickTake.post || undefined,
+              showCollapseButtons: true,
+              // onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+              hideReply: true,
+              forceSingleLine: false,
+              forceNotSingleLine: true,
+            }}
+            hoverPreview
+          />
+        </div>
+      </LWPopper>
     </div>
   );
 }
