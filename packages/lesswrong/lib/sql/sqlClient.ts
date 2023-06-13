@@ -55,8 +55,9 @@ export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+    const description = getDescription();
     // eslint-disable-next-line no-console
-    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${description.substring(0,500)}`);
   }
 
   return result;
