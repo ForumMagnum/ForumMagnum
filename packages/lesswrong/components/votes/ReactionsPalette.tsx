@@ -209,11 +209,11 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   // ].map(r => getReactionFromName(r)).filter(r => r);
 
   const primary = [
-    'agree',      'disagree',   'important',    'dontUnderstand', 'thanks', 'thinking',   'surprise',   'roll', 'confused',
+    'agree',      'disagree',   'important',    'dontUnderstand', 'shrug', 'thinking',   'surprise',   'roll', 'confused',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const emotions2 = [
-    'laugh',    'disappointed',    'smile',  'empathy', 'excitement','thumbs-up', 'thumbs-down', 'shrug', 'seen',
+    'smile', 'laugh',    'disappointed',    'empathy', 'excitement','thumbs-up', 'thumbs-down',  'seen', 'thanks',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const likelihoods = [
@@ -222,16 +222,17 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   
   const gridSectionB = [
     'crux',       'hitsTheMark', 'locallyValid',   'scout',     'charitable',             'concrete',  'yeswhatimean','insightful', 'verified',
-    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',    'muddled',    'verifiedFalse',
+    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',    'verifiedFalse',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const gridSectionC = [
-    'obtuse',     'taboo',       'offtopic',       'elaborate',  'timecost',  'coveredAlready',         'paperclip', 'typo',        'scholarship', 'additionalQuestions'
+    'obtuse',     'taboo',       'offtopic',       'elaborate',  'timecost',  'coveredAlready',         'paperclip', 'typo',        'scholarship', 'notPlanningToRespond'
 
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const listViewSectionB = [
     'changemind',   'typo',   
+    'thanks',       'insightful',
     'locallyValid', 'locallyInvalid',
     'crux',         'notacrux',
     'charitable',   'unnecessarily-combative',
@@ -239,21 +240,20 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'concrete',     'examples',
     'yeswhatimean', 'strawman',
     'hitsTheMark',  'miss',
-    'clear',        'muddled',
+    'scout',        'soldier',
     'scholarship',  'obtuse',
-    'taboo',        'insightful',
+    'taboo',        'elaborate',       
     'coveredAlready','timecost',
-    'elaborate',    'offtopic',
-    // 'paperclip',    'additionalQuestions',
+    'offtopic',
   ].map(r => getReactionFromName(r)).filter(r => r );
 
-  const gridReactButton = (reaction: NamesAttachedReactionType, size:number=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
+  const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
     <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
       <ReactionIcon react={reaction.name} size={size}/>
     </div>
   </LWTooltip>
 
-  const listReactButton = (reaction: NamesAttachedReactionType, placement: PopperPlacementType="left", size:number=22, ) => {
+  const listReactButton = (reaction: NamesAttachedReactionType, placement: PopperPlacementType="left", size=22, ) => {
     const currentUserVote = getCurrentUserReactionVote(reaction.name);
     return <LWTooltip
       key={reaction.name} placement={placement}
@@ -314,13 +314,15 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>
           {primary.map(react => react && gridReactButton(react, 24))}
-          {likelihoods.map(react => react && gridReactButton(react, 24))}
+          {emotions2.map(react => react && gridReactButton(react, 24))}
         </div>
         <div className={classes.iconSection}>
           {gridSectionB.map(react => react && gridReactButton(react, 24))}
         </div>
-        {emotions2.map(react => react && gridReactButton(react, 24))}
-        {gridSectionC.map(react => react && gridReactButton(react, 24))}
+        <div>
+          {gridSectionC.map(react => react && gridReactButton(react, 24))}
+        </div>
+        {likelihoods.map(react => react && gridReactButton(react, 24))}
         {/* <div className={classes.likelihoodSection}>
           {likelihoods.map(react => react && gridReactButton(react, 24))}
         </div> */}

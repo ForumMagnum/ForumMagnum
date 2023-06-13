@@ -115,7 +115,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "thanks",
-    label: "Thanks!",
+    label: "Gratitude",
     searchTerms: ["ty", "thanks"],
     svg: "/reactionImages/nounproject/thankyou.svg",
     filter: { scale: .9, opacity:.5},
@@ -157,7 +157,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Skeptical",
     searchTerms: ["examples", "shapes", "skeptical", "eyebrow", "dice", "roll", "disbelieve"],
     svg: "/reactionImages/nounproject/skeptical.svg",
-    filter: {opacity: 0.6},
+    filter: {opacity: 0.55, scale: 1.1},
     description: "I'm not sure I believe this.",
     deprecated:false
   },
@@ -219,7 +219,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "unnecessarily-combative",
-    label: "Too Combative",
+    label: "Too Combative?",
     searchTerms: ["swords"],
     svg: "/reactionImages/nounproject/swords.svg",
     description: "This seems more combative than it needs to be.",
@@ -248,7 +248,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "I don't understand",
     svg: "/reactionImages/nounproject/noun-question-5771604.svg",
     searchTerms: ["confused", "understand"],
-    description: "I didn't understand this",
+    description: "",
     deprecated:false,
     filter: {
       translateY: 2,
@@ -406,7 +406,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "shrug",
-    label: "Shrug",
+    label: "Unsure",
     svg: "/reactionImages/nounproject/shrug.svg",
     description: "I have don't know what to think of this",
   },
@@ -424,14 +424,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/thinking-nice-eyebrows.svg",
     description: "Food for thought",
     deprecated:false,
-    filter: {opacity:.9, scale:1.4, translateY: 2.5}
+    filter: {opacity:1, scale:1.4, translateY: 2.6}
   },
   {
     name: "obtuse",
     label: "Obtuse",
     svg: "/reactionImages/nounproject/obtuse.svg",
     description: "This conversation is suffering from an acute lack of understanding. Your interpretation of the other person's position is not right. Try coming at this conversation from a different angle.",
-    deprecated:true
+    // deprecated:true
   },
   {
     name: "nonSequitur",
@@ -530,9 +530,9 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "confused",
     label: "I notice I'm confused",
     searchTerms: ["confused", "question", "questionmark", "bewildered"],
-    svg: "/reactionImages/nounproject/noun-confused-face-1200693.svg",
+    svg: "/reactionImages/confused2.svg",
     description: "I don't have clear explanation of what's going on here",
-    filter: {opacity: .5, translateY: 0, scale: 1.5},
+    filter: {opacity: .9, translateY: -2.5, translateX: 0, scale: 1.15},
   },
   {
     name: "smile",
