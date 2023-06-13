@@ -683,3 +683,14 @@ Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
      }
   }
 }));
+
+Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      debateResponse: true,
+      deleted: false,
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 7},
+  };
+});

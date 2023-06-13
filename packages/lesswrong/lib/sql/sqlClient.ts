@@ -35,10 +35,9 @@ let queriesExecuted = 0;
 
 export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()=>string), quiet?: boolean) {
   function getDescription(): string {
-    if (typeof describe==='string')
-      return describe;
-    else
-      return describe();
+    const describeString = typeof describe==='string' ? describe : describe();
+    // Truncate this at a pretty high limit, just to avoid logging things like entire rendered pages
+    return describeString.slice(0, 5000);
   }
   
   let queryID: number = ++queriesExecuted;

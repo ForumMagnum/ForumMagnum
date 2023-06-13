@@ -4,7 +4,8 @@ import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
-import {forumSelect} from "../../../lib/forumTypeUtils";
+import { forumSelect } from "../../../lib/forumTypeUtils";
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const shortformDraftMessage = isEAForum
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -84,6 +85,9 @@ const PostBodyPrefix = ({post, query, classes}: {
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
       {shortformDraftMessage}
+    </div>}
+    {post.shortform && !post.draft && <div className={classes.contentNotice}>
+      This is a special post for short-form writing by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/shortform">Shortform Page</Link> and <Link to="/allPosts">All Posts page</Link>.
     </div>}
 
     {post.rejected && <div className={classes.rejectionNotice}>

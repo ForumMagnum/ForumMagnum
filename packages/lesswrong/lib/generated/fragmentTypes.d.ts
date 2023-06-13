@@ -1026,6 +1026,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly unreadDebateResponseCount: number,
+  readonly dialogTooltipPreview: string,
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
