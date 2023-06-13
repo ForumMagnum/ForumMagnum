@@ -9,7 +9,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
-import { VotingProps } from '../../components/votes/withVote';
+import { VotingProps } from '../../components/votes/votingProps';
 
 export type CommentVotingComponentProps = {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,

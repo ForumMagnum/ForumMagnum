@@ -19,7 +19,8 @@ import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import { useVote, VotingProps } from '../../votes/withVote';
+import { useVote } from '../../votes/withVote';
+import { VotingProps } from '../../votes/votingProps';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";

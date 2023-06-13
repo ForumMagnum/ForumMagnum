@@ -5,7 +5,7 @@ import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
-import { VotingProps } from '../../votes/withVote';
+import { VotingProps } from '../../votes/votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {

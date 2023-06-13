@@ -3,10 +3,10 @@ import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../.
 import { useCurrentUser } from '../../common/withUser';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { clearHighlights, markHighlights, useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
-import { VotingProps } from '../withVote';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import { dimHighlightClassName, highlightSelectorClassName } from '../../comments/CommentsItem/CommentsItem';
+import { VotingProps } from '../votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

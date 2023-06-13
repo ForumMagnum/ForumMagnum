@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { CommentVotingComponentProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
-import type { VotingProps } from '../withVote';
+import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
 import { useVote } from '../withVote';
