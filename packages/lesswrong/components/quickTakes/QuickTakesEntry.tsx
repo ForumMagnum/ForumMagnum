@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
 import { styles as buttonStyles } from "../form-components/FormSubmit";
+import { useQuickTakesTags } from "./useQuickTakesTags";
+import { useCreate } from "../../lib/crud/withCreate";
+import type { Editor as EditorType }  from "../editor/Editor";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
-import { useQuickTakesTags } from "./useQuickTakesTags";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
@@ -57,6 +59,8 @@ const QuickTakesEntry = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
+  const editorType = "ckEditorMarkup";
+  const editorRef = useRef<EditorType>(null);
   const [expanded, setExpanded] = useState(false);
   const [contents, setContents] = useState(() => getInitialEditorContents(
     undefined,
@@ -73,13 +77,30 @@ const QuickTakesEntry = ({currentUser, classes}: {
     onTagSelected,
     onTagRemoved,
   } = useQuickTakesTags();
+  const {create} = useCreate({
+    collectionName: "Comments",
+    fragmentName: "ShortformComments",
+  });
 
-  const onChange = useCallback((_arg: any) => {
-    void setContents;
+  const onChange = useCallback(({contents}: AnyBecauseTodo) => {
+    setContents(contents);
   }, []);
 
-  const onSubmit = useCallback(() => {
-  }, []);
+  const onSubmit = useCallback(async () => {
+    const contents = await editorRef.current?.submitData();
+    await create({
+      data: {
+        shortform: true,
+        shortformFrontpage: frontpage,
+        relevantTagIds: selectedTagIds,
+        // There's some magic that makes this work even though it is missing
+        // some fields that are marked as required. It hard to work out exactly
+        // what's going on without getting lost in the seas of `any`.
+        // @ts-ignore
+        contents,
+      },
+    });
+  }, [create, frontpage, selectedTagIds]);
 
   const onFocus = useCallback(() => setExpanded(true), []);
 
@@ -90,11 +111,12 @@ const QuickTakesEntry = ({currentUser, classes}: {
           [classes.collapsed]: !expanded,
         })}>
         <Editor
+          ref={editorRef}
           currentUser={currentUser}
           formType="new"
           collectionName="Comments"
           fieldName="contents"
-          initialEditorType="ckEditorMarkup"
+          initialEditorType={editorType}
           isCollaborative={false}
           quickTakesStyles
           value={contents}

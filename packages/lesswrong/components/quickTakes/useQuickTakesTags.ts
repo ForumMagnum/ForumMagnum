@@ -78,7 +78,6 @@ export const useQuickTakesTags = (): QuickTakesTags => {
     tag: SelectedTag,
     existingTagIds: string[],
   ) => {
-    console.log(existingTagIds);
     if (tag.tagId === FRONTPAGE_TAG_ID) {
       setFrontpage(false);
     } else {

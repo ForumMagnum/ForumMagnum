@@ -16,11 +16,11 @@ import {checkEditorValid} from './validation'
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
-const quickTakesEditorHeight = 120;
+const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
-const quickTakesEditorHeightRows = 6;
+const quickTakesEditorHeightRows = 5;
 
 export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
