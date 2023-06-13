@@ -182,6 +182,37 @@ const CommentsLink: FC<{
   );
 }
 
+const CommentCount: FC<{
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  commentCount: number,
+  classes: ClassesType,
+}> = ({post, commentCount, classes}) => {
+  if (isEAForum && post.shortform) {
+    return null;
+  }
+
+  const {ForumIcon, LWTooltip} = Components;
+  const commentCountNode = (
+    <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+      {isEAForum ?
+        <>
+          <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+        </> : postGetCommentCountStr(post, commentCount)
+      }
+    </CommentsLink>
+  );
+
+  if (isEAForum) {
+    return (
+      <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+        {commentCountNode}
+      </LWTooltip>
+    );
+  }
+
+  return commentCountNode;
+}
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
@@ -243,19 +274,11 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
-  
+
   const readingTimeNode = !post.isEvent && <LWTooltip title={`${wordCount} words`}>
     <span className={classes.wordCount}>{readTime} min read</span>
   </LWTooltip>
 
-  const commentCountNode = <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-    {isEAForum ?
-      <>
-        <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-      </> : postGetCommentCountStr(post, commentCount)
-    }
-  </CommentsLink>
-  
   const audioNode = toggleEmbeddedPlayer &&
     (cachedTooltipSeen ?
       <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
@@ -272,9 +295,11 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
       </NewFeaturePulse>
     )
 
+  const hideDate = post.isEvent || (isEAForum && post.shortform);
+
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
-  
+
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
@@ -296,23 +321,27 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           }
           {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
           {!isEAForum && readingTimeNode}
-          {!post.isEvent && <span className={classes.date}>
+          {!hideDate && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
-          {isEAForum && readingTimeNode}
+          {isEAForum && !post.shortform && readingTimeNode}
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          {isEAForum && audioNode}
+          {isEAForum && !post.shortform && audioNode}
           {post.question &&
             <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
               {postGetAnswerCountStr(answerCount)}
             </CommentsLink>
           }
-          {isEAForum ? <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
-            {commentCountNode}
-          </LWTooltip> : commentCountNode}
-          {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />}
+          <CommentCount
+            post={post}
+            commentCount={commentCount}
+            classes={classes}
+          />
+          {isEAForum && !post.shortform &&
+            <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+          }
           {!isEAForum && audioNode}
           {post.startTime && <div className={classes.secondaryInfoLink}>
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip={true} />

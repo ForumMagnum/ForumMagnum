@@ -130,7 +130,11 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     if (isEAForum) {
       commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
     }
-    
+
+    const contentType = isEAForum && post?.shortform
+      ? "Quick takes"
+      : "comments";
+
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -144,9 +148,9 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         component='span'
         className={classes.clickToHighlightNewSince}
       >
-        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
-        {highlightDate && !newCommentsSinceDate && "No new comments since "}
-        {!highlightDate && "Click to highlight new comments since: "}
+        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
+        {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
+        {!highlightDate && `Click to highlight new ${contentType} since: `}
         <a className={classes.button} onClick={handleClick}>
           <Components.CalendarDate date={highlightDate || now}/>
         </a>
@@ -184,9 +188,11 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isEAForum && (newForm || !!totalComments) && <div className={classes.commentsHeadline}>
-        Comments{commentCountNode}
-      </div>}
+      {isEAForum && (newForm || !!totalComments) && !post?.shortform &&
+        <div className={classes.commentsHeadline}>
+          Comments{commentCountNode}
+        </div>
+      }
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
