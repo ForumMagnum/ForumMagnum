@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [wh-perf-2023-06]
+    branches: [wh-type-3-analytics-2023-06]
 jobs:
   deploy:
     runs-on: ubuntu-latest
