@@ -24,9 +24,11 @@ import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { getAdminTeamAccount } from './commentCallbacks';
+import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postStatuses } from '../../lib/collections/posts/constants';
+import { updatePostEmbeddings } from '../embeddings';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -54,6 +56,34 @@ if (isEAForum) {
   }
   getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
   getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+
+  const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
+    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    if (hasChanged &&
+      !newPost.draft &&
+      !newPost.deletedDraft &&
+      newPost.status === postStatuses.STATUS_APPROVED
+    ) {
+      try {
+        await updatePostEmbeddings(newPost._id);
+      } catch (e) {
+        // We never want to prevent a post from being created/edited just
+        // because we fail to create embeddings, but we do want to log it
+        captureException(e);
+        // eslint-disable-next-line
+        console.error("Failed to create embeddings:", e);
+      }
+    }
+  }
+  getCollectionHooks("Posts").newAsync.add(
+    async (post: DbPost) => await updateEmbeddings(post),
+  );
+  getCollectionHooks("Posts").updateAsync.add(
+    async ({document, oldDocument}) => await updateEmbeddings(
+      document,
+      oldDocument,
+    ),
+  );
 }
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
@@ -77,7 +107,7 @@ function postsSetPostedAt (data: Partial<DbPost>) {
   return data;
 }
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -280,14 +310,9 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
   if (postRejected) {
     const postUser = await Users.findOne({_id: post.userId});
 
-    let messageContents =
-        // TODO: make link conditional on forum, or something
-        `Unfortunately, I rejected your post <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a>. (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
   
-    if (post.rejectedReason) {
-      messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
-    }
-
     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
     const noEmail = isEAForum
     ? false 

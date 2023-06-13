@@ -8,6 +8,10 @@ import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../
 import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
+import PageCache from '../../../lib/collections/pagecache/collection';
+import { getClientBundle } from '../../utils/bundleUtils';
+import PageCacheRepo from '../../repos/PageCacheRepo';
+import { DatabaseServerSetting } from '../../databaseSettings';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -21,6 +25,8 @@ import { healthCheckUserAgentSetting } from './renderUtil';
 //      we've rendered it; and
 //   3. When a page that is getting a lot of traffic expires from the page
 //      cache, we don't want to start many rerenders of it in parallel
+
+const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 const maxCacheAgeMs = 90*1000;
@@ -55,7 +61,6 @@ const jsonSerializableEstimateSize = (obj: any) => {
 // FIXME: This doesn't get updated correctly. Previous iteration had entries
 // removed when they should still be in cachedABtestsIndex; current iteration
 // has duplicate entries accumulate over time.
-
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
 let keysToCheckForExpiredEntries: Array<string> = [];
 
@@ -85,7 +90,7 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
-  const cached = cacheLookup(cacheKey, abTestGroups);
+  const cached = await cacheLookup(cacheKey, abTestGroups);
   
   // If already cached, return the cached version
   if (cached) {
@@ -135,7 +140,8 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
     delete inProgressRenders[cacheKey];
-  
+
+  // This just clears expired entries from cachedABtestsIndex, the actual page cache is an LRU() so it's cleared automatically
   clearExpiredCacheEntries();
   
   return {
@@ -144,11 +150,10 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   };
 }
 
-
-const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
+const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex)) {
     // eslint-disable-next-line no-console
-    console.log("Cache miss: no cached page with this cacheKey for any A/B test group combination");
+    console.log("Local cache miss: no cached page with this cacheKey for any A/B test group combination");
     return null;
   }
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
@@ -162,8 +167,33 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
         return lookupResult;
     }
   }
+
   // eslint-disable-next-line no-console
-  console.log(`Cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
+  console.log(`Local cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
+  return null;
+}
+
+const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+  const cacheResult = await (new PageCacheRepo().lookupCacheEntry({path: cacheKey, completeAbTestGroups: abTestGroups}));
+
+  if (!cacheResult?.renderResult) {
+    // eslint-disable-next-line no-console
+    console.log(`DB cache miss: no cached page with this cacheKey and a valid A/B test group combination`);
+  }
+  return cacheResult?.renderResult ?? null;
+}
+
+const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+  const localResult = cacheLookupLocal(cacheKey, abTestGroups);
+  if (localResult) {
+    return localResult;
+  }
+
+  if (dbPageCacheEnabledSetting.get()) {
+    const dbResult = await cacheLookupDB(cacheKey, abTestGroups);
+    return dbResult;
+  }
+
   return null;
 }
 
@@ -175,7 +205,7 @@ const objIsSubset = <A extends Record<string, any>, B extends Record<string, any
   return true;
 }
 
-const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
   pageCache.set(JSON.stringify({
     cacheKey: cacheKey,
     abTestGroups: abTestGroups
@@ -185,6 +215,34 @@ const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation,
     cachedABtestsIndex[cacheKey].push(abTestGroups);
   else
     cachedABtestsIndex[cacheKey] = [abTestGroups];
+}
+
+const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+  const { bundleHash } = getClientBundle();
+
+  void PageCache.rawUpdateOne(
+    {
+      path: cacheKey,
+      abTestGroups: abTestGroups,
+      bundleHash,
+    },
+    {
+      $set: {
+        ttlMs: maxCacheAgeMs,
+        renderedAt: new Date(),
+        expiresAt: new Date(Date.now() + maxCacheAgeMs),
+        renderResult: rendered,
+      },
+    },
+    {
+      upsert: true,
+    }
+  );
+}
+
+const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+  cacheStoreLocal(cacheKey, abTestGroups, rendered);
+  cacheStoreDB(cacheKey, abTestGroups, rendered);
 }
 
 const clearExpiredCacheEntries = (): void => {

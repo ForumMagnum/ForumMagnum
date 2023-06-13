@@ -72,6 +72,13 @@ mapandpin.svg: https://thenounproject.com/icon/map-pin-400157/
 checkedbox.svg: https://thenounproject.com/icon/check-2742243/
 ellipses.svg: https://thenounproject.com/icon/more-82401/
 paperclip.svg: https://thenounproject.com/icon/paperclip-1223412/
+branchingpath.svg: https://thenounproject.com/icon/branching-1849037/
+//Modified
+nonbranchingpath.svg: https://thenounproject.com/icon/branching-1849037/
+microscope.svg: https://thenounproject.com/icon/microscope-5772896/
+microscope2.svg: https://thenounproject.com/icon/microscope-1021907/
+type-text.svg: https://thenounproject.com/icon/type-text-5709740/ 
+
 
 
 misrepresentation.png: By LW user simon (https://www.lesswrong.com/posts/SzdevMqBusoqbvWgt/open-thread-with-experimental-feature-reactions?commentId=XKRHE6pJYGgpbdQgp)

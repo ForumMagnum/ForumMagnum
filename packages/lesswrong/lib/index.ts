@@ -147,6 +147,9 @@ import './collections/userLists/collection';
 import './collections/userLists/fragments';
 import './collections/userLists/views';
 
+import './collections/pagecache/collection';
+import './collections/pagecache/schema';
+
 // Subscriptions
 import './collections/subscriptions';
 
@@ -206,6 +209,9 @@ import './collections/moderationTemplates/index';
 
 // UserRateLimits
 import './collections/userRateLimits/index';
+
+// PostEmbeddings
+import './collections/postEmbeddings/collection';
 
 // Internationalization
 import './i18n-en-us/en_US';
