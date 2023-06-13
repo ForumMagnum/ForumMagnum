@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -30,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const RejectedCommentsList = ({classes}: {
   classes: ClassesType,
 }) => {
+  const [expanded,setExpanded] = useState(false);
   const { RejectedReasonDisplay, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row, ForumIcon } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
@@ -41,7 +41,7 @@ export const RejectedCommentsList = ({classes}: {
   return <div className={classes.root}>
     {results?.map(comment =>
       <div key={comment._id}>
-        <div className={classes.commentPadding}>
+        <div className={classes.commentPadding} onClick={()=>setExpanded(true)}>
           <Row justifyContent="space-between">
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
@@ -58,7 +58,7 @@ export const RejectedCommentsList = ({classes}: {
               <RejectedReasonDisplay reason={comment.rejectedReason}/>
             </span>
           </Row>
-          <CommentBody truncated={true} comment={comment} postPage={false} />
+          <CommentBody truncated={!expanded} comment={comment} postPage={false} />
         </div>
       </div>
     )}
