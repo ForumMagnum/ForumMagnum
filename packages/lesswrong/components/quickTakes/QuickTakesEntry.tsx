@@ -83,6 +83,7 @@ const QuickTakesEntry = ({
   const editorType = "ckEditorMarkup";
   const editorRef = useRef<EditorType>(null);
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [contents, setContents] = useState(() => getInitialEditorContents(
     undefined,
     null,
@@ -90,7 +91,7 @@ const QuickTakesEntry = ({
     currentUser,
   ));
   const {
-    loading,
+    loading: loadingTags,
     frontpage,
     selectedTagIds,
     tags,
@@ -108,19 +109,26 @@ const QuickTakesEntry = ({
   }, []);
 
   const onSubmit = useCallback(async () => {
-    const contents = await editorRef.current?.submitData();
-    await create({
-      data: {
-        shortform: true,
-        shortformFrontpage: frontpage,
-        relevantTagIds: selectedTagIds,
-        // There's some magic that makes this work even though it is missing
-        // some fields that are marked as required. It hard to work out exactly
-        // what's going on without getting lost in the seas of `any`.
-        // @ts-ignore
-        contents,
-      },
-    });
+    setLoadingSubmit(true);
+    try {
+      const contents = await editorRef.current?.submitData();
+      await create({
+        data: {
+          shortform: true,
+          shortformFrontpage: frontpage,
+          relevantTagIds: selectedTagIds,
+          // There's some magic that makes this work even though it is missing
+          // some fields that are marked as required. It hard to work out exactly
+          // what's going on without getting lost in the seas of `any`.
+          // @ts-ignore
+          contents,
+        },
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
+    setLoadingSubmit(false);
   }, [create, frontpage, selectedTagIds]);
 
   const onFocus = useCallback(() => setExpanded(true), []);
@@ -133,10 +141,14 @@ const QuickTakesEntry = ({
     })}>
       <Button
         type="submit"
+        disabled={loadingSubmit}
         className={classNames(classes.formButton, classes.submitButton)}
         onClick={onSubmit}
       >
-        Publish
+        {loadingSubmit
+          ? <Loading />
+          : "Publish"
+        }
       </Button>
     </div>
   );
@@ -165,7 +177,7 @@ const QuickTakesEntry = ({
       {expanded &&
         <>
           {!submitButtonAtBottom && submitButton}
-          {loading
+          {loadingTags
             ? <Loading />
             : (
               <div className={classes.tagContainer}>
