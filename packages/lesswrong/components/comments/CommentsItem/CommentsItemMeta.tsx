@@ -301,7 +301,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling
+            neverCoreStyling={!isEAForum}
             smallText
           />
         )}
