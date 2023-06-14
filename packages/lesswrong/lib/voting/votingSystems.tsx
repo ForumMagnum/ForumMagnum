@@ -19,14 +19,19 @@ export type CommentVotingComponentProps = {
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
 }
+export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
+  voteProps: VotingProps<VoteableTypeClient>,
+}
+
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
+export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingComponent,
+  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,

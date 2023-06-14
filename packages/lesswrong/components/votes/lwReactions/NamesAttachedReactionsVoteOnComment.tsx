@@ -1,6 +1,6 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { CommentVotingComponentProps, } from '../../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
@@ -422,10 +422,6 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       voteProps={voteProps}
     />
   </span>
-}
-
-interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
-  voteProps: VotingProps<VoteableTypeClient>,
 }
 
 const NamesAttachedReactionsCommentBottom = ({
