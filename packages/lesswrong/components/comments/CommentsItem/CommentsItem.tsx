@@ -288,7 +288,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
       (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
     )
 
