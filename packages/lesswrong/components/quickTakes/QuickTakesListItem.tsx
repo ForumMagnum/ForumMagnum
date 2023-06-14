@@ -45,7 +45,10 @@ const styles = (theme: ThemeType) => ({
   },
   relevantTags: {
     display: "flex",
+    flexWrap: "wrap",
+    rowGap: "100px",
     overflow: "hidden",
+    maxHeight: 20,
   },
   commentCount: {
     color: theme.palette.grey[600],
