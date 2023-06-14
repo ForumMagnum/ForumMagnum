@@ -441,7 +441,9 @@ export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
       scope: [
         'https://www.googleapis.com/auth/plus.login',
         'https://www.googleapis.com/auth/userinfo.email'
-      ], accessType: "offline", prompt: "consent"
+      ],
+      accessType: "offline",
+      prompt: "select_account consent",
     })(req, res, next)
   })
 

@@ -248,6 +248,24 @@ export type LoadMoreProps = {
   hidden: boolean,
 }
 
+export type UseMultiResult<
+  FragmentTypeName extends keyof FragmentTypes,
+> = {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  results?: Array<FragmentTypes[FragmentTypeName]>,
+  totalCount?: number,
+  refetch: any,
+  invalidateCache: () => void,
+  error: ApolloError|undefined,
+  count?: number,
+  showLoadMore: boolean,
+  loadMoreProps: LoadMoreProps,
+  loadMore: any,
+  limit: number,
+}
+
 /**
  * React hook that queries a collection, and returns those results along with
  * some metadata about the query's progress and some options for refetching and
@@ -281,21 +299,7 @@ export function useMulti<
   alwaysShowLoadMore = false,
   createIfMissing,
   ssr = true,
-}: UseMultiOptions<FragmentTypeName,CollectionName>): {
-  loading: boolean,
-  loadingInitial: boolean,
-  loadingMore: boolean,
-  results?: Array<FragmentTypes[FragmentTypeName]>,
-  totalCount?: number,
-  refetch: any,
-  invalidateCache: () => void,
-  error: ApolloError|undefined,
-  count?: number,
-  showLoadMore: boolean,
-  loadMoreProps: LoadMoreProps,
-  loadMore: any,
-  limit: number,
-} {
+}: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
 

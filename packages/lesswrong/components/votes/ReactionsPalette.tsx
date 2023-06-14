@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Components, getSiteUrl, registerComponent} from '../../lib/vulcan-lib';
+import {Components, registerComponent} from '../../lib/vulcan-lib';
 import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -9,6 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
+import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moreReactions: {
@@ -34,14 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     flexGrow: 1
   },
-  numQuotes: {
-    fontSize: 10,
-    marginRight: 6
-  },
   paletteEntry: {
     cursor: "pointer",
-    width: 150,
-    padding: 4,
+    width: 162,
+    marginBottom: 1,
     display: "flex",
     alignItems: "center",
     "&:hover": {
@@ -50,41 +47,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   paletteIcon1: {
     cursor: "pointer",
-    padding: 6,
+    padding: 4,
+    margin: 2,
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
   },
   paletteIcon2: {
-    cursor: "pointer",
-    padding: 6,
-    textAlign: "center",
-    width: 54,
-    height: 50,
-    "&:hover": {
-      background: theme.palette.panelBackground.darken04,
-    },
+    padding: 3,
+    margin: 1
   },
   selected: {
     background: theme.palette.panelBackground.darken10,
+    borderRadius: 6
   },
   selectedAnti: {
     background: "rgb(255, 189, 189, .23)",
+    borderRadius: 6
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 240,
+    maxHeight: 314,
     overflowY: "scroll",
-    marginBottom: 12,
     marginTop: 12
   },
   tooltipIcon: {
     marginRight: 12,
+    padding: 8,
+    '& img': {
+      filter: 'opacity(1) !important'
+    }
   },
   showAll: {
     maxHeight: "none",
   },
-  showMore: {
+  showAllButton: {
     display: "flex",
     justifyContent: "center",
   },
@@ -116,12 +113,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover, &:active, &:focus': {
       color: theme.palette.grey[400],
     },
+  },
+  tooltipLabel: {
+    fontSize: 15
+  },
+  iconSection: {
+    borderBottom: theme.palette.border.faint,
+    paddingBottom: 6,
+    marginBottom: 6,
+    marginRight: 7,
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  tooltipRoot: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 8
+  },
+  paddedRow: {
+    marginTop: "1em",
+    marginBottom: "1em",
   }
 })
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote?: string)=>void,
@@ -131,7 +149,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const reactPaletteStyle = currentUser?.reactPaletteStyle === "gridView" ? "gridView" : "listView"
+  const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
@@ -158,17 +176,91 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
   }
 
   function tooltip (reaction: NamesAttachedReactionType) {
-    return <Row>
+    return <div className={classes.tooltipRoot}>
      <div className={classes.tooltipIcon}>
         <ReactionIcon inverted={true} react={reaction.name} size={40}/>
       </div>
       <div>
-        <span>{reaction.label}</span>
+        <span className={classes.tooltipLabel}>{reaction.label}</span>
         <ReactionDescription reaction={reaction} classes={classes}/>
       </div>
-    </Row>
+    </div>
   }
+
+  const getReactionFromName = (name: string) => namesAttachedReactions.find(r => r.name === name && reactionsToShow.includes(r));
+
+  const primary = [
+    'agree', 'disagree', 'important', 'dontUnderstand', 'shrug', 'thinking', 'surprise', 'confused', 'thumbs-up', 
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const emotions = [
+    'smile', 'laugh', 'disappointed', 'empathy', 'excitement', 'thumbs-up', 'thumbs-down', 'seen', 'thanks',
+  ].map(r => getReactionFromName(r)).filter(r => r);
   
+  const gridSectionB = [
+    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'facilitation',             'concrete',  'yeswhatimean', 'clear', 'verified',
+    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'verifiedFalse',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const gridSectionC = [
+    'taboo',  'offtopic',  'insightful',  'elaborate',  'timecost',  'coveredAlready', 'typo', 'scholarship', 'why'
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const likelihoods = [
+    '1percent', '10percent', '25percent', '40percent', '50percent', '60percent', '75percent', '90percent', '99percent',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const listViewSectionB = [
+    'changemind',   'insightful',
+    'thanks',       'empathy',
+    'typo',         'why', 
+    'offtopic',     'elaborate',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const listViewSectionC = [
+    'hitsTheMark',  'miss',
+    'crux',         'notacrux',
+    'locallyValid', 'locallyInvalid',
+    'facilitation', 'unnecessarily-combative',
+    'yeswhatimean', 'strawman',
+    'concrete',     'examples',
+    'clear',        'muddled',
+    'verified',     'verifiedFalse',
+    'scout',        'soldier',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const listViewSectionD = [
+    'scholarship',  'taboo',             
+    'coveredAlready','timecost',
+  ].map(r => getReactionFromName(r)).filter(r => r );
+
+  const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => {
+    const currentUserVote = getCurrentUserReactionVote(reaction.name);
+    return <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
+      <div className={classNames(classes.paletteIcon1, {[classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+            [classes.selectedAnti]: currentUserVote==="disagreed"})} onClick={_ev => toggleReaction(reaction.name, quote)}>
+        <ReactionIcon react={reaction.name} size={size}/>
+      </div>
+    </LWTooltip>
+  }
+  const listReactButton = (reaction: NamesAttachedReactionType, placement: PopperPlacementType="left", size=22, ) => {
+    const currentUserVote = getCurrentUserReactionVote(reaction.name);
+    return <LWTooltip
+      key={reaction.name} placement={placement}
+      title={tooltip(reaction)}
+    >
+      <div className={classes.paletteEntry}
+        onClick={_ev => toggleReaction(reaction.name, quote)}
+        key={reaction.name}
+      >
+        <span className={classNames(classes.paletteIcon2, {[classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+          [classes.selectedAnti]: currentUserVote==="disagreed"})}>
+          <ReactionIcon react={reaction.name} size={size}/>
+        </span>
+        <span className={classes.hoverBallotLabel}>{reaction.label}</span>
+      </div>    
+    </LWTooltip>
+  }
 
   return <div className={classes.moreReactions}>
     {quote && <p>Reacting to "{quote}"</p>}
@@ -197,41 +289,40 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         </LWTooltip>
       </Row>
     </Row>
-    {displayStyle == "gridView" && <div className={classes.reactionPaletteScrollRegion}>
-        {reactionsToShow.map(reaction => <LWTooltip title={tooltip(reaction)} 
-          key={`icon-${reaction.name}`}
-        >
-          <div className={classes.paletteIcon1} onClick={_ev => toggleReaction(reaction.name, quote)}>
-            <ReactionIcon react={reaction.name} size={24}/>
-          </div>
-        </LWTooltip>)}
-    </div>}
-    {displayStyle == "listView" && <div>
-      <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]:showAll})}>
-        {reactionsToShow.map(reaction => {
-          const currentUserVote = getCurrentUserReactionVote(reaction.name);
-          const currentUserReact = getCurrentUserReaction(reaction.name);
-          const voteQuotes = currentUserReact?.quotes ?? [];
-          return (
-            <LWTooltip
-              key={reaction.name} placement="right-start"
-              title={tooltip(reaction)}
-            >
-              <div
-                key={reaction.name}
-                className={classNames(classes.paletteEntry, {
-                  [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-                  [classes.selectedAnti]: currentUserVote==="disagreed",
-                })}
-                onClick={_ev => toggleReaction(reaction.name, quote)}
-              >
-                <ReactionIcon react={reaction.name}/>
-                <span className={classes.hoverBallotLabel}>{reaction.label}{voteQuotes.length > 0 && <span className={classes.numQuotes}>{voteQuotes.length}</span>}</span>
-              </div>
-            </LWTooltip>
-          )
-        })}
-      </div>
+    <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
+      {displayStyle == "listView" && <div>
+        <p>
+          {primary.map(react => react && gridReactButton(react, 24))}
+        </p>
+        <div className={classes.iconSection}>
+          {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </div>
+        <div className={classes.iconSection}>
+          {listViewSectionC.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </div>
+        <div>
+          {listViewSectionD.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </div>
+        <p className={classes.iconSection}>
+          {emotions.map(react => react && gridReactButton(react, 24))}
+        </p>
+      </div>}
+      {displayStyle == "gridView" && <div>
+        <div className={classes.iconSection}>
+          {primary.map(react => react && gridReactButton(react, 24))}
+          {emotions.map(react => react && gridReactButton(react, 24))}
+        </div>
+        <div className={classes.iconSection}>
+          {gridSectionB.map(react => react && gridReactButton(react, 24))}
+        </div>
+        <div>
+          {gridSectionC.map(react => react && gridReactButton(react, 24))}
+        </div>
+        {likelihoods.map(react => react && gridReactButton(react, 24))}
+      </div>}
+    </div>
+    {displayStyle === "listView" && <div className={classes.paddedRow}>
+      {likelihoods.map(react => react && gridReactButton(react, 24))}
     </div>}
     <div className={classes.reactPaletteFooter}>
       <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
@@ -245,18 +336,17 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
           </span>
         </a>
       </LWTooltip>
-      {displayStyle == "listView" && <a className={classes.showMore} onClick={() => {
+      {displayStyle == "listView" && <a className={classes.showAllButton} onClick={() => {
         setShowAll(!showAll)
         captureEvent("reactPaletteShowMoreClicked", {showAll: !showAll})
       }} >
-        <MetaInfo>{showAll ? "Show Fewer" : "Show More"}</MetaInfo>
+        <MetaInfo>{showAll ? "Show Fewer" : "Show All"}</MetaInfo>
       </a>}
     </div>
   </div>
   
-}
-    
-    
+}   
+   
 const ReactionDescription = ({reaction, classes}: {
 reaction: NamesAttachedReactionType,
 classes: ClassesType,
@@ -265,8 +355,10 @@ classes: ClassesType,
       return null;
     } else if (typeof reaction.description === "string") {
       return <div>{reaction.description}</div>
-    } else {
+    } else if (typeof reaction.description === "function") {
       return <div>{reaction.description("comment")}</div>
+    } else {
+      return <div>{reaction.description}</div>
     }
   }
 
@@ -282,7 +374,6 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
       || reaction.searchTerms?.some(searchTerm => searchTerm.toLowerCase().startsWith(searchText))
   );
 }
-
 
 const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette, {styles});
 
