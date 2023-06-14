@@ -182,6 +182,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   const { ForumIcon, LWTooltip } = Components
   
+  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   // const hiddenTagsCount = post.tags.length - visibleTags.length
   // const showMoreTags = hiddenTagsCount ? <div className={classes.link}>{hiddenTagsCount} more</div> : null
@@ -201,7 +202,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         <div>
           <a href={`/posts/${post._id}/${post.slug}`} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {post.readTimeMinutes} min)</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>

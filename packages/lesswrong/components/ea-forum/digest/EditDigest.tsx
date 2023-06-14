@@ -12,6 +12,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { getDigestName, getEmailDigestPostListData } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -110,6 +111,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   centeredColHeader: {
     textAlign: 'center',
+  },
+  total: {
+    color: theme.palette.grey[800],
+    fontSize: 12
+  },
+  totalHigh: {
+    color: theme.palette.text.red
   }
 })
 
@@ -516,10 +524,16 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         <thead>
           <tr className={classes.headerRow}>
             <th className={classes.centeredColHeader}>
-              Email?<div>({emailTotal})</div>
+              Email?
+              <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 10})}>
+                {emailTotal}
+              </div>
             </th>
             <th className={classes.centeredColHeader}>
-              On-site?<div>({onsiteTotal})</div>
+              On-site?
+              <div className={classNames(classes.total, {[classes.totalHigh]: onsiteTotal > 30})}>
+                {onsiteTotal}
+              </div>
             </th>
             <th>Post</th>
             <th>Tags</th>
