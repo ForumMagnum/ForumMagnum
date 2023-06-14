@@ -79,14 +79,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Agreed",
     searchTerms: ["check", "correct", "confirm", "upvote", "+1"],
     svg: "/reactionImages/nounproject/check.svg",
-    description: "This seems true to me.",
+    description: "",
   },
   {
     name: "disagree",
     label: "Disagree",
     svg: "/reactionImages/nounproject/x.svg",
     searchTerms: ["x", "downvote", "-1"],
-    description: "This seems false to me.",
+    description: "",
   },
   {
     name: "important",
@@ -128,20 +128,20 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["pillar"],
     svg: "/reactionImages/nounproject/pillar.svg",
     description: `I am expressing supportiveness towards this`,
-  },
+  }, 
   {
     name: "verified",
     label: "I checked, it's true",
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
-    description: "I checked this, and it seems true. Or have other empirical data that confirms this",
+    description: "I looked up sources, did empiricism, checked the equations, etc.",
   },
   {
     name: "verifiedFalse",
     label: "I checked, it's False",
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
-    description: "I checked this, and it seems false/wrong.",
+    description: "I looked up sources, did empiricism, checked the equations, etc.",
   },
   
   {
@@ -211,7 +211,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "coveredAlready",
     label: "I already addressed this",
-    searchTerms: ["check", "already", "covered", "addressed"],
+    searchTerms: ["check", "already", "covered", "addressed", "addressed"],
     svg: "/reactionImages/nounproject/noun-mail-checkmark-5316519.svg",
     filter: {opacity: 0.6, scale: 1.2, translateY: 2},
     description: "I covered this in my post and/or comments.",
@@ -219,8 +219,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "unnecessarily-combative",
-    label: "Too Combative?",
-    searchTerms: ["swords"],
+    label: "Unnecessarily Combative?",
+    searchTerms: ["swords", "combative", "fighting", "battle", "war", "tribalism"],
     svg: "/reactionImages/nounproject/swords.svg",
     description: "This seems more combative than it needs to be.",
     filter: {padding: 2},
@@ -239,10 +239,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   {
     name: "strawman",
     label: "Misunderstands position?",
-    searchTerms: ["examples", "scarecrow", "strawman"],
-    svg: "/reactionImages/nounproject/scarecrow.svg",
+    searchTerms: ["examples", "scarecrow", "strawman", "misunderstanding", "position", "misrepresent"],
+    svg: "/reactionImages/nounproject/noun-misunderstanding-4936548-updated.svg",
     description: "This seems to misunderstand the thing that it argues against",
     deprecated:false,
+    filter: {opacity: 0.5, scale: 1.3}
   },
   {
     name: "dontUnderstand",
@@ -508,9 +509,9 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "laugh",
     label: "Haha!",
     searchTerms: ["laugh", "haha", "funny", "lol"],
-    svg: "/reactionImages/nounproject/laugh2.svg",
+    svg: "/reactionImages/nounproject/noun-laughing-761845.svg",
     description: "",
-    filter: {opacity: .9, translateY: 2}
+    filter: {opacity: .9, scale: 1.4, translateY: 2}
   },
   { 
     name: "disappointed",
@@ -545,12 +546,12 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "This makes me happy. :)"
   },  
   {
-    name: "charitable",
-    label: "Charitable",
-    searchTerms: ["understanding", "helpful", "upvote"],
-    svg: "/reactionImages/nounproject/noun-olives-4051874.svg",
-    description: "This went out of its way to be charitable/understanding",
-    filter: { translateY: 2, scale: 1.2},
+    name: "facilitation",
+    label: "Good Facilitation",
+    searchTerms: ["understanding", "helpful", "facilitation", "charitable"],
+    svg: "/reactionImages/nounproject/noun-dialog-2172.svg",
+    description: "This seemed to help people understand each other",
+    filter: { translateY: 2, scale: 1.4},
   },
   {
     name: "soldier",
@@ -665,6 +666,14 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     </div>,
     svg: "/reactionImages/99percent.svg",
     filter: {scale:1.25, opacity: .5, translateY: .75, translateX: 1}
+  },
+  {
+    name: "why",
+    label: "Why? / Citation?",
+    searchTerms: ["why", "citation", "source", "needed", "question"],
+    svg: "/reactionImages/nounproject/noun-brackets-1942334-updated.svg",
+    filter: {scale: 1.2},
+    description: "Why do you believe that? Or, what's your source for that?",
   }
 ];
 
