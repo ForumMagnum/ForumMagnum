@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { VotingProps } from "../withVote";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
+import { VotingProps } from "../votingProps";
 
 const styles = (theme: ThemeType): JssStyles => ({
   disabled: {

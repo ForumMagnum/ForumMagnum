@@ -9,7 +9,7 @@ import { userCanVote } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
-import type { VotingProps } from './withVote';
+import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
