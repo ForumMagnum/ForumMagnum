@@ -375,7 +375,7 @@ const CommentsNewForm = ({
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Comment' : 'Submit'}
             />
           </div>
         </div>
