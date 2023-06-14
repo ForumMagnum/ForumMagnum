@@ -19,6 +19,11 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 16,
     borderRadius: theme.borderRadius.default,
   },
+  expandedRoot: {
+    "& .comments-node-root": {
+      marginBottom: 0,
+    },
+  },
   info: {
     display: "flex",
     alignItems: "baseline",
@@ -74,6 +79,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   body: {
+    cursor: "pointer",
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "-webkit-box",
@@ -139,10 +145,6 @@ const QuickTakesListItem = ({quickTake, classes}: {
     }
   }
 
-  const relevantTags = isMobile()
-    ? quickTake.relevantTags.slice(0, 1)
-    : quickTake.relevantTags;
-
   return (
     <div className={classes.root}>
       <div className={classes.info}>
@@ -159,7 +161,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
             {moment(new Date(quickTake.postedAt)).fromNow()}
           </LWTooltip>
         </div>
-        {relevantTags.length > 0 &&
+        {quickTake.relevantTags.length > 0 &&
           <div className={classes.relevantTags}>
             {quickTake.relevantTags.map((tag) =>
               <FooterTag key={tag._id} tag={tag} smallText />
@@ -207,7 +209,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
             treeOptions={{
               post: quickTake.post || undefined,
               showCollapseButtons: true,
-              // onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+              onToggleCollapsed: () => wrappedSetExpanded(!expanded),
               hideReply: true,
               forceSingleLine: false,
               forceNotSingleLine: true,
