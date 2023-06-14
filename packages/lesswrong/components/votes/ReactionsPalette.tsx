@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 246,
+    maxHeight: 314,
     overflowY: "scroll",
     marginTop: 12
   },
@@ -215,15 +215,21 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
     'thanks',       'empathy',
     'typo',         'why', 
     'offtopic',     'elaborate',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const listViewSectionC = [
+    'hitsTheMark',  'miss',
+    'crux',         'notacrux',
+    'locallyValid', 'locallyInvalid',
     'facilitation', 'unnecessarily-combative',
     'yeswhatimean', 'strawman',
-    'hitsTheMark',  'miss',
-    'locallyValid', 'locallyInvalid',
-    'crux',         'notacrux',
     'concrete',     'examples',
     'clear',        'muddled',
     'verified',     'verifiedFalse',
     'scout',        'soldier',
+  ].map(r => getReactionFromName(r)).filter(r => r);
+
+  const listViewSectionD = [
     'scholarship',  'taboo',             
     'coveredAlready','timecost',
   ].map(r => getReactionFromName(r)).filter(r => r );
@@ -288,12 +294,18 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
         <p>
           {primary.map(react => react && gridReactButton(react, 24))}
         </p>
-        <p>
+        <div className={classes.iconSection}>
           {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
-        </p>
-        <div className={classes.paddedRow}>
-          {emotions.map(react => react && gridReactButton(react, 24))}
         </div>
+        <div className={classes.iconSection}>
+          {listViewSectionC.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </div>
+        <div>
+          {listViewSectionD.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
+        </div>
+        <p className={classes.iconSection}>
+          {emotions.map(react => react && gridReactButton(react, 24))}
+        </p>
       </div>}
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>
