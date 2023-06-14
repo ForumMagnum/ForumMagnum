@@ -34,7 +34,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { LWPopper, ContentRejectionDialog, LWTooltip, MetaInfo } = Components;
+  const { LWPopper, RejectContentDialog, LWTooltip, MetaInfo } = Components;
   const { content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
@@ -58,9 +58,9 @@ export const RejectContentButton = ({contentWrapper, classes}: {
         className={classes.popper}
         clickable={true}
         allowOverflow={true}
-        placement={"bottom-start"}
+        placement={"right"}
       >
-        <ContentRejectionDialog rejectContent={handleRejectContent}/>
+        <RejectContentDialog rejectContent={handleRejectContent}/>
       </LWPopper>
     </ClickAwayListener>}
   </span>
