@@ -87,4 +87,25 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
       `, [clientId, postId]);
     }
   }
+
+  async clearStaleRecommendations(): Promise<void> {
+    // Delete all recommedations that are at least 1 day old and that
+    // never appeared above the fold
+    await this.none(`
+      DELETE
+      FROM "PostRecommendations"
+      WHERE
+        "recommendationCount" < 1 AND
+        (CURRENT_TIMESTAMP - "createdAt") > '1 day'
+    `);
+    // Delete all recommendations that were never clicked that were last
+    // recommended at least 3 months ago
+    await this.none(`
+      DELETE
+      FROM "PostRecommendations"
+      WHERE
+        "clickedAt" IS NULL AND
+        (CURRENT_TIMESTAMP - "createdAt") > '3 months'
+    `);
+  }
 }
