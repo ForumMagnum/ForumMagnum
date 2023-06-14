@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: isEAForum ? 20 : undefined,
+      padding: isEAForum ? 0 : undefined,
     },
   },
 });

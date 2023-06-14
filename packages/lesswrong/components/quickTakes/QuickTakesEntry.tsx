@@ -69,6 +69,7 @@ const QuickTakesEntry = ({
   submitButtonAtBottom = false,
   className,
   editorClassName,
+  tagsClassName,
   buttonClassName,
   classes,
 }: {
@@ -77,6 +78,7 @@ const QuickTakesEntry = ({
   submitButtonAtBottom?: boolean,
   className?: string,
   editorClassName?: string,
+  tagsClassName?: string,
   buttonClassName?: string,
   classes: ClassesType,
 }) => {
@@ -180,7 +182,7 @@ const QuickTakesEntry = ({
           {loadingTags
             ? <Loading />
             : (
-              <div className={classes.tagContainer}>
+              <div className={classNames(classes.tagContainer, tagsClassName)}>
                 <span className={classes.tagLabel}>Set topic</span>
                 <TagsChecklist
                   tags={tags}

@@ -26,6 +26,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     fontSize: 20,
     color: theme.palette.grey[1000],
+    margin: 20,
+    marginBottom: 0,
   },
   quickTakesRoot: {
     background: "transparent",
@@ -33,11 +35,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   quickTakesEditor: {
     background: "transparent",
-    padding: "10px 0",
+    padding: "10px 20px",
+  },
+  quickTakesTags: {
+    padding: "0 20px",
   },
   quickTakesButton: {
     marginTop: 20,
-    paddingTop: 20,
+    padding: 20,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
 });
@@ -78,6 +83,7 @@ const ShortformSubmitForm = ({
           currentUser={currentUser}
           className={classes.quickTakesRoot}
           editorClassName={classes.quickTakesEditor}
+          tagsClassName={classes.quickTakesTags}
           buttonClassName={classes.quickTakesButton}
           defaultExpanded
           submitButtonAtBottom
