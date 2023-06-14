@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil';
@@ -18,20 +18,29 @@ const NewShortformDialog = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType,
 }) => {
+  const [open, setOpen] = useState(true);
   const {history} = useNavigation();
   const {ShortformSubmitForm, LWDialog} = Components;
   return (
     <LWDialog
-      open
+      open={open}
       onClose={onClose}
       fullWidth
       maxWidth={isEAForum ? "md" : "sm"}
+      disableBackdropClick={isEAForum}
+      disableEscapeKeyDown={isEAForum}
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
             history.push('/shortform');
+          }}
+          cancelCallback={() => {
+            if (isEAForum) {
+              setOpen(false);
+              onClose?.();
+            }
           }}
         />
       </DialogContent>

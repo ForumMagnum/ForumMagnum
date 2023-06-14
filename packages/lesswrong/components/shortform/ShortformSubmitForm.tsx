@@ -12,6 +12,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom: 32,
   },
+  close: {
+    position: "absolute",
+    right: 20,
+    cursor: "pointer",
+    "& svg": {
+      color: theme.palette.grey[600],
+      width: 20,
+    },
+  },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 700,
@@ -56,11 +65,14 @@ const ShortformSubmitForm = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {CommentsNewForm, QuickTakesEntry} = Components;
+  const {CommentsNewForm, QuickTakesEntry, ForumIcon} = Components;
 
   if (isEAForum) {
     return (
       <div className={className}>
+        <div className={classes.close} onClick={cancelCallback}>
+          <ForumIcon icon="Close" />
+        </div>
         <div className={classes.newQuickTake}>New Quick take</div>
         <QuickTakesEntry
           currentUser={currentUser}
