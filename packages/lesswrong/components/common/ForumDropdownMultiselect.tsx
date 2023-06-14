@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -94,17 +93,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, eventProps, classes, className}:{
+const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}:{
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
-  eventProps?: Record<string, string>
   classes: ClassesType,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const { captureEvent } = useTracking()
   const label = values.reduce((prev, next) => {
     const nextLabel = options[next].shortLabel || options[next].label
     if (!prev) return nextLabel
@@ -118,7 +115,6 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, eventP
       <Button
         variant="contained"
         onClick={(e) => {
-          captureEvent("ForumDropdownMultiselectOpened", {value: values, ...eventProps})
           setAnchorEl(e.currentTarget)
         }}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
@@ -131,7 +127,6 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, eventP
             key={option}
             value={option}
             onClick={() => {
-              captureEvent("ForumDropdownMultiselectItemSelected", {oldValue: values, newValue: option, ...eventProps})
               setAnchorEl(null);
               onSelect?.(option);
             }}
