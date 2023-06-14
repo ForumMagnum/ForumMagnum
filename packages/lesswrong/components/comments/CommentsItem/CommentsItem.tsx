@@ -157,16 +157,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       filter: "opacity(0.8)",
     },
     [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
+      color: "unset",
     },
     [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200]
+      backgroundColor: theme.palette.grey[200],
+      color: "unset",
     },
     [`& .${faintHighlightClassName}`]: {
       backgroundColor: "unset",
+      color: "unset",
     },
     [`&:hover .${faintHighlightClassName}`]: {
       borderBottom: theme.palette.border.dashed500,
+      color: "unset",
     },
   }
 });
