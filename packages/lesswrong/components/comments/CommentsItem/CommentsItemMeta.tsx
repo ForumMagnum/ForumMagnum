@@ -167,6 +167,7 @@ export const CommentsItemMeta = ({
 
   const authorIsPostAuthor = post &&
     (post.userId === comment.userId || userIsPostCoauthor(comment.user, post));
+  const commentIsTopLevelShortform = post?.shortform && !comment.parentCommentId;
 
   const commentLinkProps = {
     comment,
@@ -259,7 +260,7 @@ export const CommentsItemMeta = ({
       />
       <UserCommentMarkers
         user={comment.user}
-        isPostAuthor={authorIsPostAuthor}
+        isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
