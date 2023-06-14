@@ -46,6 +46,12 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const terms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
+  
+  // If this has a commentId in the URL, don't SSR comments. This is so that misbehaving crawlers
+  // that ignore the robots.txt request not to load /posts/idasdfid/slug?commentId=idasdfid for
+  // every possible commend ID, are loading a cheap version of the page instead of loading a
+  // potentially large number of comments each time.
+  const hasCommentId = !!query.commentId;
 
   const commentQueryResult = useMulti({
     terms,
@@ -53,6 +59,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
+    ssr: !hasCommentId,
   });
   const eagerPostComments = {
     terms,
