@@ -156,17 +156,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover .react-hover-style': {
       filter: "opacity(0.8)",
     },
-    [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy
-    },
-    [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200]
-    },
+    // mark.js applies a default highlight of yellow background and black text. 
+    // we need to override to apply our own themes, and avoid being unreadable in dark mode
     [`& .${faintHighlightClassName}`]: {
       backgroundColor: "unset",
+      color: "unset",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
+      color: "unset",
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200],
+      color: "unset",
     },
     [`&:hover .${faintHighlightClassName}`]: {
       borderBottom: theme.palette.border.dashed500,
+      color: "unset",
     },
   }
 });
