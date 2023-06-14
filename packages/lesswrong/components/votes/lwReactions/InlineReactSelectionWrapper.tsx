@@ -1,9 +1,7 @@
 import Mark from 'mark.js';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { VotingProps } from '../votingProps';
-import { useVote } from '../withVote';
+import type { VotingProps } from '../votingProps';
 
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;

@@ -6,7 +6,7 @@ import { clearHighlights, markHighlights, useNamesAttachedReactionsVoting } from
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import { dimHighlightClassName, highlightSelectorClassName } from '../../comments/CommentsItem/CommentsItem';
-import { VotingProps } from '../votingProps';
+import type { VotingProps } from '../votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
