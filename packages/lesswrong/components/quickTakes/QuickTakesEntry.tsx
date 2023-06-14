@@ -29,15 +29,22 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 500,
     },
   },
+  commentEditorBottomButtom: {
+    borderRadius: theme.borderRadius.default,
+  },
   collapsed: {
     height: 40,
   },
-  buttonContainer: {
+  editorButtonContainer: {
     background: theme.palette.grey[100],
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     textAlign: "right",
     padding: "0 8px 8px 0",
+  },
+  bottomButtonContainer: {
+    textAlign: "right",
+    marginTop: 8,
   },
   tagContainer: {
     display: "flex",
@@ -55,13 +62,26 @@ const styles = (theme: ThemeType) => ({
 
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
-const QuickTakesEntry = ({currentUser, classes}: {
-  currentUser: UsersCurrent,
+const QuickTakesEntry = ({
+  currentUser,
+  defaultExpanded = false,
+  submitButtonAtBottom = false,
+  className,
+  editorClassName,
+  buttonClassName,
+  classes,
+}: {
+  currentUser: UsersCurrent | null,
+  defaultExpanded?: boolean,
+  submitButtonAtBottom?: boolean,
+  className?: string,
+  editorClassName?: string,
+  buttonClassName?: string,
   classes: ClassesType,
 }) => {
   const editorType = "ckEditorMarkup";
   const editorRef = useRef<EditorType>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [contents, setContents] = useState(() => getInitialEditorContents(
     undefined,
     null,
@@ -105,9 +125,24 @@ const QuickTakesEntry = ({currentUser, classes}: {
   const onFocus = useCallback(() => setExpanded(true), []);
 
   const {Editor, Loading, TagsChecklist} = Components;
+  const submitButton = (
+    <div className={classNames(buttonClassName, {
+      [classes.editorButtonContainer]: !submitButtonAtBottom,
+      [classes.bottomButtonContainer]: submitButtonAtBottom,
+    })}>
+      <Button
+        type="submit"
+        className={classNames(classes.formButton, classes.submitButton)}
+        onClick={onSubmit}
+      >
+        Publish
+      </Button>
+    </div>
+  );
   return (
-    <div className={classes.root}>
-      <div className={classNames(classes.commentEditor, {
+    <div className={classNames(classes.root, className)}>
+      <div className={classNames(classes.commentEditor, editorClassName, {
+        [classes.commentEditorBottomButtom]: submitButtonAtBottom,
           [classes.collapsed]: !expanded,
         })}>
         <Editor
@@ -128,15 +163,7 @@ const QuickTakesEntry = ({currentUser, classes}: {
       </div>
       {expanded &&
         <>
-          <div className={classes.buttonContainer}>
-            <Button
-              type="submit"
-              className={classNames(classes.formButton, classes.submitButton)}
-              onClick={onSubmit}
-            >
-              Publish
-            </Button>
-          </div>
+          {!submitButtonAtBottom && submitButton}
           {loading
             ? <Loading />
             : (
@@ -158,6 +185,7 @@ const QuickTakesEntry = ({currentUser, classes}: {
               </div>
             )
           }
+          {submitButtonAtBottom && submitButton}
         </>
       }
     </div>

@@ -2,19 +2,32 @@ import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
+const styles = (_theme: ThemeType) => ({
+  content: {
+    // This subselector is needed to beat the specificity of the default
+    // MUI styles
+    "&:first-child": {
+      padding: isEAForum ? 20 : undefined,
+    },
+  },
+});
 
-const NewShortformDialog = ({onClose}: {
-  onClose: any,
+const NewShortformDialog = ({onClose, classes}: {
+  onClose: () => void,
+  classes: ClassesType,
 }) => {
-  const { ShortformSubmitForm, LWDialog } = Components;
-  const { history } = useNavigation();
+  const {history} = useNavigation();
+  const {ShortformSubmitForm, LWDialog} = Components;
   return (
-    <LWDialog open={true}
+    <LWDialog
+      open
       onClose={onClose}
-      fullWidth maxWidth="sm"
+      fullWidth
+      maxWidth={isEAForum ? "md" : "sm"}
     >
-      <DialogContent>
+      <DialogContent className={classes.content}>
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
@@ -26,7 +39,11 @@ const NewShortformDialog = ({onClose}: {
   );
 }
 
-const NewShortformDialogComponent = registerComponent('NewShortformDialog', NewShortformDialog);
+const NewShortformDialogComponent = registerComponent(
+  'NewShortformDialog',
+  NewShortformDialog,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {

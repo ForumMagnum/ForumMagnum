@@ -2,6 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,8 +11,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.commentBorder,
     borderRadius: 3,
     marginBottom: 32,
-  }
-})
+  },
+  newQuickTake: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 700,
+    fontSize: 20,
+    color: theme.palette.grey[1000],
+  },
+  quickTakesRoot: {
+    background: "transparent",
+    padding: 0,
+  },
+  quickTakesEditor: {
+    background: "transparent",
+    padding: "10px 0",
+  },
+  quickTakesButton: {
+    marginTop: 20,
+    paddingTop: 20,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
+});
 
 const forumHintText: ForumOptions<string> = {
   LessWrong: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
@@ -34,7 +55,24 @@ const ShortformSubmitForm = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { CommentsNewForm } = Components;
+  const currentUser = useCurrentUser();
+  const {CommentsNewForm, QuickTakesEntry} = Components;
+
+  if (isEAForum) {
+    return (
+      <div className={className}>
+        <div className={classes.newQuickTake}>New Quick take</div>
+        <QuickTakesEntry
+          currentUser={currentUser}
+          className={classes.quickTakesRoot}
+          editorClassName={classes.quickTakesEditor}
+          buttonClassName={classes.quickTakesButton}
+          defaultExpanded
+          submitButtonAtBottom
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>

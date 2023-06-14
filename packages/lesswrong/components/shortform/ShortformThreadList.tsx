@@ -32,8 +32,10 @@ const ShortformThreadList = ({ classes }: {
   } = Components;
   return (
     <div>
-      {isEAForum && currentUser && <QuickTakesEntry currentUser={currentUser} />}
-      {!isEAForum && <ShortformSubmitForm successCallback={refetch} />}
+      {isEAForum
+        ? <QuickTakesEntry currentUser={currentUser} />
+        : <ShortformSubmitForm successCallback={refetch} />
+      }
 
       {results && results.map((comment, i) => {
         if (!comment.post) return null

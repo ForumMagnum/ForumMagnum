@@ -161,6 +161,7 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
         elevation6: {boxShadow: "none"},
         elevation7: {boxShadow: "none"},
         elevation8: {boxShadow: "none"},
+        elevation24: {boxShadow: "none"},
       },
     },
     default: {},
