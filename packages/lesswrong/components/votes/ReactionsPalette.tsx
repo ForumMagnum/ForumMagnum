@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Components, getSiteUrl, registerComponent} from '../../lib/vulcan-lib';
+import {Components, registerComponent} from '../../lib/vulcan-lib';
 import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 212,
+    maxHeight: 246,
     overflowY: "scroll",
     marginTop: 12
   },
@@ -131,11 +131,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     paddingRight: 8
   },
-  likelihoodSection: {
-    borderTop: theme.palette.border.faint,
-    paddingBottom: 6,
-    marginBottom: 6,
-  },
   paddedRow: {
     marginTop: "1em",
     marginBottom: "1em",
@@ -144,7 +139,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
   getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote?: string)=>void,
@@ -220,8 +215,8 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
     'thanks',       'empathy',
     'typo',         'why', 
     'offtopic',     'elaborate',
-    'yeswhatimean', 'strawman',
     'facilitation', 'unnecessarily-combative',
+    'yeswhatimean', 'strawman',
     'hitsTheMark',  'miss',
     'locallyValid', 'locallyInvalid',
     'crux',         'notacrux',
@@ -314,7 +309,7 @@ const ReactionsPalette = ({getCurrentUserReaction, getCurrentUserReactionVote, t
         {likelihoods.map(react => react && gridReactButton(react, 24))}
       </div>}
     </div>
-    {displayStyle === "listView" && <div className={classes.likelihoodSection}>
+    {displayStyle === "listView" && <div className={classes.paddedRow}>
       {likelihoods.map(react => react && gridReactButton(react, 24))}
     </div>}
     <div className={classes.reactPaletteFooter}>

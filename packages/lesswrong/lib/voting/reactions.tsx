@@ -219,11 +219,11 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
   },
   {
     name: "unnecessarily-combative",
-    label: "Unnecessarily Combative?",
+    label: "Too Combative?",
     searchTerms: ["swords", "combative", "fighting", "battle", "war", "tribalism"],
     svg: "/reactionImages/nounproject/swords.svg",
-    description: "This seems more combative than it needs to be.",
-    filter: {padding: 2},
+    description: "This seems more combative than it needs to be to communicate it's point.",
+    filter: {padding: 2, scale:1},
   },
   
  //Here begins the list of deprecated reacts 
@@ -243,7 +243,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-misunderstanding-4936548-updated.svg",
     description: "This seems to misunderstand the thing that it argues against",
     deprecated:false,
-    filter: {opacity: 0.5, scale: 1.3}
+    filter: {opacity: 0.5, scale: 1.3, translateY: 1, translateX:1}
   },
   {
     name: "dontUnderstand",
@@ -551,7 +551,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["understanding", "helpful", "facilitation", "charitable"],
     svg: "/reactionImages/nounproject/noun-dialog-2172.svg",
     description: "This seemed to help people understand each other",
-    filter: { translateY: 2, scale: 1.4},
+    filter: { translateY: 2, scale: 1.3},
   },
   {
     name: "soldier",
