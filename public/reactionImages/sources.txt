@@ -43,9 +43,12 @@ exclamation.svg: https://thenounproject.com/icon/exclamation-2686892/
 lightbulb.svg: https://thenounproject.com/icon/lightbulb-589680/
 shrug.svg: https://thenounproject.com/icon/shrug-3460554/
 laugh.svg: https://thenounproject.com/icon/laugh-1471852/
+laugh2.svg: https://thenounproject.com/icon/laugh-1497740/
 scales.svg: https://thenounproject.com/icon/scales-2099026/
 thinking.svg: https://thenounproject.com/icon/thinking-4306084/
+thinking2.svg: https://thenounproject.com/icon/thinking-2274236
 delta.svg: https://thenounproject.com/icon/delta-4334125/
+delta2.svg: https://thenounproject.com/icon/delta-43529/
 obtuse.svg: https://thenounproject.com/icon/obtuse-angle-649781/
 clock.svg: https://thenounproject.com/icon/clock-5741010/
 door.svg: https://thenounproject.com/icon/door-126847/
