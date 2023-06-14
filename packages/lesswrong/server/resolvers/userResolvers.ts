@@ -74,7 +74,7 @@ augmentFieldsDict(Users, {
         }
       }
     }
-  }
+  },
 });
 
 addGraphQLSchema(`

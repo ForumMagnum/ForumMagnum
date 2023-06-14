@@ -31,6 +31,7 @@ const UsersNameDisplay = ({
   simple=false,
   classes,
   tooltipPlacement="left",
+  pageSectionContext,
   className,
 }: {
   user: UsersMinimumInfo|null|undefined,
@@ -39,6 +40,7 @@ const UsersNameDisplay = ({
   simple?: boolean,
   classes: ClassesType,
   tooltipPlacement?: PopperPlacementType,
+  pageSectionContext?: string,
   className?: string,
 }) => {
   const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
@@ -65,6 +67,11 @@ const UsersNameDisplay = ({
       {displayName}
     </span>
   }
+  
+  let profileUrl = userGetProfileUrl(user)
+  if (pageSectionContext) {
+    profileUrl += `?from=${pageSectionContext}`
+  }
 
   return <span className={className}>
     <span {...eventHandlers}>
@@ -74,7 +81,7 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
         >
-          <Link to={userGetProfileUrl(user)} className={colorClass}
+          <Link to={profileUrl} className={colorClass}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}

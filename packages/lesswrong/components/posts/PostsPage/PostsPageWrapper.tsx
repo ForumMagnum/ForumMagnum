@@ -8,6 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { viewNames } from '../../comments/CommentsViews';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { postsCommentsThreadMultiOptions } from '../PostsCommentsThread';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -49,10 +50,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 
   const commentQueryResult = useMulti({
     terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
+    ...postsCommentsThreadMultiOptions,
   });
   const eagerPostComments = {
     terms,

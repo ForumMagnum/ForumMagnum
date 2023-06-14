@@ -4,6 +4,13 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { EagerPostComments } from './PostsPage/PostsPage';
 import isEqual from 'lodash/isEqual';
 
+export const postsCommentsThreadMultiOptions = {
+  collectionName: "Comments" as const,
+  fragmentName: 'CommentsList' as const,
+  fetchPolicy: 'cache-and-network' as const,
+  enableTotal: true,
+}
+
 const PostsCommentsThread = ({ post, eagerPostComments, terms, newForm=true }: {
   post?: PostsDetails,
   eagerPostComments?: EagerPostComments,
@@ -15,11 +22,8 @@ const PostsCommentsThread = ({ post, eagerPostComments, terms, newForm=true }: {
 
   const lazyResults = useMulti({
     terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
     skip: useEagerResults,
+    ...postsCommentsThreadMultiOptions,
   });
 
   const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;

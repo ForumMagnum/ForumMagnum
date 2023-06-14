@@ -285,7 +285,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
         <PostsPageTitle post={post} />
         <div className={classes.secondaryInfo}>
           <span className={classes.authors}>
-            <PostsAuthors post={post}/>
+            <PostsAuthors post={post} pageSectionContext="post_header" />
           </span>
           { post.feed && post.feed.user &&
             <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
