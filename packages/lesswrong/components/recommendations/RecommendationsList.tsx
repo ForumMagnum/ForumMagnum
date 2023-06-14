@@ -19,18 +19,20 @@ const RecommendationsList = ({
   algorithm,
   translucentBackground,
   ListItem = Components.PostsItem,
+  loadingFallback,
   classes,
 }: {
   algorithm: RecommendationsAlgorithm,
   translucentBackground?: boolean,
   ListItem?: RecommendationsListItem,
+  loadingFallback?: JSX.Element,
   classes: ClassesType,
 }) => {
   const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
-    return <PostsLoading/>
+    return loadingFallback ?? <PostsLoading/>;
 
   return <div>
     {recommendations.map(post =>
