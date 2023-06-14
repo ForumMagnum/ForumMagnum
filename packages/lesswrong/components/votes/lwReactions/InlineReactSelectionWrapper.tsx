@@ -32,6 +32,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const [yOffset, setYOffset] = useState<number>(0);
+  const [disabledButton, setDisabledButton] = useState<boolean>(false);
 
   const { AddInlineReactionButton, LWPopper } = Components;
 
@@ -59,15 +60,19 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
       let markInstance = new Mark(ref);
       markInstance.unmark({className: hideSelectorClassName});
     }
+
+    function clearAll() {
+      setAnchorEl(null);
+      setQuote("")
+      unMark()
+      setDisabledButton(false)
+    }
   
-    
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
     const selectionAnchorNode = selection?.anchorNode
     if (!selectionAnchorNode) {
-      setAnchorEl(null);
-      setQuote("")
-      unMark()
+      clearAll()
       return
     }
 
@@ -77,20 +82,20 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
     if (selectionInCommentRef && !selectionInPopupRef) {
       const anchorEl = commentItemRef.current;
       
-      if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {  
+      if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {
         setAnchorEl(anchorEl);
         setQuote(selectedText);
         setYOffset(getYOffsetFromDocument(selection, commentTextRef));
+        const commentText = commentItemRef.current?.textContent ?? ""
+        // Count the number of occurrences of the quote in the raw text
+        const count = countStringsInString(commentText, selectedText);
+        setDisabledButton(count > 1)
       } else {
-        setAnchorEl(null);
-        setQuote("")
-        unMark()
+        clearAll()
       }
     }
     if (!selectionInCommentRef && !selectionInPopupRef) {
-      setAnchorEl(null);
-      setQuote("")
-      unMark()
+      clearAll()
     }
   }, [commentItemRef, commentTextRef]);
   
@@ -111,12 +116,23 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
         <span ref={popupRef} className={classes.button} 
           style={{position:"relative", top: yOffset, marginLeft: 12}}
         >
-          <AddInlineReactionButton quote={quote} voteProps={voteProps} commentItemRef={commentItemRef}/>
+          <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
       </LWPopper>
       {children}
     </div>
   );
+}
+
+/** Count instances of a smaller string 'needle' in a larger string 'haystack'. */
+function countStringsInString(haystack: string, needle: string): number {
+  let count = 0;
+  let index = 0;
+  while ((index = haystack.indexOf(needle, index)) !== -1) {
+    count++;
+    index += needle.length;
+  }
+  return count;
 }
 
 const InlineReactSelectionWrapperComponent = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
