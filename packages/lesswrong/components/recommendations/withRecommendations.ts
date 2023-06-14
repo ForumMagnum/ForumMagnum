@@ -18,6 +18,7 @@ export const useRecommendations = (algorithm: RecommendationsAlgorithm): {
     variables: {
       count: algorithm?.count || 10,
       algorithm: algorithm || defaultAlgorithmSettings,
+      batchKey: "recommendations"
     },
     ssr: true,
   });

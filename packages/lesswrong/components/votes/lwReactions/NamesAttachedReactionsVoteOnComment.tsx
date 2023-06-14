@@ -1,9 +1,9 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { CommentVotingComponentProps, } from '../../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
-import type { VotingProps } from '../withVote';
+import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
 import { useVote } from '../withVote';
@@ -50,13 +50,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     paddingLeft: 7,
     paddingRight: 7,
-    marginRight: 2,
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
   },
+  footerReactionSpacer: {
+    display: "inline-block",
+    width: 2,
+  },
+  mouseHoverTrap: {
+    position: "absolute",
+    right: 0,
+    height: 50,
+  },
   footerReactionHover: {
-    maxWidth: 300,
+    width: 300,
   },
   reactionCount: {
     fontSize: 13,
@@ -106,6 +114,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: theme.palette.panelBackground.darken04,
     },
+    
+    display: "flex",
+    alignItems: "flex-start",
+  },
+  hoverInfo: {
+    paddingLeft: 10,
+    maxWidth: 195,
+    flexGrow: 1,
   },
   hoverBallotLabel: {
     verticalAlign: "middle",
@@ -115,7 +131,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hoverBallotReactDescription: {
     fontSize: 11,
-    marginBottom: 8
+    marginBottom: 8,
+    '& em': {
+      display: "none"
+    }
   },
   alreadyUsedReactions: {
     padding: 8
@@ -166,10 +185,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   footerSelectedAnti: {
     background: "rgb(255, 189, 189, .23)",
-  },
-  hoverInfo: {
-    paddingLeft: 10,
-    maxWidth: 195,
   },
   overviewButton: {
     opacity: .35,
@@ -413,9 +428,8 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 }
 
 const NamesAttachedReactionsCommentBottom = ({
-  document, hideKarma=false, collection, votingSystem, commentItemRef, classes, quote
-}: CommentVotingComponentProps & WithStylesProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+  document, hideKarma=false, commentItemRef, classes, voteProps
+}: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
@@ -441,7 +455,7 @@ const NamesAttachedReactionsCommentBottom = ({
       {visibleReactionsDisplay.map(({react, numberShown}) =>
         <span key={react} onMouseLeave={() => markHighlights(quotes, faintHighlightClassName, commentItemRef)}>
           <HoverableReactionIcon
-            anchorEl={anchorEl}
+            reactionRowRef={anchorEl}
             react={react}
             numberShown={numberShown}
             voteProps={voteProps}
@@ -457,8 +471,11 @@ const NamesAttachedReactionsCommentBottom = ({
   </span>
 }
 
-const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes, quote, commentItemRef}: {
-  anchorEl: RefObject<AnyBecauseTodo>,
+const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, classes, quote, commentItemRef}: {
+  // reactionRowRef: Reference to the row of reactions, used as an anchor for the
+  // hover instead of the individual icon, so that the hover's position stays
+  // consistent as you move the mouse across the row.
+  reactionRowRef: RefObject<AnyBecauseTodo>,
   react: string,
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -467,7 +484,7 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
   commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
-  const { ReactionIcon, PopperCard } = Components;
+  const { ReactionIcon, LWPopper } = Components;
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react);
   const currentUserReaction = getCurrentUserReaction(react)
@@ -494,33 +511,50 @@ const HoverableReactionIcon = ({anchorEl, react, numberShown, voteProps, classes
     clearHighlights(commentItemRef)
   } 
 
-  return <span
-    className={classNames(
-      classes.footerReaction,
-      {
-        [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
-        [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
-        [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-      }
-    )}
-    onMouseEnter={handleMouseEnter}
-    onMouseLeave={handleMouseLeave}
-  >
-    <span onMouseDown={()=>{reactionClicked(react)}}>
-      <ReactionIcon react={react} />
-    </span>
-    <span className={classes.reactionCount}>
-      {numberShown}
-    </span>
-
-    {hover && anchorEl?.current && <PopperCard
-      open={!!hover} anchorEl={anchorEl.current}
-      placement="bottom-end"
-      allowOverflow={true}
-      
+  return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <span
+      className={classNames(
+        classes.footerReaction,
+        {
+          [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+          [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+          [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
+        }
+      )}
     >
-      <NamesAttachedReactionsHoverSingleReaction react={react} voteProps={voteProps} classes={classes} commentItemRef={commentItemRef}/>
-    </PopperCard>}
+      <span onMouseDown={()=>{reactionClicked(react)}}>
+        <ReactionIcon react={react} />
+      </span>
+      <span className={classes.reactionCount}>
+        {numberShown}
+      </span>
+  
+      {hover && reactionRowRef?.current && <LWPopper
+        open={!!hover} anchorEl={reactionRowRef.current}
+        placement="bottom-end"
+        allowOverflow={true}
+      >
+        {/*
+          Add a 50px hoverable spacer left of the popup, below the reactions list,
+          so that the mouse has somewhere hoverable to cross when going from the
+          leftmost reactions to the hover form.
+        */}
+        <div className={classes.mouseHoverTrap} style={{width: reactionRowRef.current.clientWidth}}/>
+        <Card>
+          <NamesAttachedReactionsHoverSingleReaction
+            react={react} voteProps={voteProps} classes={classes}
+            commentItemRef={commentItemRef}
+          />
+        </Card>
+      </LWPopper>}
+    </span>
+    
+    {/* Put a spacer element between footer reactions, rather than a margin, so
+      * that we can make the spacer element hoverable, getting rid of the
+      * close-and-open flash as you move the mouse horizontally across the
+      * reactions row.
+      */}
+    <span className={classes.footerReactionSpacer}/>
   </span>
 }
 
@@ -646,32 +680,30 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
   classes: ClassesType,
   commentItemRef?: React.RefObject<HTMLDivElement>|null
 }) => {
-  const { ReactionIcon, Row, ReactionQuotesHoverInfo } = Components;
+  const { ReactionIcon, ReactionQuotesHoverInfo } = Components;
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   return <div key={reactionName}>
     <div className={classes.hoverBallotEntry}>
-      <Row justifyContent='space-between' alignItems='flex-start'>
-        <ReactionIcon react={reactionName} size={30}/>
-        <div className={classes.hoverInfo}>
-          <span className={classes.hoverBallotLabel}>
-            {getNamesAttachedReactionsByName(reactionName).label}
-          </span>
-          {getNamesAttachedReactionsByName(reactionName).description && <div className={classes.hoverBallotReactDescription}>
-            {getNamesAttachedReactionsByName(reactionName).description}
-          </div>}
-          <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
+      <ReactionIcon react={reactionName} size={30}/>
+      <div className={classes.hoverInfo}>
+        <span className={classes.hoverBallotLabel}>
+          {getNamesAttachedReactionsByName(reactionName).label}
+        </span>
+        {getNamesAttachedReactionsByName(reactionName).description && <div className={classes.hoverBallotReactDescription}>
+          {getNamesAttachedReactionsByName(reactionName).description}
+        </div>}
+        <UsersWhoReacted usersWhoReacted={usersWhoReacted} classes={classes} wrap showTooltip={false}/>
 
-        </div>    
-        <ReactOrAntireactVote
-          reactionName={reactionName}
-          netReactionCount={netReactionCount}
-          currentUserReaction={getCurrentUserReactionVote(reactionName)}
-          setCurrentUserReaction={setCurrentUserReaction}
-          classes={classes}
-        />
-      </Row>
+      </div>
+      <ReactOrAntireactVote
+        reactionName={reactionName}
+        netReactionCount={netReactionCount}
+        currentUserReaction={getCurrentUserReactionVote(reactionName)}
+        setCurrentUserReaction={setCurrentUserReaction}
+        classes={classes}
+      />
     </div>
     <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentItemRef={commentItemRef}/>
   </div>

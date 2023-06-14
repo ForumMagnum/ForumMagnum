@@ -5,6 +5,7 @@ import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
+import { VotingProps } from '../../votes/votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -34,14 +35,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights, commentItemRef }: {
+const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights, commentItemRef, voteProps }: {
   comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
   classes: ClassesType,
   commentBodyHighlights?: string[],
-  commentItemRef?: React.RefObject<HTMLDivElement>|null
+  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  voteProps?: VotingProps<VoteableTypeClient>
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
@@ -77,8 +79,8 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage, comment
     />
   </ContentStyles>
 
-  if (comment.votingSystem === "namesAttachedReactions") {
-    return <InlineReactSelectionWrapper comment={comment} commentItemRef={commentItemRef}>
+  if (comment.votingSystem === "namesAttachedReactions" && voteProps) {
+    return <InlineReactSelectionWrapper commentItemRef={commentItemRef} voteProps={voteProps}>
         {contentBody}
       </InlineReactSelectionWrapper>
   } else {

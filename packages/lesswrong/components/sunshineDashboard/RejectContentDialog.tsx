@@ -49,10 +49,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 6,
     paddingLeft: 12,
     paddingBottom: 6
+  },
+  topReason: {
+    fontWeight: 600
+  },
+  nonTopReason: {
+    opacity: .6
   }
 });
 
-const ContentRejectionDialog = ({classes, rejectContent}: {
+const RejectContentDialog = ({classes, rejectContent}: {
   classes: ClassesType,
   rejectContent: (reason: string) => void,
 }) => {
@@ -93,17 +99,16 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
     setRejectedReason(composedReason);
   };
 
-  const truncatedRejectionTemplates = showMore ? rejectionTemplates : rejectionTemplates.slice(0,6)
-
   const dialogContent = <div className={classes.rejectionCheckboxes}>
-    {truncatedRejectionTemplates.map((template) => {
+    {rejectionTemplates.map((template, i) => {
+      const top6 = i < 6;
       return <div key={`rejection-reason-${template.name}`} className={classes.reason}>
         <LWTooltip placement="right-end" tooltip={false} title={<Card className={classes.card}>
           <ContentStyles contentType='comment'>
             <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html || ""}} />
           </ContentStyles>
         </Card>}>
-          <div>
+          <div className={top6 ? classes.topReason : classes.nonTopReason}>
             <Checkbox
               checked={selections[template.name]}
               onChange={(_, checked) => composeRejectedReason(template.name, checked)}
@@ -115,8 +120,7 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
       </div>
     })}
     <div className={classes.loadMore}>
-      {!showMore && <div className={classes.showMore} onClick={() => setShowMore(true)}>Show More</div>}
-      {showMore && <LoadMore {...loadMoreProps} />}
+      <LoadMore {...loadMoreProps} />
     </div>
     <TextField
       id="comment-moderation-rejection-reason"
@@ -144,10 +148,10 @@ const ContentRejectionDialog = ({classes, rejectContent}: {
   )
 };
 
-const ContentRejectionDialogComponent = registerComponent('ContentRejectionDialog', ContentRejectionDialog, { styles });
+const RejectContentDialogComponent = registerComponent('RejectContentDialog', RejectContentDialog, { styles });
 
 declare global {
   interface ComponentTypes {
-    ContentRejectionDialog: typeof ContentRejectionDialogComponent
+    RejectContentDialog: typeof RejectContentDialogComponent
   }
 }
