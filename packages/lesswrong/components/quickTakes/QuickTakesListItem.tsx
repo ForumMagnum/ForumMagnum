@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import moment from "moment";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { htmlToText } from "html-to-text";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,7 +116,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
 
   const {
     LWTooltip, LWPopper, KarmaDisplay, UsersName, FooterTag, CommentsMenu,
-    ForumIcon, ContentItemBody, CommentsNode,
+    ForumIcon, CommentsNode,
   } = Components;
 
 
@@ -189,11 +190,14 @@ const QuickTakesListItem = ({quickTake, classes}: {
       <div
         {...eventHandlers}
         onClick={() => wrappedSetExpanded(true)}
+        className={classes.body}
       >
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ""}}
-          className={classes.body}
-        />
+        {htmlToText(quickTake.contents?.html ?? "", {
+          selectors: [
+            {selector: "a", options: {ignoreHref: true}},
+            {selector: "img", format: "skip"},
+          ],
+        })}
       </div>
       <LWPopper
         open={displayHoverOver}
