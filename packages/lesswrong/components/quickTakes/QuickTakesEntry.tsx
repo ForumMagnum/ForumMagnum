@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
   collapsed: {
     height: 40,
+    overflow: "hidden",
   },
   editorButtonContainer: {
     background: theme.palette.grey[100],

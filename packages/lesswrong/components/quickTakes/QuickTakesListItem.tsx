@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import moment from "moment";
 import { ExpandedDate } from "../common/FormatDate";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -84,6 +85,12 @@ const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType,
 }) => {
+  const {captureEvent} = useTracking();
+  const [expanded, setExpanded] = useState(false)
+  const wrappedSetExpanded = useCallback((value: boolean) => {
+    setExpanded(value);
+    captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
+  }, [captureEvent, setExpanded]);
   const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "shortformItemTooltip",
     commentId: quickTake._id,
@@ -99,6 +106,28 @@ const QuickTakesListItem = ({quickTake, classes}: {
     LWTooltip, LWPopper, KarmaDisplay, UsersName, FooterTag, CommentsMenu,
     ForumIcon, ContentItemBody, CommentsNode,
   } = Components;
+
+
+  if (expanded) {
+    return (
+      <div className={classes.expandedRoot}>
+        <CommentsNode
+          treeOptions={{
+            post: quickTake.post || undefined,
+            showCollapseButtons: true,
+            onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+          }}
+          comment={quickTake}
+          loadChildrenSeparately
+        />
+      </div>
+    );
+  }
+
+  const commentsUrl = quickTake.post
+    ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`
+    : undefined;
+
   return (
     <div className={classes.root}>
       <div className={classes.info}>
@@ -119,10 +148,10 @@ const QuickTakesListItem = ({quickTake, classes}: {
           <FooterTag tag={primaryTag} smallText />
         }
         <div className={classes.grow} />
-        <div className={classes.commentCount}>
+        <a href={commentsUrl} className={classes.commentCount}>
           <ForumIcon icon="Comment" />
           {commentCount}
-        </div>
+        </a>
         <div>
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <CommentsMenu
@@ -136,7 +165,10 @@ const QuickTakesListItem = ({quickTake, classes}: {
           </AnalyticsContext>
         </div>
       </div>
-      <div {...eventHandlers}>
+      <div
+        {...eventHandlers}
+        onClick={() => wrappedSetExpanded(true)}
+      >
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ""}}
           className={classes.body}

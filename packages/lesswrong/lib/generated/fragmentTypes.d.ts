@@ -864,6 +864,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly slug: string,
   readonly title: string,
   readonly draft: boolean,
+  readonly shortform: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
