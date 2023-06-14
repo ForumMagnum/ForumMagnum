@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: 12,
-    paddingTop: 18,
+    paddingTop: 16,
     borderRadius: theme.borderRadius.default,
   },
   info: {
@@ -42,6 +42,10 @@ const styles = (theme: ThemeType) => ({
   },
   date: {
     color: theme.palette.grey[600],
+  },
+  relevantTags: {
+    display: "flex",
+    overflow: "hidden",
   },
   commentCount: {
     color: theme.palette.grey[600],
@@ -100,8 +104,6 @@ const QuickTakesListItem = ({quickTake, classes}: {
   const primaryTag = quickTake.relevantTags?.[0];
   const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
 
-  const setShowEdit = () => {}; // TODO
-
   const {
     LWTooltip, LWPopper, KarmaDisplay, UsersName, FooterTag, CommentsMenu,
     ForumIcon, ContentItemBody, CommentsNode,
@@ -128,6 +130,16 @@ const QuickTakesListItem = ({quickTake, classes}: {
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`
     : undefined;
 
+  const setShowEdit = () => {
+    if (commentsUrl) {
+      window.location.href = commentsUrl;
+    }
+  }
+
+  const relevantTags = isMobile()
+    ? quickTake.relevantTags.slice(0, 1)
+    : quickTake.relevantTags;
+
   return (
     <div className={classes.root}>
       <div className={classes.info}>
@@ -144,8 +156,12 @@ const QuickTakesListItem = ({quickTake, classes}: {
             {moment(new Date(quickTake.postedAt)).fromNow()}
           </LWTooltip>
         </div>
-        {primaryTag &&
-          <FooterTag tag={primaryTag} smallText />
+        {relevantTags.length > 0 &&
+          <div className={classes.relevantTags}>
+            {quickTake.relevantTags.map((tag) =>
+              <FooterTag tag={tag} smallText />
+            )}
+          </div>
         }
         <div className={classes.grow} />
         <a href={commentsUrl} className={classes.commentCount}>
