@@ -1306,7 +1306,9 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
-    label: "Shortform by users I'm subscribed to",
+    label: isEAForum
+      ? "Quick takes by users I'm subscribed to"
+      : "Shortform by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
@@ -1944,6 +1946,7 @@ const schema: SchemaType<DbUser> = {
       type: "Post",
       nullable: true,
     }),
+    label: isEAForum ? "Quick takes feed ID" : "Shortform feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
