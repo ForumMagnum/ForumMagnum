@@ -162,7 +162,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
         {relevantTags.length > 0 &&
           <div className={classes.relevantTags}>
             {quickTake.relevantTags.map((tag) =>
-              <FooterTag tag={tag} smallText />
+              <FooterTag key={tag._id} tag={tag} smallText />
             )}
           </div>
         }
