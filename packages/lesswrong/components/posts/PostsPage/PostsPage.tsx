@@ -452,7 +452,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
                   html={htmlWithAnchors}
                   sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
                   SideComponent={showRecommendations
-                    ? PostSideRecommendations
+                    ? ({className}: {className: string}) => (
+                      <PostSideRecommendations
+                        post={post}
+                        className={className}
+                      />
+                    )
                     : undefined
                   }
                 />
