@@ -4,6 +4,7 @@ import {
   forumTypeSetting,
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
+  isEAForum,
 } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -16,8 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    // marginLeft: -6,
-    // marginRight: 14,
+    marginLeft: isEAForum ? undefined : -6,
     verticalAlign: "sub",
   },
 });
