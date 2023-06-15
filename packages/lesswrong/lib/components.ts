@@ -188,6 +188,7 @@ importComponent("ContentItemBody", () => require('../components/common/ContentIt
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
+importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("StrawPollLoggedOut", () => require('../components/common/StrawPollLoggedOut'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
@@ -331,6 +332,9 @@ importComponent("PostsItemWrapper", () => require('../components/posts/PostsItem
 importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
+importComponent("PostsItemNewCommentsList", () => require('../components/posts/PostsItemNewCommentsList'));
+importComponent("PostsDialogItemNewCommentsList", () => require('../components/posts/PostsDialogItemNewCommentsList'));
+importComponent("PostsItemNewCommentsListNode", () => require('../components/posts/PostsItemNewCommentsListNode'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
@@ -613,7 +617,7 @@ importComponent("CommentsReviewInfoCard", () => require('../components/sunshineD
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
-importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
+importComponent("RejectContentDialog", () => require('../components/sunshineDashboard/RejectContentDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
 

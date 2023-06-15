@@ -83,7 +83,7 @@ const NewAnswerForm = ({post, classes}: {
   }
   const { FormWrapper } = Components
   
-  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user)) {
+  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user, false)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   
