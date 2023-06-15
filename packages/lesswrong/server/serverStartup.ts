@@ -93,7 +93,7 @@ const connectToPostgres = async (connectionString: string) => {
   }
 }
 
-const connectToPostgresRead = async (connectionString: string) => {
+const connectToPostgresReadOnly = async (connectionString: string) => {
   try {
     if (connectionString) {
       const branchDb = await getBranchDbName();
@@ -103,7 +103,7 @@ const connectToPostgresRead = async (connectionString: string) => {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false, true);
+      const sql = await createSqlConnection(connectionString, false, "read");
       setSqlClient(sql, "read");
     }
   } catch(err) {
@@ -120,7 +120,7 @@ const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArgu
   Promise.all([
     connectToMongo(mongoUrl),
     connectToPostgres(postgresUrl),
-    connectToPostgresRead(postgresReadUrl),
+    connectToPostgresReadOnly(postgresReadUrl),
   ]);
 
 const initSettings = () => {
