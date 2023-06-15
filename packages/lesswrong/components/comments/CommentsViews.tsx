@@ -8,17 +8,18 @@ import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { Option } from '../common/InlineSelect';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const viewNames: Partial<Record<CommentsViewName,string>> = {
-  'postCommentsMagic': isEAForum ? 'new & upvoted' : 'magic (new & upvoted)',
-  'postCommentsTop': 'top scoring',
-  'postCommentsRecentReplies': 'latest reply',
-  'afPostCommentsTop': 'top scoring',
-  'postCommentsNew': 'newest',
-  'postCommentsOld': 'oldest',
-  'postCommentsBest': 'highest karma',
-  'postCommentsDeleted': 'deleted',
-  'postLWComments': 'top scoring (include LW)',
+  'postCommentsMagic': isEAForum ? 'New & upvoted' : 'magic (new & upvoted)',
+  'postCommentsTop': isEAForum ? 'Top' : 'top scoring',
+  'postCommentsRecentReplies': preferredHeadingCase('latest reply'),
+  'afPostCommentsTop': preferredHeadingCase('top scoring'),
+  'postCommentsNew': isEAForum ? 'New' : 'newest',
+  'postCommentsOld': isEAForum ? 'Old' : 'oldest',
+  'postCommentsBest': preferredHeadingCase('highest karma'),
+  'postCommentsDeleted': preferredHeadingCase('deleted'),
+  'postLWComments': preferredHeadingCase('top scoring (include LW)'),
 }
 
 const CommentsViews = ({post, classes}: {
