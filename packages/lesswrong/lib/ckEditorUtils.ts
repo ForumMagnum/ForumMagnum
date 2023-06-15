@@ -1,5 +1,8 @@
 import LRU from 'lru-cache';
 
+// This cache helps avoid multiple network load times when requesting
+// tokens in quick succession. We use the default TTL which is only
+// 5 minutes. CkEditor tokens are valid for 24 hours.
 const cache = new LRU<string, string>();
 
 export const getCKEditorDocumentId = (documentId: string|undefined, userId: string|undefined, formType: string|undefined) => {

@@ -1,17 +1,8 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import classNames from "classnames";
 import { useMulti } from "../../lib/crud/withMulti";
 
-const styles = (_theme: ThemeType) => ({
-  root: {
-  },
-});
-
-const QuickTakesList = ({className, classes}: {
-  className?: string,
-  classes: ClassesType,
-}) => {
+const QuickTakesList = ({className}: {className?: string}) => {
   const {
     results,
     loading,
@@ -27,7 +18,7 @@ const QuickTakesList = ({className, classes}: {
   });
   const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
   return (
-    <div className={classNames(classes.root, className)}>
+    <div className={className}>
       {results?.map((result) =>
         <QuickTakesListItem key={result._id} quickTake={result} />
       )}
@@ -47,7 +38,6 @@ const QuickTakesList = ({className, classes}: {
 const QuickTakesListComponent = registerComponent(
   "QuickTakesList",
   QuickTakesList,
-  {styles},
 );
 
 declare global {

@@ -26,14 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: isEAForum ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
-    },
-    "& .vulcan-form": {
-      display: "flex",
-      flexDirection: "column",
-      "& > div:nth-child(3)": {
-        order: 3,
-      },
-    },
+    }
   } : {},
   rootMinimalist: {
     '& .form-input': {
