@@ -48,7 +48,8 @@ const initConsole = () => {
 
   filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
-    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
+    const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
+    process.stdout.write(`${blue}${new Date().toISOString()}${pidString}:${endBlue} `);
     log(...message);
 
     // Uncomment to add stacktraces to every console.log, for debugging where
