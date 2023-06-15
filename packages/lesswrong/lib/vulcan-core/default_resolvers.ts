@@ -51,7 +51,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
         const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
         
-        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters, "read");
+        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
 
         // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
         if (input.createIfMissing && docs.length === 0) {
@@ -178,7 +178,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any, target: DbTarget = "write"): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   
