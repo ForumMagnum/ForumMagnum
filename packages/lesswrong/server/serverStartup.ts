@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
@@ -185,6 +186,7 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
 export const serverStartup = async () => {
   // Run server directly if not in cluster mode
   if (!clusterSetting.get()) {
+    console.log(`Running in non-cluster mode`);
     await serverStartupWorker();
     return;
   }
@@ -193,11 +195,14 @@ export const serverStartup = async () => {
   // In principle, this should give better performance because it is aware of resource (cpu) usage
   cluster.schedulingPolicy = cluster.SCHED_NONE
   if (cluster.isPrimary) {
+    // Initialize db connection and a few other things such as settings, but don't start a webserver.
+    console.log("Initializing primary process");
+    await initServer();
+
     const numWorkers = numWorkersSetting.get();
-    // eslint-disable-next-line no-console
+
     console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
-    // eslint-disable-next-line no-console
-    console.log(`Primary ${process.pid} is running`);
+    console.log(`Primary ${process.pid} is running, about to fork workers`);
 
     // Fork workers.
     for (let i = 0; i < numWorkers; i++) {
@@ -205,18 +210,16 @@ export const serverStartup = async () => {
     }
 
     cluster.on('exit', (worker, code, signal) => {
-      // eslint-disable-next-line no-console
       console.log(`Worker ${worker.process.pid} died`);
     });
   } else {
+    console.log(`Starting worker ${process.pid}`);
     await serverStartupWorker();
-    // eslint-disable-next-line no-console
     console.log(`Worker ${process.pid} started`);
   }
 }
 
 export const serverStartupWorker = async () => {
-  // eslint-disable-next-line no-console
   console.log("Starting server");
   const commandLineArguments = await initServer();
   await executeServerWithArgs(commandLineArguments);
