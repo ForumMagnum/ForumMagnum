@@ -1,22 +1,34 @@
-import React, { ComponentType, useEffect, useRef, useState } from "react";
+import React, { ComponentType, FC, useRef } from "react";
 import { Link } from "./reactRouterWrapper";
+import { useRecommendations } from "../components/recommendations/withRecommendations";
+import { useCurrentTime } from "./utils/timeUtil";
+import type {
+  RecommendationsAlgorithmWithStrategy,
+  StrategySpecification,
+} from "./collections/users/recommendationSettings";
+import { userGetDisplayName } from "./collections/users/helpers";
+import { postGetLink } from "./collections/posts/helpers";
 import rng from "./seedrandom";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
 export type PostSideRecommendations = {
+  loading: boolean,
   title: string,
   numbered: boolean,
   items: ComponentType[],
 }
 
-const moreFromTheForumRecommendations = (): PostSideRecommendations => {
+type RecommendationsGenerator = (post: RecommendablePost) => PostSideRecommendations;
+
+const useMoreFromTheForumRecommendations = (_post: RecommendablePost) => {
   // TODO: Add the correct link URLs
   const usefulLinks = "#";
   const podcast = "#";
   const digest = "#";
   const jobs = "#";
   return {
+    loading: false,
     title: "More from the Forum",
     numbered: false,
     items: [
@@ -37,63 +49,80 @@ const moreFromTheForumRecommendations = (): PostSideRecommendations => {
   };
 }
 
-const morePostsListThisRecommendations = (
-  post: RecommendablePost,
-): PostSideRecommendations => {
+const LiPostRecommendation: FC<{
+  post: PostsListWithVotesAndSequence,
+}> = ({post}) => {
+  const url = postGetLink(post);
+  const author = userGetDisplayName(post.user);
+  const readTimeMinutes = Math.max(post.readTimeMinutes, 1);
+  const mins = readTimeMinutes === 1 ? "1 min" : `${readTimeMinutes} mins`;
+  return (
+    <li>
+      <Link to={url}>{post.title}</Link> ({author}, {mins})
+    </li>
+  );
+}
+
+const useGeneratorWithStrategy = (
+  title: string,
+  strategy: StrategySpecification,
+) => {
+  const algorithm: RecommendationsAlgorithmWithStrategy = {
+    strategy,
+    count: 3,
+  };
+  const {
+    recommendations: posts,
+    recommendationsLoading: loading,
+  } = useRecommendations(algorithm);
   return {
-    title: "More posts like this",
+    loading,
+    title,
     numbered: true,
-    items: [
-      // TODO
-    ],
+    items: posts.map((post) => () => <LiPostRecommendation post={post} />),
   };
 }
 
-const newAndUpvotedInTagRecommendations = (
-  post: RecommendablePost,
-): PostSideRecommendations => {
+const useMorePostsListThisRecommendations = (post: RecommendablePost) =>
+  useGeneratorWithStrategy("More posts like this", {
+    name: "tagWeightedCollabFilter",
+    postId: post._id,
+  });
+
+const useNewAndUpvotedInTagRecommendations = (post: RecommendablePost) => {
   const tagName = "TODO";
-  return {
-    title: `New & upvoted in ${tagName}`,
-    numbered: true,
-    items: [
-      // TODO
-    ],
-  };
+  return useGeneratorWithStrategy(`New & upvoted in ${tagName}`, {
+    name: "tagWeightedCollabFilter", // TODO: Setup this strategy
+    postId: post._id,
+  });
 }
 
-const getPostSideRecommendations = (
+const useGenerator = (
   seed: string,
   user: UsersCurrent|null,
   post: RecommendablePost,
-): PostSideRecommendations => {
-  const generators = [
-    morePostsListThisRecommendations.bind(null, post),
-    newAndUpvotedInTagRecommendations.bind(null, post),
-  ];
-  if (!user) {
-    generators.push(moreFromTheForumRecommendations);
+) => {
+  const generator = useRef<RecommendationsGenerator>();
+  if (!generator.current) {
+    const generators: RecommendationsGenerator[] = [
+      useMorePostsListThisRecommendations.bind(null, post),
+      useNewAndUpvotedInTagRecommendations.bind(null, post),
+    ];
+    if (!user) {
+      generators.push(useMoreFromTheForumRecommendations);
+    }
+    const rand = rng(seed);
+    const index = Math.abs(rand.int32()) % generators.length;
+    generator.current = generators[index];
   }
-  const rand = rng(seed);
-  const index = Math.abs(rand.int32()) % generators.length;
-  return generators[index]();
+  return generator.current;
 }
 
-/**
- * Generate recommendations for displaying at the side of a post
- * Note that this is _not_ SSR safe and should only be used inside NoSSR
- */
 export const usePostSideRecommendations = (
   user: UsersCurrent|null,
   post: RecommendablePost,
-): PostSideRecommendations|null => {
-  const seed = useRef(String(Date.now()));
-  const [
-    recommendations,
-    setRecommendations,
-  ] = useState<PostSideRecommendations|null>(null);
-  useEffect(() => {
-    setRecommendations(getPostSideRecommendations(seed.current, user, post));
-  }, [user, post, seed]);
-  return recommendations;
+): PostSideRecommendations => {
+  const ssrRenderedAt = useCurrentTime();
+  const useRecommendations = useGenerator(ssrRenderedAt.toISOString(), user, post);
+  return useRecommendations(post);
 }
