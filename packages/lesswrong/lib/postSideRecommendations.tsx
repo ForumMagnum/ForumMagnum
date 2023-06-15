@@ -7,7 +7,7 @@ import type {
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
 import { userGetDisplayName } from "./collections/users/helpers";
-import { postGetLink, postGetPrimaryTag } from "./collections/posts/helpers";
+import { postGetPageUrl, postGetPrimaryTag } from "./collections/posts/helpers";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
@@ -51,7 +51,7 @@ const useMoreFromTheForumRecommendations = (_post: RecommendablePost) => {
 const LiPostRecommendation: FC<{
   post: PostsListWithVotesAndSequence,
 }> = ({post}) => {
-  const url = postGetLink(post);
+  const url = postGetPageUrl(post);
   const author = userGetDisplayName(post.user);
   const readTimeMinutes = Math.max(post.readTimeMinutes, 1);
   const mins = readTimeMinutes === 1 ? "1 min" : `${readTimeMinutes} mins`;
