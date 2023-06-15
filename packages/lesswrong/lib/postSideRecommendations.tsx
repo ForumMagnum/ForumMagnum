@@ -71,7 +71,7 @@ const useGeneratorWithStrategy = (
     count: 3,
   };
   const {
-    recommendations: posts,
+    recommendations: posts = [],
     recommendationsLoading: loading,
   } = useRecommendations(algorithm);
   return {
