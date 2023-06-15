@@ -124,16 +124,6 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
 /**
- * Whether to run multiple node processes in a cluster.
- * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
- *
- * There is a corresponding DatabaseServerSetting 'numWorkers' which sets the number of workers to run in the cluster,
- * if not set it defaults to the number of CPUs available.
- */
-// TODO change to private
-export const clusterSetting = new PublicInstanceSetting<boolean>('cluster', true, 'optional')
-
-/**
  * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
  * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
  * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much

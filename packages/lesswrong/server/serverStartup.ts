@@ -7,7 +7,7 @@ import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
-import { PublicInstanceSetting, clusterSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
+import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -27,10 +27,14 @@ import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 
-// TODO uncomment
-// const numCPUs = cpus().length;
-const numCPUs = 2;
-export const numWorkersSetting = new PublicInstanceSetting<number>('numWorkers', numCPUs, 'optional')
+const numCPUs = cpus().length;
+
+/**
+ * Whether to run multiple node processes in a cluster.
+ * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ */
+export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
+export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
