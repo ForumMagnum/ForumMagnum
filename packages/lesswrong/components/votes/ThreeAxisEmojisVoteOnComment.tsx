@@ -4,7 +4,7 @@ import {
   CommentVotingComponentProps,
   getVotingSystemByName,
 } from "../../lib/voting/votingSystems";
-import { useVote, VotingProps } from "./withVote";
+import { useVote } from "./withVote";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
@@ -13,6 +13,7 @@ import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import { userHasEAEmojiReacts } from "../../lib/betas";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
+import { VotingProps } from "./votingProps";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

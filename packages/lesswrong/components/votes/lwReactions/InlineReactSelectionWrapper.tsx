@@ -1,8 +1,7 @@
 import Mark from 'mark.js';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useVote } from '../withVote';
+import type { VotingProps } from '../votingProps';
 
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;
@@ -21,11 +20,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({classes, comment, children, commentItemRef}: {
+export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, voteProps}: {
   classes: ClassesType,
-  comment: CommentsList,
   children: React.ReactNode,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+  commentItemRef?: React.RefObject<HTMLDivElement>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+  voteProps: VotingProps<VoteableTypeClient>
 }) => {
   const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
@@ -35,12 +34,7 @@ export const InlineReactSelectionWrapper = ({classes, comment, children, comment
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
 
   const { AddInlineReactionButton, LWPopper } = Components;
-
-  const votingSystemName = comment.votingSystem || "default";
-  const votingSystem = getVotingSystemByName(votingSystemName);
-  const voteProps = useVote(comment, "Comments", votingSystem);
   
-
   function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
     const commentTextRect = commentTextRef.current?.getBoundingClientRect();
     if (!commentTextRect) return 0;
