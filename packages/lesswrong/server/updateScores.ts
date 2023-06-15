@@ -11,6 +11,7 @@ import {
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
 import { runSqlQuery } from "../lib/sql/sqlClient";
+import chunk from "lodash/chunk";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -225,16 +226,15 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     return [];
   }
 
-  const singleVotePower = getSingleVotePower();
-
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
   return runSqlQuery(`
     SELECT
       q.*,
       ns."newScore",
       q."inactive" AS "inactive",
-      ABS("score" - ns."newScore") > $1 AS "scoreDiffSignificant",
-      (${ageHours}) > ($2 * 24) AS "oldEnough"
+      ABS("score" - ns."newScore") > ns."singleVotePower" AS "scoreDiffSignificant",
+      ns."singleVotePower" AS "singleVotePower",
+      (${ageHours}) > ($1 * 24) AS "oldEnough"
     FROM (
       SELECT ${getPgCollectionProjections(collectionName).join(", ")}
         , "${collectionName}".inactive as inactive
@@ -243,10 +243,11 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
         "postedAt" < CURRENT_TIMESTAMP AND
         ${inactive ? '"inactive" = TRUE' : '("inactive" = FALSE OR "inactive" IS NULL)'}
     ) q, LATERAL (SELECT
-      "baseScore" / POW(${ageHours} + $3, $4) AS "newScore"
+      "baseScore" / POW(${ageHours} + $2, $3) AS "newScore",
+      1.0 / POW(${ageHours} + $2, $3) AS "singleVotePower"
     ) ns
-    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > $1 OR NOT q."inactive"'}
-  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
+    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > ns."singleVotePower" OR NOT q."inactive"'}
+  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
 }
 
 const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
@@ -258,29 +259,34 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 
-  const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
-    if (forceUpdate || i.scoreDiffSignificant) {
-      updatedDocumentsCounter++;
-      return {
-        updateOne: {
-          filter: {_id: i._id},
-          update: {$set: {score: i.newScore, inactive: false}},
-          upsert: false,
+  const batches = chunk(items, 1000); // divide items into chunks of 1000
+
+  for (let batch of batches) {
+    let itemUpdates = _.compact(batch.map((i: AnyBecauseTodo) => {
+      if (forceUpdate || i.scoreDiffSignificant) {
+        updatedDocumentsCounter++;
+        return {
+          updateOne: {
+            filter: {_id: i._id},
+            update: {$set: {score: i.newScore, inactive: false}},
+            upsert: false,
+          }
+        }
+      } else if (i.oldEnough && !i.inactive) {
+        // only set a post as inactive if it's older than n days
+        return {
+          updateOne: {
+            filter: {_id: i._id},
+            update: {$set: {inactive: true}},
+            upsert: false,
+          }
         }
       }
-    } else if (i.oldEnough && !i.inactive) {
-      // only set a post as inactive if it's older than n days
-      return {
-        updateOne: {
-          filter: {_id: i._id},
-          update: {$set: {inactive: true}},
-          upsert: false,
-        }
-      }
+    }));
+
+    if (itemUpdates && itemUpdates.length) {
+      await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
     }
-  }))
-  if (itemUpdates && itemUpdates.length) {
-    await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
   }
   return updatedDocumentsCounter;
 }
