@@ -3,7 +3,7 @@ import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
-import { captureEvent } from "../analyticsEvents";
+import type { DbTarget } from '../sql/PgCollection';
 
 const maxAllowedSkip = 2000;
 
@@ -178,7 +178,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any, target: "read" | "write" = "write"): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any, target: DbTarget = "write"): Promise<Array<T>> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   

@@ -16,6 +16,8 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
+export type DbTarget = "read" | "write";
+
 type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
   projection: MongoProjection<T>;
@@ -72,7 +74,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   async executeQuery(
     query: Query<T>,
     data?: Partial<ExecuteQueryData<T>>,
-    target: "read" | "write" = "write"
+    target: DbTarget = "write"
   ): Promise<any[]> {
     executingQueries++;
     let result: any[];
@@ -217,7 +219,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     await this.executeQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions, target: "read" | "write" = "read") => {
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions, target: DbTarget = "read") => {
     return {
       toArray: async () => {
         try {

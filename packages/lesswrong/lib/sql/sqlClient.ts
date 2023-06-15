@@ -1,12 +1,17 @@
 import { isAnyTest } from "../executionEnvironment";
+import type { DbTarget } from "./PgCollection";
 
 export const logAllQueries = false;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
+/** Client to use for all operation, unless sqlRead is also set */
 let sql: SqlClient | null = null;
+/** Client to use for read operations only.
+ *  Currently used in the EA Forum bot environment to decrease load on the main database
+ */
 let sqlRead: SqlClient | null = null;
 
-export const setSqlClient = (sql_: SqlClient, target: "read" | "write" = "write") => {
+export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
   if (target === "write") {
     sql = sql_;
   } else {
@@ -14,26 +19,20 @@ export const setSqlClient = (sql_: SqlClient, target: "read" | "write" = "write"
   }
 }
 
-export const getSqlClient = (target: "read" | "write" = "write") => {
+export const getSqlClient = (target: DbTarget = "write") => {
   return target === "write" || !sqlRead ? sql : sqlRead;
 }
 
-export const getSqlClientOrThrow = (target: "read" | "write" = "write") => {
-  if (target === "write" || !sqlRead) {
-    if (!sql) {
-      throw new Error("SQL Client is not initialized");
-    }
-    return sql;
-  } else {
-    if (!sqlRead) {
-      throw new Error("SQL Client is not initialized");
-    }
-    return sqlRead;
+export const getSqlClientOrThrow = (target: DbTarget = "write") => {
+  const client = (target === "write" || !sqlRead) ? sql : sqlRead;
+  if (!client) {
+    throw new Error("SQL Client is not initialized");
   }
+  return client;
 }
 
-// TODO make this handle the read case, although I think this isn't required for actually running
-// the server
+
+// Note: this is only used in tests so doesn't need to handle the read/write distinction
 export const closeSqlClient = async (client: SqlClient) => {
   if (client === sql) {
     sql = null;
@@ -41,7 +40,7 @@ export const closeSqlClient = async (client: SqlClient) => {
   await client.$pool.end();
 }
 
-export const runSqlQuery = async (query: string, args?: any, target: "read" | "write" = "write") => {
+export const runSqlQuery = async (query: string, args?: any, target: DbTarget = "write") => {
   const client = getSqlClientOrThrow(target);
   return await logIfSlow(
     () => client.any(query, args),

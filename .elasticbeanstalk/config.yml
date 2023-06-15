@@ -5,10 +5,10 @@ branch-defaults:
     environment: EAForum-Staging-2
 global:
   # Use deploy.sh to change this to the correct application name
-  application_name: EA-Forum-Staging-EU
+  application_name: APPLICATION_NAME
   branch: null
   default_platform: Docker
-  default_region: eu-west-2
+  default_region: us-east-1
   include_git_submodules: true
   instance_profile: null
   platform_name: null
