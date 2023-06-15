@@ -117,7 +117,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
       <div className={classes.textRow}>
         Our bot tagged this as potential criticism of someone's work. We suggest running criticism
         past the relevant people first. <a
-          href={`https://forum.effectivealtruism.org/posts/f77iuXmgiiFgurnBu/run-posts-by-orgs`}
+          href="https://forum.effectivealtruism.org/posts/kjcMZEzksusCHfHiF/productive-criticism-running-a-draft-past-the-people-you-re"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => captureEvent('criticismTipsLinkClicked', {postId})}
