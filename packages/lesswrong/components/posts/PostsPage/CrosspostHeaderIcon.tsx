@@ -16,8 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: -6,
-    marginRight: 14,
+    // marginLeft: -6,
+    // marginRight: 14,
     verticalAlign: "sub",
   },
 });
