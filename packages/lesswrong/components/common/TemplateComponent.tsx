@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TemplateComponent = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { captureEvent } = useTracking();
+  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <div className={classes.root}>
 
   </div>;
