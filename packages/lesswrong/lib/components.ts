@@ -833,6 +833,7 @@ importComponent("RecommendationsAlgorithmPicker", () => require('../components/r
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
 importComponent("PostsPageRecommendationsList", () => require('../components/recommendations/PostsPageRecommendationsList'));
 importComponent("PostsPageRecommendationItem", () => require('../components/recommendations/PostsPageRecommendationItem'));
+importComponent("PostSideRecommendations", () => require('../components/recommendations/PostSideRecommendations'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));

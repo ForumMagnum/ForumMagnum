@@ -184,7 +184,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const location = useSubscribedLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
-  const { openDialog, closeDialog } = useDialog();
+  const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -288,7 +288,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList,
+    PostsPageRecommendationsList, PostSideRecommendations,
   } = Components
 
   useEffect(() => {
@@ -446,10 +446,17 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors && <PostBody
-                post={post} html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-              />}
+              {htmlWithAnchors &&
+                <PostBody
+                  post={post}
+                  html={htmlWithAnchors}
+                  sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                  SideComponent={showRecommendations
+                    ? PostSideRecommendations
+                    : undefined
+                  }
+                />
+              }
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>}
