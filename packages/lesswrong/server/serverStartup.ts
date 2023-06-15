@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
 import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
-import PgCollection from '../lib/sql/PgCollection';
+import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
@@ -70,7 +70,7 @@ const connectToMongo = async (connectionString: string) => {
   }
 }
 
-const connectToPostgres = async (connectionString: string) => {
+const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
       const branchDb = await getBranchDbName();
@@ -80,31 +80,8 @@ const connectToPostgres = async (connectionString: string) => {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString);
-      setSqlClient(sql);
-    }
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to postgres: ", err.message);
-    // TODO: Remove forum gating here when we expand Postgres usage
-    if (forumTypeSetting.get() === "EAForum") {
-      process.exit(1);
-    }
-  }
-}
-
-const connectToPostgresReadOnly = async (connectionString: string) => {
-  try {
-    if (connectionString) {
-      const branchDb = await getBranchDbName();
-      if (branchDb) {
-        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
-      }
-      const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
-      // eslint-disable-next-line no-console
-      console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false, "read");
-      setSqlClient(sql, "read");
+      const sql = await createSqlConnection(connectionString, false, target);
+      setSqlClient(sql, target);
     }
   } catch(err) {
     // eslint-disable-next-line no-console
@@ -120,7 +97,7 @@ const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArgu
   Promise.all([
     connectToMongo(mongoUrl),
     connectToPostgres(postgresUrl),
-    connectToPostgresReadOnly(postgresReadUrl),
+    connectToPostgres(postgresReadUrl, "read"),
   ]);
 
 const initSettings = () => {
