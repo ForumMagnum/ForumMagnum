@@ -86,14 +86,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
-    verticalAlign: 'middle',
+    alignSelf: 'center',
     color: isEAForum ? undefined : theme.palette.primary.main,
-    height: PODCAST_ICON_SIZE,
+    height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
   togglePodcastIcon: {
     width: PODCAST_ICON_SIZE,
     height: PODCAST_ICON_SIZE,
-    transform: isEAForum ? "translateY(-2px)" : undefined
+    transform: isEAForum ? "translateY(5px)" : undefined
   },
   actions: {
     color: theme.palette.grey[500],
@@ -325,7 +325,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
   if (isEAForum) {
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {crosspostNode}
         {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
         {readingTimeNode}
         {audioNode}
@@ -337,6 +336,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
           </CommentsLink>
         </LWTooltip>
         {addToCalendarNode}
+        {crosspostNode}
       </div>
       <div className={classes.secondaryInfoRight}>
         <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
