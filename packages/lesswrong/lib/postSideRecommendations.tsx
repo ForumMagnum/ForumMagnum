@@ -1,14 +1,13 @@
 import React, { ComponentType, FC, useRef } from "react";
 import { Link } from "./reactRouterWrapper";
 import { useRecommendations } from "../components/recommendations/withRecommendations";
-import { useCurrentTime } from "./utils/timeUtil";
+import { useSsrRenderedAt } from "./utils/timeUtil";
 import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
 import { userGetDisplayName } from "./collections/users/helpers";
-import { postGetLink } from "./collections/posts/helpers";
-import rng from "./seedrandom";
+import { postGetLink, postGetPrimaryTag } from "./collections/posts/helpers";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
@@ -90,15 +89,19 @@ const useMorePostsListThisRecommendations = (post: RecommendablePost) =>
   });
 
 const useNewAndUpvotedInTagRecommendations = (post: RecommendablePost) => {
-  const tagName = "TODO";
-  return useGeneratorWithStrategy(`New & upvoted in ${tagName}`, {
-    name: "tagWeightedCollabFilter", // TODO: Setup this strategy
+  const tag = postGetPrimaryTag(post, true);
+  if (!tag) {
+    throw new Error("Couldn't choose recommendation tag");
+  }
+  return useGeneratorWithStrategy(`New & upvoted in ${tag.name}`, {
+    name: "newAndUpvotedInTag",
     postId: post._id,
+    tagId: tag._id,
   });
 }
 
 const useGenerator = (
-  seed: string,
+  seed: number,
   user: UsersCurrent|null,
   post: RecommendablePost,
 ) => {
@@ -106,13 +109,14 @@ const useGenerator = (
   if (!generator.current) {
     const generators: RecommendationsGenerator[] = [
       useMorePostsListThisRecommendations.bind(null, post),
-      useNewAndUpvotedInTagRecommendations.bind(null, post),
     ];
+    if (post.tags.length) {
+      generators.push(useNewAndUpvotedInTagRecommendations.bind(null, post));
+    }
     if (!user) {
       generators.push(useMoreFromTheForumRecommendations);
     }
-    const rand = rng(seed);
-    const index = Math.abs(rand.int32()) % generators.length;
+    const index = Math.floor(seed) % generators.length;
     generator.current = generators[index];
   }
   return generator.current;
@@ -122,7 +126,7 @@ export const usePostSideRecommendations = (
   user: UsersCurrent|null,
   post: RecommendablePost,
 ): PostSideRecommendations => {
-  const ssrRenderedAt = useCurrentTime();
-  const useRecommendations = useGenerator(ssrRenderedAt.toISOString(), user, post);
+  const ssrRenderedAt = useSsrRenderedAt().getTime();
+  const useRecommendations = useGenerator(ssrRenderedAt, user, post);
   return useRecommendations(post);
 }

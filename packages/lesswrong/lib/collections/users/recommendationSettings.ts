@@ -8,6 +8,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
   "moreFromTag",
+  "newAndUpvotedInTag",
   "bestOf",
   "tagWeightedCollabFilter",
   "collabFilter",
@@ -43,6 +44,7 @@ export interface StrategySettings {
   postId: string,
   bias?: number,
   features?: WeightedFeature[],
+  tagId?: string,
 }
 
 export interface StrategySpecification extends StrategySettings {

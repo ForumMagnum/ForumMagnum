@@ -11,6 +11,7 @@ import RecommendationStrategy, { RecommendationResult } from "./RecommendationSt
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
 import FeatureStrategy from "./FeatureStrategy";
+import NewAndUpvotedInTagStrategy from "./NewAndUpvotedInTagStrategy";
 
 type ConstructableStrategy = {
   new(): RecommendationStrategy,
@@ -29,6 +30,7 @@ class RecommendationService {
   ) {}
 
   private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
+    newAndUpvotedInTag: NewAndUpvotedInTagStrategy,
     moreFromTag: MoreFromTagStrategy,
     moreFromAuthor: MoreFromAuthorStrategy,
     bestOf: BestOfStrategy,

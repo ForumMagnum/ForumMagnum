@@ -1,6 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { usePostSideRecommendations } from "../../lib/postSideComments";
+import { usePostSideRecommendations } from "../../lib/postSideRecommendations";
 import { useCurrentUser } from "../common/withUser";
 import classNames from "classnames";
 
