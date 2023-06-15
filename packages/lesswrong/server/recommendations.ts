@@ -197,7 +197,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
       {},
       {projection: scoreRelevantFields},
     );
-    return Posts.executeQuery(query, undefined, "read") as Promise<DbPost[]>;
+    return Posts.executeReadQuery(query) as Promise<DbPost[]>;
   } else {
     return await Posts.aggregate([
       // Filter to recommendable posts
