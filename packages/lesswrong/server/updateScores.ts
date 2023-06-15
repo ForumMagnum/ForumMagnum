@@ -1,6 +1,5 @@
 import { getCollection, Vulcan } from "./vulcan-lib";
 import {
-  recalculateScore,
   timeDecayExpr,
   postScoreModifiers,
   commentScoreModifiers,
