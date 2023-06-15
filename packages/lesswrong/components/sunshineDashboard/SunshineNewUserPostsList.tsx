@@ -3,7 +3,8 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -29,6 +30,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vote: {
     marginRight: 10
+  },
+  rejectButton: {
+    marginLeft: 'auto',
   }
 })
 
@@ -37,7 +41,8 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
+
  
   if (!posts) return null
 
@@ -68,6 +73,12 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
               </span>
             </div>
           </div>
+          
+          {isLW && <span className={classes.rejectButton}>
+            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
+            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
+          </span>}
+          
           <PostActionsButton post={post} />
         </div>
         {!post.draft && <div className={classes.postBody}>

@@ -6,7 +6,6 @@ import { useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import {userCanPost} from "../../lib/collections/posts";
-import MenuItem from "@material-ui/core/MenuItem";
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();

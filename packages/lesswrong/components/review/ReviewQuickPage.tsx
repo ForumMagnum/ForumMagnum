@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import sortBy from 'lodash/sortBy';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -110,7 +111,7 @@ export const ReviewQuickPage = ({classes}: {
   // useMulti is incorrectly typed
   const postsResults = posts as PostsListWithVotes[] | null;
 
-  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
+  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
 
   const sortedPostsResults = !!postsResults ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
@@ -125,6 +126,8 @@ export const ReviewQuickPage = ({classes}: {
       loadMore()
     }
   }
+
+  const loadMoreText = `<a>(${preferredHeadingCase("Load More")})</a>`;
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
@@ -150,7 +153,7 @@ export const ReviewQuickPage = ({classes}: {
       <div className={loading ? classes.loading : null}>
         {truncatedPostsResults.map(post => {
           return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
-            <PostsItem2 
+            <PostsItem 
               post={post} 
               showKarma={false}
               showPostedAt={false}
@@ -162,7 +165,7 @@ export const ReviewQuickPage = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>

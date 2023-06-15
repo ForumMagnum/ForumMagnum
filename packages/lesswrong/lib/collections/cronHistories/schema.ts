@@ -1,8 +1,8 @@
 const commonFields = (nullable: boolean) => ({
   hidden: true,
-  insertableBy: ['admins' as const],
-  viewableBy: ['admins' as const],
-  editableBy: ['admins' as const],
+  canCreate: ['admins' as const],
+  canRead: ['admins' as const],
+  canUpdate: ['admins' as const],
   optional: nullable,
   nullable,
 });

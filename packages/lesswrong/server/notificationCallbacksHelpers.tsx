@@ -15,6 +15,7 @@ import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';
 import keyBy from 'lodash/keyBy';
+import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -77,10 +78,8 @@ import keyBy from 'lodash/keyBy';
   }
 }
 
-export type MongoNearLocation = number[] | { type: "Point", coordinates: number[] }
-
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
-  return await Users.aggregate([
+  return Users.isPostgres() ? new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location) : await Users.aggregate([
     {
       "$geoNear": {
         "near": location, 
@@ -102,7 +101,7 @@ export async function getUsersWhereLocationIsInNotificationRadius(location: Mong
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-const getNotificationTiming = (typeSettings): DebouncerTiming => {
+const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };

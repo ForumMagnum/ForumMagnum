@@ -4,15 +4,21 @@ import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
     ...theme.typography.body1,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   abTestsTable: {
     ...theme.typography.body1,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
     marginTop: 24,
     "& th": {
       textAlign: "left",
@@ -26,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 const UsersViewABTests = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle } = Components;
+  const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();

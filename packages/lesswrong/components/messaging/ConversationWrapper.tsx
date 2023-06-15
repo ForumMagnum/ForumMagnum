@@ -3,14 +3,16 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 
+/**
+ * A page with a private mesage conversation, with URL parameter parsing.
+ */
 const ConversationWrapper = () => {
   const currentUser = useCurrentUser()
   const { params } = useLocation();
   
   if (!currentUser) return <div>Log in to access private messages.</div>
-  const messagesTerms: MessagesViewTerms = {view: 'messagesConversation', conversationId: params._id};
 
-  return <Components.ConversationPage terms={messagesTerms} documentId={params._id} currentUser={currentUser} />
+  return <Components.ConversationPage conversationId={params._id} currentUser={currentUser} />
 }
 
 const ConversationWrapperComponent = registerComponent('ConversationWrapper', ConversationWrapper);

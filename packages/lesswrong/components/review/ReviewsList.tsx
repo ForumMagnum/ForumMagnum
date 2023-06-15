@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -15,7 +14,7 @@ export const ReviewsList = ({title, defaultSort, reviewYear}: {
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear
 }) => {
-  const { CommentsNode, SectionTitle, ReviewsLeaderboard, Loading } = Components
+  const { CommentsNode, SectionTitle, ReviewsLeaderboard, Loading, MenuItem } = Components
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
   const { loading, results: reviews } = useMulti({

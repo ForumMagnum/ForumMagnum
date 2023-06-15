@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   spotlightItem: {
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 7,
-    marginBottom: 13,
+    marginBottom: 10,
     ...descriptionStyles(theme),
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -114,18 +115,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 15,
     color: theme.palette.grey[700],
     marginTop: -1,
-    fontStyle: "italic"
+    ...theme.typography.italic,
   },
   image: {
     '& img': {
       position: "absolute",
       top: 0,
       right: 0,
-      height: "100%",  
+      height: "100%",
+      borderTopRightRadius: theme.borderRadius.default,
+      borderBottomRightRadius: theme.borderRadius.default,
     }
   },
   author: {
-    marginTop: -6,
+    marginTop: 4,
     color: theme.palette.grey[600],
   },
   authorName: {
@@ -244,7 +247,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   };
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classes.root}>
+    <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
@@ -264,7 +267,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
-                  collection={Spotlights}
+                  collectionName="Spotlights"
                   fields={['description']}
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
@@ -307,12 +310,12 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {edit ? <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
-                collection={Spotlights}
-                documentId={spotlight._id}
-                mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                queryFragment={getFragment('SpotlightEditQueryFragment')}
-                successCallback={onUpdate}
-              /> 
+              collectionName="Spotlights"
+              documentId={spotlight._id}
+              mutationFragment={getFragment('SpotlightEditQueryFragment')}
+              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              successCallback={onUpdate}
+            />
             </SpotlightEditorStyles>
           </div>
            :

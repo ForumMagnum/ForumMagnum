@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
   },
   label: {
-    alignSelf: 'flex-end',
+    // alignSelf: 'flex-end',
     flexGrow: 1,
     display: 'flex',
     columnGap: 8,
@@ -249,221 +249,32 @@ type JobAdData = {
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'project-management-gfi': {
-    eagOccupations: ['Project management/ Program management', 'Alternative proteins'],
-    tagId: 'sXXqo3rbghiNW7SwN', // Animal product alternatives
-    logo: 'https://80000hours.org/wp-content/uploads/2021/05/good-food-institute-160x160.png',
-    occupation: 'alternative proteins',
-    feedbackLinkPrefill: 'Executive+Assistant+at+GFI',
-    bitlyLink: "https://efctv.org/3Xqa86C", // https://gfi.org/job/?gh_jid=6554883002
-    role: 'Executive Assistant, Science and Technology',
-    insertThe: true,
-    org: 'Good Food Institute',
-    orgLink: '/topics/good-food-institute',
-    salary: '$63,046',
-    location: 'Remote, USA',
-    deadline: moment("02-01-2023", "MM-DD-YYYY"),
+  'malaria-researcher-givewell': {
+    standardApplyBtn: true,
+    logo: 'https://cdn.80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
+    occupation: 'research',
+    feedbackLinkPrefill: 'Senior+Malaria+Researcher+at+GiveWell',
+    bitlyLink: "https://efctv.org/3J7bY6v", // https://www.givewell.org/about/jobs/research-application
+    role: 'Senior Malaria Researcher',
+    org: 'GiveWell',
+    orgLink: '/topics/givewell',
+    salary: '$193k - $209k',
+    location: 'Remote',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        The <a href="https://gfi.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Good Food Institute (GFI)
-        </a> is a nonprofit that works with scientists, investors, and entrepreneurs to produce <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/cultivated-meat")} innerHTML="cultivated meat"/>
-        </span> and plant-based <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-product-alternatives")} innerHTML="alternatives"/>
-        </span> to animal products.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>A minimum of four years' applicable work experience (previous administrative experience preferred)</li>
-          <li>Demonstrated experience working with projects in project management software</li>
-          <li>Strong attention to detail and a high degree of organization and efficiency</li>
-        </ul>
-      </div>
-    </>
-  },
-  'finance-founders-pledge': {
-    eagOccupations: ['Finance/Accounting'],
-    logo: 'https://80000hours.org/wp-content/uploads/2019/06/founders-pledge-160x160.png',
-    occupation: 'finance',
-    feedbackLinkPrefill: 'Investment+Operations+Manager+at+Founders+Pledge',
-    bitlyLink: "https://efctv.org/3ZLIYZE", // https://founders-pledge.jobs.personio.de/job/926945?_pc=959484&display=en
-    role: 'Investment Operations Manager',
-    org: 'Founders Pledge',
-    orgLink: '/topics/founders-pledge',
-    salary: 'Up to $110k',
-    location: 'Remote, USA',
-    roleType: '12 month contract',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://founderspledge.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Founders Pledge
-        </a> is a nonprofit that encourages entrepreneurs to pledge to donate a portion of their profits to
-        effective charities. They are looking for someone to help implement an investment program for their
-        global charitable foundation, on a 12-month FTC.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>Project management experience in either institutional or private wealth management operations</li>
-          <li>Understanding of institutional investment practices and portfolio management principles</li>
-          <li>Experience with audits and/or accounting (specifically investment accounting)</li>
-        </ul>
-      </div>
-    </>
-  },
-  'program-management-malaria-consortium': {
-    eagOccupations: ['Global health & development', 'Project management/ Program management', 'Communications/Marketing'],
-    tagId: 'sWcuTyTB5dP3nas2t', // Global health and development
-    logo: 'https://80000hours.org/wp-content/uploads/2019/11/Malaria-Consortium-160x160.png',
-    occupation: 'global health & development',
-    feedbackLinkPrefill: 'Programme+Design+and+Development+Specialist+at+Malaria+Consortium',
-    bitlyLink: "https://efctv.org/3GA1j33", // https://malariaconsortium.current-vacancies.com/Jobs/Advert/2694751?cid=2061&t=Programme-Design-and-Development-Specialist
-    role: 'Programme Design and Development Specialist',
-    org: 'Malaria Consortium',
-    orgLink: '/topics/malaria-consortium',
-    salary: '£44,859',
-    location: 'London, UK',
-    deadline: moment("01-31-2023", "MM-DD-YYYY"),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://www.malariaconsortium.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Malaria Consortium
-        </a> is a British charity that works on preventing, controlling, and treating <span className={classes.link}>
+        <a href="https://www.givewell.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          GiveWell
+        </a>'s first Senior Malaria Researcher will be responsible for strengthening the quality of the research
+        and cost-effectiveness modeling guiding GiveWell's investments in <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")} innerHTML="malaria"/>
-        </span> and other communicable diseases in Africa and Asia.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>A Masters in Public Health, Epidemiology, Development Studies or similar fields, or equivalent practical experience</li>
-          <li>Experience in leading the design and writing of successful competitive proposals and tenders for public health programming for commercial bids and for grants</li>
-          <li>Experience in managing international health programmes in developing countries</li>
-        </ul>
-      </div>
-    </>
-  },
-  'ops-arc': {
-    eagOccupations: ['Operations', 'AI safety technical research'],
-    tagId: 'NNdytpR2E4jYKQCNd', // Operations
-    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
-    occupation: 'operations',
-    feedbackLinkPrefill: 'Operations+Officer+at+ARC',
-    bitlyLink: "https://efctv.org/3CGeuOI", // https://jobs.lever.co/alignment.org/78d8684f-e6f1-4d2a-a220-99d5622422ac
-    role: 'Operations Officer',
-    insertThe: true,
-    org: 'Alignment Research Center',
-    orgLink: '/topics/alignment-research-center',
-    location: 'Berkeley, CA',
-    deadline: moment("01-28-2023", "MM-DD-YYYY"),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          ARC
-        </a> is a non-profit research organization focused on <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
-        </span>. As part of a new team within ARC, your role will be to build, operate, and maintain systems
-        to help them do their work efficiently and effectively.
+        </span> interventions.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Are highly organized and adaptable</li>
-          <li>Have strong managerial skills and the ability to think strategically in order to guide and support a growing team</li>
-          <li>Have a strong interest in AI and AI safety and a strong drive to contribute and make a difference</li>
-        </ul>
-      </div>
-    </>
-  },
-  'engineering-arc': {
-    eagOccupations: ['Software development/Software engineering', 'AI safety technical research'],
-    tagId: 'FHE3J3E8qd6oqGZ8a', // Software engineering
-    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
-    occupation: 'software engineering',
-    feedbackLinkPrefill: 'Generalist+Software+Engineer+at+ARC',
-    bitlyLink: "https://efctv.org/3whnarm", // https://jobs.lever.co/alignment.org/d12bfa4a-6958-43f2-aff7-56f6a9651db4
-    role: 'Generalist Software Engineer',
-    insertThe: true,
-    org: 'Alignment Research Center',
-    orgLink: '/topics/alignment-research-center',
-    location: 'Berkeley, CA',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          ARC
-        </a> is a non-profit research organization focused on <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
-        </span>. The evaluations project is a new team within ARC building capability evaluations for
-        advanced ML models, which can enable labs to make measurable safety commitments.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Can rapidly prototype features and write clear, easy-to-extend code (current stack: React, Typescript, Python, SQL, Flask)</li>
-          <li>Have good communication skills, including always asking for clarification if priorities are ambiguous</li>
-          <li>Are quick to pick up whatever skills and knowledge are required to make the project succeed</li>
-        </ul>
-      </div>
-    </>
-  },
-  'ai-research-arc': {
-    eagOccupations: ['AI safety technical research'],
-    tagId: 'oNiQsBHA3i837sySD', // AI safety
-    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
-    occupation: 'AI safety',
-    feedbackLinkPrefill: 'Researcher,+Model+Evaluations+at+ARC',
-    bitlyLink: "https://efctv.org/3ZqYEkV", // https://jobs.lever.co/alignment.org/51cce9d1-73c7-461c-9d37-4ec1da07a863
-    role: 'Researcher, Model Evaluations',
-    insertThe: true,
-    org: 'Alignment Research Center',
-    orgLink: '/topics/alignment-research-center',
-    location: 'Berkeley, CA',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          ARC
-        </a> is a non-profit research organization focused on <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
-        </span>. The evaluations project is a new team within ARC building capability evaluations for
-        advanced ML models, which can enable labs to make measurable safety commitments.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>A solid working knowledge of language model capabilities and modern ML</li>
-          <li>A good understanding of alignment risk, in order to identify core risks and translate abstract stories about risk into concrete measurements of existing models</li>
-          <li>Strong basic coding skills (able to design and build a system for managing experiments and data)</li>
-        </ul>
-      </div>
-    </>
-  },
-  'biosecurity-warwick': {
-    interestedIn: ['Biosecurity'],
-    tagId: 'aELNHEKtcZtMwEkdK', // Biosecurity
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/Warwick-University-160x160.png',
-    occupation: 'biosecurity',
-    feedbackLinkPrefill: 'PhD+Student+at+University+of+Warwick',
-    bitlyLink: "https://efctv.org/3IxWcD3", // https://warwick.ac.uk/fac/cross_fac/igpp/ab101/
-    role: 'PhD Student',
-    insertThe: true,
-    org: 'University of Warwick, Institute for Global Pandemic Planning',
-    orgLink: '/posts/gnk3FbdxJjZrrvoGA/link-post-fully-funded-phds-in-pandemic-planning',
-    location: 'Warwick, UK',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        This is a 4-year fully funded scholarship to work on a PhD in Public Health
-        at <a href="https://warwick.ac.uk/fac/cross_fac/igpp/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          IGPP
-        </a>, with the option to focus on Behavioural Science, Mathematical Epidemiology,
-        Pathogen Diagnostics or Pandemic Response Planning.
-      </div>
-      <div className={classes.description}>
-        General entry requirements for the university:
-        <ul>
-          <li>At least an upper second class UK honours degree or international equivalent</li>
-          <li>Evidence of English language capability</li>
-          <li>Two strong academic references</li>
+          <li>Have a quantitatively-oriented advanced degree and substantial malaria expertise</li>
+          <li>Have a proven ability to plan and execute research that holds up over time</li>
+          <li>Are highly skilled at analyzing empirical research to solve real-world problems</li>
         </ul>
       </div>
     </>
@@ -493,7 +304,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
   }
   
   const handleInterested = (showSuccessMsg?: boolean) => {
-    setClosed(true)
+    // setClosed(true)
     onInterested(showSuccessMsg)
   }
   
@@ -502,7 +313,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
     onUninterested(reason)
   }
   
-  const handleSubmitUninterestedReason = (e) => {
+  const handleSubmitUninterestedReason = (e: AnyBecauseTodo) => {
     e.preventDefault()
     setClosed(true)
     onUninterested(e.target.uninterestedReason.value)
@@ -558,9 +369,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
         >
           Apply now <OpenInNew className={classes.btnIcon} />
         </Button>
-        <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
+        {/* <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
           This doesn't match my interests
-        </Button>
+        </Button> */}
       </div>
     </>
   }
@@ -573,12 +384,12 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <div className={classes.labelText}>
               Job  recommendation
             </div>
-            <LWTooltip title={
+            {/* <LWTooltip title={
               `You're seeing this recommendation because of your interest in ${adData.occupation}.
               We encourage you to consider jobs like this which might increase your impact significantly.`
             }>
               <InfoIcon className={classes.infoIcon} />
-            </LWTooltip>
+            </LWTooltip> */}
           </div>
           <div className={classes.feedbackLink}>
             <a href={`

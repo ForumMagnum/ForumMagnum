@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
-import { ToCAnswer } from '../../../server/tableOfContents';
+import type { ToCAnswer } from '../../../server/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

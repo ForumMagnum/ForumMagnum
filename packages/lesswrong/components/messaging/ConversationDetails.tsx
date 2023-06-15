@@ -1,4 +1,5 @@
 import React from 'react';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 
@@ -41,7 +42,7 @@ const ConversationDetails = ({conversation, classes}: {
         </MetaInfo>)}
       </span>
       <span onClick={openConversationOptions}>
-        <MetaInfo button>Conversation Options</MetaInfo>
+        <MetaInfo button>{preferredHeadingCase("Conversation Options")}</MetaInfo>
       </span>
     </div>
   )

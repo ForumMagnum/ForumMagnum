@@ -51,3 +51,7 @@ export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string
 
 export type TupleOf<T extends TupleSet<any>> = T extends TupleSet<infer U> ? U : never;
 export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
+
+export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
+  return arr.filter(x=>x!=null && x!==undefined) as T[];
+}

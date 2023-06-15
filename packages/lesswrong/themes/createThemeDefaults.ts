@@ -44,6 +44,7 @@ export const zIndexes = {
   styledMapPopup: 6,
   nextUnread: 999,
   sunshineSidebar: 1000,
+  reactionsFooter: 1001,
   intercomButton: 1030,
   sideCommentBox: 1040,
   postItemMenu: 1050,
@@ -83,8 +84,17 @@ export const baseTheme: BaseThemeSpecification = {
       spacing: {
         unit: spacingUnit,
         titleDividerSpacing,
+        mainLayoutPaddingTop: 50
+      },
+      borderRadius: {
+        default: 0,
+        small: 3,
       },
       typography: {
+        cloudinaryFont: {
+          stack: "'Merriweather', serif",
+          url: "https://fonts.googleapis.com/css?family=Merriweather",
+        },
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
         },
@@ -224,6 +234,12 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: 16,
           fontWeight: 600,
           marginBottom: ".5rem"
+        },
+        italic: {
+          fontStyle: "italic",
+        },
+        smallCaps: {
+          fontVariant: "small-caps",
         },
       },
       zIndexes: {

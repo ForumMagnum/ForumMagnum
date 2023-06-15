@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
-import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { isEAForum, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
@@ -30,8 +30,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionHelperText: {
     color: theme.palette.grey[600],
-    fontStyle: 'italic',
     fontSize: '1rem',
+    ...theme.typography.italic,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -102,7 +103,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
         ...(!getUserEmail(currentUser) && {email: emailInput.current?.value}),
-        acceptedTos: forumTypeSetting.get() === "EAForum",
+        acceptedTos: isEAForum,
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -159,7 +160,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         />
       </div>}
 
-      {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
+      {isEAForum && <div className={classes.section}>
         <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
@@ -176,7 +177,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       </div>}
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
-        {forumTypeSetting.get() === "EAForum" &&
+        {isEAForum &&
           <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
             I agree to the <TosLink />, including my content being available
             under a <LicenseLink /> license.

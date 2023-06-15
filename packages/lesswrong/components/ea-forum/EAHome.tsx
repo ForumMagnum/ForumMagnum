@@ -1,10 +1,11 @@
 import React from 'react'
-import { PublicInstanceSetting } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -15,9 +16,9 @@ const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMai
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem
+    RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
+    SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
+    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -29,28 +30,51 @@ const EAHome = () => {
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
 
+  const shortformTerms = {
+    view: "shortformFrontpage" as const
+  };
+
   return (
-    <React.Fragment>
+    <AnalyticsContext pageContext="homePage">
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-      
-      <CurrentSpotlightItem />
-      <StickiedPosts />
+
+      {/* <SingleColumnSection>
+        <CurrentSpotlightItem />
+      </SingleColumnSection> */}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       
-      <HomeLatestPosts />
+      <EAHomeMainContent FrontpageNode={
+        () => <>
+          <HomeLatestPosts />
+          {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+          {isEAForum && (
+            <AnalyticsContext pageSectionContext="frontpageShortform">
+              <SingleColumnSection>
+                <CommentsListCondensed
+                  label={"Shortform"}
+                  terms={shortformTerms}
+                  initialLimit={5}
+                  shortformButton
+                />
+              </SingleColumnSection>
+            </AnalyticsContext>
+          )}
+          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
+          <RecentDiscussionFeed
+            title="Recent discussion"
+            af={false}
+            commentsLimit={recentDiscussionCommentsPerPost}
+            maxAgeHours={18}
+          />
+        </>
+      } />
       
-      {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
-      <RecentDiscussionFeed
-        af={false}
-        commentsLimit={recentDiscussionCommentsPerPost}
-        maxAgeHours={18}
-      />
-    </React.Fragment>
+    </AnalyticsContext>
   )
 }
 

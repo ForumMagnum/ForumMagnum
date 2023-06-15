@@ -2,7 +2,7 @@ import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -37,7 +37,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 
-const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
@@ -47,15 +47,17 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
+  if (currentDate < reviewStart) return "UNSTARTED"
 
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
+  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
-  if (currentDate < reviewEnd) return "VOTING"
+  if (currentDate < votingEnd) return "VOTING"
+  if (currentDate < reviewEnd) return "RESULTS"
   return "COMPLETE"
 }
 

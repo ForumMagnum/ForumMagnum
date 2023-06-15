@@ -10,7 +10,7 @@ import {
 } from '../lib/scoring';
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { runSqlQuery } from "../lib/sql/sqlClient";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -219,24 +219,25 @@ const getPgCollectionProjections = (collectionName: CollectionNameString) => {
   return Object.values(proj);
 }
 
-const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) => {
+const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) => {
   const {collectionName} = collection;
   if (!["Posts", "Comments"].includes(collectionName)) {
     return [];
   }
 
-  const db = getSqlClientOrThrow();
   const singleVotePower = getSingleVotePower();
 
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
-  return db.any(`
+  return runSqlQuery(`
     SELECT
       q.*,
       ns."newScore",
+      q."inactive" AS "inactive",
       ABS("score" - ns."newScore") > $1 AS "scoreDiffSignificant",
       (${ageHours}) > ($2 * 24) AS "oldEnough"
     FROM (
       SELECT ${getPgCollectionProjections(collectionName).join(", ")}
+        , "${collectionName}".inactive as inactive
       FROM "${collectionName}"
       WHERE
         "postedAt" < CURRENT_TIMESTAMP AND
@@ -244,18 +245,20 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     ) q, LATERAL (SELECT
       "baseScore" / POW(${ageHours} + $3, $4) AS "newScore"
     ) ns
+    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > $1 OR NOT q."inactive"'}
   `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
 }
 
-const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) =>
+const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
   Posts.isPostgres()
-    ? getBatchItemsPg(collection, inactive)
+    ? getBatchItemsPg(collection, inactive, forceUpdate)
     : getBatchItemsMongo(collection, inactive);
 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
-  const items = await getBatchItems(collection, inactive);
+  const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
-  const itemUpdates = _.compact(items.map(i => {
+
+  const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
       return {
@@ -265,7 +268,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
           upsert: false,
         }
       }
-    } else if (i.oldEnough) {
+    } else if (i.oldEnough && !i.inactive) {
       // only set a post as inactive if it's older than n days
       return {
         updateOne: {

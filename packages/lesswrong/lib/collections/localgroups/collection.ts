@@ -30,7 +30,7 @@ const options: MutationOptions<DbLocalgroup> = {
 export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Localgroups'),
   mutations: getDefaultMutations('Localgroups', options),
@@ -46,9 +46,9 @@ makeEditable({
     commentStyles: true,
     order: 25,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     hintText: "Short description"
   }

@@ -1,8 +1,9 @@
-import { forumTypeSetting, taggingNamePluralCapitalSetting } from "../../instanceSettings";
+import { preferredHeadingCase } from "../../forumTypeUtils";
+import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+export const formGroups: Partial<Record<string,FormGroupType>> = {
   default: {
     name: "default",
     order: 0,
@@ -15,21 +16,39 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     defaultStyle: true,
     flexStyle: true,
   },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
+  coauthors: {
+    order: 21,
+    name: "coauthors",
+    label: "Coauthors"
   },
   event: {
     name: "event details",
     order: 21,
-    label: "Event Details"
+    label: preferredHeadingCase("Event Details")
+  },
+  // Tags go here on EA Forum
+  socialPreview: {
+    name: "socialPreview",
+    order: 23,
+    label: preferredHeadingCase("Edit Link Preview"),
+    startCollapsed: !isEAForum,
+  },
+  highlight: {
+    order: 24,
+    name: "highlight",
+    label: "Highlight",
+    startCollapsed: true,
+  },
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: preferredHeadingCase("Admin Options"),
+    startCollapsed: true,
   },
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: "Moderation Guidelines",
+    label: preferredHeadingCase("Moderation Guidelines"),
     helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
@@ -49,19 +68,19 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   canonicalSequence: {
     order:30,
     name: "canonicalSequence",
-    label: "Canonical Sequence",
+    label: preferredHeadingCase("Canonical Sequence"),
     startCollapsed: true,
+  },
+  reactExperiment: {
+    order: 35,
+    name: "reactExperiment",
+    label: "Reacts Experiment",
+    startCollapsed: false,
   },
   advancedOptions: {
     order:40,
     name: "advancedOptions",
     label: "Options",
-    startCollapsed: true,
-  },
-  highlight: {
-    order: 23,
-    name: "highlight",
-    label: "Highlight",
     startCollapsed: true,
   },
   audio: {
@@ -70,15 +89,10 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Audio",
     startCollapsed: true
   },
-  coauthors: {
-    order: 21,
-    name: "coauthors",
-    label: "Coauthors"
-  },
   tags: {
     order: isEAForum ? 22 : 60,
     name: "tags",
-    label: `Post ${taggingNamePluralCapitalSetting.get()}`,
+    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
   }
 };

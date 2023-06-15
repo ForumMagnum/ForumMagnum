@@ -1,32 +1,26 @@
-/* global cloudinary */
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
-import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
-
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
-const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
+import { ImageType, useImageUpload } from '../hooks/useImageUpload';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 4,
     marginLeft: 8,
-    "& img": {
-      display: "block",
-      marginBottom: 8,
-    },
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  img: {
+    flexBasis: "100%",
+    marginBottom: 10,
   },
   button: {
     background: theme.palette.buttons.imageUpload.background,
@@ -34,6 +28,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.buttons.imageUpload.hoverBackground,
     },
     color: theme.palette.text.invertedBackgroundText,
+  },
+  profileImageButton: {
+    margin: "10px 0",
+    fontSize: 14,
+    fontWeight: 500,
+    textTransform: "none",
+    background: theme.palette.primary.main,
+    color: "#fff", // Dark mode independent
+    "&:hover": {
+      background: theme.palette.primary.light,
+    },
   },
   imageIcon: {
     fontSize: 18,
@@ -45,59 +50,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     color: theme.palette.icon.dim,
     marginLeft: 10
-  }
+  },
+  removeProfileImageButton: {
+    textTransform: "none",
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.primary.main,
+    margin: "10px 0 10px 20px",
+    padding: 0,
+    "&:hover": {
+      color: theme.palette.primary.dark,
+      background: "transparent",
+    },
+  },
 });
 
-const cloudinaryArgsByImageType = {
-  gridImageId: {
-    minImageHeight: 80,
-    minImageWidth: 203,
-    croppingAspectRatio: 2.5375,
-    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
-  },
-  bannerImageId: {
-    minImageHeight: 300,
-    minImageWidth: 700,
-    croppingAspectRatio: 4.7,
-    croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
-  },
-  profileImageId: {
-    minImageHeight: 170,
-    minImageWidth: 170,
-    croppingAspectRatio: 1,
-    croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
-  },
-  socialPreviewImageId: {
-    minImageHeight: 400,
-    minImageWidth: 700,
-    croppingAspectRatio: 1.91,
-    croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
-  },
-  eventImageId: {
-    minImageHeight: 270,
-    minImageWidth: 480,
-    croppingAspectRatio: 1.78,
-    croppingDefaultSelectionRatio: 1.78,
-    uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
-  },
-  spotlightImageId: {
-    minImageHeight: 232,
-    minImageWidth: 345,
-    cropping: false,
-    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
-  },
-  spotlightDarkImageId: {
-    minImageHeight: 232,
-    minImageWidth: 345,
-    cropping: false,
-    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
-  },
-}
-
-const formPreviewSizeByImageType = {
+const formPreviewSizeByImageType: Record<
+  ImageType,
+  {width: number | "auto", height: number}
+> = {
   gridImageId: {
     width: 203,
     height: 80
@@ -105,6 +76,10 @@ const formPreviewSizeByImageType = {
   bannerImageId: {
     width: "auto",
     height: 280
+  },
+  squareImageId: {
+    width: 90,
+    height: 90
   },
   profileImageId: {
     width: 90,
@@ -115,8 +90,8 @@ const formPreviewSizeByImageType = {
     height: 80
   },
   eventImageId: {
-    width: 320,
-    height: 180
+    width: 373,
+    height: 195
   },
   spotlightImageId: {
     width: 345,
@@ -128,78 +103,103 @@ const formPreviewSizeByImageType = {
   },
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
-  name: string,
-  document: Record<string, any>,
-  updateCurrentValues: Function,
+const FormProfileImage: FC<{
+  document: Partial<UsersMinimumInfo>,
+  profileImageId: string,
+  size: number,
+}> = ({document, profileImageId, size}) => {
+  const {document: user} = useSingle({
+    collectionName: "Users",
+    fragmentName: "UsersMinimumInfo",
+    fetchPolicy: "cache-and-network",
+    documentId: document._id,
+  });
+  return (
+    <Components.UsersProfileImage
+      user={user ? {...user, profileImageId} : undefined}
+      size={size}
+    />
+  );
+}
+
+const TriggerButton: FC<{
+  imageType: ImageType,
+  imageId?: string,
+  uploadImage: () => void,
+  label?: string,
+  classes: ClassesType,
+}> = ({imageType, imageId, uploadImage, label, classes}) => {
+  let mainClass = classes.button;
+  let showIcon = true;
+  if (isEAForum && imageType === "profileImageId") {
+    label = "profile image";
+    mainClass = classes.profileImageButton;
+    showIcon = false;
+  }
+  return (
+    <Button
+      onClick={uploadImage}
+      className={classNames("image-upload-button", mainClass)}
+    >
+      {showIcon && <ImageIcon className={classes.imageIcon} />}
+      {imageId ? `Replace ${label}` : `Upload ${label}`}
+    </Button>
+  );
+}
+
+const RemoveButton: FC<{
+  imageType: ImageType,
+  imageId?: string,
+  removeImage: () => void,
+  classes: ClassesType,
+}> = ({imageType, imageId, removeImage, classes}) => {
+  if (!imageId) {
+    return null;
+  }
+  const mainClass = isEAForum && imageType === "profileImageId"
+    ? classes.removeProfileImageButton
+    : classes.removeButton;
+  return (
+    <Button
+      title="Remove"
+      onClick={removeImage}
+      className={mainClass}
+    >
+      Remove
+    </Button>
+  );
+}
+
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: FormComponentProps<string> & {
   clearField: Function,
-  label: string,
   croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
-  const theme = useTheme();
+  const imageType = name as ImageType;
+  const currentUser = useCurrentUser();
+  const {uploadImage, ImageUploadScript} = useImageUpload({
+    imageType: imageType,
+    onUploadSuccess: (publicImageId: string) => {
+      setImageId(publicImageId);
+      void updateCurrentValues({[name]: publicImageId});
+    },
+    onUploadError: (error: Error) => {
+      // eslint-disable-next-line no-console
+      console.error("Image Upload failed:", error);
+    },
+    croppingAspectRatio,
+  });
 
-  const setImageInfo = (error: any, result: any) => {
-    if (error) {
-      throw new Error(error.statusText)
-    }
-    // currently we ignore all events other than a successful upload -
-    // see list here: https://cloudinary.com/documentation/upload_widget_reference#events
-    if (result.event !== 'success') {
-      return
-    }
-    const imageInfo = result.info
-    if (imageInfo && imageInfo.public_id) {
-      setImageId(imageInfo.public_id)
-      updateCurrentValues({[name]: imageInfo.public_id})
-    } else {
-      //eslint-disable-next-line no-console
-      console.error("Image Upload failed");
-    }
-  }
-
-  const uploadWidget = () => {
-    const cloudinaryArgs = cloudinaryArgsByImageType[name as keyof typeof cloudinaryArgsByImageType]
-    if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
-    // @ts-ignore
-    cloudinary.openUploadWidget({
-      multiple: false,
-      sources: ['local', 'url', 'camera', 'facebook', 'instagram', 'google_drive'],
-      cropping: true,
-      cloudName: cloudinaryCloudNameSetting.get(),
-      theme: 'minimal',
-      croppingValidateDimensions: true,
-      croppingShowDimensions: true,
-      styles: {
-        palette: {
-            tabIcon: theme.palette.primary.main,
-            link: theme.palette.primary.main,
-            action: theme.palette.primary.main,
-            textDark: "#212121",
-        },
-        fonts: {
-            default: null,
-            "'Merriweather', serif": {
-                url: "https://fonts.googleapis.com/css?family=Merriweather",
-                active: true
-            }
-        }
-      },
-      ...cloudinaryArgs,
-      ...(croppingAspectRatio ? {croppingAspectRatio} : {})
-    }, setImageInfo);
-  }
-  
   const chooseDefaultImg = (newImageId: string) => {
     setImageId(newImageId)
-    updateCurrentValues({[name]: newImageId})
+    void updateCurrentValues({[name]: newImageId})
   }
-  
+
   const removeImg = () => {
     clearField()
     setImageId(null)
   }
-  
+
   const { openDialog } = useDialog()
   const [imageId, setImageId] = useState(() => {
     if (document && document[name]) {
@@ -207,27 +207,37 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
     }
     return ''
   })
-  
+
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
-  
+
+  const showUserProfileImage = isEAForum && name === "profileImageId";
+
   return (
     <div className={classes.root}>
-      <Helmet>
-        <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
-      </Helmet>
-      {imageId &&
-        <Components.CloudinaryImage2
-          publicId={imageId}
-          {...formPreviewSize}
-        /> }
-      <Button
-        onClick={uploadWidget}
-        className={classNames("image-upload-button", classes.button)}
-      >
-        <ImageIcon className={classes.imageIcon}/>
-        {imageId ? `Replace ${label}` : `Upload ${label}`}
-      </Button>
+      <ImageUploadScript />
+      <div className={classes.img}>
+        {showUserProfileImage &&
+          <FormProfileImage
+            document={document}
+            profileImageId={imageId}
+            size={formPreviewSize.height}
+          />
+        }
+        {imageId && !showUserProfileImage &&
+          <Components.CloudinaryImage2
+            publicId={imageId}
+            {...formPreviewSize}
+          />
+        }
+      </div>
+      <TriggerButton
+        imageType={imageType}
+        imageId={imageId}
+        uploadImage={uploadImage}
+        label={label}
+        classes={classes}
+      />
       {(name === 'eventImageId') && <Button
         variant="outlined"
         onClick={() => openDialog({
@@ -238,25 +248,26 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
       >
         Choose from ours
       </Button>}
-      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
-        variant="outlined"
-        onClick={() => openDialog({
-          componentName: "ImageUploadDefaultsDialog",
-          componentProps: {
-            onSelect: chooseDefaultImg,
-            type: "Profile"}
-        })}
-        className={classes.chooseButton}
-      >
-        Choose from ours
-      </Button>}
-      {imageId && <Button
-        className={classes.removeButton}
-        title="Remove"
-        onClick={removeImg}
-      >
-        Remove
-      </Button>}
+      {userHasDefaultProfilePhotos(currentUser) && name === 'profileImageId' &&
+        <Button
+          variant="outlined"
+          onClick={() => openDialog({
+            componentName: "ImageUploadDefaultsDialog",
+            componentProps: {
+              onSelect: chooseDefaultImg,
+              type: "Profile"}
+          })}
+          className={classes.chooseButton}
+        >
+          Choose from ours
+        </Button>
+      }
+      <RemoveButton
+        imageType={imageType}
+        imageId={imageId}
+        removeImage={removeImg}
+        classes={classes}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -20,6 +20,8 @@ import { useCurrentUser } from '../common/withUser';
 export function useUnreadNotifications(): {
   unreadNotifications: number
   unreadPrivateMessages: number
+  checkedAt: Date|null,
+  refetch: ()=>Promise<void>
 } {
   const currentUser = useCurrentUser();
   
@@ -28,6 +30,7 @@ export function useUnreadNotifications(): {
       unreadNotificationCounts {
         unreadNotifications
         unreadPrivateMessages
+        checkedAt
       }
     }
   `, {
@@ -50,16 +53,50 @@ export function useUnreadNotifications(): {
     skip: !currentUser?._id,
   });
   
-  const refetchBoth = useCallback(() => {
+  const refetchBoth = useCallback(async () => {
     if (currentUser?._id) {
-      void refetchCounts();
-      void refetchNotifications();
+      await Promise.all([
+        refetchCounts(),
+        refetchNotifications(),
+      ]);
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
+
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
+  
+  const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
+  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
+  const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
 
-  const unreadNotifications = data?.unreadNotifications ?? 0;
-  const unreadPrivateMessages = data?.unreadPrivateMessages ?? 0;
-  return { unreadNotifications, unreadPrivateMessages };
+  const refetchIfNewNotifications = useCallback((timestamp: Date) => {
+    if (!checkedAt || timestamp > checkedAt) {
+      void refetchBoth();
+    }
+  }, [checkedAt, refetchBoth]);
+  
+  useOnNotificationsChanged(refetchIfNewNotifications);
+
+  return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
+}
+
+export const useOnNotificationsChanged = (cb: (timestamp: Date)=>void) => {
+  useEffect(() => {
+    const onServerSentNotification = (timestamp: Date) => {
+      void cb(timestamp);
+    }
+    notificationEventListeners.push(onServerSentNotification);
+    
+    return () => {
+      notificationEventListeners = notificationEventListeners.filter(l=>l!==onServerSentNotification);
+    }
+  }, [cb]);
+}
+
+let notificationEventListeners: Array<(newestNotificationTimestamp: Date)=>void> = [];
+
+export function onServerSentNotificationEvent(newestNotificationTimestamp: Date) {
+  for (let listener of [...notificationEventListeners]) {
+    listener(newestNotificationTimestamp);
+  }
 }

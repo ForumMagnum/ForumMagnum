@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,6 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   },
   loading: {
     opacity: .5,

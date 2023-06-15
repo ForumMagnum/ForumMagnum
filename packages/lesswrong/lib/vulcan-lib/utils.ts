@@ -11,6 +11,7 @@ import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
 import type { ToCData } from '../../server/tableOfContents';
+import sanitizeHtml from 'sanitize-html';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -19,14 +20,6 @@ interface UtilsType {
   getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
-  
-  // In client/vulcan-lib/apollo-client/updates.ts
-  mingoBelongsToSet: any
-  mingoIsInSet: any
-  mingoAddToSet: any
-  mingoUpdateInSet: any
-  mingoReorderSet: any
-  mingoRemoveFromSet: any
   
   // In server/vulcan-lib/connectors.ts
   Connectors: any
@@ -163,7 +156,7 @@ export const getBasePath = (path: string) => {
 /////////////////////////////
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
-export const checkNested: any = function(obj /*, level1, level2, ... levelN*/) {
+export const checkNested: any = function(obj: AnyBecauseTodo /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
   obj = args.shift();
 
@@ -192,9 +185,9 @@ export const getLogoUrl = (): string|undefined => {
   }
 };
 
-export const encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
+export const encodeIntlError = (error: AnyBecauseTodo) => typeof error !== 'object' ? error : JSON.stringify(error);
 
-export const decodeIntlError = (error, options = {stripped: false}) => {
+export const decodeIntlError = (error: AnyBecauseTodo, options = {stripped: false}) => {
   try {
     // do we get the error as a string or as an error object?
     let strippedError = typeof error === 'string' ? error : error.message;
@@ -241,4 +234,90 @@ export const removeProperty = (obj: any, propertyName: string): void => {
       removeProperty(obj[prop], propertyName);
     }
   }
+};
+
+/**
+ * Sanitizing html
+ */
+export const sanitizeAllowedTags = [
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
+  'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
+  'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
+  'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+]
+
+const allowedTableStyles = {
+  'background-color': [/^.*$/],
+  'border-bottom': [/^.*$/],
+  'border-left': [/^.*$/],
+  'border-right': [/^.*$/],
+  'border-top': [/^.*$/],
+  'border': [/^.*$/],
+  'border-color': [/^.*$/],
+  'border-style': [/^.*$/],
+  'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'text-align': [/^.*$/],
+  'vertical-align': [/^.*$/],
+  'padding': [/^.*$/],
+};
+
+export const sanitize = function(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: sanitizeAllowedTags,
+    allowedAttributes:  {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: [ 'src' , 'srcset', 'alt'],
+      figure: ['style', 'class'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type', 'role'],
+      span: ['style', 'id', 'role'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      a: ['href', 'name', 'target', 'rel'],
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id', 'role'],
+    },
+    allowedIframeHostnames: [
+      'www.youtube.com', 'youtube.com',
+      'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
+      'metaculus.com',
+      'manifold.markets',
+      'metaforecast.org',
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
+      'strawpoll.com'
+    ],
+    allowedClasses: {
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed' ],
+      iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
+    },
+    allowedStyles: {
+      figure: {
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'padding': [/^.*$/],
+      },
+      table: {
+        ...allowedTableStyles,
+      },
+      td: {
+        ...allowedTableStyles,
+      },
+      th: {
+        ...allowedTableStyles,
+      },
+      span: {
+        // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+      },
+    }
+  });
 };

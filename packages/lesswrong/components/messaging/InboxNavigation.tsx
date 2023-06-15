@@ -7,9 +7,14 @@ import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
+const InboxNavigation = ({
+  terms,
+  currentUser,
+  title=preferredHeadingCase("Your Conversations"),
+}: {
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
   title?: JSX.Element | String
@@ -68,7 +73,7 @@ const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
           <SectionFooterCheckbox
             onClick={showArchiveCheckboxClick}
             value={showArchive}
-            label={"Show Archived Conversations"}
+            label={preferredHeadingCase("Show Archived Conversations")}
           />
         </SectionFooter>
     </SingleColumnSection>

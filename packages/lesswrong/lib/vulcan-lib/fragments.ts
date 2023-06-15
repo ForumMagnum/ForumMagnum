@@ -74,7 +74,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     // OpenCRUD backwards compatibility
 
     const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
-    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
+    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead);
   });
 
   if (fieldNames.length) {
@@ -94,7 +94,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
 };
 
 // Get fragment name from fragment object
-export const getFragmentName = fragment => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
+export const getFragmentName = (fragment: AnyBecauseTodo) => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
 // Get actual gql fragment
 export const getFragment = (fragmentName: FragmentName): DocumentNode => {

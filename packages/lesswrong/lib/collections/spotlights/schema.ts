@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
-import { accessFilterSingle } from "../../utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
@@ -51,13 +51,18 @@ const schema: SchemaType<DbSpotlight> = {
       // TODO: try a graphql union type?
       type: 'Post!',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
-        const collectionName = getCollectionName(spotlight.documentType) as SpotlightDocumentType;
+        const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
         return accessFilterSingle(context.currentUser, collection, document, context);
       }
     },
   },
+  
+  /**
+   * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
+   * Note subtle distinction: those are type names, not collection names.
+   */
   documentType: {
     type: String,
     typescriptType: 'SpotlightDocumentType',
@@ -202,6 +207,30 @@ const schema: SchemaType<DbSpotlight> = {
     nullable: true,
     order: 100,
   },
-};
   
+  sequenceChapters: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Chapter]',
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
+      if (!spotlight.documentId || spotlight.documentType !== "Sequence") {
+        return null;
+      }
+      const chapters = await context.Chapters.find({
+        sequenceId: spotlight.documentId,
+      }, {
+        limit: 100,
+        sort: {number:1},
+      }).fetch();
+      
+      return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+    }
+  }),
+  "sequenceChapters.$": {
+    type: "Chapter",
+    foreignKey: "Chapters",
+    optional: true,
+  },
+};
+
 export default schema;

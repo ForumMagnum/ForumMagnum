@@ -44,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
+    fontWeight: theme.typography.body1.fontWeight,
     color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
   },
@@ -53,7 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagLabel: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    fontWeight: theme.typography.body1.fontWeight,
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -316,7 +318,7 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
     case "Default":
       return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
     default:
-      if (mode<0)
+      if (typeof mode==="number" && mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
       else
         return <div><em>+{mode}.</em> These posts will be shown more often (as though their score were {mode} points higher).</div>

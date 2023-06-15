@@ -14,7 +14,7 @@ interface ExtendedUsersCollection extends UsersCollection {
 export const Users: ExtendedUsersCollection = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
@@ -39,9 +39,9 @@ export const Users: ExtendedUsersCollection = createCollection({
 });
 
 
-const specificResolvers = {
+addGraphQLResolvers({
   Query: {
-    async currentUser(root, args, context: ResolverContext) {
+    async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
@@ -56,9 +56,7 @@ const specificResolvers = {
       return user;
     },
   },
-};
-
-addGraphQLResolvers(specificResolvers);
+});
 addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});
@@ -74,9 +72,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     }
   }
 })
@@ -93,9 +91,9 @@ makeEditable({
     label: "How others can help me",
     hintText: "Ex: I am looking for opportunities to do...",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
 })
@@ -112,9 +110,9 @@ makeEditable({
     label: "How I can help others",
     hintText: "Ex: Reach out to me if you have questions about...",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
 })
@@ -136,9 +134,9 @@ makeEditable({
     label: "Bio",
     hintText: "Tell us about yourself",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
 });

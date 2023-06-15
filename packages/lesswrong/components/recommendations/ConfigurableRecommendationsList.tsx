@@ -3,20 +3,21 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
-import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const ConfigurableRecommendationsList = ({configName}: {
   configName: string
 }) => {
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [settings, setSettings] = useState<Partial<RecommendationsAlgorithm>|null>(null);
+  const [settings, setSettings] = useState<Partial<DefaultRecommendationsAlgorithm>|null>(null);
   const currentUser = useCurrentUser();
 
   const toggleSettings = () => {
     setSettingsVisible(!settingsVisible);
   }
 
-  const changeSettings = (newSettings: Partial<RecommendationsAlgorithm>) => {
+  const changeSettings = (newSettings: Partial<DefaultRecommendationsAlgorithm>) => {
     setSettings(newSettings);
   }
 
@@ -34,7 +35,7 @@ const ConfigurableRecommendationsList = ({configName}: {
         </Link>
       </LWTooltip>}
     >
-      <SettingsButton onClick={toggleSettings}/>
+      {!isEAForum && <SettingsButton onClick={toggleSettings}/>}
     </SectionTitle>
     { settingsVisible &&
       <RecommendationsAlgorithmPicker

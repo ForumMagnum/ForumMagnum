@@ -53,8 +53,8 @@ async function flagOrBlockUserOnManyDMs({
     'new allUsersEverContacted', allUsersEverContacted,
     '(length: ', allUsersEverContacted.length, ')'
   )
-  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) {
-    // Flag the user
+  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG && !currentUser.reviewedAt) {
+    // Flag users that have sent N+ DMs if they've never been reviewed
     logger('Flagging user')
     void createMutator({
       collection: ModeratorActions,

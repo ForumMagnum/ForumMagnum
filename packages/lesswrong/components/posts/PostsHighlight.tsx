@@ -8,10 +8,13 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
-    marginTop:theme.spacing.unit*2
+    marginTop:theme.spacing.unit*2,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   smallerFonts: {
     fontSize: '1.1rem',
@@ -74,10 +77,10 @@ const HighlightBody = ({
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
         {(forceSeeMore || wordsLeft < 1000)
           ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
-              (See More – {wordsLeft} more words)
+              ({preferredHeadingCase("See More")} – {wordsLeft} more words)
             </Link>
           : <Link to={postGetPageUrl(post)}>
-              (Continue Reading – {wordsLeft} more words)
+              ({preferredHeadingCase("Continue Reading")}  – {wordsLeft} more words)
             </Link>
         }
       </div>}

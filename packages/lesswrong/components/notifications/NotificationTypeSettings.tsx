@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
@@ -29,7 +28,7 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
   label: string;
   classes: ClassesType;
 }, context: any) => {
-  const { BatchTimePicker, Typography } = Components;
+  const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   

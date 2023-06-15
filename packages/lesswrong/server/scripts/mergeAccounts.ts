@@ -7,8 +7,16 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
+import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
+import Localgroups from '../../lib/collections/localgroups/collection';
+import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 
-const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
+const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
+  documentId: string
+  targetUserId: string
+  collection: CollectionBase<any>
+  fieldName: string
+}) => {
   await updateMutator({
     collection,
     documentId,
@@ -211,7 +219,15 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
     if (!dryRun) {
       // Transfer conversations
-      await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
+      if (Conversations.isPostgres()) {
+        await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
+      } else {
+        await Conversations.rawUpdateMany(
+          {participantIds: sourceUserId},
+          {$set: {"participantIds.$": targetUserId}},
+          {multi: true},
+        );
+      }
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -259,7 +275,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   await transferCollection({sourceUserId, targetUserId, collectionName: "Collections", dryRun})
 
   // Transfer localgroups
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups", dryRun})
+  if (!dryRun) {
+    if (Localgroups.isPostgres()) {
+      await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
+    } else {
+      await Localgroups.rawUpdateMany(
+        {organizerIds: sourceUserId},
+        {$set: {"organizerIds.$": targetUserId}},
+        {multi: true},
+      );
+    }
+  }
 
   // Transfer review votes
   await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes", dryRun})
@@ -277,9 +303,17 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       // Transfer votes that target content from source user (authorId)
       // eslint-disable-next-line no-console
       console.log("Transferring votes that target source user")
-      // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
-      await Votes.rawUpdateMany({authorIds: sourceUserId}, {$set: {"authorIds.$": targetUserId}}, {multi: true})
-  
+      if (Votes.isPostgres()) {
+        await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
+      } else {
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
+        await Votes.rawUpdateMany(
+          {authorIds: sourceUserId},
+          {$set: {"authorIds.$": targetUserId}},
+          {multi: true},
+        );
+      }
+
       // Transfer votes cast by source user
       // eslint-disable-next-line no-console
       console.log("Transferring votes cast by source user")
@@ -362,8 +396,8 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           }}
         );
       }
-      const sourceEmailsEmail = (sourceUser.emails.length > 0) && sourceUser.emails[0]
-      const targetEmailsEmail = (targetUser.emails.length > 0) && targetUser.emails[0]
+      const sourceEmailsEmail = (sourceUser.emails?.length > 0) && sourceUser.emails[0]
+      const targetEmailsEmail = (targetUser.emails?.length > 0) && targetUser.emails[0]
       if (sourceEmailsEmail === targetEmailsEmail) {
         await Users.rawUpdateOne(
           {_id: sourceUserId},
@@ -420,18 +454,18 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 async function recomputeKarma(userId: string) {
   const user = await Users.findOne({_id: userId})
   if (!user) throw Error("Can't find user")
-  const allTargetVotes = await Votes.find({
+  const selector: Record<string, any> = {
     authorIds: user._id,
     userId: {$ne: user._id},
-    legacy: {$ne: true},
-    cancelled: false
-  }).fetch()
-  const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
-    return vote.power
+    cancelled: false,
+    collectionName: {$in: collectionsThatAffectKarma}
+  };
+  const allTargetVotes = await Votes.find(selector).fetch()
+  const karma = sumBy(allTargetVotes, vote => {
+    // a doc author cannot give karma to themselves or any other authors for that doc
+    return vote.authorIds.includes(vote.userId) ? 0 : vote.power
   })
-  // @ts-ignore FIXME legacyKarma isn't in the schema, figure out whether it's real
-  const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
-  return totalKarma
+  return karma
 }
 
 Vulcan.getTotalKarmaForUser = recomputeKarma

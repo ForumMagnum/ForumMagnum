@@ -1,5 +1,4 @@
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
-import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -14,7 +13,9 @@ import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { mjpage }  from 'mathjax-node-page'
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -58,7 +59,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
       }, 10000);
     }
 
-    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
+    const errorHandler = (id: AnyBecauseTodo, wrapperNode: AnyBecauseTodo, sourceFormula: AnyBecauseTodo, sourceFormat: AnyBecauseTodo, errors: AnyBecauseTodo) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
@@ -103,8 +104,7 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 /// that all have a spoiler tag in a shared spoiler element (so that the
 /// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html: string): string {
-  //@ts-ignore
-  const $ = cheerio.load(html, null, false)
+  const $ = cheerioParse(html)
 
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
@@ -134,8 +134,7 @@ function wrapSpoilerTags(html: string): string {
 }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
-  //@ts-ignore
-  const $ = cheerio.load(`<div id="root">${html}</div>`, null, false)
+  const $ = cheerioParse(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
@@ -164,7 +163,7 @@ const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
   return false
 }
 
-export async function draftJSToHtmlWithLatex(draftJS) {
+export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   const draftJSWithLatex = await preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
@@ -199,10 +198,10 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
-export async function dataToHTML(data, type, sanitizeData = false) {
+export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
   switch (type) {
     case "html":
-      return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
+      return await mjPagePromise(sanitizeData ? sanitize(data) : data, trimLatexAndAddCSS)
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data)
     case "draftJS":
@@ -213,7 +212,7 @@ export async function dataToHTML(data, type, sanitizeData = false) {
   }
 }
 
-export function dataToMarkdown(data, type) {
+export function dataToMarkdown(data: AnyBecauseTodo, type: string) {
   if (!data) return ""
   switch (type) {
     case "markdown": {
@@ -240,7 +239,7 @@ export function dataToMarkdown(data, type) {
   }
 }
 
-export async function dataToCkEditor(data, type) {
+export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
   switch (type) {
     case "html":
       return sanitize(data);
@@ -270,7 +269,7 @@ export async function dataToCkEditor(data, type) {
  * is just to find the first place where this occurs and then to ignore to the end of
  * the document.
  */
-export async function dataToWordCount(data, type) {
+export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   try {
     const markdown = dataToMarkdown(data, type) ?? "";
     const withoutFootnotes = markdown

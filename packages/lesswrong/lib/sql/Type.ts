@@ -52,7 +52,7 @@ export abstract class Type {
     schema: CollectionFieldSpecification<T>,
     indexSchema: CollectionFieldSpecification<T> | undefined,
     forumType: ForumTypeString,
-  ) {
+  ): Type {
     if (isResolverOnly(fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }

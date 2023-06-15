@@ -45,12 +45,8 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
       seedData(Conversations, seedConversations),
       seedData(Messages, seedMessages),
       seedData(LocalGroups, seedLocalGroups),
+      seedData(Users, seedUsers),
     ]);
-
-    // TODO: Move this into the above Promise.all when Users is fully migrated
-    if (Users.isPostgres()) {
-      await seedData(Users, seedUsers);
-    }
   }
 }
 
@@ -59,9 +55,9 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
 export const addCypressRoutes = (app: Application) => {
   // TODO: better check for dev mode
   if (testServerSetting.get()) {
-    const route = "/api/recreateCypressPgDb";
-    app.use(route, json({ limit: "1mb" }));
-    app.post(route, async (req: Request, res: Response) => {
+    const cypressRoute = "/api/recreateCypressPgDb";
+    app.use(cypressRoute, json({ limit: "1mb" }));
+    app.post(cypressRoute, async (req: Request, res: Response) => {
       try {
         const { templateId } = req.body;
         if (!templateId || typeof templateId !== "string") {
@@ -69,6 +65,25 @@ export const addCypressRoutes = (app: Application) => {
         }
         const {dbName} = await createTestingSqlClientFromTemplate(templateId)
         res.status(200).send({status: "ok", dbName});
+      } catch (e) {
+        res.status(500).send({status: "error", message: e.message});
+      }
+    });
+
+    const integrationRoute = "/api/dropAndCreatePg";
+    app.use(integrationRoute, json({ limit: "1mb" }));
+    app.post(integrationRoute, async (req: Request, res: Response) => {
+      try {
+        const { templateId } = req.body;
+        if (!templateId || typeof templateId !== "string") {
+          throw new Error("No templateId provided");
+        }
+        await dropAndCreatePg({
+          templateId,
+          dropExisting: true,
+          seed: false,
+        });
+        res.status(200).send({status: "ok"});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});
       }

@@ -130,6 +130,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
     collection: TagRels,
     user: tagCreator,
     skipRateLimits: true,
+    selfVote: true
   })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
@@ -139,7 +140,7 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   let postId: string;
   if ("postId" in newDocument) { // is a tagRel
     // Applying human knowledge here
-    postId = newDocument["postId"] as string;
+    postId = (newDocument as DbTagRel)["postId"];
   } else if ("tagRelevance" in newDocument) { // is a post
     postId = newDocument["_id"];
   } else {

@@ -11,9 +11,9 @@ const schema: SchemaType<DbSequence> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
     control: 'text',
     tooltip: 'The user id of the author',
   },
@@ -21,9 +21,9 @@ const schema: SchemaType<DbSequence> = {
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
@@ -33,7 +33,7 @@ const schema: SchemaType<DbSequence> = {
   chaptersDummy: {
     type: Array,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
@@ -58,9 +58,9 @@ const schema: SchemaType<DbSequence> = {
     type: String,
     optional: true,
     order:25,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: "ImageUpload",
     label: "Card Image"
   },
@@ -69,9 +69,9 @@ const schema: SchemaType<DbSequence> = {
   bannerImageId: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
   },
@@ -79,25 +79,25 @@ const schema: SchemaType<DbSequence> = {
   curatedOrder: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   userProfileOrder: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
   },
 
   draft: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: "checkbox",
     ...schemaDefaultValue(false),
   },
@@ -105,9 +105,9 @@ const schema: SchemaType<DbSequence> = {
   isDeleted: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     hidden: true,
     control: "checkbox",
     ...schemaDefaultValue(false),
@@ -120,9 +120,9 @@ const schema: SchemaType<DbSequence> = {
       field: "slug",
     },
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
     hidden: false,
     control: "text",
     order: 30,
@@ -145,33 +145,32 @@ const schema: SchemaType<DbSequence> = {
   hidden: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },
 
   hideFromAuthorPage: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
-};
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  /* Alignment Forum fields */
+
   af: {
     type: Boolean,
     optional: true,
     label: "Alignment Forum",
     defaultValue: false,
-    viewableBy: ['guests'],
-    editableBy: ['alignmentVoters'],
-    insertableBy: ['alignmentVoters'],
+    canRead: ['guests'],
+    canUpdate: ['alignmentVoters'],
+    canCreate: ['alignmentVoters'],
   },
-});
+};
 
 export default schema;

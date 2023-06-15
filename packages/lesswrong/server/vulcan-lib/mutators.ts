@@ -42,6 +42,60 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { captureEvent } from '../../lib/analyticsEvents';
+
+const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>): CreateCallbackProperties<T> => {
+  const {
+    currentUser = null,
+    collection,
+    context = createAnonymousContext(),
+    document
+  } = createMutatorParams;
+
+  const schema = getSchema(collection);
+
+  return {
+    currentUser, collection, context,
+    document: document as unknown as T, // Pretend this isn't Partial<T>
+    newDocument: document as unknown as T, // Pretend this isn't Partial<T>
+    schema
+  };
+};
+
+/**
+ * Validation logic used by {@link createMutator}.  Factored out because we also need it for debate comments.
+ * Keep in mind that this doesn't just validate the document against its schema, it also runs all the validation callbacks.
+ * Those may have side effects, depending on the collection!  If they do, you probably shouldn't use this.
+ * (Let's please not write any more validation callbacks with side effects.)
+ */
+export const validateCreateMutation = async <T extends DbObject>(mutatorParams: CreateMutatorParams<T>) => {
+  let { document } = mutatorParams;
+  const callbackProperties = mutatorParamsToCallbackProps(mutatorParams);
+  const { collection, context, currentUser } = callbackProperties;
+
+  const hooks = getCollectionHooks(collection.collectionName) as unknown as CollectionMutationCallbacks<T>;
+  
+  let validationErrors: Array<any> = [];
+  validationErrors = validationErrors.concat(validateDocument(document, collection, context));
+  // run validation callbacks
+  validationErrors = await hooks.createValidate.runCallbacks({
+    iterator: validationErrors,
+    properties: [callbackProperties],
+    ignoreExceptions: false,
+  });
+  // OpenCRUD backwards compatibility
+  document = await hooks.newValidate.runCallbacks({
+    iterator: document as DbInsertion<T>, // Pretend this isn't Partial<T>
+    properties: [currentUser, validationErrors],
+    ignoreExceptions: false,
+  });
+  if (validationErrors.length) {
+    console.log(validationErrors); // eslint-disable-line no-console
+    throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+  }
+
+  return document;
+};
 
 /**
  * Create mutation
@@ -50,13 +104,14 @@ import { loggerConstructor } from '../../lib/utils/logging';
  * fields will be filled in by those callbacks; result is a T, but nothing
  * in the type system ensures that everything actually gets filled in. 
  */
-export const createMutator: CreateMutator = async <T extends DbObject>({
-  collection,
-  document,
-  currentUser=null,
-  validate=true,
-  context,
-}: CreateMutatorParams<T>) => {
+export const createMutator: CreateMutator = async <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>) => {
+  let {
+    collection,
+    document,
+    currentUser=null,
+    validate=true,
+    context,
+  } = createMutatorParams;
   const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
   logger('createMutator() begin')
   logger('(new) document', document);
@@ -79,12 +134,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
   Note: keep newDocument for backwards compatibility
 
   */
-  const properties: CreateCallbackProperties<T> = {
-    currentUser, collection, context,
-    document: document as unknown as T, // Pretend this isn't Partial<T>
-    newDocument: document as unknown as T, // Pretend this isn't Partial<T>
-    schema
-  };
+  const properties = mutatorParamsToCallbackProps(createMutatorParams);
 
   /*
 
@@ -92,25 +142,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
 
   */
   if (validate) {
-    logger('validating')
-    let validationErrors: Array<any> = [];
-    validationErrors = validationErrors.concat(validateDocument(document, collection, context));
-    // run validation callbacks
-    validationErrors = await hooks.createValidate.runCallbacks({
-      iterator: validationErrors,
-      properties: [properties],
-      ignoreExceptions: false,
-    });
-    // OpenCRUD backwards compatibility
-    document = await hooks.newValidate.runCallbacks({
-      iterator: document as DbInsertion<T>, // Pretend this isn't Partial<T>
-      properties: [currentUser, validationErrors],
-      ignoreExceptions: false,
-    });
-    if (validationErrors.length) {
-      console.log(validationErrors); // eslint-disable-line no-console
-      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
-    }
+    document = await validateCreateMutation(createMutatorParams);
   } else {
     logger('skipping validation')
   }
@@ -139,6 +171,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
 
   */
   logger('field onCreate/onInsert callbacks')
+  const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
@@ -155,6 +188,13 @@ export const createMutator: CreateMutator = async <T extends DbObject>({
       Object.assign(document, { [fieldName]: autoValue });
     }
   }
+  const timeElapsed = Date.now() - start;
+  // Technically these aren't callbacks, but for the purpose of analytics we want to treat them the same way
+  // Temporarily disabled to investigate performance issues
+  // captureEvent('callbacksCompleted', {
+  //   callbackHookName: `${collectionName.toLowerCase()}.oncreate`,
+  //   timeElapsed
+  // }, true);
 
   // TODO: find that info in GraphQL mutations
   // if (isServer && this.connection) {
@@ -342,8 +382,8 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
 
     // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
-      console.log('// validationErrors'); // eslint-disable-line no-console
-      console.log(validationErrors); // eslint-disable-line no-console
+      // eslint-disable-next-line no-console
+      console.log('// validationErrors:', validationErrors);
       const EditDocumentValidationError = createError('app.validation_error', {message: JSON.stringify(validationErrors)});
       throw new EditDocumentValidationError({data: { break: true, errors: validationErrors }});
     }

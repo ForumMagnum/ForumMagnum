@@ -5,6 +5,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPage';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,9 +52,13 @@ const NewTagItem = ({tag, classes}: {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
-  
-  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
-  
+
+  const readMore = preferredHeadingCase("Read More");
+  const suffix = `<span>...<p><a>(${readMore})</a></p></span>`;
+  const description = truncated
+    ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", suffix)
+    : tag.description?.html;
+
   return <div className={classes.root}>
     <Link to={tagUrl} className={classes.title}>
       {tag.name}

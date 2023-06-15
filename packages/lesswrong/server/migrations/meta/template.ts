@@ -1,3 +1,5 @@
-export const up = async (context: MigrationContext) => {
-  void context;
+export const up = async ({db}: MigrationContext) => {
+}
+
+export const down = async ({db}: MigrationContext) => {
 }

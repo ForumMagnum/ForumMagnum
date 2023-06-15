@@ -6,6 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -85,8 +86,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography.headline,
+    ...theme.typography[isEAForum ? "headerStyle" : "headline"],
     fontSize: 18,
+    fontWeight: isEAForum ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -195,7 +197,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   let localGroups = results
   if (results && keywordSearch) {
     localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.location.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
     ))
   }
 

@@ -7,7 +7,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import cheerio from 'cheerio'
+import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
@@ -15,18 +15,29 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
+import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import Conversations from '../../lib/collections/conversations/collection';
+import Messages from '../../lib/collections/messages/collection';
+import { isAnyTest } from '../../lib/executionEnvironment';
+import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postStatuses } from '../../lib/collections/posts/constants';
+import { updatePostEmbeddings } from '../embeddings';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-if (forumTypeSetting.get() === "EAForum") {
-  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
-    if (post.draft === false && !post.shortform && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
+const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+
+if (isEAForum) {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
+    if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
     }
     return post;
@@ -35,9 +46,53 @@ if (forumTypeSetting.get() === "EAForum") {
     (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
   );
   getCollectionHooks("Posts").updateBefore.add(
-    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+    (post, {currentUser}) => checkTosAccepted(currentUser, post),
+  );
+
+  const assertPostTitleHasNoEmojis = (post: DbPost) => {
+    if (/\p{Extended_Pictographic}/u.test(post.title)) {
+      throw new Error("Post titles cannot contain emojis");
+    }
+  }
+  getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
+  getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+
+  const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
+    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    if (hasChanged &&
+      !newPost.draft &&
+      !newPost.deletedDraft &&
+      newPost.status === postStatuses.STATUS_APPROVED
+    ) {
+      try {
+        await updatePostEmbeddings(newPost._id);
+      } catch (e) {
+        // We never want to prevent a post from being created/edited just
+        // because we fail to create embeddings, but we do want to log it
+        captureException(e);
+        // eslint-disable-next-line
+        console.error("Failed to create embeddings:", e);
+      }
+    }
+  }
+  getCollectionHooks("Posts").newAsync.add(
+    async (post: DbPost) => await updateEmbeddings(post),
+  );
+  getCollectionHooks("Posts").updateAsync.add(
+    async ({document, oldDocument}) => await updateEmbeddings(
+      document,
+      oldDocument,
+    ),
   );
 }
+
+getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+  if (document.debate && !document.coauthorStatuses?.length) {
+    throw new Error('Dialogue must have at least one co-author!');
+  }
+
+  return validationErrors;
+});
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -52,7 +107,7 @@ function postsSetPostedAt (data: Partial<DbPost>) {
   return data;
 }
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -104,6 +159,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
    collection: Posts,
    user: postAuthor,
    skipRateLimits: true,
+   selfVote: true
  })
  return {...post, ...votedPost} as DbPost;
 });
@@ -191,7 +247,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (document.draft) return
+  if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
   
@@ -200,6 +256,74 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
     await postPublishedCallback.runCallbacksAsync([document]);
+  }
+});
+
+interface SendPostRejectionPMParams {
+  messageContents: string,
+  lwAccount: DbUser,
+  post: DbPost,
+  noEmail: boolean,
+}
+
+async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }: SendPostRejectionPMParams) {
+  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+    participantIds: [post.userId, lwAccount._id],
+    title: `Your post ${post.title} was rejected`,
+    moderator: true
+  };
+
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  const messageData = {
+    userId: lwAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: messageContents
+      }
+    },
+    conversationId: conversation.data._id,
+    noEmail: noEmail
+  };
+
+  await createMutator({
+    collection: Messages,
+    document: messageData,
+    currentUser: lwAccount,
+    validate: false
+  });
+
+  if (!isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.log("Sent moderation message for post", post._id);
+  }
+}
+
+getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser }) {
+  const postRejected = post.rejected && !oldPost.rejected;
+  if (postRejected) {
+    const postUser = await Users.findOne({_id: post.userId});
+
+    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
+  
+    // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
+    const noEmail = isEAForum
+    ? false 
+    : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  
+    await sendPostRejectionPM({
+      post,
+      messageContents: messageContents,
+      lwAccount: currentUser ?? await getAdminTeamAccount(),
+      noEmail,
+    });  
   }
 });
 
@@ -222,6 +346,21 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
   }
 });
 
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_POST,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
@@ -229,7 +368,7 @@ async function extractSocialPreviewImage (post: DbPost) {
 
   let socialPreviewImageAutoUrl = ''
   if (post.contents?.html) {
-    const $ = cheerio.load(post.contents.html)
+    const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
     if (firstImg) {
       socialPreviewImageAutoUrl = firstImg.attr('src') || ''
@@ -307,7 +446,7 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
 })
 
 const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
-  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+  !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
 
 const scheduleCoauthoredPost = (post: DbPost): DbPost => {
   const now = new Date();
@@ -410,4 +549,64 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   }
 
   return post;
+});
+
+/**
+ * Call the Type3 webhook to notify it of a new post. This will trigger audio to be pre-generated for the post.
+ */
+async function callType3Webhook(action: 'post_published' | 'post_edited', url: string) {
+  const clientId = type3ClientIdSetting.get();
+  const webhookSecret = type3WebhookSecretSetting.get();
+
+  if (!clientId || !webhookSecret) return;
+
+  const webhookUrl = 'https://api.type3.audio/webhooks';
+  const data = {
+    client_id: clientId,
+    action,
+    url,
+    key: webhookSecret,
+  };
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (res.status !== 200) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to call Type3 webhook with action ${action} for post ${url}. Response code: `, res.status)
+  }
+}
+
+/**
+ * Call the Type 3 webhook on post creation
+ */
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
+  if (!isPostAllowedType3Audio(document)) return
+
+  const url = postGetPageUrl(document, true);
+  void callType3Webhook('post_published', url);
+});
+
+/**
+ * Call the Type 3 webhook on post update. If the post is being undrafted this will count as being "published".
+ * It will count as being "edited" if the post content has changed.
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (!isPostAllowedType3Audio(document)) return
+  const url = postGetPageUrl(document, true);
+
+  // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    void callType3Webhook('post_published', url);
+    return
+  }
+
+  if (oldDocument.contents?.html !== document.contents?.html) {
+    void callType3Webhook('post_edited', url);
+  }
 });

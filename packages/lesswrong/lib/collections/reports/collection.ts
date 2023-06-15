@@ -8,7 +8,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),
@@ -18,8 +18,8 @@ const Reports: ReportsCollection = createCollection({
 addUniversalFields({
   collection: Reports,
   createdAtOptions: {
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
   },
 });
 

@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    profileImageId
     previousDisplayName
     fullName
     karma
@@ -14,6 +15,8 @@ registerFragment(`
     deleted
     isAdmin
     htmlBio
+    jobTitle
+    organization
     postCount
     commentCount
     sequenceCount
@@ -63,7 +66,6 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
-    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -108,6 +110,9 @@ registerFragment(`
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
+    expandedFrontpageSections
+    hidePostsRecommendations
     currentFrontpageFilter
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
@@ -116,6 +121,7 @@ registerFragment(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -158,6 +164,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -183,6 +190,7 @@ registerFragment(`
     abTestOverrides
 
     sortDraftsBy
+    reactPaletteStyle
 
     petrovPressedButtonDate
     petrovLaunchCodeDate
@@ -198,6 +206,26 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
+  }
+`);
+
+/**
+ * Fragment containing rate-limit information (ie, whether the user is rate limited and when
+ * they're next eligible to comment). Separated from `UsersCurrent` because figuring that out can
+ * involve some DB queries that we don't want to have to finish in serial before the rest of the
+ * page can start loading.
+ */
+registerFragment(`
+  fragment UsersCurrentCommentRateLimit on User {
+    _id
+    rateLimitNextAbleToComment(postId: $postId)
+  }
+`);
+
+registerFragment(`
+  fragment UsersCurrentPostRateLimit on User {
+    _id
+    rateLimitNextAbleToPost
   }
 `);
 
@@ -250,6 +278,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 
@@ -276,8 +305,6 @@ registerFragment(`
     reviewedAt
     signUpReCaptchaRating
     mapLocation
-    profileImageId
-    
     needsReview
     sunshineNotes
     sunshineFlagged
@@ -286,15 +313,34 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    voteBanned
+    nullifyVotes
+    deleteContent
+    
     moderatorActions {
       ...ModeratorActionDisplay
     }
     usersContactedBeforeReview
-    associatedClientId {
+    associatedClientIds {
+      clientId
       firstSeenReferrer
       firstSeenLandingPage
       userIds
     }
+    altAccountsDetected
+
+    voteReceivedCount
+    smallUpvoteReceivedCount
+    bigUpvoteReceivedCount
+    smallDownvoteReceivedCount
+    bigDownvoteReceivedCount
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -346,6 +392,9 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
+    showCommunityInRecentDiscussion
+    hidePostsRecommendations
     beta
     theme
 

@@ -1,7 +1,6 @@
-import { registerComponent } from "../../lib/vulcan-lib";
 import React, { useState } from "react";
+import { registerComponent, Components } from "../../lib/vulcan-lib";
 import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +28,7 @@ function InlineSelect({
   classes: ClassesType;
 }) {
   const [anchorEl, setAnchorEl] = useState<any>(null);
+  const { MenuItem } = Components;
 
   const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);

@@ -156,11 +156,11 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
   const reviewPhase = getReviewPhase() || "NOMINATIONS"
   
   // Not sure why the type assertion at the end is necessary
-  const reviewPhaseInfo = {
+  const reviewPhaseInfo = ({
     NOMINATIONS: {reviewNominations: REVIEW_YEAR},
     REVIEWS: {reviewReviews: REVIEW_YEAR},
     VOTING: {reviewReviews: REVIEW_YEAR},
-  }[reviewPhase] as {reviewNominations: ReviewYear} | {reviewReviews: ReviewYear}
+  } as AnyBecauseTodo)[reviewPhase] as {reviewNominations: ReviewYear} | {reviewReviews: ReviewYear}
   return {
     method: "sample",
     count: 3,
@@ -215,7 +215,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render

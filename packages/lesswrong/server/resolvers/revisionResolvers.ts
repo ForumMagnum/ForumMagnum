@@ -1,18 +1,30 @@
-import Revisions from '../../lib/collections/revisions/collection'
+import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/collection'
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
-import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import htmlToText from 'html-to-text'
+import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
+import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 
-const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
-const PLAINTEXT_DESCRIPTION_LENGTH = 2000
+// Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
+const htmlToTextDefault = compileHtmlToText();
+
+const htmlToTextPlaintextDescription = compileHtmlToText({
+  wordwrap: false,
+  selectors: [
+    { selector: "img", format: "skip" },
+    { selector: "a", options: { ignoreHref: true } },
+    { selector: "p", options: { leadingLineBreaks: 1 } },
+    { selector: "h1", options: { trailingLineBreaks: 1 } },
+    { selector: "h2", options: { trailingLineBreaks: 1 } },
+    { selector: "h3", options: { trailingLineBreaks: 1 } },
+  ]
+});
 
 augmentFieldsDict(Revisions, {
   markdown: {
@@ -77,9 +89,7 @@ augmentFieldsDict(Revisions, {
       resolver: ({html}) => {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true, wordwrap: false })
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       }
     }
   },
@@ -100,8 +110,7 @@ augmentFieldsDict(Revisions, {
           }
         )
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
+        return htmlToTextDefault(truncatedHtml)
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }

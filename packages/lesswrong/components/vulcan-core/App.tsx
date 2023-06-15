@@ -7,13 +7,12 @@ import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
-import { userChangedCallback } from '../../lib/analyticsEvents';
+import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
+export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any
@@ -54,7 +53,7 @@ class App extends PureComponent<AppProps,any> {
   Show a flash message
 
   */
-  flash = message => {
+  flash = (message: AnyBecauseTodo) => {
     this.setState({
       messages: [...this.state.messages, message]
     });
@@ -69,7 +68,7 @@ class App extends PureComponent<AppProps,any> {
     // When clearing messages, we first set all current messages to have a hide property
     // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
     this.setState({
-      messages: this.state.messages.map(message => ({...message, hide: true}))
+      messages: this.state.messages.map((message: AnyBecauseTodo) => ({...message, hide: true}))
     })
     setTimeout(() => {
       this.setState({ messages: []});

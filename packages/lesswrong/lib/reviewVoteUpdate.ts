@@ -3,24 +3,25 @@ import Users from "./collections/users/collection"
 import { getCostData, REVIEW_YEAR } from "./reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
-// import Dictionary from "lodash/Dictionary";  //TODO figure out whether/how to import this
+import { postGetPageUrl } from "./collections/posts/helpers";
+import moment from "moment";
 
 export interface Dictionary<T> {
   [index: string]: T;
 }
 
-const getCost = (vote: reviewVoteFragment) => {
+const getCost = (vote: reviewVoteFragment): number => {
   return getCostData({})[vote.qualitativeScore].cost
 } 
-const getValue = (vote: reviewVoteFragment, total: number) => {
+const getValue = (vote: reviewVoteFragment, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 
-function updatePost(postList, vote, total: number) {
-  if (postList[vote.postId] === undefined) { 
-    postList[vote.postId] = [getValue(vote, total)]
+function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number) {
+  if (postList[vote.postId] === undefined) {
+    postList[vote.postId] = [getValue(vote, total)!]
   } else {
-    postList[vote.postId].push(getValue(vote, total))
+    postList[vote.postId].push(getValue(vote, total)!)
   }
 }
 
@@ -29,12 +30,11 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 // takes a user's reviewVotes and updates the list of posts to include the vote totals,
 // weighting 
 async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
-  let postsAllUsers = {}
-  let postsHighKarmaUsers = {}
-  let postsAFUsers = {}
+  let postsAllUsers: Record<string,Array<number>> = {}
+  let postsHighKarmaUsers: Record<string,Array<number>> = {}
+  let postsAFUsers: Record<string,Array<number>> = {}
 
   for (let userId of Object.keys(votesByUserId)) {
-    let totalUserPoints = 0 
     // eslint-disable-next-line no-console
     console.log(userId)
     const user = usersByUserId[userId][0]
@@ -65,7 +65,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
     console.log("Updating vote totals for All Users")
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
-    // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
 
     if (votePhase === 'nominationVote') {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
@@ -146,6 +145,132 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
     const postIds = posts.map(post=>post._id)
     await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
+}
+
+export async function createVotingPostHtml () {
+  const style = `
+    <style>
+      .votingResultsPost .item-count {
+        white-space: pre;
+        text-align: center;
+        font-size: 12px;
+        font-family: sans-serif;
+        color: #999
+      }
+
+      .votingResultsPost td {
+        border: none !important;
+      }
+
+      .votingResultsPost table {
+        border: none !important;
+      }
+
+      .votingResultsPost tr {
+        border-bottom: solid 1px rgba(0, 0, 0, .2);
+      }
+
+      .votingResultsPost .title {
+        max-width: 350px;
+      }
+
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(1) {
+        background: red;
+      }
+
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(2) {
+        width: 100%  
+      }
+
+      @media only screen and (min-width: 600px) .votingResultsPost td:nth(3) {
+        background: blue;
+      }
+
+      .votingResultsPost .dot {
+        margin-right: 2px;
+        margin-bottom: 2px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .votingResultsPost .dots-row {
+        display:flex;
+        align-items:center;
+        justify-content: flex-end;
+        margin-left:auto;
+        padding-top:8px;
+        padding-bottom:8px;
+      }
+      .votingResultsPost .post-author  {
+        font-size: 14px;
+        white-space: pre;
+        line-height: 1rem;
+        word-break:keep-all;
+        color: rgba(0,0,0,.5);
+      }
+      
+      .votingResultsPost .post-title a:hover {
+        color: rgba(0,0,0,.87)
+      }
+      .votingResultsPost .post-title a {
+        font-weight:500;
+        color: rgba(0,0,0,.87);
+        line-height:2rem;
+      }
+    </style>
+  `
+
+  
+  // eslint-disable-next-line no-console
+  console.log("Loading posts")
+  const posts = await Posts.find({
+    postedAt: {
+      $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
+      $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
+    }, 
+    finalReviewVoteScoreAllKarma: {$gte: 1},
+    reviewCount: {$gte: 1},
+    positiveReviewVoteCount: {$gte: 1}
+  }).fetch()
+  
+  // we weight the high karma user's votes 3x higher than baseline
+  posts.sort((post1, post2) => {
+    const score1 = (post1.finalReviewVoteScoreHighKarma*2) + post1.finalReviewVoteScoreAllKarma
+    const score2 = (post2.finalReviewVoteScoreHighKarma*2) + post2.finalReviewVoteScoreAllKarma
+    return score2 - score1
+  })
+
+  const userIds = [...new Set(posts.map(post => post.userId))]
+  
+  // eslint=disable-next-line no-console
+  const users = await Users.find({_id: {$in:userIds}}).fetch()
+
+  const getDot = (vote: number) => {
+    const size = Math.max(Math.abs(vote)*1.5, 3)
+    const color = vote > 0 ? '#5f9b65' : '#bf360c'
+    return `<span title='${vote}' class="dot" style="width:${size}px; height:${size}px; background:${color}"></span>`
+  }
+  const postsHtml = posts.map((post, i) => {
+    return `<tr>
+      <td class="item-count">${i}</td>
+      <td>
+        <a class="post-title" href="${postGetPageUrl(post)}">${post.title}</a>
+        <span class="post-author">${users.filter(u => u._id === post.userId)[0]?.displayName}</span>
+      </td>
+      <td>
+        <div class="dots-row">
+          ${post.finalReviewVotesAllKarma.sort((v1, v2) => v2-v1).map(vote => getDot(vote)).join("")}
+        </div>
+      </td>
+    </tr>`
+  }).join("")
+
+  return `<div class="votingResultsPost">
+    ${style}
+    <table>
+      ${postsHtml}
+    </table>
+  </div>`
 }
 
 //

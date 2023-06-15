@@ -127,6 +127,7 @@ const EmailComment = ({commentId, classes}: {
       </a>
       {" by "}
       <EmailUsername user={comment.user}/>
+      {" "}
       {comment.post && <a href={postGetPageUrl(comment.post, true)}>
         {comment.post.title}
       </a>}

@@ -56,16 +56,19 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
+    primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -101,6 +104,9 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
+    warning: {
+      main: ColorString,
+    }
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -136,8 +142,10 @@ declare global {
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
       invertedBackgroundText4: ColorString,
+      primaryAlert: ColorString,
       error: ColorString,
       error2: ColorString,
+      warning: ColorString,
       red: ColorString,
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
@@ -192,6 +200,8 @@ declare global {
       inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
+      sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -227,6 +237,12 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
+      debateComment: string,
+      debateComment2: string,
+      debateComment3: string,
+      debateComment4: string,
+      debateComment5: string,
+      dashed500: string,
     },
     panelBackground: {
       default: ColorString,
@@ -277,7 +293,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
-      restoreSavedContentNotice: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
@@ -297,11 +313,13 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,
@@ -323,16 +341,26 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      imageUpload2: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
     },
     tag: {
-      background: ColorString,
-      border: string,
-      coreTagBorder: string,
       text: ColorString,
-      boxShadow: string,
+      background: ColorString,
+      backgroundHover?: ColorString,
+      border: string,
+      coreTagText: ColorString,
+      coreTagBackground: ColorString,
+      coreTagBackgroundHover?: ColorString,
+      coreTagBorder: string,
       hollowTagBackground: ColorString,
+      hollowTagBackgroundHover?: ColorString,
+      hollowTagBorder: string,
+      boxShadow: string,
       addTagButtonBackground: ColorString,
     },
     geosuggest: {
@@ -357,6 +385,11 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryTranslucent: ColorString,
+      primaryTranslucentHeavy: ColorString,
+      warningTranslucent: ColorString,
+      transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -386,6 +419,11 @@ declare global {
     embeddedPlayer: {
       opacity: number,
     },
+    dropdown: {
+      background: ColorString,
+      border: ColorString,
+      hoverBackground: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
@@ -409,12 +447,21 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
+    },
+    borderRadius: {
+      default: number,
+      small: number,
     },
     palette: ThemePalette,
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,
@@ -447,6 +494,8 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
+      smallCaps: JssStyles,
     },
     zIndexes: any,
     overrides: any,

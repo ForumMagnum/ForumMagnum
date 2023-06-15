@@ -14,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 600
   },
   deleted: {
-    color: theme.palette.grey[400]
+    opacity: .6,
+    '&&': {
+      fontWeight: 400
+    }
   },
   default: {
     color: theme.palette.grey[900],
@@ -26,25 +29,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   titleDisplay: {
     display: "block"
   },
+  highlight: {
+    color: theme.palette.primary.main,
+    fontWeight: 600
+  }
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes, displayTitle }: {
+const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType,
-  displayTitle: boolean
+  displayTitle: boolean,
+  reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode, MetaInfo } = Components
+  const { LWPopper, CommentsNode } = Components
 
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={comment.deleted ? classes.deleted : classes.default}
+    <Link className={classNames({[classes.highlight]: comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
       <span className={displayTitle ? classes.scoreTitleFormat : null}>{comment.baseScore} </span>
-      {displayTitle && <MetaInfo>{comment.post?.title}</MetaInfo> }
+      {displayTitle && comment.post?.title }
     </Link>
     <LWPopper
         open={hover}
@@ -52,7 +60,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle }: {
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment}/>
+        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>

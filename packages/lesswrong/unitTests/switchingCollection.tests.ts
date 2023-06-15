@@ -42,7 +42,7 @@ const switchingCheckTestCase = (
   const collection = new SwitchingCollection("test");
   collection.setMongoCollection(mongoCollection as unknown as MongoCollection<DbObject>);
   collection.setPgCollection(pgCollection as unknown as PgCollection<DbObject>);
-  const base = collection as unknown as CollectionBase<DbObject>;
+  const base: AnyBecauseTodo = collection as unknown as CollectionBase<DbObject>;
 
   collection.setTargets(readTarget, writeTarget);
   for (const op of SwitchingCollection.readOperations) {
@@ -180,11 +180,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "mongo",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
@@ -193,11 +193,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "pg",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -206,11 +206,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "mongo",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
@@ -219,11 +219,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "pg",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -232,11 +232,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "both",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -245,11 +245,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "both",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -258,8 +258,8 @@ describe("SwitchingCollection", () => {
     const schema: SchemaType<DbRSSFeed> = {
       status: {
         type: String,
-        viewableBy: ['guests'],
-        editableBy: ['admins'],
+        canRead: ['guests'],
+        canUpdate: ['admins'],
         optional: true,
       },
     };

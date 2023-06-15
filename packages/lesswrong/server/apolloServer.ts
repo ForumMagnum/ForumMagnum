@@ -28,12 +28,9 @@ import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished }
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
-import fs from 'fs';
-import crypto from 'crypto';
 import expressSession from 'express-session';
-import MongoStore from 'connect-mongo'
+import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
-import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { clusterSetting, forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
@@ -44,55 +41,17 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
-
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import process from 'node:process';
 import { DatabaseServerSetting } from './databaseSettings';
-
-const numCPUs = cpus().length;
-export const numWorkersSetting = new DatabaseServerSetting<number>('numWorkers', numCPUs)
-
-const loadClientBundle = () => {
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
-  const bundleBrotliPath = `${bundlePath}.br`;
-
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
-  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-
-  const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
-
-  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
-  // save a conversion and a little memory
-  const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  return {
-    bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
-    lastModified,
-    bundleBuffer,
-    bundleBrotliBuffer,
-  };
-}
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
-const getClientBundle = () => {
-  if (!clientBundle) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  return clientBundle;
-}
+import { Sessions } from '../lib/collections/sessions';
+import { addServerSentEventsEndpoint } from "./serverSentEvents";
+import { botRedirectMiddleware } from './botRedirect';
+import { hstsMiddleware } from './hsts';
+import { getClientBundle } from './utils/bundleUtils';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
 
 class ApolloServerLogging {
   requestDidStart(context: any) {
@@ -101,7 +60,7 @@ class ApolloServerLogging {
     logGraphqlQueryStarted(operationName, query, variables);
     
     return {
-      willSendResponse(props) {
+      willSendResponse(props: AnyBecauseTodo) {
         logGraphqlQueryFinished(operationName, query);
       }
     };
@@ -109,39 +68,6 @@ class ApolloServerLogging {
 }
 
 export function startWebserver() {
-  // Run server directly if not in cluster mode
-  if (!clusterSetting.get()) {
-    startWebserverWorker();
-    return;
-  }
-
-  // Use OS load balancing (as opposed to round-robin)
-  // In principle, this should give better performance because it is aware of resource (cpu) usage
-  cluster.schedulingPolicy = cluster.SCHED_NONE
-  if (cluster.isPrimary) {
-    const numWorkers = numWorkersSetting.get();
-    // eslint-disable-next-line no-console
-    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
-    // eslint-disable-next-line no-console
-    console.log(`Primary ${process.pid} is running`);
-
-    // Fork workers.
-    for (let i = 0; i < numWorkers; i++) {
-      cluster.fork();
-    }
-
-    cluster.on('exit', (worker, code, signal) => {
-      // eslint-disable-next-line no-console
-      console.log(`Worker ${worker.process.pid} died`);
-    });
-  } else {
-    startWebserverWorker();
-    // eslint-disable-next-line no-console
-    console.log(`Worker ${process.pid} started`);
-  }
-}
-
-function startWebserverWorker() {
   const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
@@ -149,9 +75,9 @@ function startWebserverWorker() {
   app.use(universalCookiesMiddleware());
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
-    const store = MongoStore.create({
-      client: getMongoClient()
-    })
+    const store = new MongoStore({
+      collection: Sessions,
+    });
     app.use(expressSession({
       secret: expressSessionSecret,
       resave: false,
@@ -175,7 +101,9 @@ function startWebserverWorker() {
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
-  
+  app.use(botRedirectMiddleware);
+  app.use(hstsMiddleware);
+
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
@@ -214,7 +142,7 @@ function startWebserverWorker() {
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
-    let headers = {}
+    let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
     if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
@@ -288,12 +216,18 @@ function startWebserverWorker() {
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
+
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
       process.kill(estrellaPid, 'SIGQUIT');
     })
   }
+
+  addServerSentEventsEndpoint(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

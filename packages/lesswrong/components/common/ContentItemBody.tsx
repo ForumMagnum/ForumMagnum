@@ -5,6 +5,10 @@ import classNames from 'classnames';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
+import { isEAForum } from '../../lib/instanceSettings';
+import withUser from './withUser';
+import { withLocation } from '../../lib/routeUtil';
+import Mark from 'mark.js';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
@@ -67,18 +71,21 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     scrollbarWidth: "none",
-  }
+  },
+
 });
 
-interface ContentItemBodyProps extends WithStylesProps {
-  dangerouslySetInnerHTML: { __html: string },
-  className?: string,
-  description?: string,
+interface ExternalProps {
+  dangerouslySetInnerHTML: { __html: string };
+  className?: string;
+  description?: string;
   // Only Implemented for Tag Hover Previews
-  noHoverPreviewPrefetch?: boolean,
-  nofollow?: boolean,
-  idInsertions?: Record<string,React.ReactNode>
+  noHoverPreviewPrefetch?: boolean;
+  nofollow?: boolean;
+  idInsertions?: Record<string, React.ReactNode>;
+  highlightedSubstrings?: string[];
 }
+interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
 }
@@ -114,7 +121,9 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
 
   componentDidUpdate(prevProps: ContentItemBodyProps) {
-    if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+    const htmlChanged = prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html;
+    const highlightedSubstringsChanged = prevProps.highlightedSubstrings !== this.props.highlightedSubstrings;
+    if (htmlChanged || highlightedSubstringsChanged) {
       this.replacedElements = [];
       this.applyLocalModifications();
     }
@@ -123,10 +132,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   applyLocalModifications() {
     try {
       this.markScrollableLaTeX();
+      this.collapseFootnotes();
       this.markHoverableLinks();
       this.markElicitBlocks();
+      this.hideStrawPollLoggedOut();
       this.applyIdInsertions();
       this.setState({updatedElements: true})
+      
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -136,12 +148,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     }
   }
   
+  
   render() {
     const html = this.props.nofollow ? addNofollowToHTML(this.props.dangerouslySetInnerHTML.__html) : this.props.dangerouslySetInnerHTML.__html
     
     return (<React.Fragment>
       <div
-        className={this.props.className}
+        className={classNames(this.props.classes.root, this.props.className)}
         ref={this.bodyRef}
         dangerouslySetInnerHTML={{__html: html}}
       />
@@ -255,7 +268,43 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     updateScrollIndicatorClasses();
     block.onscroll = (ev) => updateScrollIndicatorClasses();
   };
-  
+
+  forwardAttributes = (node: HTMLElement) => {
+    const result: Record<string, unknown> = {};
+    const attrs = node.attributes ?? [];
+    for (let i = 0; i < attrs.length; i++) {
+      const attr = attrs[i];
+      if (attr.name === "class") {
+        result.className = attr.value;
+      } else {
+        result[attr.name] = attr.value;
+      }
+    }
+    return result;
+  }
+
+  collapseFootnotes = () => {
+    const body = this.bodyRef?.current;
+    if (!isEAForum || !body) {
+      return;
+    }
+
+    const footnotes = body.querySelector(".footnotes");
+    if (footnotes) {
+      let innerHTML = footnotes.innerHTML;
+      if (footnotes.tagName !== "SECTION") {
+        innerHTML = `<section>${innerHTML}</section>`;
+      }
+      const collapsedFootnotes = (
+        <Components.CollapsedFootnotes
+          footnotesHtml={innerHTML}
+          attributes={this.forwardAttributes(footnotes)}
+        />
+      );
+      this.replaceElement(footnotes, collapsedFootnotes);
+    }
+  }
+
   markHoverableLinks = () => {
     if(this.bodyRef?.current) {
       const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
@@ -291,6 +340,20 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       }
     }
   }
+
+  hideStrawPollLoggedOut = () => {
+    const { currentUser } = this.props;
+    const { location } = this.props;
+    const { pathname } = location;
+
+    if(!currentUser && this.bodyRef?.current) {
+      const strawpollBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("strawpoll-embed"));
+      for (const strawpollBlock of strawpollBlocks) {
+        const replacementElement = <Components.StrawPollLoggedOut pathname={pathname}/>
+        this.replaceElement(strawpollBlock, replacementElement)
+      }
+    }
+  }
   
   applyIdInsertions = () => {
     if (!this.props.idInsertions) return;
@@ -323,11 +386,18 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
 }
 
+
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {styles});
+const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
+  styles,
+  hocs: [
+    withUser,
+    withLocation
+  ],
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -11,7 +11,7 @@ import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, g
 
 export const communityPath = '/community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
@@ -322,12 +322,6 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
-  {
-    name: 'bookmarks',
-    path: '/bookmarks',
-    componentName: 'BookmarksPage',
-    title: 'Bookmarks',
-  },
 
   // Tags redirects
   {
@@ -379,7 +373,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
-      componentName: 'AllTagsPage',
+      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
@@ -493,7 +487,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'allTags',
       path: '/tags/all',
-      componentName: 'AllTagsPage',
+      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
       title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
     },
     {
@@ -732,6 +726,35 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
     },
+    {
+      name: 'recommendationsSample',
+      path: '/admin/recommendationsSample',
+      componentName: 'RecommendationsSamplePage',
+      title: "Recommendations Sample"
+    },
+    {
+      name: 'CookiePolicy',
+      path: '/cookiePolicy',
+      componentName: 'CookiePolicy',
+      title: 'Cookie Policy',
+    },
+    {
+      name: 'bookmarksRedirect',
+      path: '/bookmarks',
+      redirect: () => '/saved'
+    },
+    {
+      name: 'savedPosts',
+      path: '/saved',
+      componentName: 'BookmarksPage',
+      title: 'Saved Posts',
+    },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
+    },
   ],
   LessWrong: [
     {
@@ -796,6 +819,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'Curated',
       path: '/curated',
       redirect: () => `/recommendations`,
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
     {
       name: 'Walled Garden',
@@ -1055,6 +1084,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
+    },
   ],
   default: [
     {
@@ -1085,6 +1120,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
   ],
 })
@@ -1269,6 +1310,18 @@ addRoute(
     title: "Moderation Message Templates"
   },
   {
+    name: 'ModGPTDashboard',
+    path: '/admin/modgpt',
+    componentName: 'ModGPTDashboard',
+    title: "ModGPT Dashboard"
+  },
+  {
+    name: 'synonyms',
+    path: '/admin/synonyms',
+    componentName: 'AdminSynonymsPage',
+    title: "Search Synonyms"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -1279,6 +1332,11 @@ addRoute(
     name: 'moderatorComments',
     path: '/moderatorComments',
     componentName: 'ModeratorComments',
+  },
+  {
+    name: 'moderatorViewAltAccounts',
+    path: '/moderation/altAccounts',
+    componentName: 'ModerationAltAccounts',
   },
   {
     name: 'emailHistory',

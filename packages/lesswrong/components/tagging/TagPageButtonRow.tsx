@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     marginLeft: 'auto',
     color: theme.palette.grey[700],
-    fontStyle: "italic",
+    ...theme.typography.italic,
   },
 });
 

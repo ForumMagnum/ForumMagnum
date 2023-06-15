@@ -11,6 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -87,7 +88,9 @@ const UsersEditForm = ({terms, classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}>Account Settings</Typography>
+      <Typography variant="display2" className={classes.header}>
+        {preferredHeadingCase("Account Settings")}
+      </Typography>
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}
@@ -97,14 +100,14 @@ const UsersEditForm = ({terms, classes}: {
         className={classes.resetButton}
         onClick={requestPasswordReset}
       >
-        Reset Password
+        {preferredHeadingCase("Reset Password")}
       </Button>}
 
       <Components.WrappedSmartForm
-        collection={Users}
+        collectionName="Users"
         {...terms}
-        hideFields={["paymentEmail", "paymentInfo"]}
-        successCallback={async (user) => {
+        removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
+        successCallback={async (user: AnyBecauseTodo) => {
           if (user?.theme) {
             const theme = {...currentThemeOptions, ...user.theme};
             setTheme(theme);

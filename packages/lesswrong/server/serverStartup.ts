@@ -2,12 +2,12 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
-import { forumTypeSetting } from "../lib/instanceSettings";
+import { PublicInstanceSetting, clusterSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -21,20 +21,19 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
+import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
+import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
+import { ensurePostgresViewsExist } from './postgresView';
+import cluster from 'node:cluster';
+import { cpus } from 'node:os';
+
+// TODO uncomment
+// const numCPUs = cpus().length;
+const numCPUs = 2;
+export const numWorkersSetting = new PublicInstanceSetting<number>('numWorkers', numCPUs, 'optional')
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
-
-const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
-    // eslint-disable-next-line no-console
-    const originalFn = console[functionName];
-    // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
-    }
-  }
-}
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;
@@ -42,6 +41,7 @@ const initConsole = () => {
   const blue = isTTY ? `${CSI}34m` : "";
   const endBlue = isTTY ? `${CSI}39m` : "";
 
+  filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
     process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
@@ -54,6 +54,9 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
+  if (isEAForum) {
+    return;
+  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
@@ -109,8 +112,10 @@ const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-const initPostgres = () => {
+const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
+
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {
@@ -122,10 +127,19 @@ const initPostgres = () => {
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
+  const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      collection.startPolling();
+      polls.push(collection.startPolling());
     }
+  }
+  await Promise.all(polls);
+
+  try {
+    await ensurePostgresViewsExist(getSqlClientOrThrow());
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
   }
 }
 
@@ -160,11 +174,44 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
-  initPostgres();
+  await initPostgres();
   return args;
 }
 
 export const serverStartup = async () => {
+  // Run server directly if not in cluster mode
+  if (!clusterSetting.get()) {
+    await serverStartupWorker();
+    return;
+  }
+
+  // Use OS load balancing (as opposed to round-robin)
+  // In principle, this should give better performance because it is aware of resource (cpu) usage
+  cluster.schedulingPolicy = cluster.SCHED_NONE
+  if (cluster.isPrimary) {
+    const numWorkers = numWorkersSetting.get();
+    // eslint-disable-next-line no-console
+    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
+    // eslint-disable-next-line no-console
+    console.log(`Primary ${process.pid} is running`);
+
+    // Fork workers.
+    for (let i = 0; i < numWorkers; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      // eslint-disable-next-line no-console
+      console.log(`Worker ${worker.process.pid} died`);
+    });
+  } else {
+    await serverStartupWorker();
+    // eslint-disable-next-line no-console
+    console.log(`Worker ${process.pid} started`);
+  }
+}
+
+export const serverStartupWorker = async () => {
   // eslint-disable-next-line no-console
   console.log("Starting server");
   const commandLineArguments = await initServer();
@@ -206,7 +253,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? scope[key];
+          return global[key as keyof Global] ?? scope[key as "Globals"|"Vulcan"];
         }
       }
     }));

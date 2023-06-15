@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   startTime: {
     color: theme.palette.grey[700],
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     fontSize: "1.6rem",
     marginBottom: 30
   },

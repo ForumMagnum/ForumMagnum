@@ -1,21 +1,22 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { useCurrentUser } from './withUser';
+import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
-
-  const currentUser = useCurrentUser()
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpage" />}
+
+          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
+            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
+          </SingleColumnSection>}
         
-          {reviewIsActive() && <SingleColumnSection>
+          {reviewIsActive() && getReviewPhase() !== "RESULTS" && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           

@@ -4,10 +4,10 @@ import getContext from 'recompose/getContext';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 
-const FormError = ({ error, errorContext, getLabel }: {
+const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
   error: any,
   errorContext: any,
-  getLabel?: any,
+  getLabel?: (name: string, local: string)=>string,
 }) => {
   if (error.message) { // A normal string error
     return error.message;
@@ -32,11 +32,6 @@ const FormError = ({ error, errorContext, getLabel }: {
     return 'Error submitting form';
   }
 ;};
-
-(FormError as any).defaultProps = {
-  errorContext: '', // default context so format message does not complain
-  getLabel: name => name,
-};
 
 // TODO: pass getLabel as prop instead for consistency?
 const FormErrorComponent = registerComponent('FormError', FormError, {

@@ -297,7 +297,7 @@ interface QuoteInPost {
  * quote shards, return the ID of the first block which matches a quote shard
  * (or null if no match is found).
  */
-function findQuoteInPost(parsedPost, quoteShards: QuoteShard[]): QuoteInPost|null {
+function findQuoteInPost(parsedPost: AnyBecauseTodo, quoteShards: QuoteShard[]): QuoteInPost|null {
   let markedElements = parsedPost(matchableBlockElementSelector);
   let firstMatchingBlockID: string|null = null;
   let matchingSpans: {start: number, end: number}[] = [];

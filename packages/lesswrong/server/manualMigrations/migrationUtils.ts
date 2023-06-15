@@ -2,7 +2,7 @@ import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
-import { sleep } from '../../lib/helpers';
+import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
@@ -181,13 +181,14 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR }: {
+export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR, projection }: {
   description?: string,
   collection: CollectionBase<T>,
   batchSize?: number,
   unmigratedDocumentQuery?: any,
   migrate: (documents: Array<T>) => Promise<void>,
   loadFactor?: number,
+  projection?: MongoProjection<T>
 })
 {
   // Validate arguments
@@ -206,20 +207,20 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   if (!unmigratedDocumentQuery) {
     // eslint-disable-next-line no-console
     console.log(`No unmigrated-document query found, migrating all documents in ${collection.collectionName}`)
-    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor})
+    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor, projection})
     // eslint-disable-next-line no-console
     console.log(`Finished migration step ${description} for all documents`)
     return
   }
 
-  let previousDocumentIds = {};
+  let previousDocumentIds: AnyBecauseTodo = {};
   let documentsAffected = 0;
   let done = false;
 
   // eslint-disable-next-line no-constant-condition
   while(!done) {
     await runThenSleep(loadFactor, async () => {
-      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
+      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize, ...(projection ? { projection } : {})}).fetch();
 
       if (!documents.length) {
         done = true;
@@ -260,7 +261,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
 
-export async function dropUnusedField(collection, fieldName) {
+export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: string) {
   const loadFactor = 0.5;
   let nMatched = 0;
   
@@ -289,6 +290,156 @@ export async function dropUnusedField(collection, fieldName) {
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
+const getBatchSort = <T extends DbObject>(field = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
+
+const getFirstBatchById = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  projection
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
+}): Promise<T[]> => {
+  // As described in the docstring, we need to be able to query on the _id.
+  // Without this check, someone trying to use _id in the filter would overwrite
+  // this function's query and find themselves with an infinite loop.
+  if (filter && "_id" in filter) {
+    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
+  }
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(),
+      limit: batchSize,
+      ...(projection ? { projection } : {})
+    }
+  ).fetch();
+}
+
+const getNextBatchById = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  projection,
+  lastRows,
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
+  lastRows: T[],
+}): Promise<T[]> => {
+  return collection.find(
+    {
+      _id: {$gt: lastRows[lastRows.length - 1]._id},
+      ...filter,
+    },
+    {
+      sort: getBatchSort(),
+      limit: batchSize,
+      ...(projection ? { projection } : {})
+    }
+  ).fetch();
+}
+
+const getFirstBatchByCreatedAt = async <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  projection,
+  overrideCreatedAt
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
+  overrideCreatedAt?: keyof T & string
+}): Promise<T[]> => {
+  const sortField = overrideCreatedAt ?? 'createdAt';
+
+  return collection.find(
+    { ...filter },
+    {
+      sort: getBatchSort(sortField),
+      limit: batchSize,
+      ...(projection ? { projection } : {})
+    }
+  ).fetch();
+}
+
+const isValidDateCursor = (cursor: unknown): cursor is Date => {
+  return cursor instanceof Date;
+}
+
+const getNextBatchByCreatedAt = <T extends DbObject>({
+  collection,
+  batchSize,
+  filter,
+  projection,
+  lastRows,
+  overrideCreatedAt
+}: {
+  collection: CollectionBase<T>,
+  batchSize: number,
+  filter: MongoSelector<DbObject> | null,
+  projection?: MongoProjection<T>,
+  lastRows: T[],
+  overrideCreatedAt?: keyof T & string
+}): Promise<T[]> => {
+  const sortField = overrideCreatedAt ?? 'createdAt';
+  const lastRow = lastRows[lastRows.length - 1] as unknown as T & HasCreatedAtType;
+  let greaterThan: unknown = lastRow[sortField] ?? new Date(0);
+  if (!isValidDateCursor(greaterThan)) {
+    throw new Error(`Invalid greaterThan cursor; expected a date, got ${greaterThan} for field ${sortField}`);
+  }
+  if (filter && sortField in filter) {
+    if (filter[sortField].$gt) {
+      greaterThan = new Date(Math.max(greaterThan.getTime(), filter[sortField].$gt.getTime()));
+    } else if (filter[sortField].$gte) {
+      const gt = Math.max(filter[sortField].$gte.getTime() - 1, 0);
+      greaterThan = new Date(Math.max(greaterThan.getTime(), gt));
+      delete filter[sortField];
+    } else {
+      throw new Error(`Unsupported createdAt filter in getNextBatchByCreatedAt: ${JSON.stringify(filter)}`);
+    }
+  }
+
+  // Contrary to schema, these seem to have been stored as doubles, and the $gt comparison will fail since we pass it back in as a date
+  if (!collection.isPostgres() && collection.collectionName === 'DebouncerEvents' && sortField === 'delayTime' && greaterThan instanceof Date) {
+    greaterThan = greaterThan.getTime();
+  }
+
+  const selector = {
+    ...filter,
+    [sortField]: {
+      ...filter?.[sortField],
+      $gt: greaterThan,
+    },
+  };
+
+  const opts = {
+    sort: getBatchSort<T>(sortField),
+    limit: batchSize,
+    ...(projection ? { projection } : {})
+  };
+
+  return collection.find(selector, opts).fetch();
+}
+
+const getBatchProviders = (useCreatedAt: boolean) =>
+  useCreatedAt
+    ? {
+      getFirst: getFirstBatchByCreatedAt,
+      getNext: getNextBatchByCreatedAt,
+    }
+    : {
+      getFirst: getFirstBatchById,
+      getNext: getNextBatchById,
+    };
+
 // Given a collection and a batch size, run a callback for each row in the
 // collection, grouped into batches of up to the given size. Rows created or
 // deleted while this is running might or might not get included (neither is
@@ -300,39 +451,31 @@ export async function dropUnusedField(collection, fieldName) {
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection<T extends DbObject>({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+export async function forEachDocumentBatchInCollection<T extends DbObject>({
+  collection,
+  batchSize=1000,
+  filter=null,
+  projection,
+  callback,
+  loadFactor=1.0,
+  useCreatedAt=false,
+  overrideCreatedAt,
+}: {
   collection: CollectionBase<T>,
   batchSize?: number,
-  filter?: MongoSelector<DbObject> | null,
-  callback: (batch: T[]) => void,
-  loadFactor?: number
-})
-{
-  // As described in the docstring, we need to be able to query on the _id.
-  // Without this check, someone trying to use _id in the filter would overwrite
-  // this function's query and find themselves with an infinite loop.
-  if (filter && '_id' in filter) {
-    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
-  }
-  const sort = {_id: 1} as Record<keyof T, number>;
-  let rows = await collection.find({ ...filter },
-    {
-      sort,
-      limit: batchSize
-    }
-  ).fetch();
-  
-  while(rows.length > 0) {
+  filter?: MongoSelector<T> | null,
+  projection?: MongoProjection<T>,
+  callback: (batch: T[]) => void | Promise<void>,
+  loadFactor?: number,
+  useCreatedAt?: boolean,
+  overrideCreatedAt?: keyof T & string
+}): Promise<void> {
+  const {getFirst, getNext} = getBatchProviders(useCreatedAt);
+  let rows = await getFirst({collection, batchSize, filter, projection, overrideCreatedAt});
+  while (rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
-      await callback(rows);
-      const lastID = rows[rows.length - 1]._id
-      rows = await collection.find(
-        { _id: {$gt: lastID}, ...filter },
-        {
-          sort,
-          limit: batchSize
-        }
-      ).fetch();
+      await timedFunc('migrationCallback', () => callback(rows));
+      rows = await timedFunc('getNext', () => getNext({collection, batchSize, filter, projection, lastRows: rows, overrideCreatedAt}));
     });
   }
 }
@@ -369,7 +512,12 @@ export async function forEachDocumentInCollection({collection, batchSize=1000, f
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection({collection, filter, bucketSize=1000, fn})
+export async function forEachBucketRangeInCollection<T extends DbObject>({collection, filter, bucketSize=1000, fn}: {
+  collection: CollectionBase<T>
+  filter?: MongoSelector<T>
+  bucketSize?: number
+  fn: (selector: MongoSelector<T>)=>Promise<void>
+})
 {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();

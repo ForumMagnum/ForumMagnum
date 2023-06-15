@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -13,7 +13,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -63,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
+    fontWeight: isEAForum ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -150,7 +151,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages } = useUnreadNotifications();
+  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
   
 
   const setNavigationOpen = (open: boolean) => {
@@ -158,12 +159,13 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
+  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
     if (!currentUser) return;
     if (isOpen) {
-      void updateCurrentUser({lastNotificationsCheck: new Date()});
       setNotificationOpen(true);
       setNotificationHasOpened(true);
+      await updateCurrentUser({lastNotificationsCheck: new Date()});
+      await refetchNotificationCounts();
     } else {
       setNotificationOpen(false);
     }
@@ -174,7 +176,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     const { lastNotificationsCheck } = currentUser
 
     captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    handleSetNotificationDrawerOpen(!notificationOpen);
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -182,10 +184,10 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   //  2) Hide the username on mobile so users with long usernames can still
   //     enter search queries
   // Called by SearchBar.
-  const setSearchOpen = (isOpen: boolean) => {
+  const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
-  }
+  }, [captureEvent]);
 
   const renderNavigationMenuButton = () => {
     // The navigation menu button either toggles a free floating sidebar, opens
@@ -305,7 +307,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
-                  currentUser={currentUser}
                 />}
               </div>
             </Toolbar>

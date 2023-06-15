@@ -1,188 +1,136 @@
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
-import React, { Component } from 'react';
-import { withLocation } from '../../lib/routeUtil';
-import withUser from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useLocation } from '../../lib/routeUtil';
+import { useCurrentUser } from '../common/withUser';
+import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import Tooltip from '@material-ui/core/Tooltip';
-import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
-import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import { withTimezone } from '../common/withTimezone';
-import {AnalyticsContext, withTracking} from "../../lib/analyticsEvents";
-import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
-import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
-  }
+    "& .SectionTitle-title": isEAForum
+      ? {
+        color: theme.palette.grey[1000],
+        textTransform: "none",
+        fontWeight: 600,
+        fontSize: 28,
+        letterSpacing: "0",
+        lineHeight: "34px",
+      }
+      : {},
+  },
+  divider: {
+    border: "none",
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
 });
 
 export const timeframes = {
-  allTime: 'All Time',
+  allTime: 'All time',
   daily: 'Daily',
   weekly: 'Weekly',
   monthly: 'Monthly',
   yearly: 'Yearly',
 }
 
-const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>('forum.numberOfWeeks', 4) // Number of weeks to display in the timeframe view
-const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>('forum.numberOfMonths', 4) // Number of months to display in the timeframe view
-const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>('forum.numberOfYears', 4) // Number of years to display in the timeframe view
+const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
-const timeframeToNumTimeBlocks = {
-  daily: forumAllPostsNumDaysSetting.get(),
-  weekly: forumAllPostsNumWeeksSetting.get(),
-  monthly: forumAllPostsNumMonthsSetting.get(),
-  yearly: forumAllPostsNumYearsSetting.get(),
+const formatSort = (sorting: PostSortingMode) => {
+  const sort = SORT_ORDER_OPTIONS[sorting].label
+  return isEAForum ? sort : `Sorted by ${sort}`;
 }
 
-interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps, WithUpdateCurrentUserProps, WithTrackingProps {
-}
-interface AllPostsPageState {
-  showSettings: boolean,
-}
+const AllPostsPage = ({classes}: {classes: ClassesType}) => {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const {query} = useLocation();
+  const {captureEvent} = useTracking();
 
-class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
-  state: AllPostsPageState = {
-    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false
-  };
+  const [showSettings, setShowSettings] = useState<boolean>(!!currentUser?.allPostsOpenSettings);
 
-  toggleSettings = () => {
-    const { currentUser, updateCurrentUser } = this.props
-
-    this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
-      this.props.captureEvent("toggleSettings", {action: this.state.showSettings, listContext: "allPostsPage"})
-
-      if (currentUser) {
-        void updateCurrentUser({
-          allPostsOpenSettings: this.state.showSettings,
-        })
-      }
-    })
-  }
-
-  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents}: {
-    currentTimeframe: string;
-    currentFilter: string;
-    currentSorting: string;
-    currentShowLowKarma: boolean;
-    currentIncludeEvents: boolean;
-  }) => {
-    const { timezone, location } = this.props
-    const { query } = location
-    const { showSettings } = this.state
-    const {PostsTimeframeList, PostsList2} = Components
-
-    const baseTerms: PostsViewTerms = {
-      karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
-      excludeEvents: !currentIncludeEvents && currentFilter !== 'events',
-      filter: currentFilter,
-      sortedBy: currentSorting,
-      after: query.after,
-      before: query.before
+  const toggleSettings = useCallback(() => {
+    const newValue = !showSettings;
+    setShowSettings(newValue);
+    captureEvent("toggleSettings", {
+      action: newValue,
+      listContext: "allPostsPage",
+    });
+    if (currentUser) {
+      void updateCurrentUser({
+        allPostsOpenSettings: newValue,
+      });
     }
+  }, [showSettings, captureEvent, currentUser, updateCurrentUser]);
 
-    if (currentTimeframe === 'allTime') {
-      return <AnalyticsContext listContext={"allPostsPage"} terms={{view: 'allTime', ...baseTerms}}>
-        <PostsList2
-          terms={{
-            ...baseTerms,
-            limit: 50
-          }}
-          dimWhenLoading={showSettings}
-        />
-      </AnalyticsContext>
-    }
+  const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily';
+  const currentSorting = (query.sortedBy   || currentUser?.allPostsSorting   || 'magic') as PostSortingMode;
+  const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all';
+  const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
+    currentUser?.allPostsShowLowKarma || false;
+  const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
+  const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
 
-    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType]
-    const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType]
-    
-    let postListParameters: PostsViewTerms = {
-      view: 'timeframe',
-      ...baseTerms
-    }
+  const {
+    SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
+    AllPostsList,
+  } = Components;
 
-    if (parseInt(query.limit)) {
-      postListParameters.limit = parseInt(query.limit)
-    }
-    
-    return <div>
-      <AnalyticsContext
-        listContext={"allPostsPage"}
-        terms={postListParameters}
-        capturePostItemOnMount
-      >
-        {/* Allow unhiding posts from all posts menu to allow recovery of hiding the wrong post*/}
-        <AllowHidingFrontPagePostsContext.Provider value={true}>
-          <PostsTimeframeList
-            // TODO: this doesn't seem to be guaranteed, actually?  Since it can come from an unsanitized query param...
-            timeframe={currentTimeframe as TimeframeType}
-            postListParameters={postListParameters}
-            numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings}
-            after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone, before: query.before})}
-            before={query.before  || getBeforeDefault({timeBlock, timezone, after: query.after})}
-            reverse={query.reverse === "true"}
-            displayShortform={query.includeShortform !== "false"}
+  return (
+    <>
+      <HeadTags description={description} />
+      <AnalyticsContext pageContext="allPostsPage">
+        <SingleColumnSection>
+          <Tooltip
+            title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`}
+            placement="top-end"
+          >
+            <div className={classes.title} onClick={toggleSettings}>
+              <SectionTitle title={preferredHeadingCase("All Posts")}>
+                {isEAForum ?
+                  <SortButton label={formatSort(currentSorting)} /> :
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                }
+              </SectionTitle>
+            </div>
+          </Tooltip>
+          {isEAForum && !showSettings && <hr className={classes.divider} />}
+          <PostsListSettings
+            hidden={!showSettings}
+            currentTimeframe={currentTimeframe}
+            currentSorting={currentSorting}
+            currentFilter={currentFilter}
+            currentShowLowKarma={currentShowLowKarma}
+            currentIncludeEvents={currentIncludeEvents}
+            currentHideCommunity={currentHideCommunity}
+            persistentSettings
+            showTimeframe
           />
-        </AllowHidingFrontPagePostsContext.Provider>
+          <AllPostsList
+            {...{
+              currentTimeframe,
+              currentSorting,
+              currentFilter,
+              currentShowLowKarma,
+              currentIncludeEvents,
+              currentHideCommunity,
+              showSettings,
+            }}
+          />
+        </SingleColumnSection>
       </AnalyticsContext>
-    </div>
-  }
-
-  render() {
-    const { classes, currentUser } = this.props
-    const { query } = this.props.location;
-    const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SortButton, PostsListSettings, HeadTags } = Components
-
-    const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily'
-    const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic'
-    const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all'
-    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
-      currentUser?.allPostsShowLowKarma || false
-    const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false
-
-    return (
-      <React.Fragment>
-        <HeadTags description={`All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`}/>
-        <AnalyticsContext pageContext="allPostsPage">
-          <SingleColumnSection>
-            <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
-              <div className={classes.title} onClick={this.toggleSettings}>
-                <SectionTitle title="All Posts">
-                  <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
-                </SectionTitle>
-              </div>
-            </Tooltip>
-            <PostsListSettings
-              hidden={!showSettings}
-              currentTimeframe={currentTimeframe}
-              currentSorting={currentSorting}
-              currentFilter={currentFilter}
-              currentShowLowKarma={currentShowLowKarma}
-              currentIncludeEvents={currentIncludeEvents}
-              persistentSettings
-              showTimeframe
-            />
-            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents})}
-          </SingleColumnSection>
-        </AnalyticsContext>
-      </React.Fragment>
-    )
-  }
+    </>
+  );
 }
 
 const AllPostsPageComponent = registerComponent(
-  'AllPostsPage', AllPostsPage, {
-    styles,
-    hocs: [
-      withLocation, withUser, withTimezone,
-      withUpdateCurrentUser, withTracking
-    ]
-  }
+  "AllPostsPage",
+  AllPostsPage,
+  {styles},
 );
 
 declare global {

@@ -1,12 +1,14 @@
 import React from 'react';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {
@@ -38,10 +40,20 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
     )
   }
   
+  let format = "Do MMM YYYY"
+  if (isEAForum) {
+    format = "MMM D YYYY"
+    // hide the year if it's this year
+    const now = moment()
+    if (now.isSame(moment(post.postedAt), 'year')) {
+      format = "MMM D"
+    }
+  }
+  
   return (<React.Fragment>
     <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
-          <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
+          <FormatDate date={post.postedAt} format={format} tooltip={false} />
         </span>
     </LWTooltip>
   </React.Fragment>);

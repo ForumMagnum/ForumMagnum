@@ -16,7 +16,7 @@ const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, class
     <div className={classNames(classes.newOrEditForm,classes.newForm)}>
       <h3>Add Chapter</h3>
       <Components.WrappedSmartForm
-        collection={Chapters}
+        collectionName="Chapters"
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}

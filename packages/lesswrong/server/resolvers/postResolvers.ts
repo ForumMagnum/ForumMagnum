@@ -4,14 +4,16 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { Utils } from '../../lib/vulcan-lib/utils';
+import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { addBlockIDsToHTML, getSideComments, matchSideComments } from '../sideComments';
+import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import PostsRepo from '../repos/PostsRepo';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -72,7 +74,10 @@ augmentFieldsDict(Posts, {
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<SideCommentsResolverResult> => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
+        if (isNotHostedHere(post)) {
+          return null;
+        }
         const cache = post.sideCommentsCache as SideCommentsCache|undefined;
         const cacheIsValid = cache
           && cache.generatedAt>post.lastCommentedAt
@@ -165,3 +170,28 @@ augmentFieldsDict(Posts, {
     },
   },
 })
+
+addGraphQLResolvers({
+  Query: {
+    async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read history')
+      }
+      
+      const postsRepo = new PostsRepo()
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit??10)
+      return {
+        posts: posts,
+      }
+    }
+  }
+})
+
+addGraphQLSchema(`
+  type UserReadHistoryResult {
+    posts: [Post!]
+  }
+`);
+
+addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')

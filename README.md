@@ -32,6 +32,7 @@ Forum Magnum is built on top of a number major open-source libraries.
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
+    * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
   * Curl, Perl are optional, but needed to run some scripts and tests
 
 ### Installation

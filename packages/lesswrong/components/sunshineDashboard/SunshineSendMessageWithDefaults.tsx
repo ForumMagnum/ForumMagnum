@@ -1,15 +1,12 @@
 import React, {useState} from 'react';
-import MenuItem from "@material-ui/core/MenuItem";
 import Menu from '@material-ui/core/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
 import {Components, registerComponent} from "../../lib/vulcan-lib";
-import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
-import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
@@ -34,10 +31,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   },
   sendMessageButton: {
+    marginTop: 8,
     padding: 8,
+    paddingTop: 6,
     height: 32,
     wordBreak: "keep-all",
     fontSize: "1rem",
+    border: theme.palette.border.faint,
+    borderRadius: 2,
     color: theme.palette.grey[500],
     '&:hover': {
       backgroundColor: theme.palette.grey[200]
@@ -50,15 +51,13 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
-  
-  const { ContentItemBody, LWTooltip, NewConversationButton } = Components
-  
-  
+  const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
+
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
   const { results: defaultResponses } = useMulti({
-    terms:{view:"moderationTemplatesQuickview"},
+    terms:{view:"moderationTemplatesList", collectionName: "Messages"},
     collectionName: "ModerationTemplates",
     fragmentName: 'ModerationTemplateFragment',
     limit: 50

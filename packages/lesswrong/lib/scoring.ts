@@ -1,3 +1,4 @@
+import { calculateActivityFactor } from '../server/useractivities/utils';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
@@ -18,6 +19,7 @@ const defaultSubforumCommentBonus = {
 
 type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
 
+// LW (and legacy) time decay algorithm settings
 const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
 const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
 const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10)
@@ -25,6 +27,14 @@ const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBon
   'subforumCommentBonus',
   defaultSubforumCommentBonus,
 );
+
+// EA Frontpage time decay algorithm settings
+const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6)
+const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5)
+const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
+const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4)
+export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityHalfLife', 60)
+export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -42,7 +52,7 @@ export const getSubforumScoreBoost = (): SubforumCommentBonus => {
  * This implements the same formula as commentScoreModifiers below
  */
 const getSubforumCommentBonus = (item: VoteableType) => {
-  if ("tagCommentType" in item && item["tagCommentType"] === "SUBFORUM") {
+  if ("tagCommentType" in item && (item as AnyBecauseTodo)["tagCommentType"] === "SUBFORUM") {
     const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
     const createdAt = (item as any).createdAt ?? new Date();
     const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
@@ -78,6 +88,58 @@ export const recalculateScore = (item: VoteableType) => {
     return item.baseScore;
   }
 };
+
+
+type TimeDecayExprProps = {
+  startingAgeHours?: number
+  decayFactorSlowest?: number
+  decayFactorFastest?: number
+  activityWeight?: number
+  activityHalfLifeHours?: number
+  overrideActivityFactor?: number
+}
+
+export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: ResolverContext) => {
+  const {
+    startingAgeHours,
+    decayFactorSlowest,
+    decayFactorFastest,
+    activityWeight,
+    activityHalfLifeHours,
+    overrideActivityFactor,
+  } = {
+    startingAgeHours: props?.startingAgeHours ?? startingAgeHoursSetting.get(),
+    decayFactorSlowest: props?.decayFactorSlowest ?? decayFactorSlowestSetting.get(),
+    decayFactorFastest: props?.decayFactorFastest ?? decayFactorFastestSetting.get(),
+    activityWeight: props?.activityWeight ?? activityWeightSetting.get(),
+    activityHalfLifeHours: props?.activityHalfLifeHours ?? activityHalfLifeSetting.get(),
+    overrideActivityFactor: props?.overrideActivityFactor,
+  };
+
+  // See lib/collections/useractivities/collection.ts for a high-level overview
+  const activityFactor = overrideActivityFactor ??
+    calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
+
+  // Higher timeDecayFactor => more recency bias
+  const timeDecayFactor = Math.min(
+    decayFactorSlowest * (1 + (activityWeight * activityFactor)),
+    decayFactorFastest
+  );
+
+  const ageInHours = {
+    $divide: [
+      {
+        $subtract: [
+          new Date(),
+          "$postedAt", // Age in miliseconds
+        ],
+      },
+      60 * 60 * 1000,
+    ],
+  };
+
+  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
+}
 
 export const timeDecayExpr = () => {
   return {$pow: [

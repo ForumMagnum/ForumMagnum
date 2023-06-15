@@ -88,5 +88,155 @@
     "acceptsSchemaHash": "2ad14f1cd0db6f2fdf93dfa328568fe5",
     "acceptedByMigration": "20230130T150041.create_cronHistory_collection.ts",
     "timestamp": "2023-01-30T15:00:41.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7ea7cade23d0b233b794be743cd6ebaf",
+    "acceptedByMigration": "20230201T155839.add_importAsDraft_field.ts",
+    "timestamp": "2023-02-01T15:58:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "df6daf9edd46c15e6eb9a3862852ae85",
+    "acceptedByMigration": "20230202T211013.add_nameInAnotherLanguage_localgroups_field.ts",
+    "timestamp": "2023-02-02T21:10:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cbbfdf0c9f7aa799934b7ecc4a68697d",
+    "acceptedByMigration": "20230206T192711.add_relevantTagIds_to_comments.ts",
+    "timestamp": "2023-02-06T19:27:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ffaf4a437b864708e0990e38ece649f1",
+    "acceptedByMigration": "20230208T135321.create_sessions_collection.ts",
+    "timestamp": "2023-02-08T13:53:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a7887d09050fb7d8f7117f498534d322",
+    "acceptedByMigration": "20230208T174449.add_shortName.ts",
+    "timestamp": "2023-02-08T17:44:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dbc3a1a821f459ad60e85420d4c287c0",
+    "acceptedByMigration": "20230209T212642.add_showCommunityInRecentDiscussion_user_field.ts",
+    "timestamp": "2023-02-09T21:26:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0a82b29a9f761a79f5587f6469f51465",
+    "acceptedByMigration": "20230216T223955.add_allPostsHideCommunity.ts",
+    "timestamp": "2023-02-16T22:39:55.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c938b8b04e3c61dec2f0b640b6cb0b4d",
+    "acceptedByMigration": "20230223T115602.DebouncerEvents_pendingEvents_string_array.ts",
+    "timestamp": "2023-02-23T11:56:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dc774f8734d7cc069d913d351d4225b8",
+    "acceptedByMigration": "20230306T182540.userIdsDefault.ts",
+    "timestamp": "2023-03-06T18:25:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9cc5aad21f36f801d9ce6b9e9e3ce213",
+    "acceptedByMigration": "20230314T152203.add_backfilled.ts",
+    "timestamp": "2023-03-14T15:22:03.000Z"
+  },
+  {
+    "acceptsSchemaHash": "222d42945763fb6dcaff3b497911d7b7",
+    "acceptedByMigration": "20230331T002047.add_noComicSans_to_Users.ts",
+    "timestamp": "2023-03-31T00:20:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "33b4ea4a4234276f8784ddff0eb3a974",
+    "acceptedByMigration": "20230331T212918.add_debate_fields.ts",
+    "timestamp": "2023-03-31T21:29:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "15f268cf3b83c45ac5fd4486bf050b18",
+    "acceptedByMigration": "20230403T133656.add_UserActivities.ts",
+    "timestamp": "2023-04-03T13:36:56.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cc99890ebfba1e45ded25456d68f852b",
+    "acceptedByMigration": "20230404T170523.add_subtitle.ts",
+    "timestamp": "2023-04-04T17:05:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "380d30e2ea28cacb71bbc6d29e540a6e",
+    "acceptedByMigration": "20230407T214751.add_rejection_fields.ts",
+    "timestamp": "2023-04-07T21:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1728cb3d532414ce56d22566ab53c3be",
+    "acceptedByMigration": "20230411T172612.add_hideCommunitySection_to_users.ts",
+    "timestamp": "2023-04-11T17:26:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "64c57945e3105d8daf5be8d51a1ee559",
+    "acceptedByMigration": "20230412T185846.add_modGPTAnalysis.ts",
+    "timestamp": "2023-04-12T18:58:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1058503cdf3522b15f94b3499566433a",
+    "acceptedByMigration": "20230413T184626.add_rejected_reasons_fields.ts",
+    "timestamp": "2023-04-13T18:46:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c4afbf05797c266012f5ba5ae0119c87",
+    "acceptedByMigration": "20230424T200407.add_ignore_rate_limits.ts",
+    "timestamp": "2023-04-24T20:04:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a85cc326da77f34b19140ca908956227",
+    "acceptedByMigration": "20230502T083210.add_shortformFrontpage.ts",
+    "timestamp": "2023-05-02T08:32:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5d840ee3f919bdbf70df33e470b65666",
+    "acceptedByMigration": "20230502T160034.drop_noComicSans_from_Users.ts",
+    "timestamp": "2023-05-02T16:00:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "be2a53332cb5a42e9fafd13c2e7fde88",
+    "acceptedByMigration": "20230503T130447.add_expandedFrontpageSections_column.ts",
+    "timestamp": "2023-05-03T13:04:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f38ed1e13515715dfc7ea5a8d6ea01df",
+    "acceptedByMigration": "20230510T142344.create_PostRecommendations_table.ts",
+    "timestamp": "2023-05-10T14:23:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "922ce375a3ed4de843e0f4f9cc50dd08",
+    "acceptedByMigration": "20230514T104640.add_voteReceivedCounts.ts",
+    "timestamp": "2023-05-14T10:46:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cc8bba3f53cc75cb4b3864c0426830a8",
+    "acceptedByMigration": "20230519T210716.create_UserRateLimits_table.ts",
+    "timestamp": "2023-05-19T21:07:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "546cd13c6ee60ca019f7eb5df4502471",
+    "acceptedByMigration": "20230522T233107.updateDefaultValue_ModerationTemplates_order.ts",
+    "timestamp": "2023-05-22T23:31:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8ecc349268b355e0efe1de9fba8c38f9",
+    "acceptedByMigration": "20230524T183435.add_hidePostsRecommendations_field.ts",
+    "timestamp": "2023-05-24T18:34:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6e28f55ed0de0da2c75b4284178ba6e1",
+    "acceptedByMigration": "20230608T204514.add_reactPaletteStyle.ts",
+    "timestamp": "2023-06-08T20:45:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8a6bdab9352a0251d6db2fa801b6b593",
+    "acceptedByMigration": "20230608T234328.create_PostEmbeddings_table.ts",
+    "timestamp": "2023-06-08T23:43:28.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8f9b37b6b8213a24c21dba39e77f7bbb",
+    "acceptedByMigration": "20230609T100000.add_PageCache.ts",
+    "timestamp": "2023-06-09T10:00:00.000Z"
   }
 ]

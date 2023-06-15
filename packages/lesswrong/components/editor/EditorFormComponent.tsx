@@ -72,6 +72,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       }
     }
   }, [getLocalStorageHandlers, currentEditorType]);
+
+  /**
+   * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
+   * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
+   */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSetContentsValue = useCallback(_.throttle(async () => {
+    if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
+    
+    // Preserve other fields in "contents" which may have been sent from the server
+    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+  }, autosaveInterval, {leading: true}), [autosaveInterval])
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSaveBackup = useCallback(
@@ -92,18 +104,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       }
     }
     
-    // Hack: Fill in ${fieldName}_type with the editor type, to enable other
+    // Hack: Fill in ${fieldName}_type with the editor type on every keystroke, to enable other
     // form components (in particular PostSharingSettings) to check whether we're
-    // using CkEditor vs draftjs vs etc. (We transfer the actual contents from
-    // the editor to vulcan-forms only as a final step upon form submit, because
-    // this is a serialization of the whole document which can be too slow to do
-    // on every keystroke).
+    // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
+    // callback to improve performance. Note that the contents are always recalculated on
+    // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    void throttledSetContentsValue()
     
     if (autosave) {
       throttledSaveBackup(contents);
     }
-  }, [throttledSaveBackup, updateCurrentValues, fieldName, isCollabEditor]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {

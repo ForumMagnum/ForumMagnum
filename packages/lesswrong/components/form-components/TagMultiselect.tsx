@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false,isVotingContext, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
@@ -41,7 +41,8 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
   placeholder?: string,
   hidePostCount?: boolean,
   startWithBorder?: boolean,
-  updateCurrentValues(values): void,
+  isVotingContext?: boolean,
+  updateCurrentValues(values: AnyBecauseTodo): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
 
@@ -79,6 +80,8 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
             clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
+            filters="wikiOnly:false"
+            isVotingContext={isVotingContext}
           />
         </div>
       </ErrorBoundary>

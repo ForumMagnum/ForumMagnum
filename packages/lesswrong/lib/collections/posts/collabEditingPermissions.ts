@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { constantTimeCompare } from '../../helpers';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
-import { userIsPostGroupOrganizer } from './helpers';
+import { userIsPostGroupOrganizer, userIsPostCoauthor } from './helpers';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
 
@@ -61,7 +61,10 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   }
   
   const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
-  const canEdit = userOwns(user, post) || canEditAsAdmin || await userIsPostGroupOrganizer(user, post);
+  const canEdit = userOwns(user, post) ||
+    canEditAsAdmin ||
+    await userIsPostGroupOrganizer(user, post, context) ||
+    userIsPostCoauthor(user, post);
   let accessLevel: CollaborativeEditingAccessLevel = "none";
   
   if (canEdit) {

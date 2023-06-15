@@ -1,9 +1,3 @@
-/*
-
-Display of a single message in the Conversation Wrapper
-
-*/
-
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
@@ -11,7 +5,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,6 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+/**
+ * Display of a single message in the Conversation Wrapper
+*/
 const MessageItem = ({message, classes}: {
   message: messageListFragment,
   classes: ClassesType,
@@ -81,7 +77,7 @@ const MessageItem = ({message, classes}: {
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
   const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-  let profilePhoto
+  let profilePhoto: React.ReactNode|null = null;
   if (!isCurrentUser && isEAForum) {
     profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
   }

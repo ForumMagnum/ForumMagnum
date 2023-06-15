@@ -9,6 +9,7 @@ import {
   userUpdateFieldFails,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
+  withNoLogs,
 } from './utils';
 import Users from '../lib/collections/users/collection';
 import {
@@ -75,34 +76,34 @@ describe('userIsAllowedToComment --', () => {
   it('returns false if there is no user', async () => {
     const author = await createDummyUser();
     const post = await createDummyPost(author);
-    expect(userIsAllowedToComment(null, post, author)).to.equal(false)
+    expect(userIsAllowedToComment(null, post, author, false)).to.equal(false)
   })
   //it('returns true if passed a user but NOT post', async () => {
   //  //Unit test removed because post is now a required argument (enforced by type signature)
   //  const user = await createDummyUser()
-  //  expect(userIsAllowedToComment(user, null, null)).to.equal(true)
+  //  expect(userIsAllowedToComment(user, null, null, false)).to.equal(true)
   //})
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()
-    expect(userIsAllowedToComment(user, post, null)).to.equal(true)
+    expect(userIsAllowedToComment(user, post, null, false)).to.equal(true)
   })
   it('returns true if passed a user AND post contains bannedUserIds but NOT user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost(null, {bannedUserIds:[user._id]})
-    expect(userIsAllowedToComment(user, post, null)).to.equal(true)
+    expect(userIsAllowedToComment(user, post, null, false)).to.equal(true)
   })
   it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsAllowedToComment(user, post, author)).to.equal(false)
+    expect(userIsAllowedToComment(user, post, author, false)).to.equal(false)
   })
   it('returns false if passed a user AND post contains bannedUserIds AND post-user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsAllowedToComment(user, post, author)).to.equal(false)
+    expect(userIsAllowedToComment(user, post, author, false)).to.equal(false)
   })
 })
 
@@ -194,7 +195,7 @@ describe('User moderation fields --', () => {
   
   it("new trusted users do not have a moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
-    expect(user.moderationStyle).to.equal(undefined)
+    expect(user.moderationStyle).to.equal(null)
   });
   it("non-trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser()
@@ -628,8 +629,10 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:user})
-    await (response as any).should.be.rejected;
+    await withNoLogs(async () => {
+      const response = runQuery(query, {}, {currentUser:user})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author not in canCommentLock", async () => {
@@ -644,12 +647,13 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:author})
-    await (response as any).should.be.rejected;
+    await withNoLogs(async () => {
+      const response = runQuery(query, {}, {currentUser:author})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
-  it("PostsEdit.commentLock should fail if author in canCommentLock", async () => {
-    // FIXME: Description says "should fail", but test body says it succeeds?
+  it("PostsEdit.commentLock should succeed if author in canCommentLock", async () => {
     const author = await createDummyUser({groups:["canCommentLock"]})
     const post = await createDummyPost(author)
     const query = `
@@ -677,8 +681,10 @@ describe('CommentLock permissions --', ()=> {
         }
       }
     `;
-    const response = runQuery(query, {}, {currentUser:user})
-    await (response as any).should.be.rejected;
+    await withNoLogs(async () => {
+      const response = runQuery(query, {}, {currentUser:user})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 

@@ -1,23 +1,22 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { Posts } from '../../lib/collections/posts'
-import { postStatuses } from '../../lib/collections/posts/constants';
-import { Comments } from '../../lib/collections/comments'
-import { Tags } from '../../lib/collections/tags/collection'
-import Users from '../../lib/collections/users/collection'
 import { getCollection } from '../vulcan-lib';
-import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import {
+  getAlgoliaIndexName,
+  algoliaIndexedCollectionNames,
+  AlgoliaIndexCollectionName,
+} from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { isProductionDBSetting } from '../../lib/publicSettings';
 import * as _ from 'underscore';
 import moment from 'moment';
 import take from 'lodash/take';
+import { getAlgoliaFilter } from '../search/algoliaFilters';
 
-async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
+async function algoliaExport<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, selector?: MongoSelector<T>, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
@@ -45,8 +44,8 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
     filter: computedSelector,
     batchSize: 100,
     loadFactor: 0.5,
-    callback: async (documents: AlgoliaIndexedDbObject[]) => {
-      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+    callback: async (documents: T[]) => {
+      await algoliaIndexDocumentBatch<T>({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
       
       exportedSoFar += documents.length;
       // eslint-disable-next-line no-console
@@ -63,26 +62,11 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   }
 }
 
+
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
-  switch (collectionName) {
-    case 'Posts':
-      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
-      break
-    case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
-      break
-    case 'Users':
-      await algoliaExport(Users, {deleted: {$ne: true}, deleteContent: {$ne: true}})
-      break
-    case 'Sequences':
-      await algoliaExport(Sequences, {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}})
-      break
-    case 'Tags':
-      await algoliaExport(Tags, {deleted: {$ne: true}, adminOnly: {$ne: true}});
-      break;
-    default:
-      throw new Error(`Did not recognize collectionName: ${collectionName}`)
-  }
+  const collection = getCollection(collectionName) as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+  const filter = getAlgoliaFilter(collectionName);
+  await algoliaExport(collection, filter);
 }
 
 export async function algoliaExportAll() {

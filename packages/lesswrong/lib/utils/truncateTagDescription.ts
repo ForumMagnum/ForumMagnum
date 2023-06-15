@@ -1,4 +1,5 @@
 import { isServer } from "../executionEnvironment";
+import { preferredHeadingCase } from "../forumTypeUtils";
 
 const getInnerHTML = (html: string) => {
   if (isServer) {
@@ -27,7 +28,8 @@ const truncateTagDescription = (htmlWithAnchors: string, withReadMore = true) =>
        * and then append our footer 'read more' element.
        */
       const innerHTML = getInnerHTML(htmlWithAnchors.slice(0, truncationLength));
-      return innerHTML + (withReadMore ? "<span>...<p><a>(Read More)</a></p></span>" : "");
+      const readMore = preferredHeadingCase("Read More");
+      return innerHTML + (withReadMore ? `<span>...<p><a>(${readMore})</a></p></span>` : "");
     }
   }
   return htmlWithAnchors

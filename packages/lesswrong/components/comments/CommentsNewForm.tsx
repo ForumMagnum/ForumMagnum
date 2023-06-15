@@ -1,11 +1,11 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, { ComponentProps, useState } from 'react';
-import { Comments } from '../../lib/collections/comments/collection';
+import React, {ComponentProps, useState, useEffect, useRef} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
+import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
@@ -15,12 +15,20 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { isInFuture } from '../../lib/utils/timeUtil';
+import moment from 'moment';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useTracking } from "../../lib/analyticsEvents";
+import { randomId } from "../../lib/random";
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
+  root: isEAForum ? {
+    '& .form-component-EditorFormComponent': {
+      marginTop: 0
+    }
+  } : {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -36,10 +44,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.5
   },
   form: {
-    padding: 10,
+    padding: isEAForum ? 12 : 10,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
+  },
+  rateLimitNote: {
+    paddingTop: '4px',
+    color: theme.palette.text.dim2,
   },
   modNote: {
     paddingTop: '4px',
@@ -48,19 +60,35 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
-  formButton: {
+  formButton: isEAForum ? {
+    fontSize: 14,
+    textTransform: 'none',
+    padding: '6px 12px',
+    borderRadius: 6,
+    boxShadow: 'none',
+    marginLeft: 8,
+  } : {
     paddingBottom: "2px",
     fontSize: "16px",
+    color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
     "&:hover": {
       opacity: .5,
       backgroundColor: "none",
     },
-    color: theme.palette.lwTertiary.main,
   },
   cancelButton: {
-    color: theme.palette.grey[400],
+    color: isEAForum ? undefined : theme.palette.grey[400],
   },
+  submitButton: isEAForum ? {
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  } : {},
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
@@ -92,13 +120,19 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
+export type BtnProps = {
+  variant?: 'contained',
+  color?: 'primary',
+  disabled?: boolean
+}
+
 export type CommentsNewFormProps = {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: any,
+  successCallback?: (comment: CommentsList, otherArgs: any) => void,
   type: string,
   cancelCallback?: any,
   classes: ClassesType,
@@ -112,6 +146,30 @@ export type CommentsNewFormProps = {
 
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
+  const commentSubmitStartTimeRef = useRef(Date.now());
+  
+  const userWithRateLimit = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentCommentRateLimit",
+    extraVariables: { postId: 'String' },
+    extraVariablesValues: { postId: post?._id },
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser,
+  });
+  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
+  const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
+  
+  // Disable the form if there's a rate limit and it's more than 1 minute until it
+  // expires. (If the user is rate limited but it will expire sooner than that,
+  // don't disable the form; it'll probably expire before they finish typing their
+  // comment anyways, and this avoids an awkward interaction with the 15-second
+  // rate limit that's only supposed to be there to prevent accidental double posts.
+  // TODO
+  const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
+
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
@@ -121,7 +179,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const [_,setForceRefreshState] = useState(0);
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -145,7 +204,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
         noClickawayCancel: true
       });
     }
-    setShowGuidelines(true);
+    if (!isEAForum) {
+      setShowGuidelines(true);
+    }
   }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
@@ -157,8 +218,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       successCallback(comment, { form })
     }
     setLoading(false)
+    const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
+    captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
+    userWithRateLimit.refetch();
   };
-
+  
   const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
@@ -190,17 +254,25 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
+    // by default, the EA Forum uses MUI contained buttons here
+    const cancelBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained'} : {}
+    const submitBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
+    if (formDisabledDueToRateLimit) {
+      submitBtnProps.disabled = true
+    }
+    
     return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
+        {...cancelBtnProps}
       >
         Cancel
       </Button>}
       <Button
         type="submit"
         id="new-comment-submit"
-        className={formButtonClass}
+        className={classNames(formButtonClass, classes.submitButton)}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
@@ -210,41 +282,56 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
             ev.preventDefault();
           }
         }}
+        {...submitBtnProps}
       >
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
   };
 
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
+  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
+    currentUser && !currentUser.isReviewed 
+  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const parentDocumentId = post?._id || tag?._id
+
+  useEffect(() => {
+    // If disabled due to rate limit, set a timer to reenable the comment form when the rate limit expires
+    if (formDisabledDueToRateLimit && userNextAbleToComment) {
+      const timeLeftOnUserRateLimitMS = new Date(userNextAbleToComment).getTime() - new Date().getTime()
+      const timer = setTimeout(() => {
+        setForceRefreshState((n) => (n+1));
+      }, timeLeftOnUserRateLimitMS);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [userNextAbleToComment, formDisabledDueToRateLimit]);
+  
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
-  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
+  ) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
-  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
-  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
-    currentUser && !currentUser.isReviewed
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
-  const parentDocumentId = post?._id || tag?._id
   return (
     <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
-          {commentWillBeHidden && <div className={classes.modNote}><em>
-            A moderator will need to review your account before your comments will show up.
-          </em></div>}
+          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
           }}>
             <WrappedSmartForm
               id="new-comment-form"
-              collection={Comments}
+              collectionName="Comments"
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data: unknown) => { 
+              submitCallback={(data: unknown) => {
                 setLoading(true);
+                commentSubmitStartTimeRef.current = Date.now()
+                captureEvent("wrappedSubmitCallbackStarted")
                 return data
               }}
               errorCallback={() => setLoading(false)}
@@ -261,10 +348,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 ...extraFormProps,
                 ...formProps,
               }}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
             />
           </div>
         </div>
         {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          {commentWillBeHidden && <div className={classes.modNote}>
+            <NewCommentModerationWarning />
+          </div>}
           <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
         </div>}
       </RecaptchaWarning>

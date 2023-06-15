@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     name
+    shortName
     slug
     core
     postCount
@@ -23,6 +24,7 @@ registerFragment(`
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
+    subtitle
     oldSlugs
     isRead
     defaultOrder
@@ -37,6 +39,7 @@ registerFragment(`
       html
     }
     bannerImageId
+    squareImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
     sequence {
@@ -61,6 +64,7 @@ registerFragment(`
       plaintextDescription
       version
     }
+    canVoteOnRels
   }
 `);
 
@@ -122,6 +126,7 @@ registerFragment(`
       _id
       htmlHighlight
     }
+    canVoteOnRels
   }
 `);
 
@@ -207,6 +212,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 
@@ -240,6 +246,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 

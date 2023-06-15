@@ -7,7 +7,7 @@ import Table from "./Table";
  * that the old type is trivially castable to the new type.
  */
 class UpdateDefaultValueQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string) {
     const fields = table.getFields();
     const defaultValue = fields[fieldName].getDefaultValueString();
     super(table, [

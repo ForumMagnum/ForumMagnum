@@ -5,7 +5,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: `${theme.spacing.unit * 2}px !important`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
 })
 

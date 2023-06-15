@@ -1,7 +1,7 @@
 import type { FilterTag } from './filterSettings';
 import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
 
-const getNestedProperty = function (obj, desc) {
+const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
@@ -97,7 +97,8 @@ export const annualReviewStart = new DatabasePublicSetting('annualReview.start',
 // The following dates cut off their phase at the end of the day
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
 export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
-export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-01")
+export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
+export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")

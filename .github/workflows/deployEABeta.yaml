@@ -1,0 +1,25 @@
+name: Deploy EA Beta
+concurrency: deploy-ea-beta
+on:
+  workflow_dispatch:
+  push:
+    branches: [wh-perf-2023-06]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        environment: [EAForum-Beta]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - run: pip3 install --upgrade pip awsebcli
+    - name: Run Deploy
+      run: scripts/deploy.sh EAForum ${{ matrix.environment }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.CEA_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CEA_AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: "us-east-1"

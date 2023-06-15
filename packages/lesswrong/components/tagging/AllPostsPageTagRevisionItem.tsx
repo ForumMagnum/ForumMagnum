@@ -1,13 +1,16 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: "2px 0 0 2px",
+    borderRadius: isEAForum
+      ? `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`
+      : "2px 0 0 2px",
     padding: 12,
     marginLeft: 8,
     marginBottom: 16,

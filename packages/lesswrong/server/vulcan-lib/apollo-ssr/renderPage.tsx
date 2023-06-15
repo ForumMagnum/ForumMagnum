@@ -15,7 +15,7 @@ import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
-import { embedAsGlobalVar } from './renderUtil';
+import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
@@ -27,6 +27,7 @@ import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -54,11 +55,7 @@ export type RenderResult = {
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
   
-  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
-  if (ip.indexOf(",")>=0)
-    ip = ip.split(",")[0];
-  
+  const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
@@ -80,10 +77,12 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     clientId, tabId,
     userAgent: userAgent,
   };
-  
-  if (user || isExcludedFromPageCache(url)) {
+
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
+  const abTestGroups = getAllUserABTestGroups(user, clientId);
+  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
-    recordCacheBypass();
+    recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
@@ -104,8 +103,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const abTestGroups = getAllUserABTestGroups(user, clientId);
-    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => renderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
     
@@ -135,8 +133,9 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-function isExcludedFromPageCache(path: string): boolean {
-  return path.startsWith("/collaborateOnPost") || path.startsWith("/editPost");
+function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
+  return false
 }
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {

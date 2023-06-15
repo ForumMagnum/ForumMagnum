@@ -56,7 +56,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   context?: ResolverContext
 ): MergedViewQueryAndOptions<N,T> {
   const collectionName = collection.collectionName;
-  const logger = loggerConstructor(`views-${collectionName.toLowerCase()}`)
+  const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);
 
   let parameters: any = {
@@ -65,10 +65,12 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   };
 
   if (collection.defaultView) {
-    parameters = merge(
-      parameters,
-      collection.defaultView(terms, apolloClient, context)
-    );
+    const defaultParameters = collection.defaultView(terms, apolloClient, context);
+    const newSelector = mergeSelectors(parameters.selector, defaultParameters.selector);
+    parameters = {
+      ...merge(parameters, defaultParameters),
+      selector: newSelector,
+    }
     logger('getParameters(), parameters after defaultView:', parameters)
   }
 
@@ -76,7 +78,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   if (terms.view && collection.views[terms.view]) {
     const viewFn = collection.views[terms.view];
     const view = viewFn(terms, apolloClient, context);
-    let mergedParameters = merge(parameters, view);
+    let mergedParameters = mergeSelectors(parameters, view);
 
     if (
       mergedParameters.options &&
@@ -137,7 +139,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
  * in that context, the specific-view needs something other than `undefined` to
  * replace the default-view's constraint with.)
  */
-function replaceSpecialFieldSelectors(selector: any): any {
+export function replaceSpecialFieldSelectors(selector: any): any {
   let result: any = {};
   for (let key of Object.keys(selector)) {
     if (_.isEqual(selector[key], viewFieldNullOrMissing)) {
@@ -164,3 +166,46 @@ export const jsonArrayContainsSelector = <T extends DbObject>(
 ) => collection.isPostgres()
   ? {$expr: {$jsonArrayContains: [field, value]}}
   : {[field]: value};
+
+const removeAndOr = <T extends DbObject>(selector: MongoSelector<T>) => {
+  const copy = {...selector}
+  delete copy.$and
+  delete copy.$or
+  return copy
+}
+
+const mergeTwoSelectors = <T extends DbObject>(
+  baseSelector?: MongoSelector<T>,
+  newSelector?: MongoSelector<T>,
+) => {
+  if (!baseSelector) return newSelector;
+  if (!newSelector) return baseSelector;
+
+  // Remove $ands and $ors before merging, and then add them back in with the correct logic
+  let mergedSelector = merge(removeAndOr(baseSelector), removeAndOr(newSelector));
+  if ("$and" in baseSelector || "$and" in newSelector) {
+    mergedSelector = {
+      ...mergedSelector,
+      $and: [...(baseSelector.$and ?? []), ...(newSelector.$and ?? [])]
+    }
+  }
+  if ("$or" in baseSelector || "$or" in newSelector) {
+    mergedSelector = {
+      ...mergedSelector,
+      $and: [...(baseSelector.$or ? [{$or: baseSelector.$or}] : []), ...(newSelector.$or ? [{$or: newSelector.$or}] : []), ...(mergedSelector.$and ?? [])]
+    }
+  }
+  return mergedSelector;
+}
+
+/**
+ * Merge selectors, with special handling for $and and $or. NB: Not yet
+ * completely recursive, so while it will do a deep merge of your selectors,
+ * $and and $or will only be merged at the top level.
+ */
+export const mergeSelectors = <T extends DbObject>(
+  ...selectors: Array<MongoSelector<T> | undefined>
+) => selectors.reduce(
+  (mergedSelector, nextSelector) => mergeTwoSelectors(mergedSelector, nextSelector),
+  undefined
+);

@@ -1,8 +1,8 @@
 import {schemaDefaultValue} from "../../collectionUtils";
 
-const ALLOWABLE_COLLECTIONS: CollectionNameString[] = ['Messages', 'Comments'];
+export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 
-type CollectionNameString = 'Messages' | 'Comments';
+export type TemplateType = 'Messages' | 'Comments' | 'Rejections';
 
 const schema: SchemaType<DbModerationTemplate> = {
   name: {
@@ -12,6 +12,7 @@ const schema: SchemaType<DbModerationTemplate> = {
     canUpdate: ['members'],
     order: 1,
   },
+  // This field is misnamed - it doesn't have anything to do with objects on foreign collections.  It's just a "type".
   collectionName: {
     type: String,
     canCreate: ['admins', 'sunshineRegiment'],
@@ -29,7 +30,7 @@ const schema: SchemaType<DbModerationTemplate> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
-    ...schemaDefaultValue(0),
+    ...schemaDefaultValue(10), // set to 10 so that there's room to leave "primary" templates which show up earlier by default
   },
   deleted: {
     type: Boolean,

@@ -13,13 +13,16 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
+// enable during ACX Everywhere
+import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -47,7 +50,7 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    paddingTop: 50,
+    paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
@@ -65,6 +68,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   mainFullscreen: {
     height: "100%",
     padding: 0,
+  },
+  mainUnspacedGrid: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 0,
+      paddingLeft: 0,
+      paddingRight: 0,
+    }
   },
   fullscreen: {
     // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
@@ -111,6 +121,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .Layout-main': {
       width: '100%',
+      paddingTop: 0,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -149,6 +160,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0,
     width: "100%",
   },
+  // enable during ACX Everywhere
+  hideHomepageMapOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
 })
 
 const Layout = ({currentUser, children, classes}: {
@@ -163,6 +180,12 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  // enable during ACX Everywhere
+  // const [cookies] = useCookiesWithConsent()
+  // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -209,7 +232,23 @@ const Layout = ({currentUser, children, classes}: {
   }
   
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
+    const {
+      NavigationStandalone,
+      ErrorBoundary,
+      Footer,
+      Header,
+      FlashMessages,
+      AnalyticsClient,
+      AnalyticsPageInitializer,
+      NavigationEventSender,
+      PetrovDayWrapper,
+      NewUserCompleteProfile,
+      CommentOnSelectionPageWrapper,
+      SidebarsWrapper,
+      IntercomWrapper,
+      HomepageCommunityMap,
+      CookieBanner,
+    } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -217,9 +256,9 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -240,7 +279,7 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-    
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -264,7 +303,10 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
-              <IntercomWrapper/>
+              {/* Only show intercom after they have accepted cookies */}
+              <NoSSR>
+                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+              </NoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -276,7 +318,8 @@ const Layout = ({currentUser, children, classes}: {
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
-              
+              {/* enable during ACX Everywhere */}
+              {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {
@@ -293,6 +336,7 @@ const Layout = ({currentUser, children, classes}: {
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

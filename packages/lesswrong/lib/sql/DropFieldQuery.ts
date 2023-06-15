@@ -8,14 +8,13 @@ import Table from "./Table";
  * - it's used in a reverse migration
  * - we are deleting an old field that has been deprecated for a while
  *
- * We may want to change this in the future if there are cases where we want to
- * drop a field that is not in the schema.
+ * To drop a field that's not in the schema, set the skipValidation flag.
  */
 class DropFieldQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string, skipValidation?: boolean) {
     const fields = table.getFields();
     const fieldType = fields[fieldName];
-    if (!fieldType) {
+    if (!skipValidation && !fieldType) {
       throw new Error(`Field "${fieldName}" does not exist in the schema`);
     }
     super(table, [

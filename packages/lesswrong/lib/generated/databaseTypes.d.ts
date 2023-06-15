@@ -80,7 +80,7 @@ interface DbClientId extends DbObject {
   clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string
-  userIds: Array<string>
+  userIds: Array<string> | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -137,6 +137,7 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   descendentCount: number
   shortform: boolean
+  shortformFrontpage: boolean
   nominatedForReview: string
   reviewingForReview: string
   lastSubthreadActivity: Date
@@ -164,6 +165,13 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string
+  relevantTagIds: Array<string>
+  debateResponse: boolean | null
+  rejected: boolean
+  modGPTAnalysis: string | null
+  modGPTRecommendation: string | null
+  rejectedReason: string | null
+  rejectedByUserId: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -236,7 +244,7 @@ interface DbDebouncerEvents extends DbObject {
   delayTime: Date
   upperBoundTime: Date
   key: string
-  pendingEvents: Array<any /*{"definitions":[{"blackbox":true}]}*/>
+  pendingEvents: Array<string>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -335,6 +343,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string
+  nameInAnotherLanguage: string
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
@@ -352,6 +361,7 @@ interface DbLocalgroup extends DbObject {
   bannerImageId: string
   inactive: boolean
   deleted: boolean
+  salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -391,7 +401,7 @@ interface ModerationTemplatesCollection extends CollectionBase<DbModerationTempl
 interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
   name: string
-  collectionName: "Messages" | "Comments"
+  collectionName: "Messages" | "Comments" | "Rejections"
   order: number
   deleted: boolean
   createdAt: Date
@@ -406,7 +416,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -429,6 +439,35 @@ interface DbNotification extends DbObject {
   viewed: boolean
   emailed: boolean
   waitingForBatch: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PageCacheCollection extends CollectionBase<DbPageCacheEntry, "PageCache"> {
+}
+
+interface DbPageCacheEntry extends DbObject {
+  __collectionName?: "PageCache"
+  path: string
+  abTestGroups: any /*{"definitions":[{"blackbox":true}]}*/
+  bundleHash: string
+  renderedAt: Date
+  expiresAt: Date
+  ttlMs: number
+  renderResult: {
+    ssrBody: string,
+    headers: Array<string>,
+    serializedApolloState: string,
+    serializedForeignApolloState: string,
+    jssSheets: string,
+    status: number,
+    redirectUrl: string,
+    relevantAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    allAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    themeOptions: any /*{"definitions":[{"blackbox":true}]}*/,
+    renderedAt: Date,
+    timings: any /*{"definitions":[{"blackbox":true}]}*/,
+  }
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -466,6 +505,37 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostEmbeddingsCollection extends CollectionBase<DbPostEmbedding, "PostEmbeddings"> {
+}
+
+interface DbPostEmbedding extends DbObject {
+  __collectionName?: "PostEmbeddings"
+  postId: string
+  postHash: string
+  lastGeneratedAt: Date
+  model: string
+  embeddings: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostRecommendationsCollection extends CollectionBase<DbPostRecommendation, "PostRecommendations"> {
+}
+
+interface DbPostRecommendation extends DbObject {
+  __collectionName?: "PostRecommendations"
+  userId: string | null
+  clientId: string | null
+  postId: string
+  strategyName: string
+  strategySettings: any /*{"definitions":[{"blackbox":true}]}*/
+  recommendationCount: number
+  lastRecommendedAt: Date
+  clickedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -565,7 +635,7 @@ interface DbPost extends DbObject {
     userId: string,
     confirmed: boolean,
     requested: boolean,
-  }>
+  }> | null
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
@@ -628,8 +698,13 @@ interface DbPost extends DbObject {
   sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
+  ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  debate: boolean | null
+  rejected: boolean
+  rejectedReason: string | null
+  rejectedByUserId: string
   subforumTagId: string
   af: boolean
   afDate: Date
@@ -671,6 +746,7 @@ interface DbRSSFeed extends DbObject {
   status: string
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
+  importAsDraft: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -782,6 +858,16 @@ interface DbSequence extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface SessionsCollection extends CollectionBase<DbSession, "Sessions"> {
+}
+
+interface DbSession extends DbObject {
+  __collectionName?: "Sessions"
+  session: any /*{"definitions":[{"blackbox":true}]}*/
+  expires: Date | null
+  lastModified: Date | null
+}
+
 interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
 }
 
@@ -814,7 +900,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -843,6 +929,7 @@ interface DbTagRel extends DbObject {
   postId: string
   deleted: boolean
   userId: string
+  backfilled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -861,6 +948,8 @@ interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
   name: string
+  shortName: string | null
+  subtitle: string | null
   slug: string
   oldSlugs: Array<string>
   core: boolean
@@ -881,6 +970,7 @@ interface DbTag extends DbObject {
   wikiGrade: number
   wikiOnly: boolean
   bannerImageId: string
+  squareImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
@@ -889,7 +979,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<string>
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -907,6 +997,20 @@ interface DbTag extends DbObject {
   moderationGuidelines_latest: string
 }
 
+interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
+}
+
+interface DbUserActivity extends DbObject {
+  __collectionName?: "UserActivities"
+  visitorId: string
+  type: "userId" | "clientId"
+  startDate: Date
+  endDate: Date
+  activityArray: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
 }
 
@@ -915,6 +1019,21 @@ interface DbUserMostValuablePost extends DbObject {
   userId: string
   postId: string
   deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface UserRateLimitsCollection extends CollectionBase<DbUserRateLimit, "UserRateLimits"> {
+}
+
+interface DbUserRateLimit extends DbObject {
+  __collectionName?: "UserRateLimits"
+  userId: string
+  type: "allComments" | "allPosts"
+  intervalUnit: "minutes" | "hours" | "days" | "weeks"
+  intervalLength: number
+  actionsPerInterval: number
+  endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -960,6 +1079,7 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDraftsBy: string
+  reactPaletteStyle: "listView" | "gridView"
   noKibitz: boolean
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean
@@ -970,6 +1090,13 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  hideCommunitySection: boolean
+  expandedFrontpageSections: {
+    community: boolean | null,
+    recommendations: boolean | null,
+  } | null
+  showCommunityInRecentDiscussion: boolean
+  hidePostsRecommendations: boolean
   petrovOptOut: boolean | null
   acceptedTos: boolean | null
   hideNavigationSidebar: boolean
@@ -981,6 +1108,7 @@ interface DbUser extends DbObject {
   allPostsSorting: string
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
+  allPostsHideCommunity: boolean
   allPostsOpenSettings: boolean
   draftsListSorting: string
   draftsListShowArchived: boolean
@@ -1106,6 +1234,18 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationDebateCommentsOnSubscribedPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDebateReplies: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1151,6 +1291,11 @@ interface DbUser extends DbObject {
   smallDownvoteCount: number
   bigUpvoteCount: number
   bigDownvoteCount: number
+  voteReceivedCount: number
+  smallUpvoteReceivedCount: number
+  smallDownvoteReceivedCount: number
+  bigUpvoteReceivedCount: number
+  bigDownvoteReceivedCount: number
   usersContactedBeforeReview: Array<string>
   fullName: string
   shortformFeedId: string
@@ -1207,9 +1352,9 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
-  subforumPreferredLayout: "feed" | "list"
-  experiencedIn: Array<string>
-  interestedIn: Array<string>
+  subforumPreferredLayout: "card" | "list"
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number
@@ -1308,9 +1453,12 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
+  PageCache: PageCacheCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostEmbeddings: PostEmbeddingsCollection
+  PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1319,12 +1467,15 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Sessions: SessionsCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
+  UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1355,9 +1506,12 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
+  PageCache: DbPageCacheEntry
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostEmbeddings: DbPostEmbedding
+  PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed
@@ -1366,12 +1520,15 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Sessions: DbSession
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
+  UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

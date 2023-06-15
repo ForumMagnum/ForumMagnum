@@ -7,6 +7,7 @@ registerMigration({
   dateWritten: "2022-12-15",
   idempotent: true,
   action: async () => {
-    await updateReviewVoteTotals("nominationVote") 
+    // await updateReviewVoteTotals("nominationVote") 
+    await updateReviewVoteTotals("finalVote") 
   }
 })

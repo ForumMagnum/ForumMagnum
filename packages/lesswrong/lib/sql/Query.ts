@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -28,7 +28,7 @@ class Arg {
  * string of SQL, an argument, a sub-query, or a table (which will be compiled
  * to its name).
  */
-export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
+export type Atom<T extends DbObject> = string | Arg | Query<T> | Table<T>;
 
 const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
 
@@ -104,7 +104,7 @@ abstract class Query<T extends DbObject> {
   protected isCaseInsensitive = false;
 
   protected constructor(
-    protected table: Table | Query<T>,
+    protected table: Table<T> | Query<T>,
     protected atoms: Atom<T>[] = [],
   ) {}
 
@@ -123,9 +123,13 @@ abstract class Query<T extends DbObject> {
    * public API for flexability.
    */
   compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
+    return this.compileAtoms(this.atoms, argOffset, subqueryOffset);
+  }
+  
+  compileAtoms(atoms: Atom<T>[], argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
-    for (const atom of this.atoms) {
+    for (const atom of atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argOffset}${atom.typehint}`);
         args.push(atom.value);
@@ -275,12 +279,13 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField)?.toConcrete();
-    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    const concreteFieldType = fieldType?.toConcrete();
+    if (concreteFieldType?.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }
@@ -307,6 +312,15 @@ abstract class Query<T extends DbObject> {
       }
       if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
         return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
+      }
+      /**
+       * `<>` returns null if either of the compared values are null
+       * This is generally not the result you want when checking whether a field is $ne to a specific value
+       * So for nullable fields (most of them, so far) use `IS DISTINCT FROM`
+       * This will return records where e.g. the field is null and you want everything not equal to 5.
+       */
+      if (!(fieldType instanceof NotNullType) && op === "<>") {
+        return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
@@ -378,18 +392,36 @@ abstract class Query<T extends DbObject> {
             throw new Error(`${comparer} expects an array`);
           }
           const fieldType = this.getField(fieldName)?.toConcrete();
-          const hintType = fieldType?.isArray() && comparer === "$all"
+          const hintType = fieldType?.isArray()
             ? fieldType.subtype
             : fieldType;
+          const originalFieldTypeHint = this.getTypeHint(fieldType) ?? "";
           const hint = this.getTypeHint(hintType) ?? "";
-          const args = value[comparer].length
+          const args: (string | Arg)[] = value[comparer].length
             ? value[comparer].flatMap((item: any) => [
               ",", new Arg(item), hint,
             ]).slice(1)
             : [`SELECT NULL${hint}`];
-          return comparer === "$all"
-            ? [field, "@> ARRAY[", ...args, "]"]
-            : [field, hint, "IN (", ...args, ")"];
+
+          if (comparer === "$all") {
+            return [field, "@> ARRAY[", ...args, "]"];
+          }
+
+          /**
+           * For $in comparisons on array-typed fields.  Only tested with string arrays.
+           * We use the original type hint, rather then subtype, because otherwise array fields will have the wrong hint
+           * 
+           * We use `&&` to do an intersection ("any values in the field match any values passed in") rather than "contains the entire subset"
+           * As far as I can tell this case is only used for meetup types and we should avoid doing this elsewhere (and just hand-write some SQL)
+           */
+          if (fieldType?.isArray()) {
+            return [field, originalFieldTypeHint, "&& ARRAY[", ...args, "]"]
+          }
+
+          /**
+           * For all $in comparisons on regular (not array) fields, which is the overwhelming majority of them.
+           */
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
@@ -422,7 +454,7 @@ abstract class Query<T extends DbObject> {
             this.createArg(lng),
             ",",
             this.createArg(lat),
-            ")) * 0.000621371) <", // Convert metres to miles
+            ")) / 6378000) <", // Convert meters to radians, for mongo compat, 6378000 is the radius of the earth in meters
             this.createArg(distance),
           ];
 
@@ -447,7 +479,7 @@ abstract class Query<T extends DbObject> {
           break;
       }
 
-      const op = comparisonOps[comparer];
+      const op = (comparisonOps as AnyBecauseTodo)[comparer];
       if (op) {
         return this.arrayify(fieldName, field, op, value[comparer]);
       } else {
@@ -479,7 +511,7 @@ abstract class Query<T extends DbObject> {
    * Compile an arbitrary Mongo selector into an array of atoms.
    * `this.atoms` is not modified.
    */
-  protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+  public compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
@@ -544,7 +576,7 @@ abstract class Query<T extends DbObject> {
       return [new Arg({[op]: expr[op]})]
     }
 
-    if (arithmeticOps[op]) {
+    if ((arithmeticOps as AnyBecauseTodo)[op]) {
       const isMagnitude = isMagnitudeOp(op);
       const operands = expr[op].map((arg: any) => this.compileExpression(arg, isMagnitude ? 0 : undefined));
       const isDateDiff = op === "$subtract" && operands.length === 2 && operands.some(
@@ -553,7 +585,7 @@ abstract class Query<T extends DbObject> {
       let result: Atom<T>[] = [isDateDiff ? "(1000 * EXTRACT(EPOCH FROM" : "("];
       for (let i = 0; i < operands.length; i++) {
         if (i > 0) {
-          result.push(arithmeticOps[op]);
+          result.push((arithmeticOps as AnyBecauseTodo)[op]);
         }
         result = result.concat(operands[i]);
       }
@@ -573,13 +605,17 @@ abstract class Query<T extends DbObject> {
     if (op === "$abs") {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
+    
+    if (op === "$exp") {
+      return ["EXP(", ...this.compileExpression(expr[op]), ")"];
+    }
 
     if (op === "$sum") {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
-    if (variadicFunctions[op]) {
-      const func = variadicFunctions[op];
+    if ((variadicFunctions as AnyBecauseTodo)[op]) {
+      const func = (variadicFunctions as AnyBecauseTodo)[op];
       const args = expr[op].map((value: any) => this.compileExpression(value));
       let prefix = `${func}(`;
       let result: Atom<T>[] = [];

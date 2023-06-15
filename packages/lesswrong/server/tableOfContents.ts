@@ -1,6 +1,7 @@
 import cheerio from 'cheerio';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
+import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
@@ -74,8 +75,7 @@ const headingSelector = _.keys(headingTags).join(",");
 export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
-  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const postBody = cheerio.load(postHTML, null, false);
+  const postBody = cheerioParse(postHTML);
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string,boolean> = {};
 
@@ -138,7 +138,7 @@ export function extractTableOfContents(postHTML: string)
 function elementToToCText(cheerioTag: cheerio.Element) {
   const tagHtml = cheerio(cheerioTag).html();
   if (!tagHtml) return null;
-  const tagClone = cheerio.load(tagHtml);
+  const tagClone = cheerioParse(tagHtml);
   tagClone("style").remove();
   return tagClone.root().text();
 }
@@ -251,7 +251,7 @@ async function getTocAnswers (document: DbPost) {
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
+    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
     
     return {
       title: `${answer.baseScore} ${answer.author}`,

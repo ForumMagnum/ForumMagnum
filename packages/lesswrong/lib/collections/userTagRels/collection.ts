@@ -1,6 +1,5 @@
 import { userCanUseTags } from "../../betas";
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
-import { forumTypeSetting } from "../../instanceSettings";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
@@ -59,7 +58,7 @@ const schema: SchemaType<DbUserTagRel> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    label: "Don't show the intro post at the top of the subforum feed",
+    label: "Don't show the intro post at the top of topic feeds",
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
@@ -70,7 +69,7 @@ const schema: SchemaType<DbUserTagRel> = {
 export const UserTagRels: UserTagRelsCollection = createCollection({
   collectionName: 'UserTagRels',
   typeName: 'UserTagRel',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {

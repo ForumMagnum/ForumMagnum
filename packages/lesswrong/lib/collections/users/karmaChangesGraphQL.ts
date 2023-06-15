@@ -39,7 +39,7 @@ addGraphQLSchema(`
 
 addGraphQLResolvers({
   KarmaChanges: {
-    updateFrequency: async (karmaChangesJSON, args, context: ResolverContext) => {
+    updateFrequency: async (karmaChangesJSON: any, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
@@ -50,7 +50,7 @@ addGraphQLResolvers({
 
 addFieldsDict(Users, {
   "karmaChanges": {
-    viewableBy: userOwns,
+    canRead: userOwns,
     type: "KarmaChanges",
     optional: true,
   }

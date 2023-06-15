@@ -1,5 +1,5 @@
 import { MongoCollection } from "../mongoCollection";
-import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
+import { getSqlClient, getSqlClientOrThrow, logIfSlow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -12,8 +12,6 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
-
 let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
@@ -23,7 +21,7 @@ type ExecuteQueryData<T extends DbObject> = {
   projection: MongoProjection<T>;
   data: T;
   modifier: MongoModifier<T>;
-  fieldOrSpec: MongoIndexSpec;
+  fieldOrSpec: MongoIndexFieldOrKey<T>;
   pipeline: MongoAggregationPipeline<T>;
   operations: MongoBulkWriteOperations<T>;
   indexName: string;
@@ -31,7 +29,7 @@ type ExecuteQueryData<T extends DbObject> = {
     | MongoUpdateOptions<T>
     | MongoUpdateOptions<T>
     | MongoRemoveOptions<T>
-    | MongoEnsureIndexOptions
+    | MongoEnsureIndexOptions<T>
     | MongoAggregationOptions
     | MongoBulkWriteOptions
     | MongoDropIndexOptions;
@@ -47,7 +45,7 @@ type ExecuteQueryData<T extends DbObject> = {
  * to instead implement CollectionBase.
  */
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
-  table: Table;
+  table: Table<T>;
 
   constructor(tableName: string, options?: { _suppressSameNameError?: boolean }) {
     super(tableName, options);
@@ -62,7 +60,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   buildPostgresTable() {
-    this.table = Table.fromCollection(this as unknown as CollectionBase<T>);
+    this.table = Table.fromCollection<T>(this as unknown as CollectionBase<T>);
   }
 
   /**
@@ -81,14 +79,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
-      const startTime = new Date().getTime();
-      result = await client.any(sql, args);
-      const endTime = new Date().getTime();
-      const milliseconds = endTime - startTime;
-      if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet) {
-        // eslint-disable-next-line no-console
-        console.trace(`Slow Postgres query detected (${milliseconds} ms): ${sql}: ${JSON.stringify(args)}`);
-      }
+      
+      result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
+
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
       const {collectionName} = this;
@@ -96,7 +89,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       const {sql, args} = query.compile();
       if (!quiet) {
         // eslint-disable-next-line no-console
-        console.error(`SQL Error for ${collectionName}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
+        console.error(`SQL Error for ${collectionName} at position ${error.position}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
       }
       throw error;
     } finally {
@@ -158,13 +151,30 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T> & {upsert: true},
   ) {
-    const data = modifier.$set ?? modifier as T;
+    const {$set, ...rest} = modifier;
+    const data = {
+      ...$set,
+      ...rest,
+      ...selector,
+    } as T;
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
-        conflictStrategy: "upsert",
-        upsertSelector: selector,
+      conflictStrategy: "upsert",
+      upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
-    return result.length;
+    const action = result[0]?.action;
+    if (!action) {
+      return 0;
+    }
+    const returnCount = options?.returnCount ?? "matchedCount";
+    switch (returnCount) {
+    case "matchedCount":
+      return action === "updated" ? 1 : 0;
+    case "upsertedCount":
+      return action === "inserted" ? 1 : 0;
+    default:
+      throw new Error(`Invalid upsert return count: ${returnCount}`);
+    }
   }
 
   rawUpdateOne = async (
@@ -191,13 +201,16 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
-    const query = new DeleteQuery<T>(this.getTable(), selector, options);
+    options = Object.assign({noSafetyHarness: true}, options);
+    const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
     const result = await this.executeQuery(query, {selector, options});
     return {deletedCount: result.length};
   }
 
-  _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
-    const key: Record<string, 1 | -1> = typeof fieldOrSpec === "string" ? {[fieldOrSpec]: 1} : fieldOrSpec;
+  _ensureIndex = async (fieldOrSpec: MongoIndexFieldOrKey<T>, options?: MongoEnsureIndexOptions<T>) => {
+    const key: MongoIndexKeyObj<T> = typeof fieldOrSpec === "string"
+      ? {[fieldOrSpec as keyof T]: 1 as const} as MongoIndexKeyObj<T>
+      : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeQuery(query, {fieldOrSpec, options})

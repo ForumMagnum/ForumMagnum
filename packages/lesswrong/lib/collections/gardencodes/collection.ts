@@ -34,16 +34,16 @@ const schema: SchemaType<DbGardenCode> = {
   code: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: (gardenCode) => {
       return generateCode(4)
     },
   },
   title: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
     defaultValue: "Guest Day Pass",
     order: 10
@@ -57,7 +57,7 @@ const schema: SchemaType<DbGardenCode> = {
       nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser!._id,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true
   },
   // gatherTownUsername: {
@@ -71,16 +71,16 @@ const schema: SchemaType<DbGardenCode> = {
   slug: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: async (gardenCode) => {
       return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
   },
   startTime: {
     type: Date,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
     control: 'datetime',
     label: "Start Time",
     optional: true,
@@ -89,9 +89,9 @@ const schema: SchemaType<DbGardenCode> = {
   },
   endTime: {
     type: Date,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    // insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    // canCreate: ['members'],
     control: 'datetime',
     label: "End Time",
     optional: true,
@@ -102,18 +102,18 @@ const schema: SchemaType<DbGardenCode> = {
   },
   fbLink: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "FB Event Link",
     optional: true,
     order: 25
   },
   type: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Visibility:",
     optional: true,
     control: "radiogroup",
@@ -125,8 +125,8 @@ const schema: SchemaType<DbGardenCode> = {
   },
   hidden: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     order: 32,
     hidden: true,
@@ -134,8 +134,8 @@ const schema: SchemaType<DbGardenCode> = {
   },
   deleted: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     ...schemaDefaultValue(false),
     order: 35
@@ -143,9 +143,9 @@ const schema: SchemaType<DbGardenCode> = {
   afOnly: {
     type: Boolean,
     label: "Limit attendance to AI Alignment Forum members",
-    viewableBy: ['guests'],
-    insertableBy: ['alignmentForum'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['alignmentForum'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true, 
     ...schemaDefaultValue(false),
     order: 36,
@@ -154,8 +154,8 @@ const schema: SchemaType<DbGardenCode> = {
 
   // validOnlyWithHost: {
   //   type: Boolean,
-  //   viewableBy: ['guests'],
-  //   insertableBy: ['members'],
+  //   canRead: ['guests'],
+  //   canCreate: ['members'],
   //   optional: true,
   //   label: 'Only valid while host (you) is present',
   //   ...schemaDefaultValue(false),
@@ -186,7 +186,7 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),
