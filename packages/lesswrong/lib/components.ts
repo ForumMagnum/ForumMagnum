@@ -195,6 +195,7 @@ importComponent("ContentItemBody", () => require('../components/common/ContentIt
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
+importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("StrawPollLoggedOut", () => require('../components/common/StrawPollLoggedOut'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 

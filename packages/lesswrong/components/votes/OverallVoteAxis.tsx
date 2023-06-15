@@ -8,9 +8,9 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { userCanVote } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import classNames from 'classnames';
-import type { VotingProps } from './withVote';
+import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
