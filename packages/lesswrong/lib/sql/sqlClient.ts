@@ -4,7 +4,7 @@ import type { DbTarget } from "./PgCollection";
 export const logAllQueries = false;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
-/** Client to use for all operation, unless sqlRead is also set */
+/** Main sql client which is safe to use for all queries */
 let sql: SqlClient | null = null;
 /** Client to use for read operations only.
  *  Currently used in the EA Forum bot environment to decrease load on the main database
