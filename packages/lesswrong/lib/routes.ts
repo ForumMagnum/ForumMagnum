@@ -749,12 +749,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'BookmarksPage',
       title: 'Saved Posts',
     },
-    {
-      name: 'readHistory',
-      path: '/history',
-      componentName: 'ReadHistoryPage',
-      title: 'Read History',
-    },
   ],
   LessWrong: [
     {
@@ -1147,6 +1141,15 @@ addRoute(
     title: "Shortform"
   },
 );
+
+// addRoute(
+//   {
+//     name: 'readHistory',
+//     path: '/history',
+//     componentName: 'ReadHistoryPage',
+//     title: 'Read History',
+//   },
+// );
 
 if (hasEventsSetting.get()) {
   addRoute(

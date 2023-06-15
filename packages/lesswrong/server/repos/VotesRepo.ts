@@ -33,6 +33,16 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
 
+export type UserContent = {
+  comments: DbComment[],
+  posts: DbPost[],
+  voteInfo: Array<{
+    documentId: string,
+    collectionName: 'Posts' | 'Comments',
+    votedAt: Date
+  }>
+};
+
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);
@@ -108,5 +118,68 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
       WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
     `, [oldUserId, newUserId]);
+  }
+
+  async getRecentUserVotedOnContent(userId: string, limit: number): Promise<UserContent> {
+    const recentVotedOnDocumentIds = await this.getRawDb().any(`
+      SELECT v."documentId", v."collectionName", v."votedAt"
+      FROM "Votes" v
+      WHERE v."userId" = $1
+      AND cancelled IS NOT TRUE
+      AND NOT ($1 = ANY(v."authorIds"))
+      AND "collectionName" IN ('Posts', 'Comments')
+      ORDER BY "votedAt" DESC
+      LIMIT $2
+    `, [userId, limit]);
+
+    const votedOnCommentIds = recentVotedOnDocumentIds
+      .filter(vote => vote.collectionName === 'Comments')
+      .map(vote => vote.documentId);
+
+    const votedOnPostIds = recentVotedOnDocumentIds
+      .filter(vote => vote.collectionName === 'Posts')
+      .map(vote => vote.documentId);
+
+    const votedOnCommentQuery = this.getRawDb().any<DbComment>(`
+      SELECT c.*
+      FROM "Comments" c
+      WHERE c._id = ANY($1)
+    `, [votedOnCommentIds]);
+
+    const votedOnPostQuery = this.getRawDb().any<DbPost>(`
+      SELECT p.*
+      FROM "Posts" p
+      WHERE p._id = ANY($1)
+    `, [votedOnPostIds]);
+
+    const [comments, posts] = await Promise.all([votedOnCommentQuery, votedOnPostQuery]);
+
+    return {
+      comments,
+      posts,
+      voteInfo: recentVotedOnDocumentIds
+    };
+
+    // const votedOnContent = [...votedOnComments, ...]
+
+    // return this.getRawDb().any(`
+    //   WITH recent_vote_documents AS (
+    //     SELECT v."documentId"
+    //     FROM "Votes" v
+    //     WHERE v."userId" = $1
+    //     AND cancelled IS NOT TRUE
+    //     AND NOT ($1 = ANY(v."authorIds"))
+    //     AND "collectionName" IN ('Posts', 'Comments')
+    //     ORDER BY "votedAt" DESC
+    //     LIMIT $2
+    //   )
+    //   SELECT c.*, 'comment' AS content_type
+    //   FROM "Comments" c
+    //   WHERE c._id IN recent_vote_documents
+    //   UNION
+    //   SELECT p.*, 'post' AS content_type
+    //   FROM "Posts" p
+    //   WHERE p._id IN recent_vote_documents
+    // `, [userId, limit]);
   }
 }

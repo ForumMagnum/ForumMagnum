@@ -6,10 +6,6 @@ import { gql, useQuery, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  headline: {
-    color: theme.palette.grey[1000],
-    marginTop: 15
-  },
   loadMore: {
     marginTop: 10
   },
@@ -21,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
+const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const defaultLimit = 10;
   const pageSize = 30;
@@ -49,13 +45,7 @@ const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
     }
   )
   
-  const {SingleColumnSection, SectionTitle, Loading, PostsItem, Typography, LoadMore} = Components
-
-  if (!currentUser) {
-    return <SingleColumnSection>
-      You must sign in to view your read history.
-    </SingleColumnSection>
-  }
+  const {SectionTitle, Loading, PostsItem, Typography, LoadMore} = Components
   
   const readHistory: (PostsListWithVotes&{lastVisitedAt:Date})[] = data?.UserReadHistory?.posts
   
@@ -95,21 +85,16 @@ const ReadHistoryPage = ({classes}: {classes: ClassesType}) => {
     </>
   }
 
-  return <SingleColumnSection>
-    <AnalyticsContext listContext="ReadHistoryPage" capturePostItemOnMount>
-      <Typography variant="display2" className={classes.headline}>
-        Read history
-      </Typography>
-      {bodyNode}
-    </AnalyticsContext>
-  </SingleColumnSection>
+  return <AnalyticsContext listContext="readHistory" capturePostItemOnMount>
+    {bodyNode}
+  </AnalyticsContext>
 }
 
 
-const ReadHistoryPageComponent = registerComponent('ReadHistoryPage', ReadHistoryPage, {styles})
+const ReadHistoryTabComponent = registerComponent('ReadHistoryTab', ReadHistoryTab, {styles})
 
 declare global {
   interface ComponentTypes {
-    ReadHistoryPage: typeof ReadHistoryPageComponent
+    ReadHistoryTab: typeof ReadHistoryTabComponent
   }
 }
