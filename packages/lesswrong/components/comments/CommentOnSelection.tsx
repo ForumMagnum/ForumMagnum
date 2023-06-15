@@ -5,6 +5,7 @@ import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { isEAForum } from '../../lib/instanceSettings';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -150,7 +151,9 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classes.toolbar} style={{left: x, top: y}}>
-    <CommentIcon onClick={ev => onClickComment(ev)}/>
+    <AnalyticsContext pageElementContext="selectedTextToolbar">
+      <CommentIcon onClick={ev => onClickComment(ev)}/>
+    </AnalyticsContext>
   </div>
 }
 
