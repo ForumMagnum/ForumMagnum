@@ -10,6 +10,8 @@ type ConversationsViewName = "moderatorConversations"|"userConversations"|"userG
 type CronHistoriesViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
+type DigestPostsViewName = never
+type DigestsViewName = "findByNum"|"all";
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
@@ -62,6 +64,8 @@ interface ViewTermsByCollectionName {
   CronHistories: ViewTermsBase
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
+  DigestPosts: ViewTermsBase
+  Digests: DigestsViewTerms
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
@@ -103,4 +107,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
