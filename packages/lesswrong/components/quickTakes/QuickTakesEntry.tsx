@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 12,
+    border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
     padding: "5px 10px",

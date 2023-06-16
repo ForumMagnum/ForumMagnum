@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: 12,
-    paddingTop: 16,
+    paddingTop: 12,
     borderRadius: theme.borderRadius.default,
   },
   expandedRoot: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "baseline",
     gap: "8px",
-    marginBottom: 14,
+    marginBottom: 8,
   },
   grow: {
     flexGrow: 1,

@@ -37,7 +37,7 @@ export const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
 export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   name: 'show_quick_takes_section',
   type: "functional",
-  description: "Whether to show the quick takes section on the EA Forum home page",
+  description: "Whether to show the Quick takes section on the EA Forum home page",
 })
 
 export const HIDE_HANDBOOK_COOKIE = registerCookie({

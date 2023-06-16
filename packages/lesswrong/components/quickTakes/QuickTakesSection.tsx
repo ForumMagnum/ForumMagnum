@@ -6,7 +6,7 @@ import { SHOW_QUICK_TAKES_SECTION_COOKIE } from "../../lib/cookies/cookies";
 
 const styles = (_theme: ThemeType) => ({
   list: {
-    marginTop: 16,
+    marginTop: 4,
   },
 });
 

@@ -143,7 +143,7 @@ const UsersMenu = ({classes}: {
             </div>
             {showNewButtons && !currentUser.allCommentingDisabled &&
               <DropdownItem
-                title={isEAForum ? "New quick take" : "New Shortform"}
+                title={isEAForum ? "New Quick take" : "New Shortform"}
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
               />
             }
@@ -231,7 +231,7 @@ const UsersMenu = ({classes}: {
             }
             {currentUser.shortformFeedId &&
               <DropdownItem
-                title={isEAForum ? "Your quick takes" : "Shortform Page"}
+                title={isEAForum ? "Your Quick takes" : "Shortform Page"}
                 to={postGetPageUrl({
                   _id: currentUser.shortformFeedId,
                   slug: "shortform",
