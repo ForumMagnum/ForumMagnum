@@ -1,7 +1,3 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
-
-
 const schema: SchemaType<DbDigest> = {
   // the digest number (should correspond with the email digest)
   num: {

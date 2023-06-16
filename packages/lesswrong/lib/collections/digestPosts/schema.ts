@@ -1,8 +1,8 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
-const DIGEST_STATUSES = new TupleSet(['yes', 'maybe', 'no'] as const);
-export type ReviewSortOption = UnionOf<typeof DIGEST_STATUSES>;
+const DIGEST_STATUSES = new TupleSet(['yes', 'maybe', 'no'] as const)
+export type InDigestStatuses = UnionOf<typeof DIGEST_STATUSES>
 
 const schema: SchemaType<DbDigestPost> = {
   digestId: {
