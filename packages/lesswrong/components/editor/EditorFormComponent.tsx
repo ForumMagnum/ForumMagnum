@@ -139,10 +139,13 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // Run this check up to once per 20 min.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
+  // Run this check up to once per 2 min (called only when there is a significant amount of text added).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCheckIsCriticismLargeDiff = useCallback(_.throttle(checkIsCriticism, 1000*60*2), [])
   
   useEffect(() => {
     // check when loading the post edit form
-    if (contents.value.length > 50) {
+    if (contents.value.length > 300) {
       throttledCheckIsCriticism(contents)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,14 +183,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   );
   
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
-    const {contents,autosave} = change;
-    setContents(contents);
+    const {contents: newContents, autosave} = change;
+    setContents(newContents);
     
     // Only save to localStorage if not using collaborative editing, since with
     // collaborative editing stuff is getting constantly sent through a
     // websocket and saved that way.
     if (!isCollabEditor) {
-      if (!isBlank(contents)) {
+      if (!isBlank(newContents)) {
         hasUnsavedDataRef.current.hasUnsavedData = true;
       }
     }
@@ -197,15 +200,21 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
     void throttledSetContentsValue()
     
     if (autosave) {
-      throttledSaveBackup(contents);
+      throttledSaveBackup(newContents);
     }
     
-    if (contents.value.length > 50) {
-      throttledCheckIsCriticism(contents)
+    // We only check posts that have >300 characters, which is ~a few sentences.
+    if (newContents.value.length > 300) {
+      // If there's a lot more text (ex. something pasted in), we check the post sooner.
+      if (newContents.value.length - contents.value.length > 300) {
+        throttledCheckIsCriticismLargeDiff(newContents)
+      } else {
+        throttledCheckIsCriticism(newContents)
+      }
     }
   }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, throttledCheckIsCriticism]);
   
