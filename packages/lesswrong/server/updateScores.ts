@@ -10,7 +10,8 @@ import {
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
 import { runSqlQuery } from "../lib/sql/sqlClient";
-import { chunk, compact } from "lodash";
+import chunk from "lodash/chunk";
+import compact from "lodash/compact";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
