@@ -83,7 +83,9 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if(isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
+      : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
       ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
