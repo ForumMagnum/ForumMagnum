@@ -21,6 +21,7 @@ import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
+import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -103,6 +104,7 @@ export type ForumIconName =
   "MapPin" |
   "Pencil" |
   "Comment" |
+  "CommentFilled" |
   "Shortform" |
   "Warning" |
   "Report" |
@@ -150,6 +152,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
     Comment: CommentIcon,
+    CommentFilled: CommentFilledIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
     Report: MuiReportIcon,
@@ -196,6 +199,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MapPinIcon,
     Pencil: PencilIcon,
     Comment: CommentIcon,
+    CommentFilled: CommentFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
     Report: ReportIcon,

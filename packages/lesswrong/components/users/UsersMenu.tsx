@@ -236,7 +236,7 @@ const UsersMenu = ({classes}: {
                   _id: currentUser.shortformFeedId,
                   slug: "shortform",
                 })}
-                icon={isEAForum ? "Comment" : "Shortform"}
+                icon={isEAForum ? "CommentFilled" : "Shortform"}
                 iconClassName={classes.icon}
               />
             }
