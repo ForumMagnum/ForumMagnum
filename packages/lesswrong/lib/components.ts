@@ -616,6 +616,7 @@ importComponent("ModerationAltAccounts", () => require('../components/sunshineDa
 importComponent("ContentRejectionDialog", () => require('../components/sunshineDashboard/ContentRejectionDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
+importComponent("AllReactedCommentsPage", () => require('../components/sunshineDashboard/AllReactedCommentsPage'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));

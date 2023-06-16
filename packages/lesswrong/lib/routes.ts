@@ -1141,6 +1141,12 @@ addRoute(
     title: "All Comments"
   },
   {
+    name: 'All Comments with Reacts',
+    path: '/allCommentsWithReacts',
+    componentName: 'AllReactedCommentsPage',
+    title: "All Comments with Reacts"
+  },
+  {
     name: 'Shortform',
     path: '/shortform',
     componentName: 'ShortformPage',
