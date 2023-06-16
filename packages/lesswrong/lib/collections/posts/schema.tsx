@@ -550,6 +550,11 @@ const schema: SchemaType<DbPost> = {
     }
   },
 
+  // (I'm not totally sure but this is my understanding of what this field is for):
+  // Back when we had a form where you could create a related question from a question post,
+  // you could set this to true to prevent the related question from appearing on the frontpage.
+  // Now that we've removed the form to create a related question, I think we can drop
+  // this field entirely?
   hiddenRelatedQuestion: {
     type: Boolean,
     canRead: ['guests'],
@@ -2508,6 +2513,29 @@ const schema: SchemaType<DbPost> = {
       }
     },
   },
+
+  dialogTooltipPreview: resolverOnlyField({
+    type: String,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (!post.debate) return null;
+
+      const { Comments } = context;
+
+      const firstComment = await Comments.findOne({
+        ...getDefaultViewSelector("Comments"),
+        postId: post._id,
+        // This actually forces `deleted: false` by combining with the default view selector
+        deletedPublic: false,
+        debateResponse: true,
+      }, { sort: { postedAt: 1 } });
+
+      if (!firstComment) return null;
+
+      return firstComment.contents.html;
+    }
+  }),
 
   /* subforum-related fields */
 

@@ -155,7 +155,9 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+  const highlight = post.debate
+    ? post.dialogTooltipPreview
+    : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
