@@ -96,9 +96,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: isEAForum ? "translateY(5px)" : undefined
   },
   actions: {
-    color: theme.palette.grey[600],
+    color: isEAForum ? undefined : theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
+    },
+    '& svg': {
+      color: 'inherit' // this is needed for the EAF version of the icon
     },
     "@media print": { display: "none" },
   },

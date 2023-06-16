@@ -61,7 +61,7 @@ const PostsVote = ({ post, classes }: {
       <div className={classes.voteBlock}>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement="right"
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
@@ -77,7 +77,7 @@ const PostsVote = ({ post, classes }: {
         <div className={classes.voteScores}>
           <Tooltip
             title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
-            placement="right"
+            placement={isEAForum ? "left" : "right"}
             classes={{tooltip: classes.tooltip}}
           >
             <div> 
@@ -89,7 +89,7 @@ const PostsVote = ({ post, classes }: {
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip
               title="AI Alignment Forum karma"
-              placement="right"
+              placement={isEAForum ? "left" : "right"}
               classes={{tooltip: classes.tooltip}}
             >
               <Typography
@@ -102,7 +102,7 @@ const PostsVote = ({ post, classes }: {
         </div>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement="right"
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>
