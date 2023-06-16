@@ -16,7 +16,7 @@ export const AllReactedCommentsPage = ({classes}: {
   const pageSize = 50
   const [limit, setLimit] = useState(defaultLimit);
   
-  const {data, fetchMore, networkStatus} = useQuery(gql`
+  const { data, fetchMore, networkStatus, loading } = useQuery(gql`
   query getCommentsWithReacts($limit: Int) {
     CommentsWithReacts(limit: $limit) {
       comments {
@@ -35,9 +35,9 @@ export const AllReactedCommentsPage = ({classes}: {
     }
   )
   
-  const results = data && data.CommentsWithReacts.comments
+  const results = data?.CommentsWithReacts.comments
   
-  if (!data) return <Components.Loading/>
+  if (loading || !data) return <Components.Loading/>
   
   return (
     <Components.SingleColumnSection>

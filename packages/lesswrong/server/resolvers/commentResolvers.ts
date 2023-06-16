@@ -59,7 +59,6 @@ addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deleted
 addGraphQLResolvers({
   Query: {
     async CommentsWithReacts(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      
       const commentsRepo = new CommentsRepo()
       const comments = await commentsRepo.getCommentsWithReacts(args.limit??50)
       return {
