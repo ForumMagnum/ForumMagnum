@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin:"15%",
   },
   voteScore: {
-    color: theme.palette.grey[500],
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
