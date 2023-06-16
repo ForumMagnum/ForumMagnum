@@ -31,7 +31,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem,
+    ApproveNewUserDropdownItem, SharePostSubmenu
   } = Components;
 
 
@@ -51,6 +51,9 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
+      
+      <SharePostSubmenu post={post} />
+
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem
