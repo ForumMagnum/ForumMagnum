@@ -26,7 +26,7 @@ const SharePostSubmenu = ({post, classes}: {
         url: postGetPageUrl(post),
       };
       if (navigator.canShare(sharingOptions)) {
-        navigator.share(sharingOptions);
+        void navigator.share(sharingOptions);
       }
     } else {
       // If navigator.canShare is missing, do nothing

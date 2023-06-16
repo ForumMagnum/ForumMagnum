@@ -5,18 +5,22 @@ import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  icon: {
+    height: 20,
+    fill: "currentColor",
+  },
 })
 
 const SharePostActions = ({post, classes}: {
   post: PostsListBase,
   classes: ClassesType,
 }) => {
-  const { DropdownMenu, DropdownItem, DropdownDivider } = Components;
+  const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const postUrl = postGetPageUrl(post, true);
   const { flash } = useMessages();
   
   const copyLink = () => {
-    navigator.clipboard.writeText(postUrl);
+    void navigator.clipboard.writeText(postUrl);
     flash("Link copied to clipboard");
   }
 
@@ -50,14 +54,17 @@ const SharePostActions = ({post, classes}: {
     <DropdownDivider/>
     <DropdownItem
       title="Twitter"
+      icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
       onClick={shareToTwitter}
     />
     <DropdownItem
       title="Facebook"
+      icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
       onClick={shareToFacebook}
     />
     <DropdownItem
       title="LinkedIn"
+      icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
       onClick={shareToLinkedIn}
     />
   </DropdownMenu>
