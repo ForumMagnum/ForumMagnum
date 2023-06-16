@@ -5,7 +5,7 @@ import { combineUrls, getSiteUrl } from "../../vulcan-lib"
  * Returns the digest name in our standard format
  */
 export const getDigestName = ({digest, includeDates=true}: {digest: DigestsMinimumInfo, includeDates?: boolean}) => {
-  let name = `EA Forum Digest #${digest.num}`
+  const name = `EA Forum Digest #${digest.num}`
   if (!includeDates) return name
   
   const digestStartDateFormatted = moment(digest.startDate).format('MMM D')
