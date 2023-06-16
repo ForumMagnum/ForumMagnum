@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isEAForum ? 25 : theme.spacing.unit*2,
+    marginBottom: isEAForum ? 20 : theme.spacing.unit*2,
   },
   headerLeft: {
     width: "100%"
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
-    paddingBottom: isEAForum ? 20 : undefined,
+    paddingBottom: isEAForum ? 12 : undefined,
     borderBottom: isEAForum ? theme.palette.border.grey300 : undefined
   },
   secondaryInfo: {
@@ -96,7 +96,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: isEAForum ? "translateY(5px)" : undefined
   },
   actions: {
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 0.5,
+    },
     "@media print": { display: "none" },
   },
   authorInfo: {
