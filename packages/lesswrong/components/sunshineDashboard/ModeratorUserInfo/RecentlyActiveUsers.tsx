@@ -10,6 +10,7 @@ import { downvoterTooltip, recentKarmaTooltip } from './UserReviewMetadata';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...commentBodyStyles(theme),
     width: '90%',
     maxWidth: 1800,
     margin: 'auto',
@@ -69,23 +70,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& td': {
       padding: 8,
       whiteSpace: "nowrap",
-      ...commentBodyStyles(theme),
       borderBottom: theme.palette.border.faint,
       pointerEvents: "unset"
     },
   },
   userInfo: {
-    maxWidth: 1200
+    maxWidth: 1200,
+    whiteSpace: "normal !important"
   },
   numberCell: {
-    textAlign: "center"
+    textAlign: "center",
   },
   expand: {
     cursor: "pointer",
     opacity: .5
+  },
+  selected: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
   }
 });
-
 
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
@@ -96,13 +100,16 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
+  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma";
+  const [sorting, setSorting] = useState<sortingType>("lastNotificationsCheck");
+
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
-    terms: {view: "recentlyActive", limit:2000},
+    terms: {view: "recentlyActive", limit:50},
     collectionName: "Users",
-    fragmentName: 'SunshineUsersList'
+    fragmentName: 'SunshineUsersList',
+    itemsPerPage: 100,
+    enableTotal: true
   });
-
-
 
   if (!userIsAdminOrMod(currentUser)) {
     return null;
@@ -114,6 +121,33 @@ const RecentlyActiveUsers = ({ classes }: {
     } else {
       setExpandId(id);
     }
+  }
+
+  const usersSortedByRecentKarma = [...results].sort((a, b) => {
+    return a.recentKarmaInfo.recentKarma - b.recentKarmaInfo.recentKarma;
+  });
+
+  const usersSortByKarma = [...results].sort((a, b) => {
+    return (a.karma ?? 0) - (b.karma ?? 0)
+  });
+
+  const usersSortByDownvoters = [...results].sort((a, b) => {
+    return b.recentKarmaInfo.downvoterCount - a.recentKarmaInfo.downvoterCount
+  });
+
+  let sortedUsers = results;
+  switch (sorting) {
+    case "karma":
+      sortedUsers = usersSortByKarma;
+      break;
+    case "recentKarma":
+      sortedUsers = usersSortedByRecentKarma;
+      break;
+    case "downvoters":
+      sortedUsers = usersSortByDownvoters;
+      break;
+    case "lastNotificationsCheck":
+      break
   }
 
   return (
@@ -129,20 +163,32 @@ const RecentlyActiveUsers = ({ classes }: {
           Recently Active Users
         </div>
       </div>
-      <div>{results?.length && `${results?.length} users`}</div>
       <table className={classes.table}>
         <thead>
           <tr>
             <td>DisplayName</td>
-            <td className={classes.numberCell}>Karma</td>
-            <td className={classes.numberCell}>Recent Karma</td>
-            <td className={classes.numberCell}>Downvoters</td>
-            <td>Last Notification Checked</td>
-            <td></td>
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "karma"})} 
+              onClick={() => setSorting("karma")}>
+              Karma
+            </td>
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "recentKarma"})} 
+              onClick={() => setSorting("recentKarma")}>
+              Recent Karma
+            </td>
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "downvoters"})} 
+              onClick={() => setSorting("downvoters")}>
+              Downvoters
+            </td>
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "lastNotificationsCheck"})} 
+              onClick={() => setSorting("lastNotificationsCheck")}>
+              Last Checked</td>
+            <td>
+              <LoadMore {...recentlyActiveLoadMoreProps}/>
+            </td>
           </tr>
         </thead>
         <tbody>
-          {results.map(user => {
+          {sortedUsers.map(user => {
             const { recentKarma, downvoterCount } = user.recentKarmaInfo;
             return <>
               <tr key={user._id}>
@@ -178,7 +224,7 @@ const RecentlyActiveUsers = ({ classes }: {
                 </td>
               </tr>
               {expandId === user._id && <tr>
-                <td colSpan={4} className={classes.userInfo}>
+                <td colSpan={6} className={classes.userInfo}>
                   <UsersReviewInfoCard user={user} key={user._id} refetch={refetch} currentUser={currentUser}/>
                 </td>
               </tr>}
