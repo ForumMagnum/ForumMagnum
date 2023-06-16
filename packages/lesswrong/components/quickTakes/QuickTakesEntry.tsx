@@ -170,6 +170,7 @@ const QuickTakesEntry = ({
           initialEditorType={editorType}
           isCollaborative={false}
           quickTakesStyles
+          commentEditor
           value={contents}
           onChange={onChange}
           onFocus={onFocus}
