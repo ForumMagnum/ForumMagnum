@@ -82,7 +82,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     '& a': {
       color: theme.palette.primary.main,
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
+    overflow: "hidden",
   },
   website: {
     color: theme.palette.primary.main,

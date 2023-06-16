@@ -999,7 +999,7 @@ const schema: SchemaType<DbUser> = {
   lastNotificationsCheck: {
     type: Date,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns, 'admins'],
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,

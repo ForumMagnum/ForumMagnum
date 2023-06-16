@@ -61,6 +61,15 @@ const LW = {
       itemsPerTimeframe: 1,
       rateLimitType: 'lowKarma',
       rateLimitMessage: "Users with -30 karma can only post once every two weeks.",
+    },
+    ONE_PER_FOUR_WEEKS_NEGATIVE_60_KARMA: {
+      actionType: "Posts",
+      karmaThreshold: -60,
+      timeframeUnit: 'weeks',
+      timeframeLength: 4,
+      itemsPerTimeframe: 1,
+      rateLimitType: 'lowKarma',
+      rateLimitMessage: `Users with -50 karma on their recent content can only post once every two weeks.`,
     }
   },
   COMMENTS: {
@@ -102,6 +111,28 @@ const LW = {
       itemsPerTimeframe: 3,
       rateLimitType: 'lowKarma',
       rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`,
+    },
+    ONE_PER_WEEK_NEGATIVE_30_RECENT_KARMA: {
+      actionType: "Comments",
+      karmaThreshold: -30,
+      downvoterCountThreshold: 3,
+      timeframeUnit: 'weeks',
+      timeframeLength: 1,
+      itemsPerTimeframe: 1,
+      rateLimitType: 'lowKarma',
+      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -30 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per week on other's posts.`,
+      appliesToOwnPosts: false
+    },
+    ONE_PER_WEEK_NEGATIVE_60_RECENT_KARMA: {
+      actionType: "Comments",
+      karmaThreshold: -60,
+      downvoterCountThreshold: 3,
+      timeframeUnit: 'weeks',
+      timeframeLength: 2,
+      itemsPerTimeframe: 1,
+      rateLimitType: 'lowKarma',
+      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
+      appliesToOwnPosts: false
     }
   }
 } as const
