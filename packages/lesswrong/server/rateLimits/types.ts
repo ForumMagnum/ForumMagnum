@@ -3,7 +3,7 @@ export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"
  
 export type RateLimitInfo = {
   nextEligible: Date,
-  rateLimitType: RateLimitType,
+  rateLimitType?: RateLimitType,
   rateLimitMessage: string,
 }
 
@@ -27,7 +27,7 @@ export interface AutoRateLimit {
   timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
   timeframeUnit: TimeframeUnitType, // measuring units for the timeframe (i.e. minutes, hours, days)
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
-  rateLimitType: RateLimitType // short name used in analytics db
+  rateLimitType?: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
 
   // The following parameters are optional, and if set, the rate limit will only apply to users who meet the criteria.
