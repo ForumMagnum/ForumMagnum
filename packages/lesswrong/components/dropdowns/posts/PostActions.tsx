@@ -92,9 +92,9 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <SetSideCommentVisibility />
       <HideFrontpagePostDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
-      <EditTagsDropdownItem post={post} closeMenu={closeMenu} />
+      {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
-      <MarkAsReadDropdownItem post={post} />
+      {currentUser && <MarkAsReadDropdownItem post={post} />}
       <SuggestCuratedDropdownItem post={post} />
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
