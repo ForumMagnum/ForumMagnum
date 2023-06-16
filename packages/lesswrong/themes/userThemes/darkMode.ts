@@ -203,6 +203,7 @@ export const darkModeTheme: UserThemeSpecification = {
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
       primaryTranslucent: "rgba(99,141,103,0.3)",
+      primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent'
     },

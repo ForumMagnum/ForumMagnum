@@ -6,6 +6,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   reactionSvg: {
     verticalAlign: "middle",
+    marginTop: 1
   },
   invertIfDarkMode: {
     filter: (theme.palette.type==="dark") ? "invert(1)" : undefined,
@@ -26,6 +27,10 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   const saturation = reactionType.filter?.saturate ?? defaultFilter.saturate;
   const padding = reactionType.filter?.padding ? `${reactionType.filter.padding}px` : undefined;
 
+  const scale = reactionType.filter?.scale ?? defaultFilter.scale;
+  const translateX = reactionType.filter?.translateX ?? defaultFilter.translateX
+  const translateY = reactionType.filter?.translateY ?? defaultFilter.translateY
+
   return <span
     className={classNames(
       {
@@ -38,6 +43,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
       src={reactionType.svg}
       style={{
         filter: `opacity(${opacity}) saturate(${saturation})`,
+        transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`,
         padding,
         width:size, height:size,
       }}

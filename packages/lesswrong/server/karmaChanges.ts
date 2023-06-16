@@ -2,10 +2,12 @@ import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
 import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
-import { htmlToText } from 'html-to-text';
+import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
 import VotesRepo, { CommentKarmaChange, KarmaChangesArgs, PostKarmaChange, TagRevisionKarmaChange } from './repos/VotesRepo';
 
+// Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
+const htmlToTextDefault = compileHtmlToText();
 
 type ExtendedCommentKarmaChange = CommentKarmaChange & {
   tagSlug?: string,
@@ -183,7 +185,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
   for (let comment of changedComments) {
-    comment.description = htmlToText(comment.description ?? "")
+    comment.description = htmlToTextDefault(comment.description ?? "")
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
 

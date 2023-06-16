@@ -147,7 +147,7 @@ export const usePostsItem = ({
   const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post));
 
   const commentTerms: CommentsViewTerms = {
-    view:"postsItemComments",
+    view: "postsItemComments",
     limit:7,
     postId: post._id,
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
@@ -170,7 +170,6 @@ export const usePostsItem = ({
     commentsLink: postLink + "#comments",
     commentCount: postGetCommentCount(post),
     primaryTag: hideTag ? null : postGetPrimaryTag(post),
-    hasAudio: !!post.podcastEpisodeId,
     tagRel,
     resumeReading,
     sticky: forceSticky || isSticky(post, terms),

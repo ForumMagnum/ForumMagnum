@@ -143,6 +143,18 @@ import './collections/userMostValuablePosts/views';
 import './collections/useractivities/collection';
 import './collections/useractivities/schema';
 
+import './collections/pagecache/collection';
+import './collections/pagecache/schema';
+
+import './collections/digestPosts/collection';
+import './collections/digestPosts/fragments';
+import './collections/digestPosts/schema';
+
+import './collections/digests/collection';
+import './collections/digests/fragments';
+import './collections/digests/schema';
+import './collections/digests/views';
+
 
 // Subscriptions
 import './collections/subscriptions';
@@ -203,6 +215,9 @@ import './collections/moderationTemplates/index';
 
 // UserRateLimits
 import './collections/userRateLimits/index';
+
+// PostEmbeddings
+import './collections/postEmbeddings/collection';
 
 // Internationalization
 import './i18n-en-us/en_US';

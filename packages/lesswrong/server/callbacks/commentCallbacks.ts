@@ -17,6 +17,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -269,6 +270,17 @@ async function sendModerationPM({ messageContents, lwAccount, comment, noEmail, 
   }
 }
 
+export function getRejectionMessage (rejectedContentLink: string, rejectedReason: string|null) {
+  let messageContents = `
+  <p>Unfortunately, I rejected your ${rejectedContentLink}.</p>
+  <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>`
+  if (rejectedReason) {
+    messageContents += `<p>Your content didn't meet the bar for at least the following reason(s):</p>
+    <p>${rejectedReason}</p>`;
+  }
+  return messageContents;
+}
+
 async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUser) {
   let rejectedContentLink = "[Error: content not found]"
   let contentTitle: string|null = null
@@ -289,14 +301,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
 
   const commentUser = await Users.findOne({_id: comment.userId})
 
-  let messageContents =
-      // TODO: make link conditional on forum, or something
-      `Unfortunately, I rejected your ${rejectedContentLink}.  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
-
-  if (comment.rejectedReason) {
-    messageContents += ` <p>Your comment didn't meet the bar for at least the following reason(s):</p><p>${comment.rejectedReason}</p>`;
-  }
-  
+  let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
@@ -371,6 +376,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
+  const start = Date.now();
   var commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
   const {modifiedDocument: votedComment} = await performVoteServer({
@@ -381,6 +387,12 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
     skipRateLimits: true,
     selfVote: true
   })
+
+  const timeElapsed = Date.now() - start;
+  captureEvent('selfUpvoteComment', {
+    commentId: comment._id,
+    timeElapsed
+  }, true);
   return {...comment, ...votedComment} as DbComment;
 });
 

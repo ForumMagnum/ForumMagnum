@@ -14,6 +14,7 @@ import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
+import './server/pageCache/cron';
 import './server/users/cron'
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
@@ -99,6 +100,7 @@ import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
+import './server/recommendations/recommedationsCron';
 import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
@@ -177,7 +179,13 @@ import './server/languageModels/postSummaryResolver';
 import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
+import './server/embeddings';
+
 // Algolia Search Integration
 import './server/search/utils';
 import './server/search/callbacks';
 import './server/search/algoliaCron';
+
+import './server/search/elastic/ElasticExporter';
+import './server/search/elastic/elasticCallbacks';
+import './server/search/elastic/elasticGraphQL';

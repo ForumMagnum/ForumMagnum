@@ -225,8 +225,28 @@
     "timestamp": "2023-05-24T18:34:35.000Z"
   },
   {
-    "acceptsSchemaHash": "8ed79a3bdee90bd2905d51bd75f4d4fd",
-    "acceptedByMigration": "20230530T201952.add_criticismTipsDismissed_to_Posts.ts",
-    "timestamp": "2023-05-30T20:19:52.000Z"
+    "acceptsSchemaHash": "6e28f55ed0de0da2c75b4284178ba6e1",
+    "acceptedByMigration": "20230608T204514.add_reactPaletteStyle.ts",
+    "timestamp": "2023-06-08T20:45:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8a6bdab9352a0251d6db2fa801b6b593",
+    "acceptedByMigration": "20230608T234328.create_PostEmbeddings_table.ts",
+    "timestamp": "2023-06-08T23:43:28.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8f9b37b6b8213a24c21dba39e77f7bbb",
+    "acceptedByMigration": "20230609T100000.add_PageCache.ts",
+    "timestamp": "2023-06-09T10:00:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7abdde9662fea7114e47457ccdc6f4ad",
+    "acceptedByMigration": "20230614T182837.add_digest_tables.ts",
+    "timestamp": "2023-06-14T18:28:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "88bc10e632764af3e6cff68763da9113",
+    "acceptedByMigration": "20230616T170716.add_criticismTipsDismissed_to_Posts.ts",
+    "timestamp": "2023-06-16T17:07:16.000Z"
   }
 ]

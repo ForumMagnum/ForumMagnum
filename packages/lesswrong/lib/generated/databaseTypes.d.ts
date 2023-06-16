@@ -249,6 +249,32 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
+}
+
+interface DbDigestPost extends DbObject {
+  __collectionName?: "DigestPosts"
+  digestId: string
+  postId: string
+  emailDigestStatus: string | null
+  onsiteDigestStatus: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface DigestsCollection extends CollectionBase<DbDigest, "Digests"> {
+}
+
+interface DbDigest extends DbObject {
+  __collectionName?: "Digests"
+  num: number
+  startDate: Date
+  endDate: Date | null
+  publishedDate: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
 }
 
@@ -443,6 +469,35 @@ interface DbNotification extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface PageCacheCollection extends CollectionBase<DbPageCacheEntry, "PageCache"> {
+}
+
+interface DbPageCacheEntry extends DbObject {
+  __collectionName?: "PageCache"
+  path: string
+  abTestGroups: any /*{"definitions":[{"blackbox":true}]}*/
+  bundleHash: string
+  renderedAt: Date
+  expiresAt: Date
+  ttlMs: number
+  renderResult: {
+    ssrBody: string,
+    headers: Array<string>,
+    serializedApolloState: string,
+    serializedForeignApolloState: string,
+    jssSheets: string,
+    status: number,
+    redirectUrl: string,
+    relevantAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    allAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
+    themeOptions: any /*{"definitions":[{"blackbox":true}]}*/,
+    renderedAt: Date,
+    timings: any /*{"definitions":[{"blackbox":true}]}*/,
+  }
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch, "PetrovDayLaunchs"> {
 }
 
@@ -476,6 +531,20 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface PostEmbeddingsCollection extends CollectionBase<DbPostEmbedding, "PostEmbeddings"> {
+}
+
+interface DbPostEmbedding extends DbObject {
+  __collectionName?: "PostEmbeddings"
+  postId: string
+  postHash: string
+  lastGeneratedAt: Date
+  model: string
+  embeddings: Array<number>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1037,6 +1106,7 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDraftsBy: string
+  reactPaletteStyle: "listView" | "gridView"
   noKibitz: boolean
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean
@@ -1398,6 +1468,8 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DigestPosts: DigestPostsCollection
+  Digests: DigestsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1410,9 +1482,11 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
+  PageCache: PageCacheCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostEmbeddings: PostEmbeddingsCollection
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
@@ -1449,6 +1523,8 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DigestPosts: DbDigestPost
+  Digests: DbDigest
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
@@ -1461,9 +1537,11 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
+  PageCache: DbPageCacheEntry
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostEmbeddings: DbPostEmbedding
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost

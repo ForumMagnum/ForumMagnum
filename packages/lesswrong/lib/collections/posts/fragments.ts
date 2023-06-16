@@ -229,6 +229,7 @@ registerFragment(`
     }
 
     unreadDebateResponseCount
+    dialogTooltipPreview
   }
 `);
 

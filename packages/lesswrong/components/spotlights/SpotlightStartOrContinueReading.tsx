@@ -36,19 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   spotlight: SpotlightDisplay,
   classes: ClassesType,
-  }) => {
-    const { LWTooltip, PostsPreviewTooltip} = Components
-  const { results: chapters } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: spotlight.documentId,
-      limit: 100
-    },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
-    skip: spotlight.documentType !== "Sequence"
-  });
+}) => {
+  const { LWTooltip, PostsPreviewTooltip} = Components
+  const chapters = spotlight.sequenceChapters;
   
   const { postsRead: clientPostsRead } = useItemsRead();
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []

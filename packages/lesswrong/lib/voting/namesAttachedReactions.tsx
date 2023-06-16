@@ -73,7 +73,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
       };
       if (extendedVote?.reacts) {
         for (let reaction of extendedVote.reacts) {
-          const userInfoWithType = {...userInfo, reactType: reaction.vote};
+          const userInfoWithType = {...userInfo, reactType: reaction.vote, quotes: reaction.quotes};
           if (mergedReacts[reaction.react]) {
             mergedReacts[reaction.react]!.push(userInfoWithType);
           } else {
@@ -91,9 +91,17 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     };
   },
 
-  isAllowedExtendedVote: (user: UsersCurrent|DbUser, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
+  isAllowedExtendedVote: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
     // Are there any reacts in this vote?
     if (extendedVote?.reacts && extendedVote.reacts.length>0) {
+      // Users cannot antireact to reactions on their own comments
+      if (some(extendedVote.reacts, r=>r.vote==="disagreed")) {
+        if (user._id===document.userId) {
+          return {allowed: false, reason: `You cannot antireact to reactions on your own comments`};
+        }
+      }
+      
+
       // If the user is disagreeing with a react, they need at least
       // downvoteExistingReactKarmaThreshold karma
       if (user.karma < downvoteExistingReactKarmaThreshold.get()
@@ -148,16 +156,18 @@ export type VoteOnReactionType = "created"|"seconded"|"disagreed";
 export type UserVoteOnSingleReaction = {
   react: EmojiReactName
   vote: VoteOnReactionType
+  quotes?: string[]
 };
 export type NamesAttachedReactionsVote = {
   agreement?: string,
-  reacts?: UserVoteOnSingleReaction[],
+  reacts?: UserVoteOnSingleReaction[]
 }
 export type UserReactInfo = {
   userId: string
   reactType: VoteOnReactionType
   displayName: string
   karma: number
+  quotes?: string[]
 }
 export type NamesAttachedReactionsList = {
   [reactionType: EmojiReactName]: UserReactInfo[]|undefined
@@ -182,7 +192,7 @@ function addReactsVote(
   };
   if (voteReacts) {
     for (let reaction of voteReacts) {
-      const userInfoWithType = {...userInfo, reactType: reaction.vote};
+      const userInfoWithType = {...userInfo, reactType: reaction.vote, quotes: reaction.quotes};
       if (updatedReactions[reaction.react])
         updatedReactions[reaction.react] = [...updatedReactions[reaction.react]!, userInfoWithType];
       else

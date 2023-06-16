@@ -87,7 +87,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         }
   
         const timeElapsed = Date.now() - startResolve;
-        captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms});
+        // Temporarily disabled to investigate performance issues
+        // captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms}, true);
         // return results
         return data;
       },
@@ -167,7 +168,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logger('');
         
         const timeElapsed = Date.now() - startResolve;
-        captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed});
+        // Temporarily disabled to investigate performance issues
+        // captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed}, true);
         
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
@@ -218,11 +220,9 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     return await collection.aggregate(pipeline).toArray();
   } else {
     logger('performQueryFromViewParameters connector find', selector, terms, options);
-    return await Utils.Connectors.find(collection,
-      {
-        ...selector,
-        $comment: describeTerms(terms),
-      },
-      options);
+    return await collection.find({
+      ...selector,
+      $comment: describeTerms(terms),
+    }, options).fetch();
   }
 }
