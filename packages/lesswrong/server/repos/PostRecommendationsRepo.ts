@@ -100,6 +100,11 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
     `);
     // Delete all recommendations that were never clicked that were last
     // recommended at least 3 months ago
+    // This is currently disabled as it will ruin the analytics - if we
+    // want to enable this is the future then we should probably move
+    // the data into a separate "archive" table instead of completely
+    // deleting it.
+    /*
     await this.none(`
       DELETE
       FROM "PostRecommendations"
@@ -107,5 +112,6 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
         "clickedAt" IS NULL AND
         (CURRENT_TIMESTAMP - "createdAt") > '3 months'
     `);
+    */
   }
 }
