@@ -62,14 +62,15 @@ const LW = {
       rateLimitType: 'lowKarma',
       rateLimitMessage: "Users with -30 karma can only post once every two weeks.",
     },
-    ONE_PER_FOUR_WEEKS_NEGATIVE_60_KARMA: {
+    ONE_PER_FOUR_WEEKS_NEGATIVE_60_RECENT_KARMA: {
       actionType: "Posts",
       karmaThreshold: -60,
       timeframeUnit: 'weeks',
       timeframeLength: 4,
       itemsPerTimeframe: 1,
-      rateLimitType: 'lowKarma',
-      rateLimitMessage: `Users with -50 karma on their recent content can only post once every two weeks.`,
+      rateLimitType: 'lowKarma', 
+      // TODO: make this message friendlier
+      rateLimitMessage: `Users with -60 karma on their recent content can only post once every four weeks.`,
     }
   },
   COMMENTS: {
@@ -111,27 +112,40 @@ const LW = {
       itemsPerTimeframe: 3,
       rateLimitType: 'lowKarma',
       rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`,
+      appliesToOwnPosts: true
     },
-    ONE_PER_WEEK_NEGATIVE_30_RECENT_KARMA: {
+    ONE_PER_DAY_NEGATIVE_RECENT_KARMA: {
       actionType: "Comments",
-      karmaThreshold: -30,
+      recentKarmaThreshold: 0,
       downvoterCountThreshold: 3,
-      timeframeUnit: 'weeks',
+      timeframeUnit: 'days',
       timeframeLength: 1,
-      itemsPerTimeframe: 1,
+      itemsPerTimeframe: 3,
       rateLimitType: 'lowKarma',
-      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -30 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per week on other's posts.`,
+      rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`,
+      appliesToOwnPosts: true
+    },
+    NEGATIVE_15_RECENT_KARMA: {
+      actionType: "Comments",
+      recentKarmaThreshold: -15,
+      downvoterCountThreshold: 2,
+      itemsPerTimeframe: 1,
+      timeframeLength: 3,
+      timeframeUnit: 'days',
+      rateLimitType: 'lowKarma',
+      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
       appliesToOwnPosts: false
     },
-    ONE_PER_WEEK_NEGATIVE_60_RECENT_KARMA: {
+    NEGATIVE_30_RECENT_KARMA: {
       actionType: "Comments",
-      karmaThreshold: -60,
-      downvoterCountThreshold: 3,
+      recentKarmaThreshold: -30,
+      recentContentCutoffDays: 60,
+      downvoterCountThreshold: 2,
       timeframeUnit: 'weeks',
       timeframeLength: 2,
       itemsPerTimeframe: 1,
       rateLimitType: 'lowKarma',
-      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
+      // rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
       appliesToOwnPosts: false
     }
   }
@@ -168,7 +182,9 @@ export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
   LessWrong: [ 
     LW.POSTS.TWO_PER_WEEK_UNDER_5_KARMA, 
     LW.POSTS.ONE_PER_WEEK_NEGATIVE_KARMA,
-    LW.POSTS.ONE_PER_TWO_WEEKS_NEGATIVE_30_KARMA
+    LW.POSTS.ONE_PER_TWO_WEEKS_NEGATIVE_30_KARMA,
+    LW.POSTS.ONE_PER_WEEK_NEGATIVE_KARMA,
+    LW.POSTS.ONE_PER_FOUR_WEEKS_NEGATIVE_60_RECENT_KARMA
   ],
   default: [
     ALL.POSTS.FIVE_PER_DAY
@@ -184,7 +200,8 @@ export const autoCommentRateLimits: ForumOptions<CommentAutoRateLimit[]> = {
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
     LW.COMMENTS.THREE_PER_DAY_UNDER_5_KARMA, 
     LW.COMMENTS.ONE_PER_DAY_NEGATIVE_KARMA, 
-    LW.COMMENTS.ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA
+    LW.COMMENTS.ONE_PER_THREE_DAYS_NEGATIVE_15_KARMA,
+    LW.COMMENTS.THREE_PER_DAY_UNDER_1_RECENT_KARMA,
   ],
   default: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS

@@ -10,7 +10,7 @@ import { forumSelect } from "../../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../../lib/vulcan-users/permissions"
 import VotesRepo, { RecentVoteInfo } from "../repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import type { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, StrictestCommentRateLimitInfoParams, TimeframeUnitType, UserRateLimit } from "./types"
+import type { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, StrictestCommentRateLimitInfoParams, TimeframeUnitType, UserKarmaInfo, UserRateLimit } from "./types"
 
 function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   if (!rateLimits) return 0
@@ -78,15 +78,16 @@ function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHou
   }
 }
 
-function shouldRateLimitApply(user: DbUser, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
+export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
   // rate limit conditions
   const { karmaThreshold, downvoteRatio, 
           recentKarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
-          downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold } = rateLimit
+          downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold, 
+          lastMonthKarmaThreshold, lastMonthDownvoterCountThreshold } = rateLimit
 
   // user's recent karma info
-  const { recentKarma, recentPostKarma, recentCommentKarma, 
-          downvoterCount, postDownvoterCount, commentDownvoterCount } = recentKarmaInfo
+  const { recentKarma, lastMonthKarma, recentPostKarma, recentCommentKarma, 
+          downvoterCount, postDownvoterCount, commentDownvoterCount, lastMonthDownvoterCount } = recentKarmaInfo
 
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
   if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
@@ -95,6 +96,9 @@ function shouldRateLimitApply(user: DbUser, rateLimit: AutoRateLimit, recentKarm
   if ((recentKarmaThreshold !== undefined) && (recentKarma > recentKarmaThreshold)) return false
   if ((recentPostKarmaThreshold !== undefined) && (recentPostKarma > recentPostKarmaThreshold)) return false
   if ((recentCommentKarmaThreshold !== undefined) && (recentCommentKarma > recentCommentKarmaThreshold)) return false
+
+  if ((lastMonthKarmaThreshold !== undefined && (lastMonthKarma > lastMonthKarmaThreshold))) return false
+  if ((lastMonthDownvoterCountThreshold !== undefined && (lastMonthDownvoterCount > lastMonthDownvoterCountThreshold))) return false
 
   if ((downvoterCountThreshold !== undefined) && (downvoterCount > downvoterCountThreshold)) return false
   if ((postDownvoterCountThreshold !== undefined) && (postDownvoterCount > postDownvoterCountThreshold)) return false
@@ -281,7 +285,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
 
-async function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): Promise<RecentVoteInfo[]> {
+function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): RecentVoteInfo[] {
   // sort the votes via the date of the *postedAt* (joined from )
   const sortedVotes = votes.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
   
@@ -292,18 +296,22 @@ async function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20):
   return sortedVotes.filter((vote) => latestDocumentIds.has(vote.documentId))
 }
 
-export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaInfo> {
-  const votesRepo = new VotesRepo()
-  const allVotes = await votesRepo.getVotesOnRecentContent(userId)
-  const top20documentVotes = await getVotesOnLatestDocuments(allVotes)
-
+export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInfo[]): RecentKarmaInfo  {
+  const top20DocumentVotes = getVotesOnLatestDocuments(allVotes)
+  
   // We filter out the user's self-upvotes here, rather than in the query, because
   // otherwise the getLatest20contentItems won't know about all the relevant posts and comments. 
   // i.e. if a user comments 20 times, and nobody upvotes them, we wouldn't know to include them in the sorted list
+  // (the alternative here would be making an additional query for all posts/comments, regardless of who voted on them,
+  // which seemed at least as expensive as filtering out the self-votes here)
   const nonuserIDallVotes = allVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
-  const nonUserIdTop20DocVotes = top20documentVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
+  const nonUserIdTop20DocVotes = top20DocumentVotes.filter((vote: RecentVoteInfo) => vote.userId !== userId)
   const postVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Posts")
   const commentVotes = nonuserIDallVotes.filter(vote => vote.collectionName === "Comments")
+
+  const oneMonthAgo = moment().subtract(30, 'days').toDate();
+  const lastMonthVotes = nonUserIdTop20DocVotes.filter(vote => vote.postedAt > oneMonthAgo)
+  const lastMonthKarma = lastMonthVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
 
   const recentKarma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   const recentPostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
@@ -315,38 +323,22 @@ export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaIn
   const commentDownvoterCount = uniq(commentDownvoters).length
   const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const postDownvoterCount = uniq(postDownvotes).length
-
-  // NOTE: the following code is just console logs for sanity checking the above code.
-  // I'm leaving it in for now until I'm more confident that the above code is correct.
-
-  // const posts = groupBy(allVotes.filter(vote => vote.collectionName === "Posts"), (vote) => vote.documentId)
-
-  // const comments = groupBy(allVotes.filter(vote => vote.collectionName === "Comments"), (vote) => vote.documentId)
-
-  // const documents = groupBy(top20documentVotes, (vote) => vote.documentId)
-  
-  // console.log("posts", Object.keys(posts).length)
-  // Object.values(posts).forEach((postVotes, i) => {
-  //   const powerTotal = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
-  //   console.log(i, postVotes[0].documentId, postVotes[0].collectionName, powerTotal)
-  // })
-  // console.log("comments", Object.keys(posts).length)
-  // Object.values(comments).forEach((votes, i) => {
-  //   const powerTotal = votes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
-  //   console.log(i, votes[0].documentId, votes[0].collectionName, powerTotal)
-  // })
-  // console.log("all")
-  // Object.values(documents).forEach((documentVotes, i) => {
-  //   const powerTotal = documentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
-  //   console.log(i, documentVotes[0].documentId, documentVotes[0].collectionName, powerTotal)
-  // })
-
+  const lastMonthDownvotes = lastMonthVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const lastMonthDownvoterCount = uniq(lastMonthDownvotes).length
   return { 
     recentKarma: recentKarma ?? 0, 
+    lastMonthKarma: lastMonthKarma ?? 0,
     recentPostKarma: recentPostKarma ?? 0,
     recentCommentKarma: recentCommentKarma ?? 0,
     downvoterCount: downvoterCount ?? 0, 
     postDownvoterCount: postDownvoterCount ?? 0,
-    commentDownvoterCount: commentDownvoterCount ?? 0
+    commentDownvoterCount: commentDownvoterCount ?? 0,
+    lastMonthDownvoterCount: lastMonthDownvoterCount ?? 0
   }
+}
+
+export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaInfo> {
+  const votesRepo = new VotesRepo()
+  const allVotes = await votesRepo.getVotesOnRecentContent(userId)
+  return calculateRecentKarmaInfo(userId, allVotes)
 }

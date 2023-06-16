@@ -7,6 +7,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { UserKarmaInfo } from '../../server/rateLimits/types';
 
 export const CONTENT_LIMIT = 20
 
@@ -149,7 +150,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export function getDownvoteRatio(user: DbUser|SunshineUsersList): number {
+export function getDownvoteRatio(user: UserKarmaInfo): number {
   // First check if the sum of the individual vote count fields
   // add up to something close (with 5%) to the voteReceivedCount field.
   // (They should be equal, but we know there are bugs around counting votes,

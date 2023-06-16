@@ -206,7 +206,6 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
-    recentKarmaInfo
   }
 `);
 
