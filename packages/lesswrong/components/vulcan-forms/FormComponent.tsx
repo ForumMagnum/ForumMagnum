@@ -332,6 +332,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         clearField={this.clearField}
         formInput={this.getFormInput()}
         formComponents={FormComponents}
+        autofocusFieldRef={this.props.autofocusFieldRef}
       />
     );
 

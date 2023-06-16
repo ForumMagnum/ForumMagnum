@@ -72,43 +72,13 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
   };
 
   getProperties = () => {
-    const { name, path, options, label, onChange, value, disabled, inputType } = this.props;
-
-    // these properties are whitelisted so that they can be safely passed to the actual form input
-    // and avoid https://facebook.github.io/react/warnings/unknown-prop.html warnings
-    const inputProperties = {
-      name,
-      path,
-      options,
-      label,
-      onChange: (event: AnyBecauseTodo) => {
-        // FormComponent's handleChange expects value as argument; look in target.checked or target.value
-        const inputValue = inputType === 'checkbox' ? event.target.checked : event.target.value;
-        onChange(inputValue);
-      },
-      value,
-      disabled,
-      ...this.props.inputProperties,
-    };
-
-    return {
-      ...this.props,
-      inputProperties,
-    };
   };
 
   render() {
     const {
-      inputClassName,
-      name,
-      input,
-      beforeComponent,
-      afterComponent,
-      errors,
-      showCharsRemaining,
-      charsRemaining,
-      formComponents,
-      classes,
+      inputClassName, name, input, beforeComponent, afterComponent, errors,
+      showCharsRemaining, charsRemaining, formComponents, classes,
+      path, options, label, onChange, value, disabled, inputType
     } = this.props;
 
     const FormComponents = formComponents;
@@ -123,7 +93,24 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       `form-component-${inputName || 'default'}`,
       { 'input-error': hasErrors }
     );
-    const properties = this.getProperties();
+
+    // these properties are whitelisted so that they can be safely passed to the actual form input
+    // and avoid https://facebook.github.io/react/warnings/unknown-prop.html warnings
+    const properties = {
+      ...this.props,
+      name,
+      path,
+      options,
+      label,
+      onChange: (event: AnyBecauseTodo) => {
+        // FormComponent's handleChange expects value as argument; look in target.checked or target.value
+        const inputValue = inputType === 'checkbox' ? event.target.checked : event.target.value;
+        onChange(inputValue);
+      },
+      value,
+      disabled,
+      ...this.props.inputProperties,
+    };
 
     const FormInput = this.props.formInput;
 

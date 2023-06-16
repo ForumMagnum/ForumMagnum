@@ -37,6 +37,7 @@ export const NewMessageForm = ({classes, conversationId, templateQueries, succes
   return <div className={classes.root}>
     <WrappedSmartForm
       collectionName="Messages"
+      autofocusField="contents"
       prefilledProps={{
         conversationId,
         contents: {

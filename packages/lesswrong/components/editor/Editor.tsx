@@ -646,6 +646,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       [classes.maxHeight]: maxHeight,
     });
   }
+  
+  
+  focus = () => {
+    //eslint-disable-next-line no-console
+    console.log("Setting focus");//TODO
+  }
 
 
   render() {

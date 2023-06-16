@@ -72,6 +72,14 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   warnUnsavedChanges?: boolean
   formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
   
+  // Name of a field to autofocus when the form is rendered. (Note: The widget
+  // for that form-field type needs to support it, which currently only the main
+  // text editor does. You shouldn't use this except on pages that have
+  // approximately nothing on them except for the one form; if there's more than
+  // one form trying to claim autofocus, they'll fight and it will be a bad user
+  // experience.)
+  autofocusField?: string
+  
   // Wasn't in propTypes but used
   id?: string
   data?: any
@@ -144,6 +152,7 @@ declare global {
     formProps: any
     formType: "new"|"edit"
     setFooterContent?: any
+    autofocusFieldRef: React.Ref<AnyBecauseTodo>|null
   }
   interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
     value: T

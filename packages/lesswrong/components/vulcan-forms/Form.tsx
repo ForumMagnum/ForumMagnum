@@ -128,10 +128,14 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     this.state = {
       ...getInitialStateFromProps(props)
     };
+    
+    this.autofocusFieldElement = React.createRef();
   }
 
   form: any
   unblock: any
+  
+  autofocusFieldElement: React.Ref<AnyBecauseTodo>
   
   defaultValues: any = {};
 
@@ -672,6 +676,12 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   componentDidMount = () => {
     this.checkRouteChange();
     this.checkBrowserClosing();
+    
+    if (this.props.autofocusField) {
+      if (this.autofocusFieldElement?.current?.focus) {
+        this.autofocusFieldElement.current.focus();
+      }
+    }
   }
 
   /*
@@ -1020,6 +1030,8 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
             disabled={this.state.disabled}
             formComponents={mergeWithComponents(this.props.formComponents)}
             formProps={this.props.formProps}
+            autofocusFieldName={this.props.autofocusField}
+            autofocusFieldRef={this.autofocusFieldElement}
             key={`${i}-${group.name}`}
           />
         ))}

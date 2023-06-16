@@ -21,7 +21,7 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   return false;
 }
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
+export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, autofocusFieldRef, classes}: {
   form: any,
   formType: "edit"|"new",
   formProps: FormProps,
@@ -33,6 +33,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   placeholder: string,
   label: string,
   commentStyles: boolean,
+  autofocusFieldRef?: React.MutableRefObject<AnyBecauseTodo>,
   classes: ClassesType,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
@@ -42,6 +43,17 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = isCollaborative(document, fieldName);
+
+  if (autofocusFieldRef) {
+    autofocusFieldRef.current = {
+      focus: () => {
+        if (editorRef.current) {
+          editorRef.current.focus();
+        }
+      }
+    };
+  }
+  
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;

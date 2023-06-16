@@ -62,6 +62,12 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     this._destroyEditor();
   }
   
+  focus() {
+    if (this.editor?.editing?.view) {
+      this.editor.editing.view.focus();
+    }
+  }
+  
   // Render a <div> element which will be replaced by CKEditor.
   render() {
     // We need to inject initial data to the container where the editable will be enabled. Using `editor.setData()`

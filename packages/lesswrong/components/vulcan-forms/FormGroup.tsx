@@ -125,6 +125,9 @@ interface FormGroupExternalProps extends FormGroupType {
   formProps: any
   disabled: boolean
   fields: FormField<any>[]
+  
+  autofocusFieldName?: string
+  autofocusFieldRef: React.Ref<AnyBecauseTodo>
 }
 interface FormGroupProps extends FormGroupExternalProps, WithLocationProps {
 }
@@ -218,6 +221,7 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
             formProps={formProps}
             formComponents={FormComponents}
             setFooterContent={this.setFooterContent}
+            autofocusFieldRef={field.name===this.props.autofocusFieldName ? this.props.autofocusFieldRef : null}
           />
         ))}
       </FormComponents.FormGroupLayout>
