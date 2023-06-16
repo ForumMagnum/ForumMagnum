@@ -53,25 +53,25 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
     }
   )
   
-  const {SectionTitle, Loading, PostsItem, CommentsNode, Typography, LoadMore} = Components
+  const {SectionTitle, Loading, PostsItem, CommentsNode, LoadMore} = Components
 
-  if (loading) {
+  if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />
   }
-
   if (!data?.UserVoteHistory) {
-    return <></>;
+    return null;
   }
   
   const posts: (PostsListWithVotes & {content_type: 'post'})[] = data.UserVoteHistory.posts
   const comments: (CommentsList & {content_type: 'comment'})[] = data.UserVoteHistory.comments
-  const voteInfo: UserContent['voteInfo'] = data.UserVoteHistory.voteInfo;
+  const voteInfo: UserContent['voteInfo'] = data.UserVoteHistory.voteInfo
 
 
   // A matching voteInfo will always be present; TS thinks it's undefined because we're using `.find`
   const postsWithVoteInfo = posts.map(post => ({ ...post, ...voteInfo.find(v => v.documentId === post._id)! }));
   const commentsWithVoteInfo = comments.map(comment => ({ ...comment, ...voteInfo.find(v => v.documentId === comment._id)! }));
 
+  // TODO: seems like this order might be wrong?
   const mixedFeed = [...postsWithVoteInfo, ...commentsWithVoteInfo].sort((a, b) => (
     new Date(a.votedAt).getTime() - new Date(b.votedAt).getTime()
   ));
@@ -84,49 +84,42 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
     if (isPostItem(item)) {
       return <PostsItem key={item._id} post={item}/>;
     } else {
-      return <CommentsNode key={item._id} comment={item} treeOptions={{}} />
+      return <CommentsNode key={item._id} comment={item} treeOptions={{showPostTitle: true}} />
     }
   };
   
-  let bodyNode = <Loading />
-  if (mixedFeed) {
-    console.log({ voteHistory: mixedFeed });
-    // group the posts by last read "Today", "Yesterday", and "Older"
-    const todaysContent = mixedFeed.filter(post => moment(post.votedAt).isSame(moment(), 'day'))
-    const yesterdaysContent = mixedFeed.filter(post => moment(post.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
-    const olderContent = mixedFeed.filter(post => moment(post.votedAt).isBefore(moment().subtract(1, 'day'), 'day'))
-    
-    bodyNode = <>
-      {!!todaysContent.length && <SectionTitle title="Today"/>}
-      {todaysContent?.map(item => getContentItemNode(item))}
-      {!!yesterdaysContent.length && <SectionTitle title="Yesterday"/>}
-      {yesterdaysContent?.map(item => getContentItemNode(item))}
-      {!!olderContent.length && <SectionTitle title="Older"/>}
-      {olderContent?.map(item => getContentItemNode(item))}
-      <div className={classes.loadMore}>
-        <LoadMore
-          loading={networkStatus === NetworkStatus.fetchMore}
-          loadMore={() => {
-            const newLimit = limit + pageSize;
-            void fetchMore({
-              variables: {
-                limit: newLimit
-              },
-              updateQuery: (prev, { fetchMoreResult }) => {
-                if (!fetchMoreResult) return prev;
-                return fetchMoreResult
-              }
-            })
-            setLimit(newLimit);
-          }}
-          loadingClassName={classes.loadMoreSpinner}
-        />
-      </div>
-    </>
-  }
-
-  return <AnalyticsContext listContext="readHistory" capturePostItemOnMount>
-    {bodyNode}
+  console.log({ voteHistory: mixedFeed });
+  // group the posts/commnts by when the user voted on them ("Today", "Yesterday", and "Older")
+  const todaysContent = mixedFeed.filter(item => moment(item.votedAt).isSame(moment(), 'day'))
+  const yesterdaysContent = mixedFeed.filter(item => moment(item.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
+  const olderContent = mixedFeed.filter(item => moment(item.votedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+  
+  return <AnalyticsContext pageSectionContext="voteHistoryTab">
+    {!!todaysContent.length && <SectionTitle title="Today"/>}
+    {todaysContent?.map(getContentItemNode)}
+    {!!yesterdaysContent.length && <SectionTitle title="Yesterday"/>}
+    {yesterdaysContent?.map(getContentItemNode)}
+    {!!olderContent.length && <SectionTitle title="Older"/>}
+    {olderContent?.map(getContentItemNode)}
+    <div className={classes.loadMore}>
+      <LoadMore
+        loading={networkStatus === NetworkStatus.fetchMore}
+        loadMore={() => {
+          const newLimit = limit + pageSize;
+          void fetchMore({
+            variables: {
+              limit: newLimit
+            },
+            updateQuery: (prev, { fetchMoreResult }) => {
+              if (!fetchMoreResult) return prev;
+              return fetchMoreResult
+            }
+          })
+          setLimit(newLimit);
+        }}
+        loadingClassName={classes.loadMoreSpinner}
+      />
+    </div>
   </AnalyticsContext>
 }
 

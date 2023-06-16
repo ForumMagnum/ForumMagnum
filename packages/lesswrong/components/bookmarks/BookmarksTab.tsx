@@ -1,7 +1,7 @@
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useContinueReading } from '../recommendations/withContinueReading';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,11 +15,11 @@ export const BookmarksTab = ({classes}: {
   const {SectionTitle, BookmarksList, ContinueReadingList} = Components
   const {continueReading} = useContinueReading();
 
-  return (<>
-      <BookmarksList/>
-      <SectionTitle title="Continue Reading"/>
-      <ContinueReadingList continueReading={continueReading}/>
-    </>);
+  return <AnalyticsContext pageSectionContext="bookmarksTab">
+    <BookmarksList/>
+    <SectionTitle title="Continue Reading"/>
+    <ContinueReadingList continueReading={continueReading}/>
+  </AnalyticsContext>
 
 }
 

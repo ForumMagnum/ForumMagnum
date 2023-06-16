@@ -744,10 +744,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/saved'
     },
     {
-      name: 'savedPosts',
+      name: 'savedAndRead',
       path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Saved Posts',
+      title: 'Saved & Read',
     },
   ],
   LessWrong: [
@@ -1141,15 +1141,6 @@ addRoute(
     title: "Shortform"
   },
 );
-
-// addRoute(
-//   {
-//     name: 'readHistory',
-//     path: '/history',
-//     componentName: 'ReadHistoryPage',
-//     title: 'Read History',
-//   },
-// );
 
 if (hasEventsSetting.get()) {
   addRoute(

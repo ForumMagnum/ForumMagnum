@@ -24,7 +24,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   const [limit, setLimit] = useState(defaultLimit);
   
   // pull the latest 10 posts that the current user has read
-  const { data, fetchMore, networkStatus } = useQuery(gql`
+  const { data, loading, fetchMore, networkStatus } = useQuery(gql`
     query getReadHistory($limit: Int) {
       UserReadHistory(limit: $limit) {
         posts {
@@ -45,48 +45,48 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
     }
   )
   
-  const {SectionTitle, Loading, PostsItem, Typography, LoadMore} = Components
+  const {SectionTitle, Loading, PostsItem, LoadMore} = Components
   
-  const readHistory: (PostsListWithVotes&{lastVisitedAt:Date})[] = data?.UserReadHistory?.posts
+  const readHistory: (PostsListWithVotes & {lastVisitedAt:Date})[] = data?.UserReadHistory?.posts
   
-  let bodyNode = <Loading />
-  if (readHistory) {
-    // group the posts by last read "Today", "Yesterday", and "Older"
-    const todaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment(), 'day'))
-    const yesterdaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
-    const olderPosts = readHistory.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
-    
-    bodyNode = <>
-      {!!todaysPosts.length && <SectionTitle title="Today"/>}
-      {todaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
-      {!!yesterdaysPosts.length && <SectionTitle title="Yesterday"/>}
-      {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
-      {!!olderPosts.length && <SectionTitle title="Older"/>}
-      {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
-      <div className={classes.loadMore}>
-        <LoadMore
-          loading={networkStatus === NetworkStatus.fetchMore}
-          loadMore={() => {
-            const newLimit = limit + pageSize;
-            void fetchMore({
-              variables: {
-                limit: newLimit
-              },
-              updateQuery: (prev, { fetchMoreResult }) => {
-                if (!fetchMoreResult) return prev;
-                return fetchMoreResult
-              }
-            })
-            setLimit(newLimit);
-          }}
-          loadingClassName={classes.loadMoreSpinner}
-        />
-      </div>
-    </>
+  if (loading && networkStatus !== NetworkStatus.fetchMore) {
+    return <Loading />
   }
-
-  return <AnalyticsContext listContext="readHistory" capturePostItemOnMount>
-    {bodyNode}
+  if (!readHistory) {
+    return null
+  }
+  
+  // group the posts by last read "Today", "Yesterday", and "Older"
+  const todaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment(), 'day'))
+  const yesterdaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
+  const olderPosts = readHistory.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+  
+  return <AnalyticsContext pageSectionContext="bookmarksTab">
+    {!!todaysPosts.length && <SectionTitle title="Today"/>}
+    {todaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+    {!!yesterdaysPosts.length && <SectionTitle title="Yesterday"/>}
+    {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+    {!!olderPosts.length && <SectionTitle title="Older"/>}
+    {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+    <div className={classes.loadMore}>
+      <LoadMore
+        loading={networkStatus === NetworkStatus.fetchMore}
+        loadMore={() => {
+          const newLimit = limit + pageSize;
+          void fetchMore({
+            variables: {
+              limit: newLimit
+            },
+            updateQuery: (prev, { fetchMoreResult }) => {
+              if (!fetchMoreResult) return prev;
+              return fetchMoreResult
+            }
+          })
+          setLimit(newLimit);
+        }}
+        loadingClassName={classes.loadMoreSpinner}
+      />
+    </div>
   </AnalyticsContext>
 }
 

@@ -223,7 +223,7 @@ const UsersMenu = ({classes}: {
             />
             {currentUser.bookmarkedPostsMetadata?.length > 0 &&
               <DropdownItem
-                title={isEAForum ? "Saved posts" : "Bookmarks"}
+                title={isEAForum ? "Saved & read" : "Bookmarks"}
                 to={isEAForum ? "/saved" : "/bookmarks"}
                 icon="Bookmarks"
                 iconClassName={classes.icon}

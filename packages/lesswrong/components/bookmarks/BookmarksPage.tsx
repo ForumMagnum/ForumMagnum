@@ -5,21 +5,28 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
 const styles = (theme: ThemeType): JssStyles => ({
   headline: {
     color: theme.palette.grey[1000],
-    marginTop: 0,
-    marginBottom: 30
+    fontSize: 28,
+    marginTop: 5,
+    marginLeft: 10,
+    marginBottom: 20,
+    [theme.breakpoints.down('md')]: {
+      marginTop: 15
+    }
   },
   tabs: {
     marginBottom: 20
   },
   tab: {
-    fontSize: 14
-    // TODO: forum-gated font weight?
+    fontSize: 14,
+    fontWeight: isEAForum ? '700' : undefined
   }
 });
 
@@ -28,31 +35,32 @@ const BookmarksPage = ({ classes }: {
 }) => {
   const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
 
-  const [activeTab, setActiveTab] = useState<TabType>('bookmarks');
+  const [activeTab, setActiveTab] = useState<TabType>('bookmarks')
 
   const currentUser = useCurrentUser()
+  if (!currentUser) {
+    return <span>You must sign in to view this page.</span>
+  }
 
-  if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
-
-  return <SingleColumnSection>
+  return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
+    <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
-        Saved & Read Posts
+        {preferredHeadingCase(`Saved & Read`)}
       </Typography>
-      <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
         <Tabs
           value={activeTab}
           onChange={(_, value) => setActiveTab(value)}
           className={classes.tabs}
         >
-          <Tab className={classes.tab} value='bookmarks' label='Bookmarks' />
+          <Tab className={classes.tab} value='bookmarks' label={isEAForum ? 'Saved' : 'Bookmarks'} />
           <Tab className={classes.tab} value='readhistory' label='Read History' />
           <Tab className={classes.tab} value='votehistory' label='Vote History' />
         </Tabs>
         {activeTab === 'bookmarks' && <BookmarksTab />}
         {activeTab === 'readhistory' && <ReadHistoryTab />}
         {activeTab === 'votehistory' && <VoteHistoryTab />}
-      </AnalyticsContext>
     </SingleColumnSection>
+  </AnalyticsContext>
 }
 
 

@@ -5,6 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const BookmarksList = ({limit=20, hideLoadMore=false}: {
   limit?: number,
@@ -35,15 +36,17 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
     )
   );
 
-  return <div>
-    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
-      <PostsItem
-        key={post._id} post={post} bookmark
-        showBottomBorder={i < sortedBookmarkedPosts.length-1}
-      />
-    )}
-    {!hideLoadMore && <LoadMore {...loadMoreProps}/>}
-  </div>
+  return <AnalyticsContext pageSubSectionContext="bookmarksList">
+    <div>
+      {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
+        <PostsItem
+          key={post._id} post={post} bookmark
+          showBottomBorder={i < sortedBookmarkedPosts.length-1}
+        />
+      )}
+      {!hideLoadMore && <LoadMore {...loadMoreProps}/>}
+    </div>
+  </AnalyticsContext>
 }
 
 const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, {
