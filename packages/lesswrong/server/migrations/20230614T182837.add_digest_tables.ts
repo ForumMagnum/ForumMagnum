@@ -1,9 +1,9 @@
 /**
- * Generated on 2023-06-12T19:55:21.752Z by `yarn makemigrations`
+ * Generated on 2023-06-14T18:28:37.144Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
- * index a66567b398..d322ca6bf1 100644
+ * index a66567b398..34b03ccafa 100644
  * --- a/Users/sarah/EAForum/schema/accepted_schema.sql
  * +++ b/Users/sarah/EAForum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
@@ -11,7 +11,7 @@
  * --- Overall schema hash: 8f9b37b6b8213a24c21dba39e77f7bbb
  * -
  * --- Accepted on 2023-06-09T10:00:00.000Z by 20230609T100000.add_PageCache.ts
- * +-- Overall schema hash: a9e4ae51c937678ad30ee19476819a97
+ * +-- Overall schema hash: 7abdde9662fea7114e47457ccdc6f4ad
  *  
  * @@ -237,2 +235,26 @@ CREATE TABLE "DebouncerEvents" (
  *  
@@ -27,11 +27,11 @@
  * +    "legacyData" jsonb
  * +);
  * +
- * +-- Schema for "Digests", hash: 577e81b23ebf1c6ca61e0ef14b9f0be3
+ * +-- Schema for "Digests", hash: 31e6e4f967d7ab635fcd70dfa3b62a8e
  * +CREATE TABLE "Digests" (
  * +    _id varchar(27) PRIMARY KEY,
- * +    "num" double precision,
- * +    "startDate" timestamptz,
+ * +    "num" double precision NOT NULL,
+ * +    "startDate" timestamptz NOT NULL,
  * +    "endDate" timestamptz,
  * +    "publishedDate" timestamptz,
  * +    "schemaVersion" double precision DEFAULT 1,
@@ -49,7 +49,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "a9e4ae51c937678ad30ee19476819a97";
+export const acceptsSchemaHash = "7abdde9662fea7114e47457ccdc6f4ad";
 
 import DigestPosts from "../../lib/collections/digestPosts/collection"
 import Digests from "../../lib/collections/digests/collection"

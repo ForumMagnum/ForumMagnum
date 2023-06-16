@@ -820,7 +820,6 @@ importComponent("AFNonMemberSuccessPopup", () => require('../components/alignmen
 importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
 importComponent("AlignmentPendingApprovalMessage", () => require('../components/alignment-forum/AlignmentPendingApprovalMessage'));
 
-importComponent("NewRelatedQuestionForm", () => require('../components/questions/NewRelatedQuestionForm'));
 importComponent("NewAnswerForm", () => require('../components/questions/NewAnswerForm'));
 importComponent("PostsPageQuestionContent", () => require('../components/questions/PostsPageQuestionContent'));
 importComponent("NewAnswerCommentQuestionForm", () => require('../components/questions/NewAnswerCommentQuestionForm'));
