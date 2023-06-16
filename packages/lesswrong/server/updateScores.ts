@@ -10,7 +10,7 @@ import {
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
 import { runSqlQuery } from "../lib/sql/sqlClient";
-import chunk from "lodash/chunk";
+import { chunk, compact } from "lodash";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -198,7 +198,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   const batches = chunk(items, 1000); // divide items into chunks of 1000
 
   for (let batch of batches) {
-    let itemUpdates = _.compact(batch.map((i: AnyBecauseTodo) => {
+    let itemUpdates = compact(batch.map((i: AnyBecauseTodo) => {
       if (forceUpdate || i.scoreDiffSignificant) {
         updatedDocumentsCounter++;
         return {
