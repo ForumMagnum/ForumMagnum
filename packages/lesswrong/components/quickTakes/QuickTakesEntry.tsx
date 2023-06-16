@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
-    padding: "5px 10px",
+    padding: "1px 10px",
     background: theme.palette.grey[100],
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,

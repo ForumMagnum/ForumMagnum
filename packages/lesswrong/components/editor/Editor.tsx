@@ -645,7 +645,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getBodyStyles = (): {className: string, contentType: "comment"|"answer"|"post"} => {
-    const { _classes: classes, commentStyles, answerStyles } = this.props
+    const {
+      _classes: classes,
+      commentStyles,
+      answerStyles,
+      quickTakesStyles,
+    } = this.props
     if (commentStyles && answerStyles) {
       return {
         className: classes.answerStyles,
@@ -655,6 +660,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     if (commentStyles) {
       return {
         className: classes.commentBodyStyles,
+        contentType: "comment",
+      }
+    }
+    if (quickTakesStyles) {
+      return {
+        className: classes.postBodyStyles,
         contentType: "comment",
       }
     }
