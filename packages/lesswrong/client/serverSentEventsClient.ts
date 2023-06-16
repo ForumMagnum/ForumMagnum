@@ -22,8 +22,8 @@ function recreateEventSource() {
   console.log("Connecting to server-sent events");
   serverSentEventSource = new EventSource("/api/notificationEvents");
   serverSentEventSource.onerror = (errorEvent) => {
-    // eslint-disable-next-line no-console
     setTimeout(() => {
+      // eslint-disable-next-line no-console
       console.log(`Server-sent events error`, errorEvent);
       recreateEventSource();
     }, 3000);
