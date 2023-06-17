@@ -100,7 +100,7 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
-  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma";
+  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma"|"lastMonthKarma";
   const [sorting, setSorting] = useState<sortingType>("lastNotificationsCheck");
 
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
@@ -135,6 +135,10 @@ const RecentlyActiveUsers = ({ classes }: {
     return b.recentKarmaInfo.downvoterCount - a.recentKarmaInfo.downvoterCount
   });
 
+  const usersSortByLastMonthKarma = [...results].sort((a, b) => {
+    return a.recentKarmaInfo.lastMonthKarma - b.recentKarmaInfo.lastMonthKarma;
+  });
+
   let sortedUsers = results;
   switch (sorting) {
     case "karma":
@@ -146,6 +150,9 @@ const RecentlyActiveUsers = ({ classes }: {
     case "downvoters":
       sortedUsers = usersSortByDownvoters;
       break;
+    case "lastMonthKarma":
+      sortedUsers = usersSortByLastMonthKarma;
+      break
     case "lastNotificationsCheck":
       break
   }
@@ -175,6 +182,10 @@ const RecentlyActiveUsers = ({ classes }: {
               onClick={() => setSorting("recentKarma")}>
               Recent Karma
             </td>
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "recentKarma"})} 
+              onClick={() => setSorting("lastMonthKarma")}>
+              Last Month Karma
+            </td>
             <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "downvoters"})} 
               onClick={() => setSorting("downvoters")}>
               Downvoters
@@ -189,7 +200,7 @@ const RecentlyActiveUsers = ({ classes }: {
         </thead>
         <tbody>
           {sortedUsers.map(user => {
-            const { recentKarma, downvoterCount } = user.recentKarmaInfo;
+            const { recentKarma, recentPostKarma, recentCommentKarma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
             return <>
               <tr key={user._id}>
                 <td>
@@ -208,6 +219,15 @@ const RecentlyActiveUsers = ({ classes }: {
                       [classes.lowKarma]: recentKarma < 5 && recentKarma >= 0, 
                       [classes.flagged]: recentKarma < 0})}>
                       {recentKarma}
+                    </span>
+                  </LWTooltip>
+                </td>
+                <td className={classes.numberCell}>
+                  <LWTooltip title={recentKarmaTooltip(user)}>
+                    <span className={classNames({
+                      [classes.lowKarma]: lastMonthKarma < 5 && lastMonthKarma >= 0, 
+                      [classes.flagged]: lastMonthKarma < 0})}>
+                      {lastMonthKarma}
                     </span>
                   </LWTooltip>
                 </td>

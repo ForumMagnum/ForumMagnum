@@ -49,12 +49,20 @@ const LW = {
       karmaThreshold: -1,
       rateLimitMessage: "Negative karma users are limited to 1 post per week.",
     }, {
+      ...timeframe('1 Posts per 1 weeks'),
+      recentKarmaThreshold: -15,
+      rateLimitMessage: "Users with -15 karma can only post once every two weeks.",
+    }, {
       ...timeframe('1 Posts per 2 weeks'),
-      karmaThreshold: -30,
-      rateLimitMessage: "Users with -30 karma can only post once every two weeks.",
+      recentKarmaThreshold: -30,
+      rateLimitMessage: "Users with -30 karma on their recent content can only post once every two weeks.",
+    }, {
+      ...timeframe('1 Posts per 3 weeks'),
+      recentKarmaThreshold: -45,
+      rateLimitMessage: "Users with -45 karma on their recent content can only post once every three weeks.",
     }, {
       ...timeframe('1 Posts per 4 weeks'),
-      karmaThreshold: -60,
+      recentKarmaThreshold: -60, // uses recentKarma so it's not too hard to dig your way out 
       rateLimitMessage: `Users with -60 karma on their recent content can only post once every four weeks.`,
     }
   ],
@@ -62,26 +70,35 @@ const LW = {
     {
       ...timeframe('3 Comments per 1 days'),
       karmaThreshold: 5,
+      appliesToOwnPosts: true,
       rateLimitMessage: "New users can write up to 3 comments a day. Gain more karma to comment more frequently.",
-      appliesToOwnPosts: true
     }, {
       ...timeframe('1 Comments per 1 days'),
       karmaThreshold: -1,
+      appliesToOwnPosts: false,
       rateLimitMessage: "Negative karma users are limited to 1 comment per day.",
-      appliesToOwnPosts: false
     }, {
       ...timeframe('1 Comments per 3 days'),
       karmaThreshold: -15,
+      appliesToOwnPosts: false,
       rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days.",
-      appliesToOwnPosts: false
-    }, {
+    }, 
+    {
       ...timeframe('3 Comments per 1 days'),
-      recentKarmaThreshold: 1,
-      rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`,
-      appliesToOwnPosts: true
+      // semi-established users can make up to 20 posts/comments without getting upvoted, before hitting a 3/day comment rate limit
+      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
+      recentKarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
+      appliesToOwnPosts: false,
+      rateLimitMessage: `Hey, you've been posting a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2 net-karma.`,
     }, {
-      ...timeframe('3 Comments per 1 days'),
-      recentKarmaThreshold: 0,
+      ...timeframe('1 Comments per 1 hours'),
+      recentKarmaThreshold: -1,
+      downvoterCountThreshold: 3,
+      appliesToOwnPosts: true,
+      rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`
+    }, {
+      ...timeframe('1 Comments per 1 days'),
+      recentKarmaThreshold: -5,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
       rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`
@@ -92,8 +109,9 @@ const LW = {
       appliesToOwnPosts: false,
       rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
     }, {
-      ...timeframe('1 Comments per 2 weeks'),
-      recentKarmaThreshold: -30,
+      ...timeframe('1 Comments per 1 weeks'),
+      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
+      lastMonthKarma: -30,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,
       rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -60 or less karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`
