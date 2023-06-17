@@ -550,6 +550,11 @@ const schema: SchemaType<DbPost> = {
     }
   },
 
+  // (I'm not totally sure but this is my understanding of what this field is for):
+  // Back when we had a form where you could create a related question from a question post,
+  // you could set this to true to prevent the related question from appearing on the frontpage.
+  // Now that we've removed the form to create a related question, I think we can drop
+  // this field entirely?
   hiddenRelatedQuestion: {
     type: Boolean,
     canRead: ['guests'],

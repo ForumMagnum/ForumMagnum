@@ -9,6 +9,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
+import { VotingProps } from '../../components/votes/votingProps';
 
 export type CommentVotingComponentProps = {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
@@ -16,17 +17,21 @@ export type CommentVotingComponentProps = {
   collection: any,
   votingSystem: VotingSystem,
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
-  // setCommentBodyHighlights?: (highlights: string[])=>void,
-  quote?: string
+  voteProps?: VotingProps<VoteableTypeClient>,
 }
+export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
+  voteProps: VotingProps<VoteableTypeClient>,
+}
+
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
+export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingComponent,
+  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,

@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
+import type { EagerPostComments } from "./PostsPage";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -31,8 +32,9 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
+const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
+  eagerPostComments?: EagerPostComments,
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
@@ -64,7 +66,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
 
   return (
     <crosspostContext.Provider value={contextValue}>
-      <PostsPage post={contextValue.combinedPost ?? post} refetch={refetch} />
+      <PostsPage post={contextValue.combinedPost ?? post} eagerPostComments={eagerPostComments} refetch={refetch} />
     </crosspostContext.Provider>
   );
 }

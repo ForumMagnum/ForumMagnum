@@ -3,10 +3,10 @@ import { Components, registerComponent, getCollection } from '../../lib/vulcan-l
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import type { VotingProps } from './withVote';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanVote } from '../../lib/collections/users/helpers';
+import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
