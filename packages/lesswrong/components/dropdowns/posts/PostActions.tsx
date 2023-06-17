@@ -51,9 +51,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
-      
-      <SharePostSubmenu post={post} />
-
+      {!isEAForum && <SharePostSubmenu post={post} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem

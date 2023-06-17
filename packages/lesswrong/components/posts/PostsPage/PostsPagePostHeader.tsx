@@ -196,7 +196,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon} = Components;
+    NewFeaturePulse, ForumIcon, SharePostButton} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -313,6 +313,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
             {commentCountNode}
           </LWTooltip> : commentCountNode}
           {isEAForum && <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />}
+          {isEAForum && <SharePostButton post={post} />}
           {!isEAForum && audioNode}
           {post.startTime && <div className={classes.secondaryInfoLink}>
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip={true} />

@@ -3,8 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
-import ShareIcon from "@material-ui/icons/Share";
-import Paper from '@material-ui/core/Paper';
 
 const styles = (theme: ThemeType): JssStyles => ({
 })
@@ -33,14 +31,10 @@ const SharePostSubmenu = ({post, classes}: {
     }
   }
   
-  const submenu = <Paper>
-    <SharePostActions post={post}/>
-  </Paper>
-  
   const hasSubmenu = isServer || !navigator.canShare;
   const MaybeWrapWithSubmenu = hasSubmenu
     ? ({children}: {children: React.ReactNode}) => <LWTooltip
-        title={submenu}
+        title={<SharePostActions post={post}/>}
         tooltip={false} clickable inlineBlock={false}
         placement="left-start"
       >
@@ -54,7 +48,7 @@ const SharePostSubmenu = ({post, classes}: {
     <MaybeWrapWithSubmenu>
       <DropdownItem
         onClick={shareClicked}
-        icon={() => <ShareIcon/>}
+        icon="Share"
         title="Share"
       />
     </MaybeWrapWithSubmenu>

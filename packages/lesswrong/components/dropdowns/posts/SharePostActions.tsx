@@ -1,8 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
+import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import Paper from '@material-ui/core/Paper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -12,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SharePostActions = ({post, classes}: {
-  post: PostsListBase,
+  post: PostsBase,
   classes: ClassesType,
 }) => {
   const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
@@ -45,29 +47,31 @@ const SharePostActions = ({post, classes}: {
     openLinkInNewTab(destinationUrl);
   }
 
-  return <DropdownMenu className={classes.root} >
-    <DropdownItem
-      title="Copy Link"
-      icon="Link"
-      onClick={copyLink}
-    />
-    <DropdownDivider/>
-    <DropdownItem
-      title="Twitter"
-      icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
-      onClick={shareToTwitter}
-    />
-    <DropdownItem
-      title="Facebook"
-      icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
-      onClick={shareToFacebook}
-    />
-    <DropdownItem
-      title="LinkedIn"
-      icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
-      onClick={shareToLinkedIn}
-    />
-  </DropdownMenu>
+  return <Paper>
+    <DropdownMenu className={classes.root} >
+      <DropdownItem
+        title={preferredHeadingCase("Copy Link")}
+        icon="Link"
+        onClick={copyLink}
+      />
+      <DropdownDivider/>
+      <DropdownItem
+        title={isEAForum ? "Share on Twitter" : "Twitter"}
+        icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
+        onClick={shareToTwitter}
+      />
+      <DropdownItem
+        title={isEAForum ? "Share on Facebook" : "Facebook"}
+        icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
+        onClick={shareToFacebook}
+      />
+      <DropdownItem
+        title={isEAForum ? "Share on LinkedIn" : "LinkedIn"}
+        icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
+        onClick={shareToLinkedIn}
+      />
+    </DropdownMenu>
+  </Paper>
 }
 
 const SharePostActionsComponent = registerComponent('SharePostActions', SharePostActions, {styles});
