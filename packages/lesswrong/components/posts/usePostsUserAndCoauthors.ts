@@ -10,8 +10,8 @@ export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList) => {
     topCommentAuthor = null;
   }
 
-  const coauthors = post.coauthors.filter(({_id}) => !postCoauthorIsPending(post, _id));
-  const authors = [post.user, ...coauthors].filter(
+  const coauthors = post.coauthors?.filter(({_id}) => !postCoauthorIsPending(post, _id));
+  const authors = [post.user, ...(coauthors ?? [])].filter(
     (user): user is UsersMinimumInfo => !!user,
   );
 
