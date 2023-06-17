@@ -4,7 +4,9 @@ import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable'
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
+  getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
+  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
@@ -216,7 +218,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents.value.length, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
