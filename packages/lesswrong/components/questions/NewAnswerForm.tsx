@@ -14,8 +14,7 @@ import { BtnProps } from '../comments/CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
-    maxWidth:650,
-    paddingBottom: theme.spacing.unit*4,
+    padding: '0 12px 44px',
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
@@ -83,7 +82,7 @@ const NewAnswerForm = ({post, classes}: {
   }
   const { FormWrapper } = Components
   
-  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user)) {
+  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user, false)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   

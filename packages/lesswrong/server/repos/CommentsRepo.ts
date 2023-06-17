@@ -57,6 +57,23 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       )
     );
   }
+  
+  async getCommentsWithReacts(limit: number): Promise<(DbComment|null)[]> {
+    return await this.manyOrNone(`
+      SELECT c.*
+      FROM "Comments" c
+      JOIN (
+          SELECT "documentId", MIN("votedAt") AS most_recent_react
+          FROM "Votes"
+          WHERE "collectionName" = 'Comments' AND "extendedVoteType"->'reacts' != '[]'::jsonb
+          GROUP BY "documentId"
+          ORDER BY most_recent_react DESC
+          LIMIT $1
+      ) v
+      ON c._id = v."documentId"
+      ORDER BY v.most_recent_react DESC;
+    `, [limit]);
+  }
 
   private getSearchDocumentQuery(): string {
     return `

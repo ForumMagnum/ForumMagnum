@@ -2317,6 +2317,36 @@ interface UserListEditFragment extends UserListFragment { // fragment on UserLis
   readonly description: RevisionEdit|null,
 }
 
+interface DigestPostsDefaultFragment { // fragment on DigestPosts
+  readonly digestId: string,
+  readonly postId: string,
+  readonly emailDigestStatus: string | null,
+  readonly onsiteDigestStatus: string | null,
+}
+
+interface DigestPostsMinimumInfo { // fragment on DigestPosts
+  readonly _id: string,
+  readonly digestId: string,
+  readonly postId: string,
+  readonly emailDigestStatus: string | null,
+  readonly onsiteDigestStatus: string | null,
+}
+
+interface DigestsDefaultFragment { // fragment on Digests
+  readonly num: number,
+  readonly startDate: Date,
+  readonly endDate: Date | null,
+  readonly publishedDate: Date | null,
+}
+
+interface DigestsMinimumInfo { // fragment on Digests
+  readonly _id: string,
+  readonly num: number,
+  readonly startDate: Date,
+  readonly endDate: Date | null,
+  readonly publishedDate: Date | null,
+}
+
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly userId: string,
   readonly state: "subscribed" | "suppressed",
@@ -3236,6 +3266,10 @@ interface FragmentTypes {
   UserListsDefaultFragment: UserListsDefaultFragment
   UserListFragment: UserListFragment
   UserListEditFragment: UserListEditFragment
+  DigestPostsDefaultFragment: DigestPostsDefaultFragment
+  DigestPostsMinimumInfo: DigestPostsMinimumInfo
+  DigestsDefaultFragment: DigestsDefaultFragment
+  DigestsMinimumInfo: DigestsMinimumInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
@@ -3431,6 +3465,10 @@ interface CollectionNamesByFragmentName {
   UserListsDefaultFragment: "UserLists"
   UserListFragment: "UserLists"
   UserListEditFragment: "UserLists"
+  DigestPostsDefaultFragment: "DigestPosts"
+  DigestPostsMinimumInfo: "DigestPosts"
+  DigestsDefaultFragment: "Digests"
+  DigestsMinimumInfo: "Digests"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
@@ -3475,5 +3513,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserLists"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DigestPosts"|"Digests"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserLists"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

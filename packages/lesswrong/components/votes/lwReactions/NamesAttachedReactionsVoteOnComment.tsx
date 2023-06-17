@@ -1,9 +1,9 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { CommentVotingComponentProps, } from '../../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
-import type { VotingProps } from '../withVote';
+import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
 import { useVote } from '../withVote';
@@ -131,7 +131,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hoverBallotReactDescription: {
     fontSize: 11,
-    marginBottom: 8
+    marginBottom: 8,
+    '& em': {
+      display: "none"
+    }
   },
   alreadyUsedReactions: {
     padding: 8
@@ -425,9 +428,8 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 }
 
 const NamesAttachedReactionsCommentBottom = ({
-  document, hideKarma=false, collection, votingSystem, commentItemRef, classes, quote
-}: CommentVotingComponentProps & WithStylesProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+  document, hideKarma=false, commentItemRef, classes, voteProps
+}: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
