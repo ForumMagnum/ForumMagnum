@@ -147,7 +147,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   useEffect(() => {
     // check when loading the post edit form
-    if (contents.value.length > 300) {
+    if (contents?.value?.length > 300) {
       throttledCheckIsCriticism(contents)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -210,15 +210,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
-    if (newContents.value.length > 300) {
+    if (newContents?.value?.length > 300) {
       // If there's a lot more text (ex. something pasted in), we check the post sooner.
-      if (newContents.value.length - contents.value.length > 300) {
+      if (newContents.value.length - (contents?.value?.length ?? 0) > 300) {
         throttledCheckIsCriticismLargeDiff(newContents)
       } else {
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents.value.length, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
