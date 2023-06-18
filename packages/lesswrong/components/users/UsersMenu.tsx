@@ -122,13 +122,13 @@ const UsersMenu = ({classes}: {
             }}>
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title={preferredHeadingCase("New Question")}
+                  title={("New Question")}
                   to="/newPost?question=true"
                 />
               }
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title={preferredHeadingCase("New Post")}
+                  title={("New Post")}
                   to="/newPost"
                 />
               }
@@ -150,7 +150,7 @@ const UsersMenu = ({classes}: {
             {showNewButtons && <DropdownDivider />}
             {showNewButtons && userCanPost(currentUser) &&
               <DropdownItem
-                title={preferredHeadingCase("New Event")}
+                title={("New Event")}
                 to="/newPost?eventForm=true"
               />
             }
