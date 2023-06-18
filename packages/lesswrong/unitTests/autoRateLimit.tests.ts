@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import moment from "moment";
-import { CommentAutoRateLimit, PostAutoRateLimit, RateLimitInfo, UserKarmaInfo } from "../server/rateLimits/types";
-import { calculateRecentKarmaInfo, shouldRateLimitApply } from "../server/rateLimits/utils";
+import { CommentAutoRateLimit, PostAutoRateLimit, RateLimitInfo, UserKarmaInfo } from "../lib/rateLimits/types";
+import { calculateRecentKarmaInfo, shouldRateLimitApply } from "../lib/rateLimits/utils";
 import { RecentVoteInfo } from "../server/repos/VotesRepo";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {

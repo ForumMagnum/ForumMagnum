@@ -32,7 +32,7 @@ export interface AutoRateLimit {
 
   // The following parameters are optional, and if set, the rate limit will only apply to users who meet the criteria.
   karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
-  downvoteRatio?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
+  downvoteRatioThreshold?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
   recentKarmaThreshold?: number //  if set, limit only applies to users whose past 20 posts and comments karma total is less than N
   recentPostKarmaThreshold?: number // if set, limit only applies to users whose past 20 post karma total is less than N
   recentCommentKarmaThreshold?: number // if set, limit only applies to users whose past 20 comment karma total is less than N
@@ -42,6 +42,25 @@ export interface AutoRateLimit {
   lastMonthKarmaThreshold?: number // if set, limit only applies to votes on content from the last month
   lastMonthDownvoterCountThreshold?: number // if set, limit only applies to users whose content in the last month was downvoted by N or more people.
 }
+
+//convert rateLimitThresholds to union type
+export type RateLimitThreshold = "karmaThreshold"|"downvoteRatioThreshold"|"recentKarmaThreshold"|"recentPostKarmaThreshold"|"recentCommentKarmaThreshold"|"lastMonthKarmaThreshold"|"downvoterCountThreshold"|"postDownvoterCountThreshold"|"commentDownvoterCountThreshold"|"lastMonthDownvoterCountThreshold"
+
+export const rateLimitThresholds: RateLimitThreshold[] = [
+  "karmaThreshold",
+  "downvoteRatioThreshold", 
+  "recentKarmaThreshold", 
+  "recentPostKarmaThreshold",
+  "recentCommentKarmaThreshold",
+  "lastMonthKarmaThreshold",
+
+  "downvoterCountThreshold",
+  "postDownvoterCountThreshold",
+  "commentDownvoterCountThreshold",
+  "lastMonthDownvoterCountThreshold"
+]
+
+
 
 export interface PostAutoRateLimit extends AutoRateLimit {
   actionType: "Posts",  

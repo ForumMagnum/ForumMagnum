@@ -7,6 +7,10 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import { downvoterTooltip, recentKarmaTooltip } from './UserReviewMetadata';
+import { AutoRateLimit, RecentKarmaInfo, UserKarmaInfo, rateLimitThresholds } from '../../../lib/rateLimits/types';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
+import { getAutoRateLimitInfo, shouldRateLimitApply } from '../../../lib/rateLimits/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,13 +34,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     zIndex: theme.zIndexes.modTopBar
   },
+  header: {
+    position: "sticky",
+    top: 45,
+    background: theme.palette.background.pageActiveAreaBackground,
+  },
   tabButton: {
     marginRight: 25,
     color: theme.palette.grey[600],
     cursor: "pointer"
   },
-  tabButtonSelected: {
-    color: theme.palette.grey[900]
+  recentlyActiveTab: {
+    color: theme.palette.grey[900],
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexGrow: 1,
   },
   row: {
     display: "flex"
@@ -91,23 +104,40 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+function getRateLimits(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+  const userRateLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
+
+  function getRateLimitName (rateLimit: AutoRateLimit) {
+    let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
+
+    const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
+
+    return rateLimitName += ` (${thresholdInfo.join(", ")})`
+  }
+
+  return userRateLimits
+    .map(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo) && getRateLimitName(rateLimit))
+    .filter(rateLimit => rateLimit)
+    .reverse()
+}
+
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate } = Components;
+  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo } = Components;
     
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
-  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma"|"lastMonthKarma";
+  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
   const [sorting, setSorting] = useState<sortingType>("lastNotificationsCheck");
 
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
-    terms: {view: "recentlyActive", limit:50},
+    terms: {view: "recentlyActive", limit:200},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
-    itemsPerPage: 100,
+    itemsPerPage: 200,
     enableTotal: true
   });
 
@@ -139,6 +169,11 @@ const RecentlyActiveUsers = ({ classes }: {
     return a.recentKarmaInfo.lastMonthKarma - b.recentKarmaInfo.lastMonthKarma;
   });
 
+  const userSortByRateLimitCount = [...results].sort((a, b) => {
+    const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
+    return getRateLimits(b, allRateLimits).length - getRateLimits(a, allRateLimits).length
+  })
+
   let sortedUsers = results;
   switch (sorting) {
     case "karma":
@@ -153,6 +188,9 @@ const RecentlyActiveUsers = ({ classes }: {
     case "lastMonthKarma":
       sortedUsers = usersSortByLastMonthKarma;
       break
+    case "userSortByRateLimitCount":
+      sortedUsers = userSortByRateLimitCount;
+      break;
     case "lastNotificationsCheck":
       break
   }
@@ -166,25 +204,27 @@ const RecentlyActiveUsers = ({ classes }: {
         <Link to="/admin/moderation?view=allUsers" className={classes.tabButton}>
           Reviewed Users
         </Link>
-        <div className={classNames(classes.tabButton, classes.tabButtonSelected)}>
-          Recently Active Users
+        <div className={classNames(classes.tabButton, classes.recentlyActiveTab)}>
+          Recently Active Users <LoadMore {...recentlyActiveLoadMoreProps}/>
         </div>
       </div>
       <table className={classes.table}>
-        <thead>
+        <thead className={classes.header}>
           <tr>
+            <td></td>
+            <td>Index</td>
             <td>DisplayName</td>
             <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "karma"})} 
               onClick={() => setSorting("karma")}>
-              Karma
+              Total Karma
             </td>
             <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "recentKarma"})} 
               onClick={() => setSorting("recentKarma")}>
-              Recent Karma
+              Recent
             </td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "recentKarma"})} 
+            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "lastMonthKarma"})} 
               onClick={() => setSorting("lastMonthKarma")}>
-              Last Month Karma
+              Last Month
             </td>
             <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "downvoters"})} 
               onClick={() => setSorting("downvoters")}>
@@ -192,17 +232,24 @@ const RecentlyActiveUsers = ({ classes }: {
             </td>
             <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "lastNotificationsCheck"})} 
               onClick={() => setSorting("lastNotificationsCheck")}>
-              Last Checked</td>
-            <td>
-              <LoadMore {...recentlyActiveLoadMoreProps}/>
+              Last Checked
             </td>
+            <td className={classNames({[classes.selected]: sorting === "userSortByRateLimitCount"})} 
+              onClick={() => setSorting("userSortByRateLimitCount")}>
+              Rate Limits
+            </td>
+            <td></td>
           </tr>
         </thead>
         <tbody>
-          {sortedUsers.map(user => {
+          {sortedUsers.map((user, i) => {
             const { recentKarma, recentPostKarma, recentCommentKarma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
             return <>
               <tr key={user._id}>
+                <td onClick={() => handleExpand(user._id)} className={classes.expand}>
+                  <MetaInfo>{expandId === user._id ? "[ - ]" : "[+]"}</MetaInfo>
+                </td>
+                <td>{i+1}</td>
                 <td>
                   <UsersName user={user}/>
                 </td>
@@ -237,10 +284,17 @@ const RecentlyActiveUsers = ({ classes }: {
                   </LWTooltip>
                 </td>
                 <td>
-                  {user.lastNotificationsCheck && <FormatDate date={user.lastNotificationsCheck} />}
+                  <MetaInfo>{user.lastNotificationsCheck && <FormatDate date={user.lastNotificationsCheck} />}</MetaInfo>
                 </td>
-                <td onClick={() => handleExpand(user._id)} className={classes.expand}>
-                  {expandId === user._id ? "[ - ]" : "[+]"}
+                <td>
+                      {getRateLimits(user, forumSelect(autoPostRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
+                        <MetaInfo>{rateLimit}</MetaInfo>
+                      </div>)}
+                </td>
+                <td>
+                  {getRateLimits(user, forumSelect(autoCommentRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
+                      <MetaInfo>{rateLimit}</MetaInfo>
+                    </div>)}
                 </td>
               </tr>
               {expandId === user._id && <tr>

@@ -20,7 +20,7 @@ import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
-import { RateLimitInfo, RecentKarmaInfo } from '../rateLimits/types';
+import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {

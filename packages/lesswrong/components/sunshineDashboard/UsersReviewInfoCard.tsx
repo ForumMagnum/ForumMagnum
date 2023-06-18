@@ -7,7 +7,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { UserKarmaInfo } from '../../server/rateLimits/types';
+import { UserKarmaInfo } from '../../lib/rateLimits/types';
 
 export const CONTENT_LIMIT = 20
 
