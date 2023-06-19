@@ -7,6 +7,7 @@ import { useCreate } from "../../lib/crud/withCreate";
 import type { Editor as EditorType }  from "../editor/Editor";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
+import { styles as submitButtonStyles } from "../posts/PostSubmit";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
@@ -60,6 +61,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     marginRight: 8,
   },
+  ...submitButtonStyles(theme),
 });
 
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
@@ -146,6 +148,8 @@ const QuickTakesEntry = ({
         type="submit"
         disabled={loadingSubmit}
         className={classNames(classes.formButton, classes.submitButton)}
+        variant="contained"
+        color="primary"
         onClick={onSubmit}
       >
         {loadingSubmit
