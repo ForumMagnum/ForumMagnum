@@ -92,7 +92,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 1 days'),
       karmaThreshold: -1,
       appliesToOwnPosts: false,
-    rateLimitMessage: "Negative karma users are limited to 1 comment per day.",
+      rateLimitMessage: "Negative karma users are limited to 1 comment per day.",
     }, {
       ...timeframe('1 Comments per 3 days'),
       karmaThreshold: -15,
@@ -112,7 +112,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -15 or less net-karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
     }, {
       ...timeframe('1 Comments per 1 weeks'),
-      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
+      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations even if temporarily downvoted
       lastMonthKarmaThreshold: -30,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,

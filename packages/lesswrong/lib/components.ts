@@ -577,7 +577,7 @@ importComponent("AltAccountInfo", () => require('../components/sunshineDashboard
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
 importComponent("NewUserDMSummary", () => require('../components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary'));
 importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
-importComponent("UserAutoRateLimits", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimits'));
+importComponent("UserAutoRateLimitsDisplay", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimitsDisplay'));
 
 importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));

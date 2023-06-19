@@ -30,7 +30,8 @@ export interface AutoRateLimit {
   rateLimitType?: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
 
-  // The following parameters are optional, and if set, the rate limit will only apply to users who meet the criteria.
+  // The following parameters are optional, and if set, the rate limit will only apply to users who meet all thresholds:
+
   karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
   downvoteRatioThreshold?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
   last20KarmaThreshold?: number //  if set, limit only applies to users whose past 20 posts and comments karma total is less than N

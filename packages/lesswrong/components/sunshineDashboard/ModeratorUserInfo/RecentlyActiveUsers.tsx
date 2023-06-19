@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimits';
+import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getRateLimitNames } from '../../../lib/rateLimits/utils';

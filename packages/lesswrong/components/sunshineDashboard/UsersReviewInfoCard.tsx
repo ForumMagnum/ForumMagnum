@@ -179,7 +179,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const {
     MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimits
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -217,7 +217,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <UserReviewMetadata user={user}/>
     </div>
     <div>
-      <UserAutoRateLimits user={user}/>
+      <UserAutoRateLimitsDisplay user={user}/>
     </div>
   </div>
 

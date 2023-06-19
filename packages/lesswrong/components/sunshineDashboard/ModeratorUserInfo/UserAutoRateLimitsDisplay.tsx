@@ -32,7 +32,7 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   </div>
 }
 
-export const UserAutoRateLimits = ({user, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, classes}: {
   user: SunshineUsersList,
   classes: ClassesType
 }) => {
@@ -80,11 +80,11 @@ export const UserAutoRateLimits = ({user, classes}: {
   </div>;
 }
 
-const UserAutoRateLimitsComponent = registerComponent('UserAutoRateLimits', UserAutoRateLimits, {styles});
+const UserAutoRateLimitsDisplayComponent = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserAutoRateLimits: typeof UserAutoRateLimitsComponent
+    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
   }
 }
 
