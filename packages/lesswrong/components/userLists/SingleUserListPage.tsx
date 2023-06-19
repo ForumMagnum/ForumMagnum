@@ -42,6 +42,8 @@ const SingleUserListPage = ({classes}: {
         dangerouslySetInnerHTML={{__html: userList.description.html }}
       />}
     </div>
+    
+    {/*TODO: List of members that's spaced out and nicely editable*/}
   </SingleColumnSection>;
 }
 

@@ -925,3 +925,4 @@ importComponent("CookieTable", () => require('../components/common/CookieBanner/
 importComponent("UserListsPage", () => require('../components/userLists/UserListsPage'));
 importComponent("CreateUserListPage", () => require('../components/userLists/CreateUserListPage'));
 importComponent("SingleUserListPage", () => require('../components/userLists/SingleUserListPage'));
+importComponent("UserListListItem", () => require('../components/userLists/UserListListItem'));
