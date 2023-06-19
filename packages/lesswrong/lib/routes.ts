@@ -738,7 +738,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EditDigest',
       title: 'Edit Digest',
       subtitle: 'Digests',
-      subtitleLink: '/admin/digests'
+      subtitleLink: '/admin/digests',
+      staticHeader: true
     },
     {
       name: 'recommendationsSample',

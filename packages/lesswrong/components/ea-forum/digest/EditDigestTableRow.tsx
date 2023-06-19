@@ -33,6 +33,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.negativeKarmaRed,
   },
   pendingIcon: {
+    color: theme.palette.icon.greenCheckmark,
+    opacity: 0,
+    '&:hover': {
+      opacity: 0.2
+    }
   },
   postTitleCol: {
     display: 'flex',
@@ -149,7 +154,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         iconNode = <CloseIcon />
         break
       case 'pending':
-        iconNode = null
+        iconNode = <CheckIcon />
         break
     }
     const onClickAttr = {onClick: () => handleClickStatusIcon(postId, statusField)}

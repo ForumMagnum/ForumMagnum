@@ -82,7 +82,14 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
       FROM "Posts" p
       LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
-      WHERE p."postedAt" > $2 AND p."postedAt" <= $3 AND p."baseScore" > 2
+      WHERE p."postedAt" > $2 AND
+        p."postedAt" <= $3 AND
+        p."baseScore" > 2 AND
+        p."isEvent" is not true AND
+        p."shortform" is not true AND
+        p."isFuture" is not true AND
+        p."authorIsUnreviewed" is not true AND
+        p."draft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");

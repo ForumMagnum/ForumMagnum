@@ -98,6 +98,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '18px',
     textAlign: 'left',
     borderCollapse: 'collapse',
+    '& th': {
+      position: 'sticky',
+      top: 0,
+      background: theme.palette.grey[250],
+      zIndex: theme.zIndexes.karmaChangeNotifier
+    },
     '& th,td': {
       minWidth: 72,
       padding: 5,
@@ -113,7 +119,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
   },
   total: {
-    color: theme.palette.grey[700],
+    color: theme.palette.grey[600],
     fontSize: 12
   },
   totalHigh: {
