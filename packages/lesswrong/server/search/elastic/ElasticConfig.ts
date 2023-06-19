@@ -84,7 +84,7 @@ export type IndexConfig = {
 }
 
 /**
- * Fields that use full-text search (ie; generally of of the fields that are
+ * Fields that use full-text search (ie; generally all of the fields that are
  * listed in the `field` array) should use this mapping. This allows us to use
  * our normal full text analyzer with stemming and synonyms for normal searches,
  * but to fall back to the "standard" analyzer which has no stemming for advanced
