@@ -15,7 +15,7 @@ export const eaSequencesHomeDescription = "Core reading, and sequences of posts 
 const EASequencesHome = ({classes}: {
   classes: ClassesType;
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles, HeadTags } = Components
+  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
   
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
