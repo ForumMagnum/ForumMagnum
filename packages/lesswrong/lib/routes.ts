@@ -1325,7 +1325,7 @@ addRoute(
     name: 'randomUser',
     path: '/admin/random-user',
     componentName: 'RandomUserPage',
-    title: "Random User"
+    title: "Random User",
   },
   {
     name: 'moderation',
