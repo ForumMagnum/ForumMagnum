@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
 import { styles as buttonStyles } from "../form-components/FormSubmit";
@@ -87,6 +87,7 @@ const QuickTakesEntry = ({
 }) => {
   const editorType = "ckEditorMarkup";
   const editorRef = useRef<EditorType>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [contents, setContents] = useState(() => getInitialEditorContents(
@@ -138,6 +139,21 @@ const QuickTakesEntry = ({
 
   const onFocus = useCallback(() => setExpanded(true), []);
 
+  useEffect(() => {
+    const form = formRef.current;
+    if (form) {
+      const handler = (event: KeyboardEvent) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          event.stopPropagation();
+          void onSubmit();
+        }
+      }
+      form.addEventListener("keydown", handler, {capture: true});
+      return () => form.removeEventListener("keydown", handler);
+    }
+  }, [formRef, onSubmit]);
+
   const {Editor, Loading, TagsChecklist} = Components;
   const submitButton = (
     <div className={classNames(buttonClassName, {
@@ -160,11 +176,14 @@ const QuickTakesEntry = ({
     </div>
   );
   return (
-    <div className={classNames(classes.root, className)}>
+    <form
+      ref={formRef}
+      className={classNames(classes.root, className)}
+    >
       <div className={classNames(classes.commentEditor, editorClassName, {
         [classes.commentEditorBottomButtom]: submitButtonAtBottom,
-          [classes.collapsed]: !expanded,
-        })}>
+        [classes.collapsed]: !expanded,
+      })}>
         <Editor
           ref={editorRef}
           currentUser={currentUser}
@@ -209,7 +228,7 @@ const QuickTakesEntry = ({
           {submitButtonAtBottom && submitButton}
         </>
       }
-    </div>
+    </form>
   );
 }
 
