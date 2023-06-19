@@ -132,7 +132,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     }
 
     const contentType = isEAForum && post?.shortform
-      ? "Quick takes"
+      ? "quick takes"
       : "comments";
 
     return <CommentsListMeta>
