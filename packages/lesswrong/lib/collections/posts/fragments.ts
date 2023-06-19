@@ -492,6 +492,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
@@ -620,5 +621,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostsEditCriticismTips on Post {
+    _id
+    criticismTipsDismissed
   }
 `);

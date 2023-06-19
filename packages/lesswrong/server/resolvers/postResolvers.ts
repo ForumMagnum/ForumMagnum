@@ -15,6 +15,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import PostsRepo from '../repos/PostsRepo';
 import VotesRepo from '../repos/VotesRepo';
+import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -172,6 +173,13 @@ augmentFieldsDict(Posts, {
   },
 })
 
+
+export type PostIsCriticismRequest = {
+  title: string,
+  contentType: string,
+  body: string
+}
+
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
@@ -181,10 +189,18 @@ addGraphQLResolvers({
       }
       
       const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit??10)
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
       }
+    },
+    async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to check post')
+      }
+            
+      return await postIsCriticism(args)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
       const { currentUser } = context
@@ -226,6 +242,7 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
 addGraphQLSchema(`
   type DigestPlannerPost {
@@ -235,4 +252,3 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
-
