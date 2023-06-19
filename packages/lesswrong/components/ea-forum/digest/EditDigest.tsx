@@ -5,11 +5,10 @@ import { gql, useQuery } from '@apollo/client';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@material-ui/icons/FilterList';
 import { useMessages } from '../../common/withMessages';
-import { DIGEST_STATUSES } from '../../../lib/collections/digestPosts/schema';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
-import { getDigestName, getEmailDigestPostListData } from '../../../lib/collections/digests/helpers';
+import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -132,9 +131,6 @@ type DigestPlannerPostData = {
   digestPost: DigestPost
   rating: number
 }
-const DIGEST_STATUS_OPTIONS = [...DIGEST_STATUSES, 'pending'] as const
-type InDigestStatusOptions = typeof DIGEST_STATUS_OPTIONS
-type InDigestStatusOption = InDigestStatusOptions[number]
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -237,8 +233,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   })
   
   // track the table filters
-  const [emailDigestFilter, setEmailDigestFilter] = useState<InDigestStatusOption[]>(["yes","maybe","pending","no"])
-  const [onsiteDigestFilter, setOnsiteDigestFilter] = useState<InDigestStatusOption[]>(["yes","maybe","pending","no"])
+  const [emailDigestFilter, setEmailDigestFilter] = useState<InDigestStatusOption[]>([...DIGEST_STATUS_OPTIONS])
+  const [onsiteDigestFilter, setOnsiteDigestFilter] = useState<InDigestStatusOption[]>([...DIGEST_STATUS_OPTIONS])
   const [tagFilter, setTagFilter] = useState<string>('')
   
   const handleUpdateEmailDigestFilter = (val: InDigestStatusOption) => {
@@ -262,8 +258,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   const resetFilters = () => {
-    setEmailDigestFilter(["yes","maybe","pending","no"])
-    setOnsiteDigestFilter(["yes","maybe","pending","no"])
+    setEmailDigestFilter([...DIGEST_STATUS_OPTIONS])
+    setOnsiteDigestFilter([...DIGEST_STATUS_OPTIONS])
     setTagFilter('')
   }
   
@@ -386,76 +382,45 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
     })
     return visiblePosts
-  }, [posts, postStatuses, tagFilter, emailDigestFilter, onsiteDigestFilter])
-  
-  // calculate post counts for different filters
-  const postCounts = useMemo(() => {
-    if (!visiblePosts || !coreAndPopularTagIds) return null
-
-    const tagCounts = coreAndPopularTagIds.reduce((prev: Record<string, number>, next) => {
-      prev[next] = 0
-      return prev
-    }, {})
-    const counts = {
-      email: {
-        yes: 0,
-        maybe: 0,
-        pending: 0,
-        no: 0
-      },
-      onsite: {
-        yes: 0,
-        maybe: 0,
-        pending: 0,
-        no: 0
-      },
-      tag: tagCounts
-    }
-    
-    visiblePosts.forEach(post => {
-      const postEmailDigestStatus = postStatuses[post._id].emailDigestStatus
-      const postOnsiteDigestStatus = postStatuses[post._id].onsiteDigestStatus
-
-      DIGEST_STATUS_OPTIONS.forEach(status => {
-        if (postEmailDigestStatus === status) counts.email[status]++
-        if (postOnsiteDigestStatus === status) counts.onsite[status]++
-      })
-      post.tags.forEach(tag => {
-        if (tag._id in counts.tag) counts.tag[tag._id]++
-      })
-
-    })
-    return counts
-  }, [visiblePosts, coreAndPopularTagIds, postStatuses])
+  }, [tagFilter, emailDigestFilter, onsiteDigestFilter, posts, postStatuses])
   
   // set up the options for each filter, including their post counts
   const emailDigestOptions = useMemo(() => {
-    if (!postCounts) return null
-    return {
-      yes: {label: `Yes (${postCounts.email.yes})`},
-      maybe: {label: `Maybe (${postCounts.email.maybe})`},
-      pending: {label: `Pending (${postCounts.email.pending})`},
-      no: {label: `No (${postCounts.email.no})`}
+    if (!posts) return null
+    // build a set of all eligible posts filtered by tag and on-site digest status
+    let postSet = posts.filter(post => {
+      return onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
+    })
+    if (tagFilter) {
+      postSet = postSet.filter(post => post.tags.find(tag => tag._id === tagFilter))
     }
-  }, [postCounts])
+    return getStatusFilterOptions({posts: postSet, postStatuses, statusFieldName: 'emailDigestStatus'})
+  }, [tagFilter, onsiteDigestFilter, posts, postStatuses])
   
   const onsiteDigestOptions = useMemo(() => {
-    if (!postCounts) return null
-    return {
-      yes: {label: `Yes (${postCounts.onsite.yes})`},
-      maybe: {label: `Maybe (${postCounts.onsite.maybe})`},
-      pending: {label: `Pending (${postCounts.onsite.pending})`},
-      no: {label: `No (${postCounts.onsite.no})`}
+    if (!posts) return null
+    // build a set of all eligible posts filtered by tag and email digest status
+    let postSet = posts.filter(post => {
+      return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus)
+    })
+    if (tagFilter) {
+      postSet = postSet.filter(post => post.tags.find(tag => tag._id === tagFilter))
     }
-  }, [postCounts])
+    return getStatusFilterOptions({posts: postSet, postStatuses, statusFieldName: 'onsiteDigestStatus'})
+  }, [tagFilter, emailDigestFilter, posts, postStatuses])
   
   const tagOptions = useMemo(() => {
-    if (!coreAndPopularTags || !visiblePosts || !postCounts) return null
+    if (!coreAndPopularTags || !posts) return null
+    // build a set of all elible posts filtered by status
+    const postSet = posts.filter(post => {
+      return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus) &&
+        onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
+    })
     return coreAndPopularTags.reduce((prev: Record<string, SettingsOption>, next) => {
-      prev[next._id] = {label: `${next.name} (${postCounts.tag[next._id]})`}
+      prev[next._id] = {label: `${next.name} (${postSet.filter(p => p.tags.some(t => t._id === next._id)).length})`}
       return prev
-    }, {'': {label: `All posts (${visiblePosts.length})`}})
-  }, [coreAndPopularTags, visiblePosts, postCounts])
+    }, {'': {label: `All posts (${postSet.length})`}})
+  }, [coreAndPopularTags, emailDigestFilter, onsiteDigestFilter, posts, postStatuses])
   
   if (!userIsAdmin(currentUser)) {
     return <Error404 />
