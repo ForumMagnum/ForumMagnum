@@ -272,7 +272,7 @@ export const isBlank = (editorContents: EditorContents): boolean => {
   
   if (editorContents.type === "draftJS") {
     const draftJScontent = editorContents.value.getCurrentContent()
-    return draftJScontent.hasText();
+    return !draftJScontent.hasText();
   } else {
     return editorContents.value.trim() === "";
   }
