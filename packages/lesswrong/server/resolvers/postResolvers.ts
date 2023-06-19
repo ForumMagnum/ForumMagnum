@@ -211,16 +211,17 @@ addGraphQLResolvers({
       const eligiblePosts = await postsRepo.getEligiblePostsForDigest(digestId, startDate, endDate)
       if (!eligiblePosts.length) return []
 
-      const votesRepo = new VotesRepo()
-      const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
-      console.log('DigestPlannerData votes', votes)
+      // TODO: finish implementing this once we figure out what to do with it
+      // const votesRepo = new VotesRepo()
+      // const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
+      // console.log('DigestPlannerData votes', votes)
       
       return eligiblePosts.map(post => {
-        const postVotes = votes.find(v => v.postId === post._id)
-        const rating = postVotes ?
-          Math.round(
-            ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
-          ) : 0
+        // const postVotes = votes.find(v => v.postId === post._id)
+        // const rating = postVotes ?
+        //   Math.round(
+        //     ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
+        //   ) : 0
         
         return {
           post,
@@ -229,7 +230,7 @@ addGraphQLResolvers({
             emailDigestStatus: post.emailDigestStatus,
             onsiteDigestStatus: post.onsiteDigestStatus
           },
-          rating
+          rating: 0
         }
       })
     }

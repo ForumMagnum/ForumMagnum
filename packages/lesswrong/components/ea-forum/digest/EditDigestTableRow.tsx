@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   copyIcon: {
     color: theme.palette.primary.main,
-    fontSize: 14,
+    fontSize: 16,
     cursor: "pointer",
     "&:hover": {
       color: theme.palette.primary.dark,
@@ -196,7 +196,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     </td>
     <td className={classes.postTitleCol}>
       <LWTooltip title="Click to copy post link" placement="bottom" className={classes.copyLink}>
-        <ForumIcon icon="Link" className={classes.copyIcon} onClick={() => copyPostToClipboard(post)} />
+        <ForumIcon icon="ClipboardDocument" className={classes.copyIcon} onClick={() => copyPostToClipboard(post)} />
       </LWTooltip>
       <div>
         <div>
@@ -225,7 +225,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
     </td>
-    <td className={classes.ratingCol}>{post.rating}</td>
+    {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
       {post.commentCount && <a href={`/posts/${post._id}/${post.slug}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
         <ForumIcon icon="Comment" className={classes.commentIcon} />

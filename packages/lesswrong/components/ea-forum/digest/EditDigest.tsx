@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   copyDigestIcon: {
     color: theme.palette.primary.main,
-    fontSize: 18,
+    fontSize: 26,
     cursor: "pointer",
     "&:hover": {
       color: theme.palette.primary.dark,
@@ -113,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
   },
   total: {
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[700],
     fontSize: 12
   },
   totalHigh: {
@@ -210,7 +210,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     newPosts.sort((a,b) => {
       if (a.curatedDate && !b.curatedDate) return -1
       if (!a.curatedDate && b.curatedDate) return 1
-      if (a.rating !== b.rating) return b.rating - a.rating
+      // TODO: add this back in once we've implemented the rating
+      // if (a.rating !== b.rating) return b.rating - a.rating
       return b.baseScore - a.baseScore
     })
     setPosts(newPosts)
@@ -487,7 +488,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             placement="bottom"
             className={classes.copyDigest}
           >
-            <ForumIcon icon="Link" className={classes.copyDigestIcon} onClick={() => copyDigestToClipboard()} />
+            <ForumIcon icon="ClipboardDocumentList" className={classes.copyDigestIcon} onClick={() => copyDigestToClipboard()} />
           </LWTooltip>
           <EditDigestPublishBtn digest={digest} />
         </div>
@@ -538,7 +539,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
-            <th className={classes.centeredColHeader}>Rating</th>
+            {/* <th className={classes.centeredColHeader}>Rating</th> */}
             <th className={classes.centeredColHeader}>Comments</th>
           </tr>
         </thead>
