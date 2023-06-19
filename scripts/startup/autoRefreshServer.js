@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 const crypto = require('crypto');
+const fs = require('fs');
+const { getOutputDir } = require('./buildUtil');
 
 const openWebsocketConnections = [];
 let clientRebuildInProgress = false;
@@ -12,17 +14,18 @@ function setServerRebuildInProgress(inProgress) {
   serverRebuildInProgress = inProgress;
 }
 
-async function isServerReady() {
+async function isServerReady(serverPort) {
+  const readyApiUrl = `http://localhost:${serverPort}/api/ready`;
   try {
-    const response = await fetch(`http://localhost:${serverPort}/api/ready`);
+    const response = await fetch(readyApiUrl);
     return response.ok;
   } catch(e) {
     return false;
   }
 }
 
-async function waitForServerReady() {
-  while (!(await isServerReady())) {
+async function waitForServerReady(serverPort) {
+  while (!(await isServerReady(serverPort))) {
     await asyncSleep(100);
   }
 }
@@ -34,7 +37,7 @@ async function asyncSleep(durationMs) {
 }
 
 function getClientBundleTimestamp() {
-  const stats = fs.statSync(`./${outputDir}/client/js/bundle.js`);
+  const stats = fs.statSync(`./${getOutputDir()}/client/js/bundle.js`);
   return stats.mtime.toISOString();
 }
 
@@ -43,7 +46,7 @@ function generateBuildId() {
 }
 
 let refreshIsPending = false;
-async function initiateRefresh() {
+async function initiateRefresh({serverPort}) {
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
@@ -54,8 +57,7 @@ async function initiateRefresh() {
   await asyncSleep(100);
   
   refreshIsPending = true;
-  console.log("Initiated refresh; waiting for server to be ready");
-  await waitForServerReady();
+  await waitForServerReady(serverPort);
   
   if (openWebsocketConnections.length > 0) {
     console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
@@ -66,10 +68,11 @@ async function initiateRefresh() {
     console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
   }
   
+  console.log("============ Finished initiateRefresh");
   refreshIsPending = false;
 }
 
-function startAutoRefreshServer(websocketPort) {
+function startAutoRefreshServer({serverPort, websocketPort}) {
   const server = new WebSocket.Server({
     port: websocketPort,
   });
@@ -85,7 +88,7 @@ function startAutoRefreshServer(websocketPort) {
       }
     });
     
-    await waitForServerReady();
+    await waitForServerReady(serverPort);
     ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
