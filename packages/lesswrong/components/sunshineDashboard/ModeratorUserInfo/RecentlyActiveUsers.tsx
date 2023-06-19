@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { downvoterTooltip, recentKarmaTooltip } from './UserReviewMetadata';
+import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimits';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getRateLimitNames } from '../../../lib/rateLimits/utils';
@@ -100,6 +100,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     color: theme.palette.grey[900],
     fontWeight: 600,
+  },
+  cell: {
+    cursor: "pointer",
   }
 });
 
@@ -112,7 +115,7 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
-  type sortingType = "lastNotificationsCheck"|"recentKarma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
+  type sortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
   const [sorting, setSorting] = useState<sortingType>("lastNotificationsCheck");
 
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
@@ -135,45 +138,64 @@ const RecentlyActiveUsers = ({ classes }: {
     }
   }
 
-  const usersSortedByRecentKarma = [...results].sort((a, b) => {
-    return a.recentKarmaInfo.recentKarma - b.recentKarmaInfo.recentKarma;
-  });
+  function usersSortedByRecentKarma (users: SunshineUsersList[]) {
+    return [...users].sort((a, b) => {
+      return a.recentKarmaInfo.last20Karma - b.recentKarmaInfo.last20Karma;
+    })
+  };
 
-  const usersSortByKarma = [...results].sort((a, b) => {
-    return (a.karma ?? 0) - (b.karma ?? 0)
-  });
+  function usersSortByKarma (users: SunshineUsersList[]) {
+    return [...users].sort((a, b) => {
+      return (a.karma ?? 0) - (b.karma ?? 0)
+    })
+  };
 
-  const usersSortByDownvoters = [...results].sort((a, b) => {
-    return b.recentKarmaInfo.downvoterCount - a.recentKarmaInfo.downvoterCount
-  });
+  function usersSortByDownvoters (users: SunshineUsersList[]) {
+    return [...users].sort((a, b) => {
+      return b.recentKarmaInfo.downvoterCount - a.recentKarmaInfo.downvoterCount
+    })
+  };
 
-  const usersSortByLastMonthKarma = [...results].sort((a, b) => {
-    return a.recentKarmaInfo.lastMonthKarma - b.recentKarmaInfo.lastMonthKarma;
-  });
+  function usersSortByLastMonthKarma (users: SunshineUsersList[]) {
+    return [...users].sort((a, b) => {
+      return a.recentKarmaInfo.lastMonthKarma - b.recentKarmaInfo.lastMonthKarma;
+    })
+  };
 
-  const userSortByRateLimitCount = [...results].sort((a, b) => {
+  function userSortByRateLimitCount (users: SunshineUsersList[]) {
     const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
-    return getRateLimitNames(b, allRateLimits).length - getRateLimitNames(a, allRateLimits).length
-  })
+    return [...users].sort((a, b) => {
+      return getRateLimitNames(b, allRateLimits).length - getRateLimitNames(a, allRateLimits).length
+    })
+  };
+
+  function userSortByLastNotificationsCheck (users: SunshineUsersList[]) {
+    return [...users].sort((a, b) => {
+      const timeA = new Date(a.lastNotificationsCheck ?? 0).getTime();
+      const timeB = new Date(b.lastNotificationsCheck ?? 0).getTime();
+      return timeA - timeB
+    })
+  };
 
   let sortedUsers = results;
   switch (sorting) {
     case "karma":
-      sortedUsers = usersSortByKarma;
+      sortedUsers = usersSortByKarma(results);
       break;
-    case "recentKarma":
-      sortedUsers = usersSortedByRecentKarma;
+    case "last20Karma":
+      sortedUsers = usersSortedByRecentKarma(results);
       break;
     case "downvoters":
-      sortedUsers = usersSortByDownvoters;
+      sortedUsers = usersSortByDownvoters(results);
       break;
     case "lastMonthKarma":
-      sortedUsers = usersSortByLastMonthKarma;
+      sortedUsers = usersSortByLastMonthKarma(results);
       break
     case "userSortByRateLimitCount":
-      sortedUsers = userSortByRateLimitCount;
+      sortedUsers = userSortByRateLimitCount(results);
       break;
     case "lastNotificationsCheck":
+      sortedUsers = userSortByLastNotificationsCheck(results);
       break
   }
 
@@ -196,27 +218,27 @@ const RecentlyActiveUsers = ({ classes }: {
             <td></td>
             <td>Index</td>
             <td>DisplayName</td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "karma"})} 
+            <td className={classNames(classes.cell, classes.numberCell, {[classes.selected]: sorting === "karma"})} 
               onClick={() => setSorting("karma")}>
               Total Karma
             </td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "recentKarma"})} 
-              onClick={() => setSorting("recentKarma")}>
+            <td className={classNames(classes.cell, classes.numberCell, {[classes.selected]: sorting === "last20Karma"})} 
+              onClick={() => setSorting("last20Karma")}>
               Recent
             </td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "lastMonthKarma"})} 
+            <td className={classNames(classes.cell, classes.numberCell, {[classes.selected]: sorting === "lastMonthKarma"})} 
               onClick={() => setSorting("lastMonthKarma")}>
               Last Month
             </td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "downvoters"})} 
+            <td className={classNames(classes.cell, classes.numberCell, {[classes.selected]: sorting === "downvoters"})} 
               onClick={() => setSorting("downvoters")}>
               Downvoters
             </td>
-            <td className={classNames(classes.numberCell, {[classes.selected]: sorting === "lastNotificationsCheck"})} 
+            <td className={classNames(classes.cell, classes.numberCell, {[classes.selected]: sorting === "lastNotificationsCheck"})} 
               onClick={() => setSorting("lastNotificationsCheck")}>
               Last Checked
             </td>
-            <td className={classNames({[classes.selected]: sorting === "userSortByRateLimitCount"})} 
+            <td className={classNames(classes.cell, {[classes.selected]: sorting === "userSortByRateLimitCount"})} 
               onClick={() => setSorting("userSortByRateLimitCount")}>
               Rate Limits
             </td>
@@ -225,7 +247,7 @@ const RecentlyActiveUsers = ({ classes }: {
         </thead>
         <tbody>
           {sortedUsers.map((user, i) => {
-            const { recentKarma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
+            const { last20Karma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
             return <React.Fragment key={`${user._id}`}>
               <tr key={user._id}>
                 <td onClick={() => handleExpand(user._id)} className={classes.expand}>
@@ -245,9 +267,9 @@ const RecentlyActiveUsers = ({ classes }: {
                 <td className={classes.numberCell}>
                   <LWTooltip title={recentKarmaTooltip(user)}>
                     <span className={classNames({
-                      [classes.lowKarma]: recentKarma < 5 && recentKarma >= 0, 
-                      [classes.flagged]: recentKarma < 0})}>
-                      {recentKarma}
+                      [classes.lowKarma]: last20Karma < 5 && last20Karma >= 0, 
+                      [classes.flagged]: last20Karma < 0})}>
+                      {last20Karma}
                     </span>
                   </LWTooltip>
                 </td>

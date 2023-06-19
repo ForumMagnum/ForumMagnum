@@ -53,26 +53,26 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       rateLimitMessage: "Negative karma users are limited to 1 post per week.",
     }, {
       ...timeframe('1 Posts per 1 weeks'),
-      recentKarmaThreshold: -15,
+      last20KarmaThreshold: -15,
       rateLimitMessage: "Users with -15 karma can only post once every two weeks.",
     }, {
       ...timeframe('1 Posts per 2 weeks'),
-      recentKarmaThreshold: -30,
+      last20KarmaThreshold: -30,
       rateLimitMessage: "Users with -30 karma on their recent content can only post once every two weeks.",
     }, {
       ...timeframe('1 Posts per 3 weeks'),
-      recentKarmaThreshold: -45,
+      last20KarmaThreshold: -45,
       rateLimitMessage: "Users with -45 karma on their recent content can only post once every three weeks.",
     }, {
       ...timeframe('1 Posts per 4 weeks'),
-      recentKarmaThreshold: -60, // uses recentKarma so it's not too hard to dig your way out 
+      last20KarmaThreshold: -60, // uses last20Karma so it's not too hard to dig your way out 
       rateLimitMessage: `Users with -60 karma on their recent content can only post once every four weeks.`,
     }
   ],
   COMMENTS: [ 
     {
       ...timeframe('1 Comments per 1 hours'),
-      recentKarmaThreshold: -1,
+      last20KarmaThreshold: -1,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
       rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`
@@ -85,7 +85,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('3 Comments per 1 days'),
       // semi-established users can make up to 20 posts/comments without getting upvoted, before hitting a 3/day comment rate limit
       karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
-      recentKarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
+      last20KarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
       appliesToOwnPosts: false,
       rateLimitMessage: `Hey, you've been posting a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2 net-karma.`,
     }, {
@@ -100,13 +100,13 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       rateLimitMessage: "Users with -15 or less karma users can only comment once per 3 days.",
     }, {
       ...timeframe('1 Comments per 1 days'),
-      recentKarmaThreshold: -5,
+      last20KarmaThreshold: -5,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
       rateLimitMessage: `Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 1 net-karma.`
     }, {
       ...timeframe('1 Comments per 3 days'),
-      recentKarmaThreshold: -15,
+      last20KarmaThreshold: -15,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,
       rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -15 or less net-karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,

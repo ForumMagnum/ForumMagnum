@@ -52,21 +52,21 @@ export function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, docume
 export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
   // rate limit conditions
   const { karmaThreshold, downvoteRatioThreshold, 
-          recentKarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
+          last20KarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
           downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold, 
           lastMonthKarmaThreshold, lastMonthDownvoterCountThreshold } = rateLimit
 
   // user's recent karma info
-  const { recentKarma, lastMonthKarma, recentPostKarma, recentCommentKarma, 
+  const { last20Karma, lastMonthKarma, last20PostKarma, last20CommentKarma, 
           downvoterCount, postDownvoterCount, commentDownvoterCount, lastMonthDownvoterCount } = recentKarmaInfo
 
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
   if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
   if ((downvoteRatioThreshold !== undefined) && getDownvoteRatio(user) < downvoteRatioThreshold) return false
 
-  if ((recentKarmaThreshold !== undefined) && (recentKarma > recentKarmaThreshold)) return false
-  if ((recentPostKarmaThreshold !== undefined) && (recentPostKarma > recentPostKarmaThreshold)) return false
-  if ((recentCommentKarmaThreshold !== undefined) && (recentCommentKarma > recentCommentKarmaThreshold)) return false
+  if ((last20KarmaThreshold !== undefined) && (last20Karma > last20KarmaThreshold)) return false
+  if ((recentPostKarmaThreshold !== undefined) && (last20PostKarma > recentPostKarmaThreshold)) return false
+  if ((recentCommentKarmaThreshold !== undefined) && (last20CommentKarma > recentCommentKarmaThreshold)) return false
 
   if ((lastMonthKarmaThreshold !== undefined && (lastMonthKarma > lastMonthKarmaThreshold))) return false
   if ((lastMonthDownvoterCountThreshold !== undefined && (lastMonthDownvoterCount > lastMonthDownvoterCountThreshold))) return false
@@ -125,9 +125,9 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const lastMonthVotes = nonUserIdTop20DocVotes.filter(vote => vote.postedAt > oneMonthAgo)
   const lastMonthKarma = lastMonthVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
 
-  const recentKarma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
-  const recentPostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
-  const recentCommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const last20Karma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const last20PostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+  const last20CommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   
   const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const downvoterCount = uniq(downvoters).length
@@ -138,10 +138,10 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const lastMonthDownvotes = lastMonthVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
   const lastMonthDownvoterCount = uniq(lastMonthDownvotes).length
   return { 
-    recentKarma: recentKarma ?? 0, 
+    last20Karma: last20Karma ?? 0, 
     lastMonthKarma: lastMonthKarma ?? 0,
-    recentPostKarma: recentPostKarma ?? 0,
-    recentCommentKarma: recentCommentKarma ?? 0,
+    last20PostKarma: last20PostKarma ?? 0,
+    last20CommentKarma: last20CommentKarma ?? 0,
     downvoterCount: downvoterCount ?? 0, 
     postDownvoterCount: postDownvoterCount ?? 0,
     commentDownvoterCount: commentDownvoterCount ?? 0,

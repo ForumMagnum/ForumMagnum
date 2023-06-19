@@ -33,7 +33,7 @@ export interface AutoRateLimit {
   // The following parameters are optional, and if set, the rate limit will only apply to users who meet the criteria.
   karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
   downvoteRatioThreshold?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
-  recentKarmaThreshold?: number //  if set, limit only applies to users whose past 20 posts and comments karma total is less than N
+  last20KarmaThreshold?: number //  if set, limit only applies to users whose past 20 posts and comments karma total is less than N
   recentPostKarmaThreshold?: number // if set, limit only applies to users whose past 20 post karma total is less than N
   recentCommentKarmaThreshold?: number // if set, limit only applies to users whose past 20 comment karma total is less than N
   downvoterCountThreshold?: number // if set, limit only applies to users whose past 20 posts and comments were downvoted by N or more people.
@@ -44,13 +44,13 @@ export interface AutoRateLimit {
 }
 
 //convert rateLimitThresholds to union type
-export type RateLimitThreshold = "karmaThreshold"|"downvoteRatioThreshold"|"recentKarmaThreshold"|"recentPostKarmaThreshold"|"recentCommentKarmaThreshold"|"lastMonthKarmaThreshold"|"downvoterCountThreshold"|"postDownvoterCountThreshold"|"commentDownvoterCountThreshold"|"lastMonthDownvoterCountThreshold"
+export type RateLimitThreshold = "karmaThreshold"|"downvoteRatioThreshold"|"last20KarmaThreshold"|"recentPostKarmaThreshold"|"recentCommentKarmaThreshold"|"lastMonthKarmaThreshold"|"downvoterCountThreshold"|"postDownvoterCountThreshold"|"commentDownvoterCountThreshold"|"lastMonthDownvoterCountThreshold"
 
 export const rateLimitThresholds: RateLimitThreshold[] = [
   "karmaThreshold",
   "downvoteRatioThreshold", 
   
-  "recentKarmaThreshold", 
+  "last20KarmaThreshold", 
   "recentPostKarmaThreshold",
   "recentCommentKarmaThreshold",
   "lastMonthKarmaThreshold",
@@ -83,10 +83,10 @@ export interface StrictestCommentRateLimitInfoParams {
 }
 
 export type RecentKarmaInfo = {
-  recentKarma: number, 
+  last20Karma: number, 
   lastMonthKarma: number,
-  recentPostKarma: number,
-  recentCommentKarma: number,
+  last20PostKarma: number,
+  last20CommentKarma: number,
   downvoterCount: number, 
   postDownvoterCount: number,
   commentDownvoterCount: number,

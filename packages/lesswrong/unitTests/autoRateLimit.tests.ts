@@ -102,17 +102,17 @@ describe("calculateRecentKarmaInfo", function () {
     ...postVotes
   ]
 
-  it("recentKarma only includes karma from most recent 20 contents", () => {
-    const {recentKarma} = calculateRecentKarmaInfo("authorId", votes)
-    expect(recentKarma).toEqual(6)
+  it("last20Karma only includes karma from most recent 20 contents", () => {
+    const {last20Karma} = calculateRecentKarmaInfo("authorId", votes)
+    expect(last20Karma).toEqual(6)
   })
-  it("recentPostKarma only includes karma from most recent 20 posts", () => {
-    const {recentPostKarma} = calculateRecentKarmaInfo("authorId", votes)
-    expect(recentPostKarma).toEqual(16)
+  it("last20PostKarma only includes karma from most recent 20 posts", () => {
+    const {last20PostKarma} = calculateRecentKarmaInfo("authorId", votes)
+    expect(last20PostKarma).toEqual(16)
   })
-  it("recentCommentKarma only includes karma from most recent 20 comments", () => {
-    const {recentCommentKarma} = calculateRecentKarmaInfo("authorId", votes)
-    expect(recentCommentKarma).toEqual(12)
+  it("last20CommentKarma only includes karma from most recent 20 comments", () => {
+    const {last20CommentKarma} = calculateRecentKarmaInfo("authorId", votes)
+    expect(last20CommentKarma).toEqual(12)
   })
   it("downvoterCount includes all unique downvoters for recent 20 contents", () => {
     const {downvoterCount} = calculateRecentKarmaInfo("authorId", votes)
@@ -151,10 +151,10 @@ describe("shouldRateLimitApply", function () {
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfo)).toEqual(true)
     expect(shouldRateLimitApply(user2, rateLimit, recentKarmaInfo)).toEqual(false)
   })
-  it("returns true IFF recent user karma is less than recentKarmaThreshold", () => {
+  it("returns true IFF recent user karma is less than last20KarmaThreshold", () => {
     const recentKarmaInfo1 = calculateRecentKarmaInfo("authorId", commentUpvotes)
     const recentKarmaInfo2 = calculateRecentKarmaInfo("authorId", commentDownVotes)
-    const rateLimit = createCommentRateLimit({recentKarmaThreshold: 0})
+    const rateLimit = createCommentRateLimit({last20KarmaThreshold: 0})
     const user1 = createUserKarmaInfo()
     
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfo1)).toEqual(false)
