@@ -614,9 +614,11 @@ const schema: SchemaType<DbUser> = {
       // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
-          {value:'postCommentsTop', label: 'magical algorithm'},
-          {value:'postCommentsNew', label: 'most recent'},
+          {value:'postCommentsMagic', label: isEAForum ? 'new & upvoted' : 'magic (new & upvoted)'},
+          {value:'postCommentsTop', label: 'top scoring'},
+          {value:'postCommentsNew', label: 'newest'},
           {value:'postCommentsOld', label: 'oldest'},
+          {value:'postCommentsRecentReplies', label: 'latest reply'},
         ];
         if (forumTypeSetting.get() === 'AlignmentForum') {
           return commentViews.concat([

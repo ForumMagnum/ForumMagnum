@@ -900,6 +900,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
     },
     {
+      name: 'All Comments with Reacts',
+      path: '/allCommentsWithReacts',
+      componentName: 'AllReactedCommentsPage',
+      title: "All Comments with Reacts"
+    },
+    {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
