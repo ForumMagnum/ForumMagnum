@@ -1150,7 +1150,7 @@ addRoute(
     path: '/shortform',
     componentName: 'ShortformPage',
     title: "Shortform",
-    description: "Shorter content that is more casual than a full forum post.",
+    description: isEAForum ? "Shorter content that is more casual than a full forum post." : undefined,
   },
 );
 
