@@ -1,8 +1,7 @@
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, TimeframeUnitType, UserKarmaInfo, UserRateLimit, rateLimitThresholds } from "./types"
+import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds } from "./types"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
-import { RecentVoteInfo } from "../../server/repos/VotesRepo"
 import uniq from "lodash/uniq"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {

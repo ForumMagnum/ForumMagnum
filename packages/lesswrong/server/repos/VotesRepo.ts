@@ -2,6 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
+import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -34,11 +35,6 @@ export type PostKarmaChange = KarmaChangeBase & {
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
-
-export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"> & {
-  postedAt: Date,
-}
-
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);

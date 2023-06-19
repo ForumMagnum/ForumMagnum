@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive', 'moderatedComments'] as const);
+const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
 type DashboardTabs = UnionOf<typeof tabs>;
 
 const getCurrentView = (query: Record<string, string>): DashboardTabs => {

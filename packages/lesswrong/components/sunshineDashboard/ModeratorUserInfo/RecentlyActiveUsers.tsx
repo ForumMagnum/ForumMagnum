@@ -106,6 +106,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
+
+
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
@@ -115,8 +118,7 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
-  type sortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
-  const [sorting, setSorting] = useState<sortingType>("lastNotificationsCheck");
+  const [sorting, setSorting] = useState<SortingType>("lastNotificationsCheck");
 
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
     terms: {view: "recentlyActive", limit:200},
