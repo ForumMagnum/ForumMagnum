@@ -10,10 +10,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+export const eaSequencesHomeDescription = "Core reading, and sequences of posts building on a common theme";
+
 const EASequencesHome = ({classes}: {
   classes: ClassesType;
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
+  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles, HeadTags } = Components
   
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>

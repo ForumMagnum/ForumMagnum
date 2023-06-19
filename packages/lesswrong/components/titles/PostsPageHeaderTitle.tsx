@@ -20,7 +20,7 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
   });
   
   if (!post || loading) return null;
-  const titleString = `${post.title} - ${siteName}`
+  const titleString = `${post.title} — ${siteName}`
   
   if (!isSubtitle)
     return <Helmet>

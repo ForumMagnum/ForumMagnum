@@ -7,6 +7,7 @@ import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 
 
 export const communityPath = '/community';
@@ -374,6 +375,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
       componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
+      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the topic system` : undefined,
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
@@ -636,6 +638,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'eaLibrary',
       path: '/library',
+      title: 'Library',
+      description: "Sequences of posts building on a common theme, beginning with some core readings in effective altruism.",
       componentName: 'EASequencesHome'
     },
     {
@@ -656,6 +660,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: communityPath,
       componentName: 'Community',
       title: 'Community',
+      description: isEAForum ? "Find local and online EA groups, or browse the members of the forum to find people to connect with" : undefined,
       ...communitySubtitle
     },
     {
@@ -1144,7 +1149,8 @@ addRoute(
     name: 'Shortform',
     path: '/shortform',
     componentName: 'ShortformPage',
-    title: "Shortform"
+    title: "Shortform",
+    description: "Shorter content that is more casual than a full forum post.",
   },
 );
 

@@ -25,7 +25,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
     const ogUrl = ogUrlProp || url
     const canonicalUrl = canonicalUrlProp || url
-    const description = descriptionProp || taglineSetting.get()
+    const description = descriptionProp || currentRoute.description || taglineSetting.get()
     const siteName = tabTitleSetting.get()
 
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
@@ -39,7 +39,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
             ? <TitleComponent siteName={siteName} isSubtitle={false} />
             : <Helmet><title>
                 {titleString
-                  ? `${titleString} - ${siteName}`
+                  ? `${titleString} — ${siteName}`
                   : siteName}
               </title></Helmet>
         }
