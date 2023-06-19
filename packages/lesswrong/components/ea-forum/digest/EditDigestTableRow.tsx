@@ -11,8 +11,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     borderTop: theme.palette.border.extraFaint,
   },
-  inCol: {
-    textAlign: 'center'
+  statusCol: {
+    textAlign: 'center',
+    cursor: 'pointer'
+  },
+  statusColPending: {
+    opacity: 0,
+    '&:hover': {
+      opacity: 0.2
+    }
   },
   statusIcon: {
     display: 'inline-block',
@@ -20,7 +27,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 30,
     fontSize: 20,
     lineHeight: '27px',
-    cursor: 'pointer'
   },
   yesIcon: {
     color: theme.palette.icon.greenCheckmark,
@@ -34,10 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   pendingIcon: {
     color: theme.palette.icon.greenCheckmark,
-    opacity: 0,
-    '&:hover': {
-      opacity: 0.2
-    }
   },
   postTitleCol: {
     display: 'flex',
@@ -138,9 +140,9 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   const {flash} = useMessages()
 
   /**
-   * Build the status icon that will appear in the given cell
+   * Build the cell with the given status icon
    */
-  const getStatusIcon = (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus', postStatus: DigestPost) => {
+  const getStatusIconCell = (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus', postStatus: DigestPost) => {
     const status = postStatus[statusField]
     let iconNode = null
     switch (status) {
@@ -158,15 +160,21 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         break
     }
     const onClickAttr = {onClick: () => handleClickStatusIcon(postId, statusField)}
-    return <div
-      className={classNames(classes.statusIcon, {
-        [classes.yesIcon]: status === 'yes',
-        [classes.maybeIcon]: status === 'maybe',
-        [classes.pendingIcon]: status === 'pending',
-        [classes.noIcon]: status === 'no',
-      })}
+    return <td
+      className={classNames(classes.statusCol, {[classes.statusColPending]: status === 'pending'})}
       {...(!statusIconsDisabled && onClickAttr)}
-    >{iconNode}</div>
+    >
+      <div
+        className={classNames(classes.statusIcon, {
+          [classes.yesIcon]: status === 'yes',
+          [classes.maybeIcon]: status === 'maybe',
+          [classes.pendingIcon]: status === 'pending',
+          [classes.noIcon]: status === 'no',
+        })}
+      >
+        {iconNode}
+      </div>
+    </td>
   }
   
   /**
@@ -193,12 +201,8 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   // const showMoreTags = hiddenTagsCount ? <div className={classes.link}>{hiddenTagsCount} more</div> : null
   
   return <tr className={classes.row}>
-    <td className={classes.inCol}>
-      {getStatusIcon(post._id, 'emailDigestStatus', postStatus)}
-    </td>
-    <td className={classes.inCol}>
-      {getStatusIcon(post._id, 'onsiteDigestStatus', postStatus)}
-    </td>
+    {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
+    {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)}
     <td className={classes.postTitleCol}>
       <LWTooltip title="Click to copy post link" placement="bottom" className={classes.copyLink}>
         <ForumIcon icon="ClipboardDocument" className={classes.copyIcon} onClick={() => copyPostToClipboard(post)} />

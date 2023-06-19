@@ -102,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: 'sticky',
       top: 0,
       background: theme.palette.grey[250],
-      zIndex: theme.zIndexes.karmaChangeNotifier
+      zIndex: 1
     },
     '& th,td': {
       minWidth: 72,
@@ -216,6 +216,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     newPosts.sort((a,b) => {
       if (a.curatedDate && !b.curatedDate) return -1
       if (!a.curatedDate && b.curatedDate) return 1
+      if (a.suggestForCuratedUserIds && !b.suggestForCuratedUserIds) return -1
+      if (!a.suggestForCuratedUserIds && b.suggestForCuratedUserIds) return 1
       // TODO: add this back in once we've implemented the rating
       // if (a.rating !== b.rating) return b.rating - a.rating
       return b.baseScore - a.baseScore
