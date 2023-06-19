@@ -3,7 +3,7 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useLazyQuery } from '@apollo/client';
-import { Button } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,6 +51,7 @@ const RandomUserPage = ({classes}: {
     if (recievedNewResults) {
       const user: UsersMinimumInfo|undefined = data?.GetRandomUser;
       if (!user) {
+        // eslint-disable-next-line no-console
         console.error("No user found");
         return;
       }
@@ -78,7 +79,7 @@ const RandomUserPage = ({classes}: {
       Active is defined as reading or writing something in the past month, respectively.
     </Typography>
     <Button
-      onClick={(e) => {
+      onClick={(e: React.MouseEvent) => {
         if (e.ctrlKey || e.metaKey) setNewTabKeyHeld(true);
         getRandomUser({variables: {userIsAuthor: 'optional'}})
       }}
@@ -87,7 +88,7 @@ const RandomUserPage = ({classes}: {
       Get a random active user
     </Button>
     <Button
-      onClick={(e) => {
+      onClick={(e: React.MouseEvent) => {
         if (e.ctrlKey || e.metaKey) setNewTabKeyHeld(true);
         getRandomUser({variables: {userIsAuthor: 'required'}})
       }}
