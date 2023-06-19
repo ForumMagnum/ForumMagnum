@@ -83,6 +83,24 @@ export type IndexConfig = {
   karmaField?: string,
 }
 
+/**
+ * Fields that use full-text search (ie; generally of of the fields that are
+ * listed in the `field` array) should use this mapping. This allows us to use
+ * our normal full text analyzer with stemming and synonyms for normal searches,
+ * but to fall back to the "standard" analyzer which has no stemming for advanced
+ * searches using quotes.
+ */
+const fullTextMapping = {
+  type: "text",
+  analyzer: "fm_synonym_analyzer",
+  fields: {
+    exact: {
+      type: "text",
+      analyzer: "standard",
+    },
+  },
+} as const;
+
 const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
@@ -108,6 +126,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {spam: false}},
     ],
     mappings: {
+      body: fullTextMapping,
+      postTitle: fullTextMapping,
+      authorDisplayName: fullTextMapping,
       authorSlug: {type: "keyword"},
       postGroupId: {type: "keyword"},
       postSlug: {type: "keyword"},
@@ -152,6 +173,10 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {range: {baseScore: {gte: 0}}},
     ],
     mappings: {
+      title: fullTextMapping,
+      authorDisplayName: fullTextMapping,
+      authorFullName: fullTextMapping,
+      body: fullTextMapping,
       authorSlug: {type: "keyword"},
       feedLink: {type: "keyword"},
       slug: {type: "keyword"},
@@ -212,6 +237,13 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {deleteContent: false}},
     ],
     mappings: {
+      displayName: fullTextMapping,
+      bio: fullTextMapping,
+      mapLocationAddress: fullTextMapping,
+      jobTitle: fullTextMapping,
+      organization: fullTextMapping,
+      howICanHelpOthers: fullTextMapping,
+      howOthersCanHelpMe: fullTextMapping,
       careerStage: {type: "keyword"},
       groups: {type: "keyword"},
       slug: {type: "keyword"},
@@ -240,6 +272,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {hidden: false}},
     ],
     mappings: {
+      body: fullTextMapping,
+      plaintextDescription: fullTextMapping,
+      authorDisplayName: fullTextMapping,
       userId: {type: "keyword"},
       authorSlug: {type: "keyword"},
       bannerImageId: {type: "keyword"},
@@ -276,6 +311,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {adminOnly: false}},
     ],
     mappings: {
+      name: fullTextMapping,
+      description: fullTextMapping,
       bannerImageId: {type: "keyword"},
       parentTagId: {type: "keyword"},
       slug: {type: "keyword"},
