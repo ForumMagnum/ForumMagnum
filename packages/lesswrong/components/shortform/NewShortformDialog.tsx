@@ -34,7 +34,7 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            history.push('/shortform');
+            history.push(isEAForum ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
             if (isEAForum) {

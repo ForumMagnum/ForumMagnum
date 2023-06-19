@@ -207,12 +207,12 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       Icon: StarIcon,
     },
     shortform: {
-      tooltipTitle: 'Shortform',
+      tooltipTitle: 'Quick take',
       tooltipBody: <div>
         Writing that is brief, or written very quickly. Perfect for off-the-cuff
         thoughts, brainstorming, early stage drafts, etc.
       </div>,
-      linkTarget: "/shortform",
+      linkTarget: "/quicktakes",
       Icon: SubjectIcon
     },
     tags: {
