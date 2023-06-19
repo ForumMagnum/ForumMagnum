@@ -41,6 +41,22 @@ function getClientBundleTimestamp() {
   return stats.mtime.toISOString();
 }
 
+function getServerBundleTimestamp() {
+  const stats = fs.statSync(`./${getOutputDir()}/server/js/serverBundle.js`);
+  return stats.mtime.toISOString();
+}
+
+// Returns the newer of the client bundle's timestamp, or the server bundle's
+// timestamp.
+function getEitherBundleTimestamp() {
+  let clientBundleTimestamp = getClientBundleTimestamp();
+  let serverBundleTimestamp = getServerBundleTimestamp();
+  if (clientBundleTimestamp > serverBundleTimestamp)
+    return clientBundleTimestamp;
+  else
+    return serverBundleTimestamp;
+}
+
 function generateBuildId() {
   return crypto.randomBytes(12).toString('base64');
 }
@@ -62,13 +78,12 @@ async function initiateRefresh({serverPort}) {
   if (openWebsocketConnections.length > 0) {
     console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+      connection.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
     }
   } else {
     console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
   }
   
-  console.log("============ Finished initiateRefresh");
   refreshIsPending = false;
 }
 
@@ -89,7 +104,7 @@ function startAutoRefreshServer({serverPort, websocketPort}) {
     });
     
     await waitForServerReady(serverPort);
-    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+    ws.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
   });
 }
 
