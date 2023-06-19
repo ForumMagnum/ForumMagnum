@@ -375,7 +375,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
       componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
-      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the topic system` : undefined,
+      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the topic system.` : undefined,
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
@@ -639,7 +639,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'eaLibrary',
       path: '/library',
       title: 'Library',
-      description: "Sequences of posts building on a common theme, beginning with some core readings in effective altruism.",
+      description: eaSequencesHomeDescription,
       componentName: 'EASequencesHome'
     },
     {
@@ -660,7 +660,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: communityPath,
       componentName: 'Community',
       title: 'Community',
-      description: isEAForum ? "Find local and online EA groups, or browse the members of the forum to find people to connect with" : undefined,
+      description: isEAForum ? "Find local and online EA groups, or browse the members of the forum to find people to connect with." : undefined,
       ...communitySubtitle
     },
     {
