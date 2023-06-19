@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import Users, { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import { downvoterTooltip, recentKarmaTooltip } from './UserReviewMetadata';
-import { AutoRateLimit, RecentKarmaInfo, UserKarmaInfo, rateLimitThresholds } from '../../../lib/rateLimits/types';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getAutoRateLimitInfo, shouldRateLimitApply } from '../../../lib/rateLimits/utils';
+import { getRateLimitNames } from '../../../lib/rateLimits/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -104,23 +103,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-function getRateLimits(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
-  const userRateLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
-
-  function getRateLimitName (rateLimit: AutoRateLimit) {
-    let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
-
-    const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
-
-    return rateLimitName += ` (${thresholdInfo.join(", ")})`
-  }
-
-  return userRateLimits
-    .map(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo) && getRateLimitName(rateLimit))
-    .filter(rateLimit => rateLimit)
-    .reverse()
-}
-
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
@@ -171,7 +153,7 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const userSortByRateLimitCount = [...results].sort((a, b) => {
     const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
-    return getRateLimits(b, allRateLimits).length - getRateLimits(a, allRateLimits).length
+    return getRateLimitNames(b, allRateLimits).length - getRateLimitNames(a, allRateLimits).length
   })
 
   let sortedUsers = results;
@@ -243,8 +225,8 @@ const RecentlyActiveUsers = ({ classes }: {
         </thead>
         <tbody>
           {sortedUsers.map((user, i) => {
-            const { recentKarma, recentPostKarma, recentCommentKarma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
-            return <>
+            const { recentKarma, lastMonthKarma, downvoterCount } = user.recentKarmaInfo;
+            return <React.Fragment key={`${user._id}`}>
               <tr key={user._id}>
                 <td onClick={() => handleExpand(user._id)} className={classes.expand}>
                   <MetaInfo>{expandId === user._id ? "[ - ]" : "[+]"}</MetaInfo>
@@ -287,14 +269,14 @@ const RecentlyActiveUsers = ({ classes }: {
                   <MetaInfo>{user.lastNotificationsCheck && <FormatDate date={user.lastNotificationsCheck} />}</MetaInfo>
                 </td>
                 <td>
-                      {getRateLimits(user, forumSelect(autoPostRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
-                        <MetaInfo>{rateLimit}</MetaInfo>
-                      </div>)}
+                  {getRateLimitNames(user, forumSelect(autoPostRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
+                    <MetaInfo>{rateLimit}</MetaInfo>
+                  </div>)}
                 </td>
                 <td>
-                  {getRateLimits(user, forumSelect(autoCommentRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
-                      <MetaInfo>{rateLimit}</MetaInfo>
-                    </div>)}
+                  {getRateLimitNames(user, forumSelect(autoCommentRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
+                    <MetaInfo>{rateLimit}</MetaInfo>
+                  </div>)}
                 </td>
               </tr>
               {expandId === user._id && <tr>
@@ -302,7 +284,7 @@ const RecentlyActiveUsers = ({ classes }: {
                   <UsersReviewInfoCard user={user} key={user._id} refetch={refetch} currentUser={currentUser}/>
                 </td>
               </tr>}
-            </>
+            </React.Fragment>
           })}
         </tbody>
       </table>

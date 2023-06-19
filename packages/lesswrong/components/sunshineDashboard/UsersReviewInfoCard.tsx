@@ -38,7 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   basicInfoRow: {
     padding: 16,
     paddingBottom: 14,
-    borderBottom: theme.palette.border.extraFaint
+    borderBottom: theme.palette.border.extraFaint,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -176,7 +179,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const {
     MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimits
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -203,14 +206,19 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div className={classes.displayName}>
-      <UsersName user={user}/>
-      <FirstContentIcons user={user}/>
-      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+    <div>
+      <div className={classes.displayName}>
+        <UsersName user={user}/>
+        <FirstContentIcons user={user}/>
+        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+      </div>
+      <UserReviewStatus user={user}/>
+      <UserReviewMetadata user={user}/>
     </div>
-    <UserReviewStatus user={user}/>
-    <UserReviewMetadata user={user}/>
+    <div>
+      <UserAutoRateLimits user={user}/>
+    </div>
   </div>
 
   const votesRow = <div className={classes.votesRow}>

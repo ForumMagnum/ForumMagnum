@@ -1,6 +1,6 @@
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, TimeframeUnitType, UserKarmaInfo, UserRateLimit } from "./types"
+import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, TimeframeUnitType, UserKarmaInfo, UserRateLimit, rateLimitThresholds } from "./types"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { RecentVoteInfo } from "../../server/repos/VotesRepo"
 import uniq from "lodash/uniq"
@@ -147,4 +147,21 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
     commentDownvoterCount: commentDownvoterCount ?? 0,
     lastMonthDownvoterCount: lastMonthDownvoterCount ?? 0
   }
+}
+
+export function getRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+  const userRateLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
+
+  function getRateLimitName (rateLimit: AutoRateLimit) {
+    let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
+
+    const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
+
+    return rateLimitName += ` (${thresholdInfo.join(", ")})`
+  }
+
+  return userRateLimits
+    .map(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo) && getRateLimitName(rateLimit))
+    .filter(rateLimit => rateLimit)
+    .reverse()
 }
