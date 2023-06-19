@@ -61,8 +61,6 @@ export const rateLimitThresholds: RateLimitThreshold[] = [
   "lastMonthDownvoterCountThreshold"
 ]
 
-
-
 export interface PostAutoRateLimit extends AutoRateLimit {
   actionType: "Posts",  
 }
