@@ -337,7 +337,6 @@ importComponent("PostsPreviewTooltipSingleWithComment", () => require('../compon
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper'));
 importComponent("KarmaDisplay", () => require('../components/common/KarmaDisplay.tsx'));
-importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemNewCommentsList", () => require('../components/posts/PostsItemNewCommentsList'));

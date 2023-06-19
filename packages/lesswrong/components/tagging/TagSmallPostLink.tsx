@@ -65,7 +65,9 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
   wrap?: boolean,
   widerSpacing?: boolean
 }) => {
-  const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, PostsItemKarma } = Components
+  const {
+    LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, KarmaDisplay,
+  } = Components;
   const { eventHandlers, hover, anchorEl } = useHover();
 
   return <span {...eventHandlers}>
@@ -80,7 +82,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
       </LWPopper>
       <div className={classes.post}>
         {!hideMeta && <MetaInfo className={classes.karma}>
-          <PostsItemKarma post={post} placement="right"/>
+          <KarmaDisplay document={post} placement="right" />
         </MetaInfo>}
         <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}

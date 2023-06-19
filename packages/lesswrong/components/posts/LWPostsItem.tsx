@@ -377,7 +377,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   }
 
   const {
-    PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip,
+    PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
     AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
@@ -416,7 +416,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classes.karma}>
-              {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
+              {post.isEvent
+                ? <AddToCalendarButton post={post} />
+                : <KarmaDisplay document={post} />
+              }
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>

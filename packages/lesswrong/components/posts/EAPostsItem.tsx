@@ -187,7 +187,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     tagRel,
     commentCount,
     hasUnreadComments,
-    primaryTag,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -219,7 +218,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
+    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
@@ -268,7 +267,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               <div className={classes.voteArrow}>
                 <SoftUpArrowIcon />
               </div>
-              <PostsItemKarma post={post} />
+              <KarmaDisplay document={post} />
             </div>
             <div className={classes.details}>
               <PostsTitle
