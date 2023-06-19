@@ -49,6 +49,7 @@ export type RateLimitThreshold = "karmaThreshold"|"downvoteRatioThreshold"|"rece
 export const rateLimitThresholds: RateLimitThreshold[] = [
   "karmaThreshold",
   "downvoteRatioThreshold", 
+  
   "recentKarmaThreshold", 
   "recentPostKarmaThreshold",
   "recentCommentKarmaThreshold",
