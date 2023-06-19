@@ -1,17 +1,28 @@
-import { getCollectionHooks } from '../mutationCallbacks';
-import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
-import { extractVersionsFromSemver } from '../../lib/editor/utils'
-import { ensureIndex } from '../../lib/collectionIndexUtils'
-import { htmlToPingbacks } from '../pingbacks';
-import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
-import { createMutator } from '../vulcan-lib/mutators';
-import * as _ from 'underscore';
-import cheerio from 'cheerio';
-import { onStartup } from '../../lib/executionEnvironment';
-import { dataToHTML, dataToWordCount } from './conversionUtils';
+import {getCollectionHooks} from '../mutationCallbacks'
+import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {extractVersionsFromSemver} from '../../lib/editor/utils'
+import {ensureIndex} from '../../lib/collectionIndexUtils'
+import {htmlToPingbacks} from '../pingbacks'
+import {diff} from '../vendor/node-htmldiff/htmldiff'
+import {
+  editableCollections,
+  editableCollectionsFieldOptions,
+  editableCollectionsFields,
+  MakeEditableOptions,
+  sealEditableFields,
+} from '../../lib/editor/make_editable'
+import {getCollection} from '../../lib/vulcan-lib/getCollection'
+import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
+import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
+import * as _ from 'underscore'
+import cheerio from 'cheerio'
+import {onStartup} from '../../lib/executionEnvironment'
+import {dataToHTML, dataToWordCount} from './conversionUtils'
+import {Globals} from '../../lib/vulcan-lib/config'
+import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
+import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import { Comments } from '../../lib/collections/comments'
+import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -87,7 +98,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -117,7 +128,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc, { currentUser })
+    async function editorSerializationBeforeCreate (doc: AnyBecauseTodo, { currentUser, context }: AnyBecauseTodo)
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -129,9 +140,32 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
+      const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
+        ? (!!doc.debate && fieldName === 'contents')
+        : false;
+
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
+
+      if (isFirstDebatePostComment) {
+        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+          collection: Comments,
+          document: {
+            userId,
+            contents: doc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        };
+
+        // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
+        // If we can't, we'll be stuck with a malformed debate post with no comments
+        await validateCreateMutation(createFirstCommentParams);
+      }
+
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
-          originalContents: doc[fieldName].originalContents,
+          originalContents,
           currentUser,
         })),
         fieldName,
@@ -166,7 +200,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).updateBefore.add(
-    async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser })
+    async function editorSerializationEdit (docData: AnyBecauseTodo, { oldDocument: document, newDocument, currentUser }: AnyBecauseTodo)
   {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -180,10 +214,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
-      const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
+      const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
+      const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
       const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
@@ -243,7 +277,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: DbRevision)
+    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -256,6 +290,63 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     }
     return newDoc;
   });
+
+
+  getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument)
+    }
+
+    return newDocument
+  })
+
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).createAfter.add(
+      async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
+    {
+      const isFirstDebatePostComment = 'debate' in newDoc
+          ? (!!newDoc.debate && fieldName === 'contents')
+          : false;
+      if (currentUser && isFirstDebatePostComment) {
+        await createMutator({
+          collection: Comments,
+          document: {
+            userId: currentUser._id,
+            postId: newDoc._id,
+            contents: newDoc[fieldName as keyof DbPost],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        });
+      }
+      return newDoc;
+    });
+  }
+
+  getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
+    }
+
+    return newDocument
+  })
+
+  /**
+   * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+   * they have fairly strict rate limits that often result in them failing to load.
+   *
+   * NOTE: This is still necessary even if CkEditor is configured to reupload
+   * images, because images have URLs that come from Markdown or RSS sync.
+   * See: https://app.asana.com/0/628521446211730/1203311932993130/f
+   * It's fine to leave it here just in case though
+   */
+  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
+    await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
+  })
+  getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
+    await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
+  })
 }
 
 export function addAllEditableCallbacks() {
@@ -276,8 +367,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");

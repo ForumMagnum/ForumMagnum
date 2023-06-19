@@ -21,24 +21,20 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const SequencesListEditor = ({value, path, label, classes}: {
-  value: string[],
-  path: string,
-  label: string,
+const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
   classes: ClassesType,
-}, context) => {
-  const { updateCurrentValues } = context;
+}) => {
   return <div className={classes.root}>
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        updateCurrentValues({[path]: newValue});
+        void updateCurrentValues({[path]: newValue});
       }}
       classes={classes}
     />
     <Components.SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
-        updateCurrentValues({ [path]: [...value, sequenceId] });
+        void updateCurrentValues({ [path]: [...value, sequenceId] });
       }}
     />
   </div>

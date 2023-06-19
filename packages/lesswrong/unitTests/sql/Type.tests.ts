@@ -57,8 +57,8 @@ describe("SQL Type", () => {
     });
   });
   describe("FloatType", () => {
-    it("Is Postgres REAL", () => {
-      expect(new FloatType().toString()).toBe("REAL");
+    it("Is Postgres DOUBLE PRECISION", () => {
+      expect(new FloatType().toString()).toBe("DOUBLE PRECISION");
     });
     it("Is scalar", () => {
       expect(new FloatType().isArray()).toBe(false);
@@ -158,7 +158,7 @@ describe("SQL Type", () => {
         expect(new DefaultValueType(new IntType(), 3).toString()).toBe("INTEGER DEFAULT 3");
       });
       it("floats", () => {
-        expect(new DefaultValueType(new FloatType(), 3.14159265).toString()).toBe("REAL DEFAULT 3.14159265");
+        expect(new DefaultValueType(new FloatType(), 3.14159265).toString()).toBe("DOUBLE PRECISION DEFAULT 3.14159265");
       });
       it("dates", () => {
         const now = new Date();

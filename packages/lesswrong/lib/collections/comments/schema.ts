@@ -1,16 +1,18 @@
-import { userOwns } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting } from "../../instanceSettings";
-import GraphQLJSON from 'graphql-type-json';
-import { commentGetPageUrlFromDB } from './helpers';
+import { forumTypeSetting, isEAForum, taggingNameSetting } from "../../instanceSettings";
+import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
+import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
+import { viewTermsToQuery } from '../../utils/viewUtils';
+import { userHasShortformTags } from '../../betas';
+import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 
-
-export const moderationOptionsGroup: FormGroup = {
+export const moderationOptionsGroup: FormGroupType = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -68,7 +70,7 @@ const schema: SchemaType<DbComment> = {
   author: {
     type: String,
     optional: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
@@ -120,6 +122,15 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     ...schemaDefaultValue("DISCUSSION"),
   },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
   // The comment author's `_id`
   userId: {
     ...foreignKeyField({
@@ -130,7 +141,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
-    canRead: ['guests'],
+    canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
   },
@@ -154,9 +165,9 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     denormalized: true,
     ...schemaDefaultValue(false),
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
   },
 
@@ -166,7 +177,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, true)
+      return await commentGetPageUrlFromDB(comment, context, true)
     },
   }),
 
@@ -174,7 +185,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, false)
+      return await commentGetPageUrlFromDB(comment, context, false)
     },
   }),
 
@@ -211,7 +222,7 @@ const schema: SchemaType<DbComment> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: (comment: DbComment) => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -228,10 +239,10 @@ const schema: SchemaType<DbComment> = {
   latestChildren: resolverOnlyField({
     type: Array,
     graphQLtype: '[Comment]',
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
-      const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
+      const params = viewTermsToQuery("Comments", {view:"shortformLatestChildren", topLevelCommentId: comment._id});
       return await Comments.find(params.selector, params.options).fetch()
     }
   }),
@@ -258,6 +269,16 @@ const schema: SchemaType<DbComment> = {
     }),
   },
 
+  shortformFrontpage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(true)
+  },
+
   // users can write comments nominating posts for a particular review period.
   // this field is generally set by a custom dialog,
   // set to the year of the review period (i.e. '2018')
@@ -282,7 +303,7 @@ const schema: SchemaType<DbComment> = {
     type: Date,
     denormalized: true,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: (document, currentUser) => new Date(),
   },
 
@@ -304,6 +325,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
+    label: "Pinned"
   },
 
   promotedByUserId: {
@@ -327,10 +349,10 @@ const schema: SchemaType<DbComment> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        Utils.updateMutator({
+        void Utils.updateMutator({
           collection: context.Posts,
           context,
-          selector: {_id:document.postId},
+          documentId: document.postId,
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false
@@ -381,7 +403,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
@@ -391,7 +413,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    viewableBy: ['guests'],
+    canRead: [documentIsNotDeleted],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
@@ -401,13 +423,9 @@ const schema: SchemaType<DbComment> = {
   
   votingSystem: resolverOnlyField({
     type: String,
-    viewableBy: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      if (!comment?.postId) {
-        return "default";
-      }
-      const post = await context.loaders.Posts.load(comment.postId);
-      return post.votingSystem || "default";
+    canRead: ['guests'],
+    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+      return getVotingSystemNameForDocument(comment, context)
     }
   }),
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -628,19 +646,137 @@ const schema: SchemaType<DbComment> = {
     ...schemaDefaultValue(false),
   },
   
-};
+  title: {
+    type: String,
+    optional: true,
+    max: 500,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    order: 10,
+    placeholder: "Title (optional)",
+    control: "EditCommentTitle",
+    hidden: (props) => {
+      // Currently only allow titles for top level subforum comments
+      const comment = props?.document
+      return !commentAllowTitle(comment)
+    }
+  },
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  relevantTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "relevantTagIds",
+      resolverName: "relevantTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    canRead: ['guests'],
+    canCreate: ['members', 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    label: `Shortform ${taggingNameSetting.get()}`,
+    tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
+    control: "FormComponentTagsChecklist",
+    hidden: ({currentUser, document}: SmartFormProps): boolean => {
+        if (!userHasShortformTags(currentUser)) return true;
+        return !document.shortform
+    },
+  },
+  'relevantTagIds.$': {
+    type: String,
+    optional: true,
+    foreignKey: "Tags",
+  },
+
+  debateResponse: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
+      if (!currentUser || !formProps?.post?.debate) return true;
+
+      const { post } = formProps;
+      
+      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
+      return !debateParticipantsIds.includes(currentUser._id);
+    },
+  },
+
+  rejected: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  modGPTAnalysis: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
+  // This should be one of: Intervene, Consider reviewing, Don't intervene
+  modGPTRecommendation: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true
+  },
+
+  rejectedReason: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true
+  },
+
+  rejectedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "rejectedByUserId",
+      resolverName: "rejectedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set?.rejected && currentUser) {
+        return modifier.$set.rejectedByUserId || currentUser._id
+      }
+    },
+  },
+
+
+  /* Alignment Forum fields */
   af: {
     type: Boolean,
     optional: true,
     label: "AI Alignment Forum",
     ...schemaDefaultValue(false),
-    viewableBy: ['guests'],
-    editableBy: ['alignmentForum', 'admins'],
-    insertableBy: ['alignmentForum', 'admins'],
-    hidden: (props) => alignmentForum || !props.alignmentForumPost
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'admins'],
+    canCreate: ['alignmentForum', 'admins'],
+    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {
@@ -650,8 +786,8 @@ Object.assign(schema, {
       collectionName: "Users",
       type: "User"
     }),
-    viewableBy: ['members'],
-    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
+    canRead: ['guests'],
+    canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
@@ -667,8 +803,8 @@ Object.assign(schema, {
     type: String,
     optional: true,
     group: alignmentOptionsGroup,
-    viewableBy: ['guests'],
-    editableBy: ['alignmentForumAdmins', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['alignmentForumAdmins', 'admins'],
     label: "AF Review UserId",
     hidden: forumTypeSetting.get() === 'EAForum'
   },
@@ -679,9 +815,9 @@ Object.assign(schema, {
     optional: true,
     label: "Alignment Forum",
     hidden: true,
-    viewableBy: ['guests'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-    insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    canCreate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
   },
 
@@ -694,8 +830,8 @@ Object.assign(schema, {
     }),
     optional: true,
     hidden: true,
-    viewableBy: ['guests'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
   },
@@ -704,10 +840,10 @@ Object.assign(schema, {
     type: String,
     optional: true,
     hidden: true,
-    viewableBy: ['guests'],
-    insertableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: [userOwns, 'admins'],
   },
-});
+};
 
 export default schema;

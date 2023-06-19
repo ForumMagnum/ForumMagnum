@@ -3,6 +3,7 @@ import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
 import { inspect } from "util";
+import { getCollationType } from "./collation";
 
 export type SimpleLookup = {
   from: string,
@@ -65,6 +66,11 @@ export type SelectSqlOptions = Partial<{
    * directly.
    */
   group: Record<string, any>, // TODO Better typing
+  /**
+   * Perform a Mongo $sample aggregation where we select `sampleSize` random elements
+   * from the result.
+   */
+  sampleSize: number,
 }>
 
 /**
@@ -98,12 +104,17 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
 
   constructor(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ) {
     super(table, ["SELECT"]);
+
+    if (options?.collation) {
+      const collation = getCollationType(options.collation);
+      this.isCaseInsensitive = collation === "case-insensitive";
+    }
 
     if (sqlOptions?.group) {
       this.appendGroup(sqlOptions.group);
@@ -131,16 +142,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       selector = {_id: selector};
     }
 
-    if (selector && Object.keys(selector).length > 0) {
+    if (!this.selectorIsEmpty(selector)) {
       this.atoms.push("WHERE");
       this.appendSelector(selector);
     }
 
-    if (options) {
-      if (options.collation) {
-        throw new Error("Collation not implemented")
-      }
-      this.appendOptions(options);
+    if (options || this.nearbySort) {
+      this.appendOptions(options ?? {}, sqlOptions?.sampleSize);
     }
 
     if (sqlOptions?.forUpdate) {
@@ -148,12 +156,27 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
   }
 
+  private selectorIsEmpty(selector?: string | MongoSelector<T>): boolean {
+    if (!selector) {
+      return true;
+    }
+
+    if (typeof selector === "string") {
+      return false;
+    }
+
+    const keys = Object.keys(selector);
+    return keys.length === 1
+      ? keys[0] === "$comment"
+      : keys.length === 0;
+  }
+
   private appendGroup<U extends {}>(group: U) {
     this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, false));
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
-    const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression(group[key]));
+    const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression((group as AnyBecauseTodo)[key]));
     const fields = keys.map((key) =>
-      `"${typeof group[key] === "string" && group[key][0] === "$" ? group[key].slice(1) : key}"`
+      `"${typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key}"`
     );
     this.atoms.push(fields.join(", "));
   }
@@ -201,7 +224,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
           if (!projection) {
             projection = {};
           }
-          projection[field] = 0;
+          (projection as AnyBecauseTodo)[field] = 0;
         }
       }
     }
@@ -209,7 +232,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private getProjectedFields(
-    table: Table | Query<T>,
+    table: Table<T> | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
     autoIncludeId = true,
@@ -227,9 +250,9 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     const addFields: Record<string, any> = {};
 
     for (const key of Object.keys(projection)) {
-      if (projection[key]) {
-        if (["object", "string"].includes(typeof projection[key])) {
-          addFields[key] = projection[key];
+      if ((projection as AnyBecauseTodo)[key]) {
+        if (["object", "string"].includes(typeof (projection as AnyBecauseTodo)[key])) {
+          addFields[key] = (projection as AnyBecauseTodo)[key];
         } else {
           include.push(key);
         }
@@ -274,21 +297,45 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     return projectedAtoms;
   }
 
-  private appendOptions(options: MongoFindOptions<T>): void {
+  private appendOptions(options: MongoFindOptions<T>, sampleSize?: number): void {
     const {sort, limit, skip} = options;
 
     if (sort && Object.keys(sort).length) {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
-        sorts.push(`${this.resolveFieldName(field)} ${sort[field] === 1 ? "ASC" : "DESC"}`);
+        const pgSorting = sort[field] === 1
+            ? "ASC NULLS FIRST"
+            : "DESC NULLS LAST"
+        sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
+    } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
+      const {field, lng, lat} = this.nearbySort;
+      this.atoms = this.atoms.concat([
+        "ORDER BY EARTH_DISTANCE(LL_TO_EARTH((",
+        field,
+        "->'coordinates'->0)::FLOAT8, (",
+        field,
+        "->'coordinates'->1)::FLOAT8), LL_TO_EARTH(",
+        this.createArg(lng),
+        ",",
+        this.createArg(lat),
+        ")) ASC NULLS LAST",
+      ]);
     }
 
     if (limit) {
       this.atoms.push("LIMIT");
       this.atoms.push(this.createArg(limit));
+    }
+
+    if (sampleSize) {
+      if (sort || this.nearbySort || limit) {
+        throw new Error("Conflicting sort options for select query");
+      }
+      this.atoms.push("ORDER BY RANDOM() LIMIT");
+      this.atoms.push(this.createArg(sampleSize));
     }
 
     if (skip) {

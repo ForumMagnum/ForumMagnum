@@ -42,7 +42,7 @@ const switchingCheckTestCase = (
   const collection = new SwitchingCollection("test");
   collection.setMongoCollection(mongoCollection as unknown as MongoCollection<DbObject>);
   collection.setPgCollection(pgCollection as unknown as PgCollection<DbObject>);
-  const base = collection as unknown as CollectionBase<DbObject>;
+  const base: AnyBecauseTodo = collection as unknown as CollectionBase<DbObject>;
 
   collection.setTargets(readTarget, writeTarget);
   for (const op of SwitchingCollection.readOperations) {
@@ -92,6 +92,35 @@ describe("SwitchingCollection", () => {
     base.table = 3;
     expect(mongoCollection.table).toBe(3);
     expect(pgCollection.table).toBe(3);
+  });
+  it("can set defaultView", () => {
+    const collection = new SwitchingCollection("test");
+    const mongoCollection = collection.getMongoCollection();
+    const pgCollection = collection.getPgCollection();
+    expect(mongoCollection).toBeInstanceOf(MongoCollection);
+    expect(pgCollection).toBeInstanceOf(PgCollection);
+
+    const view = (_terms: any) => ({selector: {}});
+    (collection as unknown as CollectionBase<DbObject>).addDefaultView(view);
+
+    expect((collection as any).defaultView).toBe(view);
+    expect(mongoCollection.defaultView).toBe(view);
+    expect(pgCollection.defaultView).toBe(view);
+  });
+  it("can add views", () => {
+    const collection = new SwitchingCollection("test");
+    const mongoCollection = collection.getMongoCollection();
+    const pgCollection = collection.getPgCollection();
+    expect(mongoCollection).toBeInstanceOf(MongoCollection);
+    expect(pgCollection).toBeInstanceOf(PgCollection);
+
+    const viewName = "some-view";
+    const view = (_terms: any) => ({selector: {}});
+    (collection as unknown as CollectionBase<DbObject>).addView(viewName, view);
+
+    expect((collection as any).views[viewName]).toBe(view);
+    expect(mongoCollection.views[viewName]).toBe(view);
+    expect(pgCollection.views[viewName]).toBe(view);
   });
   it("passes arguments through `proxiedWrite`", async () => {
     const collection = new SwitchingCollection("test");
@@ -151,11 +180,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "mongo",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
@@ -164,11 +193,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "pg",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -177,11 +206,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "mongo",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
@@ -190,11 +219,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "pg",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -203,11 +232,11 @@ describe("SwitchingCollection", () => {
     null,
     "mongo",
     "both",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).not.toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -216,11 +245,11 @@ describe("SwitchingCollection", () => {
     null,
     "pg",
     "both",
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).not.toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
-    (mongoCollection, pgCollection, op) => {
+    (mongoCollection: AnyBecauseTodo, pgCollection: AnyBecauseTodo, op: AnyBecauseTodo) => {
       expect(mongoCollection[op]).toHaveBeenCalled();
       expect(pgCollection[op]).toHaveBeenCalled();
     },
@@ -229,8 +258,8 @@ describe("SwitchingCollection", () => {
     const schema: SchemaType<DbRSSFeed> = {
       status: {
         type: String,
-        viewableBy: ['guests'],
-        editableBy: ['admins'],
+        canRead: ['guests'],
+        canUpdate: ['admins'],
         optional: true,
       },
     };

@@ -7,6 +7,7 @@ import type { TimeOverride } from '../lib/utils/timeUtil';
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
+import { subscribeToNotifications } from "./serverSentEventsClient";
 
 onStartup(() => {
   populateComponentsAppDebug();
@@ -15,7 +16,7 @@ onStartup(() => {
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
   foreignApolloClient.disableNetworkFetches = true;
 
-  const ssrRenderedAt: Date = window.ssrRenderedAt;
+  const ssrRenderedAt: Date = new Date(window.ssrRenderedAt);
   const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
 
   // Create the root element, if it doesn't already exist.
@@ -44,5 +45,7 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
+  
+  subscribeToNotifications();
 // Order 100 to make this execute last
 }, 100);

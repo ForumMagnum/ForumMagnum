@@ -5,10 +5,18 @@ registerFragment(`
     _id
     postId
     tagId
+    tag {
+      slug
+    }
+    relevantTagIds
+    relevantTags {
+      ...TagBasicInfo
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
+    title
     contents {
       _id
       html
@@ -22,6 +30,7 @@ registerFragment(`
     deletedPublic
     deletedReason
     hideAuthor
+    authorIsUnreviewed
     user {
       ...UsersMinimumInfo
     }
@@ -45,6 +54,7 @@ registerFragment(`
     postVersion
     reviewedByUserId
     shortform
+    shortformFrontpage
     lastSubthreadActivity
     moderatorHat
     hideModeratorHat
@@ -57,6 +67,10 @@ registerFragment(`
     directChildrenCount
     votingSystem
     isPinnedOnProfile
+    debateResponse
+    rejected
+    rejectedReason
+    modGPTRecommendation
   }
 `);
 
@@ -65,6 +79,9 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+    }
+    relevantTags {
+      ...TagPreviewFragment
     }
   }
 `)
@@ -76,6 +93,9 @@ registerFragment(`
     latestChildren {
       ...CommentsList
     }
+    tag {
+      ...TagBasicInfo
+    }
     post {
       ...PostsBase
     }
@@ -85,6 +105,7 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
     }
@@ -131,6 +152,17 @@ registerFragment(`
   }
 `);
 
+// TODO: This is now the same as CommentWithRepliesFragment, now that said
+// fragment gets the tag field
+registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
 registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
@@ -152,5 +184,15 @@ registerFragment(`
     allVotes {
       voteType
     }
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModGPTAnalysis on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    modGPTAnalysis
   }
 `);

@@ -9,6 +9,8 @@ import './permissions';
 
 // ## Voting
 import './voting/voteTypes';
+import './voting/votingSystems';
+import './voting/namesAttachedReactions';
 
 //MomentJS configuration
 import '../components/momentjs';
@@ -25,6 +27,10 @@ import './collections/notifications/collection';
 import './collections/notifications/views';
 import './collections/notifications/permissions';
 import './collections/notifications/fragments';
+
+// Images
+import './collections/images/collection';
+
 // Inbox
 import './collections/messages/collection'
 import './collections/messages/views';
@@ -129,6 +135,26 @@ import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
+import './collections/userMostValuablePosts/collection';
+import './collections/userMostValuablePosts/fragments';
+import './collections/userMostValuablePosts/permissions';
+import './collections/userMostValuablePosts/views';
+
+import './collections/useractivities/collection';
+import './collections/useractivities/schema';
+
+import './collections/pagecache/collection';
+import './collections/pagecache/schema';
+
+import './collections/digestPosts/collection';
+import './collections/digestPosts/fragments';
+import './collections/digestPosts/schema';
+
+import './collections/digests/collection';
+import './collections/digests/fragments';
+import './collections/digests/schema';
+import './collections/digests/views';
+
 
 // Subscriptions
 import './collections/subscriptions';
@@ -187,6 +213,12 @@ import './collections/commentModeratorActions/index';
 // ModerationTemplates
 import './collections/moderationTemplates/index';
 
+// UserRateLimits
+import './collections/userRateLimits/index';
+
+// PostEmbeddings
+import './collections/postEmbeddings/collection';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -198,6 +230,13 @@ import './components';
 
 // PostRelation
 import './collections/postRelations';
+
+// PostRecommendations
+import './collections/postRecommendations/collection';
+
+// Collections supporting vendored libraries
+import './collections/cronHistories';
+import './collections/sessions';
 
 // Alignment Forum
 import './alignment-forum/permissions';

@@ -6,6 +6,10 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { RobotIcon } from '../icons/RobotIcon';
+import { useCurrentUser } from '../common/withUser';
+import { isEAForum } from '../../lib/instanceSettings';
+import { coreTagIconMap } from './CoreTagIcon';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -15,12 +19,14 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
+  fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer"
+  cursor: "pointer",
+  whiteSpace: isEAForum ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType): JssStyles => ({
@@ -39,7 +45,18 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   fontSize: 12,
   paddingTop: 1,
   paddingBottom: 2,
+  fontWeight: theme.typography.body1.fontWeight,
   marginBottom: 0
+});
+
+export const coreTagStyle = (theme: ThemeType): JssStyles => ({
+  backgroundColor: theme.palette.tag.coreTagBackground,
+  border: theme.palette.tag.coreTagBorder,
+  color: theme.palette.tag.coreTagText,
+  "&:hover": {
+    backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+    borderColor: theme.palette.tag.coreTagBackgroundHover,
+  },
 });
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -48,17 +65,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...theme.typography.commentStyle,
     "&:hover": {
-      opacity: 1
+      opacity: 1,
+      backgroundColor: theme.palette.tag.backgroundHover,
     },
-    ...(useExperimentalTagStyleSetting.get()
+    "& a:hover": isEAForum ? {opacity: 1} : {},
+    ...(useExperimentalTagStyleSetting.get() && !isEAForum
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
   },
   core: {
-    backgroundColor: theme.palette.tag.hollowTagBackground,
-    border: theme.palette.tag.coreTagBorder,
-    color: theme.palette.text.dim3,
+    ...coreTagStyle(theme),
+  },
+  coreIcon: {
+    position: "relative",
+    display: "inline-block",
+    minWidth: 20,
+    margin: isEAForum ? "0 3px 0 6px" : undefined,
+    "& svg": {
+      position: "absolute",
+      top: -13,
+      left: -4,
+      width: 20,
+      height: 18,
+      fill: theme.palette.tag.coreTagText,
+    },
   },
   score:  {
     paddingLeft: 5,
@@ -67,44 +98,40 @@ const styles = (theme: ThemeType): JssStyles => ({
   name: {
     display: 'inline-block',
   },
-  hovercard: {
-  },
   smallText: {
     ...smallTagTextStyle(theme),
   },
-  topTag: {
-    background: theme.palette.primary.main,
-    color: theme.palette.text.invertedBackgroundText,
-    border: 'none',
-    padding: '6px 12px',
-    fontWeight: 600,
-    '& svg': {
-      height: 22,
-      width: 20,
-      fill: theme.palette.icon.inverted,
-      padding: '1px 0px'
-    },
-    marginBottom: 16,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 16,
+  robotIcon: {
+    "& svg": {
+      height: 12,
+      opacity: 0.7,
+      marginLeft: 4,
     },
   },
-  flexContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 8,
-  }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard, link=true, isTopTag=false}: {
+const FooterTag = ({
+  tagRel,
+  tag,
+  hideScore=false,
+  smallText,
+  popperCard,
+  link=true,
+  highlightAsAutoApplied=false,
+  neverCoreStyling=false,
+  className,
+  classes,
+}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   popperCard?: React.ReactNode,
-  classes: ClassesType,
-  isTopTag?: boolean
   link?: boolean
+  highlightAsAutoApplied?: boolean,
+  neverCoreStyling?: boolean,
+  className?: string,
+  classes: ClassesType,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tagItem",
@@ -112,28 +139,38 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard, TopTagIcon, TagPreview } = Components
+  const { PopperCard, TagRelCard, CoreTagIcon } = Components
 
-  const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
+  const currentUser = useCurrentUser()
+  
+  if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  if (tag.adminOnly) { return null }
+  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
+
+  const tagName = isEAForum && smallText
+    ? tag.shortName || tag.name
+    : tag.name;
 
   const renderedTag = <>
-    {!!isTopTag && <TopTagIcon tag={tag} />}
-    <span className={classes.name}>{tag.name}</span>
+    {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
+    <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 
   // Fall back to TagRelCard if no popperCard is provided
   const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
 
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
-    <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
-      {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
+  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
+    <span {...eventHandlers} className={classNames(classes.root, className, {
+      [classes.core]: !neverCoreStyling && tag.core,
+      [classes.smallText]: smallText,
+    })}>
+      {link ? <Link to={tagGetUrl(tag)}>
         {renderedTag}
+        {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
       </Link> : renderedTag}
       {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
-        <div className={classes.hovercard}>
+        <div>
           {popperCardToRender}
         </div>
       </PopperCard>}
@@ -141,7 +178,10 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
   </AnalyticsContext>);
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag, {styles});
+const FooterTagComponent = registerComponent("FooterTag", FooterTag, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {

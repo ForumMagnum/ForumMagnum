@@ -4,11 +4,11 @@ import { createMutator, Utils } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 
 const what3WordsAPIKey = "FM5HBWEL"
 
-async function what3WordsToCoordinates(words) {
+async function what3WordsToCoordinates(words: string) {
   const requestOptions: any = {
     method: 'GET',
     redirect: 'follow'

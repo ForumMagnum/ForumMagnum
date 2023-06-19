@@ -11,6 +11,7 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../.
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import type { TimeOverride } from '../../../../lib/utils/timeUtil';
+import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
@@ -30,11 +31,13 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
         <StaticRouter location={req.url} context={{}}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <Components.App
-                apolloClient={apolloClient}
-                serverRequestStatus={serverRequestStatus}
-                timeOverride={timeOverride}
-              />
+              <LayoutOptionsContextProvider>
+                <Components.App
+                  apolloClient={apolloClient}
+                  serverRequestStatus={serverRequestStatus}
+                  timeOverride={timeOverride}
+                />
+              </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </CookiesProvider>
         </StaticRouter>

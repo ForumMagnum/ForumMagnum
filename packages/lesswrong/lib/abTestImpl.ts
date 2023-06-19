@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { useCookies } from 'react-cookie'
 import { useCurrentUser } from '../components/common/withUser';
 import * as _ from 'underscore';
 import rng from './seedrandom';
+import { CLIENT_ID_COOKIE } from './cookies/cookies';
+import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
 
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
@@ -70,7 +71,7 @@ export class ABTest<T extends string = string> {
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
-      (sum:number, key:string) => sum+groups[key].weight,
+      (sum:number, key:T) => sum+groups[key].weight,
       0
     );
     if (totalWeight === 0) {
@@ -190,8 +191,8 @@ export function useABTestProperties(abtest: ABTest): ABTestGroup {
 // A logged-in user has their A/B test groups determined by the client ID they
 // had when they created their account.
 export function useClientId(): string {
-  const [cookies] = useCookies(['clientId']);
-  return cookies.clientId;
+  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
+  return cookies[CLIENT_ID_COOKIE];
 }
 
 // Return a complete mapping of A/B test names to A/B test groups. This is used

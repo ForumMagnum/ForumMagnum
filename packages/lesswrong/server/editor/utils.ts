@@ -1,7 +1,7 @@
-import pick from 'lodash/pick';
+import pick from 'lodash/pick'
 import mjAPI from 'mathjax-node'
-import Revisions from '../../lib/collections/revisions/collection';
-import { isAnyTest } from '../../lib/executionEnvironment';
+import Revisions from '../../lib/collections/revisions/collection'
+import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -38,14 +38,14 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-if (!isAnyTest) {
+if (!isAnyTest && !isMigrations) {
   mjAPI.config({
     MathJax: MATHJAX_OPTIONS
   });
   mjAPI.start();
 }
 
-export const preProcessLatex = async (content) => {
+export const preProcessLatex = async (content: AnyBecauseTodo) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
   // inline with the first (and only the first) MathJax element; this ensures
   // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it
@@ -146,3 +146,6 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
     }
   })
 }
+
+export type MaybeDrafteable = { draft?: boolean } 
+export const isBeingUndrafted = (oldDocument: MaybeDrafteable, newDocument: MaybeDrafteable) => oldDocument.draft && !newDocument.draft

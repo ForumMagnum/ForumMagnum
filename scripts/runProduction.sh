@@ -7,6 +7,7 @@ set -ex
 
 # lw-look here: you must define GITHUB_CREDENTIALS_REPO_USER in your AWS EBS config
 echo "Cloning credentials repo"
+rm -rf Credentials/
 git clone https://$GITHUB_CREDENTIALS_REPO_USER:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
 
 # Decrypt credentials if encrypted
@@ -17,19 +18,6 @@ if [ -n "$TRANSCRYPT_SECRET" ]; then
     cd ..
 else
     echo "Not using transcrypt"
-fi
-
-# Run outstanding database migrations
-MODE=$NODE_ENV
-if [ "$MODE" = "production" ]; then
-    MODE=prod
-fi
-PG_FILE=./Credentials/$MODE-pg-conn.txt
-if test -f "$PG_FILE"; then
-    export PG_URL=`cat $PG_FILE`
-    export FORUM_MAGNUM_MIGRATE_CI=1
-    # TODO FIXME
-    # yarn migrate up $MODE
 fi
 
 export NODE_OPTIONS="--max_old_space_size=2560 --heapsnapshot-signal=SIGUSR2"

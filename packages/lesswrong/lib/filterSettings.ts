@@ -23,15 +23,12 @@ export const FILTER_MODE_CHOICES = [
 ] as const;
 export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
-export const getStandardFilterModes = (user: UsersCurrent|DbUser|null): FilterMode[] => {
-  const standardModes = [...FILTER_MODE_CHOICES, 0, 0.5, 25];
-  return userHasNewTagSubscriptions(user)
-    ? standardModes
-    : standardModes.concat([-25, -10, 10]);
+export const getStandardFilterModes = (): FilterMode[] => {
+  return [...FILTER_MODE_CHOICES, 0, 0.5, 25];
 }
 
-export const isCustomFilterMode = (user: UsersCurrent|DbUser|null, mode: string|number) =>
-  !getStandardFilterModes(user).includes(mode as FilterMode);
+export const isCustomFilterMode = (mode: string|number) =>
+  !getStandardFilterModes().includes(mode as FilterMode);
 
 export const getDefaultFilterSettings = (): FilterSettings => {
   return {
@@ -44,16 +41,16 @@ export const getDefaultFilterSettings = (): FilterSettings => {
   }
 }
 
-const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
+const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
-  for (let tag of oldFilterSettings.tags)
+  for (let tag of existingFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
   const tagsNotIncluded = filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
 
   return {
-    ...oldFilterSettings,
+    ...existingFilterSettings,
     tags: [
-      ...oldFilterSettings.tags,
+      ...existingFilterSettings.tags,
       ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
         tagId: tag._id,
         tagName: tag.name,
@@ -86,9 +83,7 @@ export const useFilterSettings = () => {
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   
-  const defaultSettings = currentUser?.frontpageFilterSettings ?
-    currentUser.frontpageFilterSettings :
-    getDefaultFilterSettings()
+  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
   const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
@@ -171,17 +166,18 @@ export const useFilterSettings = () => {
   }
 }
 
-export const filterModeIsSubscribed = (filterMode: FilterMode) => filterMode === "Subscribed" || filterMode >= 25
+export const filterModeIsSubscribed = (filterMode: FilterMode) =>
+  filterMode === "Subscribed" || (typeof filterMode==='number' && filterMode >= 25)
 
 /**
  * A simple wrapper on top of useFilterSettings focused on a single tag
  * subscription
  */
-export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
+export const useSubscribeUserToTag = (tag?: TagBasicInfo) => {
   const { filterSettings, setTagFilter } = useFilterSettings()
   
-  const filterSetting = filterSettings.tags.find(ft => ft.tagId === tag._id)
-  const isSubscribed = filterSetting && (filterModeIsSubscribed(filterSetting.filterMode))
+  const tagFilterSetting = filterSettings.tags.find(ft => tag && ft.tagId === tag._id)
+  const isSubscribed = !!(tagFilterSetting && (filterModeIsSubscribed(tagFilterSetting.filterMode)))
   
   const subscribeUserToTag = useCallback((tag: TagBasicInfo, filterMode: FilterMode) => {
     setTagFilter({
@@ -193,3 +189,4 @@ export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
   
   return { isSubscribed, subscribeUserToTag }
 }
+

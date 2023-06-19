@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { routerOnUpdate } from '../hooks/useOnNavigate';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
-import { withLocation, withNavigation } from '../../lib/routeUtil';
+import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
+import { useSearchAnalytics } from '../search/useSearchAnalytics';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -98,139 +99,111 @@ const styles = (theme: ThemeType): JssStyles => ({
   },  
 })
 
-interface ExternalProps {
-  onSetIsActive: (active: boolean)=>void,
+const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
+  onSetIsActive: (active:boolean)=>void,
   searchResultsArea: any,
-}
-interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps, WithNavigationProps {
-}
+  classes: ClassesType
+}) => {
+  const [inputOpen,setInputOpen] = useState(false);
+  const [searchOpen,setSearchOpen] = useState(false);
+  const [currentQuery,setCurrentQuery] = useState("");
+  const { history } = useNavigation();
+  const captureSearch = useSearchAnalytics();
 
-interface SearchBarState {
-  inputOpen: boolean,
-  searchOpen: boolean,
-  currentQuery: string,
-}
-
-class SearchBar extends Component<SearchBarProps,SearchBarState> {
-  routerUpdateCallback: any
-  
-  constructor(props: SearchBarProps){
-    super(props);
-    this.state = {
-      inputOpen: false,
-      searchOpen: false,
-      currentQuery: "",
-    }
-  }
-
-  handleSubmit = () => {
-    const { history } = this.props
-    const { currentQuery } = this.state
+  const handleSubmit = () => {
     history.push({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
-    this.closeSearch()
+    closeSearch()
   }
   
-  componentDidMount() {
-    let _this = this;
-    this.routerUpdateCallback = function closeSearchOnNavigate() {
-      _this.closeSearch();
-    };
-    routerOnUpdate.add(this.routerUpdateCallback);
+  useOnNavigate(() => {
+    closeSearch();
+  });
+
+
+  const openSearchResults = () => setSearchOpen(true);
+  const closeSearchResults = () => setSearchOpen(false);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setInputOpen(false);
+    if (onSetIsActive)
+      onSetIsActive(false);
   }
 
-  componentWillUnmount() {
-    if (this.routerUpdateCallback) {
-      routerOnUpdate.remove(this.routerUpdateCallback);
-      this.routerUpdateCallback = null;
-    }
+  const handleSearchTap = () => {
+    setInputOpen(true);
+    setSearchOpen(!!currentQuery);
+    if (onSetIsActive)
+      onSetIsActive(true);
   }
 
-
-  openSearchResults = () => {
-    this.setState({searchOpen: true});
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') closeSearch();
+    if (event.keyCode === 13) handleSubmit()
   }
 
-  closeSearchResults = () => {
-    this.setState({searchOpen: false});
-  }
-
-  closeSearch = () => {
-    this.setState({searchOpen: false, inputOpen: false});
-    if (this.props.onSetIsActive)
-      this.props.onSetIsActive(false);
-  }
-
-  handleSearchTap = () => {
-    this.setState({inputOpen: true, searchOpen: !!this.state.currentQuery});
-    if (this.props.onSetIsActive)
-      this.props.onSetIsActive(true);
-  }
-
-  handleKeyDown = (event) => {
-    if (event.key === 'Escape') this.closeSearch();
-    if (event.keyCode === 13) this.handleSubmit()
-  }
-
-  queryStateControl = (searchState: any): void => {
-    if (searchState.query !== this.state.currentQuery) {
-      this.setState({currentQuery: searchState.query});
+  const queryStateControl = (searchState: any): void => {
+    if (searchState.query !== currentQuery) {
+      setCurrentQuery(searchState.query);
       if (searchState.query) {
-        this.openSearchResults();
+        openSearchResults();
       } else {
-        this.closeSearchResults();
+        closeSearchResults();
       }
     }
   }
 
-  render() {
-    const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
-
-    const { searchResultsArea, classes } = this.props
-    const { searchOpen, inputOpen, currentQuery } = this.state
-    const { SearchBarResults } = Components
-
-    if(!isAlgoliaEnabled()) {
-      return <div>Search is disabled (Algolia App ID not configured on server)</div>
+  useEffect(() => {
+    if (currentQuery) {
+      captureSearch("searchBar", {query: currentQuery});
     }
+  }, [currentQuery, captureSearch])
 
-    return <div className={classes.root} onKeyDown={this.handleKeyDown}>
-      <div className={classes.rootChild}>
-        <InstantSearch
-          indexName={getAlgoliaIndexName("Posts")}
-          searchClient={getSearchClient()}
-          onSearchStateChange={this.queryStateControl}
-        >
-          <div className={classNames(
-            classes.searchInputArea,
-            {"open": inputOpen},
-            {[classes.alignmentForum]: alignmentForum}
-          )}>
-            {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-            <div onClick={this.handleSearchTap}>
-              <SearchIcon className={classes.searchIcon}/>
-              {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-                * null is the only option that actually suppresses the extra X button.
-               // @ts-ignore */}
-              {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
-            </div>
-            { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
-              <CloseIcon className={classes.closeSearchIcon}/>
-            </div>}
-            <div>
-              { searchOpen && <Portal container={searchResultsArea.current}>
-                  <SearchBarResults closeSearch={this.closeSearch} currentQuery={currentQuery} />
-                </Portal> }
-            </div>
-          </div>
-        </InstantSearch>
-      </div>
-    </div>
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
+  const { SearchBarResults } = Components
+
+  if(!isAlgoliaEnabled()) {
+    return <div>Search is disabled (Algolia App ID not configured on server)</div>
   }
+
+  return <div className={classes.root} onKeyDown={handleKeyDown}>
+    <div className={classes.rootChild}>
+      <InstantSearch
+        indexName={getAlgoliaIndexName("Posts")}
+        searchClient={getSearchClient()}
+        onSearchStateChange={queryStateControl}
+      >
+        <div className={classNames(
+          classes.searchInputArea,
+          {"open": inputOpen},
+          {[classes.alignmentForum]: alignmentForum}
+        )}>
+          {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          <div onClick={handleSearchTap}>
+            <SearchIcon className={classes.searchIcon}/>
+            {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+              * null is the only option that actually suppresses the extra X button.
+             // @ts-ignore */}
+            {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
+          </div>
+          { searchOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
+            <CloseIcon className={classes.closeSearchIcon}/>
+          </div>}
+          <div>
+            { searchOpen && <Portal container={searchResultsArea.current}>
+                <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />
+              </Portal> }
+          </div>
+        </div>
+      </InstantSearch>
+    </div>
+  </div>
 }
 
-const SearchBarComponent = registerComponent<ExternalProps>("SearchBar", SearchBar, {
+const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
   styles,
-  hocs: [withLocation, withErrorBoundary, withNavigation],
+  hocs: [withErrorBoundary],
+  areEqual: "auto",
 });
 
 declare global {

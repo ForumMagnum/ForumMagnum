@@ -15,7 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TabNavigationMenuFooter = ({classes}) => {
+const TabNavigationMenuFooter = ({classes}: {
+  classes: ClassesType
+}) => {
   const { TabNavigationFooterItem } = Components
 
   return (

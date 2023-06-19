@@ -21,16 +21,19 @@ const schema: SchemaType<DbMigration> = {
     type: Date,
   },
   finished: {
-    type: Date,
+    type: Boolean,
+    defaultValue: false,
   },
   succeeded: {
     type: Boolean,
+    defaultValue: false,
   },
 };
 
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
+  collectionType: 'pg',
   schema,
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),

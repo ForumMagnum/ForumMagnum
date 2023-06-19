@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],

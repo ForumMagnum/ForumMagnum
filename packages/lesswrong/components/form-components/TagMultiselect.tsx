@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false,isVotingContext, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
@@ -41,16 +41,18 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
   placeholder?: string,
   hidePostCount?: boolean,
   startWithBorder?: boolean,
-  updateCurrentValues<T extends {}>(values: T): void,
+  isVotingContext?: boolean,
+  updateCurrentValues(values: AnyBecauseTodo): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
 
   const [focused, setFocused] = useState(startWithBorder)
 
-  const addTag = (id: string) => {
-    if (!value.includes(id)) {
-      value.push(id)
-      updateCurrentValues({ [path]: value })
+  const addTag = (id: string, tag: AlgoliaTag | null) => {
+    const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
+    if (ids.length) {
+      const newValue = value.concat(ids)
+      updateCurrentValues({ [path]: newValue })
     }
   }
   
@@ -75,9 +77,11 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
       <ErrorBoundary>
         <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
           <TagsSearchAutoComplete
-            clickAction={(id: string) => addTag(id)}
+            clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
+            filters="wikiOnly:false"
+            isVotingContext={isVotingContext}
           />
         </div>
       </ErrorBoundary>

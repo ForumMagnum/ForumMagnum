@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
     marginBottom: 2
@@ -81,7 +81,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
         {post.authorDisplayName}
       </Link> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
-      <FormatDate date={post.createdAt} />
+      <FormatDate date={post.postedAt} />
     </div>
     <div className={classes.snippet}>
       <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />

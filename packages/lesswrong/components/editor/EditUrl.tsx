@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
   value: string,
-  path: string,
+  path: keyof DbPost,
   classes: ClassesType,
   document: Partial<DbPost>,
   defaultValue?: string,
@@ -76,9 +76,9 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
-  let HintTextComponent: () => JSX.Element;
+  let HintTextComponent: React.ComponentClass | React.FC;
   if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
-    HintTextComponent = Components[hintText]
+    HintTextComponent = Components[hintText as keyof ComponentTypes]
   }
 
   const updateValue = (value: string | null) => {
@@ -108,7 +108,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 
   const toggleEditor = () => setEditorActive(!active);
 
-  const onChange = (event) => updateValue(event.target.value);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateValue(event.target.value);
   const onFocus = () => setEditorActive(true);
   const onBlur = () => {
     if (!value || value.length < 1) {

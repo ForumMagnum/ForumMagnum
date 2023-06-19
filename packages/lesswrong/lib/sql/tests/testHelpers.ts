@@ -11,6 +11,7 @@ export type DbTestObject = {
       e: string,
     },
   },
+  d?: string[],
   schemaVersion: number,
 }
 
@@ -22,6 +23,7 @@ export const TestCollection = {
     },
     a: {
       type: Number,
+      defaultValue: 3,
     },
     b: {
       type: String,
@@ -29,18 +31,25 @@ export const TestCollection = {
     c: {
       type: Object,
     },
+    d: {
+      type: Array
+    },
+    'd.$': {
+      type: String
+    },
     schemaVersion: {
       type: Number,
     },
   },
 } as unknown as CollectionBase<DbTestObject>;
 
-export const testTable = Table.fromCollection(TestCollection);
+export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
 
-testTable.addIndex(["a", "b"]);
-testTable.addIndex(["a", "c.d"]);
-testTable.addIndex(["a", "b"], {unique: true});
-testTable.addIndex(["a", "b"], {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
+testTable.addIndex({a: 1, b: 1});
+testTable.addIndex({a: 1, "c.d": 1});
+testTable.addIndex({a: 1, b: 1}, {unique: true});
+testTable.addIndex({a: 1, b: 1}, {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
+testTable.addIndex({b: 1}, {collation: {locale: "en", strength: 2}});
 
 export type DbTestObject2 = {
   _id: string,
@@ -65,8 +74,33 @@ export const TestCollection2 = {
 
 export const testTable2 = Table.fromCollection(TestCollection2);
 
+export type DbTestObject3 = {
+  _id: string,
+  notNullData: string,
+  schemaVersion: number
+};
+
+export const TestCollection3 = {
+  collectionName: "TestCollection3",
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    notNullData: {
+      type: String,
+      nullable: false
+    },
+    schemaVersion: {
+      type: Number,
+    }
+  }
+} as unknown as CollectionBase<DbTestObject3>;
+
+export const testTable3 = Table.fromCollection(TestCollection3);
+
 registerCollection(TestCollection);
 registerCollection(TestCollection2);
+registerCollection(TestCollection3);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

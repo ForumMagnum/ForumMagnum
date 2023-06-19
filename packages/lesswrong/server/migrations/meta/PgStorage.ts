@@ -60,7 +60,9 @@ class PgStorage implements UmzugStorage<MigrationContext> {
    */
   async executed({context}: Pick<MigrationParams<MigrationContext>, "context">): Promise<string[]> {
     const {db} = context;
-    const result: {name: string}[] = await db.any("SELECT name FROM migration_log ORDER BY name DESC");
+    const result: {name: string}[] = await db.any(
+      "SELECT name FROM migration_log WHERE unlog_time IS NULL ORDER BY name DESC",
+    );
     return result.map(({name}) => name);
   }
 }

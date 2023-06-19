@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { descriptionStyles } from './SpotlightItem';
 
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const SpotlightEditorStyles = ({classes, children}: {
   classes: ClassesType,
-  children: any
+  children: ReactNode,
 }) => {
   return <div className={classes.root}>
     {children}
@@ -49,4 +49,3 @@ declare global {
     SpotlightEditorStyles: typeof SpotlightEditorStylesComponent
   }
 }
-

@@ -7,7 +7,7 @@ import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
-import { createNotifications } from '../notificationCallbacksHelpers';
+import { updateMutator } from '../vulcan-lib';
 
 function isValidTagName(name: string) {
   return true;
@@ -22,7 +22,13 @@ function normalizeTagName(name: string) {
 }
 
 export async function updatePostDenormalizedTags(postId: string) {
-  const tagRels: Array<DbTagRel> = await TagRels.find({postId: postId, deleted:false}).fetch();
+  if (!postId) {
+    // eslint-disable-next-line no-console
+    console.warn("Warning: Trying to update tagRelevance with an invalid post ID:", postId);
+    return;
+  }
+
+  const tagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
   const tagRelDict: Partial<Record<string,number>> = {};
   
   for (let tagRel of tagRels) {
@@ -85,19 +91,62 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
   return newDoc;
 });
 
+getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
+  // If a parent tag has been added, add this tag to the subTagIds of the parent
+  if (newDoc.parentTagId === oldDocument.parentTagId) return newDoc;
+
+  // Remove this tag from the subTagIds of the old parent
+  if (oldDocument.parentTagId) {
+    const oldParent = await Tags.findOne(oldDocument.parentTagId);
+    await updateMutator({
+      collection: Tags,
+      documentId: oldDocument.parentTagId,
+      // TODO change to $pull (reverse of $addToSet) once it is implemented in postgres
+      set: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
+      validate: false,
+    })
+  }
+  // Add this tag to the subTagIds of the new parent
+  if (newDoc.parentTagId) {
+    const newParent = await Tags.findOne(newDoc.parentTagId);
+    await updateMutator({
+      collection: Tags,
+      documentId: newDoc.parentTagId,
+      // TODO change to $addToSet once it is implemented in postgres
+      set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
+      validate: false,
+    })
+  }
+  return newDoc;
+});
+
 getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
-  const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
+  const {modifiedDocument: votedTagRel} = await performVoteServer({
+    document: tagRel,
+    voteType: 'smallUpvote',
+    collection: TagRels,
+    user: tagCreator,
+    skipRateLimits: true,
+    selfVote: true
+  })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
 });
 
-function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
-  newDocument: DbTagRel,
-  vote: DbVote
-}) {
-  void updatePostDenormalizedTags(tagRel.postId);
+function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
+  let postId: string;
+  if ("postId" in newDocument) { // is a tagRel
+    // Applying human knowledge here
+    postId = (newDocument as DbTagRel)["postId"];
+  } else if ("tagRelevance" in newDocument) { // is a post
+    postId = newDocument["_id"];
+  } else {
+    return;
+  }
+  void updatePostDenormalizedTags(postId);
 }
 
 voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);

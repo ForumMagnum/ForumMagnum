@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ModerationTemplates } from '../../lib/collections/moderationTemplates';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { useLocation } from '../../lib/routeUtil';
+import NoSSR from 'react-no-ssr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,6 +16,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   deleted: {
     color: theme.palette.grey[500]
+  },
+  highlighted: {
+    border: theme.palette.border.intense
   }
 });
 
@@ -24,7 +29,9 @@ export const ModerationTemplateItem = ({classes, template}: {
   const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
-  return <div className={classNames(classes.root, {[classes.deleted]: template.deleted})}>
+  const {hash} = useLocation()
+  
+  return <NoSSR><div className={classNames(classes.root, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
     <Row>
       <h3>{template.name}{template.deleted && <> [Deleted]</>}</h3>
       <a onClick={() => setEdit(!edit)}><MetaInfo>Edit</MetaInfo></a>
@@ -32,7 +39,7 @@ export const ModerationTemplateItem = ({classes, template}: {
     {edit 
       ? <BasicFormStyles>
           <WrappedSmartForm
-            collection={ModerationTemplates}
+            collectionName="ModerationTemplates"
             documentId={template._id}
             mutationFragment={getFragment('ModerationTemplateFragment')}
             queryFragment={getFragment('ModerationTemplateFragment')}
@@ -48,7 +55,7 @@ export const ModerationTemplateItem = ({classes, template}: {
           </p>
         </div>
     }
-  </div>
+  </div></NoSSR>
 }
 
 const ModerationTemplateItemComponent = registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});

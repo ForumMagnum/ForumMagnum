@@ -7,13 +7,12 @@ import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
-import { userIdentifiedCallback } from '../../lib/analyticsEvents';
+import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
+export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any
@@ -37,12 +36,10 @@ class App extends PureComponent<AppProps,any> {
   
   constructor(props: AppProps) {
     super(props);
-    if (props.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
-        iterator: props.currentUser,
-        properties: [],
-      });
-    }
+    void userChangedCallback.runCallbacks({
+      iterator: props.currentUser,
+      properties: [],
+    });
     const locale = localeSetting.get();
     this.state = {
       locale,
@@ -56,7 +53,7 @@ class App extends PureComponent<AppProps,any> {
   Show a flash message
 
   */
-  flash = message => {
+  flash = (message: AnyBecauseTodo) => {
     this.setState({
       messages: [...this.state.messages, message]
     });
@@ -71,7 +68,7 @@ class App extends PureComponent<AppProps,any> {
     // When clearing messages, we first set all current messages to have a hide property
     // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
     this.setState({
-      messages: this.state.messages.map(message => ({...message, hide: true}))
+      messages: this.state.messages.map((message: AnyBecauseTodo) => ({...message, hide: true}))
     })
     setTimeout(() => {
       this.setState({ messages: []});
@@ -89,8 +86,8 @@ class App extends PureComponent<AppProps,any> {
   }
 
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
-    if (!this.props.currentUser && nextProps.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
+    if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
+      void userChangedCallback.runCallbacks({
         iterator: nextProps.currentUser,
         properties: [],
       });
@@ -127,7 +124,12 @@ class App extends PureComponent<AppProps,any> {
 
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
-    if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
+    // FIXME: Also needs to include changes to hash and to query params
+    if (!this.subscribeLocationContext
+      || this.subscribeLocationContext.pathname != location.pathname
+      || JSON.stringify(this.subscribeLocationContext.query) != JSON.stringify(location.query)
+      || this.subscribeLocationContext.hash != location.hash
+    ) {
       this.subscribeLocationContext = {...location};
     } else {
       Object.assign(this.subscribeLocationContext, location);
@@ -153,7 +155,7 @@ class App extends PureComponent<AppProps,any> {
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
-          <Components.Layout currentUser={currentUser} messages={messages}>
+          <Components.Layout currentUser={currentUser}>
             <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>

@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItemWrapper documentId={contents} removeItem={removeItem} />
+      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -30,7 +30,7 @@ const UsersListEditor = ({value, path, label, classes}: {
   path: string,
   label: string,
   classes: ClassesType,
-}, context) => {
+}, context: any) => {
   const { updateCurrentValues } = context;
   
   const setValue = useCallback((newValue: string[]) => {

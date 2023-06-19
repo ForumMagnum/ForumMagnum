@@ -1,13 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import Badge from '@material-ui/core/Badge';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useOnNavigate } from '../hooks/useOnNavigate';
-import { useOnFocusTab } from '../hooks/useOnFocusTab';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import IconButton from '@material-ui/core/IconButton';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -18,12 +13,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   badge: {
     backgroundColor: 'inherit',
     color: theme.palette.header.text,
-    fontFamily: 'freight-sans-pro, sans-serif',
-    fontSize: "12px",
     fontWeight: 500,
     right: "1px",
     top: "1px",
     pointerEvents: "none",
+    ...(isEAForum
+      ? {
+        fontSize: 10,
+      }
+      : {
+        fontFamily: "freight-sans-pro, sans-serif",
+        fontSize: 12,
+      }),
   },
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
@@ -35,47 +36,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ unreadNotifications, open, toggle, classes }: {
+  unreadNotifications: number,
   open: boolean,
-  toggle: any,
-  currentUser: UsersCurrent,
+  toggle: ()=>void,
   classes: ClassesType,
 }) => {
-  const { results, refetch } = useMulti({
-    terms: {
-      view: 'userNotifications',
-      userId: currentUser._id
-    },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network',
-  });
-  
-  useOnNavigate(useCallback(() => {
-    refetch();
-  }, [refetch]));
-  useOnFocusTab(useCallback(() => {
-    refetch();
-  }, [refetch]));
-  
-  let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
-    (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
-  );
-
+  const { ForumIcon } = Components
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
 
   return (
     <Badge
       classes={{ root: classes.badgeContainer, badge: classes.badge }}
-      badgeContent={(filteredResults && filteredResults.length) || ""}
+      badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
         classes={{ root: buttonClass }}
         onClick={toggle}
       >
-        {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+        {(unreadNotifications>0) ? <ForumIcon icon="Bell" /> : <ForumIcon icon="BellBorder" />}
       </IconButton>
     </Badge>
   )

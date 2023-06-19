@@ -1,11 +1,26 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
+import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+
+export type PermissionResult = {
+  fail: false,
+  reason?: never
+} | {
+  fail: true,
+  reason: string
+}
 
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType) => boolean|Promise<boolean>,
+  userCanVoteOn?: (
+    user: DbUser,
+    document: DbVoteableType,
+    voteType: string|null,
+    extendedVote: any,
+    context: ResolverContext,
+  ) => PermissionResult|Promise<PermissionResult>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
@@ -40,21 +55,11 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserVote: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: 'String',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
-          const { Votes, currentUser } = context;
-          if (!currentUser) return null;
-          const votes = await getWithLoader(context, Votes,
-            `votesByUser${currentUser._id}`,
-            {
-              userId: currentUser._id,
-              cancelled: false,
-            },
-            "documentId", document._id
-          );
-          
+          const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
           return votes[0].voteType;
         }
@@ -64,21 +69,11 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserExtendedVote: {
       type: GraphQLJSON,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: GraphQLJSON,
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
-          const { Votes, currentUser } = context;
-          if (!currentUser) return null;
-          const votes = await getWithLoader(context, Votes,
-            `votesByUser${currentUser._id}`,
-            {
-              userId: currentUser._id,
-              cancelled: false,
-            },
-            "documentId", document._id
-          );
-          
+          const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
           return votes[0].extendedVoteType || null;
         }
@@ -90,23 +85,11 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     currentUserVotes: {
       type: Array,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
-          const { Votes, currentUser } = context;
-          if (!currentUser) return [];
-          const votes = await getWithLoader(context, Votes,
-            `votesByUser${currentUser._id}`,
-            {
-              userId: currentUser._id,
-              cancelled: false,
-            },
-            "documentId", document._id
-          );
-          
-          if (!votes.length) return [];
-          return await accessFilterMultiple(currentUser, Votes, votes, context);
+          return await getCurrentUserVotes(document, context);
         },
       }
     },
@@ -118,21 +101,16 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     allVotes: {
       type: Array,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
-          const { Votes, currentUser } = context;
-          const votes = await getWithLoader(context, Votes,
-            "votesByDocument",
-            {
-              cancelled: false,
-            },
-            "documentId", document._id
-          );
-          
-          if (!votes.length) return [];
-          return await accessFilterMultiple(currentUser, Votes, votes, context);
+          const { currentUser } = context;
+          if (userIsAdminOrMod(currentUser)) {
+            return await getAllVotes(document, context);
+          } else {
+            return await getCurrentUserVotes(document, context);
+          }
         },
       }
     },
@@ -147,9 +125,9 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled
+        filterFn: (vote: DbVote) => !vote.cancelled && vote.collectionName===collection.collectionName
       }),
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     // The document's base score (not factoring in the document's age)
     baseScore: {
@@ -189,12 +167,12 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       type: Number,
       optional: true,
       label: "Alignment Base Score",
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     afExtendedScore: {
       type: GraphQLJSON,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     },
     afVoteCount: {
       type: Number,
@@ -203,3 +181,34 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     },
   });
 }
+
+async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Array<DbVote>> {
+  const { Votes, currentUser } = context;
+  if (!currentUser) return [];
+  const votes = await getWithLoader(context, Votes,
+    `votesByUser${currentUser._id}`,
+    {
+      userId: currentUser._id,
+      cancelled: false,
+    },
+    "documentId", document._id
+  );
+  
+  if (!votes.length) return [];
+  return await accessFilterMultiple(currentUser, Votes, votes, context);
+}
+
+async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Array<DbVote>> {
+  const { Votes, currentUser } = context;
+  const votes = await getWithLoader(context, Votes,
+    "votesByDocument",
+    {
+      cancelled: false,
+    },
+    "documentId", document._id
+  );
+  
+  if (!votes.length) return [];
+  return await accessFilterMultiple(currentUser, Votes, votes, context);
+}
+

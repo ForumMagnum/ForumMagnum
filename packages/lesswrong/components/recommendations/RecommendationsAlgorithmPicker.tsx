@@ -5,11 +5,11 @@ import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
-export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
+export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,13 +39,15 @@ const recommendationAlgorithms = [
     name: "sample",
     description: "Weighted sample"
   }
-];
+] as const;
 
 export function getRecommendationSettings({settings, currentUser, configName}: {
-  settings: Partial<RecommendationsAlgorithm>|null,
+  settings: Partial<DefaultRecommendationsAlgorithm>|null,
   currentUser: UsersCurrent|null,
   configName: string,
-}): RecommendationsAlgorithm {
+}): DefaultRecommendationsAlgorithm {
+  if (isEAForum) return defaultAlgorithmSettings
+
   if (settings) {
     return {
       ...defaultAlgorithmSettings,
@@ -54,14 +56,14 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   }
 
   if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName]||{});
+    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName as keyof UsersCurrent['recommendationSettings']]||{});
   } else {
     return defaultAlgorithmSettings;
   }
 }
 
 // TODO: Probably to be removed when Community becomes a tag
-const forumIncludeExtra: ForumOptions<{humanName: string, machineName: string}> = {
+const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includePersonal' | 'includeMeta'}> = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
@@ -70,16 +72,16 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: string}> 
 const includeExtra = forumSelect(forumIncludeExtra)
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
-  settings: RecommendationsAlgorithm,
+  settings: DefaultRecommendationsAlgorithm,
   configName: string,
-  onChange: (newSettings: RecommendationsAlgorithm)=>void,
+  onChange: (newSettings: DefaultRecommendationsAlgorithm)=>void,
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-  function applyChange(newSettings) {
+  function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
     if (currentUser) {
       const mergedSettings = {
         ...currentUser.recommendationSettings,
@@ -93,7 +95,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    {['frontpage', 'frontpageEA'].includes(configName) && <span className={classes.settingGroup}>
+    {(configName === "frontpage") && <span className={classes.settingGroup}>
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideContinueReading}
@@ -106,8 +108,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label="Bookmarks"
-          tooltip="Posts that you have bookmarked will appear in Recommendations."
+          label={isEAForum ? "Saved posts" : "Bookmarks"}
+          tooltip={`Posts that you have ${isEAForum ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}
@@ -153,7 +155,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[includeExtra.machineName]}
+          value={settings[includeExtra.machineName] ?? false}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
           tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
@@ -163,7 +165,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
-          onChange={(ev) => applyChange({ ...settings, method: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, method: ev.target.value as DefaultRecommendationsAlgorithm['method'] })}
           value={settings.method}
         >
           {recommendationAlgorithms.map(method =>
@@ -176,40 +178,40 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <div>{"Count "}
         <Input type="number"
           value={settings.count}
-          onChange={(ev) => applyChange({ ...settings, count: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, count: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Weight: (score - "}
         <Input type="number"
           value={settings.scoreOffset}
-          onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value as unknown as number })}
         />
         {") ^ "}
         <Input type="number"
           value={settings.scoreExponent}
-          onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Personal blogpost modifier "}
         <Input type="number"
           value={settings.personalBlogpostModifier}
-          onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Frontpage modifier "}
         <Input type="number"
           value={settings.frontpageModifier}
-          onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>
         {"Curated modifier "}
         <Input type="number"
           value={settings.curatedModifier}
-          onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value })}
+          onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value as unknown as number })}
         />
       </div>
       <div>

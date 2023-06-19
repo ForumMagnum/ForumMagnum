@@ -1,7 +1,7 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
-import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
+import { getPostEditorConfig } from './postEditorConfig';
 import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
@@ -323,10 +323,10 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   // Notify the main author of the post, the coauthors if any, and everyone
   // who's commented in the thread. Then filter out the person who wrote the
   // comment themself.
-  const coauthorUserIds = _.filter(post.coauthorStatuses, status=>status.confirmed).map(status => status.userId)
+  const coauthorUserIds = post.coauthorStatuses?.filter(status=>status.confirmed).map(status => status.userId) ?? [];
 
   const usersToNotify = _.uniq(_.filter(
-    [post.userId, ...(coauthorUserIds), ...commentersInThread],
+    [post.userId, ...coauthorUserIds, ...commentersInThread],
     u=>(!!u && u!==commenterUserId)
   ));
   
@@ -424,7 +424,7 @@ async function uploadEditorBundle(bundleVersion: string): Promise<void> {
   const result = await fetchCkEditorRestAPI("POST", "/editors", {
     bundle: editorBundle,
     config: {
-      ...postEditorConfig,
+      ...getPostEditorConfig(),
       cloudServices: {
         bundleVersion,
       },

@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipInfo: {
     marginLeft: 2,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
@@ -155,7 +155,9 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+  const highlight = post.debate
+    ? post.dialogTooltipPreview
+    : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
@@ -202,11 +204,12 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 treeOptions={{
                   post,
                   hideReply: true,
+                  forceNotSingleLine: true,
                 }}
                 truncated
                 comment={renderedComment}
                 hoverPreview
-                forceNotSingleLine
+                forceUnCollapsed
               />
             </div>
           : loading

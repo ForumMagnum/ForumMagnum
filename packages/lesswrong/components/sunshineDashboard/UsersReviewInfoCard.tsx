@@ -1,15 +1,14 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag';
-import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
+
+export const CONTENT_LIMIT = 20
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,14 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     paddingBottom: 14,
     borderBottom: theme.palette.border.extraFaint
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-  },
-  disabled: {
-    opacity: .2,
-    cursor: "default"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -129,12 +120,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     marginTop: 16,
     marginBottom: 8,
-    borderTop: theme.palette.border.extraFaint
+    borderTop: theme.palette.border.extraFaint,
+    maxHeight: '90vh',
+    overflowY: "scroll"
   },
   expandButton: {
     display: "flex",
-    justifyContent: "right",
-    color: theme.palette.grey[500]
+    justifyContent: "center",
+    color: theme.palette.grey[500],
+    borderRadius: 2,
+    '&:hover': {
+      background: theme.palette.grey[100]
+    }
   },
   contentCollapsed: {
     maxHeight: 300,
@@ -142,7 +139,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...hideScrollBars
   },
+  flagged: {
+    border: theme.palette.border.intense,
+    borderColor: theme.palette.error.main
+  }
 })
+
+export function getDownvoteRatio(user: DbUser|SunshineUsersList): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+  const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
+  const voteCountsAreValid = user.voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
+  
+  const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
+
+  return downvoteRatio
+}
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
@@ -150,7 +168,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  const { MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+  const {
+    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
+    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
+  } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
@@ -160,7 +182,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
@@ -168,31 +190,23 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 10
+    limit: CONTENT_LIMIT
   });
 
   const reviewTrigger = getReasonForReview(user)
   const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
+  
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div>
-      <div className={classes.displayName}>
-        <UsersName user={user}/>
-        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
-        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
-      </div>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
-      </MetaInfo>
-      <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
-      </MetaInfo>
+    <div className={classes.displayName}>
+      <UsersName user={user}/>
+      <FirstContentIcons user={user}/>
+      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
     </div>
-
-    <div className={classes.row}>
+    <UserReviewStatus user={user}/>
+    <Row justifyContent="flex-start">
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
@@ -202,7 +216,17 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
-    </div>
+      <LWTooltip title={<ul>
+        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
+        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
+        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
+        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
+      </ul>}>
+        <MetaInfo className={classes.info}>
+          {getDownvoteRatio(user)}
+        </MetaInfo>
+      </LWTooltip>
+    </Row>
   </div>
 
   const votesRow = <div className={classes.votesRow}>
@@ -232,13 +256,12 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const renderExpand = !!(posts?.length || comments?.length)
   
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
       {basicInfoRow}
       <div className={classes.columns}>
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
@@ -246,6 +269,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
+          <NewUserDMSummary user={user} />
           <div 
             className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
@@ -276,5 +300,3 @@ declare global {
     UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
-
-

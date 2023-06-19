@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -28,7 +28,7 @@ class Arg {
  * string of SQL, an argument, a sub-query, or a table (which will be compiled
  * to its name).
  */
-export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
+export type Atom<T extends DbObject> = string | Arg | Query<T> | Table<T>;
 
 const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
 
@@ -47,7 +47,7 @@ const comparisonOps = {
   $lte: "<=",
   $gt: ">",
   $gte: ">=",
-};
+} as const;
 
 const arithmeticOps = {
   $add: "+",
@@ -56,7 +56,24 @@ const arithmeticOps = {
   $divide: "/",
   $pow: "^",
   ...comparisonOps,
-};
+} as const;
+
+const variadicFunctions = {
+  $min: "LEAST",
+  $max: "GREATEST",
+  $ifNull: "COALESCE",
+} as const;
+
+/**
+ * Sorting locations by distance is done in Mongo using the `$near` selector operator
+ * instead of using `sort` - this means we have to save the value when building the
+ * selector for later use.
+ */
+type NearbySort = {
+  field: string,
+  lng: number,
+  lat: number,
+}
 
 /**
  * Query is the base class of the query builder which defines a number of common
@@ -83,9 +100,11 @@ abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
   protected nameSubqueries = true;
   protected isIndex = false;
+  protected nearbySort: NearbySort | undefined;
+  protected isCaseInsensitive = false;
 
   protected constructor(
-    protected table: Table | Query<T>,
+    protected table: Table<T> | Query<T>,
     protected atoms: Atom<T>[] = [],
   ) {}
 
@@ -104,9 +123,13 @@ abstract class Query<T extends DbObject> {
    * public API for flexability.
    */
   compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
+    return this.compileAtoms(this.atoms, argOffset, subqueryOffset);
+  }
+  
+  compileAtoms(atoms: Atom<T>[], argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
-    for (const atom of this.atoms) {
+    for (const atom of atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argOffset}${atom.typehint}`);
         args.push(atom.value);
@@ -162,9 +185,18 @@ abstract class Query<T extends DbObject> {
    * If `typeHint` is an instance of `Type` then that type will be used, otherwise
    * `typeHint` is assumed to be the value we are getting the type for.
    */
-  private getTypeHint(typeHint?: any): string {
+  protected getTypeHint(typeHint?: any): string {
+    if (typeHint === null || typeHint === undefined) {
+      return "";
+    }
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
+    }
+    if (typeHint instanceof Date) {
+      return "::TIMESTAMPTZ";
+    }
+    if (Array.isArray(typeHint)) {
+      return "";
     }
     switch (typeof typeHint) {
       case "number":
@@ -173,9 +205,10 @@ abstract class Query<T extends DbObject> {
         return "::TEXT";
       case "boolean":
         return "::BOOL";
-    }
-    if (typeHint instanceof Date) {
-      return "::TIMESTAMPTZ";
+      case "object":
+        return Object.keys(typeHint).some((key) => key[0] === "$")
+          ? ""
+          : "::JSONB";
     }
     return "";
   }
@@ -221,13 +254,17 @@ abstract class Query<T extends DbObject> {
       if (fieldType instanceof ArrayType && !this.isIndex) {
         throw new NonScalarArrayAccessError(first, rest);
       } else if (fieldType) {
-        return `("${first}"` +
+        const hint = this.getTypeHint(typeHint);
+        const result = `("${first}"` +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
-          `)${this.getTypeHint(typeHint)}`;
+          `)${hint}`;
+        return hint === "::TEXT"
+          ? result.replace(/->(?!.*->)/, "->>")
+          : result;
       }
     }
 
-    if (this.getField(field)) {
+    if (this.getField(field) || this.syntheticFields[field]) {
       return `"${field}"`;
     }
 
@@ -242,15 +279,49 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const ty = this.getField(unresolvedField);
-    if (ty && ty.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    const concreteFieldType = fieldType?.toConcrete();
+    if (concreteFieldType?.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return ["NOT (", new Arg(value), `= ANY(${resolvedField}) )`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()})`];
+      } else if (op === "=") {
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${concreteFieldType.toString()}`];
       } else {
-        return [new Arg(value), `${op} ANY(${resolvedField})`];
+        throw new Error(`Invalid array operator: ${op}`);
       }
     } else {
       const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
+      if (value === null) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS NULL`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT NULL`];
+        }
+      } else if (value === true) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS TRUE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT TRUE`];
+        }
+      } else if (value === false) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS FALSE`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT FALSE`];
+        }
+      }
+      if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
+        return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
+      }
+      /**
+       * `<>` returns null if either of the compared values are null
+       * This is generally not the result you want when checking whether a field is $ne to a specific value
+       * So for nullable fields (most of them, so far) use `IS DISTINCT FROM`
+       * This will return records where e.g. the field is null and you want everything not equal to 5.
+       */
+      if (!(fieldType instanceof NotNullType) && op === "<>") {
+        return [`${resolvedField}${hint} IS DISTINCT FROM `, new Arg(value)];
+      }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
   }
@@ -316,15 +387,51 @@ abstract class Query<T extends DbObject> {
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
 
         case "$in":
+        case "$all":
           if (!Array.isArray(value[comparer])) {
-            throw new Error("$in expects an array");
+            throw new Error(`${comparer} expects an array`);
           }
-          const typeHint = this.getTypeHint(this.getField(fieldName));
-          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+          const fieldType = this.getField(fieldName)?.toConcrete();
+          const hintType = fieldType?.isArray()
+            ? fieldType.subtype
+            : fieldType;
+          const originalFieldTypeHint = this.getTypeHint(fieldType) ?? "";
+          const hint = this.getTypeHint(hintType) ?? "";
+          const args: (string | Arg)[] = value[comparer].length
+            ? value[comparer].flatMap((item: any) => [
+              ",", new Arg(item), hint,
+            ]).slice(1)
+            : [`SELECT NULL${hint}`];
+
+          if (comparer === "$all") {
+            return [field, "@> ARRAY[", ...args, "]"];
+          }
+
+          /**
+           * For $in comparisons on array-typed fields.  Only tested with string arrays.
+           * We use the original type hint, rather then subtype, because otherwise array fields will have the wrong hint
+           * 
+           * We use `&&` to do an intersection ("any values in the field match any values passed in") rather than "contains the entire subset"
+           * As far as I can tell this case is only used for meetup types and we should avoid doing this elsewhere (and just hand-write some SQL)
+           */
+          if (fieldType?.isArray()) {
+            return [field, originalFieldTypeHint, "&& ARRAY[", ...args, "]"]
+          }
+
+          /**
+           * For all $in comparisons on regular (not array) fields, which is the overwhelming majority of them.
+           */
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+
+        case "$size":
+          const arraySize = value[comparer];
+          if (typeof arraySize !== "number") {
+            throw new Error(`Invalid array size: ${arraySize}`);
+          }
+          return [`ARRAY_LENGTH(${field}, 1) =`, new Arg(arraySize)];
 
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
@@ -347,15 +454,32 @@ abstract class Query<T extends DbObject> {
             this.createArg(lng),
             ",",
             this.createArg(lat),
-            ")) * 0.000621371) <", // Convert metres to miles
+            ")) / 6378000) <", // Convert meters to radians, for mongo compat, 6378000 is the radius of the earth in meters
             this.createArg(distance),
           ];
+
+        // `$near` is implemented by Mongo as a selector but it's actually a sort
+        // operation. We handle it as a no-op here but save the value for later
+        // use when we actually care about sorting.
+        case "$near":
+          const {$geometry: {type, coordinates}} = value[comparer];
+          if (type !== "Point" ||
+              typeof coordinates[0] !== "number" ||
+              typeof coordinates[1] !== "number") {
+            throw new Error("Invalid $near selector");
+          }
+          this.nearbySort = {
+            field,
+            lng: coordinates[0],
+            lat: coordinates[1],
+          };
+          return ["1=1"];
 
         default:
           break;
       }
 
-      const op = comparisonOps[comparer];
+      const op = (comparisonOps as AnyBecauseTodo)[comparer];
       if (op) {
         return this.arrayify(fieldName, field, op, value[comparer]);
       } else {
@@ -387,7 +511,7 @@ abstract class Query<T extends DbObject> {
    * Compile an arbitrary Mongo selector into an array of atoms.
    * `this.atoms` is not modified.
    */
-  protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+  public compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
@@ -427,6 +551,12 @@ abstract class Query<T extends DbObject> {
       const name = expr.slice(1);
       return [this.resolveFieldName(name), "IS NOT NULL"];
     }
+    if (typeof expr === "object" && expr) {
+      const keys = Object.keys(expr);
+      if (keys[0][0] && keys[0][0] !== "$") {
+        return this.compileSelector(expr);
+      }
+    }
     return this.compileExpression(expr);
   }
 
@@ -446,7 +576,7 @@ abstract class Query<T extends DbObject> {
       return [new Arg({[op]: expr[op]})]
     }
 
-    if (arithmeticOps[op]) {
+    if ((arithmeticOps as AnyBecauseTodo)[op]) {
       const isMagnitude = isMagnitudeOp(op);
       const operands = expr[op].map((arg: any) => this.compileExpression(arg, isMagnitude ? 0 : undefined));
       const isDateDiff = op === "$subtract" && operands.length === 2 && operands.some(
@@ -455,7 +585,7 @@ abstract class Query<T extends DbObject> {
       let result: Atom<T>[] = [isDateDiff ? "(1000 * EXTRACT(EPOCH FROM" : "("];
       for (let i = 0; i < operands.length; i++) {
         if (i > 0) {
-          result.push(arithmeticOps[op]);
+          result.push((arithmeticOps as AnyBecauseTodo)[op]);
         }
         result = result.concat(operands[i]);
       }
@@ -475,33 +605,86 @@ abstract class Query<T extends DbObject> {
     if (op === "$abs") {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
+    
+    if (op === "$exp") {
+      return ["EXP(", ...this.compileExpression(expr[op]), ")"];
+    }
 
     if (op === "$sum") {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
-    if (op === "$in") {
-      const [value, array] = expr[op];
-      return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
+    if ((variadicFunctions as AnyBecauseTodo)[op]) {
+      const func = (variadicFunctions as AnyBecauseTodo)[op];
+      const args = expr[op].map((value: any) => this.compileExpression(value));
+      let prefix = `${func}(`;
+      let result: Atom<T>[] = [];
+      for (const arg of args) {
+        result.push(prefix);
+        result = result.concat(arg);
+        prefix = ",";
+      }
+      result.push(")");
+      return result;
     }
 
-    // This algorithm is over-specialized, but we only seem to use it in a very particular way...
+    if (op === "$in") {
+      const [value, array] = expr[op];
+      return [...this.compileExpression(array), "@> {", ...this.compileExpression(value), "}"];
+    }
+
+    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
-      if (typeof array !== "string" || array[0] !== "$" || typeof index !== "number") {
-        throw new Error("Invalid arguments to $arrayElemAt");
+      // This is over specialized, but most of our usage follows this pattern
+      if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
+        const tokens = array.split(".");
+        const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
+        const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
+        if (path.length) {
+          path[path.length - 2] = "->>";
+        }
+        // Postgres array are 1-indexed
+        return [`("${field}")[1 + ${index}]${path.join("")}`];
       }
-      const tokens = array.split(".");
-      const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
-      const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
-      if (path.length) {
-        path[path.length - 2] = "->>";
-      }
-      return [`("${field}")[${index}]${path.join("")}`];
+      return [
+        "(",
+        ...this.compileExpression(array),
+        ")[ 1 +", // Postgres arrays are 1-indexed
+        ...this.compileExpression(index),
+        "]",
+      ];
     }
 
     if (op === "$first") {
       return this.compileExpression(expr[op]);
+    }
+
+    if (op === "$floor") {
+      return ["FLOOR(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$avg") {
+      return ["AVG(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    // This is an operator that doesn't exist in Mongo that we need to add for
+    // hacky reasons. In general, we can search correctly in arrays and we can
+    // search correctly within JSON, however, we occassionaly have to search
+    // inside arrays that exist deep inside a JSON object where we don't have
+    // any schema available (for instance, pingbacks). Here we add a special
+    // case that allows us to manually annotate these instances (see the
+    // function `jsonArrayContainsSelector`) and generate the correct SQL.
+    // This is rare, but is does occur.
+    if (op === "$jsonArrayContains") {
+      const [array, value] = expr[op];
+      const [field, ...path] = array.split(".");
+      return [
+        this.resolveFieldName(field),
+        "@> ('",
+        ...this.buildJsonArrayAtPath(path, value),
+        "')::JSONB",
+      ];
     }
 
     if (op === undefined) {
@@ -509,6 +692,23 @@ abstract class Query<T extends DbObject> {
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+  }
+
+  private buildJsonArrayAtPath(path: string[], value: any): Atom<T>[] {
+    if (path.length) {
+      const [name, ...rest] = path;
+      return [
+        `{ "${name}":`,
+        ...this.buildJsonArrayAtPath(rest, value),
+        "}",
+      ];
+    } else {
+      return [
+        "[\"' ||",
+        ...this.compileExpression(value),
+        "|| '\"]",
+      ];
+    }
   }
 }
 

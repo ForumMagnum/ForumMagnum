@@ -69,6 +69,7 @@ export default {
     bundleIsServer: true,
     bundleIsTest: true,
     bundleIsProduction: false,
+    bundleIsMigrations: false,
     defaultSiteAbsoluteUrl: "",
     serverPort: 3000,
   },

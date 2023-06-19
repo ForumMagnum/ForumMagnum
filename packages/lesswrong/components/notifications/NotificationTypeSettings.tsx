@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
+import type { PickedTime } from '../common/BatchTimePicker';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,12 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
-  const { BatchTimePicker, Typography } = Components;
+interface NotificationSettings extends PickedTime {
+  channel: string;
+  batchingFrequency: string;
+}
+
+const NotificationTypeSettings = ({ path, value, label, classes }: {
+  path: keyof DbUser;
+  value: PickedTime;
+  label: string;
+  classes: ClassesType;
+}, context: any) => {
+  const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   
-  const modifyValue = (changes) => {
+  const modifyValue = (changes: Partial<NotificationSettings>) => {
     context.updateCurrentValues({
       [path]: { ...currentValue, ...changes }
     });

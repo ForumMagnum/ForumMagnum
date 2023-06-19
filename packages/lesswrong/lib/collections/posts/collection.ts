@@ -27,8 +27,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
 
-    
-    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document, null)
     // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 
@@ -47,7 +46,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  collectionType: 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
@@ -60,7 +59,7 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 
 addUniversalFields({
   collection: Posts,
-  createdAtOptions: {viewableBy: ['admins']},
+  createdAtOptions: {canRead: ['admins']},
 });
 
 makeEditable({
@@ -70,10 +69,10 @@ makeEditable({
     order: 25,
     pingbacks: true,
     permissions: {
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: ['members']
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
     },
   }
 })
@@ -89,9 +88,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: [userHasModerationGuidelines]
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
     },
   }
 })
@@ -102,9 +101,9 @@ makeEditable({
     formGroup: formGroups.highlight,
     fieldName: "customHighlight",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }
 })

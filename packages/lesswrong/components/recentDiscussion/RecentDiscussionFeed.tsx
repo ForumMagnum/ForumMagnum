@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -50,6 +50,7 @@ const RecentDiscussionFeed = ({
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
     AnalyticsInViewTracker,
+    RecentDiscussionSubforumThread,
   } = Components;
   
   const refetch = useCallback(() => {
@@ -57,12 +58,13 @@ const RecentDiscussionFeed = ({
       refetchRef.current();
   }, [refetchRef]);
 
+  const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title}>
-            {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
+          <SectionTitle title={title} >
+            {showShortformButton && <div onClick={toggleShortformFeed}>
               <SectionButton>
                 <AddBoxIcon />
                 New Shortform Post
@@ -110,17 +112,16 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
-              tagSubforumCommented: {
-                fragmentName: "TagRecentSubforumComments",
-                render: (tag: TagRecentSubforumComments) => (
-                  <RecentDiscussionTag
-                    tag={tag}
+              tagSubforumComments: {
+                fragmentName: "CommentWithRepliesFragment",
+                render: (comment: CommentWithRepliesFragment) => (
+                  <RecentDiscussionSubforumThread
+                    comment={comment}
+                    tag={comment.tag}
                     refetch={refetch}
-                    comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    tagCommentType={"SUBFORUM"}
                   />
-                )
+                ),
               },
               tagRevised: {
                 fragmentName: "RevisionTagFragment",

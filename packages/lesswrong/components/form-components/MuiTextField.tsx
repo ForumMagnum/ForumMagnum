@@ -1,6 +1,6 @@
-import React, { ChangeEventHandler } from 'react';
+import React, { ChangeEventHandler, ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import TextField from '@material-ui/core/TextField';
+import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import classnames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -19,25 +19,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MuiTextField = ({
-  classes,
-  value,
-  updateCurrentValues,
-  path,
-  children,
-  select,
-  defaultValue,
-  label,
-  fullWidth,
-  multiLine,
-  rows,
-  variant,
-  type,
-  disabled=false,
-  InputLabelProps
+const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, classes }: FormComponentProps<string> & {
+  children?: ReactNode;
+  select?: boolean;
+  defaultValue?: string | number;
+  fullWidth?: boolean;
+  multiLine?: boolean;
+  rows?: number;
+  variant?: "standard" | "outlined" | "filled";
+  type?: string;
+  InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  classes: ClassesType;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: event.target.value
     })
   }

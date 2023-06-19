@@ -73,8 +73,8 @@ function isMissingIndex(index: any, actualIndexes: any[])
 export async function getMissingIndexes()
 {
   let missingIndexes: Array<any> = [];
-  
-  for (let collectionName in expectedIndexes)
+
+  for (let [collectionName, expectedCollectionIndexes] of Object.entries(expectedIndexes))
   {
     let collection = getCollection(collectionName as CollectionNameString);
     
@@ -83,7 +83,7 @@ export async function getMissingIndexes()
     
     let indexes = await collection.rawCollection().indexes();
     
-    for (let expectedIndex of expectedIndexes[collectionName]) {
+    for (let expectedIndex of expectedCollectionIndexes) {
       if (isMissingIndex(expectedIndex, indexes)) {
         missingIndexes.push({
           collectionName: collectionName,

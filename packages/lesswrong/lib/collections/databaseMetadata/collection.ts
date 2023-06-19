@@ -3,12 +3,12 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils'
 
-
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
-  schema
+  collectionType: 'pg',
+  schema,
 });
 addUniversalFields({collection: DatabaseMetadata});
 
-ensureIndex(DatabaseMetadata, { name:1 });
+ensureIndex(DatabaseMetadata, { name: 1 }, { unique: true });

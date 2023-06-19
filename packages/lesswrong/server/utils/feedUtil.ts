@@ -1,61 +1,72 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 
-type FeedSubquery<SortKeyType, ResultType> = {
-  type: string
-  getSortKey: (result: ResultType) => SortKeyType
-  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>
+export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
+  type: string,
+  getSortKey: (item: ResultType) => SortKeyType,
+  isNumericallyPositioned?: boolean,
+  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>,
 }
 
-export function feedSubquery<ResultType, SortKeyType>(params: {
-  type: string,
-  getSortKey: (result: ResultType) => SortKeyType,
-  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>
-}) {
-  return params;
+export type SortDirection = "asc" | "desc";
+
+export type SubquerySortField<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
+  sortField: SortFieldName,
+  sortDirection?: SortDirection,
 }
 
-export function viewBasedSubquery<ResultType extends DbObject, SortKeyType, SortFieldName extends keyof ResultType>({type, sortField, collection, context, selector}: {
+export type ViewBasedSubqueryProps<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
   type: string,
-  sortField: keyof ResultType,
   collection: CollectionBase<ResultType>,
   context: ResolverContext,
   selector: MongoSelector<ResultType>,
-}) {
-  return feedSubquery({
+  sticky?: boolean,
+} & SubquerySortField<ResultType, SortFieldName>;
+
+export function viewBasedSubquery<
+  ResultType extends DbObject,
+  SortKeyType,
+  SortFieldName extends keyof ResultType
+>(props: ViewBasedSubqueryProps<ResultType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
+  props.sortDirection ??= "desc";
+  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
+  return {
     type,
-    getSortKey: (item: ResultType): SortKeyType => (item[sortField] as unknown as SortKeyType),
+    getSortKey: (item: ResultType) => item[props.sortField] as unknown as SortKeyType,
+    isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
-      return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff});
+      return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
-  });
+  };
 }
 
 export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({type, result, sortKey}: {
   type: string,
   result: ResultType,
   sortKey: SortKeyType,
-}) {
-  return feedSubquery({
+}): FeedSubquery<ResultType, SortKeyType> {
+  return {
     type,
-    getSortKey: (item: ResultType): SortKeyType => sortKey,
-    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
+    getSortKey: (_item: ResultType): SortKeyType => sortKey,
+    doQuery: async (_limit: number, _cutoff: SortKeyType): Promise<Array<ResultType>> => {
       return [result];
     }
-  });
+  };
 }
 
-export function fixedIndexSubquery({type, index, result}: {
+export function fixedIndexSubquery<ResultType extends DbObject>({type, index, result}: {
   type: string,
   index: number,
   result: any,
-}) {
-  return feedSubquery({
+}): FeedSubquery<ResultType, number> {
+  return {
     type,
-    getSortKey: ()=>index,
-    doQuery: async ()=>[result],
-  });
+    getSortKey: () => index,
+    isNumericallyPositioned: true,
+    doQuery: async () => [result],
+  };
 }
 
 export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
@@ -75,7 +86,7 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
 }) {
   addGraphQLSchema(`
     type ${name}QueryResults {
-      cutoff: Date
+      cutoff: ${cutoffTypeGraphQL}
       endOffset: Int!
       results: [${name}EntryType!]
     }
@@ -93,7 +104,7 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   
   addGraphQLResolvers({
     Query: {
-      [name]: async (root: void, args: any, context: ResolverContext) => {
+      [name]: async (_root: void, args: any, context: ResolverContext) => {
         const {limit, cutoff, offset, ...rest} = args;
         return {
           __typename: `${name}QueryResults`,
@@ -108,19 +119,34 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   });
 }
 
-export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, subqueries}: {
+const applyCutoff = <SortKeyType>(
+  sortedResults: {sortKey: SortKeyType}[],
+  cutoff: SortKeyType,
+  sortDirection: SortDirection,
+) => {
+  const cutoffFilter = sortDirection === "asc"
+    ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
+    : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
+  return _.filter(sortedResults, cutoffFilter);
+}
+
+export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sortDirection, subqueries}: {
   limit: number
   cutoff?: SortKeyType,
   offset?: number,
-  subqueries: Array<any>
+  sortDirection?: SortDirection,
+  subqueries: Array<any>,
 }) {
+  sortDirection ??= "desc";
+
   // Perform the subqueries
   const unsortedSubqueryResults = await Promise.all(
     subqueries.map(async (subquery) => {
       const subqueryResults = await subquery.doQuery(limit, cutoff)
-      return subqueryResults.map(result => ({
+      return subqueryResults.map((result: DbObject) => ({
         type: subquery.type,
         sortKey: subquery.getSortKey(result),
+        isNumericallyPositioned: subquery.isNumericallyPositioned,
         [subquery.type]: result,
       }))
     })
@@ -130,16 +156,20 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, subq
   const unsortedResults = _.flatten(unsortedSubqueryResults);
   
   // Split into results with numeric indexes and results with sort-key indexes
-  const numericallyPositionedResults = _.filter(unsortedResults, r=>typeof r.sortKey==="number")
-  const orderedResults = _.filter(unsortedResults, r=>typeof r.sortKey!=="number")
+  const [
+    numericallyPositionedResults,
+    orderedResults,
+  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => isNumericallyPositioned);
   
   // Sort by shared sort key
   const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
-  sortedResults.reverse();
+  if (sortDirection === "desc") {
+    sortedResults.reverse();
+  }
   
   // Apply cutoff
   const withCutoffApplied = cutoff
-    ? _.filter(sortedResults, r=>r.sortKey<cutoff)
+    ? applyCutoff(sortedResults, cutoff, sortDirection)
     : sortedResults;
   
   // Merge in the numerically positioned results
@@ -190,28 +220,34 @@ function isNonEmptyObject(obj: {}): boolean {
   return Object.keys(obj).length > 0;
 }
 
-export async function queryWithCutoff<ResultType extends DbObject>({context, collection, selector, limit, cutoffField, cutoff}: {
+async function queryWithCutoff<ResultType extends DbObject>({
+  context, collection, selector, limit, cutoffField, cutoff, sortDirection,
+}: {
   context: ResolverContext,
   collection: CollectionBase<ResultType>,
   selector: MongoSelector<ResultType>,
   limit: number,
   cutoffField: keyof ResultType,
   cutoff: any,
+  sortDirection: SortDirection,
 }) {
-  const defaultViewSelector = collection.defaultView ? collection.defaultView({} as any).selector : {};
+  const collectionName = collection.collectionName;
   const {currentUser} = context;
-  
-  const resultsRaw = await collection.find({
-    ...defaultViewSelector,
-    ...selector,
-    ...(cutoff && {[cutoffField]: {$lt: cutoff}}),
-  }, {
-    sort: {[cutoffField]: -1, _id: 1} as Partial<Record<keyof ResultType, number>>,
+
+  const sort = {[cutoffField]: sortDirection === "asc" ? 1 : -1, _id: 1};
+  const cutoffSelector = cutoff
+    ? {[cutoffField]: {[sortDirection === "asc" ? "$gt" : "$lt"]: cutoff}}
+    : {};
+  const mergedSelector = mergeSelectors(
+    getDefaultViewSelector(collectionName),
+    selector,
+    cutoffSelector
+  )
+  const finalizedSelector = replaceSpecialFieldSelectors(mergedSelector);
+  const resultsRaw = await collection.find(finalizedSelector, {
+    sort: sort as Partial<Record<keyof ResultType, number>>,
     limit,
   }).fetch();
-  
+
   return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
 }
-
-
-

@@ -5,11 +5,15 @@ import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+
+const PADDING = 36
+const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
+    position: "relative",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 70,
       marginTop: -50,
@@ -17,8 +21,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: -8
     }
   },
-  header: {
+  section: {
     marginBottom: 50,
+    background: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: theme.borderRadius.default,
+    padding: PADDING,
+    maxWidth: COLLECTION_WIDTH,
+    marginLeft: "auto",
+    marginRight: "auto",
+    position: "relative",
+    zIndex: theme.zIndexes.singleColumnSection,
+    [theme.breakpoints.up('md')]: {
+      width: COLLECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
   },
   startReadingButton: {
     background: theme.palette.buttons.startReadingButtonBackground,
@@ -67,7 +83,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -87,9 +103,19 @@ const CollectionsPage = ({ documentId, classes }: {
     // props
     const ButtonUntyped = Button as any;
     
+    // hidden wordcount logged for admin convenience 
+    // we don't show to users because it'd be too intimidating
+    // (more info in BooksProgressBar for users)
+    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
+    // eslint-disable-next-line no-console
+    console.log(`${wordCount.toLocaleString()} words`)
+
     return (<ErrorBoundary><div className={classes.root}>
-      <SingleColumnSection>
-        <div className={classes.header}>
+      <ToCColumn 
+        tableOfContents={<CollectionTableOfContents collection={document}/>}
+      >
+        <div className={classes.section}>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
 
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
@@ -107,19 +133,22 @@ const CollectionsPage = ({ documentId, classes }: {
             </ButtonUntyped>
           }
         </div>
-      </SingleColumnSection>
-      <div>
-        {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
-      </div>
+        <div>
+          {collection.books.map(book => <div className={classes.section} key={`collectionsPage${book._id}`}>
+            <BooksItem key={book._id} book={book} canEdit={canEdit} />
+          </div>)}
+        </div>
+        
+        {canEdit && <SectionFooter>
+          <SectionButton>
+            <a onClick={() => setAddingBook(true)}>Add Book</a>
+          </SectionButton>
+        </SectionFooter>}
+        {addingBook && <SingleColumnSection>
+          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+        </SingleColumnSection>}
+      </ToCColumn>
       
-      {canEdit && <SectionFooter>
-        <SectionButton>
-          <a onClick={() => setAddingBook(true)}>Add Book</a>
-        </SectionButton>
-      </SectionFooter>}
-      {addingBook && <SingleColumnSection>
-        <BooksNewForm prefilledProps={{collectionId: collection._id}} />
-      </SingleColumnSection>}
     </div></ErrorBoundary>);
   }
 }

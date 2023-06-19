@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
@@ -14,16 +14,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=false, inlineBlock=true}: {
-  children?: any,
-  title?: any,
+const LWTooltip = ({
+  children,
+  title,
+  placement="bottom-start",
+  tooltip=true,
+  flip=true,
+  clickable=false,
+  inlineBlock=true,
+  disabled=false,
+  hideOnTouchScreens=false,
+  classes,
+  className,
+  titleClassName,
+  popperClassName,
+}: {
+  children?: ReactNode,
+  title?: ReactNode,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
+  disabled?: boolean,
+  hideOnTouchScreens?: boolean,
   classes: ClassesType,
-  className?: string
+  className?: string,
+  titleClassName?: string
+  popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -31,7 +49,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
     title: typeof title=="string" ? title : undefined
   });
   
-  if (!title) return children
+  if (!title) return <>{children}</>
 
   return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
@@ -39,13 +57,15 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
          can have a closing animation if applicable. */ }
     {everHovered && <LWPopper
       placement={placement}
-      open={hover}
+      open={hover && !disabled}
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}
       clickable={clickable}
+      hideOnTouchScreens={hideOnTouchScreens}
+      className={popperClassName}
     >
-      <div className={tooltip ? classes.tooltip : null}>{title}</div>
+      <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}
     
     {children}

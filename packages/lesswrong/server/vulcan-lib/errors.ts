@@ -10,7 +10,7 @@ An error should have:
 - data: data/values to give more context to the error
 
 */
-export const throwError = error => {
+export const throwError = (error: { id: string; data: Record<string, any> }) => {
   const { id, } = error;
   throw new UserInputError(id, error);
 };

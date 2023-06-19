@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
-import Autosuggest from 'react-autosuggest';
+import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
 const styles = (theme: ThemeType): JssStyles => ({
   autoComplete: {
@@ -24,8 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }: {
-  clickAction: any,
+const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent, filters }: {
+  clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
   renderSuggestion: any,
@@ -33,6 +33,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   indexName: string,
   classes: ClassesType,
   renderInputComponent?: any,
+  filters?: string,
 }) => {
   if (!isAlgoliaEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
@@ -41,16 +42,16 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     return <input type="text" placeholder={noSearchPlaceholder} onKeyPress={ev => {
       if (ev.charCode===13) {
         const id = (ev.target as HTMLInputElement).value;
-        clickAction(id);
+        clickAction(id, null);
         ev.preventDefault();
       }
     }}/>;
   }
   
-  const onSuggestionSelected = (event, { suggestion }) => {
+  const onSuggestionSelected: OnSuggestionSelected<any> = (event, { suggestion }) => {
     event.preventDefault();
     event.stopPropagation();
-    clickAction(suggestion._id)
+    clickAction(suggestion._id, suggestion)
   }
   return <InstantSearch
     indexName={indexName}
@@ -59,7 +60,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     <div className={classes.autoComplete}>
       { /* @ts-ignore */ }
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
-      <Configure hitsPerPage={hitsPerPage} />
+      <Configure hitsPerPage={hitsPerPage} filters={filters}/>
     </div>
   </InstantSearch>
 }

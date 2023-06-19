@@ -36,6 +36,12 @@ jobs:
       id: setup-environment
       uses: ./.github/actions/setupEnvironment
 
+    - name: Setup database template
+      env:
+        TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
+        PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+      run: yarn init-cypress-db-ci
+
     - name: Cypress run
       uses: cypress-io/github-action@v4
       env:
@@ -45,7 +51,7 @@ jobs:
         NODE_OPTIONS: "--max_old_space_size=4096"
       with:
           start: yarn ea-start-testing-db
-          command: yarn ci-cypress-run
+          command: yarn cypress-run-ci
 
     - uses: actions/upload-artifact@v1
       if: failure()

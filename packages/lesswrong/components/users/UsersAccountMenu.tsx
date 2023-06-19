@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { withLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: 400,
+    fontWeight: isEAForum ? undefined : 400,
     opacity: .8,
     color: theme.palette.header.text,
   },

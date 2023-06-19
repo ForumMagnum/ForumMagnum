@@ -13,8 +13,12 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -36,8 +40,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount
@@ -54,6 +56,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -102,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -130,11 +135,15 @@ registerFragment(`
       organizerIds
     }
 
+    podcastEpisodeId
+
     # deprecated
     nominationCount2018
     reviewCount2018
     nominationCount2019
     reviewCount2019
+
+    votingSystem
   }
 `);
 
@@ -151,6 +160,15 @@ registerFragment(`
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+  }
+`)
+
+registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
   }
 `)
 
@@ -188,6 +206,8 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -207,12 +227,16 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
+    dialogTooltipPreview
   }
 `);
 
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    tagRelevance
     deletedDraft
     contents {
       _id
@@ -227,7 +251,15 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
-    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsListTagWithVotes on Post {
+    ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -246,8 +278,9 @@ registerFragment(`
     # Tags
     tagRelevance
     
-    # Sort settings
+    # Posts-page display options
     commentSortOrder
+    sideCommentVisibility
     
     # Sequence navigation
     collectionTitle
@@ -288,15 +321,19 @@ registerFragment(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    
+    # RSS metadata
     feedLink
     feed {
       ...RSSFeedMinimumInfo
     }
+    
+    # Related Questions
     sourcePostRelations {
       _id
       sourcePostId
       sourcePost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -305,16 +342,17 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
+    
+    # Events
     rsvps
     activateRSVPs
 
     # Crossposting
     fmCrosspost
-    podcastEpisodeId
   }
 `);
 
@@ -376,6 +414,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -400,6 +439,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
@@ -410,6 +450,7 @@ registerFragment(`
       title
       slug
       commentCount
+      afCommentCount
       baseScore
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
@@ -427,6 +468,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -448,6 +490,8 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
+    socialPreviewImageId
   }
 `);
 
@@ -505,6 +549,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id
@@ -558,7 +603,22 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
+  }
+`);
+
+registerFragment(`
+  fragment PostSideComments on Post {
+    _id
+    sideComments
+  }
+`);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
   }
 `);

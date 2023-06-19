@@ -41,7 +41,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 export const themePaletteTestExcludedComponents = ["MuiButton"]
 
 registerComponent("MuiPaper", Paper, {
-  styles: theme => {
+  styles: (theme: ThemeType) => {
     return {
       root: {
         backgroundColor: theme.palette.background.paper,
@@ -52,7 +52,7 @@ registerComponent("MuiPaper", Paper, {
 });
 
 registerComponent("MuiButton", Button, {
-  styles: theme => ({
+  styles: (theme: AnyBecauseTodo) => ({
     root: {
       color: theme.palette.text.primary,
       '&:hover': {
@@ -143,7 +143,7 @@ registerComponent("MuiButton", Button, {
 });
 
 registerComponent("MuiListItem", ListItem, {
-  styles: theme => ({
+  styles: (theme: AnyBecauseTodo) => ({
     root: {
       '&$selected, &$selected:hover, &$selected:focus': {
         backgroundColor: theme.palette.action.selected,
@@ -165,7 +165,7 @@ registerComponent("MuiListItem", ListItem, {
 });
 
 registerComponent("MuiListItemIcon", ListItemIcon, {
-  styles: theme => ({
+  styles: (theme: AnyBecauseTodo) => ({
     root: {
       color: theme.palette.action.active,
     },

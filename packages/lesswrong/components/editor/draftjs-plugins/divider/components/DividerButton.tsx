@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import unionClassNames from 'union-class-names';
 
 import {
+  EditorState,
   // EditorState,
   // Modifier,
   // AtomicBlockUtils,
@@ -20,10 +21,10 @@ import {
   insertNewLineBoth,
 } from '../utils/insertNewLine';
 
-interface DividerButtonProps {
-  getEditorState: () => any;
-  setEditorState: (any) => any;
-  blockType: any,
+export interface DividerButtonProps {
+  getEditorState: () => EditorState;
+  setEditorState: (state: EditorState) => any;
+  blockType: string,
   theme: any
 }
 
@@ -32,7 +33,7 @@ export default class DividerButton extends Component<DividerButtonProps> {
     super(props);
   }
 
-  addDivider = (event) => {
+  addDivider = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     const editorState = this.props.getEditorState();
@@ -64,7 +65,7 @@ export default class DividerButton extends Component<DividerButtonProps> {
     this.props.setEditorState(newEditorState);
   };
 
-  preventBubblingUp = (event) => {
+  preventBubblingUp = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
   };
 

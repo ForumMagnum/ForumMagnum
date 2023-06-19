@@ -62,3 +62,6 @@ export const idSettingIcons = new Map([
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
   [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
 ]);
+
+export const sideCommentFilterMinKarma = 10;
+export const sideCommentAlwaysExcludeKarma = -1;

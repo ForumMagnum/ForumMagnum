@@ -19,8 +19,8 @@ const UserReviews = () => {
   if (!user) return <Error404 />
   if (!year) return <Error404 />
 
-  let nominationsView
-  let reviewsView
+  let nominationsView: CommentsViewName | undefined;
+  let reviewsView: CommentsViewName | undefined;
 
   switch (year) {
     case "2018":
@@ -32,7 +32,10 @@ const UserReviews = () => {
       reviewsView = "reviews2019"
       break
     case "all":
+      // TODO: why are these missing??
+      // @ts-ignore
       nominationsView = "nominationsAll"
+      // @ts-ignore
       reviewsView = "reviewsAll"
       break
   }

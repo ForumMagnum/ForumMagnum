@@ -8,6 +8,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
+    color: theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 });

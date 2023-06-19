@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
@@ -59,7 +59,7 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
 };
 
 const extractLinks = (html: string): Array<string> => {
-  const $ = cheerio.load(html);
+  const $ = cheerioParse(html);
   let targets: Array<string> = [];
   $('a').each((i, anchorTag) => {
     const href = $(anchorTag)?.attr('href')

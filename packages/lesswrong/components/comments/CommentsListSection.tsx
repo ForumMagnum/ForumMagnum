@@ -4,24 +4,40 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { CommentsNewFormProps } from './CommentsNewForm';
+import { Link } from '../../lib/reactRouterWrapper';
+import { isEAForum } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontWeight: 400,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
     position: "relative"
   },
   maxWidthRoot: {
     maxWidth: 720,
+  },
+  commentsHeadline: {
+    fontSize: 24,
+    lineHeight: '36px',
+    fontWeight: 600,
+    marginBottom: 16
+  },
+  commentCount: {
+    color: theme.palette.grey[600],
+    marginLeft: 10
   },
   inline: {
     display: 'inline',
@@ -38,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
@@ -55,17 +71,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    fontStyle: 'italic',
-    marginTop: 4,
+    marginTop: isEAForum ? 8 : 4,
+    fontStyle: "italic",
   }
 })
 
-interface CommentsListSectionState {
-  highlightDate: Date,
-  anchorEl: any,
-}
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -77,11 +89,14 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   
+  const { LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row } = Components
+
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
@@ -95,30 +110,34 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
 
   const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography } = Components
+    const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
+    let commentSortNode = (commentCount < totalComments) ?
+      <span>
+        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+        {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+      </span> :
+      <span>
+        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
+      </span>
+    if (isEAForum) {
+      commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
+    }
+    
     return <CommentsListMeta>
       <Typography
         variant="body2"
         component='span'
-        className={classes.inline}>
-        {
-          (commentCount < totalComments) ?
-            <span>
-              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
-            </span> :
-            <span>
-              { totalComments } comments, sorted by <Components.CommentsViews post={post} />
-            </span>
-        }
+        className={classes.inline}
+      >
+        {commentSortNode}
       </Typography>
       {post && <Typography
         variant="body2"
@@ -142,7 +161,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -154,13 +173,27 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
+
+  const userIsDebateParticipant =
+    currentUser
+    && post?.debate
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    
+  const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
+
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
+      {isEAForum && (newForm || !!totalComments) && <div className={classes.commentsHeadline}>
+        Comments{commentCountNode}
+      </div>}
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
+      {newForm
+        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
+        && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
+        && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
+          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
@@ -169,20 +202,25 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           <Components.CommentsNewForm
             post={post} tag={tag}
             prefilledProps={{
-              parentAnswerId: parentAnswerId}}
+              parentAnswerId: parentAnswerId,
+              ...(userIsDebateParticipant ? { debateResponse: true } : {})
+            }}
             type="comment"
+            {...newFormProps}
+            {...(userIsDebateParticipant ? { formProps: { post } } : {})}
           />
         </div>
-      }
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
+      )}
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
         <Components.CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }
-      <Components.CommentsList
+      <CommentsList
         treeOptions={{
           highlightDate: highlightDate,
           post: post,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
         }}
         totalComments={totalComments}
@@ -190,7 +228,14 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
-      <Components.PostsPageCrosspostComments />
+      <PostsPageCrosspostComments />
+      {!isEAForum && <Row justifyContent="flex-end">
+        <LWTooltip title="View deleted comments and banned users">
+          <Link to="/moderation">
+            <MetaInfo>Moderation Log</MetaInfo>
+          </Link>
+        </LWTooltip>
+      </Row>}
     </div>
   );
 }

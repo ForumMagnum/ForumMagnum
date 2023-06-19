@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 
 /**
@@ -9,6 +8,8 @@ import { useMulti } from '../../lib/crud/withMulti';
  * or all groups if the user is an admin.
  */
 const SelectLocalgroup = (props: any) => {
+  const { MenuItem } = Components;
+  
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
   // Note that props.document doesn't have isAdmin, so using this option will not show all groups for admins.

@@ -6,5 +6,6 @@ registerFragment(`
     userId
     createdAt
     interestedInMetaculus
+    jobAds
   }
 `);

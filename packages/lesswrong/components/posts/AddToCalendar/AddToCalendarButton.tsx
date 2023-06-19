@@ -5,6 +5,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,18 +17,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: 14,
+    fontSize: isEAForum ? undefined : 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: 16,
+    height: isEAForum ? 18 : 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: 8
+    marginLeft: isEAForum ? 7 : 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,
@@ -72,7 +73,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     }
   }, [open, setOpen])
   
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     

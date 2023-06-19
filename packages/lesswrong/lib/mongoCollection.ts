@@ -1,8 +1,9 @@
+import { logAllQueries } from './sql/sqlClient';
 import { randomId } from './random';
 
 let client: any = null;
 let db: any = null;
-export const setDatabaseConnection = (_client, _db) => {
+export const setDatabaseConnection = (_client: AnyBecauseTodo, _db: AnyBecauseTodo) => {
   client = _client;
   db = _db;
 }
@@ -19,7 +20,6 @@ export const closeDatabaseConnection = async () => {
 export const isAnyQueryPending = () => (inProgressQueries > 0);
 
 const disableAllWrites = false;
-const logQueries = false;
 const debugQueryBatches = false;
 let inProgressQueries = 0;
 let onBatchFinished: Promise<void>|null = null;
@@ -31,9 +31,9 @@ function timeSince(startTime: Date): string {
   return `${msElapsed}ms`;
 }
 
-async function wrapQuery(description, queryFn) {
+async function wrapQuery<T>(description: string, queryFn: ()=>Promise<T>): Promise<T> {
   const startTime = new Date();
-  if (logQueries) {
+  if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Starting ${description}`);
     
@@ -48,7 +48,7 @@ async function wrapQuery(description, queryFn) {
   const result = await queryFn();
   inProgressQueries--;
   
-  if (logQueries) {
+  if (logAllQueries) {
     const resultSize = JSON.stringify(result).length;
     // eslint-disable-next-line no-console
     console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);
@@ -86,7 +86,9 @@ export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
   options = {}
-  
+  collectionName: string
+  postProcess?: (data: T) => T;
+
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
   }) {
@@ -155,7 +157,7 @@ export class MongoCollection<T extends DbObject> {
       return await table.findOne({});
     });
   }
-  rawInsert = async (doc, options) => {
+  rawInsert = async (doc: AnyBecauseTodo, options: AnyBecauseTodo) => {
     if (disableAllWrites) return;
     if (!doc._id) {
       doc._id = randomId();
@@ -175,12 +177,13 @@ export class MongoCollection<T extends DbObject> {
     try {
       const table = this.getTable();
       return await wrapQuery(`${this.tableName}.updateOne`, async () => {
+        const returnCount = options?.returnCount ?? "matchedCount";
         if (typeof selector === 'string') {
           const updateResult = await table.updateOne({_id: selector}, update, options);
-          return updateResult.matchedCount;
+          return updateResult[returnCount];
         } else {
           const updateResult = await table.updateOne(removeUndefinedFields(selector), update, options);
-          return updateResult.matchedCount;
+          return updateResult[returnCount];
         }
       });
     } catch(e) {
@@ -254,26 +257,26 @@ export class MongoCollection<T extends DbObject> {
       const table = this.getTable();
       return await table.bulkWrite(operations, options);
     },
-    findOneAndUpdate: async (filter, update, options) => {
+    findOneAndUpdate: async (filter: MongoSelector<T>, update: MongoModifier<T>, options: AnyBecauseTodo) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.findOneAndUpdate(filter, update, options);
     },
-    dropIndex: async (indexName, options) => {
+    dropIndex: async (indexName: string, options: AnyBecauseTodo) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       await table.dropIndex(indexName, options);
     },
-    indexes: async (options) => {
+    indexes: async (options: AnyBecauseTodo) => {
       const table = this.getTable();
       return await table.indexes(options);
     },
-    updateOne: async (selector, update, options) => {
+    updateOne: async (selector: MongoSelector<T>, update: MongoModifier<T>, options: MongoUpdateOptions<T>) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.updateOne(selector, update, options);
     },
-    updateMany: async (selector, update, options) => {
+    updateMany: async (selector: MongoSelector<T>, update: MongoModifier<T>, options: AnyBecauseTodo) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.updateMany(selector, update, options);

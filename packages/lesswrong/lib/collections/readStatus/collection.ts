@@ -42,7 +42,7 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
-  collectionType: 'mongo',
+  collectionType: 'pg',
   schema,
   logChanges: false,
 });

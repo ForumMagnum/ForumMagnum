@@ -31,8 +31,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     maxWidth: 300,
     fontSize: 20,
-    lineHeight: '1.5em',
     fontStyle: 'italic',
+    lineHeight: '1.5em',
     '&:before': {
       content: '"\\201C"',
       position: 'absolute',

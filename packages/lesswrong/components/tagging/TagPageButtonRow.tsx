@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     marginLeft: 'auto',
     color: theme.palette.grey[700],
-    fontStyle: "italic",
+    ...theme.typography.italic,
   },
 });
 
@@ -93,7 +93,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, TagSubforumButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -173,9 +173,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    {tag.isSubforum ?
-      <div className={classes.headerSubforumLink}><TagSubforumButton tag={tag} /></div>
-      : <div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
+    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}

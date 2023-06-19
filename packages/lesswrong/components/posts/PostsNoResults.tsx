@@ -4,8 +4,8 @@ import React from 'react';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
     color: theme.palette.text.dim4,
+    ...theme.typography.italic,
   }
 });
 

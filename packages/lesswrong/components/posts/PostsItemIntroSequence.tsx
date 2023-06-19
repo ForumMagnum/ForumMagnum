@@ -3,14 +3,19 @@ import React from 'react';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { KARMA_WIDTH } from './PostsItem2';
+import { KARMA_WIDTH } from './LWPostsItem';
+import { isEAForum } from '../../lib/instanceSettings';
+
+const IMAGE_WIDTH = 292;
+const IMAGE_HEIGHT = 96;
 
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
@@ -29,8 +34,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     gridTemplateColumns: "min-content 1fr min-content",
     gridTemplateAreas: '"karma title author"',
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -96,6 +100,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     overflow: 'hidden',
     right: 0,
     bottom: 0,
+    aspectRatio: `${IMAGE_WIDTH}/${IMAGE_HEIGHT}`,
 
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
@@ -133,7 +138,7 @@ const PostsItemIntroSequence = ({
 }: {
   post: PostsList,
   chapter?: any,
-  sequence: SequencesPageFragment,
+  sequence?: SequencesPageFragment,
   showBottomBorder?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -148,7 +153,7 @@ const PostsItemIntroSequence = ({
 
   const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
-  const postLink = postGetPageUrl(post, false, sequence._id);
+  const postLink = postGetPageUrl(post, false, sequence?._id);
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>
@@ -193,9 +198,9 @@ const PostsItemIntroSequence = ({
 
           <div className={classes.mobileSecondRowSpacer}/>
 
-          {withImage && sequence.gridImageId && <div className={classes.sequenceImage}>
+          {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />

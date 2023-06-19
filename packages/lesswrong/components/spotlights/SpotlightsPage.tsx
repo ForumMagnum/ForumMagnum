@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, Typography, SpotlightEditorStyles } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -45,7 +45,7 @@ export const SpotlightsPage = ({classes}: {
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
-      <Typography variant="body2">You must be logged in as an admin to use this page.</Typography>
+      <ErrorAccessDenied/>
     </SingleColumnSection>;
   }
 
@@ -53,26 +53,58 @@ export const SpotlightsPage = ({classes}: {
 
   const totalDraftDuration = draftSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
 
-  return <SingleColumnSection>
-    <SectionTitle title={'New Spotlight'} />
-    <div className={classes.form}>
-      <SpotlightEditorStyles>
-        <WrappedSmartForm
-          collection={Spotlights}
-          mutationFragment={getFragment('SpotlightEditQueryFragment')}
-        />
-      </SpotlightEditorStyles>
-    </div>
-    {loading && <Loading/>}
-    <SectionTitle title="Upcoming Spotlights">
-      <div>Total: {totalUpcomingDuration} days</div>
-    </SectionTitle>
-    {upcomingSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
-    <SectionTitle title="Draft Spotlights">
-      <div>Total: {totalDraftDuration} days</div>
-    </SectionTitle>
-    {draftSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
-  </SingleColumnSection>
+  const sectionData = {
+    html: "",
+    sections: [
+      {
+        title: "Upcoming Spotlights",
+        anchor: "upcoming-spotlights",
+        level: 1
+      },
+      ...upcomingSpotlights.map(spotlight => ({
+        title: spotlight.document.title,
+        anchor: spotlight._id,
+        level: 2
+      })),
+      {
+        title: "Draft Spotlights",
+        anchor: "draft-spotlights",
+        level: 1
+      },
+      ...draftSpotlights.map(spotlight => ({
+        title: spotlight.document.title,
+        anchor: spotlight._id,
+        level: 2
+      })),
+    ],
+    headingsCount: 2
+  }
+
+  return <ToCColumn tableOfContents={<TableOfContents
+    sectionData={sectionData}
+    title={"Spotlights"}
+  />}>
+    <SingleColumnSection>
+      <SectionTitle title={'New Spotlight'} />
+      <div className={classes.form}>
+        <SpotlightEditorStyles>
+          <WrappedSmartForm
+            collectionName="Spotlights"
+            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+          />
+        </SpotlightEditorStyles>
+      </div>
+      {loading && <Loading/>}
+      <SectionTitle title="Upcoming Spotlights">
+        <div>Total: {totalUpcomingDuration} days</div>
+      </SectionTitle>
+      {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      <SectionTitle title="Draft Spotlights">
+        <div>Total: {totalDraftDuration} days</div>
+      </SectionTitle>
+      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+    </SingleColumnSection>
+  </ToCColumn>
 }
 
 const SpotlightsPageComponent = registerComponent('SpotlightsPage', SpotlightsPage, {styles});

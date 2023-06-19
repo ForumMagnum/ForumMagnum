@@ -1,14 +1,13 @@
 /// <reference types="cypress" />
 
+const pgp = require('pg-promise');
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 
-const seedPosts = require('../fixtures/posts');
-const seedComments = require('../fixtures/comments');
-const seedUsers = require('../fixtures/users');
-const seedConversations = require('../fixtures/conversations');
-const seedMessages = require('../fixtures/messages');
-const seedLocalgroups = require('../fixtures/localgroups');
+const pgDbTemplate = "unittest_cypress_template";
+let pgDbName;
+
+const pgPromiseLib = pgp();
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -17,6 +16,7 @@ function hashLoginToken(loginToken) {
 };
 
 let dbConnection = null;
+let pgConnection = null;
 
 /**
  * Note:
@@ -53,31 +53,84 @@ const dropAndSeedMongo = async (url) => {
       return collection.deleteMany({});
     }
   }));
-
-  await Promise.all([
-    db.collection('comments').insertMany(seedComments),
-    db.collection('users').insertMany(seedUsers),
-    db.collection('conversations').insertMany(seedConversations),
-    db.collection('posts').insertMany(seedPosts),
-    db.collection('messages').insertMany(seedMessages),
-    db.collection('localgroups').insertMany(seedLocalgroups),
-  ]);
 }
 
-const dropAndSeedPostgres = async () => {
-  const result = await fetch("http://localhost:3000/api/dropAndCreatePg", {
+const dropAndSeedPostgres = async (PG_URL) => {
+  if (!PG_URL) {
+    console.warn("No PG_URL provided");
+    return;
+  }
+  const result = await fetch("http://localhost:3000/api/recreateCypressPgDb", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      seed: true,
-      templateId: "cypress_template",
-      dropExisting: true,
+      templateId: pgDbTemplate,
     }),
   });
-  const data = await result.json();
+
+  let data;
+  try {
+    data = await result.json();
+  } catch (e) {
+    throw new Error(`Failed to parse JSON response: ${await result.text()}`);
+  }
   if (data.status === "error") {
     throw new Error(data.message);
   }
+  pgDbName = data.dbName;
+}
+
+const replaceDbNameInPgConnectionString = (connectionString, dbName) => {
+  if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
+    throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
+  }
+  const lastSlash = connectionString.lastIndexOf('/');
+  const withoutDbName = connectionString.slice(0, lastSlash);
+  return `${withoutDbName}/${dbName}`;
+}
+
+const associateLoginTokenMongo = async (config, {user, loginToken}) => {
+  if (!dbConnection) {
+    dbConnection = new MongoClient(config.env.TESTING_DB_URL);
+    await dbConnection.connect();
+  }
+  const db = await dbConnection.db();
+  await db.collection("users").updateOne({_id: user._id}, {
+    $addToSet: {
+      "services.resume.loginTokens": {
+        when: new Date(),
+        hashedToken: hashLoginToken(loginToken),
+      },
+    },
+  });
+}
+
+const associateLoginTokenPostgres = async (config, {user, loginToken}) => {
+  if (!config.env.PG_URL) {
+    console.warn("No PG_URL provided");
+    return;
+  }
+  const connectionString = replaceDbNameInPgConnectionString(
+    config.env.PG_URL,
+    pgDbName ?? pgDbTemplate,
+  );
+  pgConnection = pgPromiseLib({
+    connectionString,
+    max: 5,
+  });
+  const tokenData = {
+    when: new Date(),
+    hashedToken: hashLoginToken(loginToken),
+  };
+  await pgConnection.none(`
+    UPDATE "Users"
+    SET "services" = fm_add_to_set(
+      "services",
+      '{resume, loginTokens}'::TEXT[],
+      $1::JSONB
+    )
+    WHERE _id = $2
+  `, [tokenData, user._id]);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -86,25 +139,20 @@ module.exports = (on, config) => {
     async dropAndSeedDatabase() {
       await Promise.all([
         dropAndSeedMongo(config.env.TESTING_DB_URL),
-        dropAndSeedPostgres(),
+        dropAndSeedPostgres(config.env.PG_URL),
       ]);
       return null;
     },
-    async associateLoginToken({user, loginToken}) {
-      if (!dbConnection) {
-        dbConnection = new MongoClient(config.env.TESTING_DB_URL);
-        await dbConnection.connect();
-      }
-      const db = await dbConnection.db();
-      await db.collection('users').updateOne({_id: user._id}, {
-        $addToSet: {
-          "services.resume.loginTokens": {
-            when: new Date(),
-            hashedToken: hashLoginToken(loginToken),
-          },
-        },
-      });
+    async associateLoginToken(data) {
+      await Promise.all([
+        associateLoginTokenMongo(config, data),
+        associateLoginTokenPostgres(config, data),
+      ]);
       return null;
     },
+    log(data) {
+      console.log(data);
+      return null;
+    }
   });
 };

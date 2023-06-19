@@ -1,23 +1,21 @@
 import Notifications from '../lib/collections/notifications/collection';
-import Messages from '../lib/collections/messages/collection';
 import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionIndexUtils';
-import { getNotificationTypeByName } from '../lib/notificationTypes';
+import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
+import { createAnonymousContext } from './vulcan-lib/query';
 import keyBy from 'lodash/keyBy';
-import TagRels from '../lib/collections/tagRels/collection';
-import Localgroups from '../lib/collections/localgroups/collection';
+import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -80,10 +78,8 @@ import Localgroups from '../lib/collections/localgroups/collection';
   }
 }
 
-export type MongoNearLocation = number[] | { type: "Point", coordinates: number[] }
-
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
-  return await Users.aggregate([
+  return Users.isPostgres() ? new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location) : await Users.aggregate([
     {
       "$geoNear": {
         "near": location, 
@@ -105,7 +101,7 @@ export async function getUsersWhereLocationIsInNotificationRadius(location: Mong
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-const getNotificationTiming = (typeSettings): DebouncerTiming => {
+const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };
@@ -127,34 +123,12 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: string|null, documentId: string|null) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null) => {
   return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId});
 }
 
-const getDocument = async (documentType: string|null, documentId: string|null) => {
-  if (!documentId) return null;
-  
-  switch(documentType) {
-    case "post":
-      return await Posts.findOne(documentId);
-    case "comment":
-      return await Comments.findOne(documentId);
-    case "user":
-      return await Users.findOne(documentId);
-    case "message":
-      return await Messages.findOne(documentId);
-    case "localgroup":
-      return await Localgroups.findOne(documentId);
-    case "tagRel":
-      return await TagRels.findOne(documentId)
-    default:
-      //eslint-disable-next-line no-console
-      console.error(`Invalid documentType type: ${documentType}`);
-  }
-}
-
-const getLink = async (notificationTypeName: string, documentType: string|null, documentId: string|null, extraData: any) => {
+const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
   let document = await getDocument(documentType, documentId);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
@@ -174,7 +148,7 @@ const getLink = async (notificationTypeName: string, documentType: string|null, 
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment);
+      return await commentGetPageUrlFromDB(document as DbComment, context, false);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":
@@ -190,10 +164,10 @@ const getLink = async (notificationTypeName: string, documentType: string|null, 
   }
 }
 
-export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail}:{
+export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail, context}: {
   userId: string,
   notificationType: string,
-  documentType: string|null,
+  documentType: NotificationDocument|null,
   documentId: string|null,
   
   // extraData: something JSON-serializable that gets attached to the notification.
@@ -202,7 +176,9 @@ export const createNotification = async ({userId, notificationType, documentType
 
   // noEmail: If set, this notification can never be sent by email (even if the user's
   // config settings say that it would be).
-  noEmail?: boolean|null
+  noEmail?: boolean|null,
+  
+  context: ResolverContext,
 }) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
@@ -215,7 +191,7 @@ export const createNotification = async ({userId, notificationType, documentType
     documentType: documentType||undefined,
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
-    link: await getLink(notificationType, documentType, documentId, extraData),
+    link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,
   }
 
@@ -262,17 +238,19 @@ export const createNotification = async ({userId, notificationType, documentType
   }
 }
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail }:{
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }:{
   userIds: Array<string>
   notificationType: string,
-  documentType: string|null,
+  documentType: NotificationDocument|null,
   documentId: string|null,
   extraData?: any,
-  noEmail?: boolean|null
+  noEmail?: boolean|null,
+  context?: ResolverContext,
 }) => {
+  const nonnullContext = context || await createAnonymousContext();
   return Promise.all(
     userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail});
+      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail, context: nonnullContext});
     })
   );
 }

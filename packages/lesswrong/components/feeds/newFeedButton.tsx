@@ -40,10 +40,10 @@ const NewFeedButton = ({classes, user, closeModal}: {
           <div><a href={feed.url}>{feed.nickname}</a></div>
         </div>)}
         <Components.WrappedSmartForm
-          collection={RSSFeeds}
+          collectionName="RSSFeeds"
           mutationFragment={getFragment('newRSSFeedFragment')}
           prefilledProps={{userId: user._id}}
-          successCallback={conversation => {
+          successCallback={() => {
             closeModal();
           }}
         />

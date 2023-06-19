@@ -4,11 +4,15 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useItemsRead } from '../common/withRecordPostView';
+import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  boxesRoot: {
+    marginTop: 4,
+  },
   firstPost: {
+    marginTop: 4,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
@@ -32,19 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   spotlight: SpotlightDisplay,
   classes: ClassesType,
-  }) => {
-    const { LWTooltip, PostsPreviewTooltip} = Components
-  const { results: chapters } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: spotlight.documentId,
-      limit: 100
-    },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
-    skip: spotlight.documentType !== "Sequence"
-  });
+}) => {
+  const { LWTooltip, PostsPreviewTooltip} = Components
+  const chapters = spotlight.sequenceChapters;
   
   const { postsRead: clientPostsRead } = useItemsRead();
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
@@ -57,6 +51,8 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
   const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
+  
+  if (spotlight.documentType !== "Sequence" || !posts.length) return null;
 
   if (firstPost) {
     return <div className={classes.firstPost}>
@@ -65,7 +61,7 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
       </LWTooltip>
     </div>
   } else {
-    return <div>
+    return <div className={classes.boxesRoot}>
     {posts.map(post => (
       <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
@@ -84,4 +80,3 @@ declare global {
     SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReadingComponent
   }
 }
-

@@ -47,7 +47,8 @@ ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
 Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
-      _id: {$in: context?.currentUser?.profileTagIds ?? []},
+      // Always show core subforums
+      $or: [{_id: {$in: context?.currentUser?.profileTagIds ?? []}}, {core: true}],
       isSubforum: true
     },
     options: {sort: {createdAt: -1}},
@@ -91,6 +92,22 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
   return {
     selector: {
       core: true,
+      adminOnly: viewFieldAllowAny
+    },
+    options: {
+      sort: {
+        defaultOrder: -1,
+        name: 1
+      }
+    },
+  }
+});
+ensureIndex(Tags, {deleted: 1, core:1, name: 1});
+
+Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      $or: [{core: true}, {isSubforum: true}],
       adminOnly: viewFieldAllowAny
     },
     options: {
@@ -195,7 +212,5 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 
 ensureIndex(Tags, {name: 1});
 
-// Used in packages/lesswrong/server/defaultTagWeights/cache.ts
-ensureIndex(Tags, {defaultFilterMode: 1});
 // Used in subTags resolver
 ensureIndex(Tags, {parentTagId: 1});

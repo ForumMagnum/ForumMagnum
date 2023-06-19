@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const DefaultStyleFormGroup = ({children}: {
-  children: any
+  children: ReactNode
 }) => {
   return <React.Fragment>
     {children}

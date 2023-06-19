@@ -48,7 +48,7 @@ registerMigration({
         await forEachDocumentBatchInCollection({
           collection,
           batchSize: 1000,
-          callback: async (documents: DbRevision[]) => {
+          callback: async (documents: AnyBecauseTodo[]) => {
             const updates: Array<any> = [];
             for (const doc of documents) {
               if (doc[fieldName]) {

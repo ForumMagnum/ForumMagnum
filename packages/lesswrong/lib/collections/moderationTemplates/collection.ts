@@ -3,10 +3,12 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import {makeEditable} from "../../editor/make_editable";
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const ModerationTemplates: ModerationTemplatesCollection = createCollection({
   collectionName: 'ModerationTemplates',
   typeName: 'ModerationTemplate',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ModerationTemplates'),
   mutations: getDefaultMutations('ModerationTemplates'),

@@ -4,17 +4,16 @@ import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../li
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
+import { forumTypeSetting, isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -24,7 +23,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   paddingTop: 12,
   paddingRight: 16,
   width: 500,
-  marginBottom: 20,
+  marginBottom: 0,
   ...theme.typography.commentStyle,
   [theme.breakpoints.down('xs')]: {
     width: "calc(100% - 32px)",
@@ -33,21 +32,43 @@ export const filteringStyles = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   tag: {
-    ...tagStyle(theme),
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.tag.border,
+    borderRadius: 3,
+    ...theme.typography.commentStyle,
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
+    flexGrow: 1,
+    textAlign: "center",
+    fontWeight: theme.typography.body1.fontWeight,
+    color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    boxShadow: theme.palette.boxShadow.default,
   },
   description: {
     marginTop: 20
   },
+  tagLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: theme.typography.body1.fontWeight,
+  },
   filterScore: {
-    color: theme.palette.primary.dark,
-    fontSize: 11,
-    marginLeft: 4,
+    color: theme.palette.primary.main,
+    lineHeight: '8px',
+    marginLeft: 7,
+    '& svg': {
+      height: '0.5em',
+      width: '0.5em'
+    }
   },
   filtering: {
-    ...filteringStyles(theme)
+    ...filteringStyles(theme),
+    marginBottom: 4,
   },
   filterRow: {
     display: "flex",
@@ -97,7 +118,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 60,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
-  }
+  },
+  tagPreview: {
+    paddingBottom: 4
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+  },
 });
 
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
@@ -121,21 +155,27 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
-  const standardFilterModes = getStandardFilterModes(currentUser);
+  const standardFilterModes = getStandardFilterModes();
 
   if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
     mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
   }
-  const reducedName = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : "0.5x"
-  const reducedVal = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : 0.5
+  
+  const reducedName = 'Reduced'
+  const reducedVal = 'Reduced'
+  const filterMode = filterModeToStr(mode, currentUser)
+  const filterModeLabel = filterModeStrToLabel(filterMode);
 
-  const tagLabel = <span>
-    {label}
-    <span className={classes.filterScore}>
-      {filterModeToStr(mode, currentUser)}
+  const tagLabel =
+    <span className={classes.tagLabel}>
+      {label}
+      {filterMode !== '' &&
+        <span className={classes.filterScore}>
+          {filterModeLabel}
+        </span>
+      }
     </span>
-  </span>
 
   // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
   // want to select the button rather than show the input text. This makes it impossible
@@ -168,21 +208,30 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   }
 
   const otherValue =
-    isCustomFilterMode(currentUser, mode) || (standardFilterModes.includes(mode) && inputTime > 0)
+    isCustomFilterMode(mode) || (standardFilterModes.includes(mode) && inputTime > 0)
       ? mode
       : "";
 
-  const { name: personalBlogpostName } = usePersonalBlogpostInfo();
-  const defaultLabel = label === personalBlogpostName ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
+  const tagPreviewPostCount = forumSelect({
+    LessWrong: 0,
+    default: 3
+  });
+
+  // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
+  const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(tag && !isMobile()) ?
-        <Link to={tagGetUrl(tag)}>
-          {tagLabel}
-        </Link> :
-        tagLabel
-      }
+      {tag ? (
+        <>
+          <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>
+            {tagLabel}
+          </Link>
+          <span className={classes.hideOnDesktop}>
+            {tagLabel}
+          </span>
+        </>
+      ) : tagLabel}
       <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
@@ -199,53 +248,32 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 {reducedName}
               </span>
             </LWTooltip>
-            {!userHasNewTagSubscriptions(currentUser) && <>
-              <LWTooltip title={filterModeToTooltip(-25)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: -25 === mode})} onClick={ev => setMode(-25)}>
-                  -25
+            <div className={classes.defaultLabel}>
+              <LWTooltip title={filterModeToTooltip("Default")}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={ev => setMode("Default")}>
+                  Default
                 </span>
               </LWTooltip>
-              <LWTooltip title={filterModeToTooltip(-10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => setMode(-10)}>
-                  -10
-                </span>
-              </LWTooltip>
-              <LWTooltip
-                title={filterModeToTooltip("Default")}
-              >
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => setMode(0)}>
-                +0
-              </span>
-              </LWTooltip>
-              <LWTooltip title={filterModeToTooltip(10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => setMode(10)}>
-                  +10
-                </span>
-              </LWTooltip>
-            </>}
+            </div>
             <LWTooltip title={filterModeToTooltip(25)}>
               <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
-              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
+              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
               </span>
             </LWTooltip>
             <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
-              <Input
-                className={classes.filterInput}
-                placeholder="Other"
-                type="number"
-                disableUnderline
-                classes={{input:classes.input}}
-                value={otherValue}
-                onChange={ev => handleCustomInput(ev.target.value || "")}
-              />
+              {showPlusSign && <span>+</span>}
+              <span className={classes.filterButton}>
+                <Input
+                  placeholder="Other"
+                  type="number"
+                  disableUnderline
+                  classes={{input:classes.input}}
+                  value={otherValue}
+                  onChange={ev => handleCustomInput(ev.target.value || "")}
+                />
+              </span>
             </LWTooltip>
             <div className={classes.rightContainer}>
-              {userHasNewTagSubscriptions(currentUser) && mode === 0 &&
-                <div className={classes.defaultLabel}>
-                  <LWTooltip title={`This filter is set to default. Use the controls on the left to customize how much you see ${defaultLabel} in ${LATEST_POSTS_NAME}.`}>
-                    Default
-                  </LWTooltip>
-                </div>}
               {canRemove && !tag?.suggestedAsFilter &&
                 <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                   <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
@@ -258,7 +286,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </ContentStyles>}
         </div>
-        {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
+        {tag &&
+          <div className={classes.tagPreview}>
+            <TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/>
+          </div>
+        }
       </PopperCard>
     </AnalyticsContext>
   </span>
@@ -284,16 +316,26 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
       return <div><em>0.5x</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
-      return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
+      return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
     default:
-      if (mode<0)
+      if (typeof mode==="number" && mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
       else
         return <div><em>+{mode}.</em> These posts will be shown more often (as though their score were {mode} points higher).</div>
   }
 }
 
-function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): string {
+type FilterModeString = 
+  | `${number}`
+  | `+${number}`
+  | `-${number}%`
+  | "Hidden"
+  | "Required"
+  | "Subscribed"
+  | "Reduced"
+  | "";
+
+function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): FilterModeString {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
     if (
@@ -312,6 +354,26 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
     case "Required": return "Required";
     case "Subscribed": return "Subscribed";
     case "Reduced": return "Reduced";
+  }
+}
+
+/**
+ * This function used to change the label to a LW-specific label, while the EA forum had a different label.
+ * Now, it, along with {@link filterModeToStr}, should probably be refactored (collapsed).
+ */
+function filterModeStrToLabel(filterModeStr: FilterModeString) {
+  switch (filterModeStr) {
+    case 'Reduced':     return '-';
+    case 'Subscribed':  return '+';
+    case '':            return '';
+    case 'Hidden':      return <VisibilityOff />; //'Hidden';
+    case 'Required':    return 'Required';
+    default: {
+      if (filterModeStr.startsWith('-')) return '-';
+      if (filterModeStr.startsWith('+')) return '+';
+      // filterModeStr is a negative number
+      return '-';
+    }
   }
 }
 

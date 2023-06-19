@@ -6,6 +6,8 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -14,13 +16,13 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 };
 
 // Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = false): Promise<string> {
+export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
   if (comment.postId) {
-    const post = await mongoFindOne("Posts", comment.postId);
+    const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const tag = await mongoFindOne("Tags", {_id:comment.tagId});
+    const tag = await context.loaders.Tags.load(comment.tagId);
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
 
     return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
@@ -80,11 +82,27 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
 }
 
 export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
-  const fallback = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+  const fallback = forumSelect({
+    AlignmentForum: "afPostCommentsTop",
+    EAForum: "postCommentsMagic",
+    default: "postCommentsTop",
+  });
   return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
+}
+
+export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+
+/**
+ * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.
+ */
+export const commentIsHidden = (comment: CommentsList|DbComment) => {
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
+  // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
+  return postedAfterGrandfatherDate && comment.authorIsUnreviewed
 }

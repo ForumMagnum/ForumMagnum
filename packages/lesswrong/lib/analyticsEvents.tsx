@@ -1,5 +1,4 @@
-import { addGraphQLSchema, Globals } from './vulcan-lib';
-import { CallbackChainHook } from './vulcan-lib/callbacks';
+import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -9,6 +8,7 @@ import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
 import moment from 'moment';
+import { Globals } from './vulcan-lib/config';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -56,7 +56,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog = false) {
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -68,7 +68,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (getShowAnalyticsDebug()) {
+      if (!suppressConsoleLog && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -150,8 +150,9 @@ will overwrite the first.
 NOTE! AnalyticsContext components will only add context data to events that are already
 being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
 will likely have to add tracking manually with a captureEvent call. (Search codebase for examples or consult others)
-The best way to ensure you are tracking correctly with is to insert a console.log statement 
-in captureEvent in this file, e.g. console.log({eventType: eventProps}).
+
+The best way to ensure you are tracking correctly with is to look at the logs
+in the client or server (ensure getShowAnalyticsDebug is returning true).
 */
 
 export const AnalyticsContext = ({children, ...props}: any) => {
@@ -164,7 +165,7 @@ export const AnalyticsContext = ({children, ...props}: any) => {
   // the newest values of these props when they actually log an event.)
   const newContextData = useRef({...existingContextData});
   for (let key of Object.keys(props))
-    newContextData.current[key] = props[key];
+    (newContextData.current as AnyBecauseTodo)[key] = props[key];
   
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
@@ -175,7 +176,7 @@ export const AnalyticsContext = ({children, ...props}: any) => {
 // value were set to {} in the usual way, it would be a new instance of {} each
 // time; this way, it's the same {}, which in turn matters for making
 // useCallback return the same thing each tie.
-const emptyEventProps = {};
+const emptyEventProps = {} as any;
 
 export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
   eventType?: string,
@@ -196,15 +197,15 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps, sk
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
+export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
-  eventProps?: any,
-  captureOnMount?: any,
+  eventProps?: T,
+  captureOnMount?: boolean | ((eventProps: T) => boolean),
   skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
-    const eventData = {...trackingContext, ...eventProps}
+    const eventData: AnyBecauseTodo = {...trackingContext, ...eventProps}
     if (typeof captureOnMount === "function") {
       !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
     } else if (!!captureOnMount) {
@@ -265,9 +266,9 @@ const burstLimitKB = 20;
 const rateLimitEventsPerSec = 3.0;
 const rateLimitKBps = 5;
 const rateLimitEventIntervalMs = 5000;
-let eventTypeLimiters = {};
+let eventTypeLimiters: AnyBecauseTodo = {};
 
-const throttledStoreEvent = (event) => {
+const throttledStoreEvent = (event: AnyBecauseTodo) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
@@ -375,5 +376,3 @@ function throttledFlushClientEvents() {
     flushClientEvents();
   }
 }
-
-export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");

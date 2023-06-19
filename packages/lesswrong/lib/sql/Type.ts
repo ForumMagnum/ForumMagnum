@@ -5,7 +5,7 @@ import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents"];
+const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
 
 export const isResolverOnly =
   <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
@@ -19,6 +19,13 @@ export abstract class Type {
    * Convert the Type to a Postgres type name
    */
   abstract toString(): string;
+
+  /**
+   * Returns the default value as a Postgres string
+   */
+  getDefaultValueString(): string | null {
+    return null;
+  }
 
   /**
    * Convert this Type to a "concrete" Type - that is, remove any metadata
@@ -45,7 +52,7 @@ export abstract class Type {
     schema: CollectionFieldSpecification<T>,
     indexSchema: CollectionFieldSpecification<T> | undefined,
     forumType: ForumTypeString,
-  ) {
+  ): Type {
     if (isResolverOnly(fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
@@ -71,7 +78,9 @@ export abstract class Type {
       case Boolean:
         return new BoolType();
       case Date:
-        return new DateType();
+        return fieldName === "createdAt"
+          ? new DefaultValueType(new DateType(), "CURRENT_TIMESTAMP")
+          : new DateType();
       case Number:
         return new FloatType();
       case "SimpleSchema.Integer":
@@ -121,7 +130,7 @@ export class IntType extends Type {
 
 export class FloatType extends Type {
   toString() {
-    return "REAL";
+    return "DOUBLE PRECISION";
   }
 }
 
@@ -143,6 +152,10 @@ export class ArrayType extends Type {
   constructor(subtype: Type) {
     super();
     this.subtype = subtype.toConcrete();
+  }
+
+  getDefaultValueString(): string | null {
+    return this.subtype.getDefaultValueString();
   }
 
   toString() {
@@ -183,6 +196,10 @@ export class NotNullType extends Type {
 
   toString() {
     return `${this.type.toString()} NOT NULL`;
+  }
+
+  getDefaultValueString(): string | null {
+    return this.type.getDefaultValueString();
   }
 
   toConcrete() {
@@ -235,10 +252,10 @@ export class DefaultValueType extends Type {
   }
 
   toString() {
-    return `${this.type.toString()} DEFAULT ${this.valueToString()}`;
+    return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
   }
 
-  private valueToString() {
+  getDefaultValueString(): string | null {
     return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
   }
 

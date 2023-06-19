@@ -6,7 +6,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 export const Books: BooksCollection = createCollection({
   collectionName: 'Books',
   typeName: 'Book',
-  collectionType: 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Books'),
   mutations: getDefaultMutations('Books'),

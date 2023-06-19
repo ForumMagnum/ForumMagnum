@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';

@@ -45,23 +45,6 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
         onClickSection={expandAll}
         displayOptions={displayOptions}
       />
-      {!!tag.isSubforum && (
-        <>
-          <Link to={tagGetSubforumUrl(tag)} className={classes.randomTagLink}>
-            <span>Subforum</span>
-            {tag.subforumUnreadMessagesCount ? (
-              <span className={classes.unreadCount}>&nbsp;{`(${tag.subforumUnreadMessagesCount})`}</span>
-            ) : (
-              <></>
-            )}
-          </Link>
-          <TableOfContentsRow href="#" divider={true} />
-          <Link to={tagGetDiscussionUrl(tag)} className={classes.randomTagLink}>
-            Wiki discussion
-          </Link>
-          <TableOfContentsRow href="#" divider={true} />
-        </>
-      )}
       <Link to="/tags/random" className={classes.randomTagLink}>
         Random {taggingNameCapitalSetting.get()}
       </Link>

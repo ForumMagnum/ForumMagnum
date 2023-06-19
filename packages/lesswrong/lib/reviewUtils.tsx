@@ -2,41 +2,95 @@ import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020
+export const reviewYears = [2018, 2019, 2020, 2021] as const
+const years = new TupleSet(reviewYears);
+export type ReviewYear = UnionOf<typeof years>;
+
+export function getReviewYearFromString(yearParam: string): ReviewYear {
+  const year = parseInt(yearParam)
+  if (years.has(year)) {
+    return year
+  }
+  throw Error("Not a valid Review Year")
+}
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2020
+export const REVIEW_YEAR: ReviewYear = 2021
 
-// Probably only used while the EA Forum is doing something sufficiently different
+// Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
-export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
+// This is broken out partly to allow EA Forum or other fora to do reviews with different names
+// (previously EA Forum did a "decade review" rather than a single year review)
+export function getReviewTitle(reviewYear: ReviewYear): string {
+ return `The ${reviewYear} Review`
+}
 
-export function getReviewPhase(): ReviewPhase | void {
+export function getReviewShortTitle(reviewYear: ReviewYear): string {
+  return `${reviewYear} Review`
+}
+
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
+export type ReviewPhase = UnionOf<typeof reviewPhases>;
+
+export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear && reviewYear !== REVIEW_YEAR) {
+    return "COMPLETE"
+  }
+
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
+  if (currentDate < reviewStart) return "UNSTARTED"
 
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
+  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
-  if (currentDate < reviewEnd) return "VOTING"
-  return
+  if (currentDate < votingEnd) return "VOTING"
+  if (currentDate < reviewEnd) return "RESULTS"
+  return "COMPLETE"
 }
+
+// The number of positive review votes required for a post to appear in the ReviewVotingPage  
+// during the nominations phase
+export const INITIAL_VOTECOUNT_THRESHOLD = 1
+
+// The number of positive review votes required for a post to enter the Review Phase
+export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
+
+// The Quick Review Page is optimized for prioritizing people's attention.
+// Among other things, this means only loading posts that got at either at least one
+// person thought was reasonably important, or at least 4 people thought were "maybe important?"
+export const QUICK_REVIEW_SCORE_THRESHOLD = 4
+
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
+  // During the nomination phase, posts require 1 positive reviewVote
+  // to appear in review post lists (so a single vote allows others to see it
+  // and get prompted to cast additional votes.
+  // 
+  // Starting in the review phase, posts require at least 2 votes, 
+  // ensuring the post is at least plausibly worth everyone's time to review
+  const phase = reviewPhase ?? getReviewPhase()
+  
+  return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+}
+
+export const INITIAL_REVIEW_THRESHOLD = 0
+export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  if (!(isLWForum || isEAForum)) return false
-  return !!getReviewPhase()
+  return getReviewPhase() !== "COMPLETE"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
@@ -53,7 +107,8 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+
 }
 
 
@@ -71,18 +126,26 @@ export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   return true
 }
 
-const getPointsFromCost = (cost) => {
+const getPointsFromCost = (cost: number) => {
   // the formula to quadratic cost from a number of points is (n^2 + n)/2
   // this uses the inverse of that formula to take in a cost and output a number of points
   return (-1 + Math.sqrt((8 * cost)+1)) / 2
 }
 
-const getLabelFromCost = (cost) => {
+const getLabelFromCost = (cost: number) => {
   // rounds the points to 1 decimal for easier reading
   return round(getPointsFromCost(cost), 1)
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
+export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+interface CostData {
+  value: number | null;
+  cost: number;
+  tooltip: JSX.Element | null;
+}
+
+export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

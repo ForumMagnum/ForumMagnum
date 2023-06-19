@@ -1,3 +1,4 @@
+import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib";
@@ -20,22 +21,23 @@ export const tagMinimumKarmaPermissions = forumSelect({
 type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
+  tab?: string
 }
 
 export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
-  const { flagId, edit } = urlOptions || {};
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false) => {
+  const urlSearchParams = urlOptions
+  const search = qs.stringify(urlSearchParams)
+
   const url = `/${tagUrlBase}/${tag.slug}`
-  if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
-  if (flagId) return `${url}?flagId=${flagId}`
-  if (edit) return `${url}?edit=${edit}`
-  return url
+  const urlWithSearch = `${url}${search ? `?${search}` : ''}`
+  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSearch) : urlWithSearch
 }
 
-export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl(tag)}/history`
+export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
   const suffix = `/${tagUrlBase}/${tag.slug}/discussion`
@@ -43,8 +45,7 @@ export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
 }
 
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${tagUrlBase}/${tag.slug}/subforum`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
+  return tagGetUrl(tag, {tab: "posts"}, isAbsolute)
 }
 
 export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
@@ -54,7 +55,9 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   isAbsolute?: boolean,
 }): string => {
   const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
-  return commentId ? `${base}#${commentId}` : base
+
+  // Bit of a hack to make it work whether or not there are already query params, if this breaks just parse the URL properly
+  return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
@@ -70,4 +73,16 @@ export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, ac
 
 export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Promise<DbUser[]> => {
   return await Users.find({profileTagIds: tagId}).fetch()
+}
+
+export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {
+  if (!user) return false
+  if (user.isAdmin || user?.groups?.includes("sunshineRegiment")) return true
+  if (tag.subforumModeratorIds?.includes(user._id)) return true
+  return false
+}
+
+export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
+  if (!user || !tag) return false;
+  return tag.subforumModeratorIds?.includes(user._id);
 }

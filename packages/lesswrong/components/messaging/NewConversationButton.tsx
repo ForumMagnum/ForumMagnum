@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
@@ -7,6 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
 
 export interface TemplateQueryStrings {
   templateId: string;
@@ -21,11 +22,12 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   currentUser: UsersCurrent|null,
   templateQueries?: TemplateQueryStrings,
   from?: string,
-  children: any,
+  children: ReactNode,
   includeModerators?: boolean,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
   const { history } = useNavigation();
+  const { flash } = useMessages()
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
     collectionName: 'Conversations',
@@ -58,7 +60,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
     return templateParams.length > 0 ? {search:`?${templateParams.join('&')}`} : {}
   }
 
-  const newConversation = async (initiatingUser: UsersCurrent) => {
+  const newConversation = async (initiatingUser: UsersCurrent): Promise<string|null> => {
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
     const moderatorField = includeModerators ? { moderator: true } : {}
 
@@ -68,12 +70,19 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       ...moderatorField
     }
 
-    const response = await createConversation({data})
-    return response.data?.createConversation.data._id
+    try {
+      const response = await createConversation({data})
+      return response.data?.createConversation.data._id
+    } catch(e) {
+      flash(e.message)
+      return null
+    }
   }
 
   const openConversation = async (initiatingUser: UsersCurrent) => {
     const conversationId = results?.[0]?._id ?? await newConversation(initiatingUser)
+    if (!conversationId) return
+
     if (embedConversation) {
       embedConversation(conversationId, templateQueries)
     } else {

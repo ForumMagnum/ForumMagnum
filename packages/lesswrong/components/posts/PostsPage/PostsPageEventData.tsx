@@ -14,7 +14,7 @@ import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
@@ -23,6 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
     [theme.breakpoints.down('xs')]: {
       display: 'block',
     },
@@ -32,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: forumTypeSetting.get() === 'EAForum' ? 3 : 2
+    paddingTop: isEAForum ? 3 : 2
   },
   icon: {
     fontSize: 16,
@@ -130,7 +133,9 @@ const PostsPageEventData = ({classes, post}: {
     conference: LocalActivityIcon
   }
 
-  const eventTypeNode = (Icon, text) => <div className={classes.eventType}>
+  type EventTypeIcons = typeof eventTypeIcons;
+
+  const eventTypeNode = (Icon: EventTypeIcons[keyof EventTypeIcons], text: string) => <div className={classes.eventType}>
     <Icon className={classes.eventTypeIcon} /> {text.toUpperCase()}
   </div>
   
@@ -217,7 +222,7 @@ const PostsPageEventData = ({classes, post}: {
           <div className={classes.eventContact}>{contactInfo}</div>
         </div>}
         
-        { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType], eventType) }
+        { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType as keyof EventTypeIcons], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}
         </div>}

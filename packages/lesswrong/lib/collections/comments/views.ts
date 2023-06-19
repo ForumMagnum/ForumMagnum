@@ -1,11 +1,11 @@
 import moment from 'moment';
-import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import pick from 'lodash/pick';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -18,30 +18,76 @@ declare global {
     topLevelCommentId?: string,
     legacyId?: string,
     authorIsUnreviewed?: boolean|null,
-    sortBy?: string,
+    sortBy?: CommentSortingMode,
     before?: Date|string|null,
     after?: Date|string|null,
     reviewYear?: ReviewYear
+    profileTagIds?: string[],
   }
+  
+  /**
+   * Comment sorting mode, a string which gets translated into a mongodb sort
+   * order. Not every mode is shown in the UI in every context. Corresponds to
+   * `sortings` (below).
+   *
+   * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
+   * In past versions, different subsets of these depending on whether you were
+   * using an answers view, a subforum view, or something else.
+   */
+  type CommentSortingMode =
+     "top"
+    |"groupByPost"
+    |"new"|"newest"
+    |"old"|"oldest"
+    |"magic"
+    |"recentComments"|"recentDiscussion"
 }
 
-Comments.addDefaultView((terms: CommentsViewTerms) => {
-  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
+Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
+  const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  
+  const notDeletedOrDeletionIsPublic = {
+    $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
+  };
+  
+  // When we're hiding unreviewed comments, we allow comments that meet any of:
+  //  * The author is reviewed
+  //  * The comment was posted before the hideSince date
+  //  * The comment was posted by the current user
+  // Do not run this on the client (ie: Mingo), because we will not have the
+  // resolver context, and return unreviewed comments to ensure cache is
+  // properly invalidated.
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
-    ? {authorIsUnreviewed: {$ne: true}}
-    : {}
+  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer);
+  const hideNewUnreviewedAuthorComments =
+    (shouldHideNewUnreviewedAuthorComments && (
+      {$or: [
+        {authorIsUnreviewed: {$ne: true}},
+        {postedAt: {$lt: new Date(hideSince)}},
+        ...(context?.currentUser?._id ? [{userId: context?.currentUser?._id}] : [])
+      ]}
+    )
+  );
+  
   return ({
     selector: {
-      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
+      ...(shouldHideNewUnreviewedAuthorComments
+        ? {$and: [
+            hideNewUnreviewedAuthorComments,
+            notDeletedOrDeletionIsPublic
+          ]}
+        : notDeletedOrDeletionIsPublic
+      ),
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
-      ...hideUnreviewedAuthorComments,
       ...validFields,
+      debateResponse: { $ne: true },
+      rejected: { $ne: true }
     },
     options: {
       sort: {postedAt: -1},
@@ -49,18 +95,34 @@ Comments.addDefaultView((terms: CommentsViewTerms) => {
   });
 })
 
-const sortings = {
+// Spread into a view to remove the part of the default view selector that hides deleted and
+// unreviewed comments.
+const dontHideDeletedAndUnreviewed = {
+  $or: null,
+  $and: null,
+  rejected: null
+};
+
+
+const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   "top" : { baseScore: -1},
+  "magic": { score: -1 },
   "groupByPost" : {postId: 1},
-  "new" :  { postedAt: -1}
+  "new" :  { postedAt: -1},
+  "newest": {postedAt: -1},
+  "old": {postedAt: 1},
+  "oldest": {postedAt: 1},
+  recentComments: { lastSubthreadActivity: -1 },
+  /** DEPRECATED */
+  recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
-export function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1},
   });
 }
 
@@ -86,7 +148,7 @@ ensureIndex(Comments, { parentCommentId: "hashed" });
 Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
     selector: {
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       deleted: null,
       postId: terms.postId
     },
@@ -97,10 +159,19 @@ Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
 Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
     selector: {
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       deleted: true,
     },
     options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
+  };
+});
+
+Comments.addView("checkedByModGPT", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      modGPTAnalysis: {$exists: true}
+    },
+    options: {sort: {postedAt: -1}}
   };
 });
 
@@ -118,6 +189,38 @@ Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
 ensureIndex(Comments,
   augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
   { name: "comments.top_comments" }
+);
+
+Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, lastSubthreadActivity: -1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.recent_replies" }
+);
+
+Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, score:-1, postedAt:-1 }),
+  { name: "comments.magic_comments" }
 );
 
 Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
@@ -150,6 +253,8 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 // Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+  if (!terms.postId)
+    throw new Error("Invalid postCommentsNew view: postId is required");
   return {
     selector: {
       postId: terms.postId,
@@ -194,7 +299,7 @@ Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
+ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
@@ -220,6 +325,14 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
+
+Comments.addView("rejected", (terms: CommentsViewTerms) => {
+  return {
+    selector: {...dontHideDeletedAndUnreviewed, rejected: true},
+    options: {sort: { postedAt: -1}, limit: terms.limit || 20},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: 1 }));
 
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
@@ -267,6 +380,7 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
 Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   return {
     selector: {
+      ...dontHideDeletedAndUnreviewed,
       $or: [
         {$and: []},
         {needsReview: true},
@@ -279,10 +393,10 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSortings = {
+export const questionAnswersSortings : Record<CommentSortingMode,MongoSelector<DbComment>> = {
+  ...sortings,
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
-  "newest": {postedAt: -1},
-  "oldest": {postedAt: 1},
+  "magic": {promoted: -1, score: -1, postedAt: -1},
 } as const;
 
 Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
@@ -317,7 +431,7 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
     selector: {
       userId: terms.userId,
       // Don't hide deleted
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       // Don't hide unreviewed comments
       authorIsUnreviewed: null
     },
@@ -333,7 +447,6 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, augmentForDefaultView({tagId:1}));
 
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
@@ -378,6 +491,19 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
       parentCommentId: viewFieldNullOrMissing,
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+  };
+});
+
+Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      shortform: true,
+      shortformFrontpage: true,
+      deleted: false,
+      parentCommentId: viewFieldNullOrMissing,
+      postedAt: {$gt: moment().subtract(4, 'days').toDate()}
+    },
+    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
 });
 
@@ -466,11 +592,12 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
 
 // TODO: try to refactor this
 Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+  const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
   return {
     selector: { 
       userId, 
       postId, 
-      reviewingForReview: reviewYear+"",
+      reviewingForReview: reviewingForReviewQuery,
       deleted: false
     },
     options: {
@@ -489,11 +616,11 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
-export const subforumSorting = {
-  new: { postedAt: -1 },
-  recentDiscussion: { lastSubthreadActivity: -1 },
+// TODO merge with subforumFeedSortings
+export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>> = {
+  ...sortings,
 }
-export const subforumDiscussionDefaultSorting = "recentDiscussion"
+export const subforumDiscussionDefaultSorting = "recentComments"
 
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
@@ -506,15 +633,32 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
-    tagId: tagId,
-    tagCommentType: "SUBFORUM",
+    $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
     topLevelCommentId: viewFieldNullOrMissing,
+    deleted: false,
   },
   options: {
     sort: sorting,
   },
 }});
+ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
+// DEPRECATED (will be deleted once there are no more old clients floating around)
+// For 'Discussion from your subforums' on the homepage
+Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      tagId: {$in: terms.profileTagIds ?? []},
+      tagCommentType: "SUBFORUM",
+      topLevelCommentId: viewFieldNullOrMissing,
+      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+    },
+    options: {
+      sort: subforumSorting.recentComments,
+      limit: 3,
+    },
+  }
+});
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {
@@ -528,3 +672,26 @@ ensureIndex(Comments,
   augmentForDefaultView({moderatorHat: 1}),
   { name: "comments.moderatorHat" }
 );
+
+Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
+  selector: {
+    postId: terms.postId,
+    debateResponse: true
+  },
+  options: {
+    sort: { 
+      postedAt: 1
+     }
+  }
+}));
+
+Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      debateResponse: true,
+      deleted: false,
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 7},
+  };
+});

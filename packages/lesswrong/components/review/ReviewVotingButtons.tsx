@@ -82,7 +82,7 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
 
   return <AnalyticsContext pageElementContext="reviewVotingButtons">
     <div className={classes.root}>
-        {[1,2,3,4,5,6,7].map((i) => {
+        {([1,2,3,4,5,6,7] as const).map((i) => {
           return <LWTooltip title={getCostData({costTotal})[i].tooltip} 
           key={`${getCostData({costTotal})[i]}-${i}`}>
             <span

@@ -9,9 +9,9 @@ import * as _ from 'underscore';
 // Despite the presence of writeErrors in the result, the update appears to
 // crash and stop on some errors
 // TODO: Fails if nothing matches the query
-export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}) => {
+export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}: AnyBecauseTodo) => {
   const documents = await collection.find(query, queryOptions)
-  const updates = await Promise.all(documents.map(async (document) => ({
+  const updates = await Promise.all(documents.map(async (document: AnyBecauseTodo) => ({
     updateOne: {
       filter: {
         _id: document._id
@@ -44,7 +44,7 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
 // In the meteor shell:
 //
 // > Vulcan.fixAllTheThings('fee', 'bee')
-export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => async (...args) => {
+export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => async (...args: AnyBecauseTodo[]) => {
   try {
     // eslint-disable-next-line no-console
     console.log(`================ ${name} ================`)
@@ -62,7 +62,7 @@ export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => asy
   }
 }
 
-export function getFieldsWithAttribute(schema, attributeName: string): Array<string> {
+export function getFieldsWithAttribute(schema: AnyBecauseTodo, attributeName: string): Array<string> {
   return _.filter(Object.keys(schema), (fieldName) => !!schema[fieldName][attributeName])
 }
 

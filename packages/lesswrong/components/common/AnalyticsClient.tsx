@@ -1,13 +1,16 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
-import { useCookies } from 'react-cookie'
 import withErrorBoundary from './withErrorBoundary';
+import { ABTestGroupsUsedContext } from '../../lib/abTestImpl';
+import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
-  const [cookies] = useCookies(['clientId']);
+  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
+  const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   
   // We do this with a direct POST request rather than going through graphql
   // because this type of request is voluminous enough and different enough
@@ -26,16 +29,17 @@ export const AnalyticsClient = () => {
   }, []);
  
   const currentUserId = currentUser?._id;
-  const clientId = cookies.clientId;
+  const clientId = cookies[CLIENT_ID_COOKIE];
   useEffect(() => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;
     AnalyticsUtil.clientContextVars.clientId = clientId;
+    AnalyticsUtil.clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     
     return function cleanup() {
       AnalyticsUtil.clientWriteEvents = null;
     }
-  }, [flushEvents, currentUserId, clientId]);
+  }, [flushEvents, currentUserId, clientId, currentUser, abTestGroupsUsed]);
   
   return <div/>;
 }

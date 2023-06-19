@@ -44,7 +44,7 @@ const PasswordResetPage = ({classes}: {
   }
   const { SingleColumnSection } = Components;
   
-  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
+  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
     {!useTokenResult && <> 
       <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>

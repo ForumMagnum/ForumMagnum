@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
@@ -9,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
-import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
+import { useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -33,15 +33,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-// The Navigation for the Inbox components
-const ConversationPage = ({ documentId, terms, currentUser, classes }: {
-  documentId: string,
-  terms: MessagesViewTerms,
+/**
+ * Page for viewing a private messages conversation. Typically invoked from
+ * ConversationWrapper, which takes care of the URL parsing.
+ */
+const ConversationPage = ({ conversationId, currentUser, classes }: {
+  conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results, loading: loadingMessages } = useMulti({
-    terms,
+  // Count messages sent, and use it to set a distinct value for `key` on `NewMessageForm`
+  // that increments with each message. This is a way of clearing the form, which works
+  // around problems inside the editor related to debounce timers and autosave and whatnot,
+  // by guaranteeing that it's a fresh set of react components each time.
+  const [messageSentCount,setMessageSentCount] = useState(0);
+
+  const [numMessagesShown,setNumMessagesShown] = useState(0);
+
+  const { results, refetch, loading: loadingMessages } = useMulti({
+    terms: {
+      view: 'messagesConversation',
+      conversationId,
+    },
     collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
@@ -49,7 +62,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     enableTotal: false,
   });
   const { document: conversation, loading: loadingConversation } = useSingle({
-    documentId,
+    documentId: conversationId,
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
   });
@@ -57,22 +70,26 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
 
   const { query } = useLocation()
   const { captureEvent } = useTracking()
-
-  // Scroll to bottom when loading finishes. Note that this overlaps with the
-  // initialScroll:"bottom" setting in the route, which is handled by the
-  // ScrollToTop component, except that the ScrollToTop component does its thing
-  // on initial load, which may be while the messages (which make this page tall)
-  // are still loading.
-  // Also note, if you're refreshing (as opposed to navigating or opening a new
+  
+  // Whenever the number of messages shown goes up, scroll to bottom
+  // This happens on pageload, and also happens when the messages list is refreshed
+  // because of the useOnNotificationsChanged() call below, if the refresh
+  // increased the message count.
+  //
+  // Note, if you're refreshing (as opposed to navigating or opening a new
   // tab), this can wind up fighting with the browser's scroll restoration (see
   // client/scrollRestoration.ts).
-  const [scrolledToBottom, setScrolledToBottom] = useState(false);
   useEffect(() => {
-    if (!loadingMessages && !scrolledToBottom) {
-      setScrolledToBottom(true);
-      setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
+    const newNumMessages = (results?.length ?? 0)
+    if (newNumMessages > numMessagesShown) {
+      setNumMessagesShown(newNumMessages);
+      setTimeout(()=>{
+        window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
+      }, 0);
     }
-  }, [loadingMessages,scrolledToBottom]);
+  }, [numMessagesShown, results?.length]);
+  
+  useOnNotificationsChanged(() => refetch());
   
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef('')
@@ -84,14 +101,14 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       // if this is a conversation with one other person, see if we have info on where the current user found them
       const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
       const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
-      profileViewedFrom.current = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
+      profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from
     }
   }, [query.from, conversation, currentUser._id])
 
   const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
-    if (loading) return <Loading />
+    if (loading && !results) return <Loading />
     if (!results?.length) return null
     
     return <div>
@@ -99,7 +116,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading) return <Loading />
+  if (loading && !results) return <Loading />
   if (!conversation) return <Error404 />
 
   const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
@@ -119,10 +136,12 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
         <div className={classes.editor}>
-          <NewMessageForm  
+          <NewMessageForm
+            key={`sendMessage-${messageSentCount}`}
             conversationId={conversation._id}
             templateQueries={{templateId: query.templateId, displayName: query.displayName}}
             successEvent={() => {
+              setMessageSentCount(messageSentCount+1);
               captureEvent('messageSent', {
                 conversationId: conversation._id,
                 sender: currentUser._id,

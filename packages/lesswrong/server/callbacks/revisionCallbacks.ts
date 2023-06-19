@@ -19,7 +19,14 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
   const userId = revision.userId;
   const user = await Users.findOne({_id:userId});
   if (!user) return;
-  await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user })
+  await performVoteServer({
+    document: revision,
+    collection: Revisions,
+    voteType: 'smallUpvote',
+    user,
+    skipRateLimits: true,
+    selfVote: true
+  })
 });
 
 // Update the denormalized htmlWithContributorAnnotations when a tag revision

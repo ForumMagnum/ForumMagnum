@@ -1,18 +1,17 @@
 import * as _ from 'underscore';
-import { isServer, isAnyTest } from './executionEnvironment';
+import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
+import { disableEnsureIndexSetting } from './instanceSettings';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { sleep } from "./utils/asyncUtils";
 
-export type IndexDefinition = {
-  key: Record<string, 1>,
-  partialFilterExpression?: Record<string, any>,
-  unique?: boolean,
-}
 
-export const expectedIndexes: Partial<Record<CollectionNameString, Array<IndexDefinition>>> = {};
+export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
+
+export const expectedCustomPgIndexes: string[] = [];
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
-async function conflictingIndexExists<T extends DbObject>(collection: CollectionBase<T>, index: any, options: any)
-{
+async function conflictingIndexExists<T extends DbObject>(collection: CollectionBase<T>, index: any, options: any) {
   if (!options.name)
     return false;
   
@@ -44,53 +43,57 @@ async function conflictingIndexExists<T extends DbObject>(collection: Collection
   return false;
 }
 
-export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void
-{
+export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void {
   if (!expectedIndexes[collection.collectionName])
     expectedIndexes[collection.collectionName] = [];
   expectedIndexes[collection.collectionName]!.push({
+    ...options,
     key: index,
-    partialFilterExpression: options.partialFilterExpression,
-    unique: options.unique,
   });
   void ensureIndexAsync(collection, index, options);
 }
 
-export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
-{
-  if (isServer && !isAnyTest) {
-    const buildIndex = async () => {
-      if (!collection.isConnected())
-        return;
-      try {
-        if (options.name && await conflictingIndexExists(collection, index, options)) {
-          //eslint-disable-next-line no-console
-          console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
-          
-          collection.rawCollection().dropIndex(options.name);
-        }
-        
-        const mergedOptions = {background: true, ...options};
-        collection._ensureIndex(index, mergedOptions);
-      } catch(e) {
+const canEnsureIndexes = () =>
+  isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get();
+
+
+export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}) {
+  if (!canEnsureIndexes())
+    return;
+
+  await createOrDeferIndex(async () => {
+    if (!collection.isConnected())
+      return;
+    try {
+      if (options.name && await conflictingIndexExists(collection, index, options)) {
         //eslint-disable-next-line no-console
-        console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
+        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+        
+        collection.rawCollection().dropIndex(options.name);
       }
-    };
-    
-    // If running a normal server, defer index creation until 15s after
-    // startup. This speeds up testing in the common case, where indexes haven't
-    // meaningfully changed (but sending a bunch of no-op ensureIndex commands
-    // to the database is still expensive).
-    // In unit tests, build indexes immediately, because (a) indexes probably
-    // don't exist yet, and (b) building indexes in the middle of a later test
-    // risks making that test time out.
-    if (isAnyTest) {
-      await buildIndex();
-    } else {
-      setTimeout(buildIndex, 15000);
+      
+      const mergedOptions = {background: true, ...options};
+      collection._ensureIndex(index, mergedOptions);
+    } catch(e) {
+      //eslint-disable-next-line no-console
+      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
     }
+  });
+}
+
+export const ensureCustomPgIndex = async (sql: string) => {
+  if (expectedCustomPgIndexes.includes(sql)) {
+    return;
   }
+  expectedCustomPgIndexes.push(sql);
+
+  if (!canEnsureIndexes())
+    return;
+
+  await createOrDeferIndex(async () => {
+    const db = getSqlClientOrThrow();
+    await db.any(sql);
+  });
 }
 
 // Given an index partial definition for a collection's default view,
@@ -110,20 +113,56 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
 //   prefix: [ordered dictionary] Collection fields from the default view
 //   suffix: [ordered dictionary] Collection fields from the default view
 //
-export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix}: {
-  viewFields: any,
-  prefix: any,
-  suffix: any,
-})
-{
+export function combineIndexWithDefaultViewIndex<T extends DbObject>({viewFields, prefix, suffix}: {
+  viewFields: MongoIndexKeyObj<T>,
+  prefix: MongoIndexKeyObj<T>,
+  suffix: MongoIndexKeyObj<T>,
+}): MongoIndexKeyObj<T> {
   let combinedIndex = {...prefix};
   for (let key in viewFields) {
+    const keyWithType = key as keyof(typeof viewFields)
     if (!(key in combinedIndex))
-      combinedIndex[key] = viewFields[key];
+      combinedIndex[keyWithType] = viewFields[keyWithType];
   }
   for (let key in suffix) {
+    const keyWithType = key as keyof(typeof suffix)
     if (!(key in combinedIndex))
-      combinedIndex[key] = suffix[key];
+      combinedIndex[keyWithType] = suffix[keyWithType];
   }
   return combinedIndex;
+}
+
+
+let deferredIndexes: Array<()=>Promise<void>> = [];
+let deferredIndexesTimer: NodeJS.Timeout|null = null;
+
+/**
+ * If running a normal server, defer index creation until 25s after
+ * startup. This speeds up testing in the common case, where indexes haven't
+ * meaningfully changed (but sending a bunch of no-op ensureIndex commands
+ * to the database is still expensive).
+ * In unit tests, build indexes immediately, because (a) indexes probably
+ * don't exist yet, and (b) building indexes in the middle of a later test
+ * risks making that test time out.
+ */
+const createOrDeferIndex = async (buildIndex: () => Promise<void>) => {
+  if (isAnyTest) {
+    await buildIndex();
+  } else {
+    deferredIndexes.push(buildIndex);
+    if (deferredIndexesTimer===null) {
+      deferredIndexesTimer = setTimeout(createDeferredIndexes, 25000);
+    }
+  }
+}
+
+async function createDeferredIndexes() {
+  deferredIndexesTimer = null;
+  const deferredIndexesCopy = deferredIndexes;
+  deferredIndexes = [];
+  
+  for (let createIndex of deferredIndexesCopy) {
+    await createIndex();
+    await sleep(500);
+  }
 }

@@ -1,6 +1,6 @@
 import "../integrationTestSetup";
 import { runQuery } from '../../server/vulcan-lib';
-import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
+import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError, withNoLogs } from '../utils'
 
 describe('AlignmentForum PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
@@ -56,8 +56,11 @@ describe('AlignmentForum PostsEdit', () => {
         }
       }
     `;
-    const response = runQuery(query,{},{currentUser:user})
-    await (response as any).should.be.rejected;
+
+    await withNoLogs(async () => {
+      const response = runQuery(query,{},{currentUser:user})
+      await (response as any).should.be.rejected;
+    });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when alignmentForumAdmin edits the reviewForAlignmentUserId field", async () => {

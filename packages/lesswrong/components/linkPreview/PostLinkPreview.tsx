@@ -9,6 +9,29 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
+import { isClient } from '../../lib/executionEnvironment';
+
+let missingLinkPreviewsLogged = new Set<string>();
+
+// Log a message about a link-preview being a broken link. Suppresses duplicate
+// logs. Client-side only (so the set of saved messages can't grow huge, as it
+// would on a server).
+//
+// This is special-cased error handling because in the LessWrong dev DB, it's
+// fairly common to load the front page and find that it has RSS-synced posts
+// on it which contain links to LessWrong posts that only exist in the prod DB,
+// not the dev DB, and the error-logging that used to produce was extremely
+// voluminous.
+function logMissingLinkPreview(message: string)
+{
+  if (isClient) {
+    if(!missingLinkPreviewsLogged.has(message)) {
+      missingLinkPreviewsLogged.add(message);
+      //eslint-disable-next-line no-console
+      console.log(message);
+    }
+  }
+}
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -18,15 +41,25 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
 }) => {
   const postID = targetLocation.params._id;
 
-  const { document: post, error } = useSingle({
+  const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
     documentId: postID,
+    allowNull: true,
   });
+  
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  }
 
-  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck
+    post={post||null}
+    targetLocation={targetLocation}
+    error={error}
+    href={href} innerHTML={innerHTML} id={id}
+  />
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -38,12 +71,17 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
 }) => {
   const postID = targetLocation.params.postId;
 
-  const { document: post, error } = useSingle({
+  const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
+    allowNull: true,
   });
+
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  }
 
   return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -104,14 +142,18 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
   const postId = targetLocation.params._id;
   const commentId = targetLocation.params.commentId;
 
-  const { document: post } = useSingle({
+  const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
     documentId: postId,
+    allowNull: true,
   });
 
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postId}`);
+  }
   return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post||null} id={id}/>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
@@ -166,13 +208,17 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
   id: string,
 }) => {
 
-  const { document: comment, error } = useSingle({
+  const { document: comment, loading, error } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,
+    allowNull: true,
   });
 
+  if (!loading && !comment) {
+    logMissingLinkPreview(`Link preview: No comment found with ID ${commentId}`);
+  }
   if (comment) {
     return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} id={id}/>
   }
@@ -262,12 +308,17 @@ const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
   const sequenceId = targetLocation.params._id;
   const { eventHandlers, anchorEl, hover } = useHover();
 
-  const { document: sequence } = useSingle({
+  const { document: sequence, loading } = useSingle({
     documentId: sequenceId,
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
     fetchPolicy: 'cache-then-network' as any,
+    allowNull: true,
   });
+  
+  if (!sequence && !loading) {
+    logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}`);
+  }
 
   return (
     <span {...eventHandlers}>

@@ -28,11 +28,11 @@ export function getCookieFromReq(req: Request | IncomingMessage, cookieName: str
 // the Meteor and Express server middleware setups. Works by setting an
 // expiration date in the past, which apparently is the recommended way to
 // remove cookies.
-export function clearCookie(req, res, cookieName) {
+export function clearCookie(req: Request & { universalCookies?: any }, res: Response<any, Record<string, any>> | undefined, cookieName: string) {
   if ((req.cookies && req.cookies[cookieName])
     || (req.universalCookies && req.universalCookies.get(cookieName)))
   {
-    res.setHeader("Set-Cookie", `${cookieName}= ; expires=${new Date(0).toUTCString()};`)   
+    res?.setHeader("Set-Cookie", `${cookieName}= ; expires=${new Date(0).toUTCString()};`)   
   }
 }
 

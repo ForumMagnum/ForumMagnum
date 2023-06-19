@@ -7,7 +7,8 @@ import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/colle
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
-import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { useLocation } from '../../lib/routeUtil';
+import { debateEditorPlaceholder, defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const refreshDisplayMode = ( editor, sidebarElement ) => {
+const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
   
@@ -87,6 +88,14 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+
+  // Get the linkSharingKey, if it exists
+  const { query : { key, debate } } = useLocation();
+
+  const isDebatePost = !!debate;
+  if (isDebatePost && placeholder === defaultEditorPlaceholder) {
+    placeholder = debateEditorPlaceholder;
+  }
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -95,8 +104,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }, [])
 
   const editorRef = useRef<CKEditor>(null)
-  const sidebarRef = useRef(null)
-  const presenceListRef = useRef(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const presenceListRef = useRef<HTMLDivElement>(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -141,7 +150,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       onChange={onChange}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={editor => {
+      onInit={(editor: any) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -159,12 +168,12 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       }}
       config={{
         autosave: {
-          save (editor) {
+          save (editor: any) {
             return onSave && onSave(editor.getData())
           }
         },
         cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType),
+          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),

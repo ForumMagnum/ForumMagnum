@@ -5,6 +5,8 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
+import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
@@ -12,9 +14,9 @@ import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
 
-export const descriptionStyles = theme => ({
+export const descriptionStyles = (theme: JssStyles) => ({
   ...postBodyStyles(theme),
-  ...theme.typography.body2,
+  ...(!isEAForum ? theme.typography.body2 : {}),
   textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
   lineHeight: '1.65rem',
   '& p': {
@@ -39,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   spotlightItem: {
     position: "relative",
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
@@ -89,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 7,
-    marginBottom: 13,
+    marginBottom: 10,
     ...descriptionStyles(theme),
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -99,7 +102,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
-    fontVariant: "small-caps",
+    ...(isEAForum ?
+      {fontFamily: theme.typography.postStyle.fontFamily /* serifStack */} :
+      {fontVariant: "small-caps"}
+    ),
     lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
@@ -109,15 +115,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 15,
     color: theme.palette.grey[700],
     marginTop: -1,
-    fontStyle: "italic"
+    ...theme.typography.italic,
   },
   image: {
     '& img': {
       position: "absolute",
       top: 0,
       right: 0,
-      height: "100%",  
+      height: "100%",
+      borderTopRightRadius: theme.borderRadius.default,
+      borderBottomRightRadius: theme.borderRadius.default,
     }
+  },
+  author: {
+    marginTop: 4,
+    color: theme.palette.grey[600],
+  },
+  authorName: {
+    color: theme.palette.primary.main,
   },
   editAllButton: {
     [theme.breakpoints.up('md')]: {
@@ -211,7 +226,10 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading } = Components
+  const {
+    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
+    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
+  } = Components
   
   const currentUser = useCurrentUser()
 
@@ -229,7 +247,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   };
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classes.root}>
+    <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
@@ -249,7 +267,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
-                  collection={Spotlights}
+                  collectionName="Spotlights"
                   fields={['description']}
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
@@ -264,10 +282,16 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
               />
             }
           </div>
+          {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
+            by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+          </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} />
         </div>
         {spotlight.spotlightImageId && <div className={classes.image}>
-          <CloudinaryImage publicId={spotlight.spotlightImageId} />
+          <CloudinaryImage2
+            publicId={spotlight.spotlightImageId}
+            darkPublicId={spotlight.spotlightDarkImageId}
+          />
         </div>}
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
@@ -286,12 +310,12 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {edit ? <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
-                collection={Spotlights}
-                documentId={spotlight._id}
-                mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                queryFragment={getFragment('SpotlightEditQueryFragment')}
-                successCallback={onUpdate}
-              /> 
+              collectionName="Spotlights"
+              documentId={spotlight._id}
+              mutationFragment={getFragment('SpotlightEditQueryFragment')}
+              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              successCallback={onUpdate}
+            />
             </SpotlightEditorStyles>
           </div>
            :
@@ -316,4 +340,3 @@ declare global {
     SpotlightItem: typeof SpotlightItemComponent
   }
 }
-

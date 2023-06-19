@@ -36,7 +36,7 @@ const arbitalPageResolvers = {
     async ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext) {
       const rawRoomData:any = await getArbitalPageData(pageAlias)
       if (!rawRoomData) return null
-      let processedData;
+      let processedData: AnyBecauseTodo;
       try {
         processedData = JSON.parse(rawRoomData)
       } catch(e) {

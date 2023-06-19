@@ -4,7 +4,7 @@ export const getCKEditorDocumentId = (documentId: string|undefined, userId: stri
   return `${userId}-${formType}`
 }
 
-export function generateTokenRequest(collectionName: CollectionNameString, fieldName: string, documentId?: string, userId?: string, formType?: string) {
+export function generateTokenRequest(collectionName: CollectionNameString, fieldName: string, documentId?: string, userId?: string, formType?: string, linkSharingKey?: string) {
   return () => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -27,6 +27,10 @@ export function generateTokenRequest(collectionName: CollectionNameString, field
   
       xhr.setRequestHeader('collection-name', collectionName);
       xhr.setRequestHeader('field-name', fieldName);
+      if (linkSharingKey) {
+        xhr.setRequestHeader('link-sharing-key', linkSharingKey);
+      }
+
       if (documentId) xhr.setRequestHeader('document-id', documentId);
       if (userId) xhr.setRequestHeader('user-id', userId);
       if (formType) xhr.setRequestHeader('form-type', formType);

@@ -1,5 +1,5 @@
 import { Connectors } from './vulcan-lib/connectors';
-import { createMutator, updateMutator } from './vulcan-lib/mutators';
+import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
@@ -8,13 +8,22 @@ import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
 import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
-import moment from 'moment';
 import { randomId } from '../lib/random';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
+import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import { loadByIds } from '../lib/loaders';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
+import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { userCanVote } from '../lib/collections/users/helpers';
+import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
+import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -65,25 +74,28 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
+  }
   return {newDocument, vote};
 }
 
 // Create new vote object
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
-  document: VoteableType,
+  document: DbVoteableType,
   collectionName: CollectionNameString,
   voteType: string,
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
 }): Partial<DbVote> => {
-  if (!document.userId)
-    throw new Error("Voted-on document does not have an author userId?");
-
-  const coauthors = collectionName === "Posts"
-    ? getConfirmedCoauthorIds(document as DbPost)
-    : [];
+  let authorIds = document.userId ? [document.userId] : []
+  if (collectionName === "Posts")
+    authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -96,7 +108,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
-    authorIds: [document.userId, ...coauthors],
+    authorIds,
     cancelled: false,
     documentIsAf: !!(document.af),
   }
@@ -113,70 +125,92 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
+  
+  // Fetch existing, uncancelled votes
   const votes = await Connectors.find(Votes, {
     documentId: document._id,
     userId: user._id,
     cancelled: false,
   });
-  if (votes.length) {
-    const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
-    for (let vote of votes) {
-      if (excludeLatest && vote._id === latestVoteId) {
-        continue;
-      }
-      
-      // Cancel the existing votes
-      await updateMutator({
-        collection: Votes,
-        documentId: vote._id,
-        set: { cancelled: true },
-        unset: {},
-        validate: false,
-      });
-
-      //eslint-disable-next-line no-unused-vars
-      const {_id, ...otherVoteFields} = vote;
-      // Create an un-vote for each of the existing votes
-      const unvote = {
-        ...otherVoteFields,
-        cancelled: true,
-        isUnvote: true,
-        power: -vote.power,
-        votedAt: new Date(),
-      };
-      await createMutator({
-        collection: Votes,
-        document: unvote,
-        validate: false,
-      });
-
-      await voteCallbacks.cancelSync.runCallbacks({
-        iterator: {newDocument, vote},
-        properties: [collection, user]
-      });
-      await voteCallbacks.cancelAsync.runCallbacksAsync(
-        [{newDocument, vote}, collection, user]
-      );
-    }
-    const newScores = await recalculateDocumentScores(document, context);
-    await collection.rawUpdateOne(
-      {_id: document._id},
-      {
-        $set: {...newScores },
-      },
-      {}
-    );
-    newDocument = {
-      ...newDocument,
-      ...newScores,
+  if (!votes.length) {
+    return newDocument;
+  }
+  
+  const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
+  const votesToCancel = excludeLatest
+    ? votes.filter(v=>v._id!==latestVoteId)
+    : votes
+  
+  // Mark the votes as cancelled in the DB, with findOneAndUpdate. If any of
+  // these doesn't return a result, it means `cancelled` was set to true in a
+  // concurrent operation, and that other operation is the one responsible for
+  // running the vote-canceled callbacks (which do the user-karma updates).
+  //
+  // If this was done the more straightforward way, then hitting vote buttons
+  // quickly could lead to votes getting double-cancelled; this doesn't affect
+  // the score of the document (which is recomputed from scratch each time) but
+  // does affect the user's karma. We used to have a bug like that.
+  const voteCancellations = await Promise.all(
+    votesToCancel.map((vote) => Votes.rawCollection().findOneAndUpdate({
+      _id: vote._id,
+      cancelled: false,
+    }, {
+      $set: { cancelled: true }
+    }))
+  );
+  
+  for (let voteCancellation of voteCancellations) {
+    const vote = voteCancellation?.value;
+    if (!vote) continue;
+    
+    //eslint-disable-next-line no-unused-vars
+    const {_id, ...otherVoteFields} = vote;
+    // Create an un-vote for each of the existing votes
+    const unvote = {
+      ...otherVoteFields,
+      cancelled: true,
+      isUnvote: true,
+      power: -vote.power,
+      votedAt: new Date(),
     };
+    await createMutator({
+      collection: Votes,
+      document: unvote,
+      validate: false,
+    });
+
+    await voteCallbacks.cancelSync.runCallbacks({
+      iterator: {newDocument, vote},
+      properties: [collection, user]
+    });
+    await voteCallbacks.cancelAsync.runCallbacksAsync(
+      [{newDocument, vote}, collection, user]
+    );
+  }
+  const newScores = await recalculateDocumentScores(document, context);
+  await collection.rawUpdateOne(
+    {_id: document._id},
+    {
+      $set: {...newScores },
+    },
+    {}
+  );
+  newDocument = {
+    ...newDocument,
+    ...newScores,
+  };
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, context }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
@@ -185,8 +219,13 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
+  skipRateLimits: boolean,
   context?: ResolverContext,
-}) => {
+  selfVote?: boolean,
+}): Promise<{
+  modifiedDocument: DbVoteableType,
+  showVotingPatternWarning: boolean,
+}> => {
   if (!context)
     context = await createAnonymousContext();
 
@@ -198,22 +237,59 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+  
+  // Check whether the user is allowed to vote at all, in full generality
+  const { fail: cannotVote, reason } = userCanVote(user);
+  if (!selfVote && cannotVote) {
+    throw new Error(reason);
+  }
+
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
+  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
+    throw new Error("Cannot vote on dialogue responses");
+  }
+
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
   const existingVote = await getExistingVote({document, user});
+  let showVotingPatternWarning = false;
 
   if (existingVote && existingVote.voteType === voteType && !extendedVote) {
     if (toggleIfAlreadyVoted) {
       document = await clearVotesServer({document, user, collection, context})
     }
   } else {
-    await checkRateLimit({ document, collection, voteType, user });
+    if (!skipRateLimits) {
+      const { showVotingPatternWarning: warn } = await checkVotingRateLimits({ document, collection, voteType, user });
+      if (warn && !(await wasVotingPatternWarningDeliveredRecently(user))) {
+        showVotingPatternWarning = true;
+        void createMutator({
+          collection: ModeratorActions,
+          context,
+          currentUser: null,
+          validate: false,
+          document: {
+            userId: user._id,
+            type: RECEIVED_VOTING_PATTERN_WARNING,
+            endedAt: new Date()
+          }
+        });
+      }
+    }
+    
+    const votingSystem = await getVotingSystemForDocument(document, context);
+    if (extendedVote && votingSystem.isAllowedExtendedVote) {
+      const oldExtendedScore = document.extendedScore;
+      const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, document, oldExtendedScore, extendedVote)
+      if (!extendedVoteCheckResult.allowed) {
+        throw new Error(extendedVoteCheckResult.reason);
+      }
+    }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
@@ -234,39 +310,106 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
 
   (document as any).__typename = collection.options.typeName;
-  return document;
-}
-
-const getVotingRateLimits = async (user: DbUser|null) => {
-  if (user?.isAdmin) {
-    // Very lax rate limiting for admins
-    return {
-      perDay: 100000,
-      perHour: 50000,
-      perUserPerDay: 50000
-    }
-  }
   return {
-    perDay: 200,
-    perHour: 100,
-    perUserPerDay: 100,
+    modifiedDocument: document,
+    showVotingPatternWarning,
   };
 }
 
-// Check whether a given vote would exceed voting rate limits, and if so, throw
-// an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }: {
+async function wasVotingPatternWarningDeliveredRecently(user: DbUser): Promise<boolean> {
+  const mostRecentWarning = await ModeratorActions.findOne({
+    userId: user._id,
+    type: RECEIVED_VOTING_PATTERN_WARNING,
+  }, {
+    sort: {createdAt: -1}
+  });
+  if (!mostRecentWarning) {
+    return false;
+  }
+  const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
+  const warningAgeMinutes = warningAgeMS / (1000*60);
+  return warningAgeMinutes < 60;
+}
+
+interface VotingRateLimitSet {
+  perDay: number,
+  perHour: number,
+  perUserPerDay: number
+}
+interface VotingRateLimit {
+  voteCount: number
+  /** Must be ≤ than 24 hours */
+  periodInMinutes: number
+  types: "all"|"onlyStrong"|"onlyDown"
+  users: "allUsers"|"singleUser"
+  consequences: ("warningPopup"|"denyThisVote")[]
+  // TODO Consequences to add, not yet implemented: blockVotingFor24Hours, flagForModeration, revertRecentVotes
+  message: string|null
+}
+
+const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
+  if (user?.isAdmin) {
+    return [];
+  } else {
+    return [
+      {
+        voteCount: 200,
+        periodInMinutes: 60 * 24,
+        types: "all",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many votes in one day",
+      },
+      {
+        voteCount: 100,
+        periodInMinutes: 60,
+        types: "all",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many votes in one hour",
+      },
+      {
+        voteCount: 100,
+        periodInMinutes: 24*60,
+        types: "all",
+        users: "singleUser",
+        consequences: ["denyThisVote"],
+        message: "too many votes today on content by this author",
+      },
+      {
+        voteCount: 10,
+        periodInMinutes: 3,
+        types: "all",
+        users: "singleUser",
+        consequences: ["warningPopup"],
+        message: null,
+      },
+    ];
+  }
+}
+
+/**
+ * Check whether a given vote would exceed voting rate limits. If this vote
+ * should be blocked, throws an exception with a message describing why. If it
+ * shouldn't be blocked but should give the user a message warning them about
+ * site rules, returns {showVotingPatternWarning: true}. Otherwise returns
+ * {showVotingPattern: false}.
+ *
+ * May also add apply voting-related consequences such as flagging the user for
+ * moderation, as side effects.
+ */
+const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   document: DbVoteableType,
   collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser
-}): Promise<void> => {
+}): Promise<{
+  showVotingPatternWarning: boolean
+}> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
-    return;
+    return {showVotingPatternWarning: false};
   
-  const rateLimits = await getVotingRateLimits(user);
-
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
   const oneDayAgo = moment().subtract(1, 'days').toDate();
   const votesInLastDay = await Votes.find({
@@ -275,22 +418,63 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
     votedAt: {$gt: oneDayAgo},
     cancelled:false
   }).fetch();
-
-  if (votesInLastDay.length >= rateLimits.perDay) {
-    throw new Error("Voting rate limit exceeded: too many votes in one day");
+  
+  // Go through rate limits checking if each applies. If more than one rate
+  // limit applies, we take the union of the consequences of exceeding all of
+  // them, and use the message from whichever was first in the list.
+  let firstExceededRateLimit: VotingRateLimit|null = null;
+  let rateLimitConsequences = new Set<string>();
+  const now = new Date().getTime();
+  
+  for (const rateLimit of getVotingRateLimits(user)) {
+    if (votesInLastDay.length < rateLimit.voteCount)
+      continue;
+    
+    const numMatchingVotes = votesInLastDay.filter((vote) => {
+      const ageInMS = now - vote.votedAt.getTime();
+      const ageInMinutes = ageInMS / (1000*60);
+      
+      if (ageInMinutes > rateLimit.periodInMinutes)
+        return false;
+      if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+        return false;
+      
+      const isStrong = (vote.voteType==="bigDownvote" || vote.voteType==="bigUpvote")
+      const isDown = (vote.voteType==="smallDownvote" || vote.voteType==="bigDownvote");
+      if (rateLimit.types === "onlyStrong" && !isStrong)
+        return false;
+      if (rateLimit.types === "onlyDown" && !isDown)
+        return false;
+      return true;
+    }).length;
+    
+    if (numMatchingVotes >= rateLimit.voteCount) {
+      if (!firstExceededRateLimit) {
+        firstExceededRateLimit = rateLimit;
+      }
+      for (let consequence of rateLimit.consequences) {
+        rateLimitConsequences.add(consequence);
+      }
+    }
   }
-
-  const oneHourAgo = moment().subtract(1, 'hours').toDate();
-  const votesInLastHour = _.filter(votesInLastDay, vote=>vote.votedAt >= oneHourAgo);
-
-  if (votesInLastHour.length >= rateLimits.perHour) {
-    throw new Error("Voting rate limit exceeded: too many votes in one hour");
+  
+  // Was any rate limit was exceeded?
+  let showVotingPatternWarning = false;
+  if (firstExceededRateLimit) {
+    if (rateLimitConsequences.has("warningPopup")) {
+      showVotingPatternWarning = true;
+    }
+    if (rateLimitConsequences.has("denyThisVote")) {
+      const message = firstExceededRateLimit.message;
+      if (message) {
+        throw new Error(`Voting rate limit exceeded: ${message}`);
+      } else {
+        throw new Error(`Voting rate limit exceeded`);
+      }
+    }
   }
-
-  const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorIds.includes(document.userId));
-  if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
-    throw new Error("Voting rate limit exceeded: too many votes today on content by this author");
-  }
+  
+  return { showVotingPatternWarning };
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {
@@ -317,8 +501,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
-  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+  const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 

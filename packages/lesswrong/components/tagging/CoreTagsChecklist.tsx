@@ -34,6 +34,8 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   classes: ClassesType,
   existingTagIds?: Array<string|undefined>
 }) => {
+  const { TagsChecklist } = Components
+
   const { results, loading } = useMulti({
     terms: {
       view: "coreTags",
@@ -43,20 +45,11 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
     limit: 100,
   });
   
-  const { Loading, LWTooltip } = Components;
+  const { Loading } = Components;
   if (loading) return <Loading/>
-
-  const unusedCoreTags = results?.filter(tag => !existingTagIds.includes(tag._id))
-
-  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}, existingTagIds) : undefined
-
-  return <>
-    {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> {taggingNameSetting.get()}</div>}>
-      <div className={classes.tag} onClick={() => handleOnTagSelected(tag, existingTagIds)}>
-        {tag.name}
-      </div>
-    </LWTooltip>)}
-  </>
+  if (!results) return null
+  
+  return <TagsChecklist tags={results} onTagSelected={onTagSelected} selectedTagIds={existingTagIds}/>
 }
 
 

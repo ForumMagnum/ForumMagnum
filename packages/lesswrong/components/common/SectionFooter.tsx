@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+import { isEAForum } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 export const separatorBulletStyles = (theme: ThemeType) => ({
@@ -30,7 +31,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2,
     color: theme.palette.lwTertiary.main,
     flexWrap: "wrap",
-    ...separatorBulletStyles(theme)
+    ...separatorBulletStyles(theme),
+    ...(isEAForum
+      ? {
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: "24px",
+      }
+      : {}),
   }
 })
 

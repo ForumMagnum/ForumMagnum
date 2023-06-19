@@ -75,6 +75,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.strawpoll-embed": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.metaforecast-preview": {
     "& iframe": {
@@ -256,7 +266,17 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    display: 'table'
+    width: 'fit-content !important',
+    height: 'fit-content !important',
+  },
+  // Many column tables should overflow instead of squishing
+  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
+  //    squishy tables (which is the default behavior above)
+  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
+    overflowX: 'auto',
+    '& table': {
+      width: 700,
+    },
   },
   '& td, & th': {
     ...tableCellStyles(theme)
@@ -265,6 +285,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -286,6 +307,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
@@ -400,7 +422,7 @@ export const smallPostStyles = (theme: ThemeType) => {
       ...theme.typography.postStyle,
       fontSize: "1.28rem",
       lineHeight: "1.8rem",
-    },
+    }
   };
 }
 

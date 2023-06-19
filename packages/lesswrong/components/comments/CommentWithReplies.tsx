@@ -21,9 +21,10 @@ export interface CommentWithRepliesProps {
   comment: CommentWithRepliesFragment;
   post?: PostsBase;
   lastRead?: Date;
-  markAsRead?: any;
   initialMaxChildren?: number;
   commentNodeProps?: Partial<CommentsNodeProps>;
+  startExpanded?: boolean;
+  className?: string;
   classes: ClassesType;
 }
 
@@ -31,16 +32,18 @@ const CommentWithReplies = ({
   comment,
   post,
   lastRead,
-  markAsRead = () => {},
   initialMaxChildren = 3,
   commentNodeProps,
+  startExpanded,
+  className,
   classes,
 }: CommentWithRepliesProps) => {
   const { hash: focusCommentId } = useLocation();
 
   const commentId = focusCommentId.slice(1) || null;
-  const startExpanded = comment.latestChildren.some(c => c._id === commentId)
-  
+
+  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
+
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
   if (!comment) return null;
@@ -49,19 +52,18 @@ const CommentWithReplies = ({
   
   const treeOptions: CommentTreeOptions = {
     lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,
-    post,
+    post: post ?? comment.post ?? undefined,
+    noHash: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
 
   const { CommentsNode } = Components;
 
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
-  const extraChildrenCount =
-    comment.latestChildren.length > renderedChildren.length && comment.latestChildren.length - renderedChildren.length;
+  const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
   let nestedComments = unflattenComments(renderedChildren);
   if (extraChildrenCount > 0) {
@@ -77,7 +79,6 @@ const CommentWithReplies = ({
 
   return (
     <CommentsNode
-      noHash
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}
@@ -85,10 +86,12 @@ const CommentWithReplies = ({
       key={comment._id}
       shortform
       showExtraChildrenButton={showExtraChildrenButton}
+      expandAllThreads={startExpanded}
+      forceUnTruncated={startExpanded}
+      forceUnCollapsed={startExpanded}
       {...commentNodeProps}
       treeOptions={treeOptions}
-      expandAllThreads={startExpanded}
-      expandByDefault={startExpanded}
+      className={className}
     />
   );
 };
@@ -105,4 +108,3 @@ declare global {
     CommentWithReplies: typeof CommentWithRepliesComponent;
   }
 }
-

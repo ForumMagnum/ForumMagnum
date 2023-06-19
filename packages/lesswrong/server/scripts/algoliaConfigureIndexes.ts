@@ -1,5 +1,5 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -143,7 +143,8 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesForFaceting: [
       'filterOnly(wikiOnly)',
-      'filterOnly(isSubforum)',
+      'filterOnly(isSubforum)', // DEPRECATED: remove once isSubforum -> core filter change is deployed
+      'filterOnly(core)',
     ],
     distinct: false,
     attributesToSnippet: isEAForum ? ['description:20'] : ['description:10'],

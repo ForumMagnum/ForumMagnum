@@ -38,9 +38,9 @@ const NewTagPage = () => {
     <SingleColumnSection>
       <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
       <WrappedSmartForm
-        collection={Tags}
+        collectionName="Tags"
         mutationFragment={getFragment('TagFragment')}
-        successCallback={tag => {
+        successCallback={(tag: any) => {
           history.push({pathname: tagGetUrl(tag)});
         }}
       />

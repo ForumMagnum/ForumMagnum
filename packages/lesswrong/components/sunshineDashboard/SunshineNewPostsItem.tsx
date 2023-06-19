@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -122,58 +122,58 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <FooterTagList post={post} showCoreTags/>
-            <div className={classes.buttonRow}>
-              <Button onClick={handlePersonal}>
-                <PersonIcon className={classes.icon} /> Personal
-              </Button>
-              {post.submitToFrontpage && <Button onClick={handlePromote}>
-                <HomeIcon className={classes.icon} /> Frontpage
-              </Button>}
-              <Button onClick={handleDelete}>
-                <ClearIcon className={classes.icon} /> Draft
-              </Button>
-              <Button onClick={handleFlagUser} disabled={isUserAlreadyFlagged}>
-                <VisibilityOutlinedIcon className={classes.icon} /> Flag User
-              </Button>
-            </div>
-            <Typography variant="title" className={classes.title}>
-              <Link to={postGetPageUrl(post)}>
-                { post.title }
+          <FooterTagList post={post} showCoreTags highlightAutoApplied />
+          <div className={classes.buttonRow}>
+            <Button onClick={handlePersonal}>
+              <PersonIcon className={classes.icon} /> Personal
+            </Button>
+            {post.submitToFrontpage && <Button onClick={handlePromote}>
+              <HomeIcon className={classes.icon} /> Frontpage
+            </Button>}
+            <Button onClick={handleDelete}>
+              <ClearIcon className={classes.icon} /> Draft
+            </Button>
+            <Button onClick={handleFlagUser} disabled={isUserAlreadyFlagged}>
+              <VisibilityOutlinedIcon className={classes.icon} /> Flag User
+            </Button>
+          </div>
+          <Typography variant="title" className={classes.title}>
+            <Link to={postGetPageUrl(post)}>
+              { post.title }
+            </Link>
+          </Typography>
+          <div className={classes.metaInfoRow}>
+            <span className={classes.vote}>
+              <SmallSideVote document={post} collection={Posts}/>
+            </span>
+            <MetaInfo>
+              <FormatDate date={post.postedAt}/>
+            </MetaInfo>
+            {postGetCommentCount(post) && <MetaInfo>
+              <Link to={`${postGetPageUrl(post)}#comments`}>
+                {postGetCommentCountStr(post)}
               </Link>
-            </Typography>
-            <div className={classes.metaInfoRow}>
-              <span className={classes.vote}>
-                <SmallSideVote document={post} collection={Posts}/>
-              </span>
+            </MetaInfo>}
+          </div>
+          {moderationSection && <div className={classes.moderation}>
+            {(post.moderationStyle || post.user?.moderationStyle) && <div>
               <MetaInfo>
-                <FormatDate date={post.postedAt}/>
+                <span>Mod Style: </span>
+                { post.moderationStyle || post.user?.moderationStyle }
+                {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
               </MetaInfo>
-              {post.commentCount && <MetaInfo>
-                <Link to={`${postGetPageUrl(post)}#comments`}>
-                  {post.commentCount} comments
-                </Link>
-              </MetaInfo>}
-            </div>
-            {moderationSection && <div className={classes.moderation}>
-              {(post.moderationStyle || post.user?.moderationStyle) && <div>
-                <MetaInfo>
-                  <span>Mod Style: </span>
-                  { post.moderationStyle || post.user?.moderationStyle }
-                  {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
-                </MetaInfo>
-              </div>}
-              {(modGuidelinesHtml || userGuidelinesHtml) && <div>
-                <MetaInfo>
-                  <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
-                  {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
-                </MetaInfo>
-              </div>}
             </div>}
-            <ContentStyles contentType="postHighlight">
-              <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
-            </ContentStyles>
+            {(modGuidelinesHtml || userGuidelinesHtml) && <div>
+              <MetaInfo>
+                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
+              </MetaInfo>
+            </div>}
+          </div>}
+          <ContentStyles contentType="postHighlight">
+            <LinkPostMessage post={post} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
+          </ContentStyles>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}>
           {post.title}

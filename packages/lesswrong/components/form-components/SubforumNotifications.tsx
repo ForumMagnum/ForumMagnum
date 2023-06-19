@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({})
 
-const SubforumNotifications = (props, context) => {
+const SubforumNotifications = (props: FormComponentProps<boolean>) => {
   const currentUser = useCurrentUser();
   if (!currentUser) return null;
 

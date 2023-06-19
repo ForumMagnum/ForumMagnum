@@ -3,7 +3,7 @@ import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 
-const getNestedProperty = function (obj, desc) {
+const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
@@ -113,10 +113,23 @@ export class PublicInstanceSetting<SettingValueType> {
 export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
 export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+
+export const isLW = forumTypeSetting.get() === "LessWrong"
+export const isEAForum = forumTypeSetting.get() === "EAForum"
+export const isAF = forumTypeSetting.get() === "AlignmentForum"
+
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
+
+/**
+ * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
+ * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
+ * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
+ * easier.
+ */
+export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
 
 /**
  * Name of the tagging feature on your site. The EA Forum is going to try
@@ -156,3 +169,10 @@ export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<str
 
 //Test vs Production Setting
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+
+export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");
+
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");

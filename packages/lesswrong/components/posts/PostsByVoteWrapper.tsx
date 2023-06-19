@@ -2,7 +2,11 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | '≤2020'}) => {
+const PostsByVoteWrapper = ({voteType, year, showMostValuableCheckbox=false}: {
+  voteType: string,
+  year: number | '≤2020',
+  showMostValuableCheckbox?: boolean
+}) => {
   const { PostsByVote, ErrorBoundary, Loading, Typography } = Components
 
   // const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
@@ -26,7 +30,7 @@ const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | 
   const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
-    <PostsByVote postIds={postIds} year={year}/>
+    <PostsByVote postIds={postIds} year={year} showMostValuableCheckbox={showMostValuableCheckbox} />
   </ErrorBoundary>
 }
 

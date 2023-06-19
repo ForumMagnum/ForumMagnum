@@ -1,5 +1,5 @@
 import { MongoCollection } from "../mongoCollection";
-import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
+import { getSqlClient, getSqlClientOrThrow, logIfSlow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -16,6 +16,25 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
+type ExecuteQueryData<T extends DbObject> = {
+  selector: MongoSelector<T> | string;
+  projection: MongoProjection<T>;
+  data: T;
+  modifier: MongoModifier<T>;
+  fieldOrSpec: MongoIndexFieldOrKey<T>;
+  pipeline: MongoAggregationPipeline<T>;
+  operations: MongoBulkWriteOperations<T>;
+  indexName: string;
+  options: MongoFindOptions<T>
+    | MongoUpdateOptions<T>
+    | MongoUpdateOptions<T>
+    | MongoRemoveOptions<T>
+    | MongoEnsureIndexOptions<T>
+    | MongoAggregationOptions
+    | MongoBulkWriteOptions
+    | MongoDropIndexOptions;
+}
+
 /**
  * PgCollection is the main external interface for other parts of the codebase to
  * access data inside of Postgres. It's the Postgres equivalent of our MongoCollection
@@ -26,7 +45,7 @@ export const isAnyQueryPending = () => executingQueries > 0;
  * to instead implement CollectionBase.
  */
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
-  table: Table;
+  table: Table<T>;
 
   constructor(tableName: string, options?: { _suppressSameNameError?: boolean }) {
     super(tableName, options);
@@ -41,33 +60,45 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   buildPostgresTable() {
-    this.table = Table.fromCollection(this as unknown as CollectionBase<T>);
+    this.table = Table.fromCollection<T>(this as unknown as CollectionBase<T>);
   }
 
   /**
    * Execute the given query
-   * The `debugData` parameter is completely optional and is only used to improve
-   * the error message if something goes wrong
+   * The `data` parameter is completely optional and is only used to improve
+   * the error message if something goes wrong. It can also be used to disable
+   * logging by setting `data.options.quiet` to `true`.
    */
-  async executeQuery(query: Query<T>, debugData?: any): Promise<any[]> {
+  async executeQuery(
+    query: Query<T>,
+    data?: Partial<ExecuteQueryData<T>>,
+  ): Promise<any[]> {
     executingQueries++;
     let result: any[];
+    const quiet = data?.options?.quiet ?? false;
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
-      result = await client.any(sql, args);
+      
+      result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
+
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
-      const {collectionName} = this as unknown as CollectionBase<T>;
-      debugData = util.inspect({collectionName, ...debugData}, {depth: null});
+      const {collectionName} = this;
+      const stringified = util.inspect({collectionName, ...data}, {depth: null});
       const {sql, args} = query.compile();
-      // eslint-disable-next-line no-console
-      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
+      if (!quiet) {
+        // eslint-disable-next-line no-console
+        console.error(`SQL Error for ${collectionName} at position ${error.position}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${stringified}`);
+      }
       throw error;
     } finally {
       executingQueries--;
     }
-    return result;
+    const {postProcess} = this;
+    return postProcess
+      ? result.map((data) => postProcess(data))
+      : result;
   }
 
   getTable = () => {
@@ -88,7 +119,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
         const result = await this.executeQuery(select, {selector, options});
-        return result?.[0].count ?? 0;
+        return parseInt(result?.[0].count ?? 0);
       },
     };
   }
@@ -120,13 +151,30 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T> & {upsert: true},
   ) {
-    const data = modifier.$set ?? modifier as T;
+    const {$set, ...rest} = modifier;
+    const data = {
+      ...$set,
+      ...rest,
+      ...selector,
+    } as T;
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
-        conflictStrategy: "upsert",
-        upsertSelector: selector,
+      conflictStrategy: "upsert",
+      upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
-    return result.length;
+    const action = result[0]?.action;
+    if (!action) {
+      return 0;
+    }
+    const returnCount = options?.returnCount ?? "matchedCount";
+    switch (returnCount) {
+    case "matchedCount":
+      return action === "updated" ? 1 : 0;
+    case "upsertedCount":
+      return action === "inserted" ? 1 : 0;
+    default:
+      throw new Error(`Invalid upsert return count: ${returnCount}`);
+    }
   }
 
   rawUpdateOne = async (
@@ -153,14 +201,17 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
-    const query = new DeleteQuery<T>(this.getTable(), selector, options);
+    options = Object.assign({noSafetyHarness: true}, options);
+    const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
     const result = await this.executeQuery(query, {selector, options});
     return {deletedCount: result.length};
   }
 
-  _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
-    const fields = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    const index = this.table.getIndex(fields, options) ?? this.getTable().addIndex(fields, options);
+  _ensureIndex = async (fieldOrSpec: MongoIndexFieldOrKey<T>, options?: MongoEnsureIndexOptions<T>) => {
+    const key: MongoIndexKeyObj<T> = typeof fieldOrSpec === "string"
+      ? {[fieldOrSpec as keyof T]: 1 as const} as MongoIndexKeyObj<T>
+      : fieldOrSpec;
+    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeQuery(query, {fieldOrSpec, options})
   }
@@ -173,11 +224,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
           const result = await this.executeQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
+          const {collectionName} = this;
           // If you see this, you probably built a bad aggregation pipeline, or
           // this file has a bug, or you're using an unsupported aggregation
           // pipeline operator
           // eslint-disable-next-line no-console
-          console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));
+          console.error("Aggregate error:", collectionName, ":", e, ":", util.inspect(pipeline, {depth: null}));
           throw e;
         }
       },

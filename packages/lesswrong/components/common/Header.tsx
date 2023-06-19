@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -9,10 +9,12 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
+import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -61,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
+    fontWeight: isEAForum ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -132,11 +135,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
-  toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
 }) => {
@@ -146,20 +148,24 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
+  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
+  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
     if (!currentUser) return;
     if (isOpen) {
-      void updateCurrentUser({lastNotificationsCheck: new Date()});
       setNotificationOpen(true);
       setNotificationHasOpened(true);
+      await updateCurrentUser({lastNotificationsCheck: new Date()});
+      await refetchNotificationCounts();
     } else {
       setNotificationOpen(false);
     }
@@ -170,7 +176,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     const { lastNotificationsCheck } = currentUser
 
     captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    handleSetNotificationDrawerOpen(!notificationOpen);
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -178,10 +184,10 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   //  2) Hide the username on mobile so users with long usernames can still
   //     enter search queries
   // Called by SearchBar.
-  const setSearchOpen = (isOpen: boolean) => {
+  const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
-  }
+  }, [captureEvent]);
 
   const renderNavigationMenuButton = () => {
     // The navigation menu button either toggles a free floating sidebar, opens
@@ -189,7 +195,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
     return <React.Fragment>
-      {toc?.sections
+      {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
               <IconButton
@@ -298,9 +304,9 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
+                  unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
-                  currentUser={currentUser}
                 />}
               </div>
             </Toolbar>
@@ -309,10 +315,11 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
             open={navigationOpen}
             handleOpen={() => setNavigationOpen(true)}
             handleClose={() => setNavigationOpen(false)}
-            toc={toc}
+            toc={toc?.sectionData ?? null}
           />
         </Headroom>
         {currentUser && <NotificationsMenu
+          unreadPrivateMessages={unreadPrivateMessages}
           open={notificationOpen}
           hasOpened={notificationHasOpened}
           setIsOpen={handleSetNotificationDrawerOpen}

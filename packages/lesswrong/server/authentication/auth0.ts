@@ -37,6 +37,9 @@ const auth0Client = new class Auth0Client {
   }
 }
 
+// TODO: Probably good to fix this, IM(JP)O. It works because we only use it in
+// a context where we're guaranteed to have an email/password user.
+/** Warning! Only returns profiles of users who do not use OAuth */
 export const getAuth0Profile = async (user: DbUser) => {
   const result = await auth0Client.get().getUser({id: getAuth0Id(user)});
   return new Profile(result, JSON.stringify(result));

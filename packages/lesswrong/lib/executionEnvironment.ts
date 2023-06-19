@@ -1,18 +1,22 @@
 import * as _ from 'underscore';
+import type { CommandLineArguments } from '../server/commandLine';
 
 declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
   let bundleIsProduction: boolean;
+  let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
   let estrellaPid: number;
+  let ddEnv: string;
 }
 
 export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
 export const isDevelopment = !bundleIsProduction
 export const isProduction = bundleIsProduction
+export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 
@@ -42,11 +46,11 @@ export const runStartupFunctions = async () => {
 }
 
 let instanceSettings: any = null;
-export const getInstanceSettings = (): any => {
+export const getInstanceSettings = (args?: CommandLineArguments): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
       const { loadInstanceSettings } = require('../server/commandLine.ts');
-      instanceSettings = loadInstanceSettings();
+      instanceSettings = loadInstanceSettings(args);
     } else {
       instanceSettings = {
         public: window.publicInstanceSettings,

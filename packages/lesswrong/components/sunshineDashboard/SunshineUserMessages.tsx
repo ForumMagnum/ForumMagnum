@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
+import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
+import EmailIcon from '@material-ui/icons/Email';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: JssStyles) => ({
   row: {
     display: "flex",
     alignItems: "center"
+  },
+  icon: {
+    height: 13,
+    width: 13,
+    position: "relative",
+    top: 2,
+    marginRight: 3,
   }
 })
 
@@ -15,25 +25,43 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   classes: ClassesType,
   currentUser: UsersCurrent,
 }) => {
-  const { ModeratorMessageCount, SunshineSendMessageWithDefaults, NewMessageForm } = Components
+  const { SunshineSendMessageWithDefaults, NewMessageForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
   const { captureEvent } = useTracking()
 
-  const embedConversation = (conversationId, templateQueries) => {
+  const embedConversation = (conversationId: string, templateQueries: TemplateQueryStrings) => {
     setEmbeddedConversationId(conversationId)
     setTemplateQueries(templateQueries)
   }
 
+  const { results } = useMulti({
+    terms: {view: "moderatorConversations", userId: user._id},
+    collectionName: "Conversations",
+    fragmentName: 'conversationsListFragment',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true
+  });
+
   return <div className={classes.root}>
-    <div className={classes.row}>
-      <ModeratorMessageCount userId={user._id} />
-      <SunshineSendMessageWithDefaults 
+    {results?.map(conversation => <LWTooltip title={`${conversation.messageCount} messages in this conversation`} key={conversation._id}>
+      <Link to={`/inbox/${conversation._id}`}>
+        <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+        <span className={classes.title}>
+          Conversation with{" "} 
+          {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
+            return <MetaInfo key={`${conversation._id}${user._id}`}>
+              <UsersName simple user={participant}/>
+            </MetaInfo>
+          })}
+        </span>
+      </Link>
+    </LWTooltip>)}
+    <SunshineSendMessageWithDefaults 
         user={user} 
         embedConversation={embedConversation}
       />
-    </div>
     {embeddedConversationId && <div>
       <NewMessageForm 
         conversationId={embeddedConversationId} 

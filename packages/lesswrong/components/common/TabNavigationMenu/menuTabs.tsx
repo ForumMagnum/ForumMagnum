@@ -13,14 +13,27 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
-import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
-import VoiceChatIcon from '@material-ui/icons/VoiceChat';
-import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
+
+// EA Forum menu icons
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import HomeSelectedIcon from "@heroicons/react/20/solid/HomeIcon";
+import AllPostsIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
+import AllPostsSelectedIcon from "@heroicons/react/24/solid/ArchiveBoxIcon";
+import TopicsIcon from "@heroicons/react/24/outline/TagIcon";
+import TopicsSelectedIcon from "@heroicons/react/24/solid/TagIcon";
+import LibraryIcon from "@heroicons/react/24/outline/BookOpenIcon";
+import LibrarySelectedIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
+import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
+import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
+import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -59,14 +72,17 @@ type MenuTabCustomComponent = {
   customComponentName: string
 }
 
+type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
+
 export type MenuTabRegular = {
   id: string
   title: string
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: any // I tried
-  compressedIconComponent?: any
+  iconComponent?: MenuItemIcon
+  selectedIconComponent?: MenuItemIcon
+  compressedIconComponent?: MenuItemIcon
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
@@ -238,80 +254,63 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'home',
       title: 'Home',
       link: '/',
-      iconComponent: Home,
+      iconComponent: HomeIcon,
+      selectedIconComponent: HomeSelectedIcon,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
       id: 'allPosts',
-      title: 'All Posts',
+      title: 'All posts',
       link: '/allPosts',
-      iconComponent: Sort,
+      iconComponent: AllPostsIcon,
+      selectedIconComponent: AllPostsSelectedIcon,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get() + " Wiki",
+      title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
-      iconComponent: LocalOffer,
+      iconComponent: TopicsIcon,
+      selectedIconComponent: TopicsSelectedIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    },{
-      id: 'subforumsList',
-      customComponentName: "SubforumsList",
     }, {
       id: 'library',
       title: 'Library',
       link: '/library',
-      iconComponent: LocalLibrary,
+      iconComponent: LibraryIcon,
+      selectedIconComponent: LibrarySelectedIcon,
       tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'handbook',
-      title: 'The EA Handbook',
-      link: '/handbook',
-      tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
-      subItem: true,
-    }, {
-      id: 'replacing-guilt',
-      title: 'Replacing Guilt',
-      link: '/s/a2LBRPLhvwB83DSGq',
-      tooltip: "Nate Soares writes about replacing guilt with other feelings and finding better ways to motivate yourself, so you can build a better future without falling apart.",
-      subItem: true,
-    }, {
-      id: 'most-important-century',
-      title: 'Most Important Century',
-      link: '/s/isENJuPdB3fhjWYHd',
-      tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
-      subItem: true,
-    }, {
       id: 'takeAction',
-      title: 'Take Action',
+      title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
-      iconComponent: PlaylistAddCheck,
+      iconComponent: TakeActionIcon,
+      selectedIconComponent: TakeActionSelectedIcon,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',
       link: '/events',
-      iconComponent: EventIcon,
+      iconComponent: EventsIcon,
+      selectedIconComponent: EventsSelectedIcon,
       tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
-      id: 'eventsList',
-      customComponentName: "EventsList",
-    }, {
       id: 'community',
-      title: 'Community',
+      title: 'Groups & people',
       link: communityPath,
-      iconComponent: SupervisedUserCircleIcon,
+      iconComponent: GroupsIcon,
+      selectedIconComponent: GroupsSelectedIcon,
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true
@@ -319,6 +318,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
+    }, {
+      id: 'handbook',
+      title: 'The EA Handbook',
+      link: '/handbook',
+      tooltip: 'To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.',
+      subItem: true,
     }, {
       id: 'shortform',
       title: 'Shortform',
@@ -341,8 +346,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: preferredHeadingCase('Contact Us'),
       link: '/contact',
+      subItem: true,
+    }, {
+      id: 'cookies',
+      title: preferredHeadingCase('Cookie Policy'),
+      link: '/cookiePolicy',
       subItem: true,
     }
   ],
@@ -413,7 +423,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: preferredHeadingCase('Contact Us'),
       link: '/contact',
       subItem: true,
     }

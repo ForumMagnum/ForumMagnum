@@ -22,7 +22,7 @@ export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): bool
     || user.petrovOptOut)
 }
 
-export const usersAboveKarmaThresholdHardcoded20220922 = {
+export const usersAboveKarmaThresholdHardcoded20220922: Record<number, number> = {
     0: 98606,
     100: 2212,
     200: 1504,

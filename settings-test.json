@@ -20,6 +20,8 @@
       "environment": "dev"
     },
     "disallowCrawlers": true,
+    "disableEnsureIndex": true,
+    "disableElastic": true,
     "fmCrosspost": {
       "siteName": "LessWrong Dev",
       "baseUrl": "http://localhost:3000/"

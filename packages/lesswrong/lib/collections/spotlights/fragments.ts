@@ -6,12 +6,14 @@ registerFragment(`
     documentId
     documentType
     spotlightImageId
+    spotlightDarkImageId
     draft
     position
     lastPromotedAt
     customTitle
     customSubtitle
     duration
+    showAuthor
   }
 `)
 
@@ -22,6 +24,14 @@ registerFragment(`
       _id
       title
       slug
+      user {
+        _id
+        displayName
+        slug
+      }
+    }
+    sequenceChapters {
+      ...ChaptersFragment
     }
     description {
       html

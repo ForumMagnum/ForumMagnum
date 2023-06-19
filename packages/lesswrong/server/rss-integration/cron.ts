@@ -19,8 +19,8 @@ const runRSSImport = async () => {
       const url = feed.url;
       const currentPosts = await feedparser.parse(url);
       
-      let newPosts: Array<any> = currentPosts.filter(function (post) {
-        return !previousPosts.some(prevPost => {
+      let newPosts: Array<any> = currentPosts.filter(function (post: AnyBecauseTodo) {
+        return !previousPosts.some((prevPost: AnyBecauseTodo) => {
           return post.guid === prevPost.guid
         })
       })
@@ -60,7 +60,8 @@ const runRSSImport = async () => {
             }
           },
           feedId: feed._id,
-          feedLink: newPost.link
+          feedLink: newPost.link,
+          draft: !!feed.importAsDraft,
         };
 
         let lwUser = await Users.findOne({_id: feed.userId});
@@ -74,7 +75,7 @@ const runRSSImport = async () => {
       })
     } catch(error) {
       //eslint-disable-next-line no-console
-      console.error(`RSS error when refreshing feed ${feed.url}: ${error}`);
+      console.error(`RSS error when refreshing feed ${feed.url}: ${(""+error).substring(0,100)}`);
     }
   })
 }
