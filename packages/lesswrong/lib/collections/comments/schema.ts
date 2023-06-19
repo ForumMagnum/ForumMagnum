@@ -238,7 +238,7 @@ const schema: SchemaType<DbComment> = {
   
   latestChildren: resolverOnlyField({
     type: Array,
-    graphQLtype: '[Comment]',
+    graphQLtype: '[Comment]!',
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;

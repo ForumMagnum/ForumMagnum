@@ -92,7 +92,9 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
   
   if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
     const arrayElementType = graphqlType.substr(1,graphqlType.length-2);
-    return `Array<${graphqlTypeToTypescript(arrayElementType, false)}>`;
+    const innerType = graphqlTypeToTypescript(arrayElementType, false);
+    if (nonnull) return `Array<${innerType}>`;
+    else return `Array<${innerType}> | null`;
   }
   
   switch(graphqlType) {

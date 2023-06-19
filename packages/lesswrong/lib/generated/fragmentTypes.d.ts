@@ -1005,7 +1005,7 @@ interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
 
 interface PostsAuthors { // fragment on Posts
   readonly user: PostsAuthors_user|null,
-  readonly coauthors: Array<UsersMinimumInfo>,
+  readonly coauthors: Array<UsersMinimumInfo>|null,
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
@@ -1276,7 +1276,7 @@ interface PostsRevisionsList { // fragment on Posts
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
-  readonly recentComments: Array<CommentsList>,
+  readonly recentComments: Array<CommentsList>|null,
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
@@ -1316,7 +1316,7 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
   readonly needsReview: boolean,
-  readonly moderatorActions: Array<ModeratorActionDisplay>,
+  readonly moderatorActions: Array<ModeratorActionDisplay>|null,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
@@ -1497,7 +1497,7 @@ interface WithVoteComment { // fragment on Comments
 }
 
 interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment { // fragment on Comments
-  readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>,
+  readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>|null,
 }
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
@@ -1954,7 +1954,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
 }
 
 interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // fragment on Sequences
-  readonly chapters: Array<ChaptersFragment>,
+  readonly chapters: Array<ChaptersFragment>|null,
 }
 
 interface SequencesEdit extends SequencesPageFragment { // fragment on Sequences
@@ -1993,7 +1993,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly contents: RevisionDisplay|null,
   readonly firstPageLink: string,
   readonly gridImageId: string,
-  readonly books: Array<BookPageFragment>,
+  readonly books: Array<BookPageFragment>|null,
   readonly hideStartReadingButton: boolean,
 }
 
@@ -2272,7 +2272,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
   readonly lastVisitedAt: Date,
-  readonly recentComments: Array<CommentsList>,
+  readonly recentComments: Array<CommentsList>|null,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -2662,9 +2662,9 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly voteBanned: boolean,
   readonly nullifyVotes: boolean,
   readonly deleteContent: boolean,
-  readonly moderatorActions: Array<ModeratorActionDisplay>,
+  readonly moderatorActions: Array<ModeratorActionDisplay>|null,
   readonly usersContactedBeforeReview: Array<string>,
-  readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
+  readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>|null,
   readonly altAccountsDetected: boolean,
   readonly voteReceivedCount: number,
   readonly smallUpvoteReceivedCount: number,
@@ -2681,7 +2681,7 @@ interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
 }
 
 interface UserAltAccountsFragment extends SunshineUsersList { // fragment on Users
-  readonly IPs: Array<string>,
+  readonly IPs: Array<string> | null,
 }
 
 interface SharedUserBooleans { // fragment on Users
