@@ -52,7 +52,6 @@ export const getServerBundleHash = (): string => {
     const serverBundleText = fs.readFileSync(serverBundlePath, 'utf8');
     const serverBundleBuffer = Buffer.from(serverBundleText, 'utf8');
     serverBundleHash = crypto.createHash('sha256').update(serverBundleBuffer).digest('hex');
-    console.log(`serverBundleHash = ${serverBundleHash}`);
   }
   return serverBundleHash;
 }
