@@ -48,6 +48,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('2 Posts per 1 weeks'),
       karmaThreshold: 4,
       downvoterCountThreshold: 2,
+      rateLimitType: "newUserDefault",
       rateLimitMessage: "Users with 5+ karma can post without restriction, till then the max is 2 posts per week.",
     }, 
   // 1 post per week rate limits
@@ -96,6 +97,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('3 Comments per 1 days'),
       karmaThreshold: 5,
       appliesToOwnPosts: true,
+      rateLimitType: "newUserDefault",
       rateLimitMessage: "Users with 5 karma or less can write up to 3 comments a day. Gain more karma to comment more frequently.",
     }, 
     {

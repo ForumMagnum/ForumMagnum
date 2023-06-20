@@ -1,5 +1,5 @@
 export type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
-export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"
+export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"|"newUserDefault"
  
 export type RateLimitInfo = {
   nextEligible: Date,
