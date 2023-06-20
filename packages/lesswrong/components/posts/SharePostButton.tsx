@@ -8,8 +8,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
-    verticalAlign: 'middle',
-    marginRight: 16
   },
   icon: {
     fontSize: 22,
