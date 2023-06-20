@@ -86,6 +86,8 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
+importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
@@ -292,6 +294,7 @@ importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("SortButton", () => require('../components/icons/SortButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
+importComponent("SocialMediaIcon", () => require('../components/icons/SocialMediaIcon'));
 
 // posts
 
@@ -309,6 +312,7 @@ importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
+importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
