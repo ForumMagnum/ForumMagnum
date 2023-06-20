@@ -125,12 +125,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   constructor(props: SmartFormProps) {
     super(props);
 
+    this.formRef = React.createRef<HTMLFormElement>();
     this.state = {
       ...getInitialStateFromProps(props)
     };
   }
 
-  form: any
+  formRef: React.RefObject<HTMLFormElement>
   unblock: any
   
   defaultValues: any = {};
@@ -672,6 +673,17 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   componentDidMount = () => {
     this.checkRouteChange();
     this.checkBrowserClosing();
+    
+    if (this.formRef.current) {
+      // Attack a keyboard event handler with `{capture:true}` (rather than using
+      // a normal event handler with `onKeyDown)`. We do this so that if the
+      // key event turns out to be Cmd+Enter, we can call `stopPropagation` on
+      // it so that it submits without also inserting a newline.
+      this.formRef.current.addEventListener('keydown',
+        (ev: KeyboardEvent) => {
+          this.formKeyDown(ev)
+        }, { capture: true });
+    }
   }
 
   /*
@@ -818,10 +830,12 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   /** Key down handler */
-  formKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+  formKeyDown = (event: KeyboardEvent) => {
     //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       if (!this.props.noSubmitOnCmdEnter) {
+        event.stopPropagation();
+        event.preventDefault();
         void this.submitForm();
       }
     }
@@ -844,7 +858,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // call the clear form method (i.e. trigger setState) only if the form has not been unmounted
     // (we are in an async callback, everything can happen!)
-    if (this.form) {
+    if (this.formRef.current) {
       this.clearForm({
         document: mutationType === 'edit' ? document : undefined
       });
@@ -997,8 +1011,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         className={'vulcan-form document-' + this.getFormType()}
         id={this.props.id}
         onSubmit={this.submitForm}
-        onKeyDown={this.formKeyDown}
-        ref={(e: AnyBecauseTodo) => { this.form = e; }}
+        ref={this.formRef}
       >
         <FormComponents.FormErrors
           errors={this.state.errors}
