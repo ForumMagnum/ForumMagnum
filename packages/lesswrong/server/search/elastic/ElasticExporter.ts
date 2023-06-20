@@ -46,6 +46,45 @@ class ElasticExporter {
     ));
   }
 
+  private isBackingIndexName(name: string): boolean {
+    for (const collectionName of algoliaIndexedCollectionNames) {
+      if (
+        name.indexOf(collectionName.toLowerCase()) === 0 &&
+        /[a-z]+_\d+/.exec(name)?.length
+      ) {
+        return true;
+      }
+    }
+    return false
+  }
+
+  async deleteOrphanedIndexes() {
+    const client = this.client.getClient();
+    const indexes = await client.indices.get({
+      index: "*",
+    });
+    const indexNames = Object.keys(indexes);
+    for (const indexName of indexNames) {
+      if (!this.isBackingIndexName(indexName)) {
+        continue;
+      }
+
+      const aliasName = /([a-z]+)_\d+/.exec(indexName)?.[1];
+      if (!aliasName) {
+        continue;
+      }
+      const targetName = await this.getExistingAliasTarget(aliasName);
+      if (targetName === indexName) {
+        continue;
+      }
+      // eslint-disable-next-line
+      console.log("Deleting orphaned elastic index:", indexName);
+      await client.indices.delete({
+        index: indexName,
+      });
+    }
+  }
+
   /**
    * In ElasticSearch, the schema of indexes (called "mappings") is write-only - ie;
    * you can add new fields, but you can't remove fields or change the types of
@@ -60,9 +99,12 @@ class ElasticExporter {
    *  2) Reindex all of the existing data into a new index with the new schema
    *  3) Mark the new index as writable
    *  4) Update the alias to point to the new index
-   *  5) Delete the old index
    *
-   * For a populated index, expect this to take ~a couple of minutes.
+   * For a populated index, expect this to take ~a couple of minutes. Note that,
+   * for the sake of data safety, the old index is _not_ automatically deleted.
+   * You should wait a couple of minutes for the reindexing to complete, check
+   * that the document count on the new index is >= the document count on the old
+   * index, then run `Globals.elasticDeleteOrphanedIndexes()`.
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClient();
@@ -87,6 +129,7 @@ class ElasticExporter {
       await this.updateSynonymsForIndex(newIndexName, synonyms);
       await client.reindex({
         refresh: true,
+        wait_for_completion: false,
         body: {
           source: {index: oldIndexName},
           dest: {index: newIndexName},
@@ -102,8 +145,9 @@ class ElasticExporter {
         index: newIndexName,
         name: aliasName,
       });
-      await client.indices.delete({
+      await client.indices.deleteAlias({
         index: oldIndexName,
+        name: aliasName,
       });
     } else {
       // eslint-disable-next-line no-console
@@ -397,5 +441,8 @@ Globals.elasticExportAll = () =>
 
 Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
   new ElasticExporter().deleteIndex(collectionName);
+
+Globals.elasticDeleteOrphanedIndexes = () =>
+  new ElasticExporter().deleteOrphanedIndexes();
 
 export default ElasticExporter;
