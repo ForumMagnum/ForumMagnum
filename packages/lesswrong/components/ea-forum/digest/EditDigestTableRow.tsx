@@ -156,7 +156,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         iconNode = <CloseIcon />
         break
       case 'pending':
-        iconNode = <CheckIcon />
+        iconNode = <CheckIcon /> // this has opacity: 0, it's just here to appear on hover
         break
     }
     const onClickAttr = {onClick: () => handleClickStatusIcon(postId, statusField)}
@@ -179,9 +179,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   /**
    * Writes the post data to the clipboard, in the format that
-   * we expect to see in the email digest:
-   *
-   * <post title as link> (<post authors>, <read time> min)
+   * we expect to see in the email digest
    */
   const copyPostToClipboard = (post: PostsListBase) => {
     void navigator.clipboard.write(
@@ -203,6 +201,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   return <tr className={classes.row}>
     {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
     {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)}
+
     <td className={classes.postTitleCol}>
       <LWTooltip title="Click to copy post link" placement="bottom" className={classes.copyLink}>
         <ForumIcon icon="ClipboardDocument" className={classes.copyIcon} onClick={() => copyPostToClipboard(post)} />
@@ -221,6 +220,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         </div>
       </div>
     </td>
+
     <td className={classes.tagsCol}>
       {visibleTags.sort((a,b) => {
         if (a.core && !b.core) return -1
@@ -231,6 +231,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       })}
       {/* {showMoreTags} */}
     </td>
+
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
     </td>

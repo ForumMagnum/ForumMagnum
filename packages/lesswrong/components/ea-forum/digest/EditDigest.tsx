@@ -161,8 +161,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     skip: !userIsAdmin(currentUser)
   })
   const digest = results?.[0]
-  
-  
+
   // get the list of posts eligible for this digest
   const { data } = useQuery(gql`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
@@ -208,7 +207,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         onsiteDigestStatus: postData.digestPost.onsiteDigestStatus ?? 'pending'
       }
     })
-    // sort the list by curated, then rating, then karma
+    // sort the list by curated, then suggested for curation, then rating, then karma
     newPosts.sort((a,b) => {
       if (a.curatedDate && !b.curatedDate) return -1
       if (!a.curatedDate && b.curatedDate) return 1
@@ -220,7 +219,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     })
     setPosts(newPosts)
     setPostStatuses(newPostStatuses)
-  }, [eligiblePosts])
+  }, [eligiblePosts]) // eslint-disable-line react-hooks/exhaustive-deps
   
   // the digest status of each post is saved on a DigestPost record
   const { create: createDigestPost } = useCreate({
@@ -262,7 +261,6 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     setOnsiteDigestFilter([...DIGEST_STATUS_OPTIONS])
     setTagFilter('')
   }
-  
   
   /**
    * When you click on a digest status cell, we rotate the status between
@@ -323,16 +321,12 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   
   /**
    * Writes the post data for all posts in the email digest to the clipboard,
-   * in the format that we expect to see in the email digest:
-   *
-   * 1. <post title as link> (<post authors>, <read time> min)
-   * 2. ...
+   * in the format that we expect to see in the email digest
    */
   const copyDigestToClipboard = () => {
     if (!posts) return
     
     const digestPosts = posts.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')
-
     void navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
@@ -342,48 +336,52 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     )
   }
 
+
   const { Loading, SectionTitle, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
     EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
-  const tagCounts = useMemo(() => posts?.reduce((tagsList: TagUsage[], post) => {
-    post.tags?.forEach(tag => {
-      const prevTagData = tagsList.find(t => t._id === tag._id)
-      if (prevTagData) {
-        prevTagData.count += 1
-      } else {
-        tagsList.push({
-          _id: tag._id,
-          name: tag.name,
-          core: tag.core,
-          count: 1
-        })
-      }
-    })
-    return tagsList
-  }, []).sort((a,b) => b.count - a.count), [posts])
+  const tagCounts = useMemo(() => {
+    return posts?.reduce((tagsList: TagUsage[], post) => {
+      post.tags?.forEach(tag => {
+        const prevTagData = tagsList.find(t => t._id === tag._id)
+        if (prevTagData) {
+          prevTagData.count++
+        } else {
+          tagsList.push({
+            _id: tag._id,
+            name: tag.name,
+            core: tag.core,
+            count: 1
+          })
+        }
+      })
+      return tagsList
+    }, []).sort((a,b) => b.count - a.count)
+  }, [posts])
   
   // we allow the user to filter by any tags associated with >= 3 posts
   const coreAndPopularTags = useMemo(() => tagCounts?.filter(tag => tag.core || tag.count >= 3), [tagCounts])
   const coreAndPopularTagIds = useMemo(() => coreAndPopularTags?.map(tag => tag._id), [coreAndPopularTags])
   
+
   // get the list of posts visible in the table
   const visiblePosts = useMemo(() => {
     if (!posts || !postStatuses) return null
 
-    let visiblePosts = posts
-    // filter by the selected tag
-    if (tagFilter) {
-      visiblePosts = visiblePosts.filter(post => post.tags.find(tag => tag._id === tagFilter))
-    }
-    // then filter by selected digest statuses (i.e. whether or not the post is in the email or on-site digest)
-    visiblePosts = visiblePosts.filter(post => {
+    // filter by selected digest statuses (i.e. whether or not the post is in the email or on-site digest)
+    let visiblePosts = posts.filter(post => {
       return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus) &&
         onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
     })
+    // then filter by the selected tag
+    if (tagFilter) {
+      visiblePosts = visiblePosts.filter(post => post.tags.find(tag => tag._id === tagFilter))
+    }
     return visiblePosts
   }, [tagFilter, emailDigestFilter, onsiteDigestFilter, posts, postStatuses])
   
+
   // set up the options for each filter, including their post counts
   const emailDigestOptions = useMemo(() => {
     if (!posts) return null
@@ -426,6 +424,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     return <Error404 />
   }
 
+
   // show the loading spinner while we're still loading the data
   if (
     !digest || !posts || !coreAndPopularTagIds || !visiblePosts ||
@@ -446,10 +445,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     </div>
   }
   
+
   // calculate total post counts for email & on-site digests, to display in the column headers
   const emailTotal = posts?.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')?.length ?? 0
   const onsiteTotal = posts?.filter(p => postStatuses[p._id].onsiteDigestStatus === 'yes')?.length ?? 0
-
   
   return (
     <div className={classes.root}>
@@ -461,7 +460,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             placement="bottom"
             className={classes.copyDigest}
           >
-            <ForumIcon icon="ClipboardDocumentList" className={classes.copyDigestIcon} onClick={() => copyDigestToClipboard()} />
+            <ForumIcon
+              icon="ClipboardDocumentList"
+              className={classes.copyDigestIcon}
+              onClick={() => copyDigestToClipboard()} />
           </LWTooltip>
           <EditDigestPublishBtn digest={digest} />
         </div>

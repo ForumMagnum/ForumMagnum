@@ -63,20 +63,10 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={onClose}
-          className={classes.btn}
-        >
+        <Button variant="outlined" color="primary" onClick={onClose} className={classes.btn}>
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePublish}
-          className={classes.btn}
-        >
+        <Button variant="contained" color="primary" onClick={handlePublish} className={classes.btn}>
           Publish
         </Button>
       </DialogActions>
