@@ -307,7 +307,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} />
+        <PostActionsButton post={post} includeBookmark={!isEAForum} />
       </AnalyticsContext>
     </span>
   
