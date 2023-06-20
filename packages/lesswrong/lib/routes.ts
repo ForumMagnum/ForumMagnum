@@ -10,7 +10,7 @@ import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, g
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 
 
-export const communityPath = '/community';
+export const communityPath = isEAForum ? '/connect' : '/community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -587,6 +587,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'EAHome',
+      description: "Effective Altruism research, discussion and community updates. Engage with the world's most pressing problems, including global health and development, animal welfare, AI safety, and biosecurity",
       enableResourcePrefetch: true,
       sunshineSidebar: true
     },
@@ -651,12 +652,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       subtitleLink: '/events'
     },
     {
-      name: "communityRedirect",
+      name: "communityRedirect1",
       path:'/groupsAndEvents',
       redirect: () => communityPath
     },
     {
-      name: 'Community',
+      name: "communityRedirect2",
+      path:'/community',
+      redirect: () => communityPath
+    },
+    {
+      name: 'Connect',
       path: communityPath,
       componentName: 'Community',
       title: 'Community',
