@@ -3,6 +3,7 @@ import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReview
 import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds } from "./types"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import uniq from "lodash/uniq"
+import groupBy from "lodash/groupBy"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -148,19 +149,32 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   }
 }
 
-export function getRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
-  const userRateLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
+function getRateLimitName (rateLimit: AutoRateLimit) {
+  let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
+  const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
+  return rateLimitName += ` (${thresholdInfo.join(", ")})`
+}
 
-  function getRateLimitName (rateLimit: AutoRateLimit) {
-    let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
+function getActiveRateLimits (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+  const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
+  return nonUniversalLimits.filter(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo))
+}
 
-    const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
+export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+  return getActiveRateLimits(user, autoRateLimits).map(rateLimit => getRateLimitName(rateLimit))
+}
 
-    return rateLimitName += ` (${thresholdInfo.join(", ")})`
-  }
-
-  return userRateLimits
-    .map(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo) && getRateLimitName(rateLimit))
-    .filter(rateLimit => rateLimit)
-    .reverse()
+export function getStrictestActiveRateLimitNames (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+  const activeRateLimits = getActiveRateLimits(user, autoRateLimits)
+  const rateLimitsByType = Object.values(
+    groupBy(activeRateLimits, rateLimit => `${rateLimit.timeframeUnit}${rateLimit.actionType}`)
+  )
+  const strictestRateLimits = Object.values(rateLimitsByType).map(rateLimit => {
+    return rateLimit.sort((a, b) => {
+      const rateLimitASeverity = a.itemsPerTimeframe/a.timeframeLength
+      const rateLimitBSeverity = b.itemsPerTimeframe/b.timeframeLength
+      return rateLimitASeverity - rateLimitBSeverity
+    })[0]
+  })
+  return strictestRateLimits.map(rateLimit => getRateLimitName(rateLimit))
 }

@@ -9,7 +9,7 @@ import { commentBodyStyles } from '../../../themes/stylePiping';
 import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getRateLimitNames } from '../../../lib/rateLimits/utils';
+import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -112,7 +112,7 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo } = Components;
+  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay } = Components;
     
   const currentUser = useCurrentUser();
 
@@ -167,7 +167,7 @@ const RecentlyActiveUsers = ({ classes }: {
   function userSortByRateLimitCount (users: SunshineUsersList[]) {
     const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
     return [...users].sort((a, b) => {
-      return getRateLimitNames(b, allRateLimits).length - getRateLimitNames(a, allRateLimits).length
+      return getActiveRateLimitNames(b, allRateLimits).length - getActiveRateLimitNames(a, allRateLimits).length
     })
   };
 
@@ -293,14 +293,7 @@ const RecentlyActiveUsers = ({ classes }: {
                   <MetaInfo>{user.lastNotificationsCheck && <FormatDate date={user.lastNotificationsCheck} />}</MetaInfo>
                 </td>
                 <td>
-                  {getRateLimitNames(user, forumSelect(autoPostRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
-                    <MetaInfo>{rateLimit}</MetaInfo>
-                  </div>)}
-                </td>
-                <td>
-                  {getRateLimitNames(user, forumSelect(autoCommentRateLimits)).map(rateLimit => <div key={`${user._id}rateLimit`}>
-                    <MetaInfo>{rateLimit}</MetaInfo>
-                  </div>)}
+                  <UserAutoRateLimitsDisplay user={user}/>
                 </td>
               </tr>
               {expandId === user._id && <tr>

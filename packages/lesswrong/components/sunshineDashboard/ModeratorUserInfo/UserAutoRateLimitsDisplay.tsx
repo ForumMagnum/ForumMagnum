@@ -2,81 +2,110 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getRateLimitNames } from '../../../lib/rateLimits/utils';
+import { getActiveRateLimitNames, getStrictestActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { getDownvoteRatio } from '../UsersReviewInfoCard';
 import classNames from 'classnames';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  postRateLimits: {
-    borderBottom: theme.palette.border.faint,
-    paddingBottom: 8,
-    marginBottom: 8
+  padding: {
+    marginTop: 8,
+  },
+  icon: {
+    height: 16,
+    width: 16,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 2,
+    marginRight: 5
+  }, 
+  downvoteIcon: {
+    height: 24,
+    width: 24,
+    color: theme.palette.grey[700],
+    position: "relative",
+    top: 7
+  },
+  percentIcon: {
+    height: 15,
+    fontWeight: 600,
+    marginRight: 5
+  },
+  info: {
+    marginRight: 16
   }
 });
 
 export const recentKarmaTooltip = (user: SunshineUsersList) => {
   return <div>
-      <div>{user.recentKarmaInfo.last20Karma} karma from last 20 posts/comments</div>
-      <div>{user.recentKarmaInfo.last20PostKarma} karma from the last 20 posts</div>
-      <div>{user.recentKarmaInfo.last20CommentKarma} karma from the last 20 comments</div>
-      <div>{user.recentKarmaInfo.lastMonthKarma} karma from the last month</div>
+      <div>Recent Karma</div>
+      <div><em>{user.recentKarmaInfo.last20Karma} karma from last 20 posts/comments</em></div>
+      <div><em>{user.recentKarmaInfo.last20PostKarma} karma from last 20 posts</em></div>
+      <div><em>{user.recentKarmaInfo.last20CommentKarma} karma from last 20 comments</em></div>
+      <div><em>{user.recentKarmaInfo.lastMonthKarma} karma from last month</em></div>
     </div>
 }
 
 export const downvoterTooltip = (user: SunshineUsersList) => {
   return <div>
-    <div>{user.recentKarmaInfo.downvoterCount} downvoters from last 20 posts/comments</div>
-    <div>{user.recentKarmaInfo.postDownvoterCount} downvoters on the last 20 posts</div>
-    <div>{user.recentKarmaInfo.commentDownvoterCount} 20 downvoters on the last 20 comments</div>
-    <div>{user.recentKarmaInfo.lastMonthDownvoterCount} 20 downvoters on the last 20 comments</div>
+    <div>Recent Downvoters</div>
+    <div><em>{user.recentKarmaInfo.downvoterCount} downvoters from last 20 posts/comments</em></div>
+    <div><em>{user.recentKarmaInfo.postDownvoterCount} downvoters on last 20 posts</em></div>
+    <div><em>{user.recentKarmaInfo.commentDownvoterCount} downvoters on last 20 comments</em></div>
+    <div><em>{user.recentKarmaInfo.lastMonthDownvoterCount} downvoters on last 20 comments</em></div>
   </div>
 }
 
-export const UserAutoRateLimitsDisplay = ({user, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
-  classes: ClassesType
+  classes: ClassesType,
+  showKarmaMeta?: boolean
 }) => {
   const { MetaInfo, LWTooltip } = Components
 
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
-  const userPostRateLimits = getRateLimitNames(user, forumSelect(autoPostRateLimits))
-  const userCommentRateLimits = getRateLimitNames(user, forumSelect(autoCommentRateLimits))
+  const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
+  const strictestRateLimits = getStrictestActiveRateLimitNames(user, allRateLimits);
+  const allActiveRateLimits = getActiveRateLimitNames(user, allRateLimits);
+  const nonStrictestRateLimits = allActiveRateLimits.filter(rateLimit => !strictestRateLimits.includes(rateLimit))
+
   return <div>
-    <div>
-      <MetaInfo className={classes.info}>
-        { user.karma || 0 } karma
-      </MetaInfo>
-      <LWTooltip title={<ul>
-        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
-        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
-        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
-        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
-      </ul>}>
+    {showKarmaMeta && <div>
+      <LWTooltip title="total karma">
         <MetaInfo className={classes.info}>
-          {roundedDownvoteRatio} downvoteRatio
+          <StarIcon className={classes.icon}/>{ user.karma || 0 }
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={recentKarmaTooltip(user)}>
         <MetaInfo className={classNames(classes.info, {[classes.negativeRecentKarma]: user.recentKarmaInfo.last20Karma < 0, [classes.lowRecentKarma]: user.recentKarmaInfo.last20Karma < 5})}>
-          {user.recentKarmaInfo.last20Karma} recent karma
+          <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20Karma ?? 0}
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={downvoterTooltip(user)}>
         <MetaInfo className={classes.info}>
-          {user.recentKarmaInfo.downvoterCount} downvoters
+          <ExpandMoreIcon className={classes.downvoteIcon}/> {user.recentKarmaInfo.downvoterCount ?? 0}
         </MetaInfo>
       </LWTooltip>
-    </div>
-    {userPostRateLimits.length > 0 && <div className={classes.border}>
-      {userPostRateLimits.map(rateLimit => <div key={`${user._id}rateLimit`}>
-        <MetaInfo>{rateLimit}</MetaInfo>
-      </div>)}
+      <LWTooltip title={<div><div>Total Downvote Ratio {roundedDownvoteRatio}</div>
+        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
+        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
+        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
+        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
+      </div>}>
+        <MetaInfo className={classes.info}>
+          <span className={classes.percentIcon}>%</span> {roundedDownvoteRatio}
+        </MetaInfo>
+      </LWTooltip>
     </div>}
-    {userPostRateLimits.length > 0 && <div className={classes.border}>
-      {userCommentRateLimits.map(rateLimit => <div key={`${user._id}rateLimit`}>
-        <MetaInfo>{rateLimit}</MetaInfo>
-      </div>)}
-    </div>}
+    {strictestRateLimits.map(rateLimit => <div key={`${user._id}rateLimitstrict${rateLimit}`}>
+      <MetaInfo>{rateLimit}</MetaInfo>
+    </div>)}
+    {nonStrictestRateLimits.length > 0 && <LWTooltip title={<div>
+      {nonStrictestRateLimits.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
+      <MetaInfo>{nonStrictestRateLimits.length} More</MetaInfo>
+    </LWTooltip>}
   </div>;
 }
 

@@ -217,7 +217,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <UserReviewMetadata user={user}/>
     </div>
     <div>
-      <UserAutoRateLimitsDisplay user={user}/>
+      <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
     </div>
   </div>
 
