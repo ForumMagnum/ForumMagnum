@@ -818,7 +818,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   /** Key down handler */
-  formKeyDown = (event: KeyboardEvent) => {
+  formKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       if (!this.props.noSubmitOnCmdEnter) {
@@ -993,7 +993,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     const FormComponents = mergeWithComponents(this.props.formComponents);
 
     return (
-      <FormComponents.FormElement
+      <form
         className={'vulcan-form document-' + this.getFormType()}
         id={this.props.id}
         onSubmit={this.submitForm}
@@ -1049,7 +1049,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
           deletedValues={this.state.deletedValues}
           errors={this.state.errors}
         />}
-      </FormComponents.FormElement>
+      </form>
     );
   }
 }
