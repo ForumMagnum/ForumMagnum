@@ -86,6 +86,8 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
+importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
@@ -292,6 +294,7 @@ importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("SortButton", () => require('../components/icons/SortButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
+importComponent("SocialMediaIcon", () => require('../components/icons/SocialMediaIcon'));
 
 // posts
 
@@ -309,6 +312,7 @@ importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
+importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
@@ -352,6 +356,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
+importComponent("PostsEditBotTips", () => require('../components/posts/PostsEditBotTips'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
@@ -620,6 +625,7 @@ importComponent("ModerationAltAccounts", () => require('../components/sunshineDa
 importComponent("RejectContentDialog", () => require('../components/sunshineDashboard/RejectContentDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
 importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
+importComponent("AllReactedCommentsPage", () => require('../components/sunshineDashboard/AllReactedCommentsPage'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
@@ -816,7 +822,6 @@ importComponent("AFNonMemberSuccessPopup", () => require('../components/alignmen
 importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
 importComponent("AlignmentPendingApprovalMessage", () => require('../components/alignment-forum/AlignmentPendingApprovalMessage'));
 
-importComponent("NewRelatedQuestionForm", () => require('../components/questions/NewRelatedQuestionForm'));
 importComponent("NewAnswerForm", () => require('../components/questions/NewAnswerForm'));
 importComponent("PostsPageQuestionContent", () => require('../components/questions/PostsPageQuestionContent'));
 importComponent("NewAnswerCommentQuestionForm", () => require('../components/questions/NewAnswerCommentQuestionForm'));

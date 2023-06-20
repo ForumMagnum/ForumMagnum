@@ -1,9 +1,10 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
+import {addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
+import {CommentsRepo} from "../repos";
 
 const specificResolvers = {
   Mutation: {
@@ -53,3 +54,24 @@ const specificResolvers = {
 
 addGraphQLResolvers(specificResolvers);
 addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment');
+
+
+addGraphQLResolvers({
+  Query: {
+    async CommentsWithReacts(root: void, args: {limit: number|undefined}, context: ResolverContext) {
+      const commentsRepo = new CommentsRepo()
+      const comments = await commentsRepo.getCommentsWithReacts(args.limit??50)
+      return {
+        comments: comments
+      }
+    }
+  }
+})
+
+addGraphQLSchema(`
+  type CommentsWithReactsResult {
+   comments: [Comment!]
+  }
+`);
+
+addGraphQLQuery('CommentsWithReacts(limit: Int): CommentsWithReactsResult')

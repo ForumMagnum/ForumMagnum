@@ -683,6 +683,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
@@ -1258,6 +1259,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1353,6 +1355,11 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
+}
+
+interface PostsEditCriticismTips { // fragment on Posts
+  readonly _id: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2299,6 +2306,36 @@ interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
   readonly deleted: boolean,
 }
 
+interface DigestPostsDefaultFragment { // fragment on DigestPosts
+  readonly digestId: string,
+  readonly postId: string,
+  readonly emailDigestStatus: string | null,
+  readonly onsiteDigestStatus: string | null,
+}
+
+interface DigestPostsMinimumInfo { // fragment on DigestPosts
+  readonly _id: string,
+  readonly digestId: string,
+  readonly postId: string,
+  readonly emailDigestStatus: string | null,
+  readonly onsiteDigestStatus: string | null,
+}
+
+interface DigestsDefaultFragment { // fragment on Digests
+  readonly num: number,
+  readonly startDate: Date,
+  readonly endDate: Date | null,
+  readonly publishedDate: Date | null,
+}
+
+interface DigestsMinimumInfo { // fragment on Digests
+  readonly _id: string,
+  readonly num: number,
+  readonly startDate: Date,
+  readonly endDate: Date | null,
+  readonly publishedDate: Date | null,
+}
+
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly userId: string,
   readonly state: "subscribed" | "suppressed",
@@ -3128,6 +3165,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostsEditCriticismTips: PostsEditCriticismTips
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3215,6 +3253,10 @@ interface FragmentTypes {
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserMostValuablePostsDefaultFragment: UserMostValuablePostsDefaultFragment
   UserMostValuablePostInfo: UserMostValuablePostInfo
+  DigestPostsDefaultFragment: DigestPostsDefaultFragment
+  DigestPostsMinimumInfo: DigestPostsMinimumInfo
+  DigestsDefaultFragment: DigestsDefaultFragment
+  DigestsMinimumInfo: DigestsMinimumInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
@@ -3320,6 +3362,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostsEditCriticismTips: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3407,6 +3450,10 @@ interface CollectionNamesByFragmentName {
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserMostValuablePostsDefaultFragment: "UserMostValuablePosts"
   UserMostValuablePostInfo: "UserMostValuablePosts"
+  DigestPostsDefaultFragment: "DigestPosts"
+  DigestPostsMinimumInfo: "DigestPosts"
+  DigestsDefaultFragment: "Digests"
+  DigestsMinimumInfo: "Digests"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
@@ -3451,5 +3498,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DigestPosts"|"Digests"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

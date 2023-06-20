@@ -73,6 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   secondaryInfoRight: {
     flex: 'none',
     display: 'flex',
+    columnGap: SECONDARY_SPACING
   },
   secondaryInfoLink: {
     fontWeight: isEAForum ? 450 : undefined,
@@ -131,7 +132,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bookmarkButton: {
     marginBottom: -5,
-    marginRight: 16,
     height: 22,
     color: theme.palette.grey[600],
     "&:hover": {
@@ -224,7 +224,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -346,6 +346,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
       </div>
       <div className={classes.secondaryInfoRight}>
         <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+        <SharePostButton post={post} />
         {tripleDotMenuNode}
       </div>
     </div>

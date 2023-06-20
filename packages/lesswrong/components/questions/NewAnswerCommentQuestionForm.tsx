@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   responseType: {
     ...theme.typography.commentStyle,
     fontSize: 16,
-    width: "calc(33.3% - 12px)",
+    width: "calc(50% - 12px)",
     textAlign: "center",
     padding: theme.spacing.unit*2,
     color: theme.palette.grey[500],
@@ -81,7 +81,7 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
+  const { NewAnswerForm, CommentsNewForm } = Components
 
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
@@ -96,8 +96,6 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
           post={post}
           type="comment"
         />
-      case "question":
-       return <NewRelatedQuestionForm post={post} refetch={refetch}/>
     }
   }
 
@@ -110,12 +108,6 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
             className={classNames(classes.responseType, {[classes.selected]: selection === "answer"})}
           >
             New Answer
-          </div>
-        </Tooltip>
-        <Tooltip title="Help break down this question into easier sub-questions, or explore new questions building off of it.">
-          <div onClick={()=>setSelection("question")}
-            className={classNames(classes.responseType, {[classes.selected]: selection === "question"})}>
-            Ask Related Question
           </div>
         </Tooltip>
         <Tooltip title="Discuss the question or ask clarifying questions">

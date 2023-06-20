@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 const crypto = require('crypto');
+const fs = require('fs');
+const { getOutputDir } = require('./buildUtil');
 
 const openWebsocketConnections = [];
 let clientRebuildInProgress = false;
@@ -12,17 +14,18 @@ function setServerRebuildInProgress(inProgress) {
   serverRebuildInProgress = inProgress;
 }
 
-async function isServerReady() {
+async function isServerReady(serverPort) {
+  const readyApiUrl = `http://localhost:${serverPort}/api/ready`;
   try {
-    const response = await fetch(`http://localhost:${serverPort}/api/ready`);
+    const response = await fetch(readyApiUrl);
     return response.ok;
   } catch(e) {
     return false;
   }
 }
 
-async function waitForServerReady() {
-  while (!(await isServerReady())) {
+async function waitForServerReady(serverPort) {
+  while (!(await isServerReady(serverPort))) {
     await asyncSleep(100);
   }
 }
@@ -34,8 +37,24 @@ async function asyncSleep(durationMs) {
 }
 
 function getClientBundleTimestamp() {
-  const stats = fs.statSync(`./${outputDir}/client/js/bundle.js`);
+  const stats = fs.statSync(`./${getOutputDir()}/client/js/bundle.js`);
   return stats.mtime.toISOString();
+}
+
+function getServerBundleTimestamp() {
+  const stats = fs.statSync(`./${getOutputDir()}/server/js/serverBundle.js`);
+  return stats.mtime.toISOString();
+}
+
+// Returns the newer of the client bundle's timestamp, or the server bundle's
+// timestamp.
+function getEitherBundleTimestamp() {
+  let clientBundleTimestamp = getClientBundleTimestamp();
+  let serverBundleTimestamp = getServerBundleTimestamp();
+  if (clientBundleTimestamp > serverBundleTimestamp)
+    return clientBundleTimestamp;
+  else
+    return serverBundleTimestamp;
 }
 
 function generateBuildId() {
@@ -43,7 +62,7 @@ function generateBuildId() {
 }
 
 let refreshIsPending = false;
-async function initiateRefresh() {
+async function initiateRefresh({serverPort}) {
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
@@ -54,13 +73,12 @@ async function initiateRefresh() {
   await asyncSleep(100);
   
   refreshIsPending = true;
-  console.log("Initiated refresh; waiting for server to be ready");
-  await waitForServerReady();
+  await waitForServerReady(serverPort);
   
   if (openWebsocketConnections.length > 0) {
     console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+      connection.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
     }
   } else {
     console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
@@ -69,7 +87,7 @@ async function initiateRefresh() {
   refreshIsPending = false;
 }
 
-function startAutoRefreshServer(websocketPort) {
+function startAutoRefreshServer({serverPort, websocketPort}) {
   const server = new WebSocket.Server({
     port: websocketPort,
   });
@@ -85,8 +103,8 @@ function startAutoRefreshServer(websocketPort) {
       }
     });
     
-    await waitForServerReady();
-    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
+    await waitForServerReady(serverPort);
+    ws.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
   });
 }
 
