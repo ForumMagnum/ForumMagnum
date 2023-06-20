@@ -42,13 +42,13 @@ const SharePostButton = ({
         title: post.title,
         text: post.title,
         url: postGetPageUrl(post),
-      };
-      if (navigator.canShare(sharingOptions)) {
-        void navigator.share(sharingOptions);
       }
-    } else {
-      setIsOpen(!isOpen)
+      if (navigator.canShare(sharingOptions)) {
+        void navigator.share(sharingOptions)
+        return
+      }
     }
+    setIsOpen(!isOpen)
   }
 
   const {LWTooltip, ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
