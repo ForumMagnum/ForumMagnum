@@ -7,8 +7,9 @@ import { isServer } from '../../../lib/executionEnvironment';
 const styles = (theme: ThemeType): JssStyles => ({
 })
 
-const SharePostSubmenu = ({post, classes}: {
+const SharePostSubmenu = ({post, closeMenu, classes}: {
   post: PostsListBase,
+  closeMenu?: () => void,
   classes: ClassesType,
 }) => {
   const { SharePostActions, DropdownItem, LWTooltip } = Components;
@@ -34,7 +35,7 @@ const SharePostSubmenu = ({post, classes}: {
   const hasSubmenu = isServer || !navigator.canShare;
   const MaybeWrapWithSubmenu = hasSubmenu
     ? ({children}: {children: React.ReactNode}) => <LWTooltip
-        title={<SharePostActions post={post}/>}
+        title={<SharePostActions post={post} onClick={closeMenu} />}
         tooltip={false} clickable inlineBlock={false}
         placement="left-start"
       >

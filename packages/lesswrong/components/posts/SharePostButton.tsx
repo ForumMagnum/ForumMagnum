@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
+import { useTracking } from '../../lib/analyticsEvents';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,16 +31,37 @@ const SharePostButton = ({
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { captureEvent } = useTracking()
+  
+  const shareClicked = () => {
+    captureEvent('sharePostButtonClicked')
+    // navigator.canShare will be present on mobile devices with sharing-intents,
+    // absent on desktop.
+    if (!!navigator.canShare) {
+      const sharingOptions = {
+        title: post.title,
+        text: post.title,
+        url: postGetPageUrl(post),
+      };
+      if (navigator.canShare(sharingOptions)) {
+        void navigator.share(sharingOptions);
+      }
+    } else {
+      setIsOpen(!isOpen)
+    }
+  }
 
-  const {ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
+  const {LWTooltip, ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
 
   return <div className={classes.root}>
     <div ref={anchorEl}>
-      <ForumIcon
-        icon="Share"
-        className={classNames(classes.icon, className)}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      <LWTooltip title="Share post" placement="bottom-start" disabled={isOpen}>
+        <ForumIcon
+          icon="Share"
+          className={classNames(classes.icon, className)}
+          onClick={shareClicked}
+        />
+      </LWTooltip>
     </div>
     <PopperCard
       open={isOpen}
@@ -47,7 +70,7 @@ const SharePostButton = ({
       allowOverflow
     >
       <LWClickAwayListener onClickAway={() => setIsOpen(false)}>
-        <SharePostActions post={post} />
+        <SharePostActions post={post} onClick={() => setIsOpen(false)} />
       </LWClickAwayListener>
     </PopperCard>
   </div>

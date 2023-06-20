@@ -5,6 +5,7 @@ import { forumTitleSetting, isEAForum } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import Paper from '@material-ui/core/Paper';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -13,15 +14,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const SharePostActions = ({post, classes}: {
+const SharePostActions = ({post, onClick, classes}: {
   post: PostsBase,
+  onClick?: () => void,
   classes: ClassesType,
 }) => {
   const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const postUrl = postGetPageUrl(post, true);
+  const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
   const copyLink = () => {
+    captureEvent('sharePost', {option: 'copyLink'})
     void navigator.clipboard.writeText(postUrl);
     flash("Link copied to clipboard");
   }
@@ -34,21 +38,24 @@ const SharePostActions = ({post, classes}: {
   const linkTitle = `${post.title} - ${siteName}`;
   
   const shareToTwitter = () => {
+    captureEvent('sharePost', {option: 'twitter'})
     const tweetText = `${linkTitle} ${postUrl}`;
     const destinationUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     openLinkInNewTab(destinationUrl);
   }
   const shareToFacebook = () => {
+    captureEvent('sharePost', {option: 'facebook'})
     const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&t=${encodeURIComponent(linkTitle)}`;
     openLinkInNewTab(destinationUrl);
   }
   const shareToLinkedIn = () => {
+    captureEvent('sharePost', {option: 'linkedIn'})
     const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
     openLinkInNewTab(destinationUrl);
   }
 
-  return <Paper>
-    <DropdownMenu className={classes.root} >
+  return <Paper onClick={onClick}>
+    <DropdownMenu className={classes.root}>
       <DropdownItem
         title={preferredHeadingCase("Copy Link")}
         icon="Link"
