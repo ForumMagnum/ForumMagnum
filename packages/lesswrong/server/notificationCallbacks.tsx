@@ -244,7 +244,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
 
       for(let i=0; i<u.emails.length; i++)
       {
-        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
           return true;
       }
       return false;
