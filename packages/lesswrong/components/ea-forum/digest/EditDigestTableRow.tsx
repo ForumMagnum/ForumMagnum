@@ -9,7 +9,7 @@ import { DigestPost } from './EditDigest';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
-    borderTop: theme.palette.border.extraFaint,
+    borderTop: theme.palette.border.faint,
   },
   statusCol: {
     textAlign: 'center',

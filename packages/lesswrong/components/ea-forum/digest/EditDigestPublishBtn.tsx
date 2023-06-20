@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
+import { useDialog } from '../../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   publishBtn: {
@@ -16,37 +17,43 @@ const EditDigestPublishBtn = ({digest, classes} : {
   digest: DigestsMinimumInfo,
   classes: ClassesType
 }) => {
+  const { openDialog } = useDialog()
+  const isPublished = !!digest.publishedDate
+  
   const { mutate: updateDigest } = useUpdate({
     collectionName: 'Digests',
     fragmentName: 'DigestsMinimumInfo',
   })
   
   /**
-   * Set or unset the digest's publish date
+   * If the digest has been published before, set or unset the publishedDate.
+   * Otherwise, open the publish confirmation dialog.
    */
-  const handlePublish = () => {
-    // if we're publishing the digest and it has no end date,
-    // set the end date as well
-    const now = new Date()
-    void updateDigest({
-      selector: {_id: digest._id},
-      data: {
-        publishedDate: digest.publishedDate ? null : now,
-        ...(!digest.publishedDate && !digest.endDate && {endDate: now})
-      }
-    })
+  const handleBtnClick = () => {
+    // if the digest has an endDate set, then we know it's already been published
+    if (digest.endDate) {
+      void updateDigest({
+        selector: {_id: digest._id},
+        data: {
+          publishedDate: isPublished ? null : new Date()
+        }
+      })
+    } else {
+      openDialog({
+        componentName: 'ConfirmPublishDialog',
+        componentProps: {digest}
+      })
+    }
   }
-  
-  // TODO: warning on publish
 
   return (
     <Button
-      variant={digest.publishedDate ? 'outlined' : 'contained'}
+      variant={isPublished ? 'outlined' : 'contained'}
       color="primary"
-      onClick={handlePublish}
+      onClick={handleBtnClick}
       className={classes.publishBtn}
     >
-      {digest.publishedDate ? 'Unpublish' : 'Publish'}
+      {isPublished ? 'Unpublish' : 'Publish'}
     </Button>
   )
 }

@@ -40,6 +40,7 @@ importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAFo
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
 importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
 importComponent("EditDigestPublishBtn", () => require('../components/ea-forum/digest/EditDigestPublishBtn'));
+importComponent("ConfirmPublishDialog", () => require('../components/ea-forum/digest/ConfirmPublishDialog'));
 importComponent("EditDigestTableRow", () => require('../components/ea-forum/digest/EditDigestTableRow'));
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
