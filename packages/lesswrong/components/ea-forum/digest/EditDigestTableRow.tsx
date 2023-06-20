@@ -195,8 +195,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
-  // const hiddenTagsCount = post.tags.length - visibleTags.length
-  // const showMoreTags = hiddenTagsCount ? <div className={classes.link}>{hiddenTagsCount} more</div> : null
   
   return <tr className={classes.row}>
     {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
@@ -229,7 +227,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       }).map(tag => {
         return <div key={tag._id} className={classes.tag} onClick={() => setTagFilter(tag._id)}>{tag.name}</div>
       })}
-      {/* {showMoreTags} */}
     </td>
 
     <td className={classes.suggestedCurationCol}>
