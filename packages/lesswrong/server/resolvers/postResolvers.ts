@@ -14,6 +14,7 @@ import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import PostsRepo from '../repos/PostsRepo';
+import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -171,6 +172,13 @@ augmentFieldsDict(Posts, {
   },
 })
 
+
+export type PostIsCriticismRequest = {
+  title: string,
+  contentType: string,
+  body: string
+}
+
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
@@ -180,10 +188,18 @@ addGraphQLResolvers({
       }
       
       const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit??10)
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
       }
+    },
+    async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to check post')
+      }
+            
+      return await postIsCriticism(args)
     }
   }
 })
@@ -192,6 +208,6 @@ addGraphQLSchema(`
   type UserReadHistoryResult {
     posts: [Post!]
   }
-`);
-
+`)
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')

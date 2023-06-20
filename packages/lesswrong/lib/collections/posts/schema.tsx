@@ -2388,8 +2388,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "[Comment]",
     canRead: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (post: DbPost, args: {commentsLimit?: number, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
-      const { commentsLimit=5, maxAgeHours=18, af=false } = args;
+    // commentsLimit for some reason can receive a null (which was happening in one case)
+    // we haven't figured out why yet
+    resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
+      const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const loaderName = af?"recentCommentsAf" : "recentComments";
@@ -2401,7 +2403,7 @@ const schema: SchemaType<DbPost> = {
         ...(af ? {af:true} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
-        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit, filter);
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
       });
       return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
@@ -2409,6 +2411,15 @@ const schema: SchemaType<DbPost> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+  
+  criticismTipsDismissed: {
+    type: Boolean,
+    canRead: ['members'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
   },
   
   languageModelSummary: {

@@ -15,6 +15,7 @@ import keyBy from 'lodash/keyBy';
 import mapValues from 'lodash/mapValues';
 import filter from 'lodash/filter';
 import fs from 'fs';
+import { getSiteUrl } from '../../vulcan-lib';
 
 const postEndMarker  = "===TAGS===";
 
@@ -223,7 +224,7 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
       const tagsPredicted = await checkTags(post, tags, openAIApi);
       
       writeResult(`${post.title}\n`
-        + `    https://www.lesswrong.com/posts/${post._id}/${post.slug}\n`
+        + `    ${getSiteUrl()}/posts/${post._id}/${post.slug}\n`
         + `    Language model: ${filter(tags, t=>!!tagsPredicted[t.slug]).map(t=>t.name).join(", ")}\n`
         + `    Human: ${tagsByHumans.join(", ")}\n`
       );
