@@ -8,7 +8,7 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings';
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
-
+const tabSuffixSetting = new PublicInstanceSetting<string | null>('forumSettings.tabSuffix', null, "optional")
 
 const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, useSmallImage=false, noIndex}: {
   ogUrl?: string,
@@ -26,7 +26,9 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     const ogUrl = ogUrlProp || url
     const canonicalUrl = canonicalUrlProp || url
     const description = descriptionProp || currentRoute.description || taglineSetting.get()
-    const siteName = tabTitleSetting.get()
+
+    const tabFullTitle = tabTitleSetting.get()
+    const tabSuffix = tabSuffixSetting.get() || tabFullTitle
 
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
@@ -36,11 +38,11 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     return (
       <React.Fragment>
         { TitleComponent
-            ? <TitleComponent siteName={siteName} isSubtitle={false} />
+            ? <TitleComponent siteName={tabFullTitle} isSubtitle={false} />
             : <Helmet><title>
                 {titleString
-                  ? `${titleString} — ${siteName}`
-                  : siteName}
+                  ? `${titleString} — ${tabSuffix}`
+                  : tabFullTitle}
               </title></Helmet>
         }
 

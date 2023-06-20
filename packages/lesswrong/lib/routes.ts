@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -375,7 +375,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
       componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
-      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the topic system.` : undefined,
+      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the ${taggingNameSetting.get()} system.` : undefined,
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {

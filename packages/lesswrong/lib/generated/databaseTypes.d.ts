@@ -987,6 +987,7 @@ interface DbTag extends DbObject {
   subTagIds: Array<string>
   autoTagModel: string | null
   autoTagPrompt: string | null
+  noindex: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
