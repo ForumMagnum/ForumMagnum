@@ -105,8 +105,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 
   const {
     MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip,
-    Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount,
-    ModeratorActions, NewUserDMSummary
+    Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, UserReviewMetadata, ModeratorActions, NewUserDMSummary
   } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
@@ -116,6 +115,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
+            <UserReviewMetadata user={user}/>
             <div className={classes.info}>
               <div className={classes.topRow}>
                 <UserReviewStatus user={user}/>

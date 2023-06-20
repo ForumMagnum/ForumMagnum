@@ -1001,7 +1001,7 @@ const schema: SchemaType<DbUser> = {
   lastNotificationsCheck: {
     type: Date,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns, 'admins'],
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
@@ -2729,6 +2729,14 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  recentKarmaInfo: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  }
 };
 
 export default schema;

@@ -2,6 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
+import type { RecentVoteInfo } from "../../lib/rateLimits/types";
+
+export const RECENT_CONTENT_COUNT = 20
 
 export type KarmaChangesArgs = {
     userId: string,
@@ -32,12 +35,12 @@ export type PostKarmaChange = KarmaChangeBase & {
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
-
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);
   }
 
+  // TODO: write a comment explaining at a high level what this is doing
   private getKarmaChanges<T extends KarmaChangeBase>(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
     collectionName: CollectionNameString,
@@ -108,5 +111,49 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
       WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
     `, [oldUserId, newUserId]);
+  }
+
+  // Get votes from recent content by a user,
+  // to use to decide on their rate limit
+  // (note: needs to get the user's own self-upvotes so that
+  // it doesn't skip posts with no other votes)
+  async getVotesOnRecentContent(userId: string): Promise<RecentVoteInfo[]> {
+    const voteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName"`
+    const votes = await this.getRawDb().any(`
+      (
+        SELECT ${voteFields}, "Posts"."postedAt"
+        FROM "Votes"
+        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        WHERE
+          "Votes"."documentId" in (
+            SELECT _id FROM "Posts" 
+            WHERE
+              "Posts"."userId" = $1
+            ORDER BY "Posts"."postedAt" DESC
+            LIMIT ${RECENT_CONTENT_COUNT}
+          )
+          AND 
+          "cancelled" IS NOT true
+        ORDER BY "Posts"."postedAt" DESC
+      )
+      UNION
+      (
+        SELECT ${voteFields}, "Comments"."postedAt"
+        FROM "Votes"
+        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        WHERE
+          "Votes"."documentId" in (
+            SELECT _id FROM "Comments" 
+            WHERE
+              "Comments"."userId" = $1
+            ORDER by "Comments"."postedAt" DESC
+            LIMIT ${RECENT_CONTENT_COUNT}
+          )
+          AND
+          "cancelled" IS NOT true
+        ORDER BY "Comments"."postedAt" DESC
+      )
+    `, [userId])
+    return votes
   }
 }

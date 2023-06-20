@@ -337,6 +337,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
+  readonly recentKarmaInfo: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2600,6 +2601,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly recentKarmaInfo: any,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2671,6 +2673,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly bigUpvoteReceivedCount: number,
   readonly smallDownvoteReceivedCount: number,
   readonly bigDownvoteReceivedCount: number,
+  readonly recentKarmaInfo: any,
+  readonly lastNotificationsCheck: Date,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
