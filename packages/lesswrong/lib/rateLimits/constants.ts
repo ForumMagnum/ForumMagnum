@@ -43,13 +43,14 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
 
 const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
+  // 2 posts per week rate limits
     {
       ...timeframe('2 Posts per 1 weeks'),
       karmaThreshold: 4,
       downvoterCountThreshold: 2,
       rateLimitMessage: "Users with 5+ karma can post without restriction, till then the max is 2 posts per week.",
     }, 
-
+  // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
       karmaThreshold: -1,
@@ -62,7 +63,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       downvoterCountThreshold: 2,
       rateLimitMessage: `Users with -15 karma on their their last ${RECENT_CONTENT_COUNT} posts/comments can only post once per week.`,
     }, 
-
+  // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
       last20KarmaThreshold: -30,
@@ -90,7 +91,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: true,
       rateLimitMessage: `Users are limited to 1 comments/hour if their last ${RECENT_CONTENT_COUNT} posts/comments have net negative karma.`
     }, 
-
+  // 3 comments per day rate limits
     {
       ...timeframe('3 Comments per 1 days'),
       karmaThreshold: 5,
@@ -105,7 +106,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitMessage: `Hey, you've been posting a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.`,
     }, 
-
+  // 1 comment per day rate limits
     {
       ...timeframe('1 Comments per 1 days'),
       karmaThreshold: -1,
@@ -119,7 +120,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: true,
       rateLimitMessage: `Users with -5 or less karma on their last ${RECENT_CONTENT_COUNT} posts/comments are restricted to 1 comment per day.`
     }, 
-
+  // 1 comment per 3 days rate limits
     {
       ...timeframe('1 Comments per 3 days'),
       karmaThreshold: -15,
@@ -133,7 +134,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -15 or less net-karma on their recent ${RECENT_CONTENT_COUNT} posts/comments can only comment once per two weeks on other's posts.`,
     }, 
-
+  // 1 comment per week rate limits
     {
       ...timeframe('1 Comments per 1 weeks'),
       lastMonthKarmaThreshold: -30,
