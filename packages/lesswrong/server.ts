@@ -100,6 +100,7 @@ import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
+import './server/recommendations/recommedationsCron';
 import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
@@ -134,6 +135,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/advisorRequestsCallbacks';
+import './server/callbacks/digestCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';

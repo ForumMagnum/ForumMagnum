@@ -18,7 +18,7 @@ import type { PostSubmitProps } from './PostSubmit';
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
-    width:715,
+    maxWidth: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -107,7 +107,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20
-  }
+  },
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -170,7 +170,8 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
