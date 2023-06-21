@@ -37,6 +37,8 @@ const styles = (theme: ThemeType) => ({
   collapsed: {
     height: 40,
     overflow: "hidden",
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   editorButtonContainer: {
     background: theme.palette.grey[100],
