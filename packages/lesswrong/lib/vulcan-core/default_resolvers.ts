@@ -3,7 +3,6 @@ import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
-import { captureEvent } from "../analyticsEvents";
 
 const maxAllowedSkip = 2000;
 

@@ -337,6 +337,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
+  readonly recentKarmaInfo: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -683,6 +684,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
@@ -956,22 +958,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
-  readonly reviewVoteScoreAllKarma: number,
-  readonly reviewVotesAllKarma: Array<number>,
-  readonly reviewVoteScoreHighKarma: number,
-  readonly reviewVotesHighKarma: Array<number>,
-  readonly reviewVoteScoreAF: number,
-  readonly reviewVotesAF: Array<number>,
-  readonly finalReviewVoteScoreHighKarma: number,
-  readonly finalReviewVotesHighKarma: Array<number>,
-  readonly finalReviewVoteScoreAllKarma: number,
-  readonly finalReviewVotesAllKarma: Array<number>,
-  readonly finalReviewVoteScoreAF: number,
-  readonly finalReviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
   readonly podcastEpisodeId: string | null,
-  readonly nominationCount2018: number,
-  readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
   readonly votingSystem: string,
@@ -997,9 +985,13 @@ interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment
   readonly canonicalSequence: SequencesPageFragment|null,
 }
 
-interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: string,
-  readonly currentUserExtendedVote: any,
+interface PostsReviewVotingList extends PostsListWithVotes { // fragment on Posts
+  readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
+  readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
+  readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -1258,6 +1250,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1353,6 +1346,11 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
+}
+
+interface PostsEditCriticismTips { // fragment on Posts
+  readonly _id: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1946,6 +1944,13 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly af: boolean,
 }
 
+interface SequenceContinueReadingFragment { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly gridImageId: string,
+  readonly canonicalCollectionSlug: string,
+}
+
 interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // fragment on Sequences
   readonly chapters: Array<ChaptersFragment>,
 }
@@ -1974,6 +1979,13 @@ interface BookPageFragment { // fragment on Books
 
 interface BookEdit extends BookPageFragment { // fragment on Books
   readonly contents: RevisionEdit|null,
+}
+
+interface CollectionContinueReadingFragment { // fragment on Collections
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly gridImageId: string,
 }
 
 interface CollectionsPageFragment { // fragment on Collections
@@ -2593,6 +2605,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly recentKarmaInfo: any,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2664,6 +2677,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly bigUpvoteReceivedCount: number,
   readonly smallDownvoteReceivedCount: number,
   readonly bigDownvoteReceivedCount: number,
+  readonly recentKarmaInfo: any,
+  readonly lastNotificationsCheck: Date,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
@@ -3158,6 +3173,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostsEditCriticismTips: PostsEditCriticismTips
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3206,10 +3222,12 @@ interface FragmentTypes {
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
+  SequenceContinueReadingFragment: SequenceContinueReadingFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
   BookEdit: BookEdit
+  CollectionContinueReadingFragment: CollectionContinueReadingFragment
   CollectionsPageFragment: CollectionsPageFragment
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -3354,6 +3372,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostsEditCriticismTips: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3402,10 +3421,12 @@ interface CollectionNamesByFragmentName {
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
   SequencesPageFragment: "Sequences"
+  SequenceContinueReadingFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
   BookEdit: "Books"
+  CollectionContinueReadingFragment: "Collections"
   CollectionsPageFragment: "Collections"
   CollectionsEditFragment: "Collections"
   SuggestAlignmentPost: "Posts"

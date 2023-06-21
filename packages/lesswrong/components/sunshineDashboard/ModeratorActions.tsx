@@ -245,7 +245,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getModSignatureWithNote(`posting ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`publishing posts ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -271,7 +271,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
-    const newNotes = getModSignatureWithNote(`commenting on other's ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`all commenting on others' content ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {

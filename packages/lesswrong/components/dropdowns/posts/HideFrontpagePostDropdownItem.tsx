@@ -8,6 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import some from 'lodash/some';
+import { useDialog } from '../../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -19,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
   const currentUser = useCurrentUser();
+  const {openDialog} = useDialog()
   const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id));
   const {captureEvent} = useTracking();
 
@@ -31,11 +33,19 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
     ${fragmentTextForQuery("UsersCurrent")}
   `);
 
-  if (!currentUser || !allowHidingPosts) {
+  if (!allowHidingPosts) {
     return null;
   }
 
   const toggleShown = () => {
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      });
+      return;
+    }
+
     const isHidden = !hidden;
     setHiddenState(isHidden);
 

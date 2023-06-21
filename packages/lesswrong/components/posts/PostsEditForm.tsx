@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSSR from 'react-no-ssr';
@@ -32,7 +31,8 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, RateLimitWarning } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
+    RateLimitWarning } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -92,7 +92,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <div className={classes.formSubmit}>
       {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
-        saveDraftLabel={saveDraftLabel} 
+        saveDraftLabel={saveDraftLabel}
         feedbackLabel={"Get Feedback"}
         {...props}
       />

@@ -50,13 +50,11 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
     }
   }
   
-  return (<React.Fragment>
-    <LWTooltip title={tooltip} placement="bottom">
-        <span className={classes.date}>
-          <FormatDate date={post.postedAt} format={format} tooltip={false} />
-        </span>
-    </LWTooltip>
-  </React.Fragment>);
+  return <LWTooltip title={tooltip} placement="bottom">
+    <span className={classes.date}>
+      <FormatDate date={post.postedAt} format={format} tooltip={false} />
+    </span>
+  </LWTooltip>
 }
 
 const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate, {styles});

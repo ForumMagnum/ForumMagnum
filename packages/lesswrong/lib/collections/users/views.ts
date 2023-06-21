@@ -5,6 +5,7 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import moment from "moment";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -146,6 +147,23 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   }
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
+
+Users.addView("recentlyActive", function (terms:UsersViewTerms) {
+  return {
+    selector: {
+      $or: [
+        {commentCount: {$gt: 0}},
+        {postCount: {$gt: 0}},
+      ]
+    },
+    options: {
+      sort: {
+        lastNotificationsCheck: -1,
+      }
+    }
+  }  
+})
+ensureIndex(Users, {banned: 1, postCount: 1, commentCount: -1, lastNotificationsCheck: -1})
 
 Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {

@@ -62,7 +62,6 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, includeBookmar
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
   const { PopperCard, PostActions, LWClickAwayListener } = Components
-  if (!currentUser) return null;
 
   return <div className={classes.root}>
     <div ref={anchorEl}>

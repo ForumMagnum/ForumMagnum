@@ -115,20 +115,6 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
 
-    reviewVoteScoreAllKarma
-    reviewVotesAllKarma
-    reviewVoteScoreHighKarma
-    reviewVotesHighKarma
-    reviewVoteScoreAF
-    reviewVotesAF
-
-    finalReviewVoteScoreHighKarma
-    finalReviewVotesHighKarma
-    finalReviewVoteScoreAllKarma
-    finalReviewVotesAllKarma
-    finalReviewVoteScoreAF
-    finalReviewVotesAF
-
     group {
       _id
       name
@@ -138,8 +124,6 @@ registerFragment(`
     podcastEpisodeId
 
     # deprecated
-    nominationCount2018
-    reviewCount2018
     nominationCount2019
     reviewCount2019
 
@@ -174,9 +158,13 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsReviewVotingList on Post {
-    ...PostsListBase
-    currentUserVote
-    currentUserExtendedVote
+    ...PostsListWithVotes
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
   }
 `)
 
@@ -492,6 +480,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
@@ -620,5 +609,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostsEditCriticismTips on Post {
+    _id
+    criticismTipsDismissed
   }
 `);
