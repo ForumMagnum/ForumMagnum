@@ -4,11 +4,7 @@ import { Comments } from '../lib/collections/comments/collection';
 import type { SideCommentsResolverResult } from '../lib/collections/posts/schema';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import groupBy from 'lodash/groupBy';
-import { getToCforPost } from './tableOfContents';
-import { createMutator } from './vulcan-lib/mutators';
-import { SideCommentsCache } from "../lib/collections/sideCommentsCache/collection";
-
-export const sideCommentCacheVersion = 1;
+import some from 'lodash/some';
 
 export interface QuoteShardSettings {
   minLength: number
@@ -153,30 +149,34 @@ export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]):
         let lastSplit = 0;
         
         for (let i=0; i<tokenStr.length; i++) {
-          if (i>lastSplit) {
-            const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
-            setActiveSpan(activeClassStrs.join(" "));
+          //if (intervalsByStart[i+pos] || intervalsByEnd[i+pos]) {
+          //if (intervalsByStart[i+pos] || some(activeIntervals, interval => interval.end > i+pos)) {
+          {
+            if (i>lastSplit) {
+              const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
+              setActiveSpan(activeClassStrs.join(" "));
+              
+              sb.push(tokenStr.substr(lastSplit, i-lastSplit));
+              lastSplit = i;
+            }
             
-            sb.push(tokenStr.substr(lastSplit, i-lastSplit));
-            lastSplit = i;
-          }
-          
-          // FIXME: Don't rely on exact end offsets; close anything that's overshot.
-          let closedHere = intervalsByEnd[i+pos]
-          if (closedHere) {
-            for (let interval of closedHere) {
-              activeClasses.delete(interval.spanClass);
+            // FIXME: Don't rely on exact end offsets; close anything that's overshot.
+            let closedHere = intervalsByEnd[i+pos]
+            if (closedHere) {
+              for (let interval of closedHere) {
+                activeClasses.delete(interval.spanClass);
+              }
             }
-          }
-          let startedHere = intervalsByStart[i+pos]
-          if (intervalsByStart[i+pos]) {
-            for (let interval of startedHere) {
-              activeClasses.add(interval.spanClass);
-              activeIntervals.push(interval);
+            let startedHere = intervalsByStart[i+pos]
+            if (intervalsByStart[i+pos]) {
+              for (let interval of startedHere) {
+                activeClasses.add(interval.spanClass);
+                activeIntervals.push(interval);
+              }
             }
+            
+            activeIntervals = activeIntervals.filter(interval => interval.end > i+pos);
           }
-          
-          activeIntervals = activeIntervals.filter(interval => interval.end > i+pos);
         }
         
         const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
@@ -427,60 +427,3 @@ export function matchSideComments({postId, html, comments, quoteShardSettings}: 
   };
 }
 
-export async function getCachedSideCommentsMapping({post, comments, timestamp, context}: {
-  post: DbPost,
-  comments: DbComment[],
-  timestamp: Date,
-  context: ResolverContext,
-}): Promise<{
-  annotatedHtml: string
-  commentsByBlock: Record<string,string[]>
-}> {
-  let lastRelevantPostChange = post.lastCommentedAt
-  if (post.contents?.editedAt && post.contents.editedAt > lastRelevantPostChange)
-    lastRelevantPostChange = post.contents.editedAt;
-
-  const cache: DbSideCommentsCache|null = await SideCommentsCache.findOne({
-    postId: post._id,
-    version: sideCommentCacheVersion,
-    generatedAt: {$gte: lastRelevantPostChange},
-  }, {
-    sort: {generatedAt: -1}
-  });
-  
-  const cacheIsValid = !!cache
-  
-  if (cacheIsValid) {
-    return {annotatedHtml: cache.sideComments.annotatedHtml, commentsByBlock: cache.sideComments.commentsByBlock};
-  }
-
-  const toc = await getToCforPost({document: post, version: null, context});
-  const html = toc?.html || post?.contents?.html
-  const sideCommentMatches = await matchSideComments({
-    postId: post._id,
-    html: html,
-    comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
-  });
-  
-  const newCacheEntry = {
-    version: sideCommentCacheVersion,
-    generatedAt: timestamp,
-    annotatedHtml: sideCommentMatches.html,
-    commentsByBlock: sideCommentMatches.sideCommentsByBlock,
-  }
-  
-  void createMutator({
-    collection: SideCommentsCache,
-    document: {
-      postId: post._id,
-      generatedAt: timestamp,
-      version: sideCommentCacheVersion,
-      sideComments: newCacheEntry,
-    },
-    validate: false,
-  });
-  return {
-    annotatedHtml: sideCommentMatches.html,
-    commentsByBlock: sideCommentMatches.sideCommentsByBlock
-  };
-}

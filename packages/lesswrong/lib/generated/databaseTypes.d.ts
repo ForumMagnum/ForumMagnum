@@ -721,6 +721,7 @@ interface DbPost extends DbObject {
   linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
+  sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
   ignoreRateLimits: boolean | null
@@ -892,19 +893,6 @@ interface DbSession extends DbObject {
   session: any /*{"definitions":[{"blackbox":true}]}*/
   expires: Date | null
   lastModified: Date | null
-}
-
-interface SideCommentsCachesCollection extends CollectionBase<DbSideCommentsCache, "SideCommentsCaches"> {
-}
-
-interface DbSideCommentsCache extends DbObject {
-  __collectionName?: "SideCommentsCaches"
-  postId: string
-  generatedAt: Date
-  version: number
-  sideComments: any /*{"definitions":[{}]}*/
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
@@ -1509,7 +1497,6 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
-  SideCommentsCaches: SideCommentsCachesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1565,7 +1552,6 @@ interface ObjectsByCollectionName {
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
-  SideCommentsCaches: DbSideCommentsCache
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag

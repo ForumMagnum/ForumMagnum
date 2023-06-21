@@ -1,14 +1,12 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
-import { SideCommentsResolverResult } from '../../lib/collections/posts/schema';
-import { SideCommentsCache, SideCommentsCacheValue } from '../../lib/collections/sideCommentsCache/collection';
-import { createMutator } from '../vulcan-lib/mutators';
+import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { getCachedSideCommentsMapping, sideCommentCacheVersion, matchSideComments } from '../sideComments';
+import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
@@ -82,14 +80,44 @@ augmentFieldsDict(Posts, {
         if (isNotHostedHere(post)) {
           return null;
         }
+        const cache = post.sideCommentsCache as SideCommentsCache|undefined;
+        const cacheIsValid = cache
+          && cache.generatedAt>post.lastCommentedAt
+          && cache.generatedAt > post.contents?.editedAt
+          && cache.version === sideCommentCacheVersion;
+        let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
         
         const now = new Date();
         const comments = await Comments.find({
           ...getDefaultViewSelector("Comments"),
           postId: post._id,
         }).fetch();
-        const unfilteredResult = await getCachedSideCommentsMapping({post, comments, timestamp: now, context});
         
+        if (cacheIsValid) {
+          unfilteredResult = {annotatedHtml: cache.annotatedHtml, commentsByBlock: cache.commentsByBlock};
+        } else {
+          const toc = await getToCforPost({document: post, version: null, context});
+          const html = toc?.html || post?.contents?.html
+          const sideCommentMatches = await matchSideComments({
+            postId: post._id,
+            html: html,
+            comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
+          });
+          
+          const newCacheEntry = {
+            version: sideCommentCacheVersion,
+            generatedAt: now,
+            annotatedHtml: sideCommentMatches.html,
+            commentsByBlock: sideCommentMatches.sideCommentsByBlock,
+          }
+          
+          await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
+          unfilteredResult = {
+            annotatedHtml: sideCommentMatches.html,
+            commentsByBlock: sideCommentMatches.sideCommentsByBlock
+          };
+        }
+
         const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
         if (post.coauthorStatuses) {
