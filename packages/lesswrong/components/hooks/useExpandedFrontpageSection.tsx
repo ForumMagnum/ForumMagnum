@@ -39,6 +39,19 @@ const isDefaultExpanded = (
   }
 }
 
+const isInitialExpanded = (
+  section: ExpandedFrontpageSection,
+  defaultExpanded: DefaultExpandedType,
+  currentUser: UsersCurrent | null,
+  cookies: Record<string, string>,
+  cookieName: string,
+): boolean => {
+  const userExpand = !!currentUser?.expandedFrontpageSections?.[section];
+  const cookieExpand = !!cookies[cookieName] && cookies[cookieName] !== "false";
+  const defaultExpand = isDefaultExpanded(currentUser, defaultExpanded);
+  return userExpand ?? cookieExpand ?? defaultExpand ?? false;
+}
+
 export const useExpandedFrontpageSection = ({
   section,
   defaultExpanded,
@@ -51,15 +64,11 @@ export const useExpandedFrontpageSection = ({
     errorPolicy: "all",
     refetchQueries: ["getCurrentUser"],
   });
-
   const {captureEvent} = useTracking();
   const [cookies, setCookie, removeCookie] = useCookiesWithConsent([cookieName]);
-
-  const userExpand = currentUser?.expandedFrontpageSections?.[section];
-  const cookieExpand = cookies[cookieName] && cookies[cookieName] !== "false";
-  const defaultExpand = isDefaultExpanded(currentUser, defaultExpanded);
-  const initialExpanded = userExpand ?? cookieExpand ?? defaultExpand ?? false;
-  const [expanded, setExpanded] = useState(initialExpanded);
+  const [expanded, setExpanded] = useState(
+    () => isInitialExpanded(section, defaultExpanded, currentUser, cookies, cookieName),
+  );
 
   const toggleExpanded = useCallback(() => {
     const newExpanded = !expanded;
