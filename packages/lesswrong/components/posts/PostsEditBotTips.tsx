@@ -1,7 +1,6 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { isEAForum } from "../../lib/instanceSettings";
-import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { useTracking } from "../../lib/analyticsEvents";
 
@@ -115,15 +114,15 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
         </button>
       </div>
       <div className={classes.textRow}>
-        Our bot tagged this as potential criticism of someone's work. We suggest running criticism
-        past the relevant people first. <a
+        Our bot tagged this as potential criticism of someone's work.
+        Have you considered running it past them first? If not, <a
           href="https://forum.effectivealtruism.org/posts/kjcMZEzksusCHfHiF/productive-criticism-running-a-draft-past-the-people-you-re"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => captureEvent('criticismTipsLinkClicked', {postId})}
           className={classes.link}
         >
-          Here's why and how
+          here's why you might do it and how
         </a>.
       </div>
     </div>

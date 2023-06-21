@@ -31,6 +31,7 @@ import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
@@ -56,6 +57,7 @@ import MuiSettingsIcon from "@material-ui/icons/Settings";
 import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
+import MuiShareIcon from "@material-ui/icons/Share";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -122,6 +124,7 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Puzzle" |
+  "Share" |
   "ClipboardDocumentList" |
   "ClipboardDocument";
 
@@ -169,6 +172,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: MuiCheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
   },
@@ -215,6 +219,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
   },
@@ -247,6 +252,9 @@ const styles = (_: ThemeType): JssStyles => ({
   },
   linkRotation: {
     transform: "rotate(-45deg)",
+    '&.MuiListItemIcon-root': {
+      marginRight: 12
+    }
   },
 });
 

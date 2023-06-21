@@ -1325,6 +1325,12 @@ addRoute(
     title: "Moderation Dashboard"
   },
   {
+    name: 'recentlyActiveUsers',
+    path: '/admin/recentlyActiveUsers',
+    componentName: 'RecentlyActiveUsers',
+    title: "Recently Active Users"
+  },
+  {
     name: 'moderationTemplates',
     path: '/admin/moderationTemplates',
     componentName: 'ModerationTemplatesPage',
