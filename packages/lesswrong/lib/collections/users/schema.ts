@@ -15,6 +15,7 @@ import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
+import { getCommentViewOptions } from '../../commentViewOptions';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -60,6 +61,9 @@ const ownsOrIsMod = (user: DbUser|null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes('sunshineRegiment') ?? false);
 };
 
+export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
+
+
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
@@ -96,6 +100,19 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   timeOfDayGMT: 12,
   dayOfWeekGMT: "Monday",
 };
+
+const rateLimitInfoSchema = new SimpleSchema({
+  nextEligible: {
+    type: Date
+  },
+  rateLimitType: {
+    type: String,
+    allowedValues: ["moderator", "lowKarma", "universal", "downvoteRatio"]
+  },
+  rateLimitMessage: {
+    type: String
+  },
+})
 
 export interface KarmaChangeSettingsType {
   updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
@@ -223,7 +240,7 @@ export const CAREER_STAGES: CareerStage[] = [
   {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
   {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
   {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
-  {value: 'lateCareer', label: "Working (15+ years", icon: "Work"},
+  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work"},
   {value: 'seekingWork', label: "Seeking work", icon: "Work"},
   {value: 'retired', label: "Retired", icon: "Work"},
 ]
@@ -248,8 +265,9 @@ export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
-
 export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
 /**
  * @summary Users schema
@@ -593,20 +611,10 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     control: "select",
     form: {
-      // TODO - maybe factor out??
-      options: function () { // options for the select form control
-        let commentViews = [
-          {value:'postCommentsTop', label: 'magical algorithm'},
-          {value:'postCommentsNew', label: 'most recent'},
-          {value:'postCommentsOld', label: 'oldest'},
-        ];
-        if (forumTypeSetting.get() === 'AlignmentForum') {
-          return commentViews.concat([
-            {value:'postLWComments', label: 'magical algorithm (include LW)'}
-          ])
-        }
-        return commentViews
-      }
+      // getCommentViewOptions has optional parameters so it's safer to wrap it
+      // in a lambda. We don't currently enable admin-only sorting options for
+      // admins - we could but it seems not worth the effort.
+      options: () => getCommentViewOptions(),
     },
   },
 
@@ -628,6 +636,26 @@ const schema: SchemaType<DbUser> = {
         ];
       }
     },
+  },
+  reactPaletteStyle: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "React Palette Style",
+    group: formGroups.siteCustomizations,
+    allowedValues: ['listView', 'gridView'],
+    ...schemaDefaultValue('listView'),
+    defaultValue: "listView",
+    control: "select",
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value:'listView', label: 'List View'},
+          {value:'iconView', label: 'Icons'},
+        ];
+      }
+    }
   },
   
   noKibitz: {
@@ -800,7 +828,21 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     label: "Show Community posts in Recent Discussion"
   },
-  
+
+  hidePostsRecommendations: {
+    order: 95,
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    control: "checkbox",
+    label: "Hide recommendations from the posts page",
+  },
+
   petrovOptOut: {
     order: 96,
     type: Boolean,
@@ -948,7 +990,7 @@ const schema: SchemaType<DbUser> = {
   lastNotificationsCheck: {
     type: Date,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns, 'admins'],
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
@@ -1799,6 +1841,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
   },
 
+  // see votingCallbacks.ts for more info
   voteCount: {
     type: Number,
     denormalized: true,
@@ -1806,33 +1849,61 @@ const schema: SchemaType<DbUser> = {
     label: "Small Upvote Count",
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   smallDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
-
   bigDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  // see votingCallbacks.ts and recomputeReceivedVoteCounts.ts for more info
+  voteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  smallDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigUpvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
+  },
+  bigDownvoteReceivedCount: {
+    type: Number,
+    denormalized: true,
+    optional: true,
+    canRead: [userOwns, 'admins', 'sunshineRegiment'],
   },
 
   usersContactedBeforeReview: {
@@ -2474,7 +2545,7 @@ const schema: SchemaType<DbUser> = {
       ).fetch();
       const userIds = new Set<string>();
       for (let clientId of clientIds) {
-        for (let userId of clientId.userIds)
+        for (let userId of clientId.userIds ?? [])
           userIds.add(userId);
       }
       return userIds.size > 1;
@@ -2635,11 +2706,26 @@ const schema: SchemaType<DbUser> = {
   },
   
   rateLimitNextAbleToComment: {
-    type: Date,
+    type: GraphQLJSON,
     nullable: true,
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  rateLimitNextAbleToPost: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true, optional: true,
+  },
+
+  recentKarmaInfo: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  }
 };
 
 export default schema;

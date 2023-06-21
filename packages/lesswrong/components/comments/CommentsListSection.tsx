@@ -177,7 +177,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
 
@@ -189,7 +189,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       </div>}
 
       {newForm
-        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor))
+        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
@@ -211,7 +211,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           />
         </div>
       )}
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
         <Components.CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }

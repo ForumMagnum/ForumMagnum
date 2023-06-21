@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
@@ -8,9 +8,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
+import { useSearchAnalytics } from '../search/useSearchAnalytics';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -107,6 +108,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
   const { history } = useNavigation();
+  const captureSearch = useSearchAnalytics();
 
   const handleSubmit = () => {
     history.push({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
@@ -150,6 +152,12 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
       }
     }
   }
+
+  useEffect(() => {
+    if (currentQuery) {
+      captureSearch("searchBar", {query: currentQuery});
+    }
+  }, [currentQuery, captureSearch])
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
   const { SearchBarResults } = Components

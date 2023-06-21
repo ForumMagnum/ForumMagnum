@@ -115,20 +115,6 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
 
-    reviewVoteScoreAllKarma
-    reviewVotesAllKarma
-    reviewVoteScoreHighKarma
-    reviewVotesHighKarma
-    reviewVoteScoreAF
-    reviewVotesAF
-
-    finalReviewVoteScoreHighKarma
-    finalReviewVotesHighKarma
-    finalReviewVoteScoreAllKarma
-    finalReviewVotesAllKarma
-    finalReviewVoteScoreAF
-    finalReviewVotesAF
-
     group {
       _id
       name
@@ -138,10 +124,10 @@ registerFragment(`
     podcastEpisodeId
 
     # deprecated
-    nominationCount2018
-    reviewCount2018
     nominationCount2019
     reviewCount2019
+
+    votingSystem
   }
 `);
 
@@ -162,10 +148,23 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
-    ...PostsListBase
-    currentUserVote
-    currentUserExtendedVote
+    ...PostsListWithVotes
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
   }
 `)
 
@@ -196,6 +195,7 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -217,6 +217,7 @@ registerFragment(`
     }
 
     unreadDebateResponseCount
+    dialogTooltipPreview
   }
 `);
 
@@ -401,6 +402,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -454,6 +456,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -477,6 +480,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
@@ -609,8 +613,8 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostWithRateLimit on Post {
+  fragment PostsEditCriticismTips on Post {
     _id
-    postSpecificRateLimit
+    criticismTipsDismissed
   }
 `);

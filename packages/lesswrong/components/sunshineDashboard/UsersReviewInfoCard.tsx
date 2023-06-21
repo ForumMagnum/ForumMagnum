@@ -7,6 +7,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { UserKarmaInfo } from '../../lib/rateLimits/types';
 
 export const CONTENT_LIMIT = 20
 
@@ -37,7 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   basicInfoRow: {
     padding: 16,
     paddingBottom: 14,
-    borderBottom: theme.palette.border.extraFaint
+    borderBottom: theme.palette.border.extraFaint,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -82,7 +86,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     '& a': {
       color: theme.palette.primary.main,
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
+    overflow: "hidden",
   },
   website: {
     color: theme.palette.primary.main,
@@ -145,6 +153,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export function getDownvoteRatio(user: UserKarmaInfo): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+  const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
+  const voteCountsAreValid = user.voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
+  
+  const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
+
+  return downvoteRatio
+}
+
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
@@ -152,13 +177,12 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
+    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
-    
   
   const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
@@ -182,24 +206,19 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div className={classes.displayName}>
-      <UsersName user={user}/>
-      <FirstContentIcons user={user}/>
-      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+    <div>
+      <div className={classes.displayName}>
+        <UsersName user={user}/>
+        <FirstContentIcons user={user}/>
+        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+      </div>
+      <UserReviewStatus user={user}/>
+      <UserReviewMetadata user={user}/>
     </div>
-    <UserReviewStatus user={user}/>
-    <Row>
-      <MetaInfo className={classes.info}>
-        { user.karma || 0 } karma
-      </MetaInfo>
-      <MetaInfo>
-        {user.email}
-      </MetaInfo>
-      <MetaInfo className={classes.info}>
-        <FormatDate date={user.createdAt}/>
-      </MetaInfo>
-    </Row>
+    <div>
+      <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
+    </div>
   </div>
 
   const votesRow = <div className={classes.votesRow}>

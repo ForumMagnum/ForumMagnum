@@ -68,6 +68,7 @@ const InitialFallback: FC<{
   className?: string,
   classes: ClassesType,
 }> = memo(({displayName, size, className, classes}) => {
+  displayName ??= "";
   const initials = displayName.split(/[\s-_.()]/).map((s) => s?.[0]?.toUpperCase());
   const text = initials.filter((s) => s?.length).join("").slice(0, 3);
   const background = userBackground(displayName);
@@ -105,14 +106,19 @@ const InitialFallback: FC<{
   );
 });
 
+export type UserWithProfileImage = {
+  displayName: string,
+  profileImageId?: string,
+}
+
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
-  user?: UsersMinimumInfo,
+  user?: UserWithProfileImage,
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
   classes: ClassesType,
 }) => {
-  if (!user) {
+  if (!user?.displayName) {
     return (
       <picture className={classes.wrapper}>
         <div

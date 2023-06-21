@@ -28,8 +28,6 @@ import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished }
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
-import fs from 'fs';
-import crypto from 'crypto';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
@@ -44,47 +42,12 @@ import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
-
-const loadClientBundle = () => {
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
-  const bundleBrotliPath = `${bundlePath}.br`;
-
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
-  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-
-  const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
-
-  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
-  // save a conversion and a little memory
-  const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  return {
-    bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
-    lastModified,
-    bundleBuffer,
-    bundleBrotliBuffer,
-  };
-}
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
-const getClientBundle = () => {
-  if (!clientBundle) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  return clientBundle;
-}
+import { addServerSentEventsEndpoint } from "./serverSentEvents";
+import { botRedirectMiddleware } from './botRedirect';
+import { hstsMiddleware } from './hsts';
+import { getClientBundle } from './utils/bundleUtils';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
 
 class ApolloServerLogging {
   requestDidStart(context: any) {
@@ -134,7 +97,9 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
-  
+  app.use(botRedirectMiddleware);
+  app.use(hstsMiddleware);
+
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
@@ -247,12 +212,18 @@ export function startWebserver() {
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
+
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
       process.kill(estrellaPid, 'SIGQUIT');
     })
   }
+
+  addServerSentEventsEndpoint(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

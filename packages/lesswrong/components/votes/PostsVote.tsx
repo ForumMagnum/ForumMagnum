@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin:"15%",
   },
   voteScore: {
-    color: theme.palette.grey[500],
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
@@ -41,7 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 0
+    marginLeft: 0,
+    paddingTop: isEAForum ? 12 : 0
   },
 })
 
@@ -60,7 +61,7 @@ const PostsVote = ({ post, classes }: {
       <div className={classes.voteBlock}>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement="right"
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
@@ -76,7 +77,7 @@ const PostsVote = ({ post, classes }: {
         <div className={classes.voteScores}>
           <Tooltip
             title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
-            placement="right"
+            placement={isEAForum ? "left" : "right"}
             classes={{tooltip: classes.tooltip}}
           >
             <div> 
@@ -88,7 +89,7 @@ const PostsVote = ({ post, classes }: {
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip
               title="AI Alignment Forum karma"
-              placement="right"
+              placement={isEAForum ? "left" : "right"}
               classes={{tooltip: classes.tooltip}}
             >
               <Typography
@@ -101,7 +102,7 @@ const PostsVote = ({ post, classes }: {
         </div>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement="right"
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>

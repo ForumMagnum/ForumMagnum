@@ -42,7 +42,9 @@ export const RejectedPostsList = ({classes}: {
           <RejectedReasonDisplay reason={post.rejectedReason}/>
         </span>
       </Row>
-      <div className={classes.title}><Link to={postGetPageUrl(post)}>{post.title}</Link></div>
+      <div className={classes.title}>
+        <Link rel="nofollow" to={postGetPageUrl(post)}>{post.title}</Link>
+      </div>
       <PostsHighlight post={post} maxLengthWords={50}/>
     </div>
     )}

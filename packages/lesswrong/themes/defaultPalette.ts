@@ -294,6 +294,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment3: '#2671ff66',
     debateComment4: '#eb26ff66',
     debateComment5: '#efdc0066',
+    dashed500: `dashed 1px ${shades.grey[500]}`
   },
   background: {
     default: shades.grey[60],
@@ -305,6 +306,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
     primaryTranslucent: "rgba(95,155,101,0.1)",
+    primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
     warningTranslucent: "rgba(255,152,0,0.1)",
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
@@ -463,7 +465,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   embeddedPlayer: {
     opacity: 1,
   },
-  
+  dropdown: {
+    background: grey[0],
+    border: "transparent",
+    hoverBackground: grey[100],
+  },
+
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',

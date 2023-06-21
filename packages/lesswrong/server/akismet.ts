@@ -8,6 +8,7 @@ import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { getCollectionHooks } from './mutationCallbacks';
+import { captureEvent } from '../lib/analyticsEvents';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
@@ -86,9 +87,20 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
+
+    const unreviewedUser = !currentUser.reviewedByUserId;
     
-    if (akismetKeySetting.get()) {
+    if (unreviewedUser && akismetKeySetting.get()) {
+      const start = Date.now();
+
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+
+      const timeElapsed = Date.now() - start;
+      captureEvent('checkForAkismetSpamCompleted', {
+        commentId: comment._id,
+        timeElapsed
+      }, true);
+
       if (spam) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
           // eslint-disable-next-line no-console

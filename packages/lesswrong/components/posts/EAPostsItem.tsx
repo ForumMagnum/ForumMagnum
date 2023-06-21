@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useRef } from "react";
+import React, { FC, useRef } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -7,7 +7,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
-import { useClickableCell } from "../common/useClickableCell";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -64,7 +64,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tagRelWrapper: {
     position: "relative",
-    marginLeft: 30,
+    transform: "translateY(1px)",
+    marginLeft: 44,
+    marginRight: 14,
   },
   voteArrow: {
     color: theme.palette.grey[400],
@@ -173,22 +175,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-/**
- * By default, clicking anywhere on the post item will navigate to
- * the posts page. If an element needs to be clickable without doing
- * this it should be wrapped in an InteractionWrapper.
- */
-const InteractionWrapper: FC<{
-  children: ReactNode,
-  classes: ClassesType,
-}> = ({children, classes}) => (
-  <a
-    onClick={(e) => e.stopPropagation()}
-    className={classes.interactionWrapper}
-  >
-    {children}
-  </a>
-);
 
 export type EAPostsItemProps = PostsItemConfig & {
   classes: ClassesType,
@@ -202,7 +188,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     commentCount,
     hasUnreadComments,
     primaryTag,
-    hasAudio,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -227,7 +212,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   } = usePostsItem(props);
   const {onClick} = useClickableCell(postLink);
   const authorExpandContainer = useRef(null);
-  const currentUser = useCurrentUser()
+  const currentUser = useCurrentUser();
 
   if (isRepeated) {
     return null;
@@ -248,11 +233,18 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <ForumIcon icon="Comment" />
         {commentCount}
       </a>
-      {currentUser && <div className={classes.postActions}>
-        <InteractionWrapper classes={classes}>
-          <PostActionsButton post={post} popperGap={16} vertical />
+      <div className={classes.postActions}>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
-      </div>}
+      </div>
+      {tagRel &&
+        <div className={classes.tagRelWrapper}>
+          <InteractionWrapper className={classes.interactionWrapper}>
+            <PostsItemTagRelevance tagRel={tagRel} />
+          </InteractionWrapper>
+        </div>
+      }
     </>
   );
 
@@ -273,19 +265,10 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <div className={classes.expandedCommentsWrapper}>
           <div className={classes.container} onClick={onClick}>
             <div className={classes.karma}>
-              {tagRel
-                ? <div className={classes.tagRelWrapper}>
-                  <InteractionWrapper classes={classes}>
-                    <PostsItemTagRelevance tagRel={tagRel} post={post} />
-                  </InteractionWrapper>
-                </div>
-                : <>
-                  <div className={classes.voteArrow}>
-                    <SoftUpArrowIcon />
-                  </div>
-                  <PostsItemKarma post={post} />
-                </>
-              }
+              <div className={classes.voteArrow}>
+                <SoftUpArrowIcon />
+              </div>
+              <PostsItemKarma post={post} />
             </div>
             <div className={classes.details}>
               <PostsTitle
@@ -315,9 +298,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                       {' · '}{post.readTimeMinutes || 1}m read
                     </span>}
                   </div>
-                  <div className={classes.audio}>
-                    {hasAudio && <ForumIcon icon="VolumeUp" />}
-                  </div>
                 </div>
                 <div className={classNames(
                   classes.secondaryContainer,
@@ -339,7 +319,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 */}
               <SecondaryInfo />
             </div>
-            <InteractionWrapper classes={classes}>
+            <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
                 {...{
                   post,

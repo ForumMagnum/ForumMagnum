@@ -322,12 +322,6 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
-  {
-    name: 'bookmarks',
-    path: '/bookmarks',
-    componentName: 'BookmarksPage',
-    title: 'Bookmarks',
-  },
 
   // Tags redirects
   {
@@ -733,10 +727,42 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'EA Forum Wrapped',
     },
     {
+      name: 'Digests',
+      path: '/admin/digests',
+      componentName: 'Digests',
+      title: 'Digests',
+    },
+    {
+      name: 'EditDigest',
+      path: '/admin/digest/:num',
+      componentName: 'EditDigest',
+      title: 'Edit Digest',
+      subtitle: 'Digests',
+      subtitleLink: '/admin/digests',
+      staticHeader: true
+    },
+    {
+      name: 'recommendationsSample',
+      path: '/admin/recommendationsSample',
+      componentName: 'RecommendationsSamplePage',
+      title: "Recommendations Sample"
+    },
+    {
       name: 'CookiePolicy',
       path: '/cookiePolicy',
       componentName: 'CookiePolicy',
       title: 'Cookie Policy',
+    },
+    {
+      name: 'bookmarksRedirect',
+      path: '/bookmarks',
+      redirect: () => '/saved'
+    },
+    {
+      name: 'savedPosts',
+      path: '/saved',
+      componentName: 'BookmarksPage',
+      title: 'Saved Posts',
     },
     {
       name: 'readHistory',
@@ -810,6 +836,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/recommendations`,
     },
     {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
+    },
+    {
       name: 'Walled Garden',
       path: '/walledGarden',
       componentName: 'WalledGardenHome',
@@ -881,6 +913,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'payments',
       path: '/payments',
       redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
+    {
+      name: 'All Comments with Reacts',
+      path: '/allCommentsWithReacts',
+      componentName: 'AllReactedCommentsPage',
+      title: "All Comments with Reacts"
     },
     {
       name:'coronavirus.link.db',
@@ -1067,6 +1105,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
+    },
   ],
   default: [
     {
@@ -1097,6 +1141,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
   ],
 })
@@ -1275,6 +1325,12 @@ addRoute(
     title: "Moderation Dashboard"
   },
   {
+    name: 'recentlyActiveUsers',
+    path: '/admin/recentlyActiveUsers',
+    componentName: 'RecentlyActiveUsers',
+    title: "Recently Active Users"
+  },
+  {
     name: 'moderationTemplates',
     path: '/admin/moderationTemplates',
     componentName: 'ModerationTemplatesPage',
@@ -1285,6 +1341,12 @@ addRoute(
     path: '/admin/modgpt',
     componentName: 'ModGPTDashboard',
     title: "ModGPT Dashboard"
+  },
+  {
+    name: 'synonyms',
+    path: '/admin/synonyms',
+    componentName: 'AdminSynonymsPage',
+    title: "Search Synonyms"
   },
   {
     name: 'moderation',

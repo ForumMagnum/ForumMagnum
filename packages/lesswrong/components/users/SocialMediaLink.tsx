@@ -1,16 +1,14 @@
 import React from "react";
-import { combineUrls, registerComponent } from "../../lib/vulcan-lib";
-import { socialMediaIconPaths } from "../form-components/PrefixedInput";
-import {
-  SocialMediaProfileField,
-  SOCIAL_MEDIA_PROFILE_FIELDS,
-} from "../../lib/collections/users/schema";
+import { combineUrls, Components, registerComponent } from "../../lib/vulcan-lib";
+import { SocialMediaProfileField, SOCIAL_MEDIA_PROFILE_FIELDS, } from "../../lib/collections/users/schema";
+import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
 
 const SocialMediaLink = ({user, field, className}: {
   user: UsersProfile,
   field: SocialMediaProfileField,
   className?: string,
 }) => {
+  const { SocialMediaIcon } = Components;
   const url = user[field];
   if (!url) {
     return null;
@@ -22,9 +20,7 @@ const SocialMediaLink = ({user, field, className}: {
       target="_blank"
       rel="noopener noreferrer"
     >
-      <svg viewBox="0 0 24 24" className={className}>
-        {socialMediaIconPaths[field]}
-      </svg>
+      <SocialMediaIcon name={iconNameByUserFieldName[field]} className={className}/>
     </a>
   );
 }

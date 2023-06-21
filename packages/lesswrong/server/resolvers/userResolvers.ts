@@ -18,7 +18,9 @@ import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/co
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { rateLimitDateWhenUserNextAbleToComment } from '../callbacks/rateLimits';
+import GraphQLJSON from 'graphql-type-json';
+import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -49,21 +51,39 @@ augmentFieldsDict(Users, {
       }
     }
   },
-  // TODO: probably refactor this + postSpecificRateLimit to only use one resolver, since we don't really need two
   rateLimitNextAbleToComment: {
     nullable: true,
     resolveAs: {
-      type: "Date",
+      type: GraphQLJSON,
       arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<Date|null> => {
-        const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, args.postId);
-        if (rateLimit) {
-          return rateLimit.nextEligible;
-        }
-        return null;
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
       }
     },
   },
+  rateLimitNextAbleToPost: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        if (rateLimit) {
+          return rateLimit
+        } else {
+          return null
+        }
+      }
+    }
+  },
+  recentKarmaInfo: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+        return getRecentKarmaInfo(user._id)
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`
@@ -299,7 +319,7 @@ addGraphQLResolvers({
       ])
       
       let totalKarmaChange
-      if (context?.repos?.votes) {
+      if (context.repos?.votes) {
         const karmaQueryArgs = {
           userId: currentUser._id,
           startDate: start,

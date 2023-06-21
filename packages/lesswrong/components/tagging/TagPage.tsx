@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -15,10 +15,23 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+export const tagPageHeaderStyles = (theme: ThemeType) => ({
+  postListMeta: {
+    display: "flex",
+    alignItems: "center",
+  },
+  relevance: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    textAlign: "right",
+    flexGrow: 1,
+    marginRight: 8,
+  },
+});
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -149,6 +162,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  ...tagPageHeaderStyles(theme),
 });
 
 export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
@@ -161,14 +175,39 @@ export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, que
   })
 }
 
+const PostsListHeading: FC<{
+  tag: TagPageFragment|TagPageWithRevisionFragment,
+  query: Record<string, string>,
+  classes: ClassesType,
+}> = ({tag, query, classes}) => {
+  const {SectionTitle, PostsListSortDropdown} = Components;
+  if (isEAForum) {
+    return (
+      <>
+        <SectionTitle title={`Posts tagged ${tag.name}`} />
+        <div className={classes.postListMeta}>
+          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+          <div className={classes.relevance}>Relevance</div>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className={classes.tagHeader}>
+      <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+      <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+    </div>
+  );
+}
+
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
   const {
-    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
+    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles
+    TagTableOfContents, ContentStyles,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -274,7 +313,9 @@ const TagPage = ({classes}: {
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if (isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
+      : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
@@ -399,15 +440,7 @@ const TagPage = ({classes}: {
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ?
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </SectionTitle> :
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </div>
-            }
+            <PostsListHeading tag={tag} query={query} classes={classes} />
             <PostsList2
               terms={terms}
               enableTotal

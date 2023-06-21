@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
 import { useState } from 'react';
@@ -7,6 +7,8 @@ import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
+import { invalidateQuery } from './cacheUpdates';
+import { isServer } from '../executionEnvironment';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -233,6 +235,7 @@ export interface UseMultiOptions<
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
   createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
+  ssr?: boolean,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -243,6 +246,24 @@ export type LoadMoreProps = {
   totalCount: number,
   loading: boolean,
   hidden: boolean,
+}
+
+export type UseMultiResult<
+  FragmentTypeName extends keyof FragmentTypes,
+> = {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  results?: Array<FragmentTypes[FragmentTypeName]>,
+  totalCount?: number,
+  refetch: any,
+  invalidateCache: () => void,
+  error: ApolloError|undefined,
+  count?: number,
+  showLoadMore: boolean,
+  loadMoreProps: LoadMoreProps,
+  loadMore: any,
+  limit: number,
 }
 
 /**
@@ -277,20 +298,8 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   createIfMissing,
-}: UseMultiOptions<FragmentTypeName,CollectionName>): {
-  loading: boolean,
-  loadingInitial: boolean,
-  loadingMore: boolean,
-  results?: Array<FragmentTypes[FragmentTypeName]>,
-  totalCount?: number,
-  refetch: any,
-  error: ApolloError|undefined,
-  count?: number,
-  showLoadMore: boolean,
-  loadMoreProps: LoadMoreProps,
-  loadMore: any,
-  limit: number,
-} {
+  ssr = true,
+}: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
 
@@ -330,12 +339,21 @@ export function useMulti<
     pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    ssr: true,
+    // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+    // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+    ssr: ssr || !isServer,
     skip,
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
-  
+
+  const client = useApolloClient();
+  const invalidateCache = () => invalidateQuery({
+    client,
+    query,
+    variables: graphQLVariables,
+  });
+
   if (error) {
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who  made the query. To aid in debugging, log a
@@ -398,6 +416,7 @@ export function useMulti<
     results,
     totalCount: totalCount,
     refetch,
+    invalidateCache,
     error,
     count,
     showLoadMore,

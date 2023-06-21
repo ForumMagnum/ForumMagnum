@@ -1,4 +1,4 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
+import { DbTestObject, testTable, runTestCases, testTable3 } from "../../lib/sql/tests/testHelpers";
 import SelectQuery, { isGroupByAggregateExpression } from "../../lib/sql/SelectQuery";
 
 describe("SelectQuery", () => {
@@ -110,10 +110,17 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
-      name: "can build select query with not-equal comparison",
+      name: "can build select query with IS DISTINCT FROM comparison on a nullable field",
       getQuery: () => new SelectQuery(testTable, {a: {$ne: 3}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" <> $1',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" IS DISTINCT FROM $1',
       expectedArgs: [3],
+    },
+    {
+      name: "can build select query with not-equal comparison on a non-nullable field",
+      // We use testTable3 here because adding a new field to testTable requires modifying a bunch of other unit tests
+      getQuery: () => new SelectQuery(testTable3, {notNullData: {$ne: 'foobar'}}),
+      expectedSql: 'SELECT "TestCollection3".* FROM "TestCollection3" WHERE "notNullData" <> $1',
+      expectedArgs: ['foobar'],
     },
     {
       name: "can build select query with less-than comparison",
@@ -154,7 +161,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison on an array field",
       getQuery: () => new SelectQuery(testTable, {d: {$in: ['foo', 'bar']}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "d" ::TEXT[] && ARRAY[ $1 , $2 ]',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "d" ::TEXT[] && ARRAY[ $1 ::TEXT , $2 ::TEXT ]',
       expectedArgs: ['foo', 'bar'],
     },
     {

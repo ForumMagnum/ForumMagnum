@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum, taggingNameSetting } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
@@ -141,7 +141,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
-    canRead: [documentIsNotDeleted],
+    canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
   },
@@ -700,7 +700,7 @@ const schema: SchemaType<DbComment> = {
 
       const { post } = formProps;
       
-      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
     },
   },

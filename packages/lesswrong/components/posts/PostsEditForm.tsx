@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSSR from 'react-no-ssr';
@@ -32,7 +31,8 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
+    RateLimitWarning } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -44,6 +44,14 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    skip: !currentUser,
+  });
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
     
   if (!document && loading) {
     return <Components.Loading/>
@@ -84,7 +92,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <div className={classes.formSubmit}>
       {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
-        saveDraftLabel={saveDraftLabel} 
+        saveDraftLabel={saveDraftLabel}
         feedbackLabel={"Get Feedback"}
         {...props}
       />
@@ -95,6 +103,7 @@ const PostsEditForm = ({ documentId, classes }: {
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
       {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+      {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
       <NoSSR>
         <WrappedSmartForm
           collectionName="Posts"

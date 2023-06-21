@@ -194,27 +194,41 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PostsAuthors_user|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
-  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
-  if (!post) return true
-  if (post.commentsLocked) return false
-  if (post.rejected) return false 
-  if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
-
-  if (userIsBannedFromPost(user, post, postAuthor)) {
+  // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id))
     return false
-  }
 
-  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return false
-  }
+  if (post) {
+    if (post.shortform && post.userId && post.userId !== user._id && !isReply) {
+      return false;
+    }
 
-  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
-    return false
+    if (post.commentsLocked) {
+      return false
+    }
+    if (post.rejected) {
+      return false
+    }
+    if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) {
+      return false
+    }
+  
+    if (userIsBannedFromPost(user, post, postAuthor)) {
+      return false
+    }
+  
+    if (userIsBannedFromAllPosts(user, post, postAuthor)) {
+      return false
+    }
+  
+    if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+      return false
+    }
   }
 
   return true

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -30,6 +30,7 @@ export function useUnreadNotifications(): {
       unreadNotificationCounts {
         unreadNotifications
         unreadPrivateMessages
+        checkedAt
       }
     }
   `, {
@@ -60,11 +61,42 @@ export function useUnreadNotifications(): {
       ]);
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
+
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
-
+  
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
+
+  const refetchIfNewNotifications = useCallback((timestamp: Date) => {
+    if (!checkedAt || timestamp > checkedAt) {
+      void refetchBoth();
+    }
+  }, [checkedAt, refetchBoth]);
+  
+  useOnNotificationsChanged(refetchIfNewNotifications);
+
   return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
+}
+
+export const useOnNotificationsChanged = (cb: (timestamp: Date)=>void) => {
+  useEffect(() => {
+    const onServerSentNotification = (timestamp: Date) => {
+      void cb(timestamp);
+    }
+    notificationEventListeners.push(onServerSentNotification);
+    
+    return () => {
+      notificationEventListeners = notificationEventListeners.filter(l=>l!==onServerSentNotification);
+    }
+  }, [cb]);
+}
+
+let notificationEventListeners: Array<(newestNotificationTimestamp: Date)=>void> = [];
+
+export function onServerSentNotificationEvent(newestNotificationTimestamp: Date) {
+  for (let listener of [...notificationEventListeners]) {
+    listener(newestNotificationTimestamp);
+  }
 }

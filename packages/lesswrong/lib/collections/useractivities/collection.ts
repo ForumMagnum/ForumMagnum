@@ -1,7 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
-import { forumTypeSetting } from '../../instanceSettings';
 import { ensureIndex } from '../../collectionIndexUtils';
 
 /*
@@ -44,7 +43,7 @@ import { ensureIndex } from '../../collectionIndexUtils';
 export const UserActivities: UserActivitiesCollection = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   logChanges: true,
 });

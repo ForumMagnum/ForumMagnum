@@ -292,9 +292,13 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 }
 
 export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
+  // Remove the html, which is very large and bloats LWEvents
+  // We still have the text content of the email, which is sufficient for email history
+  const { html, ...emailFields } = renderedEmail;
+
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
-    ...renderedEmail,
+    ...emailFields,
     user: user?._id,
   };
   // Log in LWEvents table

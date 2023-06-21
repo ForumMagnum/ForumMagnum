@@ -16,7 +16,7 @@ import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspos
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
@@ -24,11 +24,18 @@ import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { getAdminTeamAccount } from './commentCallbacks';
+import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postStatuses } from '../../lib/collections/posts/constants';
+import { updatePostEmbeddings } from '../embeddings';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-if (forumTypeSetting.get() === "EAForum") {
+const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
+const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+
+if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
     if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
@@ -40,6 +47,42 @@ if (forumTypeSetting.get() === "EAForum") {
   );
   getCollectionHooks("Posts").updateBefore.add(
     (post, {currentUser}) => checkTosAccepted(currentUser, post),
+  );
+
+  const assertPostTitleHasNoEmojis = (post: DbPost) => {
+    if (/\p{Extended_Pictographic}/u.test(post.title)) {
+      throw new Error("Post titles cannot contain emojis");
+    }
+  }
+  getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
+  getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+
+  const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
+    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    if (hasChanged &&
+      !newPost.draft &&
+      !newPost.deletedDraft &&
+      newPost.status === postStatuses.STATUS_APPROVED
+    ) {
+      try {
+        await updatePostEmbeddings(newPost._id);
+      } catch (e) {
+        // We never want to prevent a post from being created/edited just
+        // because we fail to create embeddings, but we do want to log it
+        captureException(e);
+        // eslint-disable-next-line
+        console.error("Failed to create embeddings:", e);
+      }
+    }
+  }
+  getCollectionHooks("Posts").newAsync.add(
+    async (post: DbPost) => await updateEmbeddings(post),
+  );
+  getCollectionHooks("Posts").updateAsync.add(
+    async ({document, oldDocument}) => await updateEmbeddings(
+      document,
+      oldDocument,
+    ),
   );
 }
 
@@ -64,7 +107,7 @@ function postsSetPostedAt (data: Partial<DbPost>) {
   return data;
 }
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -267,16 +310,11 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
   if (postRejected) {
     const postUser = await Users.findOne({_id: post.userId});
 
-    let messageContents =
-        // TODO: make link conditional on forum, or something
-        `Unfortunately, I rejected your post <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a>. (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
   
-    if (post.rejectedReason) {
-      messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
-    }
-
     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-    const noEmail = forumTypeSetting.get() === "EAForum" 
+    const noEmail = isEAForum
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   
@@ -408,7 +446,7 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
 })
 
 const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
-  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+  !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
 
 const scheduleCoauthoredPost = (post: DbPost): DbPost => {
   const now = new Date();
@@ -511,4 +549,64 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   }
 
   return post;
+});
+
+/**
+ * Call the Type3 webhook to notify it of a new post. This will trigger audio to be pre-generated for the post.
+ */
+async function callType3Webhook(action: 'post_published' | 'post_edited', url: string) {
+  const clientId = type3ClientIdSetting.get();
+  const webhookSecret = type3WebhookSecretSetting.get();
+
+  if (!clientId || !webhookSecret) return;
+
+  const webhookUrl = 'https://api.type3.audio/webhooks';
+  const data = {
+    client_id: clientId,
+    action,
+    url,
+    key: webhookSecret,
+  };
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (res.status !== 200) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to call Type3 webhook with action ${action} for post ${url}. Response code: `, res.status)
+  }
+}
+
+/**
+ * Call the Type 3 webhook on post creation
+ */
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
+  if (!isPostAllowedType3Audio(document)) return
+
+  const url = postGetPageUrl(document, true);
+  void callType3Webhook('post_published', url);
+});
+
+/**
+ * Call the Type 3 webhook on post update. If the post is being undrafted this will count as being "published".
+ * It will count as being "edited" if the post content has changed.
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (!isPostAllowedType3Audio(document)) return
+  const url = postGetPageUrl(document, true);
+
+  // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    void callType3Webhook('post_published', url);
+    return
+  }
+
+  if (oldDocument.contents?.html !== document.contents?.html) {
+    void callType3Webhook('post_edited', url);
+  }
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -12,7 +12,7 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isEAForum ? 20 : 24;
+const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -20,77 +20,104 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: isEAForum ? 20 : theme.spacing.unit*2,
   },
   headerLeft: {
-    width:"100%"
+    width: "100%"
   },
   headerVote: {
     textAlign: 'center',
     fontSize: 42,
-    position: "relative",
+    position: isEAForum ? 'absolute' : "relative",
+    top: isEAForum ? 0 : undefined,
+    left: isEAForum ? -93 : undefined,
+    [theme.breakpoints.down("sm")]: {
+      position: 'relative',
+      top: 'auto',
+      left: 'auto'
+    }
   },
   eventHeader: {
     marginBottom:0,
   },
-  secondaryInfo: {
-    fontSize: '1.4rem',
+  authorAndSecondaryInfo: {
+    display: 'flex',
+    alignItems: 'baseline',
+    columnGap: SECONDARY_SPACING,
+    flexWrap: 'wrap',
+    fontSize: isEAForum ? theme.typography.body1.fontSize : '1.4rem',
     fontWeight: isEAForum ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
-  },
-  groupLinks: {
-    display: 'inline-block',
-    marginRight: 20
-  },
-  commentsLink: {
-    marginRight: SECONDARY_SPACING,
     color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
-    display: "inline-block",
+    paddingBottom: isEAForum ? 12 : undefined,
+    borderBottom: isEAForum ? theme.palette.border.grey300 : undefined
+  },
+  secondaryInfo: {
+    flexGrow: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    columnGap: SECONDARY_SPACING,
+    rowGap: '10px',
+    flexWrap: 'wrap',
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: 'flex-start'
+    }
+  },
+  secondaryInfoLeft: {
+    display: 'flex',
+    alignItems: 'baseline',
+    columnGap: SECONDARY_SPACING,
+    flexWrap: 'wrap'
+  },
+  secondaryInfoRight: {
+    flex: 'none',
+    display: 'flex',
+    columnGap: SECONDARY_SPACING
+  },
+  secondaryInfoLink: {
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   wordCount: {
-    display: 'inline-block',
-    marginRight: SECONDARY_SPACING,
-    color: theme.palette.text.dim3,
-    whiteSpace: "no-wrap",
     fontWeight: isEAForum ? 450 : undefined,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default',
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
-    marginRight: SECONDARY_SPACING,
-    verticalAlign: 'middle',
-    color: theme.palette.primary.main,
-    height: PODCAST_ICON_SIZE,
+    alignSelf: 'center',
+    color: isEAForum ? undefined : theme.palette.primary.main,
+    height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
   togglePodcastIcon: {
     width: PODCAST_ICON_SIZE,
     height: PODCAST_ICON_SIZE,
+    transform: isEAForum ? "translateY(5px)" : undefined
   },
   actions: {
-    display: 'inline-block',
-    color: theme.palette.icon.dim600,
+    color: isEAForum ? undefined : theme.palette.grey[500],
+    "&:hover": {
+      opacity: 0.5,
+    },
+    '& svg': {
+      color: 'inherit' // this is needed for the EAF version of the icon
+    },
     "@media print": { display: "none" },
   },
+  authorInfo: {
+    display: 'flex',
+    alignItems: 'baseline',
+    columnGap: SECONDARY_SPACING,
+  },
   authors: {
-    display: 'inline-block',
-    marginRight: SECONDARY_SPACING
+    fontSize: theme.typography.body1.fontSize,
   },
   feedName: {
-    fontSize: theme.typography.body2.fontSize,
-    marginRight: SECONDARY_SPACING,
-    display: 'inline-block',
-    color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
-  },
-  date: {
-    marginRight: SECONDARY_SPACING,
-    display: 'inline-block',
   },
   divider: {
     marginTop: theme.spacing.unit*2,
@@ -98,6 +125,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
   },
+  commentIcon: {
+    fontSize: "1.4em",
+    marginRight: 1,
+    transform: "translateY(5px)",
+  },
+  bookmarkButton: {
+    marginBottom: -5,
+    height: 22,
+    color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 0.5,
+    },
+  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -147,6 +187,29 @@ const getResponseCounts = (
   };
 };
 
+const CommentsLink: FC<{
+  anchor: string,
+  children: React.ReactNode,
+  className?: string,
+}> = ({anchor, children, className}) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.querySelector(anchor);
+    if (elem) {
+      // Match the scroll behaviour from TableOfContentsList
+      window.scrollTo({
+        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
+        behavior: "smooth",
+      });
+    }
+  }
+  return (
+    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+      {children}
+    </a>
+  );
+}
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
@@ -160,8 +223,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton,
-    NewFeaturePulse, ForumIcon} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -172,13 +235,16 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
         expires: moment().add(2, 'years').toDate(),
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
+    
+  const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
+    <CrosspostHeaderIcon post={post} />
 
   const wordCount = useMemo(() => {
     if (!post.debate || dialogueResponses.length === 0) {
@@ -208,6 +274,83 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  
+  const readingTimeNode = !post.isEvent && <LWTooltip title={`${wordCount} words`}>
+    <span className={classes.wordCount}>{readTime} min read</span>
+  </LWTooltip>
+  
+  const answersNode = post.question &&
+    <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
+      {postGetAnswerCountStr(answerCount)}
+    </CommentsLink>
+  
+  const audioNode = toggleEmbeddedPlayer &&
+    (cachedTooltipSeen ?
+      <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+        <a href="#" onClick={toggleEmbeddedPlayer}>
+          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+        </a>
+      </LWTooltip> :
+      <NewFeaturePulse dx={-10} dy={4}>
+        <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+        <a href="#" onClick={toggleEmbeddedPlayer}>
+          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
+        </a>
+        </LWTooltip>
+      </NewFeaturePulse>
+    )
+    
+  const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
+    <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
+  </div>
+  
+  const tripleDotMenuNode = !hideMenu &&
+    <span className={classes.actions}>
+      <AnalyticsContext pageElementContext="tripleDotMenu">
+        <PostActionsButton post={post} includeBookmark={!isEAForum} />
+      </AnalyticsContext>
+    </span>
+  
+  // this is the info section under the post title, to the right of the author names
+  let secondaryInfoNode = <div className={classes.secondaryInfo}>
+    <div className={classes.secondaryInfoLeft}>
+      {crosspostNode}
+      {readingTimeNode}
+      {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+      {post.isEvent && <GroupLinks document={post} noMargin />}
+      {answersNode}
+      <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+        {postGetCommentCountStr(post, commentCount)}
+      </CommentsLink>
+      {audioNode}
+      {addToCalendarNode}
+      {tripleDotMenuNode}
+    </div>
+  </div>
+  // EA Forum splits the info into two sections, plus has the info in a different order
+  if (isEAForum) {
+    secondaryInfoNode = <div className={classes.secondaryInfo}>
+      <div className={classes.secondaryInfoLeft}>
+        {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+        {readingTimeNode}
+        {audioNode}
+        {post.isEvent && <GroupLinks document={post} noMargin />}
+        {answersNode}
+        <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+          <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+            <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+          </CommentsLink>
+        </LWTooltip>
+        {addToCalendarNode}
+        {crosspostNode}
+      </div>
+      <div className={classes.secondaryInfoRight}>
+        <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+        <SharePostButton post={post} />
+        {tripleDotMenuNode}
+      </div>
+    </div>
+  }
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -217,58 +360,21 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
-    <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
+    <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
-        <div className={classes.secondaryInfo}>
-          <span className={classes.authors}>
-            <PostsAuthors post={post}/>
-          </span>
-          { post.feed && post.feed.user &&
-            <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
-              <a href={feedLink} className={classes.feedName}>
-                {post.feed.nickname}
-              </a>
-            </LWTooltip>
-          }
-          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
-          {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
-            <span className={classes.wordCount}>{readTime} min read</span>
-          </LWTooltip>}
-          {!post.isEvent && <span className={classes.date}>
-            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-          </span>}
-          {post.isEvent && <div className={classes.groupLinks}>
-            <Components.GroupLinks document={post} noMargin={true} />
-          </div>}
-          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
-          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
-          {toggleEmbeddedPlayer &&
-            (cachedTooltipSeen ?
-              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-                <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-                </a>
-              </LWTooltip> :
-              <NewFeaturePulse dx={-10} dy={4}>
-                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-                <a href="#" onClick={toggleEmbeddedPlayer}>
-                  <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-                </a>
-                </LWTooltip>
-              </NewFeaturePulse>
-            )
-          }
-          <div className={classes.commentsLink}>
-            <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
+        <div className={classes.authorAndSecondaryInfo}>
+          <div className={classes.authorInfo}>
+            <div className={classes.authors}>
+              <PostsAuthors post={post} pageSectionContext="post_header" />
+            </div>
+            {post.feed && post.feed.user &&
+              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+                <a href={feedLink}>{post.feed.nickname}</a>
+              </LWTooltip>
+            }
           </div>
-          {!hideMenu &&
-            <span className={classes.actions}>
-              <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} />
-              </AnalyticsContext>
-            </span>
-          }
+          {secondaryInfoNode}
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
