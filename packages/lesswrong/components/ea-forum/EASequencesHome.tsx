@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const eaSequencesHomeDescription = "Core reading, and sequences of posts building on a common theme";
+export const eaSequencesHomeDescription = "Featured readings and collections of posts on specific topics.";
 
 const EASequencesHome = ({classes}: {
   classes: ClassesType;

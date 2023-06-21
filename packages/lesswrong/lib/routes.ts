@@ -9,10 +9,9 @@ import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 
+export const communityPath = isEAForum ? '/groupsAndPeople' : '/community';
 
-export const communityPath = isEAForum ? '/connect' : '/community';
-
-const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups & people' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
@@ -375,7 +374,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
       componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
-      description: isEAForum ? `The gateway to all the core ${taggingNamePluralSetting.get()} on the forum, and a wiki giving an overview of the ${taggingNameSetting.get()} system.` : undefined,
+      description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
       title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
@@ -587,7 +586,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'EAHome',
-      description: "Effective Altruism research, discussion and community updates. Engage with the world's most pressing problems, including global health and development, animal welfare, AI safety, and biosecurity",
+      description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
       sunshineSidebar: true
     },
@@ -662,11 +661,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => communityPath
     },
     {
-      name: 'Connect',
+      name: 'Groups & people',
       path: communityPath,
       componentName: 'Community',
-      title: 'Community',
-      description: isEAForum ? "Find local and online EA groups, or browse the members of the forum to find people to connect with." : undefined,
+      title: 'Groups & people',
+      description: isEAForum ? "Discover local and online EA groups, or browse the members of the forum to find people to connect with." : undefined,
       ...communitySubtitle
     },
     {
@@ -1156,7 +1155,7 @@ addRoute(
     path: '/shortform',
     componentName: 'ShortformPage',
     title: "Shortform",
-    description: isEAForum ? "Shorter content that is more casual than a full forum post." : undefined,
+    description: isEAForum ? "Quickly written or informal writing on Effective Altruism." : undefined,
   },
 );
 
