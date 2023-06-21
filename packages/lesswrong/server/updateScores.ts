@@ -184,7 +184,7 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
       1.0 / POW(${ageHours} + $2, $3) AS "singleVotePower"
     ) ns
     ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > ns."singleVotePower" OR NOT q."inactive"'}
-  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
+  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
 }
 
 const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
