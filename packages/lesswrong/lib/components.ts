@@ -143,6 +143,7 @@ importComponent("QuickTakesSection", () => require('../components/quickTakes/Qui
 importComponent("QuickTakesEntry", () => require('../components/quickTakes/QuickTakesEntry'));
 importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
 importComponent("QuickTakesListItem", () => require('../components/quickTakes/QuickTakesListItem'));
+importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
