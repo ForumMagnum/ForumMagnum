@@ -41,7 +41,7 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   ]
 }
 
-const lwDefaultMessage = `LessWrong automatically rate limits users whose recent content has been net-downvoted. <br/>You can <a href="https://www.lesswrong.com/posts/hHyYph9CcYfdnoC5j/auto-ratelimits">read here</a> for details, and for tips on how to write good content.`
+const lwDefaultMessage = `You can <a href="https://www.lesswrong.com/posts/hHyYph9CcYfdnoC5j/auto-ratelimits">read here</a> for details, and for tips on how to write good content.`
 
 const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
@@ -51,39 +51,39 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       karmaThreshold: 4,
       downvoterCountThreshold: 2,
       rateLimitType: "newUserDefault",
-      rateLimitMessage: "Users with less than 5 karma can write up to 2 posts a week. Gain more karma to post more frequently.",
+      rateLimitMessage: `Users with less than 5 karma can write up to 2 posts a week.<br/>${lwDefaultMessage}`,
     }, 
   // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
       karmaThreshold: -3,
       downvoterCountThreshold: 2,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -3 or less karma can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 1 weeks'),
       last20KarmaThreshold: -15,
       downvoterCountThreshold: 3,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -15 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
     }, 
   // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
       last20KarmaThreshold: -30,
       downvoterCountThreshold: 5,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once every 2 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 3 weeks'),
       last20KarmaThreshold: -45,
       downvoterCountThreshold: 5,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -45 or less karma on recent posts/comments can post once every 3 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       last20KarmaThreshold: -60, // uses last20Karma so it's not too hard to dig your way out 
       downvoterCountThreshold: 5,
       ...timeframe('1 Posts per 4 weeks'),
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -60 or less karma can post once every 4 weeks.<br/>${lwDefaultMessage}`
     }
   ],
   COMMENTS: [ 
@@ -92,7 +92,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       last20KarmaThreshold: -1,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -1 or less karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
     }, 
   // 3 comments per day rate limits
     {
@@ -100,43 +100,43 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       karmaThreshold: 5,
       appliesToOwnPosts: true,
       rateLimitType: "newUserDefault",
-      rateLimitMessage: "Users with less than 5 karma can write up to 3 comments a day. Gain more karma to comment more frequently.",
+      rateLimitMessage: `Users with less than 5 karma can write up to 3 comments a day.<br/>${lwDefaultMessage}`,
     }, 
     {
       ...timeframe('3 Comments per 1 days'), // semi-established users can make up to 20 posts/comments without getting upvoted, before hitting a 3/day comment rate limit
       last20KarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
       karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
       appliesToOwnPosts: false,
-      rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.`,
+      rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.<br/>${lwDefaultMessage}`,
     }, 
   // 1 comment per day rate limits
     {
       ...timeframe('1 Comments per 1 days'),
-      karmaThreshold: -3,
+      karmaThreshold: -5,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -3 or less karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Comments per 1 days'),
       last20KarmaThreshold: -5,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
   // 1 comment per 3 days rate limits
     {
       ...timeframe('1 Comments per 3 days'),
       karmaThreshold: -15,
       appliesToOwnPosts: false,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -15 or less karma can comment once per 3 days.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Comments per 3 days'),
       last20KarmaThreshold: -15,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 
   // 1 comment per week rate limits
     {
@@ -145,7 +145,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       downvoterCountThreshold: 2,
       karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations even if temporarily downvoted
       appliesToOwnPosts: false,
-      rateLimitMessage: lwDefaultMessage
+      rateLimitMessage: `Users with -30 or less karma on recent posts/comments can write up to one comment per week. ${lwDefaultMessage}`
     }
   ]
 }

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
     marginRight: 16,
     height: 24,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[500]
   }
 });
 
@@ -53,7 +53,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
     return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
   }
 
-  let message = `<p>Please wait ${getTimeUntilNextPost()} before posting again.</p> ${rateLimitMessage ?? ''}`
+  let message = `<p>You can next post ${getTimeUntilNextPost()} from now.</p> ${rateLimitMessage ?? ''}`
   if (isEAForum) {
     message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
   }
