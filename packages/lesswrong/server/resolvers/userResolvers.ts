@@ -57,7 +57,7 @@ augmentFieldsDict(Users, {
       type: GraphQLJSON,
       arguments: 'postId: String',
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
       }
     },
   },
