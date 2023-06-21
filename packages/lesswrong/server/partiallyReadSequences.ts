@@ -140,7 +140,7 @@ const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
         "ReadStatuses"."isRead" = TRUE AND
         "ReadStatuses"."userId" = $1
       WHERE "Posts"."_id" IN ( $2:csv )
-    `, [user._id, postIDs]);
+    `, [user._id, postIDs], "read");
     return result.map(({_id}) => _id);
   } else {
     return Posts.aggregate([

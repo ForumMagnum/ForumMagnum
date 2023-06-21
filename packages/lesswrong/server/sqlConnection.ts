@@ -3,6 +3,7 @@ import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
+import type { DbTarget } from "../lib/sql/PgCollection";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
@@ -197,6 +198,7 @@ const onConnectQueries: string[] = [
 export const createSqlConnection = async (
   url?: string,
   isTestingClient = false,
+  target: DbTarget = "write",
 ): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
@@ -227,11 +229,13 @@ export const createSqlConnection = async (
     isTestingClient,
   };
 
-  try {
-    await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to run Postgres onConnectQuery:", e);
+  if (target === "write") {
+    try {
+      await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to run Postgres onConnectQuery:", e);
+    }
   }
 
   return client;
