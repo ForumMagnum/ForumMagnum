@@ -116,7 +116,15 @@ const QuickTakesEntry = ({
     setContents(contents);
   }, []);
 
+  const lastSubmittedAt = useRef(0);
+
   const onSubmit = useCallback(async () => {
+    // Prevent accidental double submits
+    if (Date.now() - lastSubmittedAt.current < 1000) {
+      return;
+    }
+    lastSubmittedAt.current = Date.now();
+
     setLoadingSubmit(true);
     try {
       const contents = await editorRef.current?.submitData();
