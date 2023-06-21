@@ -16,6 +16,7 @@ const findByIds = async <T extends DbObject>(collection: CollectionBase<T>, ids:
         // `:csv' tells pg-promise to format the ids as comma-separated values
         ` SELECT * FROM "${collection.collectionName}" WHERE _id IN ( $1:csv )`,
         [ids],
+        "read"
       )
     : await collection.find({ _id: { $in: ids }}).fetch();
 

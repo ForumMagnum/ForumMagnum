@@ -169,7 +169,7 @@ const PostsPageRecommendationItem = ({
         <div className={classes.author}>
           <InteractionWrapper className={classes.interactionWrapper}>
             <UsersName user={post.user} />
-            {post.coauthors.length > 0 &&
+            {post.coauthors?.length > 0 &&
               <LWTooltip
                 title={
                   <div>

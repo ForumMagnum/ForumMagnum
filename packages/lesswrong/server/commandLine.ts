@@ -5,6 +5,7 @@ import fs from 'fs';
 export interface CommandLineArguments {
   mongoUrl: string
   postgresUrl: string
+  postgresReadUrl: string
   settingsFileName: string
   shellMode: boolean,
   command?: string,
@@ -14,6 +15,7 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     mongoUrl: process.env.MONGO_URL || "mongodb://127.0.0.1:27017/?directConnection=true",
     postgresUrl: process.env.PG_URL || "",
+    postgresReadUrl: process.env.PG_READ_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
   }

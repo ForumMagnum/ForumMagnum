@@ -37,6 +37,11 @@ importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATerm
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
+importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
+importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
+importComponent("EditDigestPublishBtn", () => require('../components/ea-forum/digest/EditDigestPublishBtn'));
+importComponent("ConfirmPublishDialog", () => require('../components/ea-forum/digest/ConfirmPublishDialog'));
+importComponent("EditDigestTableRow", () => require('../components/ea-forum/digest/EditDigestTableRow'));
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
@@ -86,6 +91,8 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
+importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
@@ -299,6 +306,7 @@ importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("SortButton", () => require('../components/icons/SortButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
+importComponent("SocialMediaIcon", () => require('../components/icons/SocialMediaIcon'));
 
 // posts
 
@@ -316,6 +324,7 @@ importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
+importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
@@ -359,6 +368,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
+importComponent("PostsEditBotTips", () => require('../components/posts/PostsEditBotTips'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
@@ -564,6 +574,7 @@ importComponent("AdminHome", () => require('../components/admin/AdminHome'));
 importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
 importComponent("AdminSynonymsPage", () => require('../components/admin/AdminSynonymsPage'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
+importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
 importComponent("ModerationTemplateItem", () => require('../components/moderationTemplates/ModerationTemplateItem'));
 importComponent("ModGPTDashboard", () => require('../components/sunshineDashboard/ModGPTDashboard'));
@@ -577,11 +588,14 @@ importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDa
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 
+importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("AltAccountInfo", () => require('../components/sunshineDashboard/ModeratorUserInfo/AltAccountInfo'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
 importComponent("NewUserDMSummary", () => require('../components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary'));
 importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
+importComponent("UserAutoRateLimitsDisplay", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimitsDisplay'));
+
 importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
 importComponent("AFSuggestUsersItem", () => require('../components/sunshineDashboard/AFSuggestUsersItem'));

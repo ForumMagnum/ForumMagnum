@@ -1,14 +1,13 @@
 import classNames from 'classnames';
-import uniqBy from 'lodash/uniqBy';
 import qs from 'qs';
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
 const styles = (theme: ThemeType): JssStyles => ({
   page: {
@@ -90,18 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const reduceCommentModeratorActions = (commentModeratorActions: CommentModeratorActionDisplay[]): CommentWithModeratorActions[] => {
-  const allComments = commentModeratorActions.map(action => action.comment);
-  const uniqueComments = uniqBy(allComments, comment => comment._id);
-  const commentsWithActions = uniqueComments.map(comment => {
-    const actionsWithoutComment = commentModeratorActions.filter(result => result.comment._id === comment._id).map(({ comment, ...remainingAction }) => remainingAction);
-    return { comment, actions: actionsWithoutComment };
-  });
-
-  return commentsWithActions;
-};
-
-const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
+const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
 type DashboardTabs = UnionOf<typeof tabs>;
 
 const getCurrentView = (query: Record<string, string>): DashboardTabs => {
@@ -150,15 +138,6 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50,
   });
 
-  const { results: commentModeratorActions = [], loading: loadingCommentActions, totalCount: totalCommentActionCount, loadMoreProps: loadMoreCommentActionsProps } = useMulti({
-    collectionName: 'CommentModeratorActions',
-    fragmentName: 'CommentModeratorActionDisplay',
-    terms: { view: 'activeCommentModeratorActions', limit: 10 },
-    enableTotal: true
-  });
-
-  const commentsWithActions = reduceCommentModeratorActions(commentModeratorActions);
-
   if (!userIsAdminOrMod(currentUser)) {
     return null;
   }
@@ -185,26 +164,13 @@ const ModerationDashboard = ({ classes }: {
           <div className={classes.toc}>
             {allUsers.map(user => {
               return <div key={user._id} className={classes.tocListing}>
-                {user.displayName}
+                <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
+                  {user.displayName}
+                </a>
               </div>
             })}
             <div className={classes.loadMore}>
               <LoadMore {...allUsersLoadMoreProps}/>
-            </div>
-          </div>
-        </div>
-        <div className={classNames({ [classes.hidden]: currentView !== 'moderatedComments' })}>
-          <div className={classNames(classes.toc, classes.commentToc)}>
-            {commentsWithActions.map(({ comment }) => {
-              return <div key={comment._id} className={classNames(classes.tocListing, classes.commentTocListing)}>
-                <a href={`${location.pathname}${location.search ?? ''}#${comment._id}`}>
-                  <div className={classes.postTitle}>{comment.post?.title}</div>
-                  <div>{comment.user?.displayName}</div>
-                </a>
-              </div>;
-            })}
-            <div className={classes.loadMore}>
-              <LoadMore {...loadMoreCommentActionsProps}/>
             </div>
           </div>
         </div>
@@ -222,12 +188,10 @@ const ModerationDashboard = ({ classes }: {
             >
               Reviewed Users
             </div>
-            <div
-              onClick={() => changeView("moderatedComments")}
-              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'moderatedComments' })} 
+            <Link to="/admin/recentlyActiveUsers" className={classes.tabButton} 
             >
-              Moderated Comments {loadingCommentActions ? <Loading/> : <>({totalCommentActionCount})</>}
-            </div>
+              Recently Active User
+            </Link>
           </div>
           <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
@@ -243,9 +207,6 @@ const ModerationDashboard = ({ classes }: {
                 <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
               </div>
             )}
-          </div>
-          <div className={classNames({ [classes.hidden]: currentView !== 'moderatedComments' })}>
-            <CommentsReviewTab commentsWithActions={commentsWithActions} />
           </div>
         </div>
       </div>

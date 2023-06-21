@@ -33,6 +33,9 @@ import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
+import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
+import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
+import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -57,6 +60,7 @@ import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
+import MuiShareIcon from "@material-ui/icons/Share";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -126,7 +130,10 @@ export type ForumIconName =
   "Email" |
   "Puzzle" |
   "SoftUpArrow" |
-  "EllipsisVertical";
+  "EllipsisVertical" |
+  "Share" |
+  "ClipboardDocumentList" |
+  "ClipboardDocument";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -175,6 +182,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
+    Share: MuiShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -222,6 +232,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     EllipsisVertical: EllipsisVerticalIcon,
+    Share: ShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
   },
 };
 
@@ -252,6 +265,9 @@ const styles = (_: ThemeType): JssStyles => ({
   },
   linkRotation: {
     transform: "rotate(-45deg)",
+    '&.MuiListItemIcon-root': {
+      marginRight: 12
+    }
   },
 });
 

@@ -338,6 +338,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly afSubmittedApplication: boolean,
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
+  readonly recentKarmaInfo: any,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -684,6 +685,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
   readonly rejected: boolean,
@@ -1260,6 +1262,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1355,6 +1358,11 @@ interface PostSideComments { // fragment on Posts
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
   readonly languageModelSummary: string,
+}
+
+interface PostsEditCriticismTips { // fragment on Posts
+  readonly _id: string,
+  readonly criticismTipsDismissed: boolean,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2596,6 +2604,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly recentKarmaInfo: any,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2667,6 +2676,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly bigUpvoteReceivedCount: number,
   readonly smallDownvoteReceivedCount: number,
   readonly bigDownvoteReceivedCount: number,
+  readonly recentKarmaInfo: any,
+  readonly lastNotificationsCheck: Date,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
@@ -3161,6 +3172,7 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
+  PostsEditCriticismTips: PostsEditCriticismTips
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3357,6 +3369,7 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
+  PostsEditCriticismTips: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"

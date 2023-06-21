@@ -23,6 +23,9 @@ const commentEditorHeightRows = 5;
 const quickTakesEditorHeightRows = 5;
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    position: 'relative'
+  },
   editor: {
     position: 'relative',
   },
@@ -160,6 +163,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
+  // class for the animation transitions of the bot tips card
+  enteredBotTips: {
+    opacity: 1
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -206,7 +213,7 @@ export interface SerializedEditorContents {
 export interface FormProps {
   commentMinimalistStyle?: boolean
   editorHintText?: string
-  maxHeight?: boolean
+  maxHeight?: boolean,
 }
 
 interface EditorProps {
