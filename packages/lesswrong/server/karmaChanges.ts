@@ -1,21 +1,12 @@
-import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
 import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo, { CommentKarmaChange, KarmaChangesArgs, PostKarmaChange, TagRevisionKarmaChange } from './repos/VotesRepo';
+import VotesRepo, { KarmaChangesArgs } from './repos/VotesRepo';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
-
-type ExtendedCommentKarmaChange = CommentKarmaChange & {
-  tagSlug?: string,
-}
-type ExtendedTagRevisionKarmaChange = TagRevisionKarmaChange & {
-  tagName?: string,
-  tagSlug?: string,
-}
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
@@ -65,34 +56,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     showNegative: showNegativeKarmaSetting,
   };
 
-  function karmaChangesInCollectionPipeline(collectionName: CollectionNameString) {
-    return [
-      // Get votes cast on this user's content (including cancelled votes)
-      {$match: {
-        authorIds: user._id,
-        votedAt: {$gte: startDate, $lte: endDate},
-        userId: {$ne: user._id}, //Exclude self-votes
-        collectionName: collectionName,
-        ...(af && {afPower: {$exists: true}})
-      }},
-
-      // Group by thing-that-was-voted-on and calculate the total karma change
-      {$group: {
-        _id: "$documentId",
-        collectionName: { $first: "$collectionName" },
-        scoreChange: { $sum: af ? "$afPower" : "$power" },
-      }},
-
-      // Filter out things with zero or negative net change (eg where someone voted and then
-      // unvoted and nothing else happened)
-      // User setting determines whether we show negative changes
-      {$match: {
-        scoreChange: showNegativeKarmaSetting ? {$ne: 0} : {$gt: 0}
-      }}
-    ];
-  }
-
-  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getAllKarmaChanges(queryArgs);
+  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
