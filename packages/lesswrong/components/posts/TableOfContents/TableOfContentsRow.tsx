@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,7 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover':{
       opacity:1,
       color: theme.palette.link.tocLinkHighlighted,
-    }
+    },
+    ...(isEAForum && {
+      lineHeight: "1.1rem",
+      fontSize: "1rem",
+    }),
   },
   highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
