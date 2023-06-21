@@ -2,15 +2,23 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
+import AlarmIcon from '@material-ui/icons/Alarm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   lwBanner: {
-    padding: 10,
+    padding: 12,
     backgroundColor: theme.palette.background.warningTranslucent,
+    display: "flex",
+    alignItems: "center",
     '& p': {
-      marginBottom: '.5em',
-      marginTop: '.5em'
+      marginBottom: 6,
     }
+  },
+  icon: {
+    marginLeft: 8,
+    marginRight: 16,
+    height: 24,
+    color: theme.palette.grey[600]
   }
 });
 
@@ -51,9 +59,10 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
   }
 
   if (isEAForum) {
-    return <Components.WarningBanner message={message} color="warning"/>
+    return <Components.WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>
+      <AlarmIcon className={classes.icon} />
       <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
     </ContentStyles>
   }

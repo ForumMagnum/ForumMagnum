@@ -1,7 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import classNames from 'classnames';
-import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,13 +7,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     columnGap: 8,
     fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.text.warning,
     fontSize: 14,
     lineHeight: '18px',
     fontWeight: '500',
-    padding: 12,
+    padding: '10px 8px',
     borderRadius: 4,
+    backgroundColor: theme.palette.background.warningTranslucent,
     marginBottom: 8,
-    ...commentBodyStyles(theme),
   },
   icon: {
     transform: "translateY(1px)",
@@ -23,31 +22,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   message: {
     flexGrow: 1
-  },
-  warning: {
-    backgroundColor: theme.palette.background.warningTranslucent,
-    color: theme.palette.text.warning,
-  },
-  neutral: {
-    backgroundColor: theme.palette.grey[100]
   }
 });
 
-const WarningBanner = ({message, classes, color="warning", showIcon=true}: {
+const WarningBanner = ({message, classes}: {
   message: string,
   classes: ClassesType,
-  color?: "neutral"|"warning",
-  showIcon?: boolean
 }) => {
-  const { ContentItemBody, ForumIcon, ContentStyles } = Components
-  return <div className={classNames(classes.root, {
-    [classes.neutral]: color === "neutral",
-    [classes.warning]: color === "warning",
-  })}>
-    {showIcon && <ForumIcon icon="Warning" className={classes.icon} />}
-    <ContentStyles contentType="comment">
-      <ContentItemBody className={classes.message} dangerouslySetInnerHTML={{__html: message }}/>
-    </ContentStyles>
+  
+  return <div className={classes.root}>
+    <Components.ForumIcon icon="Warning" className={classes.icon} />
+    <div className={classes.message}>
+      {message}
+    </div>
   </div>
 }
 
