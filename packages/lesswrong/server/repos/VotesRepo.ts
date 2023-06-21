@@ -25,6 +25,9 @@ export type CommentKarmaChange = KarmaChangeBase & {
   postId?: string,
   tagId?: string,
   tagCommentType?: TagCommentType,
+  
+  // Not filled in by the initial query; added by a followup query in the resolver
+  tagSlug?: string
 }
 
 export type PostKarmaChange = KarmaChangeBase & {
@@ -34,6 +37,10 @@ export type PostKarmaChange = KarmaChangeBase & {
 
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
+
+  // Not filled in by the initial query; added by a followup query in the resolver
+  tagSlug?: string
+  tagName?: string
 }
 
 type PostVoteCounts = {
@@ -79,6 +86,19 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [userId, startDate, endDate]),
       "getKarmaChanges"
     );
+  }
+  
+  async getAllKarmaChanges(args: KarmaChangesArgs): Promise<{
+    changedComments: CommentKarmaChange[],
+    changedPosts: PostKarmaChange[],
+    changedTagRevisions: TagRevisionKarmaChange[],
+  }> {
+    const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
+      this.getKarmaChangesForComments(args),
+      this.getKarmaChangesForPosts(args),
+      this.getKarmaChangesForTagRevisions(args),
+    ]);
+    return {changedComments, changedPosts, changedTagRevisions};
   }
 
   getKarmaChangesForComments(args: KarmaChangesArgs): Promise<CommentKarmaChange[]> {

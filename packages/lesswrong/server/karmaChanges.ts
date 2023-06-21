@@ -19,82 +19,6 @@ type ExtendedTagRevisionKarmaChange = TagRevisionKarmaChange & {
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
-const getKarmaChangesForComments = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<CommentKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForComments(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Comments"),
-
-      {$lookup: {
-        from: "comments",
-        localField: "_id",
-        foreignField: "_id",
-        as: "comment"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        description: {$arrayElemAt: ["$comment.contents.html",0]},
-        postId: {$arrayElemAt: ["$comment.postId",0]},
-        tagId: {$arrayElemAt: ["$comment.tagId",0]},
-        tagCommentType: {$arrayElemAt: ["$comment.tagCommentType",0]},
-      }},
-    ]).toArray();
-}
-
-const getKarmaChangesForPosts = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<PostKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForPosts(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Posts"),
-
-      {$lookup: {
-        from: "posts",
-        localField: "_id",
-        foreignField: "_id",
-        as: "post"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        title: {$arrayElemAt: ["$post.title",0]},
-        slug: {$arrayElemAt: ["$post.slug",0]},
-      }},
-    ]).toArray();
-}
-
-const getKarmaChangesForTagRevisions = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<TagRevisionKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForTagRevisions(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Revisions"),
-
-      {$lookup: {
-        from: "revisions",
-        localField: "_id",
-        foreignField: "_id",
-        as: "revision"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        tagId: {$arrayElemAt: ["$revision.documentId",0]},
-      }},
-    ]).toArray();
-}
-
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
 //
@@ -168,19 +92,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     ];
   }
 
-  const [
-    changedComments,
-    changedPosts,
-    changedTagRevisions
-  ]: [
-    ExtendedCommentKarmaChange[],
-    PostKarmaChange[],
-    ExtendedTagRevisionKarmaChange[]
-  ] = await Promise.all([
-    getKarmaChangesForComments(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-    getKarmaChangesForPosts(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-    getKarmaChangesForTagRevisions(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-  ]);
+  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getAllKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).

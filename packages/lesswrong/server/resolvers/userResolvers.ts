@@ -327,11 +327,7 @@ addGraphQLResolvers({
           af: false,
           showNegative: true
         }
-        const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
-          context.repos.votes.getKarmaChangesForComments(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForPosts(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForTagRevisions(karmaQueryArgs),
-        ])
+        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getAllKarmaChanges(karmaQueryArgs);
         totalKarmaChange =
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)
