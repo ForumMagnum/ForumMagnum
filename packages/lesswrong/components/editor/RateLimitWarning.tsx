@@ -3,11 +3,24 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  lwBanner: {
+    padding: 10,
+    backgroundColor: theme.palette.background.warningTranslucent,
+    '& p': {
+      marginBottom: '.5em',
+      marginTop: '.5em'
+    }
+  }
+});
+
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
+const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
   lastRateLimitExpiry: Date,
-  rateLimitMessage?: string
+  rateLimitMessage?: string,
+  classes: ClassesType
 }) => {
+  const { ContentStyles, ContentItemBody } = Components
 
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
@@ -32,7 +45,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
     return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
   }
 
-  let message = `<p>Please wait ${getTimeUntilNextPost()} before posting again. ${rateLimitMessage ?? ''}</p>`
+  let message = `<p>Please wait ${getTimeUntilNextPost()} before posting again.</p> ${rateLimitMessage ?? ''}`
   if (isEAForum) {
     message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
   }
@@ -40,11 +53,13 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage}: {
   if (isEAForum) {
     return <Components.WarningBanner message={message} color="warning"/>
   } else {
-    return <Components.WarningBanner message={message} color="warning" icon={false}/>
+    return <ContentStyles contentType="comment" className={classes.lwBanner}>
+      <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
+    </ContentStyles>
   }
 }
 
-const RateLimitWarningComponent = registerComponent('RateLimitWarning', RateLimitWarning);
+const RateLimitWarningComponent = registerComponent('RateLimitWarning', RateLimitWarning, {styles});
 
 declare global {
   interface ComponentTypes {

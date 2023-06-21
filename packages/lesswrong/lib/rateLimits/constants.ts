@@ -41,7 +41,7 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   ]
 }
 
-const lwDefaultMessage = `<p>LessWrong automatically rate limits users whose recent content has been net-downvoted. <br/>See <a href="https://www.lesswrong.com/posts/hHyYph9CcYfdnoC5j/auto-ratelimits">here to learn more</a> details, and tips on how to write good content.</p>`
+const lwDefaultMessage = `<p>LessWrong automatically rate limits users whose recent content has been net-downvoted. <br/>Read <a href="https://www.lesswrong.com/posts/hHyYph9CcYfdnoC5j/auto-ratelimits">here</a> to learn more details, and get tips on how to write good content.</p>`
 
 const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
@@ -92,7 +92,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       last20KarmaThreshold: -1,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
-      rateLimitMessage: `Users are limited to 1 comments/hour if their last ${RECENT_CONTENT_COUNT} posts/comments have net negative karma.`
+      rateLimitMessage: lwDefaultMessage
     }, 
   // 3 comments per day rate limits
     {
@@ -107,7 +107,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       last20KarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
       karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
       appliesToOwnPosts: false,
-      rateLimitMessage: `Hey, you've been posting a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.`,
+      rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.`,
     }, 
   // 1 comment per day rate limits
     {
@@ -115,14 +115,14 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       karmaThreshold: -3,
       downvoterCountThreshold: 2,
       appliesToOwnPosts: false,
-      rateLimitMessage: "Negative karma users are limited to 1 comment per day.",
+      rateLimitMessage: lwDefaultMessage
     }, 
     {
       ...timeframe('1 Comments per 1 days'),
       last20KarmaThreshold: -5,
       downvoterCountThreshold: 3,
       appliesToOwnPosts: true,
-      rateLimitMessage: `Users with -5 or less karma on their last ${RECENT_CONTENT_COUNT} posts/comments are restricted to 1 comment per day.`
+      rateLimitMessage: lwDefaultMessage
     }, 
   // 1 comment per 3 days rate limits
     {
@@ -145,7 +145,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       downvoterCountThreshold: 2,
       karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations even if temporarily downvoted
       appliesToOwnPosts: false,
-      rateLimitMessage: `Your recent posts/comments have been net-downvoted. Users with -30 or less net-karma on their last months of posts/comments can only comment once per week on other's posts.`
+      rateLimitMessage: lwDefaultMessage
     }
   ]
 }

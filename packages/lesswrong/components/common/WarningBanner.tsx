@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 12,
     borderRadius: 4,
     marginBottom: 8,
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
   },
   icon: {
     transform: "translateY(1px)",
@@ -29,15 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.warning,
   },
   neutral: {
-    color: theme.palette.grey[900],
-    backgroundColor: theme.palette.grey[100],
-    "& a": {
-      textDecoration: "underline",
-      '&:hover': {
-        color: theme.palette.primary.dark,
-        opacity: 1
-      }
-    }
+    backgroundColor: theme.palette.grey[100]
   }
 });
 
@@ -53,7 +45,9 @@ const WarningBanner = ({message, classes, color="warning", showIcon=true}: {
     [classes.warning]: color === "warning",
   })}>
     {showIcon && <ForumIcon icon="Warning" className={classes.icon} />}
-    <ContentItemBody className={classes.message} dangerouslySetInnerHTML={{__html: message }}/>
+    <ContentStyles contentType="comment">
+      <ContentItemBody className={classes.message} dangerouslySetInnerHTML={{__html: message }}/>
+    </ContentStyles>
   </div>
 }
 
