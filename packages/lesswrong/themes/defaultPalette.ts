@@ -196,7 +196,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryAlert: "#69886e",
     error: "#9b5e5e",
     error2: "#E04E4B",
-    warning: "#832013",
+    warning: "#621919",
     red: "#ff0000",
     alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
