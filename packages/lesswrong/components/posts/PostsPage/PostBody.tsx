@@ -11,7 +11,10 @@ const styles = (_theme: ThemeType) => ({
   },
   sideComponent: {
     position: "absolute",
-    left: "100%",
+    left: "105%",
+    ["@media (min-width: 1550px)"]: {
+      left: "110%",
+    },
   },
 });
 
