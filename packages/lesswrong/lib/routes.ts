@@ -665,7 +665,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: communityPath,
       componentName: 'Community',
       title: 'Groups & people',
-      description: isEAForum ? "Discover local and online EA groups, or browse the members of the forum to find people to connect with." : undefined,
+      description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
     },
     {
