@@ -94,14 +94,8 @@ export const useNotifyMe = ({
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
     enableTotal: false,
+    skip: !currentUser
   });
-
-  if (!currentUser) {
-    return {
-      disabled: true,
-      loading: false,
-    };
-  }
 
   if (loading) {
     return {

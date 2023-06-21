@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
@@ -7,7 +8,7 @@ import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
-import { forumTypeSetting, isEAForum } from "../lib/instanceSettings";
+import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -24,6 +25,17 @@ import { basename, join } from 'path';
 import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 import { ensurePostgresViewsExist } from './postgresView';
+import cluster from 'node:cluster';
+import { cpus } from 'node:os';
+
+const numCPUs = cpus().length;
+
+/**
+ * Whether to run multiple node processes in a cluster.
+ * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ */
+export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
+export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
@@ -36,7 +48,8 @@ const initConsole = () => {
 
   filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
-    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
+    const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
+    process.stdout.write(`${blue}${new Date().toISOString()}${pidString}:${endBlue} `);
     log(...message);
 
     // Uncomment to add stacktraces to every console.log, for debugging where
@@ -173,7 +186,42 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
 }
 
 export const serverStartup = async () => {
-  // eslint-disable-next-line no-console
+  // Run server directly if not in cluster mode
+  if (!clusterSetting.get()) {
+    console.log(`Running in non-cluster mode`);
+    await serverStartupWorker();
+    return;
+  }
+
+  // Use OS load balancing (as opposed to round-robin)
+  // In principle, this should give better performance because it is aware of resource (cpu) usage
+  cluster.schedulingPolicy = cluster.SCHED_NONE
+  if (cluster.isPrimary) {
+    // Initialize db connection and a few other things such as settings, but don't start a webserver.
+    console.log("Initializing primary process");
+    await initServer();
+
+    const numWorkers = numWorkersSetting.get();
+
+    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
+    console.log(`Primary ${process.pid} is running, about to fork workers`);
+
+    // Fork workers.
+    for (let i = 0; i < numWorkers; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      console.log(`Worker ${worker.process.pid} died`);
+    });
+  } else {
+    console.log(`Starting worker ${process.pid}`);
+    await serverStartupWorker();
+    console.log(`Worker ${process.pid} started`);
+  }
+}
+
+export const serverStartupWorker = async () => {
   console.log("Starting server");
   const commandLineArguments = await initServer();
   await executeServerWithArgs(commandLineArguments);

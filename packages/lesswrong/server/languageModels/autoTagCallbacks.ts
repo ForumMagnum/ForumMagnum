@@ -8,7 +8,9 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest } from '../../lib/executionEnvironment';
+import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
+import { isEAForum } from '../../lib/instanceSettings';
+import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 
 /**
  * To set up automatic tagging:
@@ -73,7 +75,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
    7. Install the OpenAI command-line API (if it isn't already installed.) with:
            pip install --upgrade openai
       (Depending on your system this might be `pip3` instead. If this succeeds
-      you should be able to run `openai` from the command ine in any directory.)
+      you should be able to run `openai` from the command line in any directory.)
  *
  * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job using the OpenAI CLI.
           export OPENAI_API_KEY=YOURAPIKEYHERE
@@ -82,6 +84,8 @@ import { isAnyTest } from '../../lib/executionEnvironment';
             -t ml/tagClassification.${TAG}.train.jsonl \
             -v ml/tagClassification.${TAG}.test.jsonl
       Substituting in ${TAG}, and repeat for each tag.
+      You can check each job with:
+          openai api fine_tunes.follow -i ${id}
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -119,18 +123,22 @@ function preprocessHtml(html: string): string {
   return $.html();
 }
 
-export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
+export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,
-  post: DbPost,
+  post: DbPost|PostIsCriticismRequest,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
-  postBodyCache?: PostBodyCache
+  postBodyCache?: PostBodyCache,
+  // Optionally pass in the post body as markdown
+  markdownBody?: string
 }): Promise<string> {
   const {header, body} = template;
   
-  const markdownPostBody = postBodyCache?.preprocessedBody?.[post._id] ?? preprocessPostBody(post);
+  const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
+  const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
+  const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
-  const linkpostMeta = post.url ? `\nThis is a linkpost for ${post.url}` : '';
+  const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
   
   return substituteIntoTemplate({
     template,
@@ -145,8 +153,7 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache}
   });
 }
 
-function preprocessPostBody(post: DbPost): string {
-  const postHtml = post.contents?.html;
+function preprocessPostHtml(postHtml: string): string {
   const markdownPostBody = postHtml ? dataToMarkdown(preprocessHtml(postHtml), "html") : "";
   return markdownPostBody;
 }
@@ -155,7 +162,7 @@ export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
-    result.preprocessedBody[post._id] = preprocessPostBody(post);
+    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html);
   }
   return result;
 }
@@ -237,6 +244,54 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
       });
     }
   }
+}
+
+/**
+ * On the EA Forum, we're using some of the auto-tagging system to check if posts
+ * could be categorized as "criticism of work in effective altruism". We check while
+ * the editor is open, because if this returns true, then we want to show the author
+ * a little card with tips on how to make it more likely to go well
+ * (see PostsEditBotTips).
+ *
+ * The fine-tuned model is not super accurate, but that's partly because our dataset
+ * does not cleanly represent the behavior we want from it. The "criticism of work in EA"
+ * tag has a wider variety of posts than would benefit from the tips in the card, such as
+ * posts announcing criticism contests and posts criticizing EA orgs broadly.
+ *
+ * So it will miss ~half of posts that a human would categorize as "criticism"
+ * (i.e. it has a high false negative rate), but it has a low false positive rate (~2%).
+ */
+export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
+  // Only run this on the EA Forum on production, since it costs money.
+  // (In particular, this model will only work if run with EA Forum prod credentials.)
+  if (!isEAForum || !isProduction) return false
+  
+  const api = await getOpenAI()
+  if (!api) {
+    if (!isAnyTest) {
+      //eslint-disable-next-line no-console
+      console.log("Skipping checking if the post is criticism (API not configured)")
+    }
+    return false
+  }
+  
+  const template = await wikiSlugToTemplate("lm-config-autotag")
+  const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
+  // This model was trained on ~2400 posts, generated using generateCandidateSetsForTagClassification
+  // (posts published from May 1 2022 - May 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
+  // Since it's not super accurate, we may want to fine-tune it more in the future.
+  const languageModelResult = await api.createCompletion({
+    model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
+    prompt: await postToPrompt({
+      template,
+      post,
+      promptSuffix,
+      ...(post.contentType === 'markdown' ? {markdownBody: post.body} : {})
+    }),
+    max_tokens: 1,
+  })
+  const completion = languageModelResult.data.choices[0].text!
+  return (completion.trim().toLowerCase() === "yes")
 }
 
 getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {

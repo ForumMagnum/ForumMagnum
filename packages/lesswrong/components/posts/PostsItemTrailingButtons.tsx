@@ -4,6 +4,7 @@ import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@material-ui/icons/Archive";
 import CloseIcon from "@material-ui/icons/Close";
 import { isEAForum } from "../../lib/instanceSettings";
+import { useCurrentUser } from "../common/withUser";
 
 export const MENU_WIDTH = 18;
 
@@ -79,6 +80,7 @@ const PostsItemTrailingButtons = ({
   onArchive,
   classes,
 }: PostsItemTrailingButtonsProps) => {
+  const currentUser = useCurrentUser()
   if (!showTrailingButtons || showMostValuableCheckbox) {
     return null;
   }
@@ -89,7 +91,7 @@ const PostsItemTrailingButtons = ({
     <>
       {(showDismissButton || resumeReading || !isEAForum) && <div className={classes.actions}>
         <DismissButton {...{showDismissButton, onDismiss}} />
-        {!isEAForum && !resumeReading && <PostActionsButton post={post} vertical />}
+        {!isEAForum && !resumeReading && currentUser && <PostActionsButton post={post} vertical />}
       </div>}
       {showArchiveButton && <div className={classes.archiveButton}>
         <LWTooltip title={archiveDraftTooltip} placement="right">

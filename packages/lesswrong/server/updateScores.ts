@@ -1,6 +1,5 @@
 import { getCollection, Vulcan } from "./vulcan-lib";
 import {
-  recalculateScore,
   timeDecayExpr,
   postScoreModifiers,
   commentScoreModifiers,
@@ -11,6 +10,8 @@ import {
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
 import { runSqlQuery } from "../lib/sql/sqlClient";
+import chunk from "lodash/chunk";
+import compact from "lodash/compact";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -24,69 +25,6 @@ interface BatchUpdateParams {
   inactive?: boolean;
   forceUpdate?: boolean;
 }
-
-/*
-
-Update a document's score if necessary.
-
-Returns how many documents have been updated (1 or 0).
-
-*/
-export const updateScore = async ({collection, item, forceUpdate}: {
-  collection: any;
-  item: DbPost;
-  forceUpdate?: boolean;
-}) => {
-
-  // Age Check
-  const postedAt = item?.frontpageDate?.valueOf() || item?.postedAt?.valueOf()
-  const now = new Date().getTime();
-  const age = now - postedAt;
-  const ageInHours = age / (60 * 60 * 1000);
-
-  // If for some reason item doesn't have a "postedAt" property, abort
-  // Or, if post has been scheduled in the future, don't update its score
-  if (!postedAt || postedAt > now)
-    return 0;
-
-
-
-  // For performance reasons, the database is only updated if the difference between the old score and the new score
-  // is meaningful enough. To find out, we calculate the "power" of a single vote after n days.
-  // We assume that after n days, a single vote will not be powerful enough to affect posts' ranking order.
-  // Note: sites whose posts regularly get a lot of votes can afford to use a lower n.
-
-  // n =  number of days after which a single vote will not have a big enough effect to trigger a score update
-  //      and posts can become inactive
-  const n = INACTIVITY_THRESHOLD_DAYS;
-  // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
-  const x = getSingleVotePower();
-
-  // HN algorithm
-  const newScore = recalculateScore(item);
-
-  // Note: before the first time updateScore runs on a new item, its score will be at 0
-  const scoreDiff = Math.abs(item.score || 0 - newScore);
-
-  // console.log('// now: ', now)
-  // console.log('// age: ', age)
-  // console.log('// ageInHours: ', ageInHours)
-  // console.log('// baseScore: ', baseScore)
-  // console.log('// item.score: ', item.score)
-  // console.log('// newScore: ', newScore)
-  // console.log('// scoreDiff: ', scoreDiff)
-  // console.log('// x: ', x)
-
-  // only update database if difference is larger than x to avoid unnecessary updates
-  if (forceUpdate || scoreDiff > x) {
-    await collection.updateOne(item._id, {$set: {score: newScore, inactive: false}});
-    return 1;
-  } else if(ageInHours > n*24) {
-    // only set a post as inactive if it's older than n days
-    await collection.updateOne(item._id, {$set: {inactive: true}});
-  }
-  return 0;
-};
 
 const getMongoCollectionProjections = (collectionName: CollectionNameString) => {
   const collectionProjections: Partial<Record<CollectionNameString, any>> = {
@@ -225,16 +163,15 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
     return [];
   }
 
-  const singleVotePower = getSingleVotePower();
-
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
   return runSqlQuery(`
     SELECT
       q.*,
       ns."newScore",
       q."inactive" AS "inactive",
-      ABS("score" - ns."newScore") > $1 AS "scoreDiffSignificant",
-      (${ageHours}) > ($2 * 24) AS "oldEnough"
+      ABS("score" - ns."newScore") > ns."singleVotePower" AS "scoreDiffSignificant",
+      ns."singleVotePower" AS "singleVotePower",
+      (${ageHours}) > ($1 * 24) AS "oldEnough"
     FROM (
       SELECT ${getPgCollectionProjections(collectionName).join(", ")}
         , "${collectionName}".inactive as inactive
@@ -243,10 +180,11 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
         "postedAt" < CURRENT_TIMESTAMP AND
         ${inactive ? '"inactive" = TRUE' : '("inactive" = FALSE OR "inactive" IS NULL)'}
     ) q, LATERAL (SELECT
-      "baseScore" / POW(${ageHours} + $3, $4) AS "newScore"
+      "baseScore" / POW(${ageHours} + $2, $3) AS "newScore",
+      1.0 / POW(${ageHours} + $2, $3) AS "singleVotePower"
     ) ns
-    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > $1 OR NOT q."inactive"'}
-  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
+    ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > ns."singleVotePower" OR NOT q."inactive"'}
+  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
 }
 
 const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
@@ -258,29 +196,34 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 
-  const itemUpdates = _.compact(items.map((i: AnyBecauseTodo) => {
-    if (forceUpdate || i.scoreDiffSignificant) {
-      updatedDocumentsCounter++;
-      return {
-        updateOne: {
-          filter: {_id: i._id},
-          update: {$set: {score: i.newScore, inactive: false}},
-          upsert: false,
+  const batches = chunk(items, 1000); // divide items into chunks of 1000
+
+  for (let batch of batches) {
+    let itemUpdates = compact(batch.map((i: AnyBecauseTodo) => {
+      if (forceUpdate || i.scoreDiffSignificant) {
+        updatedDocumentsCounter++;
+        return {
+          updateOne: {
+            filter: {_id: i._id},
+            update: {$set: {score: i.newScore, inactive: false}},
+            upsert: false,
+          }
+        }
+      } else if (i.oldEnough && !i.inactive) {
+        // only set a post as inactive if it's older than n days
+        return {
+          updateOne: {
+            filter: {_id: i._id},
+            update: {$set: {inactive: true}},
+            upsert: false,
+          }
         }
       }
-    } else if (i.oldEnough && !i.inactive) {
-      // only set a post as inactive if it's older than n days
-      return {
-        updateOne: {
-          filter: {_id: i._id},
-          update: {$set: {inactive: true}},
-          upsert: false,
-        }
-      }
+    }));
+
+    if (itemUpdates && itemUpdates.length) {
+      await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
     }
-  }))
-  if (itemUpdates && itemUpdates.length) {
-    await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
   }
   return updatedDocumentsCounter;
 }
