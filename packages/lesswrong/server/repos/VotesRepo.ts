@@ -35,6 +35,15 @@ export type PostKarmaChange = KarmaChangeBase & {
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
 }
+
+type PostVoteCounts = {
+  postId: string,
+  smallUpvoteCount: number,
+  bigUpvoteCount: number,
+  smallDownvoteCount: number
+  bigDownvoteCount: number
+}
+
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);
@@ -155,5 +164,21 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
     `, [userId])
     return votes
+  }
+  
+  async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
+    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+      SELECT p._id as "postId",
+        count(v._id) FILTER(WHERE v."voteType" = 'smallUpvote') as "smallUpvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'bigUpvote') as "bigUpvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'smallDownvote') as "smallDownvoteCount",
+        count(v._id) FILTER(WHERE v."voteType" = 'bigDownvote') as "bigDownvoteCount"
+      FROM "Posts" p
+      JOIN "Votes" v tablesample system(50) ON v."documentId" = p."_id"
+      WHERE p._id IN ($1:csv)
+        AND v."collectionName" = 'Posts'
+        AND v.cancelled = false
+      GROUP BY p._id
+    `, [postIds]), "getDigestPlannerVotesForPosts");
   }
 }

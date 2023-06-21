@@ -316,7 +316,7 @@ const Layout = ({currentUser, children, classes}: {
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen)}
+                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
               {/* enable during ACX Everywhere */}
               {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
