@@ -154,20 +154,18 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
-const ReviewVoteTableRow = (
-  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
-    post: PostsListWithVotes,
-    costTotal?: number,
-    dispatch: React.Dispatch<SyntheticQualitativeVote>,
-    showKarmaVotes: boolean,
-    classes:ClassesType,
-    expandedPostId?: string|null,
-    currentVote: SyntheticQualitativeVote|null,
-    reviewPhase: ReviewPhase,
-    reviewYear: ReviewYear,
-    voteTooltip: voteTooltipType
-  }
-) => {
+const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+  post: PostsReviewVotingList,
+  costTotal?: number,
+  dispatch: React.Dispatch<SyntheticQualitativeVote>,
+  showKarmaVotes: boolean,
+  classes:ClassesType,
+  expandedPostId?: string|null,
+  currentVote: SyntheticQualitativeVote|null,
+  reviewPhase: ReviewPhase,
+  reviewYear: ReviewYear,
+  voteTooltip: voteTooltipType
+}) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments, KarmaVoteStripe } = Components
 
   const currentUser = useCurrentUser()
