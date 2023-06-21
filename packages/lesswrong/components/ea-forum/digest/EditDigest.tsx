@@ -8,7 +8,7 @@ import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
-import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
+import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -131,6 +131,7 @@ type DigestPlannerPostData = {
   digestPost: DigestPost
   rating: number
 }
+type PostWithRating = PostsListBase & {rating:number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -187,7 +188,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const eligiblePosts: DigestPlannerPostData[] = useMemo(() => data?.DigestPlannerData, [data])
 
   // save the list of all eligible posts, along with their ratings
-  const [posts, setPosts] = useState<Array<PostsListBase & {rating:number}>>()
+  const [posts, setPosts] = useState<Array<PostWithRating>>()
   // track the digest status of each post (i.e. whether or not it's in the email and on-site digests)
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
@@ -197,7 +198,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     // this is just to initialize the list of posts and statuses
     if (!eligiblePosts || posts) return
     
-    const newPosts: Array<PostsListBase & {rating:number}> = []
+    const newPosts: Array<PostWithRating> = []
     const newPostStatuses: Record<string,DigestPost> = {}
     eligiblePosts.forEach(postData => {
       newPosts.push({...postData.post, rating: postData.rating})
@@ -266,14 +267,15 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
    * When you click on a digest status cell, we rotate the status between
    * "yes", "maybe", "no", and "pending" (in that order).
    */
-  const handleClickStatusIcon = async (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus') => {
+  const handleClickStatusIcon = async (postId: string, statusField: StatusField) => {
     // disable updating statuses while we handle this one,
     // to avoid creating duplicate DigestPost records
     setStatusIconsDisabled(true)
-    void updatePostDigestStatus(postId, statusField).then(() => setStatusIconsDisabled(false))
+    await updatePostDigestStatus(postId, statusField)
+    setStatusIconsDisabled(false)
   }
 
-  const updatePostDigestStatus = async (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus') => {
+  const updatePostDigestStatus = async (postId: string, statusField: StatusField) => {
     const newPostStatuses = {...postStatuses}
     // find the next status in the rotation
     let newStatus: InDigestStatusOption = 'pending'
@@ -323,17 +325,16 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
    * Writes the post data for all posts in the email digest to the clipboard,
    * in the format that we expect to see in the email digest
    */
-  const copyDigestToClipboard = () => {
+  const copyDigestToClipboard = async () => {
     if (!posts) return
     
     const digestPosts = posts.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')
-    void navigator.clipboard.write(
+    await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
       })]
-    ).then(
-      () => flash({messageString: "Email digest post list copied"})
     )
+    flash({messageString: "Email digest post list copied"})
   }
 
 

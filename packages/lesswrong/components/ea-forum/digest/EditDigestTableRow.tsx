@@ -4,8 +4,9 @@ import classNames from 'classnames';
 import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMessages } from '../../common/withMessages';
-import { getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
+import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import { DigestPost } from './EditDigest';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -132,7 +133,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   post: PostsListBase & {rating: number},
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
-  handleClickStatusIcon: (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus') => void,
+  handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
   classes: ClassesType
@@ -142,7 +143,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   /**
    * Build the cell with the given status icon
    */
-  const getStatusIconCell = (postId: string, statusField: 'emailDigestStatus'|'onsiteDigestStatus', postStatus: DigestPost) => {
+  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: DigestPost) => {
     const status = postStatus[statusField]
     let iconNode = null
     switch (status) {
@@ -181,14 +182,13 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
    * Writes the post data to the clipboard, in the format that
    * we expect to see in the email digest
    */
-  const copyPostToClipboard = (post: PostsListBase) => {
-    void navigator.clipboard.write(
+  const copyPostToClipboard = async (post: PostsListBase) => {
+    await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostData(post)], {type: 'text/html'})
       })]
-    ).then(
-      () => flash({messageString: "Post link copied"})
     )
+    flash({messageString: "Email digest post list copied"})
   }
   
   const { ForumIcon, LWTooltip } = Components
@@ -206,7 +206,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       </LWTooltip>
       <div>
         <div>
-          <a href={`/posts/${post._id}/${post.slug}`} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
+          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
             {post.title}
           </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
         </div>
@@ -234,7 +234,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
-      {post.commentCount && <a href={`/posts/${post._id}/${post.slug}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
+      {post.commentCount && <a href={`${postGetPageUrl(post)}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
         <ForumIcon icon="Comment" className={classes.commentIcon} />
         {post.commentCount}
       </a>}

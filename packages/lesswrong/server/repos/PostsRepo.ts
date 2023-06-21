@@ -8,7 +8,7 @@ export type MeanPostKarma = {
   meanKarma: number,
 }
 
-type PostAndDigestPost = DbPost & {digestPostId: string, emailDigestStatus: string, onsiteDigestStatus: string}
+type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
 
 export default class PostsRepo extends AbstractRepo<DbPost> {
   constructor() {

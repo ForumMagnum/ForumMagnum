@@ -7,6 +7,7 @@ import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
 
 export const DIGEST_STATUS_OPTIONS = new TupleSet([...DIGEST_STATUSES, 'pending'] as const)
 export type InDigestStatusOption = UnionOf<typeof DIGEST_STATUS_OPTIONS>
+export type StatusField = 'emailDigestStatus'|'onsiteDigestStatus'
 
 /**
  * Returns the digest name in our standard format
@@ -70,7 +71,7 @@ export const getEmailDigestPostListData = (posts: PostsListBase[]) => {
 export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
   posts: PostsListBase[],
   postStatuses: Record<string, DigestPost>,
-  statusFieldName: 'emailDigestStatus'|'onsiteDigestStatus'
+  statusFieldName: StatusField
 }) => {
   // count how many posts have each status, to be displayed in the labels
   const counts: Record<string, number> = {}
