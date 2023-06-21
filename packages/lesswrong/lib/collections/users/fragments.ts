@@ -334,6 +334,9 @@ registerFragment(`
     bigUpvoteReceivedCount
     smallDownvoteReceivedCount
     bigDownvoteReceivedCount
+
+    recentKarmaInfo
+    lastNotificationsCheck
   }
 `);
 

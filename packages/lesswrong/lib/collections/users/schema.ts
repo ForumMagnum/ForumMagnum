@@ -613,9 +613,11 @@ const schema: SchemaType<DbUser> = {
       // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
-          {value:'postCommentsTop', label: 'magical algorithm'},
-          {value:'postCommentsNew', label: 'most recent'},
+          {value:'postCommentsMagic', label: isEAForum ? 'new & upvoted' : 'magic (new & upvoted)'},
+          {value:'postCommentsTop', label: 'top scoring'},
+          {value:'postCommentsNew', label: 'newest'},
           {value:'postCommentsOld', label: 'oldest'},
+          {value:'postCommentsRecentReplies', label: 'latest reply'},
         ];
         if (forumTypeSetting.get() === 'AlignmentForum') {
           return commentViews.concat([
@@ -999,7 +1001,7 @@ const schema: SchemaType<DbUser> = {
   lastNotificationsCheck: {
     type: Date,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns, 'admins'],
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
@@ -2727,6 +2729,14 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  recentKarmaInfo: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  }
 };
 
 export default schema;

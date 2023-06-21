@@ -177,4 +177,12 @@ async function startSshTunnel(sshTunnelCommand) {
   }
 }
 
-module.exports = { getDatabaseConfig, startSshTunnel };
+let outputDir = './build';
+function setOutputDir(dir) {
+  outputDir = dir;
+}
+function getOutputDir(dir) {
+  return outputDir;
+}
+
+module.exports = { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir };
