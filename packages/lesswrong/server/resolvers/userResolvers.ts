@@ -19,8 +19,8 @@ import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
-import { RateLimitInfo } from '../rateLimits/types';
+import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -75,6 +75,15 @@ augmentFieldsDict(Users, {
       }
     }
   },
+  recentKarmaInfo: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+        return getRecentKarmaInfo(user._id)
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`
@@ -310,7 +319,7 @@ addGraphQLResolvers({
       ])
       
       let totalKarmaChange
-      if (context?.repos?.votes) {
+      if (context.repos?.votes) {
         const karmaQueryArgs = {
           userId: currentUser._id,
           startDate: start,

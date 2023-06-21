@@ -2,7 +2,7 @@ import moment from 'moment';
 import { captureEvent } from '../../lib/analyticsEvents';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {

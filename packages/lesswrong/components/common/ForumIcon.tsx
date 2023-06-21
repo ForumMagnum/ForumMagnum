@@ -32,6 +32,8 @@ import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
+import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
+import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -122,7 +124,9 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Puzzle" |
-  "Share";
+  "Share" |
+  "ClipboardDocumentList" |
+  "ClipboardDocument";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -169,6 +173,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     Share: MuiShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -214,6 +220,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     Share: ShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
   },
 };
 
