@@ -105,6 +105,10 @@ class ElasticExporter {
    * You should wait a couple of minutes for the reindexing to complete, check
    * that the document count on the new index is >= the document count on the old
    * index, then run `Globals.elasticDeleteOrphanedIndexes()`.
+   *
+   * Whilst exporting, there'll be a short period during copying where search
+   * will continue to work but not all the documents are available - this is
+   * currently ~45 seconds for EA forum prod as of 2023-06-22.
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClient();
