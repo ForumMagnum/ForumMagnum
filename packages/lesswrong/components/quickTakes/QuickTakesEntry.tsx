@@ -71,6 +71,7 @@ const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 const QuickTakesEntry = ({
   currentUser,
   defaultExpanded = false,
+  defaultFocus = false,
   submitButtonAtBottom = false,
   className,
   editorClassName,
@@ -80,6 +81,7 @@ const QuickTakesEntry = ({
 }: {
   currentUser: UsersCurrent | null,
   defaultExpanded?: boolean,
+  defaultFocus?: boolean,
   submitButtonAtBottom?: boolean,
   className?: string,
   editorClassName?: string,
@@ -163,6 +165,15 @@ const QuickTakesEntry = ({
       return () => form.removeEventListener("keydown", handler);
     }
   }, [formRef, onSubmit]);
+
+  useEffect(() => {
+    if (defaultFocus) {
+      // Only focus once we've finished rendering
+      setTimeout(() => {
+        editorRef.current?.focus();
+      }, 10);
+    }
+  }, [defaultFocus, editorRef]);
 
   const {Editor, Loading, TagsChecklist} = Components;
   const submitButton = (

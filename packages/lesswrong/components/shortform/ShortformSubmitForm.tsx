@@ -86,6 +86,7 @@ const ShortformSubmitForm = ({
           tagsClassName={classes.quickTakesTags}
           buttonClassName={classes.quickTakesButton}
           defaultExpanded
+          defaultFocus
           submitButtonAtBottom
         />
       </div>

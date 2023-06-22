@@ -368,6 +368,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
+  focus() {
+    this.state.ckEditorReference?.focus();
+  }
+
   submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
