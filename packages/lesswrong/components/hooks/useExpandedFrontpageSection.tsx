@@ -69,7 +69,7 @@ export const useExpandedFrontpageSection = ({
     refetchQueries: ["getCurrentUser"],
   });
   const {captureEvent} = useTracking();
-  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([cookieName]);
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const [expanded, setExpanded] = useState(
     () => isInitialExpanded(section, defaultExpanded, currentUser, cookies, cookieName),
   );
@@ -102,7 +102,6 @@ export const useExpandedFrontpageSection = ({
     captureEvent,
     expandFrontpageSection,
     setCookie,
-    removeCookie,
   ]);
 
   return {

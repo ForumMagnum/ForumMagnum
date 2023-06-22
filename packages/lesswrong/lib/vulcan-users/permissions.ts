@@ -32,7 +32,13 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
-export type PermissionableUser = UsersMinimumInfo & Pick<DbUser, "groups" | "banned" | "allCommentingDisabled" | "isAdmin" | "reviewedByUserId">
+export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
+  "groups" |
+  "banned" |
+  "allCommentingDisabled" |
+  "isAdmin" |
+  "reviewedByUserId"
+>;
 
 // get a list of a user's groups
 export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {

@@ -113,7 +113,7 @@ const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
   const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay } = Components;
-    
+
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
@@ -128,10 +128,7 @@ const RecentlyActiveUsers = ({ classes }: {
     enableTotal: true
   });
 
-  if (!currentUser) {
-    return null;
-  }
-  if (!userIsAdminOrMod(currentUser)) {
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
