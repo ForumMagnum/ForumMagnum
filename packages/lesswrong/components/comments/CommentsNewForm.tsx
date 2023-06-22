@@ -125,15 +125,21 @@ export type BtnProps = {
   disabled?: boolean
 }
 
+export type CommentSuccessCallback = (
+  comment: CommentsList,
+  otherArgs: {form: AnyBecauseTodo},
+) => void | Promise<void>;
+export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
+
 export type CommentsNewFormProps = {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: (comment: CommentsList, otherArgs: any) => void,
+  successCallback?: CommentSuccessCallback,
+  cancelCallback?: CommentCancelCallback,
   type: string,
-  cancelCallback?: any,
   removeFields?: any,
   fragment?: FragmentName,
   formProps?: any,

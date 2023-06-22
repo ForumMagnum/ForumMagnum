@@ -6,6 +6,10 @@ import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
 import { useCreate } from "../../lib/crud/withCreate";
 import type { Editor as EditorType }  from "../editor/Editor";
+import type {
+  CommentCancelCallback,
+  CommentSuccessCallback,
+} from "../comments/CommentsNewForm";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 
@@ -77,6 +81,8 @@ const QuickTakesEntry = ({
   editorClassName,
   tagsClassName,
   buttonClassName,
+  successCallback,
+  cancelCallback,
   classes,
 }: {
   currentUser: UsersCurrent | null,
@@ -87,6 +93,8 @@ const QuickTakesEntry = ({
   editorClassName?: string,
   tagsClassName?: string,
   buttonClassName?: string,
+  successCallback?: CommentSuccessCallback,
+  cancelCallback?: CommentCancelCallback,
   classes: ClassesType,
 }) => {
   const editorType = "ckEditorMarkup";
@@ -132,7 +140,7 @@ const QuickTakesEntry = ({
     setLoadingSubmit(true);
     try {
       const contents = await editorRef.current?.submitData();
-      await create({
+      const response = await create({
         data: {
           shortform: true,
           shortformFrontpage: frontpage,
@@ -144,9 +152,12 @@ const QuickTakesEntry = ({
           contents,
         },
       });
+      const comment = response.data?.createComment.data;
+      successCallback?.(comment, {form: formRef.current});
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
+      cancelCallback?.(e);
     }
     setLoadingSubmit(false);
   }, [create, frontpage, selectedTagIds]);

@@ -4,6 +4,10 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
+import type {
+  CommentCancelCallback,
+  CommentSuccessCallback,
+} from '../comments/CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -62,8 +66,8 @@ const ShortformSubmitForm = ({
   className,
   classes,
 }: {
-  successCallback?: (comment: CommentsList, otherArgs: any) => (void | Promise<void>),
-  cancelCallback?: any,
+  successCallback?: CommentSuccessCallback,
+  cancelCallback?: CommentCancelCallback,
   prefilledProps?: any,
   noDefaultStyles?: boolean,
   className?: string,
@@ -85,6 +89,8 @@ const ShortformSubmitForm = ({
           editorClassName={classes.quickTakesEditor}
           tagsClassName={classes.quickTakesTags}
           buttonClassName={classes.quickTakesButton}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
           defaultExpanded
           defaultFocus
           submitButtonAtBottom
