@@ -88,6 +88,8 @@ import './collections/chapters/collection';
 import './collections/books/collection';
 import './collections/collections/collection';
 
+import './collections/sideCommentsCache/collection';
+
 // ReviewVotes
 import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'

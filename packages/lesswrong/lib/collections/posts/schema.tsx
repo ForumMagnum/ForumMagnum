@@ -120,13 +120,6 @@ const eaFrontpageDateDefault = (
   return new Date();
 }
 
-export const sideCommentCacheVersion = 1;
-export interface SideCommentsCache {
-  version: number,
-  generatedAt: Date,
-  annotatedHtml: string
-  commentsByBlock: Record<string,string[]>
-}
 export interface SideCommentsResolverResult {
   html: string,
   commentsByBlock: Record<string,string[]>,
@@ -2251,17 +2244,6 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     canRead: ['guests'],
     // Implementation in postResolvers.ts
-  },
-  
-  // sideCommentsCache: Stores the matching between comments on a post,
-  // and paragraph IDs within the post. Invalid if the cache-generation
-  // time is older than when the post was last modified (modifiedAt) or
-  // commented on (lastCommentedAt).
-  // SideCommentsCache
-  sideCommentsCache: {
-    type: Object,
-    canRead: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
-    optional: true, nullable: true, hidden: true,
   },
   
   sideCommentVisibility: {
