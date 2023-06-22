@@ -566,6 +566,7 @@ importComponent("MigrationsDashboardRow", () => require('../components/admin/mig
 importComponent("AdminHome", () => require('../components/admin/AdminHome'));
 importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
 importComponent("AdminSynonymsPage", () => require('../components/admin/AdminSynonymsPage'));
+importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
