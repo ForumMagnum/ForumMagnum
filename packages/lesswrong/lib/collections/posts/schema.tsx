@@ -42,12 +42,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-const forumDefaultVotingSystem = forumSelect({
-  EAForum: "twoAxis",
-  LessWrong: "namesAttachedReactions",
-  AlignmentForum: "namesAttachedReactions",
-  default: "default",
-})
+function getDefaultVotingSystem() {
+  return forumSelect({
+    EAForum: "twoAxis",
+    LessWrong: "namesAttachedReactions",
+    AlignmentForum: "namesAttachedReactions",
+    default: "default",
+  })
+}
 
 export interface RSVPType {
   name: string
@@ -1067,8 +1069,14 @@ const schema: SchemaType<DbPost> = {
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
-    ...schemaDefaultValue(forumDefaultVotingSystem),
-  },  
+
+    // This can't use schemaDefaultValue because it varies by forum-type.
+    // Trying to use schemaDefaultValue here with a branch by forum type broke
+    // schema generation/migrations.
+    defaultValue: "twoAxis",
+    onCreate: () => getDefaultVotingSystem(),
+    canAutofillDefault: true,
+  },
   myEditorAccess: resolverOnlyField({
     type: String,
     canRead: ['guests'],
