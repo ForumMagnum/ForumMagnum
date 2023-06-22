@@ -117,7 +117,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 days'),
       last20KarmaThreshold: -5,
-      downvoterCountThreshold: 3,
+      downvoterCountThreshold: 4,
       appliesToOwnPosts: false,
       rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
@@ -125,7 +125,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 3 days'),
       last20KarmaThreshold: -15,
-      downvoterCountThreshold: 4,
+      downvoterCountThreshold: 5,
       appliesToOwnPosts: false,
       rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 
@@ -133,11 +133,10 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 weeks'),
       lastMonthKarmaThreshold: -30,
-      downvoterCountThreshold: 2,
-      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations even if temporarily downvoted
+      downvoterCountThreshold: 5,
       appliesToOwnPosts: false,
       rateLimitMessage: `Users with -30 or less karma on recent posts/comments can write up to one comment per week. ${lwDefaultMessage}`
-    }
+    },
   ]
 }
 
