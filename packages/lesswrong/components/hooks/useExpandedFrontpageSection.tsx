@@ -46,10 +46,14 @@ const isInitialExpanded = (
   cookies: Record<string, string>,
   cookieName: string,
 ): boolean => {
-  const userExpand = !!currentUser?.expandedFrontpageSections?.[section];
-  const cookieExpand = !!cookies[cookieName] && cookies[cookieName] !== "false";
-  const defaultExpand = isDefaultExpanded(currentUser, defaultExpanded);
-  return userExpand ?? cookieExpand ?? defaultExpand ?? false;
+  const userExpand = currentUser?.expandedFrontpageSections?.[section];
+  if (typeof userExpand === "boolean") {
+    return userExpand;
+  }
+  if (cookies[cookieName]) {
+    return cookies[cookieName] === "true";
+  }
+  return isDefaultExpanded(currentUser, defaultExpanded);
 }
 
 export const useExpandedFrontpageSection = ({
@@ -81,10 +85,8 @@ export const useExpandedFrontpageSection = ({
         },
       });
     }
-    if (newExpanded && cookieName) {
-      setCookie(cookieName, "true", {expires: moment().add(10, "years").toDate()});
-    } else if (cookieName) {
-      removeCookie(cookieName);
+    if (cookieName) {
+      setCookie(cookieName, String(newExpanded), {expires: moment().add(10, "years").toDate()});
     }
     const event = newExpanded ? onExpandEvent : onCollapseEvent;
     if (event) {
