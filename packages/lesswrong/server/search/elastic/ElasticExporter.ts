@@ -241,16 +241,23 @@ class ElasticExporter {
                   type: "synonym",
                   synonyms: [],
                 },
+                fm_shingle_filter: {
+                  type: "shingle",
+                  min_shingle_size: 2,
+                  max_shingle_size: 3,
+                  output_unigrams: true,
+                },
+                fm_whitespace_filter: {
+                  type: "pattern_replace",
+                  pattern: " ",
+                  replacement: "",
+                },
               },
               char_filter: {
                 fm_punctuation_filter: {
-                  type: "mapping",
-                  mappings: [
-                    "_ => ",
-                    "- => ",
-                    "( => ",
-                    ") => ",
-                  ],
+                  type: "pattern_replace",
+                  pattern: "[()_-]+",
+                  replacement: " ",
                 },
               },
               analyzer: {
@@ -272,6 +279,19 @@ class ElasticExporter {
                     "lowercase",
                     "fm_synonym_filter",
                     "porter_stem",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
+                  ],
+                },
+                fm_shingle_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "fm_synonym_filter",
+                    "fm_shingle_filter",
+                    "fm_whitespace_filter",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
