@@ -10,6 +10,7 @@ import { forumTitleSetting, isEAForum, siteNameWithArticleSetting, taggingNameCa
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
+import { getAllTagsPath } from '../../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -111,7 +112,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   },
   AlignmentForum: {
@@ -169,7 +170,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
         a more durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   },
   EAForum: {
@@ -222,7 +223,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
     subforumDiscussion: {
       Icon: QuestionAnswerIcon,
@@ -286,7 +287,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   }
 }

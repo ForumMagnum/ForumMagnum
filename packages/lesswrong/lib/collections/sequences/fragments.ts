@@ -36,6 +36,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SequenceContinueReadingFragment on Sequence {
+    _id
+    title
+    gridImageId
+    canonicalCollectionSlug
+  }
+`);
+
+registerFragment(`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
