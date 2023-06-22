@@ -121,6 +121,7 @@ class ElasticQuery {
   private compileSimpleQuery(): QueryDslQueryContainer {
     const {fields} = this.config;
     const {search} = this.queryData;
+    const mainField = fields[0].split("^")[0];
     return {
       bool: {
         should: [
@@ -140,7 +141,6 @@ class ElasticQuery {
               prefix_length: 3,
               minimum_should_match: "50%",
               operator: "or",
-              analyzer: "fm_synonym_analyzer",
             },
           },
           {
@@ -150,16 +150,14 @@ class ElasticQuery {
               type: "phrase",
               slop: 2,
               boost: 70,
-              analyzer: "fm_synonym_analyzer",
             },
           },
           {
             match_phrase_prefix: {
-              [fields[0].split("^")[0]]: {
+              [mainField]: {
                 query: search,
                 slop: 2,
                 boost: 70,
-                analyzer: "fm_synonym_analyzer",
               },
             },
           },
