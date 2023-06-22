@@ -4,7 +4,6 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
-import { none } from 'fp-ts/lib/Option';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,6 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   quickTakesRoot: {
     background: "transparent",
     padding: 0,
+    border: "none",
   },
   quickTakesEditor: {
     background: "transparent",
