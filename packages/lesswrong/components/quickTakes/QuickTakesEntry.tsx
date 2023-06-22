@@ -154,6 +154,7 @@ const QuickTakesEntry = ({
       });
       const comment = response.data?.createComment.data;
       successCallback?.(comment, {form: formRef.current});
+      editorRef.current?.clear(currentUser);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);

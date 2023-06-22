@@ -33,13 +33,15 @@ const ShortformThreadList = ({ classes }: {
   } = Components;
   return (
     <div>
-      {isEAForum
-        ? (userCanComment(currentUser) && <QuickTakesEntry currentUser={currentUser} />)
-        : <ShortformSubmitForm successCallback={refetch} />
+      {isEAForum && userCanComment(currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
+      {!isEAForum && <ShortformSubmitForm successCallback={refetch} />}
 
-      {results && results.map((comment, i) => {
-        if (!comment.post) return null
+      {results && results.map((comment) => {
+        if (!comment.post) {
+          return null;
+        }
         return <div key={comment._id} className={classes.shortformItem}>
           <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
             treeOptions: {

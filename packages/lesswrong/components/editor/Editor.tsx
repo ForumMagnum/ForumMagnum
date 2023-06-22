@@ -348,7 +348,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   constructor(props: EditorProps) {
     super(props)
-    
+
     this.state = {
       updateType: 'minor',
       commitMessage: "",
@@ -356,7 +356,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       loading: true,
       markdownImgErrs: false,
     }
-    
+
     this.throttledSetCkEditor = debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = debounce(this.checkMarkdownImgErrs, validationInterval);
     this.debouncedValidateEditor = debounce(this.validateCkEditor, validationInterval);
@@ -370,6 +370,15 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   focus() {
     this.state.ckEditorReference?.focus();
+  }
+
+  clear(currentUser: UsersCurrent | null) {
+    const editorType = getUserDefaultEditor(currentUser)
+    const contents = getBlankEditorContents(editorType);
+    this.props.onChange({
+      contents,
+      autosave: true,
+    });
   }
 
   submitData = async () => {
@@ -404,7 +413,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       dataWithDiscardedSuggestions
     };
   }
-  
+
   setContents = (editorType: EditorTypeString, value: string) => {
     switch (editorType) {
       case "html": {
