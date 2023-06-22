@@ -29,12 +29,12 @@ const UserListsPage = ({classes}: {
   return <SingleColumnSection>
     <h2>Lists You Manage</h2>
     {loadingListsOwnedByUser && <Loading/>}
-    {listsOwnedByUser?.map((list: UserListFragment) => <UserListListItem userList={list}/>)}
+    {listsOwnedByUser?.map((list: UserListFragment) => <UserListListItem key={list._id} userList={list}/>)}
     <Link to="/userLists/create">Create New</Link>
 
     <h2>{"Lists You're In"}</h2>
     {loadingListsContainingUser && <Loading/>}
-    {listsContainingUser?.map((list: UserListFragment) => <UserListListItem userList={list}/>)}
+    {listsContainingUser?.map((list: UserListFragment) => <UserListListItem key={list._id} userList={list}/>)}
   </SingleColumnSection>;
 }
 
