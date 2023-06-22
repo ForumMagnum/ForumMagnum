@@ -7,6 +7,7 @@ import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getAllTagsPath } from '../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -108,7 +109,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
       }/>
     </InstantSearch>
     <DropdownDivider />
-    <Link target="_blank" to="/tags/all" className={classes.newTag}>
+    <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
       All {taggingNamePluralCapitalSetting.get()}
     </Link>
     {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link

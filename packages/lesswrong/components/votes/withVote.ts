@@ -7,6 +7,7 @@ import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
+import { VotingProps } from './votingProps';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const typeName = collection.options.typeName;
@@ -23,14 +24,6 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
     }
     ${getFragmentText(`WithVote${typeName}` as any)}
   `
-}
-
-export interface VotingProps<T extends VoteableTypeClient> {
-  vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent})=>void,
-  collectionName: VoteableCollectionName,
-  document: T,
-  baseScore: number,
-  voteCount: number,
 }
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {

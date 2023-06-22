@@ -24,7 +24,7 @@ import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { getAdminTeamAccount } from './commentCallbacks';
+import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postStatuses } from '../../lib/collections/posts/constants';
@@ -310,14 +310,9 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
   if (postRejected) {
     const postUser = await Users.findOne({_id: post.userId});
 
-    let messageContents =
-        // TODO: make link conditional on forum, or something
-        `Unfortunately, I rejected your post <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a>. (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
+    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
   
-    if (post.rejectedReason) {
-      messageContents += ` Your post didn't meet the bar for at least the following reason(s): ${post.rejectedReason}`;
-    }
-
     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
     const noEmail = isEAForum
     ? false 

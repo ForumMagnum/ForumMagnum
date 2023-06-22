@@ -249,6 +249,32 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
+}
+
+interface DbDigestPost extends DbObject {
+  __collectionName?: "DigestPosts"
+  digestId: string
+  postId: string
+  emailDigestStatus: string | null
+  onsiteDigestStatus: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface DigestsCollection extends CollectionBase<DbDigest, "Digests"> {
+}
+
+interface DbDigest extends DbObject {
+  __collectionName?: "Digests"
+  num: number
+  startDate: Date
+  endDate: Date | null
+  publishedDate: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
 }
 
@@ -701,6 +727,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
   rejectedReason: string | null
@@ -1441,6 +1468,8 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DigestPosts: DigestPostsCollection
+  Digests: DigestsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1494,6 +1523,8 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DigestPosts: DbDigestPost
+  Digests: DbDigest
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode

@@ -168,6 +168,12 @@ class ElasticQuery {
     };
   }
 
+  private textFieldToExactField(textField: string): string {
+    const [fieldName, relevance] = textField.split("^");
+    const exactField = `${fieldName}.exact`;
+    return relevance ? `${exactField}^${relevance}` : exactField;
+  }
+
   private compileAdvancedQuery(tokens: QueryToken[]): QueryDslQueryContainer {
     const {fields} = this.config;
 
@@ -181,7 +187,7 @@ class ElasticQuery {
         must.push({
           multi_match: {
             query: token,
-            fields,
+            fields: fields.map(this.textFieldToExactField.bind(this)),
             type: "phrase",
           },
         });

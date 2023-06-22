@@ -1,7 +1,6 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
 import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
@@ -66,9 +65,7 @@ const EAUsersMetaInfo = ({user, classes}: {
     (field: SocialMediaProfileField) => user[field],
   );
 
-  const {
-    ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip,
-  } = Components;
+  const { ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip, SocialMediaIcon } = Components;
 
   return (
     <ContentStyles contentType="comment" className={classes.iconsRow}>
@@ -122,9 +119,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           rel="noopener noreferrer"
           className={classes.website}
         >
-          <svg viewBox="0 0 24 24" className={classes.websiteIcon}>
-            {socialMediaIconPaths.website}
-          </svg>
+          <SocialMediaIcon name="website" className={classes.websiteIcon}/>
           {user.website}
         </a>
       }

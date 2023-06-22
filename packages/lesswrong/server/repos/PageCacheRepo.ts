@@ -1,6 +1,6 @@
 import type { CompleteTestGroupAllocation } from "../../lib/abTestImpl";
 import PageCache from "../../lib/collections/pagecache/collection";
-import { getClientBundle } from "../utils/bundleUtils";
+import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
 
 export type MeanPostKarma = {
@@ -14,7 +14,7 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
   }
 
   async lookupCacheEntry({path, completeAbTestGroups}: {path: string, completeAbTestGroups: CompleteTestGroupAllocation}): Promise<DbPageCacheEntry | null> {
-    const { bundleHash } = getClientBundle();
+    const bundleHash = getServerBundleHash();
 
     // Note: we use db.any here rather than e.g. oneOrNone because there may (in principle) be multiple
     // abTestGroups in the db that are a subset of the completeAbTestGroups. In this case it shouldn't

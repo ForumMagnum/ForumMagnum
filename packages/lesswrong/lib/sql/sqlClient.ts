@@ -1,21 +1,38 @@
 import { isAnyTest } from "../executionEnvironment";
+import type { DbTarget } from "./PgCollection";
 
 export const logAllQueries = false;
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
+/** Main sql client which is safe to use for all queries */
 let sql: SqlClient | null = null;
+/** Client to use for read operations only.
+ *  Currently used in the EA Forum bot environment to decrease load on the main database
+ */
+let sqlRead: SqlClient | null = null;
 
-export const setSqlClient = (sql_: SqlClient) => sql = sql_;
-
-export const getSqlClient = () => sql;
-
-export const getSqlClientOrThrow = () => {
-  if (!sql) {
-    throw new Error("SQL Client is not initialized");
+export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
+  if (target === "write") {
+    sql = sql_;
+  } else {
+    sqlRead = sql_;
   }
-  return sql;
 }
 
+export const getSqlClient = (target: DbTarget = "write") => {
+  return target === "write" || !sqlRead ? sql : sqlRead;
+}
+
+export const getSqlClientOrThrow = (target: DbTarget = "write") => {
+  const client = (target === "write" || !sqlRead) ? sql : sqlRead;
+  if (!client) {
+    throw new Error("SQL Client is not initialized");
+  }
+  return client;
+}
+
+
+// Note: this is only used in tests so doesn't need to handle the read/write distinction
 export const closeSqlClient = async (client: SqlClient) => {
   if (client === sql) {
     sql = null;
@@ -23,8 +40,8 @@ export const closeSqlClient = async (client: SqlClient) => {
   await client.$pool.end();
 }
 
-export const runSqlQuery = async (query: string, args?: any) => {
-  const client = getSqlClientOrThrow();
+export const runSqlQuery = async (query: string, args?: any, target: DbTarget = "write") => {
+  const client = getSqlClientOrThrow(target);
   return await logIfSlow(
     () => client.any(query, args),
     () => `${query}: ${JSON.stringify(args)}`
@@ -35,10 +52,9 @@ let queriesExecuted = 0;
 
 export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()=>string), quiet?: boolean) {
   function getDescription(): string {
-    if (typeof describe==='string')
-      return describe;
-    else
-      return describe();
+    const describeString = typeof describe==='string' ? describe : describe();
+    // Truncate this at a pretty high limit, just to avoid logging things like entire rendered pages
+    return describeString.slice(0, 5000);
   }
   
   let queryID: number = ++queriesExecuted;

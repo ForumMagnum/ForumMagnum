@@ -3,7 +3,7 @@ const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const process = require('process');
 const { zlib } = require("mz");
-const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
+const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
 const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
@@ -38,7 +38,7 @@ let inProgressBuildId = null;
 const serverPort = getServerPort();
 const websocketPort = serverPort + 1;
 
-const outputDir = `build${serverPort === defaultServerPort ? "" : serverPort}`;
+setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 
 // Two things this script should do, that it currently doesn't:
 //  * Provide a websocket server for signaling autorefresh
@@ -93,7 +93,7 @@ const serverBundleDefinitions = {
   "estrellaPid": process.pid,
 }
 
-const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
+const clientOutfilePath = `${getOutputDir()}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
@@ -129,7 +129,7 @@ build({
 
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
-        initiateRefresh();
+        initiateRefresh({serverPort});
       }
     }
     inProgressBuildId = null;
@@ -140,7 +140,7 @@ build({
   },
 });
 
-let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
+let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
 if (opts.command) {
@@ -153,7 +153,7 @@ if (!isProduction)
 build({
   entryPoints: ['./packages/lesswrong/server/runServer.ts'],
   bundle: true,
-  outfile: `./${outputDir}/server/js/serverBundle.js`,
+  outfile: `${getOutputDir()}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
   sourcesContent: true,
@@ -165,7 +165,7 @@ build({
   onEnd: () => {
     setServerRebuildInProgress(false);
     if (cliopts.watch) {
-      initiateRefresh();
+      initiateRefresh({serverPort});
     }
   },
   define: {
@@ -183,5 +183,5 @@ build({
 })
 
 if (cliopts.watch && cliopts.run && !isProduction) {
-  startAutoRefreshServer(websocketPort);
+  startAutoRefreshServer({serverPort, websocketPort});
 }

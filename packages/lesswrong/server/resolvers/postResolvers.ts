@@ -14,6 +14,8 @@ import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import PostsRepo from '../repos/PostsRepo';
+import VotesRepo from '../repos/VotesRepo';
+import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -171,6 +173,13 @@ augmentFieldsDict(Posts, {
   },
 })
 
+
+export type PostIsCriticismRequest = {
+  title: string,
+  contentType: string,
+  body: string
+}
+
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
@@ -180,18 +189,67 @@ addGraphQLResolvers({
       }
       
       const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit??10)
+      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
       }
+    },
+    async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to check post')
+      }
+            
+      return await postIsCriticism(args)
+    },
+    async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser || !currentUser.isAdmin) {
+        throw new Error('Permission denied')
+      }
+      const postsRepo = new PostsRepo()
+      const eligiblePosts = await postsRepo.getEligiblePostsForDigest(digestId, startDate, endDate)
+      if (!eligiblePosts.length) return []
+
+      // TODO: finish implementing this once we figure out what to do with it
+      // const votesRepo = new VotesRepo()
+      // const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
+      // console.log('DigestPlannerData votes', votes)
+      
+      return eligiblePosts.map(post => {
+        // const postVotes = votes.find(v => v.postId === post._id)
+        // const rating = postVotes ?
+        //   Math.round(
+        //     ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
+        //   ) : 0
+        
+        return {
+          post,
+          digestPost: {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          },
+          rating: 0
+        }
+      })
     }
-  }
+  },
 })
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
     posts: [Post!]
   }
-`);
-
+`)
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
+
+addGraphQLSchema(`
+  type DigestPlannerPost {
+    post: Post
+    digestPost: DigestPost
+    rating: Int
+  }
+`)
+addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
