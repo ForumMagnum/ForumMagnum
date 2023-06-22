@@ -40,6 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
   username: {
     fontWeight: 600,
+    whiteSpace: "nowrap",
   },
   date: {
     color: theme.palette.grey[600],
