@@ -153,15 +153,22 @@ const QuickTakesEntry = ({
         },
       });
       const comment = response.data?.createComment.data;
-      successCallback?.(comment, {form: formRef.current});
+      void successCallback?.(comment, {form: formRef.current});
       editorRef.current?.clear(currentUser);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      cancelCallback?.(e);
+      void cancelCallback?.(e);
     }
     setLoadingSubmit(false);
-  }, [create, frontpage, selectedTagIds]);
+  }, [
+    create,
+    frontpage,
+    selectedTagIds,
+    successCallback,
+    cancelCallback,
+    currentUser,
+  ]);
 
   const onFocus = useCallback(() => setExpanded(true), []);
 

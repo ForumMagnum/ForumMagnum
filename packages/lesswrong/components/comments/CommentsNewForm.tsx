@@ -238,28 +238,28 @@ const CommentsNewForm = ({
       flash(comment.deletedReason);
     }
     if (successCallback) {
-      successCallback(comment, { form })
+      void successCallback(comment, {form});
     }
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     userWithRateLimit.refetch();
   };
-  
+
   const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
-      cancelCallback(...args)
+      void cancelCallback(...args);
     }
     setLoading(false)
   };
-  
+
   if (post) {
     prefilledProps = {
       ...prefilledProps,
       postId: post._id
     };
   }
-  
+
   if (tag) {
     prefilledProps = {
       ...prefilledProps,
