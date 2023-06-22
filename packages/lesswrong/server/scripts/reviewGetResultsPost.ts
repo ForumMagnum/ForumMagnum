@@ -1,6 +1,6 @@
 import { Globals } from "../vulcan-lib";
 import fs from 'fs'
-import { createVotingPostHtml } from "../../lib/reviewVoteUpdate";
+import { createVotingPostHtml } from "../reviewVoteUpdate";
 
 Globals.getReviewPrizesPost = async () => {
   const result = await createVotingPostHtml()

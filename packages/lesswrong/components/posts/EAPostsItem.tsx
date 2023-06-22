@@ -233,11 +233,11 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         <ForumIcon icon="Comment" />
         {commentCount}
       </a>
-      {currentUser && <div className={classes.postActions}>
+      <div className={classes.postActions}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
-      </div>}
+      </div>
       {tagRel &&
         <div className={classes.tagRelWrapper}>
           <InteractionWrapper className={classes.interactionWrapper}>

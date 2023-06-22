@@ -6,9 +6,9 @@ import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { viewNames } from '../../comments/CommentsViews';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { postsCommentsThreadMultiOptions } from '../PostsCommentsThread';
+import { isValidCommentView } from '../../../lib/commentViewOptions';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -44,7 +44,8 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // for the first to finish.
   const defaultView = commentGetDefaultView(null, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const terms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const terms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
 

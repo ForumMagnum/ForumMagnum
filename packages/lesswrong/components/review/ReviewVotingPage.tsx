@@ -267,8 +267,7 @@ const ReviewVotingPage = ({classes}: {
     fetchPolicy: 'cache-and-network',
     skip: !reviewYear
   });
-  // useMulti is incorrectly typed
-  const postsResults = results as PostsListWithVotes[] | null;
+  const postsResults = results ?? null;
 
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
@@ -282,7 +281,7 @@ const ReviewVotingPage = ({classes}: {
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
-  const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
+  const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
@@ -302,7 +301,7 @@ const ReviewVotingPage = ({classes}: {
     console.error('Error loading posts', postsError);
   }
 
-  function getCostTotal (posts: PostsListWithVotes[] | null) {
+  function getCostTotal (posts: PostsReviewVotingList[] | null) {
     return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0) ?? 0
   }
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))

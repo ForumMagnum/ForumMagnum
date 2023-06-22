@@ -37,6 +37,11 @@ importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATerm
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
+importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
+importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
+importComponent("EditDigestPublishBtn", () => require('../components/ea-forum/digest/EditDigestPublishBtn'));
+importComponent("ConfirmPublishDialog", () => require('../components/ea-forum/digest/ConfirmPublishDialog'));
+importComponent("EditDigestTableRow", () => require('../components/ea-forum/digest/EditDigestTableRow'));
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
@@ -86,6 +91,8 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
+importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
@@ -292,6 +299,7 @@ importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("SortButton", () => require('../components/icons/SortButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
+importComponent("SocialMediaIcon", () => require('../components/icons/SocialMediaIcon'));
 
 // posts
 
@@ -309,6 +317,7 @@ importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
+importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
@@ -903,7 +912,6 @@ importComponent("FormComponentCheckboxGroup", () => require('../components/vulca
 importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email'));
 importComponent("FormComponentInner", () => require('../components/vulcan-ui-bootstrap/forms/FormComponentInner'));
 importComponent("FormControl", () => require('../components/vulcan-ui-bootstrap/forms/FormControl'));
-importComponent("FormElement", () => require('../components/vulcan-ui-bootstrap/forms/FormElement'));
 importComponent("FormItem", () => require('../components/vulcan-ui-bootstrap/forms/FormItem'));
 importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-bootstrap/forms/Textarea'));
 importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url'));

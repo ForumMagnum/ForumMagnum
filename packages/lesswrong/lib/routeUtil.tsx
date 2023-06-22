@@ -113,44 +113,64 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   return baseUrl + (Object.keys(filteredQuery).length>0 ? '?'+qs.stringify(filteredQuery) : '') + (hash ? '#'+hash : '');
 }
 
-const LwAfDomainWhitelist: Array<string> = [
-  "lesswrong.com",
-  "lesserwrong.com",
-  "lessestwrong.com",
-  "alignmentforum.org",
-  "alignment-forum.com",
-  "greaterwrong.com",
-  `localhost:${getServerPort()}`,
-]
+interface DomainList {
+  onsiteDomains: string[]
+  mirrorDomains: string[]
+}
 
-const forumDomainWhitelist: ForumOptions<Array<string>> = {
-  LessWrong: LwAfDomainWhitelist,
-  AlignmentForum: LwAfDomainWhitelist,
-  EAForum: [
-    'forum.effectivealtruism.org',
-    'forum-staging.effectivealtruism.org',
-    'ea.greaterwrong.com',
+const LwAfDomainWhitelist: DomainList = {
+  onsiteDomains: [
+    "lesswrong.com",
+    "lesserwrong.com",
+    "lessestwrong.com",
+    "alignmentforum.org",
+    "alignment-forum.com",
     `localhost:${getServerPort()}`,
   ],
-  default: [
-    `localhost:${getServerPort()}`,
+  mirrorDomains: [
+    "greaterwrong.com",
   ],
 }
 
-const domainWhitelist: Array<string> = forumSelect(forumDomainWhitelist)
+const forumDomainWhitelist: ForumOptions<DomainList> = {
+  LessWrong: LwAfDomainWhitelist,
+  AlignmentForum: LwAfDomainWhitelist,
+  EAForum: {
+    onsiteDomains: [
+      'forum.effectivealtruism.org',
+      'forum-staging.effectivealtruism.org',
+      `localhost:${getServerPort()}`,
+    ],
+    mirrorDomains: ['ea.greaterwrong.com'],
+  },
+  default: {
+    onsiteDomains: [
+      `localhost:${getServerPort()}`,
+    ],
+    mirrorDomains: [],
+  }
+}
 
-export const hostIsOnsite = (host: string): boolean => {
-  let isOnsite = false
+const domainWhitelist: DomainList = forumSelect(forumDomainWhitelist)
 
-  domainWhitelist.forEach((domain) => {
-    if (host === domain) isOnsite = true;
-    // If the domain differs only by the addition or removal of a "www."
-    // subdomain, count it as the same.
-    if ("www."+host === domain) isOnsite = true;
-    if (host === "www."+domain) isOnsite = true;
+export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
+  let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
+  
+  // Returns true if two domains are either the same, or differ only by addition or removal of a "www."
+  function isSameDomainModuloWWW(a: string, b: string) {
+    return a===b || "www."+a===b || a==="www."+b;
+  }
+
+  domainWhitelist.onsiteDomains.forEach((domain) => {
+    if (isSameDomainModuloWWW(host, domain))
+      urlType = "onsite";
+  })
+  domainWhitelist.mirrorDomains.forEach((domain) => {
+    if (isSameDomainModuloWWW(host, domain))
+      urlType = "mirrorOfUs";
   })
 
-  return isOnsite
+  return urlType;
 }
 
 // Returns whether a string could, conservatively, possibly be a database ID.
