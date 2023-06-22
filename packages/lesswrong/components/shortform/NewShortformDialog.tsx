@@ -12,6 +12,9 @@ const styles = (_theme: ThemeType) => ({
       padding: isEAForum ? 0 : undefined,
     },
   },
+  dialogPaper: {
+    maxWidth: isEAForum ? 750 : undefined,
+  },
 });
 
 const NewShortformDialog = ({onClose, classes}: {
@@ -29,6 +32,7 @@ const NewShortformDialog = ({onClose, classes}: {
       maxWidth={isEAForum ? "md" : "sm"}
       disableBackdropClick={isEAForum}
       disableEscapeKeyDown={isEAForum}
+      dialogClasses={{paper: classes.dialogPaper}}
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
