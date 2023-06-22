@@ -63,7 +63,7 @@ export const setInstanceSettings = (settings: any) => {
   instanceSettings = settings;
 }
 
-export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
+export const getAbsoluteUrl = (): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
     return defaultSiteAbsoluteUrl;
   } else {

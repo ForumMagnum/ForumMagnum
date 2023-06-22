@@ -958,22 +958,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
-  readonly reviewVoteScoreAllKarma: number,
-  readonly reviewVotesAllKarma: Array<number>,
-  readonly reviewVoteScoreHighKarma: number,
-  readonly reviewVotesHighKarma: Array<number>,
-  readonly reviewVoteScoreAF: number,
-  readonly reviewVotesAF: Array<number>,
-  readonly finalReviewVoteScoreHighKarma: number,
-  readonly finalReviewVotesHighKarma: Array<number>,
-  readonly finalReviewVoteScoreAllKarma: number,
-  readonly finalReviewVotesAllKarma: Array<number>,
-  readonly finalReviewVoteScoreAF: number,
-  readonly finalReviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
   readonly podcastEpisodeId: string | null,
-  readonly nominationCount2018: number,
-  readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
   readonly votingSystem: string,
@@ -999,9 +985,13 @@ interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment
   readonly canonicalSequence: SequencesPageFragment|null,
 }
 
-interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: string,
-  readonly currentUserExtendedVote: any,
+interface PostsReviewVotingList extends PostsListWithVotes { // fragment on Posts
+  readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
+  readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
+  readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -1954,6 +1944,13 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly af: boolean,
 }
 
+interface SequenceContinueReadingFragment { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly gridImageId: string,
+  readonly canonicalCollectionSlug: string,
+}
+
 interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // fragment on Sequences
   readonly chapters: Array<ChaptersFragment>,
 }
@@ -1982,6 +1979,13 @@ interface BookPageFragment { // fragment on Books
 
 interface BookEdit extends BookPageFragment { // fragment on Books
   readonly contents: RevisionEdit|null,
+}
+
+interface CollectionContinueReadingFragment { // fragment on Collections
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly gridImageId: string,
 }
 
 interface CollectionsPageFragment { // fragment on Collections
@@ -3218,10 +3222,12 @@ interface FragmentTypes {
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
+  SequenceContinueReadingFragment: SequenceContinueReadingFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
   BookEdit: BookEdit
+  CollectionContinueReadingFragment: CollectionContinueReadingFragment
   CollectionsPageFragment: CollectionsPageFragment
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -3415,10 +3421,12 @@ interface CollectionNamesByFragmentName {
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
   SequencesPageFragment: "Sequences"
+  SequenceContinueReadingFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
   BookEdit: "Books"
+  CollectionContinueReadingFragment: "Collections"
   CollectionsPageFragment: "Collections"
   CollectionsEditFragment: "Collections"
   SuggestAlignmentPost: "Posts"

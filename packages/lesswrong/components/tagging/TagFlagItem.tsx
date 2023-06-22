@@ -92,7 +92,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     <LWPopper
       open={hover}
       anchorEl={anchorEl}
-      clickable={false}
       placement="bottom-start"
     >
         {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">

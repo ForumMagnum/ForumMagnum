@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
-import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
+import { classifyHost, useLocation, getUrlClass } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -76,9 +76,10 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, 
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || isServer)) {
+    const hostType = classifyHost(linkTargetAbsolute.host)
+    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs" || isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
-      const destinationUrl = parsedUrl.url;
+      const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.currentRoute) {
         const PreviewComponent: any = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
