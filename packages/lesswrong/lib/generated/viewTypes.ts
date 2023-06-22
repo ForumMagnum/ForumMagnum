@@ -39,6 +39,7 @@ type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVot
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type SessionsViewName = never
+type SideCommentsCachesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
@@ -93,6 +94,7 @@ interface ViewTermsByCollectionName {
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase
+  SideCommentsCaches: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
   TagFlags: TagFlagsViewTerms
