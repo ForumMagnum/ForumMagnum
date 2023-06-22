@@ -97,7 +97,7 @@ const PostsPageRecommendationItem = ({
   classes: ClassesType,
 }) => {
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
-  const {onClick} = useClickableCell(postLink);
+  const {onClick} = useClickableCell({href: postLink});
   const [observeRecommendation] = useMutation(
     observeRecommendationMutation,
     {errorPolicy: "all"},

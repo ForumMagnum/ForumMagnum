@@ -1,15 +1,17 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import moment from "moment";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToText } from "html-to-text";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
@@ -76,7 +78,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   body: {
-    cursor: "pointer",
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "-webkit-box",
@@ -101,6 +102,8 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
     commentId: quickTake._id,
   });
 
+  const {onClick} = useClickableCell({onClick: () => setExpanded(true)});
+
   const commentCount = quickTake.descendentCount ?? 0;
   const primaryTag = quickTake.relevantTags?.[0];
   const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
@@ -120,7 +123,10 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
     LWPopper, CommentsNode,
   } = Components;
   return (
-    <div className={classes.root}>
+    <div
+      onClick={onClick}
+      className={classes.root}
+    >
       <div className={classes.info}>
         <div className={classes.karma}>
           <KarmaDisplay document={quickTake} />
@@ -136,35 +142,33 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
           </LWTooltip>
         </div>
         {quickTake.relevantTags.length > 0 &&
-          <div className={classes.relevantTags}>
+          <InteractionWrapper className={classes.relevantTags}>
             {quickTake.relevantTags.map((tag) =>
               <FooterTag key={tag._id} tag={tag} smallText />
             )}
-          </div>
+          </InteractionWrapper>
         }
         <div className={classes.grow} />
-        <a href={commentsUrl} className={classes.commentCount}>
+        <InteractionWrapper href={commentsUrl} className={classes.commentCount}>
           <ForumIcon icon="Comment" />
           {commentCount}
-        </a>
+        </InteractionWrapper>
         <div>
-          <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu
-              className={classes.menu}
-              comment={quickTake}
-              post={quickTake.post ?? undefined}
-              tag={primaryTag}
-              icon={<ForumIcon icon="EllipsisVertical" />}
-              showEdit={setShowEdit}
-            />
-          </AnalyticsContext>
+          <InteractionWrapper>
+            <AnalyticsContext pageElementContext="tripleDotMenu">
+              <CommentsMenu
+                className={classes.menu}
+                comment={quickTake}
+                post={quickTake.post ?? undefined}
+                tag={primaryTag}
+                icon={<ForumIcon icon="EllipsisVertical" />}
+                showEdit={setShowEdit}
+              />
+            </AnalyticsContext>
+          </InteractionWrapper>
         </div>
       </div>
-      <div
-        {...eventHandlers}
-        onClick={() => setExpanded(true)}
-        className={classes.body}
-      >
+      <div {...eventHandlers} className={classes.body}>
         {htmlToText(quickTake.contents?.html ?? "", {
           selectors: [
             {selector: "a", options: {ignoreHref: true}},

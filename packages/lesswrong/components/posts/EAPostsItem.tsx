@@ -209,9 +209,8 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isRepeated,
     analyticsProps,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell(postLink);
+  const {onClick} = useClickableCell({href: postLink});
   const authorExpandContainer = useRef(null);
-  const currentUser = useCurrentUser();
 
   if (isRepeated) {
     return null;
