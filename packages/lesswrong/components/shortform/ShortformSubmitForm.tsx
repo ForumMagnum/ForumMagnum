@@ -4,6 +4,7 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
+import { none } from 'fp-ts/lib/Option';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,7 +28,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     color: theme.palette.grey[1000],
     margin: 20,
-    marginBottom: 0,
   },
   quickTakesRoot: {
     background: "transparent",
