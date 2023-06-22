@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
 import { styles as buttonStyles } from "../form-components/FormSubmit";
+import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
 import { useCreate } from "../../lib/crud/withCreate";
 import type { Editor as EditorType }  from "../editor/Editor";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
-import { styles as submitButtonStyles } from "../posts/PostSubmit";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
@@ -120,7 +120,9 @@ const QuickTakesEntry = ({
 
   const lastSubmittedAt = useRef(0);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = useCallback(async (ev?: MouseEvent) => {
+    ev?.preventDefault();
+
     // Prevent accidental double submits
     if (Date.now() - lastSubmittedAt.current < 1000) {
       return;
