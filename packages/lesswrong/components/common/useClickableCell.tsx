@@ -43,7 +43,7 @@ export const InteractionWrapper: FC<{
     if (href) {
       history.push(href);
     }
-  }, [href]);
+  }, [href, history]);
   return (
     <div onClick={onClick} className={className}>
       {children}
