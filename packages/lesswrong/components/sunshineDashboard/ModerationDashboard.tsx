@@ -138,6 +138,9 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50,
   });
 
+  if (!currentUser) {
+    return null;
+  }
   if (!userIsAdminOrMod(currentUser)) {
     return null;
   }

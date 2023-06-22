@@ -3,6 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_QUICK_TAKES_SECTION_COOKIE } from "../../lib/cookies/cookies";
+import { userCanComment } from "../../lib/vulcan-users";
 
 const styles = (_theme: ThemeType) => ({
   list: {
@@ -31,7 +32,7 @@ const QuickTakesSection = ({classes}: {
       afterTitleTo="/quicktakes"
       Content={() => (
         <>
-          {currentUser && <QuickTakesEntry currentUser={currentUser} />}
+          {userCanComment(currentUser) && <QuickTakesEntry currentUser={currentUser} />}
           <QuickTakesList className={classes.list} />
         </>
       )}

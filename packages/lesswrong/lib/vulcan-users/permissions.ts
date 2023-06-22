@@ -3,6 +3,7 @@ import moment from 'moment';
 import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
+import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 
 class Group {
   actions: Array<string>
@@ -31,10 +32,7 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
-export type PermissionableUser = UsersMinimumInfo & {
-  readonly groups: Array<string>
-  readonly banned: Date
-}
+export type PermissionableUser = UsersMinimumInfo & Pick<DbUser, "groups" | "banned" | "allCommentingDisabled" | "isAdmin" | "reviewedByUserId">
 
 // get a list of a user's groups
 export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
@@ -142,6 +140,22 @@ export const documentIsNotDeleted = (
   );
 }
 
+export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+  if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
+    return false;
+  }
+  return true;
+}
+
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
@@ -162,7 +176,7 @@ export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(use
 
 export const isAdmin = userIsAdmin;
 
-export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): user is Exclude<T, null> {
+export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): boolean {
   if (!user) return false;
   return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
 };

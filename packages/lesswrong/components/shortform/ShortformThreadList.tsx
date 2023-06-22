@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
+import { userCanComment } from '../../lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
@@ -33,7 +34,7 @@ const ShortformThreadList = ({ classes }: {
   return (
     <div>
       {isEAForum
-        ? <QuickTakesEntry currentUser={currentUser} />
+        ? (userCanComment(currentUser) && <QuickTakesEntry currentUser={currentUser} />)
         : <ShortformSubmitForm successCallback={refetch} />
       }
 
@@ -59,4 +60,3 @@ declare global {
     ShortformThreadList: typeof ShortformThreadListComponent
   }
 }
-

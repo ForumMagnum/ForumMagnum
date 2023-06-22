@@ -128,6 +128,9 @@ const RecentlyActiveUsers = ({ classes }: {
     enableTotal: true
   });
 
+  if (!currentUser) {
+    return null;
+  }
   if (!userIsAdminOrMod(currentUser)) {
     return null;
   }
