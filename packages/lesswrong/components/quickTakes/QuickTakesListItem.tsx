@@ -27,7 +27,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
       <div className={classes.expandedRoot}>
         <CommentsNode
           treeOptions={{
-            post: undefined, // This prevents the 'author' icon from showing
+            post: quickTake.post ?? undefined,
             showCollapseButtons: true,
             onToggleCollapsed: () => wrappedSetExpanded(!expanded),
           }}

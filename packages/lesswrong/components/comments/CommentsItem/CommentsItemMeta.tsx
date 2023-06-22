@@ -2,7 +2,7 @@ import React, { useState }  from "react";
 import classNames from "classnames";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, isLW } from "../../../lib/instanceSettings";
+import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink } from "./useCommentLink";
 import { Comments } from "../../../lib/collections/comments";
@@ -159,7 +159,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  
+
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
