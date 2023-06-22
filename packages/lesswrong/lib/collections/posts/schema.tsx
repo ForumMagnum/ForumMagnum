@@ -42,12 +42,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-const forumDefaultVotingSystem = forumSelect({
-  EAForum: "twoAxis",
-  LessWrong: "namesAttachedReactions",
-  AlignmentForum: "namesAttachedReactions",
-  default: "default",
-})
+function getDefaultVotingSystem() {
+  return forumSelect({
+    EAForum: "twoAxis",
+    LessWrong: "namesAttachedReactions",
+    AlignmentForum: "namesAttachedReactions",
+    default: "default",
+  })
+}
 
 export interface RSVPType {
   name: string
@@ -1060,8 +1062,10 @@ const schema: SchemaType<DbPost> = {
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
-    ...schemaDefaultValue(forumDefaultVotingSystem),
-  },  
+    defaultValue: "twoAxis",
+    onCreate: () => getDefaultVotingSystem(),
+  },
+
   myEditorAccess: resolverOnlyField({
     type: String,
     canRead: ['guests'],
