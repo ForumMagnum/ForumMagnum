@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip, { TooltipProps } from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
@@ -8,14 +8,32 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanVote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  voteBlock: {
+    width: 50,
+  },
+  voteBlockHorizontal: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   upvote: {
     marginBottom: -21
+  },
+  upvoteHorizontal: {
+    marginTop: -8
   },
   downvote: {
     marginTop: -28
   },
+  downvoteHorizontal: {
+    marginTop: -6
+  },
   voteScores: {
     margin:"15%",
+  },
+  voteScoresHorizontal: {
+    margin: '0 12px'
   },
   voteScore: {
     color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
@@ -33,9 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '35%',
     marginBottom: 2,
   },
-  voteBlock: {
-    width: 50,
-  },
   tooltip: {
     color: theme.palette.grey[500],
     fontSize: '1rem',
@@ -46,8 +61,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsVote = ({ post, classes }: {
+const PostsVote = ({ post, useHorizontalLayout, classes }: {
   post: PostsWithVotes,
+  useHorizontalLayout?: boolean, // if true, display the vote arrows to the left & right of the score
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
@@ -56,15 +72,20 @@ const PostsVote = ({ post, classes }: {
   
   const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
   const canVote = !fail;
+  
+  let tooltipPlacement: "left"|"right"|"top" = isEAForum ? "left" : "right"
+  if (useHorizontalLayout) {
+    tooltipPlacement = "top"
+  }
 
   return (
-      <div className={classes.voteBlock}>
+      <div className={classNames({[classes.voteBlock]: !useHorizontalLayout, [classes.voteBlockHorizontal]: useHorizontalLayout})}>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement={isEAForum ? "left" : "right"}
+          placement={tooltipPlacement}
           classes={{tooltip: classes.tooltip}}
         >
-          <div className={classes.upvote}>
+          <div className={classNames({[classes.upvote]: !useHorizontalLayout, [classes.upvoteHorizontal]: useHorizontalLayout})}>
             <OverallVoteButton
               orientation="up"
               color="secondary"
@@ -74,13 +95,13 @@ const PostsVote = ({ post, classes }: {
             />
           </div>
         </Tooltip>
-        <div className={classes.voteScores}>
+        <div className={classNames({[classes.voteScores]: !useHorizontalLayout, [classes.voteScoresHorizontal]: useHorizontalLayout})}>
           <Tooltip
             title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
-            placement={isEAForum ? "left" : "right"}
+            placement={tooltipPlacement}
             classes={{tooltip: classes.tooltip}}
           >
-            <div> 
+            <div>
               {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
               <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
             </div>
@@ -89,7 +110,7 @@ const PostsVote = ({ post, classes }: {
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip
               title="AI Alignment Forum karma"
-              placement={isEAForum ? "left" : "right"}
+              placement={tooltipPlacement}
               classes={{tooltip: classes.tooltip}}
             >
               <Typography
@@ -102,10 +123,10 @@ const PostsVote = ({ post, classes }: {
         </div>
         <Tooltip
           title={whyYouCantVote ?? "Click-and-hold for strong vote"}
-          placement={isEAForum ? "left" : "right"}
+          placement={tooltipPlacement}
           classes={{tooltip: classes.tooltip}}
         >
-          <div className={classes.downvote}>
+          <div className={classNames({[classes.downvote]: !useHorizontalLayout, [classes.downvoteHorizontal]: useHorizontalLayout})}>
             <OverallVoteButton
               orientation="down"
               color="error"

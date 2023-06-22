@@ -11,18 +11,46 @@ const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const styles = (theme: ThemeType): JssStyles => ({
   footerSection: {
     display: 'flex',
+    columnGap: 20,
     alignItems: 'center',
-    fontSize: '1.4em'
+    fontSize: '1.4em',
+    paddingTop: isEAForum ? 20 : undefined,
+    borderTop: isEAForum ? theme.palette.border.grey300 : undefined,
+    marginTop: isEAForum ? 20 : undefined,
+    marginBottom: isEAForum ? 20 : undefined
+  },
+  bookmarkButton: {
+    marginBottom: -5,
+    height: 22,
+    color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
+  actions: {
+    "&:hover": {
+      opacity: 0.5,
+    },
+    '& svg': {
+      color: 'inherit' // this is needed for the EAF version of the icon
+    },
   },
   voteBottom: {
+    flexGrow: isEAForum ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: isEAForum ? 24 : 40,
+    marginLeft: isEAForum ? undefined : 'auto',
+    marginRight: isEAForum ? undefined : 'auto',
+    marginBottom: isEAForum ? undefined : 40,
     "@media print": { display: "none" },
+  },
+  secondaryInfoRight: {
+    flex: 'none',
+    display: 'flex',
+    columnGap: 20,
+    color: theme.palette.text.dim3,
   },
   bottomNavigation: {
     width: 640,
@@ -44,7 +72,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList } = Components;
+  const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   
   return <>
@@ -59,9 +87,18 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} />
+            <PostsVote post={post} useHorizontalLayout={isEAForum} />
           </AnalyticsContext>
         </div>
+        {isEAForum && <div className={classes.secondaryInfoRight}>
+          <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+          <SharePostButton post={post} />
+          <span className={classes.actions}>
+            <AnalyticsContext pageElementContext="tripleDotMenu">
+              <PostActionsButton post={post} includeBookmark={!isEAForum} />
+            </AnalyticsContext>
+          </span>
+        </div>}
       </div>}
     {sequenceId && <div className={classes.bottomNavigation}>
       <AnalyticsContext pageSectionContext="bottomSequenceNavigation">

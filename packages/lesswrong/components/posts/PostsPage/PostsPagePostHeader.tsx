@@ -115,6 +115,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body1.fontSize,
   },
   feedName: {
+    fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
