@@ -90,7 +90,7 @@ export type IndexConfig = {
  * but to fall back to the "standard" analyzer which has no stemming for advanced
  * searches using quotes.
  */
-const fullTextMapping = {
+const fullTextMapping: MappingProperty = {
   type: "text",
   analyzer: "fm_synonym_analyzer",
   fields: {
@@ -99,7 +99,25 @@ const fullTextMapping = {
       analyzer: "standard",
     },
   },
-} as const;
+};
+
+/**
+ * The shingle text mapping is particularly suited to short text fields that
+ * often contain punctuation but not a lot of semantic meaning, such as
+ * usernames.
+ */
+const shingleTextMapping: MappingProperty = {
+  type: "text",
+  analyzer: "fm_shingle_analyzer",
+};
+
+/**
+ * Fields that should not be analyzed at all (ie; ids, slugs or enums) should
+ * use a keyword mapping.
+ */
+const keywordMapping: MappingProperty = {
+  type: "keyword",
+};
 
 const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   Comments: {
@@ -128,15 +146,16 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     mappings: {
       body: fullTextMapping,
       postTitle: fullTextMapping,
-      authorDisplayName: fullTextMapping,
-      authorSlug: {type: "keyword"},
-      postGroupId: {type: "keyword"},
-      postSlug: {type: "keyword"},
-      userId: {type: "keyword"},
-      tags: {type: "keyword"},
-      tagId: {type: "keyword"},
-      tagSlug: {type: "keyword"},
-      tagCommentType: {type: "keyword"},
+      authorDisplayName: shingleTextMapping,
+      authorUserName: shingleTextMapping,
+      authorSlug: shingleTextMapping,
+      postGroupId: keywordMapping,
+      postSlug: keywordMapping,
+      userId: keywordMapping,
+      tags: keywordMapping,
+      tagId: keywordMapping,
+      tagSlug: keywordMapping,
+      tagCommentType: keywordMapping,
     },
     privateFields: [
       "authorIsUnreviewed",
@@ -174,15 +193,15 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     ],
     mappings: {
       title: fullTextMapping,
-      authorDisplayName: fullTextMapping,
-      authorFullName: fullTextMapping,
+      authorDisplayName: shingleTextMapping,
+      authorFullName: shingleTextMapping,
+      authorSlug: shingleTextMapping,
       body: fullTextMapping,
-      authorSlug: {type: "keyword"},
-      feedLink: {type: "keyword"},
-      slug: {type: "keyword"},
-      tags: {type: "keyword"},
-      url: {type: "keyword"},
-      userId: {type: "keyword"},
+      feedLink: keywordMapping,
+      slug: keywordMapping,
+      tags: keywordMapping,
+      url: keywordMapping,
+      userId: keywordMapping,
     },
     privateFields: [
       "authorIsUnreviewed",
@@ -237,19 +256,19 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {deleteContent: false}},
     ],
     mappings: {
-      displayName: fullTextMapping,
+      displayName: shingleTextMapping,
       bio: fullTextMapping,
       mapLocationAddress: fullTextMapping,
       jobTitle: fullTextMapping,
       organization: fullTextMapping,
       howICanHelpOthers: fullTextMapping,
       howOthersCanHelpMe: fullTextMapping,
-      careerStage: {type: "keyword"},
-      groups: {type: "keyword"},
-      slug: {type: "keyword"},
-      website: {type: "keyword"},
-      profileImageId: {type: "keyword"},
-      tags: {type: "keyword"},
+      careerStage: keywordMapping,
+      groups: keywordMapping,
+      slug: shingleTextMapping,
+      website: keywordMapping,
+      profileImageId: keywordMapping,
+      tags: keywordMapping,
     },
     privateFields: [
       "deleteContent",
@@ -274,10 +293,10 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     mappings: {
       body: fullTextMapping,
       plaintextDescription: fullTextMapping,
-      authorDisplayName: fullTextMapping,
-      userId: {type: "keyword"},
-      authorSlug: {type: "keyword"},
-      bannerImageId: {type: "keyword"},
+      authorDisplayName: shingleTextMapping,
+      userId: keywordMapping,
+      authorSlug: shingleTextMapping,
+      bannerImageId: keywordMapping,
     },
     privateFields: [
       "draft",
@@ -313,9 +332,9 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     mappings: {
       name: fullTextMapping,
       description: fullTextMapping,
-      bannerImageId: {type: "keyword"},
-      parentTagId: {type: "keyword"},
-      slug: {type: "keyword"},
+      bannerImageId: keywordMapping,
+      parentTagId: keywordMapping,
+      slug: keywordMapping,
     },
     privateFields: [
       "deleted",

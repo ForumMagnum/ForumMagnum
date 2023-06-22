@@ -7,9 +7,31 @@ import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { pluralize } from './vulcan-lib';
 
 
 export const communityPath = '/community';
+
+const knownTagNames = ['tag', 'topic', 'concept']
+const useShortAllTagsPath = isEAForum;
+
+/**
+ * Get the path for the all tags page
+ */
+export const getAllTagsPath = () => {
+  return useShortAllTagsPath ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
+}
+
+/**
+ * Get all the paths that should redirect to the all tags page. This is all combinations of
+ * known tag names (e.g. 'topics', 'concepts') with and without `/all` at the end.
+ */
+export const getAllTagsRedirectPaths: () => string[] = () => {
+  const pathRoots = knownTagNames.map(tagName => `/${pluralize(tagName)}`)
+  const allPossiblePaths = pathRoots.map(root => [root, `${root}/all`])
+  const redirectPaths = ['/wiki', ...allPossiblePaths.flat().filter(path => path !== getAllTagsPath())]
+  return redirectPaths
+}
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -325,16 +347,6 @@ addRoute(
 
   // Tags redirects
   {
-    name: "TagsAll",
-    path:'/tags',
-    redirect: () => `/tags/all`,
-  },
-  {
-    name: "Concepts",
-    path:'/concepts',
-    redirect: () => `/tags/all`,
-  },
-  {
     name: 'tagVoting',
     path: '/tagVoting',
     redirect: () => `/tagActivity`,
@@ -369,17 +381,6 @@ if (taggingNameIsSet.get()) {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
-    },
-    {
-      name: 'tagsAllCustomName',
-      path: `/${taggingNamePluralSetting.get()}/all`,
-      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
-      title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
-    },
-    {
-      name: "tagsRedirectCustomName",
-      path:'/tags/all',
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`,
     },
     {
       name: 'tagDiscussionCustomName',
@@ -475,21 +476,10 @@ if (taggingNameIsSet.get()) {
       name: 'taggingDashboardCustomNameRedirect',
       path: '/tags/dashboard',
       redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
-    },
-    {
-      name: 'taggingAllCustomNameRedirect',
-      path: `/${taggingNamePluralSetting.get()}/`,
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`
-    },
+    }
   )
 } else {
   addRoute(
-    {
-      name: 'allTags',
-      path: '/tags/all',
-      componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
-      title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
-    },
     {
       name: 'tags.single',
       path: '/tag/:slug',
@@ -555,6 +545,24 @@ if (taggingNameIsSet.get()) {
     },
   )
 }
+
+// All tags page
+addRoute(
+  // The page itself
+  {
+    name: 'tagsAll',
+    path: getAllTagsPath(),
+    componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
+    title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
+  },
+  // And all the redirects to it
+  ...getAllTagsRedirectPaths().map((path, idx) => ({
+    name: `tagsAllRedirect${idx}`,
+    path,
+    redirect: () => getAllTagsPath(),
+  }))
+);
+
 
 onStartup(() => {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
@@ -689,11 +697,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
-    },
-    {
-      name: 'wikiTopisRedirect',
-      path: '/wiki',
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
     {
       name: 'subforum',
@@ -1347,6 +1350,12 @@ addRoute(
     path: '/admin/synonyms',
     componentName: 'AdminSynonymsPage',
     title: "Search Synonyms"
+  },
+  {
+    name: 'randomUser',
+    path: '/admin/random-user',
+    componentName: 'RandomUserPage',
+    title: "Random User",
   },
   {
     name: 'moderation',
