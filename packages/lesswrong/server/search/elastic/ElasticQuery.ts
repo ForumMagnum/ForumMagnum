@@ -118,6 +118,23 @@ class ElasticQuery {
     return terms.length ? terms : undefined;
   }
 
+  private getDefaultQuery(
+    search: string,
+    fields: string[],
+  ): QueryDslQueryContainer {
+    return {
+      multi_match: {
+        query: search,
+        fields,
+        fuzziness: this.fuzziness,
+        max_expansions: 10,
+        prefix_length: 3,
+        minimum_should_match: "50%",
+        operator: "or",
+      },
+    };
+  }
+
   private compileSimpleQuery(): QueryDslQueryContainer {
     const {fields} = this.config;
     const {search} = this.queryData;
@@ -132,17 +149,7 @@ class ElasticQuery {
               },
             },
           },
-          {
-            multi_match: {
-              query: search,
-              fields,
-              fuzziness: this.fuzziness,
-              max_expansions: 10,
-              prefix_length: 3,
-              minimum_should_match: "50%",
-              operator: "or",
-            },
-          },
+          this.getDefaultQuery(search, fields),
           {
             multi_match: {
               query: search,
@@ -199,17 +206,7 @@ class ElasticQuery {
         });
         break;
       case "should":
-        should.push({
-          multi_match: {
-            query: token,
-            fields,
-            fuzziness: this.fuzziness,
-            max_expansions: 10,
-            prefix_length: 3,
-            minimum_should_match: "75%",
-            operator: "and",
-          },
-        });
+        should.push(this.getDefaultQuery(token, fields));
         break;
       }
     }
